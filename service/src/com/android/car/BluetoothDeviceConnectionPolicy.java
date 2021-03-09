@@ -26,9 +26,8 @@ import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
-import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
-import android.car.hardware.power.PowerComponentUtil;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -65,13 +64,11 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarServicesHelper mCarHelper;
     private final UserManager mUserManager;
 
-    private final ICarPowerPolicyChangeListener mPowerPolicyChangeListener =
-            new ICarPowerPolicyChangeListener.Stub() {
+    private final ICarPowerPolicyListener mPowerPolicyListener =
+            new ICarPowerPolicyListener.Stub() {
                 @Override
                 public void onPolicyChanged(CarPowerPolicy policy) {
-                    // COMPONENT_STATE_UNTOUCHED is not the case in this callback.
-                    boolean isOn = PowerComponentUtil.getComponentState(policy,
-                            PowerComponent.BLUETOOTH) == PowerComponentUtil.COMPONENT_STATE_ENABLED;
+                    boolean isOn = policy.isComponentEnabled(PowerComponent.BLUETOOTH);
                     if (!mUserManager.isUserUnlocked(mUserId)) {
                         logd("User " + mUserId + " is locked, ignoring bluetooth power change "
                                 + (isOn ? "on" : "off"));
@@ -99,8 +96,8 @@ public class BluetoothDeviceConnectionPolicy {
     };
 
     @VisibleForTesting
-    public ICarPowerPolicyChangeListener getPowerPolicyChangeListener() {
-        return mPowerPolicyChangeListener;
+    public ICarPowerPolicyListener getPowerPolicyListener() {
+        return mPowerPolicyListener;
     }
 
     /**
@@ -303,7 +300,7 @@ public class BluetoothDeviceConnectionPolicy {
         if (cpms != null) {
             CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                     .setComponents(new int[]{PowerComponent.BLUETOOTH}).build();
-            cpms.registerPowerPolicyChangeListener(mPowerPolicyChangeListener, filter);
+            cpms.addPowerPolicyListener(filter, mPowerPolicyListener);
         } else {
             Slog.w(TAG, "Cannot find CarPowerManagementService");
         }
@@ -329,7 +326,7 @@ public class BluetoothDeviceConnectionPolicy {
         CarPowerManagementService cpms =
                 CarLocalServices.getService(CarPowerManagementService.class);
         if (cpms != null) {
-            cpms.unregisterPowerPolicyChangeListener(mPowerPolicyChangeListener);
+            cpms.removePowerPolicyListener(mPowerPolicyListener);
         }
         if (mBluetoothBroadcastReceiver != null) {
             mContext.unregisterReceiver(mBluetoothBroadcastReceiver);

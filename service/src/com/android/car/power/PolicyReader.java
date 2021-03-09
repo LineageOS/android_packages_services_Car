@@ -356,8 +356,8 @@ final class PolicyReader {
                     + SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
         }
         Set<Integer> visited = new ArraySet<>();
-        checkSystemPowerPolicyComponents(policyOverride.enabledComponents, visited);
-        checkSystemPowerPolicyComponents(policyOverride.disabledComponents, visited);
+        checkSystemPowerPolicyComponents(policyOverride.getEnabledComponents(), visited);
+        checkSystemPowerPolicyComponents(policyOverride.getDisabledComponents(), visited);
         return policyOverride;
     }
 
@@ -513,13 +513,15 @@ final class PolicyReader {
                 .collect(Collectors.toList());
         List<Integer> disabledComponents = Arrays.stream(SYSTEM_POLICY_DISABLED_COMPONENTS).boxed()
                 .collect(Collectors.toList());
-        for (int i = 0; i < policyOverride.enabledComponents.length; i++) {
-            removeComponent(disabledComponents, policyOverride.enabledComponents[i]);
-            addComponent(enabledComponents, policyOverride.enabledComponents[i]);
+        int[] overrideEnabledComponents = policyOverride.getEnabledComponents();
+        int[] overrideDisabledComponents = policyOverride.getDisabledComponents();
+        for (int i = 0; i < overrideEnabledComponents.length; i++) {
+            removeComponent(disabledComponents, overrideEnabledComponents[i]);
+            addComponent(enabledComponents, overrideEnabledComponents[i]);
         }
-        for (int i = 0; i < policyOverride.disabledComponents.length; i++) {
-            removeComponent(enabledComponents, policyOverride.disabledComponents[i]);
-            addComponent(disabledComponents, policyOverride.disabledComponents[i]);
+        for (int i = 0; i < overrideDisabledComponents.length; i++) {
+            removeComponent(enabledComponents, overrideDisabledComponents[i]);
+            addComponent(disabledComponents, overrideDisabledComponents[i]);
         }
         mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
                 new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
@@ -629,9 +631,9 @@ final class PolicyReader {
     }
 
     private String toString(CarPowerPolicy policy) {
-        return policy.policyId + "(enabledComponents: "
-                + componentsToString(policy.enabledComponents) + " | disabledComponents: "
-                + componentsToString(policy.disabledComponents) + ")";
+        return policy.getPolicyId() + "(enabledComponents: "
+                + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
+                + componentsToString(policy.getDisabledComponents()) + ")";
     }
 
     private String componentsToString(int[] components) {

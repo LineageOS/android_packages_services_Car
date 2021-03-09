@@ -34,7 +34,7 @@ import static org.testng.Assert.assertThrows;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.hardware.power.CarPowerPolicyFilter;
-import android.car.hardware.power.ICarPowerPolicyChangeListener;
+import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -401,10 +401,10 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mService.applyPowerPolicy(policyId);
 
         android.car.hardware.power.CarPowerPolicy policy = mService.getCurrentPowerPolicy();
-        assertThat(policy.policyId).isEqualTo(policyId);
+        assertThat(policy.getPolicyId()).isEqualTo(policyId);
         assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
         verify(mPowerComponentHandler).applyPowerPolicy(captor.capture());
-        assertThat(captor.getValue().policyId).isEqualTo(policyId);
+        assertThat(captor.getValue().getPolicyId()).isEqualTo(policyId);
     }
 
     @Test
@@ -425,13 +425,13 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     @Test
-    public void testRegisterPowerPolicyChangeListener() throws Exception {
+    public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyId = "policy_id_enable_audio_disable_wifi";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyChangeListener listenerAudio = new MockedPowerPolicyChangeListener();
-        MockedPowerPolicyChangeListener listenerWifi = new MockedPowerPolicyChangeListener();
-        MockedPowerPolicyChangeListener listenerLocation = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
         CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
@@ -439,26 +439,26 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.LOCATION}).build();
 
-        mService.registerPowerPolicyChangeListener(listenerAudio, filterAudio);
-        mService.registerPowerPolicyChangeListener(listenerWifi, filterWifi);
+        mService.addPowerPolicyListener(filterAudio, listenerAudio);
+        mService.addPowerPolicyListener(filterWifi, listenerWifi);
         mService.applyPowerPolicy(policyId);
 
-        assertThat(listenerAudio.getCurrentPowerPolicy().policyId).isEqualTo(policyId);
-        assertThat(listenerWifi.getCurrentPowerPolicy().policyId).isEqualTo(policyId);
+        assertThat(listenerAudio.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
+        assertThat(listenerWifi.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
         assertThat(listenerLocation.getCurrentPowerPolicy()).isNull();
     }
 
     @Test
-    public void testUnregisterPowerPolicyChangeListener() throws Exception {
+    public void testRemovePowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
         String policyId = "policy_id_enable_audio_disable_wifi";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyChangeListener listenerAudio = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
 
-        mService.registerPowerPolicyChangeListener(listenerAudio, filterAudio);
-        mService.unregisterPowerPolicyChangeListener(listenerAudio);
+        mService.addPowerPolicyListener(filterAudio, listenerAudio);
+        mService.removePowerPolicyListener(listenerAudio);
         mService.applyPowerPolicy(policyId);
 
         assertThat(listenerAudio.getCurrentPowerPolicy()).isNull();
@@ -788,7 +788,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         }
     }
 
-    private final class MockedPowerPolicyChangeListener extends ICarPowerPolicyChangeListener.Stub {
+    private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {
         private android.car.hardware.power.CarPowerPolicy mCurrentPowerPolicy;
 
         @Override

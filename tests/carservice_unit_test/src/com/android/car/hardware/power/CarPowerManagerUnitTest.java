@@ -232,7 +232,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         mCarPowerManager.applyPowerPolicy(policyId);
 
-        assertThat(mCarPowerManager.getCurrentPowerPolicy().policyId).isEqualTo(policyId);
+        assertThat(mCarPowerManager.getCurrentPowerPolicy().getPolicyId()).isEqualTo(policyId);
     }
 
     @Test
@@ -255,9 +255,9 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         grantPowerPolicyPermission();
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyChangeListener listenerAudio = new MockedPowerPolicyChangeListener();
-        MockedPowerPolicyChangeListener listenerWifi = new MockedPowerPolicyChangeListener();
-        MockedPowerPolicyChangeListener listenerLocation = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
         CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
@@ -265,9 +265,9 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.LOCATION}).build();
 
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listenerAudio, filterAudio);
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listenerWifi, filterWifi);
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listenerLocation, filterLocation);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterAudio, listenerAudio);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterWifi, listenerWifi);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterLocation, listenerLocation);
         mCarPowerManager.applyPowerPolicy(policyId);
 
         assertThat(listenerAudio.getCurrentPolicyId()).isEqualTo(policyId);
@@ -280,14 +280,14 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         grantPowerPolicyPermission();
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyChangeListener listener = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
         CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.LOCATION}).build();
 
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listener, filterAudio);
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listener, filterLocation);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterAudio, listener);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterLocation, listener);
         mCarPowerManager.applyPowerPolicy(policyId);
 
         assertThat(listener.getCurrentPolicyId()).isNull();
@@ -295,16 +295,16 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testAddPowerPolicyListener_nullListener() throws Exception {
-        MockedPowerPolicyChangeListener listener = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
 
         assertThrows(NullPointerException.class,
-                () -> mCarPowerManager.addPowerPolicyChangeListener(null, listener, filter));
+                () -> mCarPowerManager.addPowerPolicyListener(null, filter, listener));
         assertThrows(NullPointerException.class,
-                () -> mCarPowerManager.addPowerPolicyChangeListener(mExecutor, null, filter));
+                () -> mCarPowerManager.addPowerPolicyListener(mExecutor, filter, null));
         assertThrows(NullPointerException.class,
-                () -> mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listener, null));
+                () -> mCarPowerManager.addPowerPolicyListener(mExecutor, null, listener));
     }
 
     @Test
@@ -312,14 +312,14 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         grantPowerPolicyPermission();
         String policyId = "audio_on_wifi_off";
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
-        MockedPowerPolicyChangeListener listenerOne = new MockedPowerPolicyChangeListener();
-        MockedPowerPolicyChangeListener listenerTwo = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listenerOne = new MockedPowerPolicyListener();
+        MockedPowerPolicyListener listenerTwo = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
 
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listenerOne, filterAudio);
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listenerTwo, filterAudio);
-        mCarPowerManager.removePowerPolicyChangeListener(listenerOne);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterAudio, listenerOne);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filterAudio, listenerTwo);
+        mCarPowerManager.removePowerPolicyListener(listenerOne);
         mCarPowerManager.applyPowerPolicy(policyId);
 
         assertThat(listenerOne.getCurrentPolicyId()).isNull();
@@ -329,23 +329,23 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testRemovePowerPolicyListener_Twice() throws Exception {
         grantPowerPolicyPermission();
-        MockedPowerPolicyChangeListener listener = new MockedPowerPolicyChangeListener();
+        MockedPowerPolicyListener listener = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{PowerComponent.AUDIO}).build();
 
         // Remove unregistered listener should not throw an exception.
-        mCarPowerManager.removePowerPolicyChangeListener(listener);
+        mCarPowerManager.removePowerPolicyListener(listener);
 
-        mCarPowerManager.addPowerPolicyChangeListener(mExecutor, listener, filter);
-        mCarPowerManager.removePowerPolicyChangeListener(listener);
+        mCarPowerManager.addPowerPolicyListener(mExecutor, filter, listener);
+        mCarPowerManager.removePowerPolicyListener(listener);
         // Remove the same listener twice should nont throw an exception.
-        mCarPowerManager.removePowerPolicyChangeListener(listener);
+        mCarPowerManager.removePowerPolicyListener(listener);
     }
 
     @Test
     public void testRemovePowerPolicyListener_nullListener() throws Exception {
         assertThrows(NullPointerException.class,
-                () -> mCarPowerManager.removePowerPolicyChangeListener(null));
+                () -> mCarPowerManager.removePowerPolicyListener(null));
     }
 
     /**
@@ -562,8 +562,8 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         }
     }
 
-    private final class MockedPowerPolicyChangeListener implements
-            CarPowerManager.CarPowerPolicyChangeListener {
+    private final class MockedPowerPolicyListener implements
+            CarPowerManager.CarPowerPolicyListener {
         private static final int MAX_LISTENER_WAIT_TIME_SEC = 1;
 
         private final CountDownLatch mLatch = new CountDownLatch(1);
@@ -571,7 +571,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         @Override
         public void onPolicyChanged(@NonNull CarPowerPolicy policy) {
-            mCurrentPolicyId = policy.policyId;
+            mCurrentPolicyId = policy.getPolicyId();
             mLatch.countDown();
         }
 

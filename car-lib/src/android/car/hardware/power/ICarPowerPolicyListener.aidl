@@ -19,11 +19,11 @@ package android.car.hardware.power;
 import android.car.hardware.power.CarPowerPolicy;
 
 /**
- * Binder callback for CarPowerPolicyChangeListener.
+ * Binder callback for CarPowerPolicyListener.
  *
  * @hide
  */
-oneway interface ICarPowerPolicyChangeListener {
+oneway interface ICarPowerPolicyListener {
     /**
      * Called when a power policy change occurs.
      */

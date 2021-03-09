@@ -273,9 +273,9 @@ public final class PolicyReaderUnitTest {
 
     private static void assertPolicyIdentical(CarPowerPolicy first, CarPowerPolicy second)
             throws Exception {
-        assertThat(first.policyId).isEqualTo(second.policyId);
-        assertComponentsIdentical(first.enabledComponents, second.enabledComponents);
-        assertComponentsIdentical(first.disabledComponents, second.disabledComponents);
+        assertThat(first.getPolicyId()).isEqualTo(second.getPolicyId());
+        assertComponentsIdentical(first.getEnabledComponents(), second.getEnabledComponents());
+        assertComponentsIdentical(first.getDisabledComponents(), second.getDisabledComponents());
     }
 
     private static void assertComponentsIdentical(int[] first, int[] second) throws Exception {
