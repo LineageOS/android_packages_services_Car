@@ -15,6 +15,7 @@
  */
 
 #include "CarTelemetryImpl.h"
+#include "RingBuffer.h"
 
 #include <android-base/chrono_utils.h>
 #include <android-base/logging.h>
@@ -27,16 +28,21 @@
 
 using ::android::String16;
 using ::android::automotive::telemetry::CarTelemetryImpl;
+using ::android::automotive::telemetry::RingBuffer;
 
 constexpr const char kCarTelemetryServiceName[] =
         "android.frameworks.automotive.telemetry.ICarTelemetry/default";
+// Total CarData content size limit in the RingBuffer. 2MB max memory for buffer is good for now.
+const int kMaxBufferSizeKilobytes = 2048;
 
 // TODO(b/174608802): handle SIGQUIT/SIGTERM
 
 int main(void) {
     LOG(INFO) << "Starting cartelemetryd";
 
-    android::sp<CarTelemetryImpl> telemetry = new CarTelemetryImpl();
+    RingBuffer buffer(kMaxBufferSizeKilobytes * 1024);
+
+    android::sp<CarTelemetryImpl> telemetry = new CarTelemetryImpl(&buffer);
 
     // Wait for the service manager before starting ICarTelemetry service.
     while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
