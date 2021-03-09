@@ -140,6 +140,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private final int mKeyEventTimeoutMs;
     private AudioControlWrapper mAudioControlWrapper;
     private CarDucking mCarDucking;
+    private CarVolumeGroupMuting mCarVolumeGroupMuting;
     private HalAudioFocus mHalAudioFocus;
 
     private CarOccupantZoneService mOccupantZoneService;
@@ -345,6 +346,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             }
             if (mCarDucking != null) {
                 mCarDucking.dump(writer);
+            }
+            if (mCarVolumeGroupMuting != null) {
+                mCarVolumeGroupMuting.dump(writer);
             }
 
         }
@@ -568,6 +572,10 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
                 mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
             }
+        }
+
+        if (mUseCarVolumeGroupMuting) {
+            mCarVolumeGroupMuting = new CarVolumeGroupMuting(mCarAudioZones);
         }
 
         // Configure our AudioPolicy to handle focus events.
@@ -1173,14 +1181,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     public void setVolumeGroupMute(int zoneId, int groupId, boolean mute, int flags) {
         enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         requireDynamicRouting();
-        if (mUseCarVolumeGroupMuting) {
-            synchronized (mImplLock) {
-                CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
-                group.setMute(mute);
-                // TODO(175732501): Add AudioControl HAL mute communication
-                callbackGroupMuteChanged(zoneId, groupId, flags);
-            }
+        requireVolumeGroupMuting();
+        synchronized (mImplLock) {
+            CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
+            group.setMute(mute);
+            callbackGroupMuteChanged(zoneId, groupId, flags);
         }
+        mCarVolumeGroupMuting.carMuteChanged();
     }
 
     @Override
@@ -1200,6 +1207,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private void requireDynamicRouting() {
         Preconditions.checkState(mUseDynamicRouting, "Dynamic routing is required");
+    }
+
+    private void requireVolumeGroupMuting() {
+        Preconditions.checkState(mUseCarVolumeGroupMuting,
+                "Car Volume Group Muting is required");
     }
 
     private void requiredOccupantZoneMappingDisabledLocked() {
