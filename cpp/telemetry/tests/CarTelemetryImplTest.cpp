@@ -15,30 +15,85 @@
  */
 
 #include "CarTelemetryImpl.h"
+#include "RingBuffer.h"
 
 #include <android/frameworks/automotive/telemetry/CarData.h>
 #include <android/frameworks/automotive/telemetry/ICarTelemetry.h>
+#include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
-using android::frameworks::automotive::telemetry::CarData;
-using android::frameworks::automotive::telemetry::ICarTelemetry;
+#include <unistd.h>
+
+#include <memory>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
+namespace {
 
-TEST(CarTelemetryImplTest, TestWriteReturnsOk) {
-    CarTelemetryImpl telemetry;
+using android::frameworks::automotive::telemetry::CarData;
+using android::frameworks::automotive::telemetry::ICarTelemetry;
+using testing::ContainerEq;
 
+const size_t kMaxBufferSizeBytes = 1024;
+
+CarData buildCarData(int id, const std::vector<uint8_t>& content) {
     CarData msg;
-    msg.id = 101;
-    msg.content = {1, 0, 1, 0};
+    msg.id = id;
+    msg.content = content;
+    return msg;
+}
 
-    auto status = telemetry.write({msg});
+class CarTelemetryImplTest : public ::testing::Test {
+protected:
+    CarTelemetryImplTest() :
+          mBuffer(RingBuffer(kMaxBufferSizeBytes)),
+          mTelemetry(std::make_unique<CarTelemetryImpl>(&mBuffer)) {}
+
+    RingBuffer mBuffer;
+    std::unique_ptr<ICarTelemetry> mTelemetry;
+};
+
+TEST_F(CarTelemetryImplTest, TestWriteReturnsOkStatus) {
+    CarData msg = buildCarData(101, {1, 0, 1, 0});
+
+    auto status = mTelemetry->write({msg});
 
     EXPECT_TRUE(status.isOk()) << status;
 }
 
+TEST_F(CarTelemetryImplTest, TestWriteAddsCarDataToRingBuffer) {
+    CarData msg = buildCarData(101, {1, 0, 1, 0});
+
+    mTelemetry->write({msg});
+
+    std::vector<BufferedCarData> result = mBuffer.popAllDataForId(101);
+    std::vector<BufferedCarData> expected = {BufferedCarData(msg, getuid())};
+    EXPECT_THAT(result, ContainerEq(expected));
+}
+
+TEST_F(CarTelemetryImplTest, TestWriteBuffersOnlyLimitedAmount) {
+    RingBuffer buffer(15);  // bytes
+    CarTelemetryImpl telemetry(&buffer);
+
+    CarData msg101_2 = buildCarData(101, {1, 0});        // 2 bytes
+    CarData msg101_4 = buildCarData(101, {1, 0, 1, 0});  // 4 bytes
+    CarData msg201_3 = buildCarData(201, {3, 3, 3});     // 3 bytes
+
+    telemetry.write({msg101_2, msg101_4, msg101_4, msg201_3, msg201_3});
+
+    // Size without the first msg101_2, because ushing the last msg201_3 will force RingBuffer to
+    // drop the earliest msg101_2.
+    EXPECT_EQ(buffer.currentSizeBytes(), 14);
+    std::vector<BufferedCarData> result = buffer.popAllDataForId(101);
+    std::vector<BufferedCarData> expected = {BufferedCarData(msg101_4, getuid()),
+                                             BufferedCarData(msg101_4, getuid())};
+    EXPECT_THAT(result, ContainerEq(expected));
+    // Fetching 2x msg101_4 will decrease the size of the RingBuffer
+    EXPECT_EQ(buffer.currentSizeBytes(), 6);
+}
+
+}  // namespace
 }  // namespace telemetry
 }  // namespace automotive
 }  // namespace android

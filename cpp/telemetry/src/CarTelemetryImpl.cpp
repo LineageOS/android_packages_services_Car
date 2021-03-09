@@ -16,8 +16,15 @@
 
 #include "CarTelemetryImpl.h"
 
+#include "BufferedCarData.h"
+
 #include <android-base/logging.h>
 #include <android/frameworks/automotive/telemetry/CarData.h>
+#include <binder/IPCThreadState.h>
+
+#include <stdio.h>
+
+#include <memory>
 
 namespace android {
 namespace automotive {
@@ -26,12 +33,22 @@ namespace telemetry {
 using ::android::binder::Status;
 using ::android::frameworks::automotive::telemetry::CarData;
 
+CarTelemetryImpl::CarTelemetryImpl(RingBuffer* buffer) : mRingBuffer(buffer) {}
+
+// TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
 Status CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
-    LOG(INFO) << "write called";
+    uid_t uid = IPCThreadState::self()->getCallingUid();
+    // NOTE: CarData here will be coped to BufferedCarData, as we don't know what Binder will do
+    //       with the current allocated CarData.
+    for (auto& carData : dataList) {
+        mRingBuffer->push(BufferedCarData(carData, uid));
+    }
     return Status::ok();
 }
 
-status_t CarTelemetryImpl::dump(int fd, const Vector<String16>& args) {
+status_t CarTelemetryImpl::dump(int fd, const android::Vector<android::String16>& args) {
+    dprintf(fd, "CarTelemetryImpl:\n");
+    mRingBuffer->dump(fd, /* indent= */ 2);
     return android::OK;
 }
 }  // namespace telemetry
