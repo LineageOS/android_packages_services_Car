@@ -496,17 +496,45 @@ public class CarPropertyManager extends CarManagerBase {
 
     /**
      * Returns value of a bool property
+     *
      * <p> This method may take couple seconds to complete, so it needs to be called from an
      * non-main thread.
      *
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion} equal
+     * or later than {@link Build.VERSION_CODES#R} will receive the following exceptions when
+     * request is failed.
+     * <ul>
+     *     <li>{@link CarInternalErrorException}
+     *     <li>{@link PropertyAccessDeniedSecurityException}
+     *     <li>{@link PropertyNotAvailableAndRetryException}
+     *     <li>{@link PropertyNotAvailableException}
+     *     <li>{@link IllegalArgumentException}
+     * </ul>
+     * <p> Clients that declare a {@link android.content.pm.ApplicationInfo#targetSdkVersion}
+     * earlier than {@link Build.VERSION_CODES#R} will receive the following exceptions if the call
+     * fails.
+     * <ul>
+     *     <li>{@link IllegalStateException} when there is an error detected in cars.
+     *     <li>{@link IllegalArgumentException} when the property in the areaId is not supplied.
+     * </ul>
+     *
      * @param prop Property ID to get
      * @param area Area of the property to get
-     * @return value of a bool property.
+     *
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
+     * @return value of a bool property, {@code false} if can not get value from cars.
      */
     public boolean getBooleanProperty(int prop, int area) {
         checkSupportedProperty(prop);
         CarPropertyValue<Boolean> carProp = getProperty(Boolean.class, prop, area);
-        return carProp != null ? carProp.getValue() : false;
+        return handleNullAndPropertyStatus(carProp, area, false);
     }
 
     /**
@@ -515,43 +543,82 @@ public class CarPropertyManager extends CarManagerBase {
      * <p> This method may take couple seconds to complete, so it needs to be called from an
      * non-main thread.
      *
+     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     *
      * @param prop Property ID to get
      * @param area Area of the property to get
+     *
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
+     * @return value of a float property, 0 if can not get value from the cars.
      */
     public float getFloatProperty(int prop, int area) {
         checkSupportedProperty(prop);
         CarPropertyValue<Float> carProp = getProperty(Float.class, prop, area);
-        return carProp != null ? carProp.getValue() : 0f;
+        return handleNullAndPropertyStatus(carProp, area, 0f);
     }
 
     /**
-     * Returns value of a integer property
+     * Returns value of an integer property
      *
      * <p> This method may take couple seconds to complete, so it needs to be called form an
      * non-main thread.
+     *
+     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     *
      * @param prop Property ID to get
      * @param area Zone of the property to get
+     *
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
+     * @return value of an integer property, 0 if can not get the value from cars.
      */
     public int getIntProperty(int prop, int area) {
         checkSupportedProperty(prop);
         CarPropertyValue<Integer> carProp = getProperty(Integer.class, prop, area);
-        return carProp != null ? carProp.getValue() : 0;
+        return handleNullAndPropertyStatus(carProp, area, 0);
     }
 
     /**
-     * Returns value of a integer array property
+     * Returns value of an integer array property
      *
      * <p> This method may take couple seconds to complete, so it needs to be called from an
      * non-main thread.
      *
+     * <p> This method has the same exception behavior as {@link #getBooleanProperty(int, int)}.
+     *
      * @param prop Property ID to get
      * @param area Zone of the property to get
+     *
+     * @throws {@link CarInternalErrorException} when there is an error detected in cars.
+     * @throws {@link PropertyAccessDeniedSecurityException} when cars denied the access of the
+     * property.
+     * @throws {@link PropertyNotAvailableAndRetryException} when the property is temporarily
+     * not available and likely that retrying will be successful.
+     * @throws {@link PropertyNotAvailableException} when the property is temporarily not available.
+     * @throws {@link IllegalArgumentException} when the property in the areaId is not supplied.
+     *
+     * @return value of an integer array property, an empty integer array if can not get the value
+     * from cars.
      */
     @NonNull
     public int[] getIntArrayProperty(int prop, int area) {
         checkSupportedProperty(prop);
         CarPropertyValue<Integer[]> carProp = getProperty(Integer[].class, prop, area);
-        return carProp != null ? toIntArray(carProp.getValue()) : new int[0];
+        Integer[] res = handleNullAndPropertyStatus(carProp, area, new Integer[0]);
+        return toIntArray(res);
     }
 
     private static int[] toIntArray(Integer[] input) {
@@ -561,6 +628,30 @@ public class CarPropertyManager extends CarManagerBase {
             arr[i] = input[i];
         }
         return arr;
+    }
+
+    private <T> T handleNullAndPropertyStatus(CarPropertyValue<T> propertyValue, int areaId,
+            T defaultValue) {
+
+        if (propertyValue == null) {
+            return defaultValue;
+        }
+
+        // Keeps the same behavior as android R.
+        if (mAppTargetSdk < Build.VERSION_CODES.S) {
+            return propertyValue.getStatus() == CarPropertyValue.STATUS_AVAILABLE
+                    ? propertyValue.getValue() : defaultValue;
+        }
+
+        // throws new exceptions in android S.
+        switch (propertyValue.getStatus()) {
+            case CarPropertyValue.STATUS_ERROR:
+                throw new CarInternalErrorException(propertyValue.getPropertyId(), areaId);
+            case CarPropertyValue.STATUS_UNAVAILABLE:
+                throw new PropertyNotAvailableException(propertyValue.getPropertyId(), areaId);
+            default:
+                return propertyValue.getValue();
+        }
     }
 
     /**
