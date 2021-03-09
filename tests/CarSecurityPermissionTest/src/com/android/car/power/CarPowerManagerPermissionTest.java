@@ -120,7 +120,7 @@ public final class CarPowerManagerPermissionTest {
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
                 .setComponents(new int[]{ PowerComponent.AUDIO }).build();
         Exception e = expectThrows(SecurityException.class,
-                () -> mCarPowerManager.addPowerPolicyChangeListener(executor, (p) -> { }, filter));
+                () -> mCarPowerManager.addPowerPolicyListener(executor, filter, (p) -> { }));
 
         assertThat(e.getMessage()).contains(PERMISSION_READ_CAR_POWER_POLICY);
     }

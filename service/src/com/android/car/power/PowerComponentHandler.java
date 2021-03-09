@@ -97,14 +97,14 @@ public final class PowerComponentHandler {
     void applyPowerPolicy(CarPowerPolicy policy) {
         SparseBooleanArray forcedOffComponents = readComponentState();
         boolean componentModified = false;
-        int[] enabledComponents = policy.enabledComponents;
-        int[] disabledComponents = policy.disabledComponents;
-        for (int i = 0; i < policy.enabledComponents.length; i++) {
-            componentModified |= setComponentEnabledInternal(policy.enabledComponents[i], true,
+        int[] enabledComponents = policy.getEnabledComponents();
+        int[] disabledComponents = policy.getDisabledComponents();
+        for (int i = 0; i < enabledComponents.length; i++) {
+            componentModified |= setComponentEnabledInternal(enabledComponents[i], true,
                     forcedOffComponents);
         }
-        for (int i = 0; i < policy.disabledComponents.length; i++) {
-            componentModified |= setComponentEnabledInternal(policy.disabledComponents[i], false,
+        for (int i = 0; i < disabledComponents.length; i++) {
+            componentModified |= setComponentEnabledInternal(disabledComponents[i], false,
                     forcedOffComponents);
         }
         if (componentModified) {

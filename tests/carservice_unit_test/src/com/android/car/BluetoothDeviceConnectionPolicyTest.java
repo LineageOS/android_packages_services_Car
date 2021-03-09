@@ -212,7 +212,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         } else {
             policy = new CarPowerPolicy("bt_off", noComponents, bluetoothComponents);
         }
-        mPolicy.getPowerPolicyChangeListener().onPolicyChanged(policy);
+        mPolicy.getPowerPolicyListener().onPolicyChanged(policy);
     }
 
     private void sendSeatOnOccupied(int seat) {
