@@ -38,6 +38,7 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
             new ArrayList<>(
                 Arrays.asList(
                     "DISABLED_OPTIONAL_FEATURES",
+                    "EVS_SERVICE_REQUEST",
                     "HW_CUSTOM_INPUT",
                     "HW_ROTARY_INPUT",
                     "SUPPORT_CUSTOMIZE_VENDOR_PERMISSION"));
@@ -45,6 +46,7 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
             new ArrayList<>(
                 Arrays.asList(
                     /*DISABLED_OPTIONAL_FEATURES=*/286265094,
+                    /*EVS_SERVICE_REQUEST=*/289476368,
                     /*HW_CUSTOM_INPUT=*/289475120,
                     /*HW_ROTARY_INPUT=*/289475104,
                     /*SUPPORT_CUSTOMIZE_VENDOR_PERMISSION=*/287313669));

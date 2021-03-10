@@ -93,6 +93,7 @@ public final class CarFeatureController implements CarServiceBase {
             Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE,
+            Car.CAR_EVS_SERVICE,
             // All items below here are deprecated, but still could be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE
     ));

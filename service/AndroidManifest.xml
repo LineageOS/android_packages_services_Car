@@ -354,6 +354,21 @@
          android:label="@string/car_permission_label_driving_state"
          android:description="@string/car_permission_desc_driving_state"/>
 
+    <!-- Allows an application to use car's EVS service.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.USE_CAR_EVS_SERVICE"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_use_evs_service"
+                android:description="@string/car_permission_desc_use_evs_service"/>
+
+    <!-- Allows an application to monitor a current status of car's EVS service.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_monitor_evs_status"
+                android:description="@string/car_permission_desc_monitor_evs_status"/>
     <!--  may replace this with system permission if proper one is defined. -->
     <eat-comment/>
     <!-- Allows an application to block other applications for driver distraction purposes.
