@@ -32,22 +32,22 @@ interface IClusterHomeService {
      */
     void requestDisplay(int uiType) = 1;
     /**
-     * Start an activity to specified display / user. The activity is considered as
-     * in fixed mode for the display and will be re-launched if the activity crashes, the package
+     * Start an activity as specified user. The activity is considered as in fixed mode for
+     * the cluster display and will be re-launched if the activity crashes, the package
      * is updated or goes to background for whatever reason.
-     * Only one activity can exist in fixed mode for the target display and calling this multiple
+     * Only one activity can exist in fixed mode for the display and calling this multiple
      * times with different {@code Intent} will lead into making all previous activities into
      * non-fixed normal state (= will not be re-launched.)
      */
-    boolean startFixedActivityModeForDisplayAndUser(in Intent intent,
+    boolean startFixedActivityModeAsUser(in Intent intent,
             in Bundle activityOptionsBundle, int userId) = 2;
     /**
-     * The activity lauched on the display is no longer in fixed mode. Re-launching or finishing
-     * should not trigger re-launfhing any more. Note that Activity for non-current user will
-     * be auto-stopped and there is no need to call this for user swiching. Note that this does not
-     * stop the activity but it will not be re-launched any more.
+     * The activity launched on the cluster display is no longer in fixed mode. Re-launching or
+     * finishing should not trigger re-launching any more. Note that Activity for non-current user
+     * will be auto-stopped and there is no need to call this for user switching. Note that this
+     * does not stop the activity but it will not be re-launched any more.
      */
-    void stopFixedActivityMode(int displayId) = 3;
+    void stopFixedActivityMode() = 3;
     /** Registers a callback */
     void registerCallback(in IClusterHomeCallback callback) = 4;
     /** Unregisters a callback */
