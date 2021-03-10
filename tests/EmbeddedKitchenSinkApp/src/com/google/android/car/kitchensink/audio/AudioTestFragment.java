@@ -661,7 +661,7 @@ public class AudioTestFragment extends Fragment {
     }
 
     private void handleHwAudioSourceStart() {
-        if (mHwAudioSource != null) {
+        if (mHwAudioSource != null && !mHwAudioSource.isPlaying()) {
             mHwAudioSource.start();
         }
     }
