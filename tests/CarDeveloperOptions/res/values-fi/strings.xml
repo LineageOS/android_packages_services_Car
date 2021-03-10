@@ -180,7 +180,7 @@
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Tallennetut laitteet"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth käynnistetään parinmuodostusta varten."</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Yhteysasetukset"</string>
-    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Aiemmin liitetyt laitteet"</string>
+    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Aiemmin yhdistetyt laitteet"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Aiemmin liitetyt"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth käytössä"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"Näytä kaikki"</string>

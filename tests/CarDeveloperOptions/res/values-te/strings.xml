@@ -4413,7 +4413,7 @@
     <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"ఇన్‌యాక్టివ్ / డౌన్‌లోడ్ చేసిన SIM"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"సిమ్ పేరు"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"పేరు మార్చు"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIMను ఉపయోగించు"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIMను ఉపయోగించండి"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"ఆఫ్"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g>కు మారాలా?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"ఒకసారి ఒక డౌన్‌లోడ్ చేయబడిన SIMను మాత్రమే యాక్టివ్‌గా ఉంచగలరు.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g>కు మారడం వలన మీ <xliff:g id="CARRIER2">%2$s</xliff:g> సేవ రద్దు చేయబడదు."</string>

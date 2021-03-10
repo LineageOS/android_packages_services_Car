@@ -209,8 +209,8 @@
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Внесениот порт не е исправен."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Прелистувачот користи HTTP-прокси, но не може да го користат и другите апликации."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
-    <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Брзина на пренос при преземање (кбит/с):"</string>
-    <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Брзина на пренос при прикачување (кбит/с):"</string>
+    <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Брзина на пренос при преземање (kbps):"</string>
+    <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Брзина на пренос при прикачување (kbps):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Информации за локација на мобилен (застарено):"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"Конфигурација на физички канал на LTE:"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"Стапка на освежување на информациите за мобилниот:"</string>

@@ -4419,7 +4419,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"切換至<xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"清除 SIM 卡"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"是否清除此已下載 SIM 卡？"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"清除此 SIM 卡即會從此裝置中移除<xliff:g id="CARRIER_0">%1$s</xliff:g>服務。\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g>的服務將不會被取消。"</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"清除此 SIM 卡即會從此裝置中移除<xliff:g id="CARRIER_0">%1$s</xliff:g>服務。\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g>的服務將不會取消。"</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"清除"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"正在清除 SIM 卡…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"無法清除 SIM 卡"</string>

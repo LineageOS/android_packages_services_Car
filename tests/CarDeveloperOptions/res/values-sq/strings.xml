@@ -4417,7 +4417,7 @@
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Vetëm një kartë SIM e shkarkuar mund të jetë aktive në të njëjtën kohë.\n\nKalimi te <xliff:g id="CARRIER1">%1$s</xliff:g> nuk do ta anulojë shërbimin e <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Kalo te <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Spastro kartën SIM"</string>
-    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Dëshiron ta pastrosh këtë kartë SIM të shkarkuar?"</string>
+    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Të spastrohet kjo kartë SIM e shkarkuar?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Spastrimi i kësaj karte SIM e heq shërbimin e <xliff:g id="CARRIER_0">%1$s</xliff:g> nga kjo pajisje.\n\nShërbimi për <xliff:g id="CARRIER_1">%2$s</xliff:g> nuk do të anulohet."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Spastro"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Karta SIM po spastrohet…"</string>
