@@ -6,6 +6,9 @@ hal_client_domain(carservice_app, hal_audiocontrol)
 hal_client_domain(carservice_app, hal_health)
 hal_client_domain(carservice_app, hal_vehicle)
 
+# Allow Car Service to use EVS service
+hal_client_domain(carservice_app, hal_evs)
+
 # Allow to set boot.car_service_created property
 set_prop(carservice_app, system_prop)
 
