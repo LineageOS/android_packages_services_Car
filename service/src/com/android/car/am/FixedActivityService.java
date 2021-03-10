@@ -26,10 +26,8 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
-import android.app.IActivityTaskManager;
 import android.app.IProcessObserver;
 import android.app.Presentation;
 import android.app.TaskStackListener;
@@ -63,7 +61,6 @@ import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
 
@@ -132,7 +129,6 @@ public final class FixedActivityService implements CarServiceBase {
     private final Context mContext;
 
     private final IActivityManager mAm;
-    private final IActivityTaskManager mAtm;
 
     private final DisplayManager mDm;
 
@@ -218,46 +214,8 @@ public final class FixedActivityService implements CarServiceBase {
         public void onTaskRemovalStarted(int taskId) {
             launchIfNecessary();
         }
-
-        @Override
-        public void onTaskFocusChanged(int taskId, boolean focused) {
-            handleTaskFocusChanged(taskId, focused);
-        }
     };
 
-    @VisibleForTesting
-    void handleTaskFocusChanged(int taskId, boolean focused) {
-        if (DBG) Slog.d(TAG_AM, "handleTaskFocusChanged taskId=" + taskId + ", focused=" + focused);
-        if (!focused) {
-            return;  // We don't care the focus losing events.
-        }
-        synchronized (mLock) {
-            for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
-                RunningActivityInfo info = mRunningActivities.valueAt(i);
-                if (DBG) Slog.d(TAG_AM, "Checking " + info);
-                if (info.taskId == taskId) {
-                    moveFocusBackToDefaultDisplay(taskId);
-                    return;
-                }
-            }
-        }
-    }
-
-    private void moveFocusBackToDefaultDisplay(int taskId) {
-        try {
-            List<RootTaskInfo> tasks = mAtm.getAllRootTaskInfosOnDisplay(Display.DEFAULT_DISPLAY);
-            if (tasks.size() == 0) return;
-            RootTaskInfo topStack = tasks.get(0);
-            int topTaskIdInDefaultDisplay = topStack.childTaskIds[topStack.childTaskIds.length - 1];
-            if (DBG) {
-                Slog.d(TAG_AM, "FixedActivity #" + taskId + " got the focus, return back to #"
-                        + topTaskIdInDefaultDisplay);
-            }
-            mAtm.setFocusedTask(topTaskIdInDefaultDisplay);
-        } catch (RemoteException e) {
-            Slog.e(TAG_AM, "remote exception from ATM", e);
-        }
-    }
 
     private final IProcessObserver mProcessObserver = new IProcessObserver.Stub() {
         @Override
@@ -312,17 +270,14 @@ public final class FixedActivityService implements CarServiceBase {
     };
 
     public FixedActivityService(Context context) {
-        this(context, ActivityManager.getService(), ActivityTaskManager.getService(),
-                context.getSystemService(UserManager.class),
+        this(context, ActivityManager.getService(), context.getSystemService(UserManager.class),
                 context.getSystemService(DisplayManager.class));
     }
 
     FixedActivityService(Context context, IActivityManager activityManager,
-            IActivityTaskManager activityTaskManager,
             UserManager userManager, DisplayManager displayManager) {
         mContext = context;
         mAm = activityManager;
-        mAtm = activityTaskManager;
         mUm = userManager;
         mDm = displayManager;
         mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -503,15 +458,7 @@ public final class FixedActivityService implements CarServiceBase {
                 }
                 mRunningActivities.removeAt(i);
             }
-            int previousDisplayId = Display.INVALID_DISPLAY;
             for (RootTaskInfo taskInfo : infos) {
-                // In the current ATMS implementation which enumerates the display first, then
-                // enumerates the stack/task, so the tasks in the same display come consecutively.
-                if (taskInfo.displayId == previousDisplayId) {
-                    // 2nd+ tasks, skip it.
-                    continue;
-                }
-                previousDisplayId = taskInfo.displayId;
                 RunningActivityInfo activityInfo = mRunningActivities.get(taskInfo.displayId);
                 if (activityInfo == null) {
                     continue;
