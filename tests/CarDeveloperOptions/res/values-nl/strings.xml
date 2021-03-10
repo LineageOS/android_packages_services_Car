@@ -2934,7 +2934,7 @@
     <string name="restriction_settings_title" msgid="4143751894908963736">"Beperkingen"</string>
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Beperkingen verwijderen"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Pincode wijzigen"</string>
-    <string name="app_notifications_switch_label" msgid="670683308275498821">"Meldingen weergeven"</string>
+    <string name="app_notifications_switch_label" msgid="670683308275498821">"Meldingen tonen"</string>
     <string name="help_label" msgid="1296484776243905646">"Hulp en feedback"</string>
     <string name="support_summary" msgid="3278943815956130740">"Help-artikelen, bel- en chatsupport, aan de slag"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Account voor content"</string>
@@ -3323,7 +3323,7 @@
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Als werkprofiel is vergrendeld"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Content van alle meldingen weergeven"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Gevoelige content verbergen"</string>
-    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Helemaal geen meldingen weergeven"</string>
+    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Helemaal geen meldingen tonen"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Hoe moeten meldingen worden weergegeven wanneer je apparaat is vergrendeld?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"Meldingen"</string>
     <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"Content van alle werkmeldingen weergeven"</string>
@@ -3336,7 +3336,7 @@
     <string name="notification_group_title" msgid="6105337987437608590">"Groep meldingscategorieën"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"Gedrag"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"Geluid toestaan"</string>
-    <string name="notification_importance_blocked" msgid="446807935484629222">"Nooit meldingen weergeven"</string>
+    <string name="notification_importance_blocked" msgid="446807935484629222">"Nooit meldingen tonen"</string>
     <string name="notification_importance_min" msgid="4622854784474818944">"Stil weergeven en minimaliseren"</string>
     <string name="notification_importance_low" msgid="7609797151662295364">"Zonder geluid weergeven"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"Geluid laten horen"</string>
@@ -3355,7 +3355,7 @@
     <string name="notification_channel_summary_low" msgid="7753266237705850510">"Gemiddeld belang"</string>
     <string name="notification_channel_summary_default" msgid="7529537115678964164">"Groot belang"</string>
     <string name="notification_channel_summary_high" msgid="8145287829836059819">"Urgent belang"</string>
-    <string name="notification_switch_label" msgid="8127781780859504064">"Meldingen weergeven"</string>
+    <string name="notification_switch_label" msgid="8127781780859504064">"Meldingen tonen"</string>
     <string name="default_notification_assistant" msgid="6526952155788472774">"Meldingsassistent"</string>
     <string name="notifications_sent_daily" msgid="6874886521964822824">"~<xliff:g id="NUMBER">%1$s</xliff:g> per dag"</string>
     <string name="notifications_sent_weekly" msgid="5859675428990259432">"~<xliff:g id="NUMBER">%1$s</xliff:g> per week"</string>
@@ -3418,10 +3418,10 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"Uit"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Alles blokkeren"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Deze meldingen nooit weergeven"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"Meldingen weergeven"</string>
-    <string name="notification_content_block_summary" msgid="2743896875255591743">"Nooit meldingen weergeven in het meldingenpaneel of op randapparaten"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"Meldingen tonen"</string>
+    <string name="notification_content_block_summary" msgid="2743896875255591743">"Nooit meldingen tonen in het meldingenpaneel of op randapparaten"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Meldingsstipje toestaan"</string>
-    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Meldingsstipje weergeven"</string>
+    <string name="notification_channel_badge_title" msgid="8228215248332054612">"Meldingsstipje tonen"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'Niet storen\' negeren"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Deze meldingen nog steeds ontvangen, ook wanneer \'Niet storen\' is ingeschakeld"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Op vergrendelscherm"</string>

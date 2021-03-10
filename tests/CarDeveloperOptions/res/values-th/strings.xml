@@ -2690,7 +2690,7 @@
     <string name="data_usage_tab_3g" msgid="4262659656028408064">"2G-3G"</string>
     <string name="data_usage_list_mobile" msgid="5623011459774885900">"มือถือ"</string>
     <string name="data_usage_list_none" msgid="5948870220795490796">"ไม่มี"</string>
-    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"เน็ตมือถือ"</string>
+    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"อินเทอร์เน็ตมือถือ"</string>
     <string name="data_usage_enable_3g" msgid="3725838726334043367">"ข้อมูล 2G-3G"</string>
     <string name="data_usage_enable_4g" msgid="8872517106293561179">"ข้อมูล 4G"</string>
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"โรมมิ่ง"</string>

@@ -4413,8 +4413,8 @@
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Аталышын өзгөртүү"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM картаны колдонуу"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Өчүк"</string>
-    <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> операторуна которулсунбу?"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Бир учурда бир гана жүктөлүп алынган SIM карта активдүү болушу керек.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> операторуна которулсаңыз, <xliff:g id="CARRIER2">%2$s</xliff:g> кызматыңыз жокко чыгарылбайт."</string>
+    <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> операторуна которуласызбы?"</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Жүктөлүп алынган бир гана SIM карта колдонулушу керек.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> операторуна которулсаңыз, <xliff:g id="CARRIER2">%2$s</xliff:g> байланыш операторундагы тарифтик планыңыз өзгөрбөйт."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> операторуна которулуу"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM картаны тазалоо"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Бул жүктөлүп алынган SIM карта тазалансынбы?"</string>
