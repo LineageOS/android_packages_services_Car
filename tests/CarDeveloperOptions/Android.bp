@@ -49,7 +49,10 @@ android_app {
     certificate: "platform",
     system_ext_specific: true,
     privileged: true,
-    required: ["privapp_whitelist_com.android.car.developeroptions"],
+    required: [
+        "icu4j-platform-compat-config",
+        "privapp_whitelist_com.android.car.developeroptions",
+    ],
     srcs: ["src/**/*.java"],
     static_libs: [
         "androidx-constraintlayout_constraintlayout",
