@@ -18,7 +18,6 @@ package com.android.car.developeroptions.security;
 
 import android.content.Context;
 import android.os.UserManager;
-import android.security.KeyStore;
 
 import androidx.preference.Preference;
 
@@ -28,11 +27,9 @@ public class CredentialStoragePreferenceController extends
         RestrictedEncryptionPreferenceController {
 
     private static final String KEY_CREDENTIAL_STORAGE_TYPE = "credential_storage_type";
-    private final KeyStore mKeyStore;
 
     public CredentialStoragePreferenceController(Context context) {
         super(context, UserManager.DISALLOW_CONFIG_CREDENTIALS);
-        mKeyStore = KeyStore.getInstance();
     }
 
     @Override
@@ -42,8 +39,6 @@ public class CredentialStoragePreferenceController extends
 
     @Override
     public void updateState(Preference preference) {
-        preference.setSummary(mKeyStore.isHardwareBacked()
-                ? R.string.credential_storage_type_hardware
-                : R.string.credential_storage_type_software);
+        preference.setSummary(R.string.credential_storage_type_hardware);
     }
 }
