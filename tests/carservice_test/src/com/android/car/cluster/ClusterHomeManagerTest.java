@@ -23,11 +23,16 @@ import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.doNothing;
+import static org.mockito.Mockito.doReturn;
 import static org.testng.Assert.assertThrows;
 
+import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
+import android.content.ComponentName;
+import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
@@ -39,13 +44,18 @@ import android.util.SparseArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
+import com.android.car.CarLocalServices;
 import com.android.car.MockedCarTestBase;
+import com.android.car.am.FixedActivityService;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal;
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.TestName;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
@@ -65,6 +75,8 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private static final int INSET_RIGHT = 780;
     private static final int INSET_BOTTOM = 590;
 
+    // We use DEFAULT_DISPLAY for Cluster testing.
+    private static final int CLUSTER_DISPLAY_ID = Display.DEFAULT_DISPLAY;
     private static final String[] ENABLED_OPTIONAL_FEATURES = {
             Car.CLUSTER_HOME_SERVICE
     };
@@ -78,6 +90,12 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private ClusterState mState;
     private int mChanges = 0;
     private byte[] mNavigationState;
+
+    private FixedActivityService mFixedActivityService;
+    @Captor private ArgumentCaptor<Intent> mIntentCaptor;
+    @Captor private ArgumentCaptor<ActivityOptions> mActivityOptionsCaptor;
+    @Captor private ArgumentCaptor<Integer> mDisplayIdCaptor;
+    @Captor private ArgumentCaptor<Integer> mUserIdCaptor;
 
     @Rule
     public final TestName mTestName = new TestName();
@@ -111,7 +129,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         super.configureResourceOverrides(resources);
         StringBuilder occupantDisplayMapping = new StringBuilder();
         occupantDisplayMapping.append("displayPort=");
-        occupantDisplayMapping.append(getDefaultDisplayPort());
+        occupantDisplayMapping.append(getClusterDisplayPort());
         occupantDisplayMapping.append(",displayType=INSTRUMENT_CLUSTER,occupantZoneId=0");
         resources.overrideResource(com.android.car.R.array.config_occupant_display_mapping,
                 new String[] {occupantDisplayMapping.toString()});
@@ -119,9 +137,9 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
                 ENABLED_OPTIONAL_FEATURES);
     }
 
-    private int getDefaultDisplayPort() {
+    private int getClusterDisplayPort() {
         DisplayManager displayManager = getTestContext().getSystemService(DisplayManager.class);
-        Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
+        Display defaultDisplay = displayManager.getDisplay(CLUSTER_DISPLAY_ID);
         DisplayAddress address = (DisplayAddress.Physical) defaultDisplay.getAddress();
         if (!(address instanceof DisplayAddress.Physical)) {
             throw new IllegalStateException("Default display is not a physical display");
@@ -138,6 +156,16 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
             mClusterHomeManager.registerClusterHomeCallback(
                     getContext().getMainExecutor(), mClusterHomeCallback);
         }
+    }
+
+    @Override
+    protected synchronized void spyOnBeforeCarImplInit() {
+        mFixedActivityService = CarLocalServices.getService(FixedActivityService.class);
+        ExtendedMockito.spyOn(mFixedActivityService);
+
+        doReturn(true).when(mFixedActivityService).startFixedActivityModeForDisplayAndUser(
+                mIntentCaptor.capture(), mActivityOptionsCaptor.capture(),
+                mDisplayIdCaptor.capture(), mUserIdCaptor.capture());
     }
 
     @Override
@@ -218,6 +246,32 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
                         getContext().getMainExecutor(), mClusterHomeCallback));
         assertThrows(IllegalStateException.class,
                 () -> mClusterHomeManager.unregisterClusterHomeCallback(mClusterHomeCallback));
+    }
+
+    @Test
+    public void testStartFixedActivityModeAsUser() {
+        ComponentName testActivity = ComponentName.createRelative("testPkg", "testActivity");
+        Intent intent = Intent.makeMainActivity(testActivity);
+        ActivityOptions activityOptions = ActivityOptions.makeBasic();
+        int userId = 99;
+
+        assertThat(mClusterHomeManager.startFixedActivityModeAsUser(
+                intent, activityOptions.toBundle(), userId)).isTrue();
+
+        assertThat(mIntentCaptor.getValue().getComponent()).isEqualTo(testActivity);
+        assertThat(mActivityOptionsCaptor.getValue().getLaunchDisplayId())
+                .isEqualTo(CLUSTER_DISPLAY_ID);
+        assertThat(mDisplayIdCaptor.getValue()).isEqualTo(CLUSTER_DISPLAY_ID);
+        assertThat(mUserIdCaptor.getValue()).isEqualTo(userId);
+    }
+
+    @Test
+    public void testStopFixedActivityMode() {
+        doNothing().when(mFixedActivityService).stopFixedActivityMode(mDisplayIdCaptor.capture());
+
+        mClusterHomeManager.stopFixedActivityMode();
+
+        assertThat(mDisplayIdCaptor.getValue()).isEqualTo(CLUSTER_DISPLAY_ID);
     }
 
     private class ClusterPropertyHandler implements MockedVehicleHal.VehicleHalPropertyHandler {

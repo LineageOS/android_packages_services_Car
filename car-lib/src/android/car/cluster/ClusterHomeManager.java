@@ -22,6 +22,8 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.content.Intent;
+import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
@@ -217,6 +219,44 @@ public class ClusterHomeManager extends CarManagerBase {
             handleRemoteExceptionFromCarService(e);
         }
         return state;
+    }
+
+    /**
+     * Start an activity as specified user. The activity is considered as in fixed mode for
+     * the cluster display and will be re-launched if the activity crashes, the package
+     * is updated or goes to background for whatever reason.
+     * Only one activity can exist in fixed mode for the display and calling this multiple
+     * times with different {@code Intent} will lead into making all previous activities into
+     * non-fixed normal state (= will not be re-launched.)
+     * @param intent the Intent to start
+     * @param options additional options for how the Activity should be started
+     * @param userId the user the new activity should run as
+     * @return true if it launches the given Intent as FixedActivity successfully
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public boolean startFixedActivityModeAsUser(
+            Intent intent, @Nullable Bundle options, int userId) {
+        try {
+            return mService.startFixedActivityModeAsUser(intent, options, userId);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return false;
+    }
+
+    /**
+     * The activity launched on the cluster display is no longer in fixed mode. Re-launching or
+     * finishing should not trigger re-launching any more. Note that Activity for non-current user
+     * will be auto-stopped and there is no need to call this for user switching. Note that this
+     * does not stop the activity but it will not be re-launched any more.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL)
+    public void stopFixedActivityMode() {
+        try {
+            mService.stopFixedActivityMode();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     @Override
