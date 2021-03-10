@@ -786,6 +786,7 @@ package android.car.hardware.power {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void clearListener();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public int getPowerState();
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_POWER) public void setListener(@Nullable android.car.hardware.power.CarPowerManager.CarPowerStateListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_POWER_POLICY) public void setPowerPolicyGroup(@NonNull String);
   }
 
   public static interface CarPowerManager.CarPowerStateListener {

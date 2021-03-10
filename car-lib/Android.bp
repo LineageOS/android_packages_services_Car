@@ -23,7 +23,7 @@ filegroup {
         "src/android/car/hardware/power/CarPowerPolicy.aidl",
         "src/android/car/hardware/power/CarPowerPolicyFilter.aidl",
         "src/android/car/hardware/power/ICarPower.aidl",
-        "src/android/car/hardware/power/ICarPowerPolicyChangeListener.aidl",
+        "src/android/car/hardware/power/ICarPowerPolicyListener.aidl",
         "src/android/car/hardware/power/ICarPowerStateListener.aidl",
     ],
     path: "src",
