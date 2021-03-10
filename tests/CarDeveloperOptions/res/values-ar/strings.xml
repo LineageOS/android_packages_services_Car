@@ -4719,14 +4719,14 @@
     <string name="mobile_network_list_add_more" msgid="65420172175416318">"إضافة المزيد"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"مفعّلة / SIM"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"غير مفعّلة / SIM"</string>
-    <string name="mobile_network_active_esim" msgid="2919290915755581140">"مفعّلة / شريحة SIM التي تم تنزيلها"</string>
-    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"غير مفعّلة / شريحة SIM التي تم تنزيلها"</string>
+    <string name="mobile_network_active_esim" msgid="2919290915755581140">"مفعّلة / شريحة SIM تم تنزيلها"</string>
+    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"غير مفعّلة / شريحة SIM تم تنزيلها"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"اسم شريحة SIM"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"إعادة تسمية"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"استخدام شريحة SIM"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"غير مفعّل"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"هل تريد التبديل إلى <xliff:g id="CARRIER">%1$s</xliff:g>؟"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"لا يمكن تفعيل أكثر من شريحة SIM واحدة تم تنزيلها في آن واحد.\n\nلن يؤدي اختيار <xliff:g id="CARRIER1">%1$s</xliff:g> كبديل إلى إلغاء خدمة <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"لا يمكن تفعيل أكثر من شريحة SIM واحدة تم تنزيلها.\n\nلن يؤدي اختيار <xliff:g id="CARRIER1">%1$s</xliff:g> كبديل إلى إلغاء خدمة <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"التبديل إلى <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"محو بيانات شريحة SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"هل تريد محو بيانات شريحة SIM التي تم تنزيلها هذه؟"</string>
