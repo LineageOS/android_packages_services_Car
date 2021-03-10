@@ -302,6 +302,7 @@ final class CarShellCommand extends ShellCommand {
     private final GarageModeService mGarageModeService;
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
+    private long mKeyDownTime;
 
     CarShellCommand(Context context,
             VehicleHal hal,
@@ -949,7 +950,11 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void injectKeyEvent(int action, int keyCode, int display) {
-        mCarInputService.onKeyEvent(new KeyEvent(action, keyCode), display);
+        long currentTime = SystemClock.uptimeMillis();
+        if (action == KeyEvent.ACTION_DOWN) mKeyDownTime = currentTime;
+        mCarInputService.onKeyEvent(
+                new KeyEvent(/* downTime= */ mKeyDownTime, /* eventTime= */ currentTime,
+                        action, keyCode, /* repeat= */ 0), display);
     }
 
     private void injectRotary(String[] args, IndentingPrintWriter writer) {
