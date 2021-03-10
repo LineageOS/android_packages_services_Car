@@ -20,7 +20,9 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.evs.CarEvsManager;
+import android.car.evs.CarEvsManager.CarEvsError;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
+import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsService;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
@@ -54,7 +56,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     private static final String TAG = CarEvsService.class.getSimpleName();
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
-
     private final Context mContext;
 
     // TODO(b/178741919): Considers using ArrayList with a lock instead of RemoteCallbackList
@@ -132,7 +133,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public int requestToStartService(int type) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
 
-        return CarEvsManager.STATUS_ERROR_UNAVAILABLE;
+        return CarEvsManager.ERROR_UNAVAILABLE;
     }
 
     /**
@@ -144,7 +145,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public int requestToStopService() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
 
-        return CarEvsManager.STATUS_ERROR_UNAVAILABLE;
+        return CarEvsManager.ERROR_UNAVAILABLE;
     }
 
     /**
@@ -155,10 +156,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      * @param type {@link android.car.evs.CarEvsManager#CarEvsServiceType}
      * @param privileged Boolean flag to tell whether or not the caller is a privileged client.
      * @param callback {@link ICarEvsStreamCallback} listener to register.
-     * @return {@link android.car.evs.CarEvsManager.CarEvsStatus}
+     * @return {@link android.car.evs.CarEvsManager.CarEvsError}
      */
     @Override
-    public int startVideoStream(@CarEvsServiceType int type, @Nullable IBinder token,
+    public @CarEvsError int startVideoStream(@CarEvsServiceType int type, @Nullable IBinder token,
             @NonNull ICarEvsStreamCallback callback) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
         Objects.requireNonNull(callback);
@@ -167,7 +168,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         //                    with a given session token.
 
         Slog.e(TAG, "Not implemented yet.");
-        return CarEvsManager.STATUS_ERROR_UNAVAILABLE;
+        return CarEvsManager.ERROR_UNAVAILABLE;
     }
 
     /**
@@ -205,13 +206,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      * <p>Requires {@link android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS} permissions to
      * access.
      *
-     * @return {@link android.car.evs.CarEvsManager.CarEvsServiceStatus}
+     * @return {@link android.car.evs.CarEvsStatus}
      */
     @Override
-    public int getCurrentStatus() {
+    @Nullable
+    public CarEvsStatus getCurrentStatus() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
 
-        return CarEvsManager.SERVICE_STATUS_UNAVAILABLE;
+        return null;
     }
 
     // TODO(b/157082995): Replaces below method with what PackageManager provides.

@@ -95,35 +95,35 @@ public final class CarEvsManager extends CarManagerBase {
     public @interface CarEvsServiceType {}
 
     /**
-     * Status to indicate that a corresponding service type is not available.
+     * State that a corresponding service type is not available.
      */
-    public static final int SERVICE_STATUS_UNAVAILABLE = 0;
+    public static final int SERVICE_STATE_UNAVAILABLE = 0;
 
     /**
-     * Status to indicate that a corresponding service type is inactive; it's available but not used
+     * State that a corresponding service type is inactive; it's available but not used
      * by any clients.
      */
-    public static final int SERVICE_STATUS_INACTIVE = 1;
+    public static final int SERVICE_STATE_INACTIVE = 1;
 
     /**
-     * Status to indicate that CarEvsManager received a service request from the client.
+     * State that CarEvsManager received a service request from the client.
      */
-    public static final int SERVICE_STATUS_REQUESTED = 2;
+    public static final int SERVICE_STATE_REQUESTED = 2;
 
     /**
-     * Status to indicate that a corresponding service type is actively being used.
+     * State that a corresponding service type is actively being used.
      */
-    public static final int SERVICE_STATUS_ACTIVE = 3;
+    public static final int SERVICE_STATE_ACTIVE = 3;
 
     /** @hide */
-    @IntDef (prefix = {"SERVICE_STATUS_"}, value = {
-            SERVICE_STATUS_UNAVAILABLE,
-            SERVICE_STATUS_INACTIVE,
-            SERVICE_STATUS_REQUESTED,
-            SERVICE_STATUS_ACTIVE
+    @IntDef (prefix = {"SERVICE_STATE_"}, value = {
+            SERVICE_STATE_UNAVAILABLE,
+            SERVICE_STATE_INACTIVE,
+            SERVICE_STATE_REQUESTED,
+            SERVICE_STATE_ACTIVE
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface CarEvsServiceStatus {}
+    public @interface CarEvsServiceState {}
 
     /**
      * This is a default EVS stream event type.
@@ -182,26 +182,26 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * Status to tell that a request is successfully processed.
      */
-    public static final int STATUS_SUCCESS = 0;
+    public static final int ERROR_NONE = 0;
 
     /**
      * Status to tell a requested service is not available.
      */
-    public static final int STATUS_ERROR_UNAVAILABLE = -1;
+    public static final int ERROR_UNAVAILABLE = -1;
 
     /**
      * Status to tell CarEvsService is busy to serve the privileged client.
      */
-    public static final int STATUS_ERROR_BUSY = -2;
+    public static final int ERROR_BUSY = -2;
 
     /** @hide */
-    @IntDef(prefix = {"STATUS_"}, value = {
-        STATUS_SUCCESS,
-        STATUS_ERROR_UNAVAILABLE,
-        STATUS_ERROR_BUSY
+    @IntDef(prefix = {"ERROR_"}, value = {
+        ERROR_NONE,
+        ERROR_UNAVAILABLE,
+        ERROR_BUSY
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface CarEvsStatus {}
+    public @interface CarEvsError {}
 
     /**
      * Gets an instance of CarEvsManager
@@ -243,9 +243,9 @@ public final class CarEvsManager extends CarManagerBase {
          * Called when the status of EVS service is changed.
          *
          * @param type A type of EVS service; e.g. the rearview.
-         * @param status Updated service status; e.g. the service is started.
+         * @param state Updated service state; e.g. the service is started.
          */
-        void onStatusChanged(@CarEvsServiceType int type, @CarEvsServiceStatus int status);
+        void onStatusChanged(@NonNull CarEvsStatus status);
     }
 
     /**
@@ -260,26 +260,26 @@ public final class CarEvsManager extends CarManagerBase {
         }
 
         @Override
-        public void onStatusChanged(
-                @CarEvsServiceType int type, @CarEvsServiceStatus int status) {
+        public void onStatusChanged(@NonNull CarEvsStatus status) {
+            Objects.requireNonNull(status);
+
             CarEvsManager mgr = mManager.get();
             if (mgr != null) {
-                mgr.handleServiceStatusChanged(type, status);
+                mgr.handleServiceStatusChanged(status);
             }
         }
     }
 
     /**
-     * Gets the {@link #CarEvsServiceStatus} from the service listener {@link
+     * Gets the {@link #CarEvsStatus} from the service listener {@link
      * #CarEvsStatusListenerToService} and forwards it to the client.
      *
-     * @param type {@link #CarEvsServiceType}
-     * @param status {@link #CarEvsServicestatus}
+     * @param status {@link android.car.evs.CarEvsStatus}
      */
-    private void handleServiceStatusChanged(
-            @CarEvsServiceType int type, @CarEvsServiceStatus int status) {
+    private void handleServiceStatusChanged(CarEvsStatus status) {
         if (DBG) {
-            Slog.d(TAG, "Service status changed: service = " + type + ", status = " + status);
+            Slog.d(TAG, "Service state changed: service = " + status.getServiceType() +
+                    ", state = " + status.getState());
         }
 
         final CarEvsStatusListener listener;
@@ -290,7 +290,7 @@ public final class CarEvsManager extends CarManagerBase {
         }
 
         if (listener != null) {
-            executor.execute(() -> listener.onStatusChanged(type, status));
+            executor.execute(() -> listener.onStatusChanged(status));
         } else if (DBG) {
             Slog.w(TAG, "No client seems active; a received event is ignored.");
         }
@@ -485,33 +485,33 @@ public final class CarEvsManager extends CarManagerBase {
      * Requests to start {@link #CarEvsServiceType}.
      *
      * @param type A type of EVS service to start.
-     * @return {@link #CarEvsStatus} to tell the result of the request.
+     * @return {@link #CarEvsError} to tell the result of the request.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @CarEvsStatus int requestToStartService(@CarEvsServiceType int type) {
+    public @CarEvsError int requestToStartService(@CarEvsServiceType int type) {
         try {
             return mService.requestToStartService(type);
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         }
 
-        return CarEvsManager.SERVICE_STATUS_UNAVAILABLE;
+        return CarEvsManager.SERVICE_STATE_UNAVAILABLE;
     }
 
     /**
      * Requests to stop {@link #CarEvsServiceType}.
      *
-     * @return {@link #CarEvsStatus} to tell the result of the request.
+     * @return {@link #CarEvsError} to tell the result of the request.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public int requestToStopService() {
+    public @CarEvsError int requestToStopService() {
         try {
             return mService.requestToStopService();
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         }
 
-        return CarEvsManager.SERVICE_STATUS_UNAVAILABLE;
+        return CarEvsManager.SERVICE_STATE_UNAVAILABLE;
     }
 
     /**
@@ -527,10 +527,10 @@ public final class CarEvsManager extends CarManagerBase {
      *        TODO(b/179517132): Renders the preview on this Surface when this is not null.
      * @param callback {@link #CarEvsStreamCallback} to listen a stream
      * @param executor {@link java.util.concurrent.Executor} to run a callback
-     * @return {@link #CarEvsStatus} to tell the result of the request.
+     * @return {@link #CarEvsError} to tell the result of the request.
      */
     @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @CarEvsStatus int startVideoStream(
+    public @CarEvsError int startVideoStream(
             @CarEvsServiceType int type,
             @Nullable IBinder token,
             @Nullable SurfaceHolder output,
@@ -548,7 +548,7 @@ public final class CarEvsManager extends CarManagerBase {
             mStreamCallbackExecutor = executor;
         }
 
-        int status = STATUS_ERROR_UNAVAILABLE;
+        int status = ERROR_UNAVAILABLE;
         try {
             // Requests the service to start a video stream
             status = mService.startVideoStream(type, token, mStreamListenerToService);
@@ -584,17 +584,19 @@ public final class CarEvsManager extends CarManagerBase {
     }
 
     /**
-     * Queries the current {@link #CarEvsServiceStatus}.
+     * Queries the current status of CarEvsService
      *
-     * @return Current status of EVS service.
+     * @return {@link android.car.evs.CarEvsStatus} that describes current status of
+     * CarEvsService.
      */
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
-    public @CarEvsServiceStatus int getCurrentStatus() {
+    @NonNull
+    public CarEvsStatus getCurrentStatus() {
         try {
             return mService.getCurrentStatus();
         } catch (RemoteException err) {
             Slog.e(TAG, "Failed to read a status of the service.");
-            return SERVICE_STATUS_UNAVAILABLE;
+            return new CarEvsStatus(SERVICE_TYPE_REARVIEW, SERVICE_STATE_UNAVAILABLE);
         }
     }
 
