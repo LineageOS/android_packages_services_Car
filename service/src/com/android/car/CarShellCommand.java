@@ -234,6 +234,8 @@ final class CarShellCommand extends ShellCommand {
 
     private static final int DEFAULT_HAL_TIMEOUT_MS = 1_000;
 
+    private static final int DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS = 60_000;
+
     private static final int INVALID_USER_AUTH_TYPE_OR_VALUE = -1;
 
     private static final SparseArray<String> VALID_USER_AUTH_TYPES;
@@ -444,7 +446,7 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s <USER_ID> [--hal-only] [--timeout TIMEOUT_MS]\n", COMMAND_SWITCH_USER);
         pw.println("\t  Switches to user USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without switching the user,");
-        pw.println("\t  while the --timeout defines how long to wait for the HAL response.");
+        pw.println("\t  while the --timeout defines how long to wait for the response.");
 
         pw.printf("\t%s <USER_ID> [--hal-only]\n", COMMAND_REMOVE_USER);
         pw.println("\t  Removes user with USER_ID using the HAL integration.");
@@ -454,7 +456,7 @@ final class CarShellCommand extends ShellCommand {
                 COMMAND_CREATE_USER);
         pw.println("\t  Creates a new user using the HAL integration.");
         pw.println("\t  The --hal-only uses UserManager to create the user,");
-        pw.println("\t  while the --timeout defines how long to wait for the HAL response.");
+        pw.println("\t  while the --timeout defines how long to wait for the response.");
 
         pw.printf("\t%s\n", COMMAND_GET_INITIAL_USER);
         pw.printf("\t  Gets the id of the initial user (or %s when it's not available)\n",
@@ -1164,7 +1166,7 @@ final class CarShellCommand extends ShellCommand {
         }
 
         int targetUserId = Integer.parseInt(args[1]);
-        int timeout = DEFAULT_HAL_TIMEOUT_MS;
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         boolean halOnly = false;
 
         for (int i = 2; i < args.length; i++) {
@@ -1239,7 +1241,7 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void createUser(String[] args, IndentingPrintWriter writer) {
-        int timeout = DEFAULT_HAL_TIMEOUT_MS;
+        int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         int flags = 0;
         boolean halOnly = false;
         String name = null;
