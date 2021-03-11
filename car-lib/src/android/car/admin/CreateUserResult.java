@@ -106,6 +106,15 @@ public final class CreateUserResult {
     }
 
     /**
+     * Return {@code CreateUserResult} with generic error.
+     *
+     * @hide
+     */
+    public static CreateUserResult forGenericError() {
+        return new CreateUserResult(null);
+    }
+
+    /**
      * Gets the specifif result of the operation.
      *
      * @return either {@link CreateUserResult#STATUS_SUCCESS} or

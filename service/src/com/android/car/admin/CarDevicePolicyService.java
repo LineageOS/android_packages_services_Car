@@ -35,12 +35,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
-import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.infra.AndroidFuture;
-
-import java.util.concurrent.ExecutionException;
-import java.util.concurrent.TimeUnit;
-import java.util.concurrent.TimeoutException;
 
 /**
  * Service for device policy related features.
@@ -54,16 +49,9 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
 
     private final CarUserService mCarUserService;
-    private final int mFutureTimeoutMs;
 
     public CarDevicePolicyService(@NonNull CarUserService carUserService) {
-        this(carUserService, HAL_TIMEOUT_MS + 60_000);
-    }
-
-    @VisibleForTesting
-    CarDevicePolicyService(@NonNull CarUserService carUserService, int futureTimeoutMs) {
         mCarUserService = carUserService;
-        mFutureTimeoutMs = futureTimeoutMs;
     }
 
     @Override
@@ -77,13 +65,13 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     }
 
     @Override
-    public UserRemovalResult removeUser(@UserIdInt int userId) {
-        return mCarUserService.removeUser(userId, /* hasCallerRestrictions= */ true);
+    public void removeUser(@UserIdInt int userId, AndroidFuture<UserRemovalResult> receiver) {
+        mCarUserService.removeUser(userId, /* hasCallerRestrictions= */ true, receiver);
     }
 
     @Override
-    public UserCreationResult createUser(@Nullable String name,
-            @CarDevicePolicyManager.UserType int type) {
+    public void createUser(@Nullable String name,
+            @CarDevicePolicyManager.UserType int type, AndroidFuture<UserCreationResult> receiver) {
         int userInfoFlags = 0;
         String userType = UserManager.USER_TYPE_FULL_SECONDARY;
         switch(type) {
@@ -100,10 +88,10 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                     Slog.d(TAG, "createUser(): invalid userType (" + userType + ") / flags ("
                             + userInfoFlags + ") combination");
                 }
-                return new UserCreationResult(UserCreationResult.STATUS_INVALID_REQUEST);
+                receiver.complete(
+                        new UserCreationResult(UserCreationResult.STATUS_INVALID_REQUEST));
+                return;
         }
-
-        AndroidFuture<UserCreationResult> receiver = new AndroidFuture<>();
 
         if (DEBUG) {
             Slog.d(TAG, "calling createUser(" + UserHelperLite.safeName(name) + "," + userType
@@ -111,17 +99,6 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         }
 
         mCarUserService.createUser(name, userType, userInfoFlags, HAL_TIMEOUT_MS, receiver);
-
-        try {
-            return receiver.get(mFutureTimeoutMs, TimeUnit.MILLISECONDS);
-        } catch (InterruptedException | ExecutionException | TimeoutException e) {
-            if (e instanceof InterruptedException) {
-                Thread.currentThread().interrupt();
-            }
-            Slog.w(TAG, "Timeout waiting " + mFutureTimeoutMs
-                    + "ms for UserCreationResult's future", e);
-            return new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
-        }
     }
 
     @Override
@@ -131,6 +108,5 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         writer.println("*CarDevicePolicyService*");
 
         writer.printf("HAL_TIMEOUT_MS: %d\n", HAL_TIMEOUT_MS);
-        writer.printf("mFutureTimeoutMs: %d\n", mFutureTimeoutMs);
     }
 }

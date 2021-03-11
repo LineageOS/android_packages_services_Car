@@ -17,21 +17,18 @@ package com.android.car.admin;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.verify;
 
 import android.annotation.NonNull;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.UserCreationResult;
+import android.car.user.UserRemovalResult;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
-import android.os.SystemClock;
 import android.os.UserManager;
-import android.util.Log;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.infra.AndroidFuture;
@@ -42,36 +39,40 @@ import org.mockito.Mock;
 
 public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTestCase {
 
-    private static final String TAG = CarDevicePolicyServiceTest.class.getSimpleName();
-
-    private static final int TIMEOUT_MS = 100;
-
     @Mock
     private CarUserService mCarUserService;
 
     private CarDevicePolicyService mService;
 
+    private AndroidFuture<UserRemovalResult> mUserRemovalResult =
+            new AndroidFuture<UserRemovalResult>();
+
+    private AndroidFuture<UserCreationResult> mUserCreationResult =
+            new AndroidFuture<UserCreationResult>();
+
     @Before
     public void setFixtures() {
-        mService = new CarDevicePolicyService(mCarUserService, /* futureTimeoutMs= */ TIMEOUT_MS);
+        mService = new CarDevicePolicyService(mCarUserService);
     }
 
     @Test
     public void testRemoveUser() {
-        mService.removeUser(42);
+        mService.removeUser(42, mUserRemovalResult);
 
-        verify(mCarUserService).removeUser(42, /* hasCallerRestrictions= */ true);
+        verify(mCarUserService).removeUser(eq(42), /* hasCallerRestrictions= */ eq(true),
+                eq(mUserRemovalResult));
     }
 
     @Test
-    public void testCreateUser_failure_invalidTypes() {
+    public void testCreateUser_failure_invalidTypes() throws Exception {
         invalidCreateUserTypeTest(CarDevicePolicyManager.FIRST_USER_TYPE - 1);
         invalidCreateUserTypeTest(CarDevicePolicyManager.LAST_USER_TYPE + 1);
     }
 
-    private void invalidCreateUserTypeTest(@CarDevicePolicyManager.UserType int type) {
-        UserCreationResult result = mService.createUser("name", type);
-
+    private void invalidCreateUserTypeTest(@CarDevicePolicyManager.UserType int type)
+            throws Exception {
+        mService.createUser("name", type, mUserCreationResult);
+        UserCreationResult result = mUserCreationResult.get();
         assertThat(result).isNotNull();
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
@@ -98,39 +99,9 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private void createUserOkTest(@UserInfoFlag int flags,
             @CarDevicePolicyManager.UserType int carDpmUserType, @NonNull String userType) {
-        UserCreationResult result = new UserCreationResult(UserCreationResult.STATUS_SUCCESSFUL);
-        doAnswer((inv) -> {
-            Log.d(TAG, "returning " + result + " for user " + userType + " and flags " + flags);
-            @SuppressWarnings("unchecked")
-            AndroidFuture<UserCreationResult> receiver = (AndroidFuture<UserCreationResult>) inv
-                    .getArguments()[4];
-            receiver.complete(result);
-            return null;
-        }).when(mCarUserService).createUser(eq("name"), eq(userType), eq(flags),
-                /* timeoutMs= */ anyInt(), /* receiver= */ any());
+        mService.createUser("name", carDpmUserType, mUserCreationResult);
 
-        UserCreationResult actualResult = mService.createUser("name", carDpmUserType);
-
-        assertThat(actualResult).isSameInstanceAs(result);
-    }
-
-    @Test
-    public void testCreateUser_timeout() {
-        doAnswer((inv) -> {
-            int sleep = TIMEOUT_MS + 1_000;
-            Log.d(TAG, "sleeping " + sleep + "ms so AndroidFuture times out");
-            SystemClock.sleep(sleep);
-            Log.d(TAG, "wokkkkke up!!");
-            return null;
-        }).when(mCarUserService).createUser(eq("name"), eq(UserManager.USER_TYPE_FULL_SECONDARY),
-                /* flags= */ eq(0), /* timeoutMs= */ anyInt(), /* receiver= */ any());
-
-        UserCreationResult actualResult = mService.createUser("name", /* flags= */ 0);
-
-        assertThat(actualResult).isNotNull();
-        assertThat(actualResult.isSuccess()).isFalse();
-        assertThat(actualResult.getStatus())
-                .isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
-        assertThat(actualResult.getUser()).isNull();
+        verify(mCarUserService).createUser(eq("name"), eq(userType), eq(flags),
+                /* timeoutMs= */ anyInt(), eq(mUserCreationResult));
     }
 }
