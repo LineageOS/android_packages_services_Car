@@ -115,6 +115,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_DAY_NIGHT_MODE = "day-night-mode";
     private static final String COMMAND_INJECT_VHAL_EVENT = "inject-vhal-event";
     private static final String COMMAND_INJECT_ERROR_EVENT = "inject-error-event";
+    private static final String COMMAND_INJECT_CONTINUOUS_EVENT = "inject-continuous-events";
     private static final String COMMAND_ENABLE_UXR = "enable-uxr";
     private static final String COMMAND_GARAGE_MODE = "garage-mode";
     private static final String COMMAND_GET_DO_ACTIVITIES = "get-do-activities";
@@ -224,6 +225,9 @@ final class CarShellCommand extends ShellCommand {
     private static final String PARAM_NIGHT_MODE = "night";
     private static final String PARAM_SENSOR_MODE = "sensor";
     private static final String PARAM_VEHICLE_PROPERTY_AREA_GLOBAL = "0";
+    private static final String PARAM_INJECT_EVENT_DEFAULT_RATE = "10";
+    private static final String PARAM_INJECT_EVENT_DEFAULT_DURATION = "60";
+    private static final String PARAM_ALL_PROPERTIES_OR_AREA = "-1";
     private static final String PARAM_ON_MODE = "on";
     private static final String PARAM_OFF_MODE = "off";
     private static final String PARAM_QUERY_MODE = "query";
@@ -371,13 +375,21 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Print this help text.");
         pw.println("\tday-night-mode [day|night|sensor]");
         pw.println("\t  Force into day/night mode or restore to auto.");
-        pw.println("\tinject-vhal-event property [zone] data(can be comma separated list) "
+        pw.println("\tinject-vhal-event <PROPERTY_ID in Hex or Decimal> [zone] "
+                + "data(can be comma separated list) "
                 + "[-t delay_time_seconds]");
         pw.println("\t  Inject a vehicle property for testing.");
         pw.println("\t  delay_time_seconds: the event timestamp is increased by certain second.");
         pw.println("\t  If not specified, it will be 0.");
-        pw.println("\tinject-error-event property zone errorCode");
+        pw.println("\tinject-error-event <PROPERTY_ID in Hex or Decimal> zone <errorCode>");
         pw.println("\t  Inject an error event from VHAL for testing.");
+        pw.println("\tinject-continuous-events <PROPERTY_ID in Hex or Decimal> "
+                + "data(can be comma separated list) "
+                + "[-z zone]  [-s SampleRate in Hz] [-d time duration in seconds]");
+        pw.println("\t  Inject continuous vehicle events for testing.");
+        pw.printf("\t  If not specified, CarService will inject fake events with areaId:%s "
+                        + "at sample rate %s for %s seconds.", PARAM_VEHICLE_PROPERTY_AREA_GLOBAL,
+                PARAM_INJECT_EVENT_DEFAULT_RATE, PARAM_INJECT_EVENT_DEFAULT_DURATION);
         pw.println("\tenable-uxr true|false");
         pw.println("\t  Enable/Disable UX restrictions and App blocking.");
         pw.println("\tgarage-mode [on|off|query|reboot]");
@@ -385,10 +397,10 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  With 'reboot', enter garage mode, then reboot when it completes.");
         pw.println("\tget-do-activities pkgname");
         pw.println("\t  Get Distraction Optimized activities in given package.");
-        pw.println("\tget-carpropertyconfig [propertyId]");
-        pw.println("\t  Get a CarPropertyConfig by Id in Hex or list all CarPropertyConfigs");
-        pw.println("\tget-property-value [propertyId] [areaId]");
-        pw.println("\t  Get a vehicle property value by property id in Hex and areaId");
+        pw.println("\tget-carpropertyconfig [PROPERTY_ID in Hex or Decimal]");
+        pw.println("\t  Get a CarPropertyConfig by Id or list all CarPropertyConfigs");
+        pw.println("\tget-property-value [PROPERTY_ID in Hex or Decimal] [areaId]");
+        pw.println("\t  Get a vehicle property value by property id and areaId");
         pw.println("\t  or list all property values for all areaId");
         pw.println("\tsuspend");
         pw.println("\t  Suspend the system to Deep Sleep.");
@@ -610,6 +622,9 @@ final class CarShellCommand extends ShellCommand {
                 }
                 injectVhalEvent(args[1], zone, data, false, delayTime, writer);
                 break;
+            case COMMAND_INJECT_CONTINUOUS_EVENT:
+                injectContinuousEvents(args, writer);
+                break;
             case COMMAND_INJECT_ERROR_EVENT:
                 if (args.length != 4) {
                     return showInvalidArguments(writer);
@@ -647,13 +662,14 @@ final class CarShellCommand extends ShellCommand {
                 }
                 break;
             case COMMAND_GET_CARPROPERTYCONFIG:
-                String propertyId = args.length < 2 ? "" : args[1];
-                mHal.dumpPropertyConfigs(writer, propertyId);
+                String propertyId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA : args[1];
+                mHal.dumpPropertyConfigs(writer, Integer.decode(propertyId));
                 break;
             case COMMAND_GET_PROPERTY_VALUE:
-                String propId = args.length < 2 ? "" : args[1];
-                String areaId = args.length < 3 ? "" : args[2];
-                mHal.dumpPropertyValueByCommend(writer, propId, areaId);
+                String propId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA : args[1];
+                String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
+                mHal.dumpPropertyValueByCommend(writer, Integer.decode(propId),
+                        Integer.decode(areaId));
                 break;
             case COMMAND_PROJECTION_UI_MODE:
                 if (args.length != 2) {
@@ -1751,12 +1767,12 @@ final class CarShellCommand extends ShellCommand {
      */
     private void emulateDrive() {
         Slog.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
-                /* zone= */ "0", /* value= */ "80", /* delayTime= */ "2000");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
-                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_8), /* delayTime= */ "0");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PARKING_BRAKE_ON),
-                /* zone= */ "0", /* value= */ "false", /* delayTime= */ "0");
+        mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                /* zone= */ 0, /* value= */ "80", /* delayTime= */ 2000);
+        mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
+                /* zone= */ 0, Integer.toString(VehicleGear.GEAR_8), /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.PARKING_BRAKE_ON,
+                /* zone= */ 0, /* value= */ "false", /* delayTime= */ 0);
     }
 
     /**
@@ -1765,12 +1781,12 @@ final class CarShellCommand extends ShellCommand {
      */
     private void emulateReverse() {
         Slog.i(TAG, "Emulating reverse driving mode (speed=5mph)");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
-                /* zone= */ "0", /* value= */ "5", /* delayTime= */ "2000");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
-                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_REVERSE), /* delayTime= */ "0");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PARKING_BRAKE_ON),
-                /* zone= */ "0", /* value= */ "false", /* delayTime= */ "0");
+        mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                /* zone= */ 0, /* value= */ "5", /* delayTime= */ 2000);
+        mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
+                /* zone= */ 0, Integer.toString(VehicleGear.GEAR_REVERSE), /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.PARKING_BRAKE_ON,
+                /* zone= */ 0, /* value= */ "false", /* delayTime= */ 0);
     }
 
     /**
@@ -1779,10 +1795,10 @@ final class CarShellCommand extends ShellCommand {
      */
     private void emulatePark() {
         Slog.i(TAG, "Emulating parking mode");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.PERF_VEHICLE_SPEED),
-                /* zone= */ "0", /* value= */ "0", /* delayTime= */ "0");
-        mHal.injectVhalEvent(Integer.toString(VehiclePropertyIds.GEAR_SELECTION),
-                /* zone= */ "0", Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ "0");
+        mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
+                /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
+        mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
+                /* zone= */ 0, Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ 0);
     }
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {
@@ -1821,22 +1837,71 @@ final class CarShellCommand extends ShellCommand {
         Slog.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
                 + value + ", isError=" + isErrorEvent
                 + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));
-        if (zone != null && (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL))) {
+        if (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)) {
             if (!isPropertyAreaTypeGlobal(property)) {
-                writer.println("Property area type inconsistent with given zone");
+                writer.printf("Property area type inconsistent with given zone: %s \n", zone);
                 return;
             }
         }
         try {
             if (isErrorEvent) {
-                mHal.injectOnPropertySetError(property, zone, value);
+                mHal.onPropertySetError(Integer.decode(value), Integer.decode(property),
+                        Integer.decode(zone));
             } else {
-                mHal.injectVhalEvent(property, zone, value, delayTime);
+                mHal.injectVhalEvent(Integer.decode(property), Integer.decode(zone), value,
+                        Integer.decode(delayTime));
             }
         } catch (NumberFormatException e) {
-            writer.println("Invalid property Id zone Id or value" + e);
+            writer.printf("Invalid property Id zone Id or value: %s \n", e);
             showHelp(writer);
         }
+    }
+
+    // Inject continuous vhal events.
+    private void injectContinuousEvents(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 3 || args.length > 8) {
+            showInvalidArguments(writer);
+            return;
+        }
+        String areaId = PARAM_VEHICLE_PROPERTY_AREA_GLOBAL;
+        String sampleRate = PARAM_INJECT_EVENT_DEFAULT_RATE;
+        String durationTime = PARAM_INJECT_EVENT_DEFAULT_DURATION;
+        String propId = args[1];
+        String data = args[2];
+        // scan input
+        for (int i = 3; i < args.length - 1; i++) {
+            switch (args[i]) {
+                case "-d":
+                    durationTime = args[++i];
+                    break;
+                case "-z" :
+                    areaId = args[++i];
+                    break;
+                case "-s" :
+                    sampleRate = args[++i];
+                    break;
+                default:
+                    writer.printf("%s is an invalid flag.\n", args[i]);
+                    showHelp(writer);
+                    return;
+            }
+        }
+        try {
+            float sampleRateFloat = Float.parseFloat(sampleRate);
+            if (sampleRateFloat <= 0) {
+                writer.printf("SampleRate: %s is an invalid value. "
+                        + "SampleRate must be greater than 0.\n", sampleRate);
+                showHelp(writer);
+                return;
+            }
+            mHal.injectContinuousVhalEvent(Integer.decode(propId),
+                    Integer.decode(areaId), data,
+                    sampleRateFloat, Long.parseLong(durationTime));
+        } catch (NumberFormatException e) {
+            writer.printf("Invalid arguments: %s\n", e);
+            showHelp(writer);
+        }
+
     }
 
     // Check if the given property is global
