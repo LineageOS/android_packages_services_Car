@@ -20,7 +20,6 @@ import static android.media.AudioAttributes.AttributeUsage;
 import static android.media.AudioAttributes.USAGE_ASSISTANCE_NAVIGATION_GUIDANCE;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 
-import static com.android.car.audio.CarAudioContext.AudioContext;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
@@ -35,7 +34,6 @@ import static org.testng.Assert.expectThrows;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
-import android.util.SparseArray;
 
 import com.google.common.collect.ImmutableList;
 
@@ -45,10 +43,7 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class CarAudioPlaybackCallbackTest {
@@ -70,13 +65,6 @@ public final class CarAudioPlaybackCallbackTest {
 
     @Mock
     private SystemClockWrapper mClock;
-
-    @Mock
-    private CarVolumeGroup mPrimaryZoneMockMusicGroup;
-    @Mock
-    private CarVolumeGroup mPrimaryZoneMockNavGroup;
-    @Mock
-    private CarVolumeGroup mPrimaryZoneMockVoiceGroup;
 
     private CarAudioZone mPrimaryZone;
 
@@ -495,56 +483,17 @@ public final class CarAudioPlaybackCallbackTest {
     }
 
     private CarAudioZone generatePrimaryZone() {
-        mPrimaryZoneMockMusicGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+        return new TestCarAudioZoneBuilder("Primary zone", PRIMARY_ZONE_ID)
+                .addVolumeGroup(new VolumeGroupBuilder()
+                                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+                                .build())
+                .addVolumeGroup(new VolumeGroupBuilder()
+                        .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                        .build())
+                .addVolumeGroup(new VolumeGroupBuilder()
+                        .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                        .build())
                 .build();
-        mPrimaryZoneMockNavGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
-                .build();
-        mPrimaryZoneMockVoiceGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
-                .build();
-        CarAudioZone primaryZone = new CarAudioZone(PRIMARY_ZONE_ID, "Primary zone");
-        primaryZone.addVolumeGroup(mPrimaryZoneMockMusicGroup);
-        primaryZone.addVolumeGroup(mPrimaryZoneMockNavGroup);
-        primaryZone.addVolumeGroup(mPrimaryZoneMockVoiceGroup);
-        return primaryZone;
-    }
-
-    private static class VolumeGroupBuilder {
-        private SparseArray<String> mDeviceAddresses = new SparseArray<>();
-
-        VolumeGroupBuilder addDeviceAddressAndContexts(@AudioContext int context, String address) {
-            mDeviceAddresses.put(context, address);
-            return this;
-        }
-
-        CarVolumeGroup build() {
-            CarVolumeGroup carVolumeGroup = mock(CarVolumeGroup.class);
-            Map<String, ArrayList<Integer>> addressToContexts = new HashMap<>();
-            @AudioContext int[] contexts = new int[mDeviceAddresses.size()];
-
-            for (int index = 0; index < mDeviceAddresses.size(); index++) {
-                @AudioContext int context = mDeviceAddresses.keyAt(index);
-                String address = mDeviceAddresses.get(context);
-                when(carVolumeGroup.getAddressForContext(context)).thenReturn(address);
-                if (!addressToContexts.containsKey(address)) {
-                    addressToContexts.put(address, new ArrayList<>());
-                }
-                addressToContexts.get(address).add(context);
-                contexts[index] = context;
-            }
-
-            when(carVolumeGroup.getContexts()).thenReturn(contexts);
-
-            for (String address : addressToContexts.keySet()) {
-                when(carVolumeGroup.getContextsForAddress(address))
-                        .thenReturn(ImmutableList.copyOf(addressToContexts.get(address)));
-            }
-            when(carVolumeGroup.getAddresses())
-                    .thenReturn(ImmutableList.copyOf(addressToContexts.keySet()));
-            return carVolumeGroup;
-        }
     }
 
     private static class AudioPlaybackConfigurationBuilder {
