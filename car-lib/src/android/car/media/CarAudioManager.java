@@ -749,8 +749,8 @@ public final class CarAudioManager extends CarManagerBase {
     /**
      * Sets a volume group mute
      *
-     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will have no
-     * impact on volume group mute.
+     * <p><b>Note:<b/> If {@link #AUDIO_FEATURE_VOLUME_GROUP_MUTING} is disabled this will throw an
+     * error indicating the issue.
      *
      * @param zoneId The zone id whose volume groups will be changed.
      * @param groupId The volume group id whose mute state will be changed.
