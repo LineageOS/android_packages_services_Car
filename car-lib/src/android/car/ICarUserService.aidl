@@ -33,7 +33,7 @@ interface ICarUserService {
     void setUserSwitchUiCallback(in IResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
-    UserRemovalResult removeUser(int userId);
+    void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
     List<UserInfo> getAllDrivers();
     List<UserInfo> getPassengers(int driverId);
     boolean startPassenger(int passengerId, int zoneId);

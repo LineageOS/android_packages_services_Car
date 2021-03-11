@@ -19,10 +19,14 @@ import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFrom
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.ArgumentMatchers.notNull;
+import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.doThrow;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
+import android.annotation.NonNull;
+import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -31,6 +35,8 @@ import android.car.user.UserRemovalResult;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
+
+import com.android.internal.infra.AndroidFuture;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -54,7 +60,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
     @Test
     public void testRemoveUser_success() throws Exception {
         int status = UserRemovalResult.STATUS_SUCCESSFUL;
-        when(mService.removeUser(100)).thenReturn(new UserRemovalResult(status));
+        mockRemoveUser(100, status);
 
         RemoveUserResult result = mMgr.removeUser(UserHandle.of(100));
 
@@ -64,13 +70,20 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testRemoveUser_remoteException() throws Exception {
-        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100);
+        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(eq(100), notNull());
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         RemoveUserResult result = mMgr.removeUser(UserHandle.of(100));
 
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(RemoveUserResult.STATUS_FAILURE_GENERIC);
+    }
+
+    @Test
+    public void testRemoveUser_securityException() throws Exception {
+        doThrow(new SecurityException("D'OH!")).when(mService).removeUser(eq(100), notNull());
+
+        assertThrows(SecurityException.class, () -> mMgr.removeUser(UserHandle.of(100)));
     }
 
     @Test
@@ -82,8 +95,7 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
     public void testCreateUser_success() throws Exception {
         UserInfo user = new UserInfoBuilder(100).build();
         int status = UserCreationResult.STATUS_SUCCESSFUL;
-        when(mService.createUser("TheDude", 100))
-                .thenReturn(new UserCreationResult(status, user, /* errorMessage= */ null));
+        mockCreateUser("TheDude", user, status);
 
         CreateUserResult result = mMgr.createUser("TheDude", 100);
 
@@ -94,7 +106,8 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
 
     @Test
     public void testCreateUser_remoteException() throws Exception {
-        doThrow(new RemoteException("D'OH!")).when(mService).createUser("TheDude", 100);
+        doThrow(new RemoteException("D'OH!")).when(mService).createUser(eq("TheDude"), eq(100),
+                notNull());
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         CreateUserResult result = mMgr.createUser("TheDude", 100);
@@ -102,5 +115,33 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(CreateUserResult.STATUS_FAILURE_GENERIC);
         assertThat(result.getUserHandle()).isNull();
+    }
+
+    @Test
+    public void testCreateUser_securityException() throws Exception {
+        doThrow(new SecurityException("D'OH!")).when(mService).createUser(eq("TheDude"), eq(100),
+                notNull());
+
+        assertThrows(SecurityException.class, () -> mMgr.createUser("TheDude", 100));
+    }
+
+    private void mockRemoveUser(@UserIdInt int userId, int status) throws Exception {
+        doAnswer((invocation) -> {
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserRemovalResult> future =
+                    (AndroidFuture<UserRemovalResult>) invocation.getArguments()[1];
+            future.complete(new UserRemovalResult(status));
+            return null;
+        }).when(mService).removeUser(eq(userId), notNull());
+    }
+
+    private void mockCreateUser(String name, @NonNull UserInfo user, int status) throws Exception {
+        doAnswer((invocation) -> {
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserCreationResult> future =
+                    (AndroidFuture<UserCreationResult>) invocation.getArguments()[2];
+            future.complete(new UserCreationResult(status, user, /* errorMessage= */ null));
+            return null;
+        }).when(mService).createUser(eq(name), eq(user.id), notNull());
     }
 }

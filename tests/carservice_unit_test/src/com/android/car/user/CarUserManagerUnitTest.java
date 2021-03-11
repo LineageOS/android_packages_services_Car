@@ -261,8 +261,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testRemoveUser_success() throws Exception {
-        int status = UserRemovalResult.STATUS_SUCCESSFUL;
-        when(mService.removeUser(100)).thenReturn(new UserRemovalResult(status));
+        expectServiceRemoveUserSucceeds(100);
 
         UserRemovalResult result = mMgr.removeUser(100);
 
@@ -271,7 +270,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testRemoveUser_remoteException() throws Exception {
-        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(100);
+        doThrow(new RemoteException("D'OH!")).when(mService).removeUser(eq(100), any());
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         UserRemovalResult result = mMgr.removeUser(100);
@@ -281,7 +280,7 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     @Test
     public void testRemoveUser_runtimeException() throws Exception {
-        doThrow(new RuntimeException("D'OH!")).when(mService).removeUser(100);
+        doThrow(new RuntimeException("D'OH!")).when(mService).removeUser(eq(100), any());
 
         UserRemovalResult result = mMgr.removeUser(100);
 
@@ -609,6 +608,16 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
 
     private void expectServiceSwitchUserFails(@UserIdInt int userId, Exception e) throws Exception {
         doThrow(e).when(mService).switchUser(eq(userId), anyInt(), notNull());
+    }
+
+    private void expectServiceRemoveUserSucceeds(@UserIdInt int userId) throws RemoteException {
+        doAnswer((invocation) -> {
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserRemovalResult> future =
+                    (AndroidFuture<UserRemovalResult>) invocation.getArguments()[1];
+            future.complete(new UserRemovalResult(UserRemovalResult.STATUS_SUCCESSFUL));
+            return null;
+        }).when(mService).removeUser(eq(userId), notNull());
     }
 
     private void expectServiceCreateUserSucceeds(@Nullable String name,
