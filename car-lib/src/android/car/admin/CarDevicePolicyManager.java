@@ -31,15 +31,20 @@ import android.car.user.UserRemovalResult;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.sysprop.CarProperties;
 import android.util.EventLog;
 
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.internal.infra.AndroidFuture;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 
 /**
  * Public interface for managing policies enforced on a device.
@@ -58,6 +63,7 @@ import java.util.Objects;
 @TestApi
 public final class CarDevicePolicyManager extends CarManagerBase {
 
+    private static final String TAG = CarDevicePolicyManager.class.getSimpleName();
     private final ICarDevicePolicyService mService;
 
     private static final String PREFIX_USER_TYPE = "USER_TYPE_";
@@ -82,6 +88,8 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     /** @hide - Used on test cases only */
     public static final int LAST_USER_TYPE = USER_TYPE_GUEST;
 
+    private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS = CarProperties
+            .device_policy_manager_timeout().orElse(60_000);
 
     /** @hide */
     @IntDef(prefix = PREFIX_USER_TYPE, value = {
@@ -134,11 +142,19 @@ public final class CarDevicePolicyManager extends CarManagerBase {
         EventLog.writeEvent(EventLogTags.CAR_DP_MGR_REMOVE_USER_REQ, uid, userId);
         int status = RemoveUserResult.STATUS_FAILURE_GENERIC;
         try {
-            UserRemovalResult result = mService.removeUser(userId);
+            AndroidFuture<UserRemovalResult> future = new AndroidFuture<UserRemovalResult>();
+            mService.removeUser(userId, future);
+            UserRemovalResult result = future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
             status = result.getStatus();
-            return new RemoveUserResult(result);
+            return new RemoveUserResult(status);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new RemoveUserResult(status);
+        } catch (ExecutionException | TimeoutException e) {
+            return new RemoveUserResult(status);
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new RemoveUserResult(null));
+            return handleRemoteExceptionFromCarService(e, new RemoveUserResult(status));
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_DP_MGR_REMOVE_USER_RESP, uid, status);
         }
@@ -169,11 +185,19 @@ public final class CarDevicePolicyManager extends CarManagerBase {
                 UserHelperLite.safeName(name), type);
         int status = CreateUserResult.STATUS_FAILURE_GENERIC;
         try {
-            UserCreationResult result = mService.createUser(name, type);
+            AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>();
+            mService.createUser(name, type, future);
+            UserCreationResult result = future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
             status = result.getStatus();
             return new CreateUserResult(result);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return CreateUserResult.forGenericError();
+        } catch (ExecutionException | TimeoutException e) {
+            return CreateUserResult.forGenericError();
         } catch (RemoteException e) {
-            return handleRemoteExceptionFromCarService(e, new CreateUserResult(null));
+            return handleRemoteExceptionFromCarService(e, CreateUserResult.forGenericError());
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_DP_MGR_CREATE_USER_RESP, uid, status);
         }

@@ -64,7 +64,10 @@ import java.lang.annotation.RetentionPolicy;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.ExecutionException;
 import java.util.concurrent.Executor;
+import java.util.concurrent.TimeUnit;
+import java.util.concurrent.TimeoutException;
 import java.util.stream.Collectors;
 
 /**
@@ -78,6 +81,7 @@ public final class CarUserManager extends CarManagerBase {
 
     private static final String TAG = CarUserManager.class.getSimpleName();
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
+    private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
     private static final boolean DBG = false;
 
@@ -362,6 +366,8 @@ public final class CarUserManager extends CarManagerBase {
             EventLog.writeEvent(EventLogTags.CAR_USER_MGR_SWITCH_USER_REQ, uid, targetUserId);
             mService.switchUser(targetUserId, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
         } catch (RemoteException | RuntimeException e) {
             AsyncFuture<UserSwitchResult> future =
                     newSwitchResuiltForFailure(UserSwitchResult.STATUS_HAL_INTERNAL_FAILURE);
@@ -408,6 +414,8 @@ public final class CarUserManager extends CarManagerBase {
                     UserHelperLite.safeName(name), userType, flags);
             mService.createUser(name, userType, flags, HAL_TIMEOUT_MS, future);
             return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
         } catch (RemoteException | RuntimeException e) {
             AndroidFuture<UserCreationResult> future = new AndroidFuture<>();
             future.complete(new UserCreationResult(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE));
@@ -461,9 +469,19 @@ public final class CarUserManager extends CarManagerBase {
         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_REMOVE_USER_REQ, uid, userId);
         int status = UserRemovalResult.STATUS_ANDROID_FAILURE;
         try {
-            UserRemovalResult result = mService.removeUser(userId);
+            AndroidFuture<UserRemovalResult> future = new AndroidFuture<UserRemovalResult>();
+            mService.removeUser(userId, future);
+            UserRemovalResult result = future.get(REMOVE_USER_CALL_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
             status = result.getStatus();
             return result;
+        } catch (SecurityException e) {
+            throw e;
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE);
+        } catch (ExecutionException | TimeoutException e) {
+            return new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE);
         } catch (RemoteException | RuntimeException e) {
             return handleExceptionFromCarService(e,
                     new UserRemovalResult(UserRemovalResult.STATUS_ANDROID_FAILURE));
@@ -593,6 +611,8 @@ public final class CarUserManager extends CarManagerBase {
                         values != null ? values.length : 0);
             }
             return response;
+        } catch (SecurityException e) {
+            throw e;
         } catch (RemoteException | RuntimeException e) {
             return handleExceptionFromCarService(e,
                     UserIdentificationAssociationResponse.forFailure(e.getMessage()));
@@ -650,6 +670,8 @@ public final class CarUserManager extends CarManagerBase {
             };
             mService.setUserIdentificationAssociation(HAL_TIMEOUT_MS, types, values, future);
             return new AndroidAsyncFuture<>(future);
+        } catch (SecurityException e) {
+            throw e;
         } catch (RemoteException | RuntimeException e) {
             AndroidFuture<UserIdentificationAssociationResponse> future = new AndroidFuture<>();
             future.complete(UserIdentificationAssociationResponse.forFailure());

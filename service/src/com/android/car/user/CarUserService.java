@@ -1103,8 +1103,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public UserRemovalResult removeUser(@UserIdInt int userId) {
-        return removeUser(userId, /* hasCallerRestrictions= */ false);
+    public void removeUser(@UserIdInt int userId, AndroidFuture<UserRemovalResult> receiver) {
+        removeUser(userId, /* hasCallerRestrictions= */ false, receiver);
     }
 
     /**
@@ -1114,19 +1114,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @param userId user to be removed
      * @param hasCallerRestrictions when {@code true}, if the caller user is not an admin, it can
      * only remove itself.
-     *
-     * @return result of the operation.
+     * @param receiver to post results
      */
-    public UserRemovalResult removeUser(@UserIdInt int userId, boolean hasCallerRestrictions) {
+    public void removeUser(@UserIdInt int userId, boolean hasCallerRestrictions,
+            AndroidFuture<UserRemovalResult> receiver) {
         checkManageOrCreateUsersPermission("removeUser");
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_REQ, userId,
                 hasCallerRestrictions ? 1 : 0);
-
-        // If requested user is the only admin user, return error.
-        UserInfo userInfo = mUserManager.getUserInfo(userId);
-        if (userInfo == null) {
-            return logAndGetResults(userId, UserRemovalResult.STATUS_USER_DOES_NOT_EXIST);
-        }
 
         if (hasCallerRestrictions) {
             // Restrictions: non-admin user can only remove itself, admins have no restrictions
@@ -1137,7 +1131,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         + " can only remove itself");
             }
         }
+        mHandler.post(()-> removeUserInternal(userId, hasCallerRestrictions, receiver));
+    }
 
+    private void removeUserInternal(@UserIdInt int userId, boolean hasCallerRestrictions,
+            AndroidFuture<UserRemovalResult> receiver) {
+        UserInfo userInfo = mUserManager.getUserInfo(userId);
+        if (userInfo == null) {
+            sendUserRemovalResult(userId, UserRemovalResult.STATUS_USER_DOES_NOT_EXIST, receiver);
+            return;
+        }
         android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
                 new android.hardware.automotive.vehicle.V2_0.UserInfo();
         halUser.userId = userInfo.id;
@@ -1168,7 +1171,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         boolean evenWhenDisallowed = hasCallerRestrictions;
         int result = mUserManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
         if (result == UserManager.REMOVE_RESULT_ERROR) {
-            return logAndGetResults(userId, UserRemovalResult.STATUS_ANDROID_FAILURE);
+            sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
+            return;
         }
 
         if (isLastAdmin) {
@@ -1179,15 +1183,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         switch (result) {
             case UserManager.REMOVE_RESULT_REMOVED:
             case UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED:
-                return logAndGetResults(userId,
+                sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
-                                : UserRemovalResult.STATUS_SUCCESSFUL);
+                                : UserRemovalResult.STATUS_SUCCESSFUL, receiver);
             case UserManager.REMOVE_RESULT_SET_EPHEMERAL:
-                return logAndGetResults(userId,
+                sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
-                                : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL);
+                                : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL, receiver);
             default:
-                throw new IllegalStateException("Unknown user removal result code " + result);
+                sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
         }
     }
 
@@ -1237,10 +1241,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mHal.removeUser(request);
     }
 
-    private UserRemovalResult logAndGetResults(@UserIdInt int userId,
-            @UserRemovalResult.Status int result) {
+    private void sendUserRemovalResult(@UserIdInt int userId, @UserRemovalResult.Status int result,
+            AndroidFuture<UserRemovalResult> receiver) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_REMOVE_USER_RESP, userId, result);
-        return new UserRemovalResult(result);
+        receiver.complete(new UserRemovalResult(result));
     }
 
     private void sendUserSwitchUiCallback(@UserIdInt int targetUserId) {

@@ -24,13 +24,6 @@ import org.junit.Test;
 public final class RemoveUserResultTest {
 
     @Test
-    public void testNullConstructor() {
-        RemoveUserResult result = new RemoveUserResult(null);
-        assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getStatus()).isEqualTo(RemoveUserResult.STATUS_FAILURE_GENERIC);
-    }
-
-    @Test
     public void testSuccess() {
         successTest(UserRemovalResult.STATUS_SUCCESSFUL,
                 RemoveUserResult.STATUS_SUCCESS);
@@ -43,7 +36,7 @@ public final class RemoveUserResultTest {
     }
 
     private void successTest(int userRemovalStatus, int removeUserStatus) {
-        RemoveUserResult result = new RemoveUserResult(new UserRemovalResult(userRemovalStatus));
+        RemoveUserResult result = new RemoveUserResult(userRemovalStatus);
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getStatus()).isEqualTo(removeUserStatus);
     }
@@ -59,7 +52,7 @@ public final class RemoveUserResultTest {
     }
 
     private void failureTest(int userRemovalStatus, int removeUserStatus) {
-        RemoveUserResult result = new RemoveUserResult(new UserRemovalResult(userRemovalStatus));
+        RemoveUserResult result = new RemoveUserResult(userRemovalStatus);
         assertThat(result.isSuccess()).isFalse();
         assertThat(result.getStatus()).isEqualTo(removeUserStatus);
     }
