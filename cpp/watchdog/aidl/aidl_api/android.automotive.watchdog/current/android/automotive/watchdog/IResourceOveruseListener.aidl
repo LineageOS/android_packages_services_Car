@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -32,13 +32,7 @@
 // later when a module using the interface is updated, e.g., Mainline modules.
 
 package android.automotive.watchdog;
-/**
- * @deprecated System API specific copy available under android.automotive.watchdog.internal package.
- */
-@Backing(type="int") @VintfStability
-enum PowerCycle {
-  POWER_CYCLE_SHUTDOWN = 0,
-  POWER_CYCLE_SUSPEND = 1,
-  POWER_CYCLE_RESUME = 2,
-  NUM_POWER_CYLES = 3,
+@VintfStability
+interface IResourceOveruseListener {
+  oneway void onOveruse(in android.automotive.watchdog.ResourceOveruseStats resourceOveruseStats);
 }

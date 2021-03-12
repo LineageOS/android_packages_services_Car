@@ -33,8 +33,8 @@ using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::StringPrintf;
 using ::testing::AnyOf;
 using ::testing::IsEmpty;
@@ -83,6 +83,7 @@ PackageInfo constructPackageInfo(
         const ApplicationCategoryType appCategoryType = ApplicationCategoryType::OTHERS) {
     PackageInfo packageInfo;
     packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.uidType = UidType::APPLICATION;
     packageInfo.componentType = componentType;
     packageInfo.appCategoryType = appCategoryType;
     return packageInfo;

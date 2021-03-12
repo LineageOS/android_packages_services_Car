@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,25 +14,16 @@
  * limitations under the License.
  */
 
-package android.automotive.watchdog.internal;
+package android.automotive.watchdog;
 
 /**
- * Structure that describes the number of bytes attribute to each state of the application and
- * system.
+ * Describes the different types of system resources.
  */
-parcelable PerStateBytes {
+@VintfStability
+@Backing(type="int")
+enum ResourceType {
   /**
-   * Number of bytes attributed to the application foreground mode.
+   * Disk I/O resource.
    */
-  long foregroundBytes;
-
-  /**
-   * Number of bytes attributed to the application background mode.
-   */
-  long backgroundBytes;
-
-  /**
-   * Number of bytes attributed to the system garage mode.
-   */
-  long garageModeBytes;
+  IO,
 }

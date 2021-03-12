@@ -15,6 +15,7 @@
  */
 
 #include "LooperStub.h"
+#include "MockDataProcessor.h"
 #include "MockProcDiskStats.h"
 #include "MockProcPidStat.h"
 #include "MockProcStat.h"
@@ -51,38 +52,11 @@ using ::testing::Return;
 using ::testing::StrictMock;
 using ::testing::UnorderedElementsAreArray;
 
-namespace {
-
 constexpr std::chrono::seconds kTestBoottimeCollectionInterval = 1s;
 constexpr std::chrono::seconds kTestPeriodicCollectionInterval = 5s;
 constexpr std::chrono::seconds kTestCustomCollectionInterval = 3s;
 constexpr std::chrono::seconds kTestCustomCollectionDuration = 11s;
 constexpr std::chrono::seconds kTestPeriodicMonitorInterval = 2s;
-
-class MockDataProcessor : public IDataProcessorInterface {
-public:
-    MockDataProcessor() { ON_CALL(*this, name()).WillByDefault(Return("MockedDataProcessor")); }
-    MOCK_METHOD(std::string, name, (), (override));
-    MOCK_METHOD(Result<void>, init, (), (override));
-    MOCK_METHOD(void, terminate, (), (override));
-    MOCK_METHOD(Result<void>, onBoottimeCollection,
-                (time_t, const wp<UidIoStats>&, const wp<ProcStat>&, const wp<ProcPidStat>&),
-                (override));
-    MOCK_METHOD(Result<void>, onPeriodicCollection,
-                (time_t, const wp<UidIoStats>&, const wp<ProcStat>&, const wp<ProcPidStat>&),
-                (override));
-    MOCK_METHOD(Result<void>, onCustomCollection,
-                (time_t, const std::unordered_set<std::string>&, const wp<UidIoStats>&,
-                 const wp<ProcStat>&, const wp<ProcPidStat>&),
-                (override));
-    MOCK_METHOD(Result<void>, onPeriodicMonitor,
-                (time_t, const android::wp<IProcDiskStatsInterface>&, const std::function<void()>&),
-                (override));
-    MOCK_METHOD(Result<void>, onDump, (int), (override));
-    MOCK_METHOD(Result<void>, onCustomCollectionDump, (int), (override));
-};
-
-}  // namespace
 
 namespace internal {
 
