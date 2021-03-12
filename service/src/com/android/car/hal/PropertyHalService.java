@@ -184,8 +184,9 @@ public class PropertyHalService extends HalServiceBase {
             synchronized (mLock) {
                 propConfig = mHalPropIdToVehiclePropConfig.get(halPropId);
             }
+            boolean containStringType = propConfig.configArray.get(0) == 1;
             boolean containBooleanType = propConfig.configArray.get(1) == 1;
-            return toMixedCarPropertyValue(value, mgrPropId, containBooleanType);
+            return toMixedCarPropertyValue(value, mgrPropId, containBooleanType, containStringType);
         }
         return toCarPropertyValue(value, mgrPropId);
     }
@@ -417,8 +418,10 @@ public class PropertyHalService extends HalServiceBase {
                     synchronized (mLock) {
                         propConfig = mHalPropIdToVehiclePropConfig.get(v.prop);
                     }
+                    boolean containStringType = propConfig.configArray.get(0) == 1;
                     boolean containBooleanType = propConfig.configArray.get(1) == 1;
-                    propVal = toMixedCarPropertyValue(v, mgrPropId, containBooleanType);
+                    propVal = toMixedCarPropertyValue(v, mgrPropId, containBooleanType,
+                            containStringType);
                 } else {
                     propVal = toCarPropertyValue(v, mgrPropId);
                 }
