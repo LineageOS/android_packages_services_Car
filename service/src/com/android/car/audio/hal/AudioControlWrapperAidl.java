@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
+import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.os.Binder;
@@ -33,7 +34,9 @@ import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
+import com.android.internal.util.Preconditions;
 
+import java.util.List;
 import java.util.Objects;
 
 /**
@@ -66,8 +69,14 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
     @Override
     public boolean supportsFeature(int feature) {
-        return feature == AUDIOCONTROL_FEATURE_AUDIO_FOCUS
-                || feature == AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
+        switch (feature) {
+            case AUDIOCONTROL_FEATURE_AUDIO_FOCUS:
+            case AUDIOCONTROL_FEATURE_AUDIO_DUCKING:
+            case AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING:
+                return true;
+            default:
+                return false;
+        }
     }
 
     @Override
@@ -142,6 +151,19 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         } catch (RemoteException e) {
             Slog.e(TAG, "onDevicesToDuckChange for zone " + carDuckingInfo.mZoneId
                     + " failed", e);
+        }
+    }
+
+    @Override
+    public void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo) {
+        Objects.requireNonNull(carZonesMutingInfo, "Muting info can not be null");
+        Preconditions.checkArgument(!carZonesMutingInfo.isEmpty(), "Muting info can not be empty");
+        MutingInfo[] mutingInfoToHal = carZonesMutingInfo
+                .toArray(new MutingInfo[carZonesMutingInfo.size()]);
+        try {
+            mAudioControl.onDevicesToMuteChange(mutingInfoToHal);
+        } catch (RemoteException e) {
+            Slog.e(TAG, "onDevicesToMuteChange failed", e);
         }
     }
 
