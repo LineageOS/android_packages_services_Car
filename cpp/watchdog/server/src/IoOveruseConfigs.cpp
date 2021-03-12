@@ -33,13 +33,14 @@ namespace watchdog {
 
 using ::android::String16;
 using ::android::String8;
+using ::android::automotive::watchdog::PerStateBytes;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
-using ::android::automotive::watchdog::internal::PerStateBytes;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StartsWith;
@@ -419,6 +420,10 @@ PerStateBytes IoOveruseConfigs::fetchThreshold(const PackageInfo& packageInfo) c
 }
 
 bool IoOveruseConfigs::isSafeToKill(const PackageInfo& packageInfo) const {
+    if (packageInfo.uidType == UidType::NATIVE) {
+        // Native packages can't be disabled so don't kill them on I/O overuse.
+        return false;
+    }
     const std::string packageName = std::string(String8(packageInfo.packageIdentifier.name));
     switch (packageInfo.componentType) {
         case ComponentType::SYSTEM:

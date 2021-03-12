@@ -18,6 +18,9 @@ package android.automotive.watchdog;
 
 import android.automotive.watchdog.ICarWatchdogClient;
 import android.automotive.watchdog.ICarWatchdogMonitor;
+import android.automotive.watchdog.IResourceOveruseListener;
+import android.automotive.watchdog.ResourceOveruseStats;
+import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.StateType;
 import android.automotive.watchdog.TimeoutLength;
 
@@ -129,4 +132,33 @@ interface ICarWatchdog {
    * @deprecated Calling this API will result in unsupported operation binder error.
    */
   void notifySystemStateChange(in StateType type, in int arg1, in int arg2);
+
+  /**
+   * Add a listener for resource overuse notification.
+   *
+   * @param resourceTypes        Types of resource overuses to listen.
+   * @param listener             Resource overuse handler to notify client.
+   */
+   void addResourceOveruseListener(in ResourceType[] resourceTypes,
+          in IResourceOveruseListener listener);
+
+  /**
+   * Remove the listener for resource overuse notification.
+   *
+   * @param listener             Previously registered resource overuse handler.
+   */
+   void removeResourceOveruseListener(in IResourceOveruseListener listener);
+
+   /**
+    * Return the resource overuse stats for the calling package.
+    *
+    * @param resourceTypes        Types of resource overuses stats to return.
+    *
+    * @return                     Overuse stats only for the monitored resources. Caller must call
+    *                             the methods {@link ResourceOveruseStats#getTag} and
+    *                             {@link ResourceOveruseStats#get<>} on the returned values
+    *                             to retrieve the type of resource overuse stats and the specific
+    *                             resource overuse stats, respectively.
+    */
+   List<ResourceOveruseStats> getResourceOveruseStats(in ResourceType[] resourceTypes);
 }

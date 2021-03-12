@@ -60,7 +60,7 @@ constexpr const char* kCarWatchdogInternalServerInterface = "carwatchdogd_system
 constexpr const char* kNullCarWatchdogClientError =
         "Must provide a non-null car watchdog client instance";
 
-Status fromExceptionCode(int32_t exceptionCode, std::string message) {
+Status fromExceptionCode(const int32_t exceptionCode, const std::string& message) {
     ALOGW("%s", message.c_str());
     return Status::fromExceptionCode(exceptionCode, message.c_str());
 }
@@ -87,15 +87,16 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         mAddServiceHandler = &addToServiceManager;
     }
     if (watchdogServiceHelper != nullptr) {
+        mIoOveruseMonitor = new IoOveruseMonitor(watchdogServiceHelper);
         mWatchdogInternalHandler =
                 new WatchdogInternalHandler(this, watchdogServiceHelper, mWatchdogProcessService,
-                                            mWatchdogPerfService);
+                                            mWatchdogPerfService, mIoOveruseMonitor);
     }
 }
 
 Result<void> WatchdogBinderMediator::init() {
     if (mWatchdogProcessService == nullptr || mWatchdogPerfService == nullptr ||
-        mWatchdogInternalHandler == nullptr) {
+        mIoOveruseMonitor == nullptr || mWatchdogInternalHandler == nullptr) {
         std::string serviceList;
         if (mWatchdogProcessService == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
@@ -105,6 +106,10 @@ Result<void> WatchdogBinderMediator::init() {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog performance service");
         }
+        if (mIoOveruseMonitor == nullptr) {
+            StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
+                          "I/O overuse monitor service");
+        }
         if (mWatchdogInternalHandler == nullptr) {
             StringAppendF(&serviceList, "%s%s", (!serviceList.empty() ? ", " : ""),
                           "Watchdog internal handler");
@@ -112,12 +117,12 @@ Result<void> WatchdogBinderMediator::init() {
         return Error(INVALID_OPERATION)
                 << serviceList << " must be initialized with non-null instance";
     }
-    auto result = mAddServiceHandler(kCarWatchdogServerInterface, this);
-    if (!result.ok()) {
+    if (const auto result = mAddServiceHandler(kCarWatchdogServerInterface, this); !result.ok()) {
         return result;
     }
-    result = mAddServiceHandler(kCarWatchdogInternalServerInterface, mWatchdogInternalHandler);
-    if (!result.ok()) {
+    if (const auto result =
+                mAddServiceHandler(kCarWatchdogInternalServerInterface, mWatchdogInternalHandler);
+        !result.ok()) {
         return result;
     }
     return {};
@@ -203,6 +208,66 @@ Status WatchdogBinderMediator::tellClientAlive(const sp<ICarWatchdogClient>& cli
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogClientError);
     }
     return mWatchdogProcessService->tellClientAlive(client, sessionId);
+}
+
+Status WatchdogBinderMediator::addResourceOveruseListener(
+        const std::vector<ResourceType>& resourceTypes,
+        const sp<IResourceOveruseListener>& listener) {
+    if (listener == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Must provide a non-null resource overuse listener");
+    }
+    if (resourceTypes.size() != 1 || resourceTypes[0] != ResourceType::IO) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Must provide exactly one I/O resource type");
+    }
+    /*
+     * When more resource types are added, implement a new module to manage listeners for all
+     * resources.
+     */
+    if (const auto result = mIoOveruseMonitor->addIoOveruseListener(listener); !result.ok()) {
+        return fromExceptionCode(result.error().code(),
+                                 StringPrintf("Failed to register resource overuse listener: %s ",
+                                              result.error().message().c_str()));
+    }
+    return Status::ok();
+}
+
+Status WatchdogBinderMediator::removeResourceOveruseListener(
+        const sp<IResourceOveruseListener>& listener) {
+    if (listener == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Must provide a non-null resource overuse listener");
+    }
+    if (const auto result = mIoOveruseMonitor->removeIoOveruseListener(listener); !result.ok()) {
+        return fromExceptionCode(result.error().code(),
+                                 StringPrintf("Failed to unregister resource overuse listener: %s",
+                                              result.error().message().c_str()));
+    }
+    return Status::ok();
+}
+
+Status WatchdogBinderMediator::getResourceOveruseStats(
+        const std::vector<ResourceType>& resourceTypes,
+        std::vector<ResourceOveruseStats>* resourceOveruseStats) {
+    if (resourceOveruseStats == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Must provide a non-null resource overuse stats parcelable");
+    }
+    if (resourceTypes.size() != 1 || resourceTypes[0] != ResourceType::IO) {
+        return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                 "Must provide exactly one I/O resource type");
+    }
+    IoOveruseStats ioOveruseStats;
+    if (const auto result = mIoOveruseMonitor->getIoOveruseStats(&ioOveruseStats); !result.ok()) {
+        return fromExceptionCode(result.error().code(),
+                                 StringPrintf("Failed to get resource overuse stats: %s",
+                                              result.error().message().c_str()));
+    }
+    ResourceOveruseStats stats;
+    stats.set<ResourceOveruseStats::ioOveruseStats>(std::move(ioOveruseStats));
+    resourceOveruseStats->emplace_back(std::move(stats));
+    return Status::ok();
 }
 
 Status WatchdogBinderMediator::registerMediator(const sp<ICarWatchdogClient>& /*mediator*/) {

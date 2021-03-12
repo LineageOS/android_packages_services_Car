@@ -1,3 +1,18 @@
+/*
+ * Copyright (C) 2019 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
 ///////////////////////////////////////////////////////////////////////////////
 // THIS FILE IS IMMUTABLE. DO NOT EDIT IN ANY CASE.                          //
 ///////////////////////////////////////////////////////////////////////////////
@@ -21,19 +36,36 @@ package android.automotive.watchdog;
 interface ICarWatchdog {
   void registerClient(in android.automotive.watchdog.ICarWatchdogClient client, in android.automotive.watchdog.TimeoutLength timeout);
   void unregisterClient(in android.automotive.watchdog.ICarWatchdogClient client);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void registerMediator(in android.automotive.watchdog.ICarWatchdogClient mediator);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void unregisterMediator(in android.automotive.watchdog.ICarWatchdogClient mediator);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void registerMonitor(in android.automotive.watchdog.ICarWatchdogMonitor monitor);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void unregisterMonitor(in android.automotive.watchdog.ICarWatchdogMonitor monitor);
   void tellClientAlive(in android.automotive.watchdog.ICarWatchdogClient client, in int sessionId);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void tellMediatorAlive(in android.automotive.watchdog.ICarWatchdogClient mediator, in int[] clientsNotResponding, in int sessionId);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void tellDumpFinished(in android.automotive.watchdog.ICarWatchdogMonitor monitor, in int pid);
-  /* @deprecated Calling this API will result in unsupported operation binder error. */
+  /**
+   * @deprecated Calling this API will result in unsupported operation binder error.
+   */
   void notifySystemStateChange(in android.automotive.watchdog.StateType type, in int arg1, in int arg2);
+  void addResourceOveruseListener(in android.automotive.watchdog.ResourceType[] resourceTypes, in android.automotive.watchdog.IResourceOveruseListener listener);
+  void removeResourceOveruseListener(in android.automotive.watchdog.IResourceOveruseListener listener);
+  List<android.automotive.watchdog.ResourceOveruseStats> getResourceOveruseStats(in android.automotive.watchdog.ResourceType[] resourceTypes);
 }

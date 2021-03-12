@@ -96,39 +96,20 @@ private:
 
 }  // namespace
 
-namespace internal {
-
-class WatchdogInternalHandlerPeer : public RefBase {
-public:
-    explicit WatchdogInternalHandlerPeer(const sp<WatchdogInternalHandler>& handler) :
-          mWatchdogInternalHandler(handler) {}
-
-    void updateIoOveruseMonitor(const sp<IoOveruseMonitor>& ioOveruseMonitor) {
-        mWatchdogInternalHandler->mIoOveruseMonitor = ioOveruseMonitor;
-    }
-
-private:
-    sp<WatchdogInternalHandler> mWatchdogInternalHandler;
-};
-
-}  // namespace internal
-
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
         mMockWatchdogProcessService = new MockWatchdogProcessService();
         mMockWatchdogPerfService = new MockWatchdogPerfService();
         mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
-        mMockIoOveruseMonitor = new MockIoOveruseMonitor(mMockWatchdogServiceHelper);
+        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
         mMockWatchdogBinderMediator = new MockWatchdogBinderMediator(mMockWatchdogProcessService,
                                                                      mMockWatchdogPerfService,
                                                                      mMockWatchdogServiceHelper);
         mWatchdogInternalHandler =
                 new WatchdogInternalHandler(mMockWatchdogBinderMediator, mMockWatchdogServiceHelper,
-                                            mMockWatchdogProcessService, mMockWatchdogPerfService);
-        mWatchdogInternalHandlerPeer =
-                new internal::WatchdogInternalHandlerPeer(mWatchdogInternalHandler);
-        mWatchdogInternalHandlerPeer->updateIoOveruseMonitor(mMockIoOveruseMonitor);
+                                            mMockWatchdogProcessService, mMockWatchdogPerfService,
+                                            mMockIoOveruseMonitor);
     }
     virtual void TearDown() {
         mMockWatchdogBinderMediator.clear();
@@ -149,7 +130,6 @@ protected:
     sp<MockWatchdogPerfService> mMockWatchdogPerfService;
     sp<MockIoOveruseMonitor> mMockIoOveruseMonitor;
     sp<WatchdogInternalHandler> mWatchdogInternalHandler;
-    sp<internal::WatchdogInternalHandlerPeer> mWatchdogInternalHandlerPeer;
     sp<ScopedChangeCallingUid> mScopedChangeCallingUid;
 };
 

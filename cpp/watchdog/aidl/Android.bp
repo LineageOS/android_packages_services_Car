@@ -47,4 +47,7 @@ aidl_interface {
             enabled: true,
         },
     },
+    imports: [
+        "android.automotive.watchdog",
+    ],
 }

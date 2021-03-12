@@ -25,6 +25,9 @@
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/BnCarWatchdog.h>
+#include <android/automotive/watchdog/BnResourceOveruseListener.h>
+#include <android/automotive/watchdog/ResourceOveruseStats.h>
+#include <android/automotive/watchdog/ResourceType.h>
 #include <android/automotive/watchdog/StateType.h>
 #include <binder/IBinder.h>
 #include <binder/Status.h>
@@ -70,6 +73,14 @@ public:
             const android::sp<ICarWatchdogClient>& client) override;
     android::binder::Status tellClientAlive(const android::sp<ICarWatchdogClient>& client,
                                             int32_t sessionId) override;
+    android::binder::Status addResourceOveruseListener(
+            const std::vector<ResourceType>& resourceTypes,
+            const android::sp<IResourceOveruseListener>& listener);
+    android::binder::Status removeResourceOveruseListener(
+            const android::sp<IResourceOveruseListener>& listener);
+    android::binder::Status getResourceOveruseStats(
+            const std::vector<ResourceType>& resourceTypes,
+            std::vector<ResourceOveruseStats>* resourceOveruseStats);
 
     // Deprecated APIs.
     android::binder::Status registerMediator(
@@ -94,6 +105,7 @@ protected:
     void terminate() {
         mWatchdogProcessService.clear();
         mWatchdogPerfService.clear();
+        mIoOveruseMonitor.clear();
         if (mWatchdogInternalHandler != nullptr) {
             mWatchdogInternalHandler->terminate();
             mWatchdogInternalHandler.clear();
@@ -105,6 +117,7 @@ private:
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
+    android::sp<IIoOveruseMonitor> mIoOveruseMonitor;
     android::sp<WatchdogInternalHandler> mWatchdogInternalHandler;
 
     // Used by tests to stub the call to IServiceManager.

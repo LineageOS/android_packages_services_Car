@@ -19,12 +19,12 @@
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
+#include <android/automotive/watchdog/PerStateBytes.h>
 #include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/IoOveruseAlertThreshold.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
-#include <android/automotive/watchdog/internal/PerStateBytes.h>
 #include <android/automotive/watchdog/internal/PerStateIoOveruseThreshold.h>
 #include <utils/String16.h>
 
@@ -65,7 +65,7 @@ public:
     virtual const std::unordered_set<std::string>& vendorPackagePrefixes() = 0;
 
     // Fetches the I/O overuse thresholds for the given package.
-    virtual android::automotive::watchdog::internal::PerStateBytes fetchThreshold(
+    virtual PerStateBytes fetchThreshold(
             const android::automotive::watchdog::internal::PackageInfo& packageInfo) const = 0;
 
     // Returns whether or not the package is safe to kill on I/O overuse.
@@ -160,7 +160,7 @@ public:
             const android::automotive::watchdog::internal::ComponentType componentType,
             const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
 
-    android::automotive::watchdog::internal::PerStateBytes fetchThreshold(
+    PerStateBytes fetchThreshold(
             const android::automotive::watchdog::internal::PackageInfo& packageInfo) const;
 
     bool isSafeToKill(
