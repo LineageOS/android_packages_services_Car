@@ -1409,9 +1409,9 @@ package android.car.watchdog {
   public final class CarWatchdogManager {
     method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public void addResourceOveruseListenerForSystem(@NonNull java.util.concurrent.Executor, int, @NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
     method @NonNull @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public java.util.List<android.car.watchdog.ResourceOveruseStats> getAllResourceOveruseStats(int, int, int);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public java.util.List<android.car.watchdog.PackageKillableState> getPackageKillableStates(@NonNull android.os.UserHandle);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public java.util.List<android.car.watchdog.PackageKillableState> getPackageKillableStatesAsUser(@NonNull android.os.UserHandle);
     method @NonNull @RequiresPermission(anyOf={android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG, android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS}) public java.util.List<android.car.watchdog.ResourceOveruseConfiguration> getResourceOveruseConfigurations(int);
-    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public android.car.watchdog.ResourceOveruseStats getResourceOveruseStatsForUserPackage(@NonNull String, int, int, int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public android.car.watchdog.ResourceOveruseStats getResourceOveruseStatsForUserPackage(@NonNull String, @NonNull android.os.UserHandle, int, int);
     method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_WATCHDOG) public void registerClient(@NonNull java.util.concurrent.Executor, @NonNull android.car.watchdog.CarWatchdogManager.CarWatchdogClientCallback, int);
     method @RequiresPermission(android.car.Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS) public void removeResourceOveruseListenerForSystem(@NonNull android.car.watchdog.CarWatchdogManager.ResourceOveruseListener);
     method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG) public void setKillablePackageAsUser(@NonNull String, @NonNull android.os.UserHandle, boolean);
