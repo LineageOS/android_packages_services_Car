@@ -35,6 +35,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::IoOveruseConfiguration;
+using aawi::PackageResourceOveruseAction;
 using ::android::sp;
 using ::android::binder::Status;
 
@@ -195,6 +196,18 @@ Status WatchdogInternalHandler::updateIoOveruseConfiguration(ComponentType type,
     }
     if (const auto result = mIoOveruseMonitor->updateIoOveruseConfiguration(type, config);
         !result.ok()) {
+        return fromExceptionCode(result.error().code(), result.error().message());
+    }
+    return Status::ok();
+}
+
+Status WatchdogInternalHandler::actionTakenOnResourceOveruse(
+        const std::vector<PackageResourceOveruseAction>& actions) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (const auto result = mIoOveruseMonitor->actionTakenOnIoOveruse(actions); !result.ok()) {
         return fromExceptionCode(result.error().code(), result.error().message());
     }
     return Status::ok();

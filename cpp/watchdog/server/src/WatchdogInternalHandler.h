@@ -27,6 +27,7 @@
 #include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
+#include <android/automotive/watchdog/internal/PackageResourceOveruseAction.h>
 #include <android/automotive/watchdog/internal/StateType.h>
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
@@ -83,6 +84,10 @@ public:
     android::binder::Status updateIoOveruseConfiguration(
             android::automotive::watchdog::internal::ComponentType type,
             const android::automotive::watchdog::internal::IoOveruseConfiguration& config) override;
+    android::binder::Status actionTakenOnResourceOveruse(
+            const std::vector<
+                    android::automotive::watchdog::internal::PackageResourceOveruseAction>&
+                    actions);
 
 protected:
     void terminate() {

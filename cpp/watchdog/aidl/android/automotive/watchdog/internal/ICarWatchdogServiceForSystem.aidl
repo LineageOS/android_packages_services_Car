@@ -55,10 +55,10 @@ interface ICarWatchdogServiceForSystem {
   List<PackageInfo> getPackageInfosForUids(in int[] uids, in List<String> vendorPackagePrefixes);
 
   /**
-   * Notifies watchdog server of I/O overusing applications.
+   * Pushes the latest I/O overuse stats to the watchdog server.
    *
-   * @param ioOveruseStats              Package I/O stats for packages that are either overusing
-   *                                    I/O or about to exceed their I/O usage threshold.
+   * @param packageIoOveruseStats       Latest package I/O overuse stats, for all packages, from the
+   *                                    recent collection.
    */
-  oneway void notifyIoOveruse(in List<PackageIoOveruseStats> ioOveruseStats);
+  oneway void latestIoOveruseStats(in List<PackageIoOveruseStats> packageIoOveruseStats);
 }

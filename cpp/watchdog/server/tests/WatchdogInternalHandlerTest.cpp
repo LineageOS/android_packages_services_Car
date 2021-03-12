@@ -46,6 +46,7 @@ using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::IoOveruseConfiguration;
+using aawi::PackageResourceOveruseAction;
 using ::android::sp;
 using ::android::base::Result;
 using ::android::binder::Status;
@@ -384,6 +385,22 @@ TEST_F(WatchdogInternalHandlerTest,
     Status status =
             mWatchdogInternalHandler->updateIoOveruseConfiguration(ComponentType::SYSTEM,
                                                                    IoOveruseConfiguration{});
+    ASSERT_FALSE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestActionTakenOnResourceOveruse) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockIoOveruseMonitor, actionTakenOnIoOveruse(_)).WillOnce(Return(Result<void>()));
+    Status status = mWatchdogInternalHandler->actionTakenOnResourceOveruse(
+            std::vector<PackageResourceOveruseAction>{});
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest,
+       TestErrorOnActionTakenOnResourceOveruseWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, actionTakenOnIoOveruse(_)).Times(0);
+    Status status = mWatchdogInternalHandler->actionTakenOnResourceOveruse(
+            std::vector<PackageResourceOveruseAction>{});
     ASSERT_FALSE(status.isOk()) << status;
 }
 
