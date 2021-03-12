@@ -89,8 +89,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             Arrays.asList(1, 0, 1, 0, 1, 0, 0, 0, 0);
     private static final java.util.Collection<Integer> CONFIG_ARRAY_2 =
             Arrays.asList(1, 1, 1, 0, 0, 0, 0, 2, 0);
+    private static final java.util.Collection<Integer> CONFIG_ARRAY_3 =
+            Arrays.asList(0, 1, 1, 0, 0, 0, 1, 0, 0);
     private static final Object[] EXPECTED_VALUE_1 = {"android", 1, 1L};
     private static final Object[] EXPECTED_VALUE_2 = {"android", true, 3, 1.1f, 2f};
+    private static final Object[] EXPECTED_VALUE_3 = {true, 1, 2.2f};
 
     private static final int CUSTOM_SEAT_INT_PROP_1 =
             0x1201 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.SEAT;
@@ -101,6 +104,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             0x1101 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.SEAT;
     private static final int CUSTOM_GLOBAL_MIXED_PROP_ID_2 =
             0x1102 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.GLOBAL;
+    private static final int CUSTOM_GLOBAL_MIXED_PROP_ID_3 =
+            0x1110 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.MIXED | VehicleArea.GLOBAL;
 
     private static final int CUSTOM_GLOBAL_INT_ARRAY_PROP =
             0x1103 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32_VEC
@@ -174,6 +179,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                     assertThat(cfg.getConfigArray()).containsExactlyElementsIn(CONFIG_ARRAY_2)
                             .inOrder();
                     break;
+                case CUSTOM_GLOBAL_MIXED_PROP_ID_3:
+                    assertThat(cfg.getConfigArray()).containsExactlyElementsIn(CONFIG_ARRAY_3)
+                            .inOrder();
+                    break;
                 case VehiclePropertyIds.HVAC_TEMPERATURE_SET:
                 case PROP_CAUSE_STATUS_CODE_ACCESS_DENIED:
                 case PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR:
@@ -198,11 +207,18 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         CarPropertyValue<Object[]> result = mManager.getProperty(
                 CUSTOM_SEAT_MIXED_PROP_ID_1, 0);
         assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_1);
+
         mManager.setProperty(Object[].class, CUSTOM_GLOBAL_MIXED_PROP_ID_2,
                 0, EXPECTED_VALUE_2);
         result = mManager.getProperty(
                 CUSTOM_GLOBAL_MIXED_PROP_ID_2, 0);
         assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_2);
+
+        mManager.setProperty(Object[].class, CUSTOM_GLOBAL_MIXED_PROP_ID_3,
+                0, EXPECTED_VALUE_3);
+        result = mManager.getProperty(
+                CUSTOM_GLOBAL_MIXED_PROP_ID_3, 0);
+        assertThat(result.getValue()).isEqualTo(EXPECTED_VALUE_3);
     }
 
     /**
@@ -597,6 +613,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         addProperty(CUSTOM_SEAT_MIXED_PROP_ID_1, handler).setConfigArray(CONFIG_ARRAY_1)
                 .addAreaConfig(DRIVER_SIDE_AREA_ID).addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_2, handler).setConfigArray(CONFIG_ARRAY_2);
+        addProperty(CUSTOM_GLOBAL_MIXED_PROP_ID_3, handler).setConfigArray(CONFIG_ARRAY_3);
         addProperty(CUSTOM_GLOBAL_INT_ARRAY_PROP, handler);
 
         VehiclePropValue tempValue = new VehiclePropValue();
