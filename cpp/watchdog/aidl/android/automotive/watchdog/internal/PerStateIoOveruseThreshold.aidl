@@ -16,7 +16,7 @@
 
 package android.automotive.watchdog.internal;
 
-import android.automotive.watchdog.internal.PerStateBytes;
+import android.automotive.watchdog.PerStateBytes;
 
 /**
  * Structure that describes the disk I/O overuse threshold for each application and system state of

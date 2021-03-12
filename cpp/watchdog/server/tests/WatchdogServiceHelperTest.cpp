@@ -386,9 +386,10 @@ TEST_F(WatchdogServiceHelperTest, TestNotifyIoOveruse) {
     PackageIoOveruseStats stats;
     stats.packageIdentifier.name = String16("randomPackage");
     stats.packageIdentifier.uid = 101000;
-    stats.maybeKilledOnOveruse = true;
-    stats.periodInDays = 1;
-    stats.numOveruses = 10;
+    stats.ioOveruseStats.killableOnOveruse = true;
+    stats.ioOveruseStats.startTime = 99898;
+    stats.ioOveruseStats.durationInSeconds = 12345;
+    stats.ioOveruseStats.totalOveruses = 10;
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
     std::vector<PackageIoOveruseStats> actualOveruseStats;
 

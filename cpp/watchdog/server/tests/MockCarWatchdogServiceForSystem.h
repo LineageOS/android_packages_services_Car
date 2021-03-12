@@ -17,9 +17,10 @@
 #ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKCARWATCHDOGSERVICEFORSYSTEM_H_
 #define CPP_WATCHDOG_SERVER_TESTS_MOCKCARWATCHDOGSERVICEFORSYSTEM_H_
 
+#include "MockBinder.h"
+
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
 #include <android/automotive/watchdog/internal/TimeoutLength.h>
-#include <binder/IBinder.h>
 #include <binder/Status.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
@@ -30,39 +31,21 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockBinder : public android::BBinder {
-public:
-    MockBinder() {
-        EXPECT_CALL(*this, linkToDeath(::testing::_, nullptr, 0))
-                .WillRepeatedly(::testing::Return(OK));
-        EXPECT_CALL(*this, unlinkToDeath(::testing::_, nullptr, 0, nullptr))
-                .WillRepeatedly(::testing::Return(OK));
-    }
-    MOCK_METHOD(status_t, linkToDeath,
-                (const sp<android::IBinder::DeathRecipient>& recipient, void* cookie,
-                 uint32_t flags),
-                (override));
-    MOCK_METHOD(status_t, unlinkToDeath,
-                (const wp<android::IBinder::DeathRecipient>& recipient, void* cookie,
-                 uint32_t flags, wp<android::IBinder::DeathRecipient>* outRecipient),
-                (override));
-};
-
 class MockCarWatchdogServiceForSystem :
       public android::automotive::watchdog::internal::ICarWatchdogServiceForSystemDefault {
 public:
     MockCarWatchdogServiceForSystem() : mBinder(new MockBinder()) {
-        EXPECT_CALL(*this, onAsBinder()).WillRepeatedly(::testing::Return(mBinder.get()));
+        ON_CALL(*this, onAsBinder()).WillByDefault(::testing::Return(mBinder.get()));
     }
 
-    sp<MockBinder> getBinder() const { return mBinder; }
+    android::sp<MockBinder> getBinder() const { return mBinder; }
 
     MOCK_METHOD(android::IBinder*, onAsBinder, (), (override));
     MOCK_METHOD(android::binder::Status, checkIfAlive,
                 (int32_t, android::automotive::watchdog::internal::TimeoutLength), (override));
     MOCK_METHOD(android::binder::Status, prepareProcessTermination, (), (override));
     MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
-                (const std::vector<int32_t>&, const std::vector<::android::String16>&,
+                (const std::vector<int32_t>&, const std::vector<android::String16>&,
                  std::vector<android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
     MOCK_METHOD(
@@ -71,7 +54,7 @@ public:
             (override));
 
 private:
-    sp<MockBinder> mBinder;
+    android::sp<MockBinder> mBinder;
 };
 
 }  // namespace watchdog

@@ -23,6 +23,7 @@
 #include <android-base/result.h>
 #include <android/automotive/watchdog/TimeoutLength.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
+#include <android/automotive/watchdog/internal/PackageIoOveruseStats.h>
 #include <binder/Status.h>
 #include <gmock/gmock.h>
 #include <utils/StrongPointer.h>

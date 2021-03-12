@@ -20,9 +20,10 @@
 #include "IoOveruseConfigs.h"
 
 #include <android-base/result.h>
+#include <android/automotive/watchdog/PerStateBytes.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
-#include <android/automotive/watchdog/internal/PerStateBytes.h>
+#include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <gmock/gmock.h>
 
 namespace android {
@@ -40,7 +41,7 @@ public:
 
     MOCK_METHOD((const std::unordered_set<std::string>&), vendorPackagePrefixes, (), (override));
 
-    MOCK_METHOD(android::automotive::watchdog::internal::PerStateBytes, fetchThreshold,
+    MOCK_METHOD(PerStateBytes, fetchThreshold,
                 (const android::automotive::watchdog::internal::PackageInfo&), (const, override));
 
     MOCK_METHOD(bool, isSafeToKill, (const android::automotive::watchdog::internal::PackageInfo&),
@@ -48,22 +49,37 @@ public:
 
     MOCK_METHOD((const IoOveruseAlertThresholdSet&), systemWideAlertThresholds, (), (override));
 
-    void injectThresholds(const std::unordered_map<
-                          std::string, android::automotive::watchdog::internal::PerStateBytes>&
-                                  perPackageThreshold) {
+    struct PackageConfig {
+        PerStateBytes threshold;
+        bool isSafeToKill = false;
+    };
+
+    void injectPackageConfigs(
+            const std::unordered_map<std::string, PackageConfig>& perPackageConfig) {
         ON_CALL(*this, fetchThreshold(::testing::_))
-                .WillByDefault([perPackageThreshold = perPackageThreshold](
+                .WillByDefault([perPackageConfig = perPackageConfig](
                                        const android::automotive::watchdog::internal::PackageInfo&
                                                packageInfo) {
                     const std::string packageName =
                             std::string(String8(packageInfo.packageIdentifier.name));
-                    if (const auto it = perPackageThreshold.find(packageName);
-                        it != perPackageThreshold.end()) {
-                        return it->second;
+                    if (const auto it = perPackageConfig.find(packageName);
+                        it != perPackageConfig.end()) {
+                        return it->second.threshold;
                     }
                     return defaultThreshold().perStateWriteBytes;
                 });
-        ON_CALL(*this, isSafeToKill(::testing::_)).WillByDefault(::testing::Return(true));
+        ON_CALL(*this, isSafeToKill(::testing::_))
+                .WillByDefault([perPackageConfig = perPackageConfig](
+                                       const android::automotive::watchdog::internal::PackageInfo&
+                                               packageInfo) {
+                    const std::string packageName =
+                            std::string(String8(packageInfo.packageIdentifier.name));
+                    if (const auto it = perPackageConfig.find(packageName);
+                        it != perPackageConfig.end()) {
+                        return it->second.isSafeToKill;
+                    }
+                    return true;
+                });
     }
 };
 
