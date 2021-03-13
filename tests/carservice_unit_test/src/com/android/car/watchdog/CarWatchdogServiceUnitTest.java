@@ -165,19 +165,19 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
         ArrayMap<String, ApplicationInfo> applicationInfos = new ArrayMap<>(9);
         applicationInfos.put("system.package.A",
-                constructApplicationInfo(ApplicationInfo.FLAG_SYSTEM));
+                constructApplicationInfo(ApplicationInfo.FLAG_SYSTEM, 0));
         applicationInfos.put("system.package.B",
-                constructApplicationInfo(ApplicationInfo.FLAG_UPDATED_SYSTEM_APP));
+                constructApplicationInfo(ApplicationInfo.FLAG_UPDATED_SYSTEM_APP, 0));
         applicationInfos.put("system.package.F",
-                constructApplicationInfo(ApplicationInfo.PRIVATE_FLAG_PRODUCT));
+                constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_PRODUCT));
         applicationInfos.put("vendor.package.D",
-                constructApplicationInfo(ApplicationInfo.PRIVATE_FLAG_OEM));
+                constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_OEM));
         applicationInfos.put("vendor.package.E",
-                constructApplicationInfo(ApplicationInfo.PRIVATE_FLAG_VENDOR));
-        applicationInfos.put("third_party.package.C", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.G", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.H", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.I", constructApplicationInfo(0));
+                constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_VENDOR));
+        applicationInfos.put("third_party.package.C", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.G", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.H", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.I", constructApplicationInfo(0, 0));
 
         mockPackageManager(uids, expectedPackageInfos, applicationInfos);
 
@@ -191,7 +191,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     @Test
     public void testGetPackageInfosForUidsWithVendorPackagePrefixes() throws Exception {
-        int[] uids = new int[]{110034, 110035, 120078};
+        int[] uids = new int[]{110034, 110035, 123456, 120078};
         List<PackageInfo> expectedPackageInfos = new ArrayList<>(Arrays.asList(
                 constructPackageInfo("vendor.package.D", 110034, new ArrayList<>(),
                         UidType.APPLICATION, ComponentType.VENDOR, ApplicationCategoryType.OTHERS),
@@ -199,16 +199,26 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                         new ArrayList<>(Arrays.asList("vendor.pkg.E", "third_party.package.F",
                                 "third_party.package.G")), UidType.APPLICATION,
                         ComponentType.VENDOR, ApplicationCategoryType.OTHERS),
-                constructPackageInfo("third_party.package.H", 120078, new ArrayList<>(),
-                        UidType.APPLICATION, ComponentType.THIRD_PARTY,
+                constructPackageInfo("vendor.package.imposter", 123456,
+                        new ArrayList<>(), UidType.APPLICATION, ComponentType.THIRD_PARTY,
+                        ApplicationCategoryType.OTHERS),
+                constructPackageInfo("third_party.package.H", 120078,
+                        new ArrayList<>(), UidType.APPLICATION, ComponentType.THIRD_PARTY,
                         ApplicationCategoryType.OTHERS)));
 
         ArrayMap<String, ApplicationInfo> applicationInfos = new ArrayMap<>(5);
-        applicationInfos.put("vendor.package.D", constructApplicationInfo(0));
-        applicationInfos.put("vendor.pkg.E", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.F", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.G", constructApplicationInfo(0));
-        applicationInfos.put("third_party.package.H", constructApplicationInfo(0));
+        applicationInfos.put("vendor.package.D", constructApplicationInfo(0,
+                ApplicationInfo.PRIVATE_FLAG_PRODUCT));
+        applicationInfos.put("vendor.pkg.E", constructApplicationInfo(ApplicationInfo.FLAG_SYSTEM,
+                0));
+        /**
+         * A 3p package pretending to be a vendor package because 3p packages won't have the
+         * required flags.
+         */
+        applicationInfos.put("vendor.package.imposter", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.F", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.G", constructApplicationInfo(0, 0));
+        applicationInfos.put("third_party.package.H", constructApplicationInfo(0, 0));
 
         mockPackageManager(uids, expectedPackageInfos, applicationInfos);
 
@@ -240,11 +250,13 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
         ArrayMap<String, ApplicationInfo> applicationInfos = new ArrayMap<>(3);
         applicationInfos.put(
-                "vendor.package.D", constructApplicationInfo(ApplicationInfo.PRIVATE_FLAG_VENDOR));
+                "vendor.package.D", constructApplicationInfo(0,
+                        ApplicationInfo.PRIVATE_FLAG_VENDOR));
         applicationInfos.put(
-                "vendor.package.E", constructApplicationInfo(ApplicationInfo.PRIVATE_FLAG_VENDOR));
+                "vendor.package.E", constructApplicationInfo(0,
+                        ApplicationInfo.PRIVATE_FLAG_VENDOR));
         applicationInfos.put(
-                "third_party.package.F", constructApplicationInfo(0));
+                "third_party.package.F", constructApplicationInfo(0, 0));
 
         mockPackageManager(uids, expectedPackageInfos, applicationInfos);
 
@@ -355,9 +367,10 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return packageInfo;
     }
 
-    private ApplicationInfo constructApplicationInfo(int flags) {
+    private ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
         ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.flags = flags;
+        applicationInfo.privateFlags = privateFlags;
         return applicationInfo;
     }
 

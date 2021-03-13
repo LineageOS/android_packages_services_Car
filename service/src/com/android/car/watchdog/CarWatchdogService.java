@@ -653,25 +653,24 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     private int getPackageComponentType(
             int userId, String packageName, List<String> vendorPackagePrefixes) {
-        for (String prefix : vendorPackagePrefixes) {
-            if (packageName.startsWith(prefix)) {
-                return ComponentType.VENDOR;
-            }
-        }
         try {
             final ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
                 /* flags= */ 0, userId);
+            if ((info.privateFlags & ApplicationInfo.PRIVATE_FLAG_OEM) != 0
+                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_VENDOR) != 0) {
+                return ComponentType.VENDOR;
+            }
             if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
                     || (info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
-                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
-                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0
-                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_ODM) != 0) {
+                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
+                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0
+                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_ODM) != 0) {
+                for (String prefix : vendorPackagePrefixes) {
+                    if (packageName.startsWith(prefix)) {
+                        return ComponentType.VENDOR;
+                    }
+                }
                 return ComponentType.SYSTEM;
-            }
-
-            if ((info.flags & ApplicationInfo.PRIVATE_FLAG_OEM) != 0
-                    || (info.flags & ApplicationInfo.PRIVATE_FLAG_VENDOR) != 0) {
-                return ComponentType.VENDOR;
             }
         } catch (PackageManager.NameNotFoundException e) {
             Slog.e(TAG, "Package '" + packageName + "' not found for user " + userId + ": ", e);
