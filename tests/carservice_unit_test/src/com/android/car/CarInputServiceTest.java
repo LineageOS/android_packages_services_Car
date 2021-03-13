@@ -540,7 +540,10 @@ public class CarInputServiceTest {
         doReturn(PackageManager.PERMISSION_DENIED).when(mContext).checkCallingOrSelfPermission(
                 android.Manifest.permission.INJECT_EVENTS);
 
-        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent event = new KeyEvent(/* downTime= */ currentTime,
+                /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER,
+                /* repeat= */ 0);
 
         // Act and assert
         Assert.assertThrows(SecurityException.class,
@@ -550,7 +553,11 @@ public class CarInputServiceTest {
 
     @Test
     public void injectKeyEvent_delegatesToOnKeyEvent() {
-        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent event = new KeyEvent(/* downTime= */ currentTime,
+                /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER,
+                /* repeat= */ 0);
+
         event.setDisplayId(android.view.Display.INVALID_DISPLAY);
 
         injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
@@ -561,7 +568,10 @@ public class CarInputServiceTest {
 
     @Test
     public void injectKeyEvent_sendingKeyEventWithDefaultDisplayAgainstClusterDisplayType() {
-        KeyEvent event = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent event = new KeyEvent(/* downTime= */ currentTime,
+                /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER,
+                /* repeat= */ 0);
         event.setDisplayId(android.view.Display.DEFAULT_DISPLAY);
 
         injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
