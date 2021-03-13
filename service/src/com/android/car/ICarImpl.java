@@ -57,9 +57,9 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.ClusterHomeService;
 import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
+import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
-import com.android.car.evs.CarEvsService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.common.EventLogTags;
@@ -533,11 +533,19 @@ public class ICarImpl extends ICar.Stub {
      * Note that car service runs as system user but test like car service test will not.
      */
     public static void assertCallingFromSystemProcessOrSelf() {
-        int uid = Binder.getCallingUid();
-        int pid = Binder.getCallingPid();
-        if (uid != Process.SYSTEM_UID && pid != Process.myPid()) {
+        if (isCallingFromSystemProcessOrSelf()) {
             throw new SecurityException("Only allowed from system or self");
         }
+    }
+
+    /**
+     * @return true if binder call is coming from system process like system server or if it is
+     * called from its own process even if it is not system.
+     */
+    public static boolean isCallingFromSystemProcessOrSelf() {
+        int uid = Binder.getCallingUid();
+        int pid = Binder.getCallingPid();
+        return uid != Process.SYSTEM_UID && pid != Process.myPid();
     }
 
     @Override

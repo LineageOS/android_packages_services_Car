@@ -217,6 +217,13 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     @Override
+    protected synchronized void configureResourceOverrides(MockResources resources) {
+        super.configureResourceOverrides(resources);
+        resources.overrideResource(com.android.car.R.string.config_clusterHomeActivity,
+                getTestContext().getPackageName() + "/" + CarInputManagerTest.class.getName());
+    }
+
+    @Override
     public void setUp() throws Exception {
         super.setUp();
         mCarInputManager = (CarInputManager) getCar().getCarManager(Car.CAR_INPUT_SERVICE);
@@ -225,12 +232,6 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     @Test
     public void testInvalidArgs() {
-        // TODO(b/150818155) Need to migrate cluster code to use this to enable it.
-        assertThrows(IllegalArgumentException.class,
-                () -> mCarInputManager.requestInputEventCapture(
-                        CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
-                        new int[]{CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION}, 0, mCallback0));
-
         // Invalid display
         assertThrows(IllegalArgumentException.class,
                 () -> mCarInputManager.requestInputEventCapture(INVALID_DISPLAY_TYPE,
@@ -524,6 +525,20 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     @Test
+    public void testFullCapturerAcceptsNotMappedKey() throws Exception {
+        int r = mCarInputManager.requestInputEventCapture(
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
+                CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY, mCallback0);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+
+        injectKeyEvent(true, KeyEvent.KEYCODE_MENU, VehicleDisplay.INSTRUMENT_CLUSTER);
+        mCallback0.waitForKeyEvent();
+        assertLastKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, true,
+                KeyEvent.KEYCODE_MENU, mCallback0);
+    }
+
+    @Test
     public void testSingleClientUpdates() {
         int r = mCarInputManager.requestInputEventCapture(
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
@@ -655,8 +670,8 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     private void waitForDispatchToMain() {
         // Needs to twice as it is dispatched to main inside car service once and it is
         // dispatched to main inside CarInputManager once.
-        CarServiceUtils.runOnMainSync(() -> { });
-        CarServiceUtils.runOnMainSync(() -> {  });
+        CarServiceUtils.runOnMainSync(() -> {});
+        CarServiceUtils.runOnMainSync(() -> {});
     }
 
     private void assertLastKeyEvent(int displayTarget, boolean down, int keyCode,
@@ -731,9 +746,13 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     private void injectKeyEvent(boolean down, int keyCode) {
+        injectKeyEvent(down, keyCode, VehicleDisplay.MAIN);
+    }
+
+    private void injectKeyEvent(boolean down, int keyCode, int vehicleDisplayType) {
         getMockedVehicleHal().injectEvent(
                 VehiclePropValueBuilder.newBuilder(VehicleProperty.HW_KEY_INPUT)
-                        .addIntValue(down ? 0 : 1, keyCode, 0)
+                        .addIntValue(down ? 0 : 1, keyCode, vehicleDisplayType)
                         .build());
     }
 
