@@ -63,6 +63,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
+import com.android.internal.os.BackgroundThread;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -319,8 +320,10 @@ public class CarInputService extends ICarInput.Stub
 
         mInputHalService.setInputListener(this);
         if (mBluetoothAdapter != null) {
-            mBluetoothAdapter.getProfileProxy(
-                    mContext, mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
+            BackgroundThread.getHandler().post(() -> {
+                mBluetoothAdapter.getProfileProxy(mContext,
+                        mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
+            });
         }
         if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
             mUserService.addUserLifecycleListener(mUserLifecycleListener);
