@@ -406,8 +406,19 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         // When the master mute is turned ON, we want the playing app to get a "pause" command.
         // When the volume is unmuted, we want to resume playback.
         int keycode = mute ? KeyEvent.KEYCODE_MEDIA_PAUSE : KeyEvent.KEYCODE_MEDIA_PLAY;
-        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_DOWN, keycode));
-        mAudioManager.dispatchMediaKeyEvent(new KeyEvent(KeyEvent.ACTION_UP, keycode));
+
+        dispatchMediaKeyEvent(keycode);
+    }
+
+    private void dispatchMediaKeyEvent(int keycode) {
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent keyDown = new KeyEvent(/* downTime= */ currentTime, /* eventTime= */ currentTime,
+                KeyEvent.ACTION_DOWN, keycode, /* repeat= */ 0);
+        mAudioManager.dispatchMediaKeyEvent(keyDown);
+
+        KeyEvent keyUp = new KeyEvent(/* downTime= */ currentTime, /* eventTime= */ currentTime,
+                KeyEvent.ACTION_UP, keycode, /* repeat= */ 0);
+        mAudioManager.dispatchMediaKeyEvent(keyUp);
     }
 
     void callbackMasterMuteChange(int zoneId, int flags) {

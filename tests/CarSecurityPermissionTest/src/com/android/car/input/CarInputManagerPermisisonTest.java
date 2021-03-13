@@ -23,6 +23,7 @@ import static org.testng.Assert.expectThrows;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.input.CarInputManager;
+import android.os.SystemClock;
 import android.view.KeyEvent;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -69,7 +70,11 @@ public class CarInputManagerPermisisonTest {
 
     @Test
     public void testInjectKeyEvent() {
-        KeyEvent anyKeyEvent = new KeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME);
+        long currentTime = SystemClock.uptimeMillis();
+        KeyEvent anyKeyEvent = new KeyEvent(/* downTime= */ currentTime,
+                /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_HOME,
+                /* repeat= */ 0);
+
         SecurityException thrown = expectThrows(SecurityException.class,
                 () -> mCarInputManager.injectKeyEvent(anyKeyEvent,
                         CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
