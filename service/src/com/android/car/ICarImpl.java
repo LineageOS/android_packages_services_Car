@@ -57,9 +57,9 @@ import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.ClusterHomeService;
 import com.android.car.cluster.ClusterNavigationService;
 import com.android.car.cluster.InstrumentClusterService;
+import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
-import com.android.car.evs.CarEvsService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.common.EventLogTags;
@@ -924,23 +924,15 @@ public class ICarImpl extends ICar.Stub {
         @Override
         public void initBootUser() throws RemoteException {
             assertCallingFromSystemProcess();
-            // TODO(b/160819016): add events log
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_INIT_BOOT_USER);
             if (DBG) Slog.d(TAG, "initBootUser(): ");
             mCarUserService.initBootUser();
         }
 
         @Override
-        public void preCreateUsers() throws RemoteException {
-            assertCallingFromSystemProcess();
-            // TODO(b/160819016): add events log
-            if (DBG) Slog.d(TAG, "preCreateUsers(): ");
-            mCarUserService.preCreateUsers();
-        }
-
-        @Override
         public void onUserRemoved(UserInfo user) throws RemoteException {
             assertCallingFromSystemProcess();
-            // TODO(b/160819016): add events log
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.id);
             if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toFullString());
             mCarUserService.onUserRemoved(user);
         }

@@ -48,11 +48,6 @@ oneway interface ICarSystemServerClient {
     void initBootUser();
 
     /**
-     * Notify to pre-create users.
-     */
-    void preCreateUsers();
-
-    /**
       * Notify that the device must be factory reset, so CarService can ask user to confirm.
       *
       * @param callback used to trigger the factory reset.

@@ -76,6 +76,14 @@ public final class CarUserManagerPermissionTest {
     }
 
     @Test
+    public void testUpdatePreCreatedUserPermission() throws Exception {
+        Exception e = expectThrows(SecurityException.class,
+                () -> mCarUserManager.updatePreCreatedUsers());
+        assertThat(e.getMessage()).contains(CREATE_USERS);
+        assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
     public void testCreateUserPermission() throws Exception {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.createUser(null, UserManager.USER_TYPE_FULL_SECONDARY, 0));
