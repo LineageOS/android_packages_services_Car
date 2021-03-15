@@ -799,6 +799,19 @@ public final class Car {
     public static final String PERMISSION_TEMPLATE_RENDERER =
             "android.car.permission.TEMPLATE_RENDERER";
 
+    /**
+     * Intent for connecting to the template renderer. Services that handle this intent must also
+     * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
+     * directly, but instead they would use
+     * <a href="https://developer.android.com/reference/com/google/android/libraries/car/app/packages">
+     * Android for Cars App Library</a>.
+     *
+     * @hide
+     */
+    @SdkConstant(SdkConstantType.SERVICE_ACTION)
+    public static final String CAR_TEMPLATE_HOST_RENDERER_SERVICE =
+            "android.car.template.host.RendererService";
+
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED})
     @Retention(RetentionPolicy.SOURCE)
