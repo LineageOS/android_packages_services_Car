@@ -516,6 +516,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$SmartAutoRotateSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$NightDisplaySettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -1851,6 +1860,15 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.notification.app.ChannelPanelActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.Settings$ChannelNotificationSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2267,6 +2285,15 @@
 
         <activity
             android:name="com.android.settings.Settings$MediaControlsSettingsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$FactoryResetActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
