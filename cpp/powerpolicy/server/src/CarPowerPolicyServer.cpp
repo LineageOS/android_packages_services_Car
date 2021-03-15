@@ -391,7 +391,7 @@ status_t CarPowerPolicyServer::dump(int fd, const Vector<String16>& args) {
         ALOGW("Failed to dump power policy handler: %s", ret.error().message().c_str());
         return ret.error().code();
     }
-    if (const auto& ret = mComponentHandler.dump(fd, args); !ret.ok()) {
+    if (const auto& ret = mComponentHandler.dump(fd); !ret.ok()) {
         ALOGW("Failed to dump power component handler: %s", ret.error().message().c_str());
         return ret.error().code();
     }
@@ -440,7 +440,6 @@ void CarPowerPolicyServer::terminate() {
         mPolicyChangeCallbacks.clear();
     }
     mSilentModeHandler.release();
-    mComponentHandler.finalize();
 }
 
 void CarPowerPolicyServer::handleBinderDeath(const wp<IBinder>& who) {
@@ -509,15 +508,10 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
         mLastApplyPowerPolicyUptimeMs = uptimeMillis();
     }
     CarPowerPolicyPtr policy = policyMeta->powerPolicy;
-    const auto& retApply = mComponentHandler.applyPowerPolicy(policy);
-    if (!retApply.ok()) {
-        ALOGW("Failed to apply power policy(%s): %s", policyId.c_str(),
-              retApply.error().message().c_str());
-    }
-    const auto& retNotify = notifyVhalNewPowerPolicy(policyId);
-    if (!retNotify.ok()) {
+    mComponentHandler.applyPowerPolicy(policy);
+    if (const auto& ret = notifyVhalNewPowerPolicy(policyId); !ret.ok()) {
         ALOGW("Failed to tell VHAL the new power policy(%s): %s", policyId.c_str(),
-              retNotify.error().message().c_str());
+              ret.error().message().c_str());
     }
     for (auto client : clients) {
         client.callback->onPolicyChanged(*policy);
