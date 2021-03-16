@@ -23,12 +23,14 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
+import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
@@ -39,14 +41,15 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 import java.lang.ref.WeakReference;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Executor;
 
 /**
- * Provides APIs and interfaces for client health checking.
- *
- * @hide
+ * CarWatchdogManager allows applications to collect latest system resource overuse statistics, add
+ * listener for resource overuse notifications, and update resource overuse configurations.
  */
-@SystemApi
 public final class CarWatchdogManager extends CarManagerBase {
 
     private static final String TAG = CarWatchdogManager.class.getSimpleName();
@@ -254,6 +257,327 @@ public final class CarWatchdogManager extends CarManagerBase {
         if (shouldReport) {
             reportToService(sessionId);
         }
+    }
+
+    /** @hide */
+    @IntDef(flag = false, prefix = { "STATS_PERIOD_" }, value = {
+        STATS_PERIOD_CURRENT_DAY,
+        STATS_PERIOD_PAST_3_DAYS,
+        STATS_PERIOD_PAST_7_DAYS,
+        STATS_PERIOD_PAST_15_DAYS,
+        STATS_PERIOD_PAST_30_DAYS,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface StatsPeriod {}
+
+    /** @hide */
+    @IntDef(flag = true, prefix = { "FLAG_RESOURCE_OVERUSE_" }, value = {
+            FLAG_RESOURCE_OVERUSE_IO,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface ResourceOveruseFlag {}
+
+    /** @hide */
+    @IntDef(flag = true, prefix = { "FLAG_MINIMUM_STATS_" }, value = {
+            FLAG_MINIMUM_STATS_IO_1_MB,
+            FLAG_MINIMUM_STATS_IO_100_MB,
+            FLAG_MINIMUM_STATS_IO_1_GB,
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface MinimumStatsFlag {}
+
+    /**
+     * Constants that define the stats period in days.
+     */
+    public static final int STATS_PERIOD_CURRENT_DAY = 1;
+    public static final int STATS_PERIOD_PAST_3_DAYS = 2;
+    public static final int STATS_PERIOD_PAST_7_DAYS = 3;
+    public static final int STATS_PERIOD_PAST_15_DAYS = 4;
+    public static final int STATS_PERIOD_PAST_30_DAYS = 5;
+
+    /**
+     * Constants that define the type of resource overuse.
+     */
+    public static final int FLAG_RESOURCE_OVERUSE_IO = 1 << 0;
+
+    /**
+     * Constants that define the minimum stats for each resource type.
+     *
+     * Below constants specify the minimum amount of data written to disk.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final int FLAG_MINIMUM_STATS_IO_1_MB = 1 << 0;
+    /** @hide */
+    @SystemApi
+    public static final int FLAG_MINIMUM_STATS_IO_100_MB = 1 << 1;
+    /** @hide */
+    @SystemApi
+    public static final int FLAG_MINIMUM_STATS_IO_1_GB = 1 << 2;
+
+    /**
+     * Returns resource overuse stats for the calling package. Returns {@code null}, if no stats.
+     *
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuse stats to return.
+     * @param maxStatsPeriod Maximum period to aggregate the resource overuse stats.
+     *
+     * @return Resource overuse stats for the calling package. If the calling package has no stats
+     *         for a specified resource overuse type, null value is returned for the corresponding
+     *         resource overuse stats. If the calling package doesn't have sufficient stats for
+     *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
+     *         only for the period returned in the individual resource overuse stats.
+     */
+    @NonNull
+    public ResourceOveruseStats getResourceOveruseStats(
+            @ResourceOveruseFlag int resourceOveruseFlag,
+            @StatsPeriod int maxStatsPeriod) {
+        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
+        //  overuse stats for the calling package.
+        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("",
+                UserHandle.CURRENT);
+        return builder.build();
+    }
+
+    /**
+     * Returns resource overuse stats for all monitored packages.
+     *
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuse stats to return.
+     * @param minimumStatsFlag Flag to specify the minimum stats for each resource overuse type.
+     *                         Only stats above the specified minimum stats for a resource overuse
+     *                         type will be returned. May provide only one minimum stats flag for
+     *                         each resource overuse type. When no minimum stats flag is specified,
+     *                         all stats are returned.
+     * @param maxStatsPeriod Maximum period to aggregate the resource overuse stats.
+     *
+     * @return Resource overuse stats for all monitored packages. If any package doesn't have stats
+     *         for a specified resource type, null value is returned for the corresponding resource
+     *         overuse stats. If any package doesn't have sufficient stats for
+     *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
+     *         only for the period returned in the individual resource stats.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS)
+    @NonNull
+    public List<ResourceOveruseStats> getAllResourceOveruseStats(
+            @ResourceOveruseFlag int resourceOveruseFlag,
+            @MinimumStatsFlag int minimumStatsFlag,
+            @StatsPeriod int maxStatsPeriod) {
+        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
+        //  overuse stats for all packages.
+        return new ArrayList<>();
+    }
+
+    /**
+     * Returns resource overuse stats for a specific user package.
+     *
+     * @param packageName Name of the package whose stats should to be returned.
+     * @param userId ID of the user whose stats should be returned.
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuse stats to return.
+     * @param maxStatsPeriod Maximum period to aggregate the resource overuse stats.
+     *
+     * @return Resource overuse stats for the specified user package. If the user package has no
+     *         stats for a specified resource overuse type, null value is returned for the
+     *         corresponding resource overuse stats. If the user package doesn't have sufficient
+     *         stats for {@code maxStatsPeriod} for a specified resource overuse type, the stats are
+     *         returned only for the period returned in the individual resource overuse stats.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS)
+    @NonNull
+    public ResourceOveruseStats getResourceOveruseStatsForUserPackage(
+            @NonNull String packageName, @UserIdInt int userId,
+            @ResourceOveruseFlag int resourceOveruseFlag,
+            @StatsPeriod int maxStatsPeriod) {
+        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
+        //  overuse stats for the specified user package.
+        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("",
+                UserHandle.CURRENT);
+        return builder.build();
+    }
+
+    /**
+     * Listener to get resource overuse notifications.
+     *
+     * <p>Applications implement the listener method to take action and/or log on resource overuse.
+     */
+    public interface ResourceOveruseListener {
+        /**
+         * Called when a package either overuses a resource or about to overuse a resource.
+         *
+         * <p>The listener is called at the executor which is specified in {@link
+         * CarWatchdogManager#addResourceOveruseListener} or
+         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
+         *
+         * <p>The listener is called only on overusing one of the resources specified at the
+         * {@code resourceOveruseFlag} in {@link CarWatchdogManager#addResourceOveruseListener} or
+         * {@link CarWatchdogManager#addResourceOveruseListenerForSystem}.
+         *
+         * @param resourceOveruseStats Resource overuse stats containing stats only for resources
+         *                             overuse types that are either overused or about to be
+         *                             overused by the package. Implementations must check for null
+         *                             value in each resource overuse stats before reading the
+         *                             stats.
+         */
+        void onOveruse(@NonNull ResourceOveruseStats resourceOveruseStats);
+    }
+
+    /**
+     * Adds the {@link ResourceOveruseListener} for the calling package.
+     *
+     * <p>Resource overuse notifications are sent only for the calling package's resource overuse.
+     *
+     * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
+     * @throws IllegalStateException if at least one {@link ResourceOveruseListener} is already
+     *                               registered.
+     */
+    public void addResourceOveruseListener(
+            @NonNull @CallbackExecutor Executor executor,
+            @ResourceOveruseFlag int resourceOveruseFlag,
+            @NonNull ResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        Objects.requireNonNull(executor, "Executor must be non-null");
+        // TODO(b/177429052): Verify the listener for duplicate registration and forward the call to
+        //  CarWatchdogService.
+    }
+
+    /**
+     * Removes the {@link ResourceOveruseListener} for the calling package.
+     *
+     * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     */
+    public void removeResourceOveruseListener(@NonNull ResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        // TODO(b/177429052): Verify the listener and forward the call to CarWatchdogService.
+    }
+
+    /**
+     * Adds {@link ResourceOveruseListener} to get resource overuse notifications for all packages.
+     *
+     * <p>Listening system services will get notified on any package overusing one of the resources
+     * specified at {@code resourceOveruseFlag}.
+     *
+     * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
+     * @throws IllegalStateException if at least one {@link ResourceOveruseListener} is already
+     *                               registered.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS)
+    public void addResourceOveruseListenerForSystem(
+            @NonNull @CallbackExecutor Executor executor,
+            @ResourceOveruseFlag int resourceOveruseFlag,
+            @NonNull ResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        Objects.requireNonNull(executor, "Executor must be non-null");
+        // TODO(b/177429052): Verify the listener for duplicate registration and forward the call to
+        //  CarWatchdogService.
+    }
+
+    /**
+     * Removes {@link ResourceOveruseListener} from receiving system resource overuse notifications.
+     *
+     * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS)
+    public void removeResourceOveruseListenerForSystem(
+            @NonNull ResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        // TODO(b/177429052): Verify the listener and forward the call to CarWatchdogService.
+    }
+
+    /**
+     * Sets whether or not a package is killable on resource overuse.
+     *
+     * <p>Updating killable setting for package, whose state cannot be changed, will result in
+     * exception. This API may be used by CarSettings application or UI notification.
+     *
+     * @param packageName Name of the package whose setting should to be updated.
+     * @param userHandle  User whose setting should to be updated.
+     * @param isKillable  Whether or not the package for the specified user is killable on resource
+     *                    overuse.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG)
+    public void setKillablePackageAsUser(@NonNull String packageName,
+            @NonNull UserHandle userHandle, boolean isKillable) {
+        Objects.requireNonNull(packageName, "Package name must be non-null");
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
+        /*
+         * TODO(b/177429052): Add/remove the package for the user to CarWatchdogService's do not
+         *  kill list. If the {@code userHandle == UserHandle.ALL}, update the settings for all
+         *  users.
+         */
+    }
+
+    /**
+     * Returns the list of packages killable on resource overuse.
+     *
+     * <p>This API may be used by CarSettings application or UI notification.
+     *
+     * @param userHandle User whose killable states for all packages should to be returned.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG)
+    @NonNull
+    public List<PackageKillableState> getPackageKillableStates(@NonNull UserHandle userHandle) {
+        // TODO(b/177429052): Query CarWatchdogService for the killable states.
+        return new ArrayList<>();
+    }
+
+    /**
+     * Sets the resource overuse configurations for the components provided in the configurations.
+     *
+     * <p>Must provide only one configuration per component. System services should set the
+     * configurations only for system and third-party components. Vendor services should set the
+     * configuration only for the vendor component.
+     *
+     * @param configurations List of resource overuse configurations. One configuration per
+     *                       component.
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
+     *                            set.
+     * @throws IllegalArgumentException if the configuration is invalid.
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG)
+    public void setResourceOveruseConfigurations(
+            @NonNull List<ResourceOveruseConfiguration> configurations,
+            @ResourceOveruseFlag int resourceOveruseFlag) {
+        Objects.requireNonNull(configurations, "Configurations must be non-null");
+        // TODO(b/177429052): Forward the configuration to CarWatchdogService.
+    }
+
+    /**
+     * Returns the current resource overuse configurations for all components.
+     *
+     * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
+     *                            return.
+     *
+     * @hide
+     */
+    @SystemApi
+    @RequiresPermission(anyOf = {Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
+            Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS})
+    @NonNull
+    public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
+            @ResourceOveruseFlag int resourceOveruseFlag) {
+        // TODO(b/177429052): Query CarWatchdogService for resource overuse configuration.
+        return new ArrayList<>();
     }
 
     /** @hide */
