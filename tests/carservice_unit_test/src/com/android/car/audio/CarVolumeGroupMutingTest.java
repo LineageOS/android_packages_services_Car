@@ -22,6 +22,7 @@ import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
 
@@ -29,9 +30,13 @@ import android.car.media.CarAudioManager;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.util.SparseArray;
 
+import com.android.car.audio.hal.AudioControlWrapper;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
@@ -59,6 +64,9 @@ public final class CarVolumeGroupMutingTest {
     private CarAudioZone mSingleDeviceSecondaryZone;
     private CarAudioZone mSingleDeviceTertiaryZone;
     private CarVolumeGroup mTertiaryZoneVolumeGroup;
+
+    @Mock
+    AudioControlWrapper mMockAudioControlWrapper;
 
     @Before
     public void setUp() {
@@ -99,12 +107,16 @@ public final class CarVolumeGroupMutingTest {
                 new TestCarAudioZoneBuilder("Tertiary Zone", TERTIARY_ZONE_ID)
                         .addVolumeGroup(mTertiaryZoneVolumeGroup)
                         .build();
+
+        when(mMockAudioControlWrapper
+                .supportsFeature(AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING))
+                .thenReturn(true);
     }
 
     @Test
     public void constructor_withNullZones_fails() {
         NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
-            new CarVolumeGroupMuting(null);
+            new CarVolumeGroupMuting(null, mMockAudioControlWrapper);
         });
 
         assertWithMessage("Constructor exception")
@@ -114,11 +126,35 @@ public final class CarVolumeGroupMutingTest {
     @Test
     public void constructor_withEmptyZonesList_fails() {
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
-            new CarVolumeGroupMuting(new SparseArray<>());
+            new CarVolumeGroupMuting(new SparseArray<>(), mMockAudioControlWrapper);
         });
 
         assertWithMessage("Constructor exception")
                 .that(thrown).hasMessageThat().contains("zone must be present");
+    }
+
+    @Test
+    public void constructor_withNullAudioControlWrapper_fails() {
+        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
+            new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone), null);
+        });
+
+        assertWithMessage("Constructor exception")
+                .that(thrown).hasMessageThat().contains("Audio Control Wrapper");
+    }
+
+    @Test
+    public void constructor_withGroupMutingFeatureNotSupported_fails() {
+        when(mMockAudioControlWrapper
+                .supportsFeature(AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING))
+                .thenReturn(false);
+
+        IllegalStateException thrown = expectThrows(IllegalStateException.class, () -> {
+            new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone), mMockAudioControlWrapper);
+        });
+
+        assertWithMessage("Constructor exception")
+                .that(thrown).hasMessageThat().contains("IAudioControl");
     }
 
     @Test
@@ -128,7 +164,8 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
 
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         assertWithMessage("Last muting information")
                 .that(carGroupMuting.getLastMutingInformation()).isEmpty();
@@ -140,12 +177,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().isEmpty();
@@ -157,12 +194,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
@@ -175,12 +212,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS);
@@ -192,12 +229,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo =  captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().containsExactly(
@@ -210,12 +247,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, true);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, true);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
@@ -228,12 +265,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, true);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, true);
         CarVolumeGroupMuting carGroupMuting =
-                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone));
+                new CarVolumeGroupMuting(getAudioZones(mPrimaryAudioZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =
-                carGroupMuting.getLastMutingInformation();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().isEmpty();
@@ -246,12 +283,13 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mTertiaryZoneVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
                 new CarVolumeGroupMuting(getAudioZones(mSingleDevicePrimaryZone,
-                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone));
+                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
         assertWithMessage("Last muting information")
-                .that(carGroupMuting.getLastMutingInformation()).hasSize(3);
+                .that(captureMutingInfoList()).hasSize(3);
     }
 
     @Test
@@ -261,11 +299,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mTertiaryZoneVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
                 new CarVolumeGroupMuting(getAudioZones(mSingleDevicePrimaryZone,
-                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone));
+                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        for (MutingInfo info : carGroupMuting.getLastMutingInformation()) {
+        for (MutingInfo info : captureMutingInfoList()) {
             assertWithMessage("Devices addresses to un-mute for zone %s", info.zoneId)
                     .that(info.deviceAddressesToUnmute).asList().hasSize(1);
         }
@@ -278,11 +317,12 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mTertiaryZoneVolumeGroup, false);
         CarVolumeGroupMuting carGroupMuting =
                 new CarVolumeGroupMuting(getAudioZones(mSingleDevicePrimaryZone,
-                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone));
+                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone),
+                        mMockAudioControlWrapper);
 
         carGroupMuting.carMuteChanged();
 
-        for (MutingInfo info : carGroupMuting.getLastMutingInformation()) {
+        for (MutingInfo info : captureMutingInfoList()) {
             if (info.zoneId != SECONDARY_ZONE_ID) {
                 continue;
             }
@@ -364,6 +404,12 @@ public final class CarVolumeGroupMutingTest {
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
                 PRIMARY_NAVIGATION_ADDRESS, PRIMARY_VOICE_ADDRESS);
+    }
+
+    private List<MutingInfo> captureMutingInfoList() {
+        ArgumentCaptor<List<MutingInfo>> captor = ArgumentCaptor.forClass(List.class);
+        verify(mMockAudioControlWrapper).onDevicesToMuteChange(captor.capture());
+        return captor.getValue();
     }
 
     private void setUpCarVolumeGroupIsMuted(CarVolumeGroup musicCarVolumeGroup, boolean muted) {

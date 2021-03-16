@@ -578,15 +578,15 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 .addVolumeCallbackToPolicy(builder, this, mAudioManager);
 
 
+        AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
         if (mUseHalDuckingSignals) {
-            AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
             if (audioControlWrapper.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_DUCKING)) {
                 mCarDucking = new CarDucking(mCarAudioZones, audioControlWrapper);
             }
         }
 
         if (mUseCarVolumeGroupMuting) {
-            mCarVolumeGroupMuting = new CarVolumeGroupMuting(mCarAudioZones);
+            mCarVolumeGroupMuting = new CarVolumeGroupMuting(mCarAudioZones, audioControlWrapper);
         }
 
         // Configure our AudioPolicy to handle focus events.
