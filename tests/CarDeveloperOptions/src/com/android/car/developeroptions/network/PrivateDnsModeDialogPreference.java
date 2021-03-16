@@ -159,7 +159,7 @@ public class PrivateDnsModeDialogPreference extends CustomDialogPreferenceCompat
         final Context context = getContext();
         final ContentResolver contentResolver = context.getContentResolver();
 
-        mMode = ConnectivityManager.getPrivateDnsMode(contentResolver);
+        mMode = ConnectivityManager.getPrivateDnsMode(context);
 
         mEditText = view.findViewById(R.id.private_dns_mode_provider_hostname);
         mEditText.addTextChangedListener(this);
