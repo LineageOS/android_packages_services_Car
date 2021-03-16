@@ -18,13 +18,16 @@ package com.android.car.audio.hal;
 
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.expectThrows;
 
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.media.AudioAttributes;
@@ -38,6 +41,8 @@ import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoRule;
+
+import java.util.ArrayList;
 
 @RunWith(AndroidJUnit4.class)
 public class AudioControlWrapperV1Test {
@@ -97,6 +102,14 @@ public class AudioControlWrapperV1Test {
     }
 
     @Test
+    public void supportsFeature_withAudioMuting_returnsFalse() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        assertThat(audioControlWrapperV1.supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING))
+                .isFalse();
+    }
+
+    @Test
     public void supportsFeature_withUnknownFeature_returnsFalse() {
         AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
 
@@ -135,5 +148,17 @@ public class AudioControlWrapperV1Test {
 
         assertThrows(UnsupportedOperationException.class,
                 () -> audioControlWrapperV1.onDevicesToDuckChange(null));
+    }
+
+    @Test
+    public void onDevicesToMuteChange_throws() {
+        AudioControlWrapperV1 audioControlWrapperV1 = new AudioControlWrapperV1(mAudioControlV1);
+
+        UnsupportedOperationException thrown = expectThrows(UnsupportedOperationException.class,
+                () -> audioControlWrapperV1.onDevicesToMuteChange(new ArrayList<>()));
+
+        assertWithMessage("UnsupportedOperationException thrown by onDevicesToMute")
+                .that(thrown).hasMessageThat()
+                .contains("unsupported for IAudioControl@1.0");
     }
 }

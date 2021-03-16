@@ -16,7 +16,9 @@
 
 package com.android.car.audio.hal;
 
+import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
@@ -30,6 +32,7 @@ import android.util.Slog;
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 
+import java.util.List;
 import java.util.NoSuchElementException;
 import java.util.Objects;
 
@@ -139,6 +142,11 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     @Override
     public void onDevicesToDuckChange(CarDuckingInfo carDuckingInfo) {
         throw new UnsupportedOperationException("HAL ducking is unsupported for IAudioControl@2.0");
+    }
+
+    @Override
+    public void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo) {
+        throw new UnsupportedOperationException("HAL muting is unsupported for IAudioControl@2.0");
     }
 
     @Override

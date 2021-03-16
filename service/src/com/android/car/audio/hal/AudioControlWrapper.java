@@ -19,6 +19,7 @@ package com.android.car.audio.hal;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.media.AudioAttributes.AttributeUsage;
 import android.util.IndentingPrintWriter;
 
@@ -26,6 +27,7 @@ import com.android.car.audio.CarDuckingInfo;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.List;
 
 /**
  * AudioControlWrapper wraps IAudioControl HAL interface, handling version specific support so that
@@ -34,10 +36,12 @@ import java.lang.annotation.RetentionPolicy;
 public interface AudioControlWrapper {
     int AUDIOCONTROL_FEATURE_AUDIO_FOCUS = 0;
     int AUDIOCONTROL_FEATURE_AUDIO_DUCKING = 1;
+    int AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING = 2;
 
     @IntDef({
             AUDIOCONTROL_FEATURE_AUDIO_FOCUS,
-            AUDIOCONTROL_FEATURE_AUDIO_DUCKING
+            AUDIOCONTROL_FEATURE_AUDIO_DUCKING,
+            AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING
     })
     @Retention(RetentionPolicy.SOURCE)
     @interface AudioControlFeature {
@@ -102,6 +106,13 @@ public interface AudioControlWrapper {
      * @param carDuckingInfo information about focus and addresses to duck to relay to the HAL.
      */
     void onDevicesToDuckChange(@NonNull CarDuckingInfo carDuckingInfo);
+
+    /**
+     * Notifies HAL of changes in muting changes for all audio zones.
+     *
+     * @param carZonesMutingInfo list of information about addresses to mute to relay to the HAL.
+     */
+    void onDevicesToMuteChange(@NonNull List<MutingInfo> carZonesMutingInfo);
 
     /**
      * Registers recipient to be notified if AudioControl HAL service dies.
