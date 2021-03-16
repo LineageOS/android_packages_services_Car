@@ -19,8 +19,8 @@ package {
 }
 
 cc_binary {
-    name: "car-bugreportd",
-    init_rc: ["car-bugreportd.rc"],
+    name: "carbugreportd",
+    init_rc: ["carbugreportd.rc"],
     srcs: [
         "main.cpp",
     ],
