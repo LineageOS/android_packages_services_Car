@@ -24,10 +24,12 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.eq;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -40,7 +42,9 @@ import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.UidType;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
+import android.car.watchdog.IResourceOveruseListener;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -138,6 +142,56 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     @Test
     public void testBadClientHealthCheck() throws Exception {
         testClientHealthCheck(new BadTestClient(), 1);
+    }
+
+    @Test
+    public void testAddResourceOveruseListener() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                mockListener);
+        // TODO(b/170741935): Test that the mockListener is called on overuse.
+    }
+
+    @Test
+    public void testAddResourceOveruseListenerThrowsWithInvalidFlag() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarWatchdogService.addResourceOveruseListener(0, mockListener);
+        });
+    }
+
+    @Test
+    public void testRemoveResourceOveruseListener() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                mockListener);
+        mCarWatchdogService.removeResourceOveruseListener(mockListener);
+        // TODO(b/170741935): Test that the mockListener is not called on overuse.
+    }
+
+    @Test
+    public void testAddResourceOveruseListenerForSystem() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListenerForSystem(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+        // TODO(b/170741935): Test that the mockListener is called on overuse.
+    }
+
+    @Test
+    public void testAddResourceOveruseListenerForSystemThrowsWithInvalidFlag() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        assertThrows(IllegalArgumentException.class, () -> {
+            mCarWatchdogService.addResourceOveruseListenerForSystem(0, mockListener);
+        });
+    }
+
+    @Test
+    public void testRemoveResourceOveruseListenerForSystem() throws Exception {
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListenerForSystem(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+        mCarWatchdogService.removeResourceOveruseListenerForSystem(mockListener);
+        // TODO(b/170741935): Test that the mockListener is not called on overuse.
     }
 
     @Test
@@ -327,6 +381,12 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
             mLastSessionId = sessionId;
             // This client doesn't respond to CarWatchdogService.
         }
+    }
+
+    private static IResourceOveruseListener createMockResourceOveruseListener() {
+        IResourceOveruseListener listener = mock(IResourceOveruseListener.Stub.class);
+        when(listener.asBinder()).thenCallRealMethod();
+        return listener;
     }
 
     private void mockPackageManager(int[] uids, List<PackageInfo> packageInfos,
