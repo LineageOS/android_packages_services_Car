@@ -328,10 +328,8 @@ public final class Car {
 
     /**
      * Service name for {@link android.car.watchdog.CarWatchdogManager}
-     * @hide
      */
     @MandatoryFeature
-    @SystemApi
     public static final String CAR_WATCHDOG_SERVICE = "car_watchdog";
 
     /**
@@ -798,6 +796,24 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_TEMPLATE_RENDERER =
             "android.car.permission.TEMPLATE_RENDERER";
+
+    /**
+     * Permission necessary to set or retrieve car watchdog configurations.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG =
+            "android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG";
+
+    /**
+     * Permission necessary to collect metrics from car watchdog.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS =
+            "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
 
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED})
