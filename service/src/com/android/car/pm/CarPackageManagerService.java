@@ -16,6 +16,8 @@
 
 package com.android.car.pm;
 
+import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -52,11 +54,10 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.Process;
 import android.os.UserHandle;
-import android.text.format.DateFormat;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
-import android.util.Log;
 import android.util.LocalLog;
+import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -84,6 +85,7 @@ import java.util.LinkedList;
 import java.util.List;
 import java.util.Map;
 import java.util.Map.Entry;
+import java.util.Objects;
 import java.util.Set;
 
 public class CarPackageManagerService extends ICarPackageManager.Stub implements CarServiceBase {
@@ -274,6 +276,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityDistractionOptimized(String packageName, String className) {
+        checkQueryPermission(packageName);
         assertPackageAndClassName(packageName, className);
         synchronized (mLock) {
             if (DBG_POLICY_CHECK) {
@@ -308,6 +311,31 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
     }
 
+    @VisibleForTesting
+    void checkQueryPermission(String packageName) {
+        int callingUid = Binder.getCallingUid();
+        if (hasPermissionGranted(QUERY_ALL_PACKAGES, callingUid)) {
+            return;
+        }
+        String[] packages = mPackageManager.getPackagesForUid(callingUid);
+        if (packages != null && packages.length > 0) {
+            for (int i = 0; i < packages.length; i++) {
+                if (Objects.equals(packageName, packages[i])) {
+                    return;
+                }
+            }
+        }
+
+        throw new SecurityException(QUERY_ALL_PACKAGES
+                + " permission is needed to query other packages.");
+    }
+
+    private static boolean hasPermissionGranted(String permission, int uid) {
+        return ActivityManager.checkComponentPermission(permission, uid,
+                /* owningUid= */ Process.INVALID_UID,
+                /* exported= */ true) == PackageManager.PERMISSION_GRANTED;
+    }
+
     @Override
     public boolean isPendingIntentDistractionOptimized(PendingIntent pendingIntent) {
         ResolveInfo info = mPackageManager.resolveActivity(
@@ -319,6 +347,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isServiceDistractionOptimized(String packageName, String className) {
+        checkQueryPermission(packageName);
         if (packageName == null) {
             throw new IllegalArgumentException("Package name null");
         }
@@ -356,6 +385,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
+        if (activityName == null) return false;
+        checkQueryPermission(activityName.getPackageName());
         RootTaskInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
                 activityName);
         if (info == null) { // not top in focused stack
