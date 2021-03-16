@@ -41,10 +41,10 @@ import android.provider.Settings;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceScreen;
 
-import com.android.internal.util.ArrayUtils;
 import com.android.car.developeroptions.R;
 import com.android.car.developeroptions.core.BasePreferenceController;
 import com.android.car.developeroptions.core.PreferenceControllerMixin;
+import com.android.internal.util.ArrayUtils;
 import com.android.settingslib.RestrictedLockUtils.EnforcedAdmin;
 import com.android.settingslib.RestrictedLockUtilsInternal;
 import com.android.settingslib.core.lifecycle.LifecycleObserver;
@@ -118,7 +118,7 @@ public class PrivateDnsPreferenceController extends BasePreferenceController
     public CharSequence getSummary() {
         final Resources res = mContext.getResources();
         final ContentResolver cr = mContext.getContentResolver();
-        final String mode = PrivateDnsModeDialogPreference.getModeFromSettings(cr);
+        final String mode = ConnectivityManager.getPrivateDnsMode(cr);
         final LinkProperties lp = mLatestLinkProperties;
         final List<InetAddress> dnses = (lp == null) ? null : lp.getValidatedPrivateDnsServers();
         final boolean dnsesResolved = !ArrayUtils.isEmpty(dnses);
