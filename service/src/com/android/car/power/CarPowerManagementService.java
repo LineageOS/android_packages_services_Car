@@ -110,9 +110,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String WIFI_STATE_ORIGINAL = "original";
     // If Suspend to RAM fails, we retry with an exponential back-off:
     // The wait interval will be 10 msec, 20 msec, 40 msec, ...
-    // Once the wait interval goes beyond 1000 msec, it is fixed at 1000 msec.
+    // Once the wait interval goes beyond 100 msec, it is fixed at 100 msec.
     private static final long INITIAL_SUSPEND_RETRY_INTERVAL_MS = 10;
-    private static final long MAX_RETRY_INTERVAL_MS = 1000;
+    private static final long MAX_RETRY_INTERVAL_MS = 100;
     // Minimum and maximum wait duration before the system goes into Suspend to RAM.
     private static final long MIN_SUSPEND_WAIT_DURATION_MS = 0;
     private static final long MAX_SUSPEND_WAIT_DURATION_MS = 3 * 60 * 1000;
