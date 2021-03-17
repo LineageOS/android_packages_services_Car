@@ -238,11 +238,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final ICarPowerPolicyListener mPowerPolicyListener =
             new ICarPowerPolicyListener.Stub() {
                 @Override
-                public void onPolicyChanged(CarPowerPolicy policy) {
+                public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                        CarPowerPolicy accumulatedPolicy) {
                     boolean shouldBePlaying;
                     MediaController mediaController;
-                    // COMPONENT_STATE_UNTOUCHED is not the case in this callback.
-                    boolean isOff = !policy.isComponentEnabled(PowerComponent.MEDIA);
+                    boolean isOff = !accumulatedPolicy.isComponentEnabled(PowerComponent.MEDIA);
                     synchronized (mLock) {
                         boolean weArePlaying = mCurrentPlaybackState == PlaybackState.STATE_PLAYING;
                         mIsDisabledByPowerPolicy = isOff;

@@ -56,7 +56,7 @@ android_test {
         "car-service-test-static-lib",
         "com.android.car.internal.common",
         "com.android.car.internal.system",
-        "com.android.car.test.utils",
+        "com.android.car.test.lib",
         "frameworks-base-testutils",
         "mockito-target-extended",
         "testng",

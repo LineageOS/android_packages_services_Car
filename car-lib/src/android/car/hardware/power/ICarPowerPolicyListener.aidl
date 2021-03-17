@@ -27,5 +27,5 @@ oneway interface ICarPowerPolicyListener {
     /**
      * Called when a power policy change occurs.
      */
-    void onPolicyChanged(in CarPowerPolicy policy);
+    void onPolicyChanged(in CarPowerPolicy appliedPolicy, in CarPowerPolicy accumulatedPolicy);
 }
