@@ -60,7 +60,7 @@ PRODUCT_PACKAGES += \
     libvariablespeed \
     A2dpSinkService \
     PackageInstaller \
-    car-bugreportd \
+    carbugreportd \
 
 # EVS service
 include packages/services/Car/cpp/evs/manager/evsmanager.mk

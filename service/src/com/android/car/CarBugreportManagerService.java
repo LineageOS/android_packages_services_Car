@@ -71,10 +71,10 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     private static final String FAIL_PREFIX = "FAIL:";
 
     /**
-     * The services are defined in {@code packages/services/Car/car-bugreportd/car-bugreportd.rc}.
+     * The services are defined in {@code packages/services/Car/cpp/bugreport/carbugreportd.rc}.
      */
-    private static final String BUGREPORTD_SERVICE = "car-bugreportd";
-    private static final String DUMPSTATEZ_SERVICE = "car-dumpstatez";
+    private static final String BUGREPORTD_SERVICE = "carbugreportd";
+    private static final String DUMPSTATEZ_SERVICE = "cardumpstatez";
 
     // The socket definitions must match the actual socket names defined in car_bugreportd service
     // definition.
@@ -346,7 +346,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
         while (true) {
             // There are a few factors impacting the socket delay:
             // 1. potential system slowness
-            // 2. car-bugreportd takes the screenshots early (before starting dumpstate). This
+            // 2. carbugreportd takes the screenshots early (before starting dumpstate). This
             //    should be taken into account as the socket opens after screenshots are
             //    captured.
             // Therefore we are generous in setting the timeout. Most cases should not even
