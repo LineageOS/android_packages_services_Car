@@ -33,6 +33,8 @@ import static android.car.hardware.power.PowerComponent.VISUAL_INTERACTION;
 import static android.car.hardware.power.PowerComponent.VOICE_INTERACTION;
 import static android.car.hardware.power.PowerComponent.WIFI;
 
+import static com.android.car.test.power.CarPowerPolicyUtil.assertPolicyIdentical;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.testng.Assert.assertThrows;
@@ -49,7 +51,6 @@ import org.junit.Before;
 import org.junit.Test;
 
 import java.io.InputStream;
-import java.util.Arrays;
 
 public final class PolicyReaderUnitTest {
     private static final String TAG = PolicyReaderUnitTest.class.getSimpleName();
@@ -269,18 +270,5 @@ public final class PolicyReaderUnitTest {
         try (InputStream inputStream = mResources.openRawResource(id)) {
             mPolicyReader.readPowerPolicyFromXml(inputStream);
         }
-    }
-
-    private static void assertPolicyIdentical(CarPowerPolicy first, CarPowerPolicy second)
-            throws Exception {
-        assertThat(first.getPolicyId()).isEqualTo(second.getPolicyId());
-        assertComponentsIdentical(first.getEnabledComponents(), second.getEnabledComponents());
-        assertComponentsIdentical(first.getDisabledComponents(), second.getDisabledComponents());
-    }
-
-    private static void assertComponentsIdentical(int[] first, int[] second) throws Exception {
-        Arrays.sort(first);
-        Arrays.sort(second);
-        assertThat(first).isEqualTo(second);
     }
 }

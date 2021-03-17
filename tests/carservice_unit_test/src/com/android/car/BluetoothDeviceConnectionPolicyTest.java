@@ -16,6 +16,9 @@
 
 package com.android.car;
 
+import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
+import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
+
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -35,7 +38,6 @@ import android.car.VehicleSeatOccupancyState;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerPolicy;
-import android.car.hardware.power.PowerComponent;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Intent;
@@ -253,15 +255,19 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
     }
 
     private void sendPowerPolicyBluetoothOnOff(boolean isOn) throws Exception {
-        int[] bluetoothComponents = new int[]{PowerComponent.BLUETOOTH};
+        int[] allComponents = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
+        for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                component++) {
+            allComponents[component - FIRST_POWER_COMPONENT] = component;
+        }
         int[] noComponents = new int[]{};
         CarPowerPolicy policy;
         if (isOn) {
-            policy = new CarPowerPolicy("bt_on", bluetoothComponents, noComponents);
+            policy = new CarPowerPolicy("bt_on", allComponents, noComponents);
         } else {
-            policy = new CarPowerPolicy("bt_off", noComponents, bluetoothComponents);
+            policy = new CarPowerPolicy("bt_off", noComponents, allComponents);
         }
-        mPolicy.getPowerPolicyListener().onPolicyChanged(policy);
+        mPolicy.getPowerPolicyListener().onPolicyChanged(policy, policy);
     }
 
     private void sendSeatOnOccupied(int seat) {
