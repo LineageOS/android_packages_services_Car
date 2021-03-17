@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#define LOG_TAG "car-bugreportd"
+#define LOG_TAG "carbugreportd"
 
 #include <android-base/errors.h>
 #include <android-base/file.h>
@@ -235,8 +235,8 @@ bool doBugreport(int progress_socket, size_t* out_bytes_written, std::string* zi
 
     // Set a timeout so that if nothing is read by the timeout, stop reading and quit
     struct timeval tv = {
-        .tv_sec = kDumpstateTimeoutInSec,
-        .tv_usec = 0,
+            .tv_sec = kDumpstateTimeoutInSec,
+            .tv_usec = 0,
     };
     if (setsockopt(s, SOL_SOCKET, SO_RCVTIMEO, &tv, sizeof(tv)) != 0) {
         ALOGW("Cannot set socket timeout (%s)", strerror(errno));
@@ -379,10 +379,10 @@ int runCommand(int timeout_secs, const char* file, std::vector<const char*> args
 }
 
 void takeScreenshotForDisplayId(PhysicalDisplayId id, const char* tmp_dir,
-        std::vector<std::string>* extra_files) {
+                                std::vector<std::string>* extra_files) {
     std::string id_as_string = to_string(id);
     std::string filename = std::string(tmp_dir) + kScreenshotPrefix + id_as_string + ".png";
-    std::vector<const char*> args { "-p", "-d", id_as_string.c_str(), filename.c_str(), nullptr };
+    std::vector<const char*> args{"-p", "-d", id_as_string.c_str(), filename.c_str(), nullptr};
     ALOGI("capturing screen for display (%s) as %s", id_as_string.c_str(), filename.c_str());
     int status = runCommand(10, "/system/bin/screencap", args);
     if (status == 0) {
@@ -460,7 +460,7 @@ int main(void) {
     }
 
     // Start the dumpstatez service.
-    android::base::SetProperty("ctl.start", "car-dumpstatez");
+    android::base::SetProperty("ctl.start", "cardumpstatez");
 
     size_t bytes_written = 0;
 
@@ -468,7 +468,7 @@ int main(void) {
     int progress_socket = openSocket(kCarBrProgressSocket);
     if (progress_socket < 0) {
         // early out. in this case we will not print the final message, but that is ok.
-        android::base::SetProperty("ctl.stop", "car-dumpstatez");
+        android::base::SetProperty("ctl.stop", "cardumpstatez");
         return EXIT_FAILURE;
     }
     bool is_success = doBugreport(progress_socket, &bytes_written, &zip_path);
@@ -498,8 +498,8 @@ int main(void) {
     recursiveRemoveDir(kTempDirectory);
 
     // No matter how doBugreport() finished, let's try to explicitly stop
-    // car-dumpstatez in case it stalled.
-    android::base::SetProperty("ctl.stop", "car-dumpstatez");
+    // cardumpstatez in case it stalled.
+    android::base::SetProperty("ctl.stop", "cardumpstatez");
 
     return is_success ? EXIT_SUCCESS : EXIT_FAILURE;
 }
