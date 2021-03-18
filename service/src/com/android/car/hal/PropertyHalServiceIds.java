@@ -336,7 +336,7 @@ public class PropertyHalServiceIds {
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
         mProps.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
-                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
+                    null));
         mProps.put(VehicleProperty.HVAC_AUTO_RECIRC_ON, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
