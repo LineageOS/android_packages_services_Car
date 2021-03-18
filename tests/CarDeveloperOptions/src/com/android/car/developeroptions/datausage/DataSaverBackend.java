@@ -180,7 +180,7 @@ public class DataSaverBackend {
 
     }
 
-    private final INetworkPolicyListener mPolicyListener = new INetworkPolicyListener.Stub() {
+    private final INetworkPolicyListener mPolicyListener = new NetworkPolicyManager.Listener() {
         @Override
         public void onUidRulesChanged(int uid, int uidRules) throws RemoteException {
         }
