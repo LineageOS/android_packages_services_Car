@@ -25,6 +25,7 @@ cc_defaults {
     ],
     shared_libs: [
         "android.frameworks.automotive.telemetry-V1-cpp",
+        "android.automotive.telemetry.internal-cpp",
         "libbase",
         "liblog",
         "libbinder",
@@ -47,6 +48,8 @@ cc_library {
     srcs: [
         "src/CarTelemetryImpl.cpp",
         "src/RingBuffer.cpp",
+        "src/TelemetryServer.cpp",
+        "src/CarTelemetryInternalImpl.cpp",
     ],
     // Allow dependencies to use header files.
     export_include_dirs: [
