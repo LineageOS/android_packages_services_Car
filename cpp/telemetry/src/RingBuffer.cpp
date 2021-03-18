@@ -64,12 +64,12 @@ std::vector<BufferedCarData> RingBuffer::popAllDataForId(int32_t id) {
     return result;
 }
 
-void RingBuffer::dump(int fd, int indent) const {
-    dprintf(fd, "%*sRingBuffer:\n", indent, "");
-    dprintf(fd, "%*s  mSizeLimitBytes=%d\n", indent, "", mSizeLimitBytes);
-    dprintf(fd, "%*s  mCurrentSizeBytes=%d\n", indent, "", mCurrentSizeBytes);
-    dprintf(fd, "%*s  mList.size=%zu\n", indent, "", mList.size());
-    dprintf(fd, "%*s  mTotalDroppedDataCount=%" PRIu64 "\n", indent, "", mTotalDroppedDataCount);
+void RingBuffer::dump(int fd) const {
+    dprintf(fd, "RingBuffer:\n");
+    dprintf(fd, "  mSizeLimitBytes=%d\n", mSizeLimitBytes);
+    dprintf(fd, "  mCurrentSizeBytes=%d\n", mCurrentSizeBytes);
+    dprintf(fd, "  mList.size=%zu\n", mList.size());
+    dprintf(fd, "  mTotalDroppedDataCount=%" PRIu64 "\n", mTotalDroppedDataCount);
 }
 
 int32_t RingBuffer::currentSizeBytes() const {
