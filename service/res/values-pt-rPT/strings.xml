@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Monitorize a utilização do armazenamento flash."</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ouvir o estado de condução"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Ouvir as alterações ao estado de condução."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilizar o Serviço de EVS do carro"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscrever streams de vídeo de EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Monitorizar o estado do Serviço de EVS do carro"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Monitorizar um estado do CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"aceder ao motor detalhado do automóvel"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Aceder às informações detalhadas do motor do automóvel."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"aceder à porta de carregamento e à tampa do depósito de combustível do automóvel"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Ative ou desative as funcionalidades do automóvel."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilizar o watchdog do automóvel"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Utilize o watchdog do automóvel."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"controlar a configuração do watchdog do automóvel"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Controlar a configuração do watchdog do automóvel."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"recolher métricas do watchdog do automóvel"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Recolher métricas do watchdog do automóvel."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"ler a política de energia do automóvel"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Ler a política de energia do automóvel."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"controlar a política de energia do automóvel"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Convidado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importância predefinida"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importância alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Reposição de fábrica obrigatória"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Todos os dados no sistema de infoentretenimento serão apagados. Após a reposição, pode configurar um novo perfil."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Mais"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Reponha o sistema de infoentretenimento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"O sistema recebeu um pedido para efetuar uma reposição de fábrica e apagar todos os dados. Pode repô-lo agora ou este será reposto quando voltar a ligar o carro. Em seguida, pode configurar um novo perfil."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Repor agora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Repor mais tarde"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"O sist. infoentretenim. é reposto quando ligar o carro de novo."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"O carro deve estar estacionado para a reposição."</string>
 </resources>

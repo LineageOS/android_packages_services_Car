@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Controlar o uso de almacenamento da unidade flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"escoitar o estado de condución"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Escoitar cambios no estado de condución."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilizar o servizo EVS do coche"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscribirse ás transmisións en vídeo de EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Supervisar o estado do servizo EVS do coche"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Supervisar un estado de CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"acceder a información do motor do coche"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Acceder a información detallada do motor do coche."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"acceder ao depósito de combustible e ao porto de carga do coche"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Activa ou desactiva as funcións do coche."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilizar sistema de vixilancia do coche"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Utiliza o sistema de vixilancia do coche."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"controlar a configuración do sistema de vixilancia do coche"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Controlar a configuración do sistema de vixilancia do coche."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"recompilar métricas do sistema de vixilancia do coche"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Recompilar métricas do sistema de vixilancia do coche."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"ler a política de enerxía do coche"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Ler a política de enerxía do coche."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"controlar a política de enerxía do coche"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Convidado"</string>
     <string name="importance_default" msgid="8587741629268312938">"Importancia predeterminada"</string>
     <string name="importance_high" msgid="3141530792377745041">"Importancia alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"É necesario restablecer a configuración de fábrica"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Borraranse todos os datos do sistema de información e entretemento. Despois do restablecemento, poderás configurar un perfil novo."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Máis"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Restablece o sistema de información e entretemento"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"O sistema recibiu unha solicitude para restablecer a configuración de fábrica e borrar todos os datos. Podes facelo agora ou a próxima vez que se arrinque o coche. Despois, poderás configurar un perfil novo."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Restablecer agora"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Restablecer despois"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"O sistema restablecerase cando se volva arrincar o coche."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"O coche debe estar aparcado para restablecelo."</string>
 </resources>

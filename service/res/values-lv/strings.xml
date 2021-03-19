@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Uzraudzīt zibatmiņas lietojumu."</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"uztvert kustības stāvokli"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Uztvert kustības stāvokļa izmaiņas."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Izmantot automašīnas EVS pakalpojumu"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Abonēt EVS video plūsmas"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Pārraudzīt automašīnas EVS pakalpojuma statusu"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Pārraudzīt CarEvsService statusu"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"piekļūt detalizētai informācijai par automašīnas dzinēju"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Piekļūt detalizētai informācijai par automašīnas dzinēju."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"piekļūt automašīnas degvielas tvertnes vāciņam un uzlādes pieslēgvietai"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Iespējojiet vai atspējojiet automašīnas funkcijas."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"izmantot automašīnas sargierīci"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Izmantot automašīnas sargierīci."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"automašīnas sargierīces konfigurācijas pārvaldība"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Automašīnas sargierīces konfigurācijas pārvaldība."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"automašīnas sargierīces rādītāju apkopošana"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Automašīnas sargierīces rādītāju apkopošana."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"nolasīt automašīnas komponentu aktivizācijas politiku"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Nolasīt automašīnas komponentu aktivizācijas politiku."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"kontrolēt automašīnas komponentu aktivizācijas politiku"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Viesis"</string>
     <string name="importance_default" msgid="8587741629268312938">"Noklusējuma svarīgums"</string>
     <string name="importance_high" msgid="3141530792377745041">"Ļoti svarīgs"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Nepieciešama rūpnīcas datu atiestatīšana"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Visi informatīvi izklaidējošās sistēmas dati tiks dzēsti. Pēc atiestatīšanas varēsiet iestatīt jaunu profilu."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Vairāk"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Informatīvi izklaidējošās sistēmas atiestatīšana"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Jūsu sistēma saņēma pieprasījumu atiestatīt rūpnīcas datus un dzēst visus datus. Varat veikt atiestatīšanu tūlīt, vai arī sistēma tiks atiestatīta, nākamreiz palaižot automašīnu. Pēc tam varēsiet iestatīt jaunu profilu."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Atiestatīt tūlīt"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Atiestatīt vēlāk"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Informatīvi izklaidējošā sistēma tiks atiestatīta, nākamreiz palaižot automašīnu."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Automašīnai jābūt apturētai, lai sāktu atiestatīšanu."</string>
 </resources>

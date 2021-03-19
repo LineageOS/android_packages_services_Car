@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Возможность отслеживать использование флеш-хранилища"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"отслеживание изменений режима \"За рулем\""</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Отслеживание изменений режима \"За рулем\"."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Использовать Car EVS Service"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Подписаться на видеотрансляции EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Отслеживать статус Car EVS Service"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Отслеживать статус CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"доступ к подробным данным о двигателе"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Доступ к подробным данным о двигателе."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"доступ к лючку топливного бака и порту зарядки"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Включение и отключение функций автомобиля."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"использование системы мониторинга автомобиля"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Использование системы мониторинга автомобиля."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"Управление настройками сторожевого таймера автомобиля"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Управление настройками сторожевого таймера автомобиля."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"Сбор показателей сторожевого таймера автомобиля"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Сбор показателей сторожевого таймера автомобиля."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"чтение правила о питании автомобиля"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Чтение правила о питании автомобиля."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"управление правилом о питании автомобиля"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Гость"</string>
     <string name="importance_default" msgid="8587741629268312938">"Важность по умолчанию"</string>
     <string name="importance_high" msgid="3141530792377745041">"Высокая важность"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Необходимо сбросить настройки"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Все данные информационно-развлекательной системы будут удалены. После сброса вы сможете создать новый профиль."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Ещё"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"Сбросьте настройки информационно-развлекательной системы"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Требуется сбросить настройки и удалить все данные системы. Сброс можно выполнить сейчас, или он произойдет автоматически при следующем запуске автомобиля. После этого вы сможете создать новый профиль."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"Сбросить сейчас"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"Сбросить позже"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Сброс произойдет при следующем запуске автомобиля."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Чтобы сбросить настройки, припаркуйте автомобиль."</string>
 </resources>

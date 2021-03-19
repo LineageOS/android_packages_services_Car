@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"监控闪存使用情况"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"监听驾车状态"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"监听驾车状态变化。"</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"使用汽车 EVS 服务"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"订阅 EVS 视频串流"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"监控汽车 EVS 服务状态"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"监控 CarEvsService 的状态"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"访问汽车的引擎详情"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"访问汽车的详细引擎信息。"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"访问汽车的油箱盖和充电端口信息"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"启用或停用汽车的功能。"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"使用汽车监控定时器"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"使用汽车监控定时器。"</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"控制汽车监控定时器配置"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"控制汽车监控定时器配置。"</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"收集汽车监控定时器指标"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"收集汽车监控定时器指标。"</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"读取汽车电源政策"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"读取汽车电源政策。"</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"控制汽车电源政策"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"访客"</string>
     <string name="importance_default" msgid="8587741629268312938">"重要性：默认"</string>
     <string name="importance_high" msgid="3141530792377745041">"重要性：高"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"需要恢复出厂设置"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"系统将清空信息娱乐系统中的所有数据。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"更多"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"重置信息娱乐系统"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"您的系统已收到恢复出厂设置并清空所有数据的请求。您可以立即重置，也可以让系统在下次汽车发动时重置。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"立即重置"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"以后再重置"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"信息娱乐系统将在下次汽车发动时重置。"</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"必须停车才能启动重置流程。"</string>
 </resources>

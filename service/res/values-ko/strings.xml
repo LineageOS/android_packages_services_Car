@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"플래시 저장소 사용 모니터링"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"운전 상태 감지"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"운전 상태 변화를 감지합니다."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"자동차 EVS 서비스 사용하기"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS 동영상 스트림 구독하기"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"자동차 EVS 서비스 상태 모니터링하기"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"자동차 EVS 서비스 상태 모니터링하기"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"차량 엔진 상세 정보에 액세스"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"차량의 상세한 엔진 정보에 액세스합니다."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"차량 주유구 캡 및 충전 포트 액세스"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"차량 기능 사용 설정 또는 사용 중지"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"차량 워치독을 사용합니다."</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"차량 워치독을 사용합니다."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"자동차 워치독 구성 제어"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"자동차 워치독의 구성을 제어합니다."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"자동차 워치독 측정항목 수집"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"자동차 워치독의 측정항목을 수집합니다."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"차량 전원 정책 읽기"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"차량 전원 정책을 읽습니다."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"차량 전원 정책 관리"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"게스트"</string>
     <string name="importance_default" msgid="8587741629268312938">"중요도가 기본인 알림 채널"</string>
     <string name="importance_high" msgid="3141530792377745041">"중요도가 높은 알림 채널"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"초기화해야 함"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"인포테인먼트 시스템의 모든 데이터가 삭제됩니다. 초기화 후 새 프로필을 설정할 수 있습니다."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"더보기"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"인포테인먼트 시스템 초기화"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"시스템 초기화 요청이 접수되었으며 모든 데이터가 삭제됩니다. 지금 초기화하지 않으면 다음에 차가 시동이 걸릴 때 초기화됩니다. 이후 새 프로필을 설정할 수 있습니다."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"지금 초기화"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"나중에 초기화"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"다음에 차 시동이 걸리면 인포테인먼트 시스템이 초기화됩니다."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"초기화하려면 차량이 주차된 상태여야 합니다."</string>
 </resources>
