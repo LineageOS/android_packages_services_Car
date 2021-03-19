@@ -370,15 +370,31 @@
          android:label="@string/car_permission_label_driving_state"
          android:description="@string/car_permission_desc_driving_state"/>
 
-    <!-- Allows an application to use car's EVS service.
+    <!-- Allows an application to request to launch the EVS previewing activity.
          <p>Protection level: signature|privileged
     -->
-    <permission android:name="android.car.permission.USE_CAR_EVS_SERVICE"
+    <permission android:name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY"
                 android:protectionLevel="signature|privileged"
-                android:label="@string/car_permission_label_use_evs_service"
-                android:description="@string/car_permission_desc_use_evs_service"/>
+                android:label="@string/car_permission_label_request_evs_activity"
+                android:description="@string/car_permission_desc_request_evs_activity"/>
 
-    <!-- Allows an application to monitor a current status of car's EVS service.
+    <!-- Allows an application to control the EVS previewing activity.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_control_evs_activity"
+                android:description="@string/car_permission_desc_control_evs_activity"/>
+
+    <!-- Allows an application to use EVS camera streams.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.USE_CAR_EVS_CAMERA"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_use_evs_camera"
+                android:description="@string/car_permission_desc_use_evs_camera"/>
+
+    <!-- Allows an application to monitor a current status of the EVS service.
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"
