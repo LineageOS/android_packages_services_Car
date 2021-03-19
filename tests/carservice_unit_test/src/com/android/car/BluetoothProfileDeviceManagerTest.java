@@ -18,6 +18,7 @@ package com.android.car;
 
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_HFP_CLIENT_DEVICES;
 
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.Mockito.*;
 
 import android.bluetooth.BluetoothAdapter;
@@ -26,25 +27,17 @@ import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
 import android.car.ICarBluetoothUserService;
-import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
-import android.content.Context;
 import android.content.Intent;
-import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.ParcelUuid;
-import android.os.UserHandle;
 import android.provider.Settings;
-import android.test.mock.MockContentResolver;
 import android.test.suitebuilder.annotation.Suppress;
 import android.text.TextUtils;
+import android.util.Log;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.RequiresDevice;
-
-import com.android.internal.util.test.BroadcastInterceptingContext;
-import com.android.internal.util.test.FakeSettingsProvider;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -70,7 +63,11 @@ import java.util.List;
  */
 @RequiresDevice
 @RunWith(MockitoJUnitRunner.class)
-public class BluetoothProfileDeviceManagerTest {
+public class BluetoothProfileDeviceManagerTest
+        extends AbstractExtendedMockitoBluetoothTestCase {
+    private static final String TAG = BluetoothProfileDeviceManagerTest.class.getSimpleName();
+    private static final boolean VERBOSE = false;
+
     private static final int CONNECT_LATENCY_MS = 100;
     private static final int CONNECT_TIMEOUT_MS = 8000;
     private static final int ADAPTER_STATE_ANY = 0;
@@ -101,7 +98,6 @@ public class BluetoothProfileDeviceManagerTest {
 
     BluetoothProfileDeviceManager mProfileDeviceManager;
 
-    private final int mUserId = 0;
     private final int mProfileId = BluetoothProfile.HEADSET_CLIENT;
     private final String mSettingsKey = KEY_BLUETOOTH_HFP_CLIENT_DEVICES;
     private final String mConnectionAction = BluetoothHeadsetClient.ACTION_CONNECTION_STATE_CHANGED;
@@ -120,37 +116,12 @@ public class BluetoothProfileDeviceManagerTest {
 
     private MockContext mMockContext;
 
-    private BluetoothAdapterHelper mBluetoothAdapterHelper;
+    @Mock private BluetoothAdapter mMockBluetoothAdapter;
     private BluetoothAdapter mBluetoothAdapter;
 
-    public class MockContext extends BroadcastInterceptingContext {
-        private MockContentResolver mContentResolver;
-        private FakeSettingsProvider mContentProvider;
-
-        MockContext(Context base) {
-            super(base);
-            FakeSettingsProvider.clearSettingsProvider();
-            mContentResolver = new MockContentResolver(this);
-            mContentProvider = new FakeSettingsProvider();
-            mContentResolver.addProvider(Settings.AUTHORITY, mContentProvider);
-        }
-
-        public void release() {
-            FakeSettingsProvider.clearSettingsProvider();
-        }
-
-        @Override
-        public ContentResolver getContentResolver() {
-            return mContentResolver;
-        }
-
-        @Override
-        public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle user,
-                IntentFilter filter, String broadcastPermission, Handler scheduler) {
-            // We're basically ignoring the userhandle since the tests only assume one user anyway.
-            // BroadcastInterceptingContext doesn't implement this hook either so this has to do.
-            return super.registerReceiver(receiver, filter);
-        }
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(BluetoothAdapter.class);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -163,11 +134,25 @@ public class BluetoothProfileDeviceManagerTest {
         setSettingsDeviceList("");
         assertSettingsContains("");
 
-        mBluetoothAdapterHelper = new BluetoothAdapterHelper();
-        mBluetoothAdapterHelper.init();
-
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Assert.assertTrue(mBluetoothAdapter != null);
+
+        mockGetDefaultAdapter(mMockBluetoothAdapter);
+        /**
+         * Mocks {@link BluetoothAdapter#getRemoteDevice(boolean)}
+         */
+        doAnswer(new Answer<BluetoothDevice>() {
+            @Override
+            public BluetoothDevice answer(InvocationOnMock invocation) throws Throwable {
+                String bdAddr = "";
+                Object[] arguments = invocation.getArguments();
+                if (arguments != null && arguments.length == 1 && arguments[0] != null) {
+                    bdAddr = (String) arguments[0];
+                }
+                if (VERBOSE) Log.v(TAG, "remote device: " + bdAddr);
+                return createDevice(bdAddr);
+            }
+        }).when(mMockBluetoothAdapter).getRemoteDevice(anyString());
 
         mHandler = new Handler(Looper.getMainLooper());
 
@@ -187,10 +172,6 @@ public class BluetoothProfileDeviceManagerTest {
             mHandler = null;
         }
         mBluetoothAdapter = null;
-        if (mBluetoothAdapterHelper != null) {
-            mBluetoothAdapterHelper.release();
-            mBluetoothAdapterHelper = null;
-        }
         mMockProxies = null;
         if (mMockContext != null) {
             mMockContext.release();
@@ -217,7 +198,7 @@ public class BluetoothProfileDeviceManagerTest {
     private ArrayList<BluetoothDevice> makeDeviceList(List<String> addresses) {
         ArrayList<BluetoothDevice> devices = new ArrayList<>();
         for (String address : addresses) {
-            BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
+            BluetoothDevice device = createDevice(address);
             if (device == null) continue;
             devices.add(device);
         }
@@ -232,13 +213,17 @@ public class BluetoothProfileDeviceManagerTest {
             List<String> devices) {
         switch (adapterState) {
             case ADAPTER_STATE_ON:
-                mBluetoothAdapterHelper.forceAdapterOn();
+                when(mMockBluetoothAdapter.getState()).thenReturn(BluetoothAdapter.STATE_ON);
+                Settings.Global.putInt(mMockContext.getContentResolver(),
+                        Settings.Global.BLUETOOTH_ON, 1);
                 break;
             case ADAPTER_STATE_OFF:
-                mBluetoothAdapterHelper.forceAdapterOff();
+                when(mMockBluetoothAdapter.getState()).thenReturn(BluetoothAdapter.STATE_OFF);
+                Settings.Global.putInt(mMockContext.getContentResolver(),
+                        Settings.Global.BLUETOOTH_ON, 0);
                 break;
             case ADAPTER_STATE_OFF_NOT_PERSISTED:
-                mBluetoothAdapterHelper.forceAdapterOffDoNotPersist();
+                when(mMockBluetoothAdapter.getState()).thenReturn(BluetoothAdapter.STATE_OFF);
                 break;
             case ADAPTER_STATE_ANY:
                 break;
@@ -336,6 +321,10 @@ public class BluetoothProfileDeviceManagerTest {
         ArrayList<BluetoothDevice> devices = mProfileDeviceManager.getDeviceListSnapshot();
         ArrayList<BluetoothDevice> expectedDevices = makeDeviceList(expected);
         Assert.assertEquals(expectedDevices, devices);
+    }
+
+    private BluetoothDevice createDevice(String bdAddr) {
+        return mBluetoothAdapter.getRemoteDevice(bdAddr);
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -477,7 +466,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testAddDeviceAlreadyInList_priorityListUnchanged() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mProfileDeviceManager.addDevice(device);
         assertDeviceList(SINGLE_DEVICE_LIST);
     }
@@ -499,7 +488,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testRemoveDeviceFromEmptyList_priorityListUnchanged() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        mProfileDeviceManager.removeDevice(mBluetoothAdapter.getRemoteDevice("DE:AD:BE:EF:00:00"));
+        mProfileDeviceManager.removeDevice(createDevice("DE:AD:BE:EF:00:00"));
         assertDeviceList(EMPTY_DEVICE_LIST);
     }
 
@@ -516,7 +505,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testRemoveDeviceFront_deviceNoLongerInPriorityList() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mProfileDeviceManager.removeDevice(device);
         ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
         expected.remove(0);
@@ -537,7 +526,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testRemoveDeviceMiddle_deviceNoLongerInPriorityList() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
+        BluetoothDevice device = createDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.removeDevice(device);
         ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
         expected.remove(1);
@@ -557,7 +546,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testRemoveDeviceEnd_deviceNoLongerInPriorityList() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(2));
+        BluetoothDevice device = createDevice(SMALL_DEVICE_LIST.get(2));
         mProfileDeviceManager.removeDevice(device);
         ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
         expected.remove(2); // 00, 01
@@ -577,7 +566,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testRemoveDeviceNotInList_priorityListUnchanged() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
+        BluetoothDevice device = createDevice("10:20:30:40:50:60");
         mProfileDeviceManager.removeDevice(device);
         assertDeviceList(SMALL_DEVICE_LIST);
     }
@@ -619,7 +608,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testGetConnectionPriorityDeviceNotInList_negativeOneReturned() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
-        BluetoothDevice deviceNotPresent = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
+        BluetoothDevice deviceNotPresent = createDevice("10:20:30:40:50:60");
         int priority = mProfileDeviceManager.getDeviceConnectionPriority(deviceNotPresent);
         Assert.assertEquals(-1, priority);
     }
@@ -650,7 +639,7 @@ public class BluetoothProfileDeviceManagerTest {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
         // move middle device to front
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
+        BluetoothDevice device = createDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, 0);
         Assert.assertEquals(0, mProfileDeviceManager.getDeviceConnectionPriority(device));
         ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
@@ -711,7 +700,7 @@ public class BluetoothProfileDeviceManagerTest {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
         // add new device to the middle
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:60");
+        BluetoothDevice device = createDevice("10:20:30:40:50:60");
         mProfileDeviceManager.setDeviceConnectionPriority(device, 1);
         Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
         ArrayList<String> expected = new ArrayList(SMALL_DEVICE_LIST);
@@ -719,14 +708,14 @@ public class BluetoothProfileDeviceManagerTest {
         assertDeviceList(expected);
 
         // add new device to the front
-        device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:61");
+        device = createDevice("10:20:30:40:50:61");
         mProfileDeviceManager.setDeviceConnectionPriority(device, 0);
         Assert.assertEquals(0, mProfileDeviceManager.getDeviceConnectionPriority(device));
         expected.add(0, "10:20:30:40:50:61"); // 61, 00, 60, 01, 02
         assertDeviceList(expected);
 
         // add new device to the end
-        device = mBluetoothAdapter.getRemoteDevice("10:20:30:40:50:62");
+        device = createDevice("10:20:30:40:50:62");
         mProfileDeviceManager.setDeviceConnectionPriority(device, 5);
         Assert.assertEquals(5, mProfileDeviceManager.getDeviceConnectionPriority(device));
         expected.add(5, "10:20:30:40:50:62"); // 61, 00, 60, 01, 02, 62
@@ -748,7 +737,7 @@ public class BluetoothProfileDeviceManagerTest {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
         // Attempt to move middle device to end with huge end priority
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
+        BluetoothDevice device = createDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, 100000);
         Assert.assertEquals(1, mProfileDeviceManager.getDeviceConnectionPriority(device));
         assertDeviceList(SMALL_DEVICE_LIST);
@@ -769,7 +758,7 @@ public class BluetoothProfileDeviceManagerTest {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SMALL_DEVICE_LIST);
 
         // Attempt to move middle device to negative priority
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SMALL_DEVICE_LIST.get(1));
+        BluetoothDevice device = createDevice(SMALL_DEVICE_LIST.get(1));
         mProfileDeviceManager.setDeviceConnectionPriority(device, -1);
         assertDeviceList(SMALL_DEVICE_LIST);
     }
@@ -882,7 +871,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceConnectPriorityAutoConnect_deviceAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -905,7 +894,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceConnectPriorityOn_deviceAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -928,7 +917,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceConnectPriorityOff_deviceNotAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -951,7 +940,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceConnectPriorityUndefined_deviceNotAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -974,7 +963,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceDisconnectPriorityAutoConnect_listUnchanged() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -994,7 +983,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceDisconnectPriorityOn_listUnchanged() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -1014,7 +1003,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceDisconnectPriorityOff_deviceRemoved() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -1034,7 +1023,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceDisconnectPriorityUndefined_listUnchanged() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
@@ -1057,7 +1046,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveDeviceUnbonded_deviceRemoved() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         sendBondStateChanged(device, BluetoothDevice.BOND_NONE);
         assertDeviceList(EMPTY_DEVICE_LIST);
     }
@@ -1099,7 +1088,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUnsupportedDeviceBonded_deviceNotAdded() {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         sendBondStateChanged(device, BluetoothDevice.BOND_BONDED);
         assertDeviceList(EMPTY_DEVICE_LIST);
     }
@@ -1121,7 +1110,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidDevicePriorityAutoConnect_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -1142,7 +1131,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidDevicePriorityOn_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -1163,7 +1152,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidDevicePriorityOff_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -1185,7 +1174,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidDevicePriorityUndefinedBonding_setPriorityOn() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
         sendBondStateChanged(device, BluetoothDevice.BOND_BONDING);
         sendDeviceUuids(device, mUuids);
@@ -1208,7 +1197,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidDevicePriorityUndefined_setPriorityOn() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
@@ -1229,7 +1218,7 @@ public class BluetoothProfileDeviceManagerTest {
     @Test
     public void testReceiveUuidsDeviceUnsupported_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(SINGLE_DEVICE_LIST.get(0));
+        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
         mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
         sendDeviceUuids(device, mBadUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
