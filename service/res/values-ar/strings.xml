@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"مراقبة استخدام سعة تخزين الفلاش"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"الاستماع إلى معلومات عن حالة القيادة"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"يمكنك الاستماع إلى التغيُّرات في حالة \"القيادة\"."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"الاستفادة من خدمة EVS للسيارة"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"الاشتراك في فيديوهات EVS المضمّنة"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"مراقبة حالة خدمة EVS للسيارة"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"مراقبة إحدى حالات CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"الحصول على معلومات عن تفاصيل المحرّك"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"يمكنك الحصول على معلومات تفصيلية عن محرّك السيارة."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"الحصول على معلومات عن .باب خزان الوقود ومنفذ الشحن"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"تفعيل ميزات السيارة أو إيقافها"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"استخدام مراقب نظام السيارة"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"استخدام مراقب نظام السيارة"</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"التحكّم في إعداد مراقب نظام السيارة"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"تتحكَّم التطبيقات في إعداد مراقب نظام السيارة."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"جمع بيانات مقاييس مراقب نظام السيارة"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"تجمع التطبيقات بيانات مقاييس مراقب نظام السيارة."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"قراءة سياسة تشغيل ميزات السيارة"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"قراءة سياسة تشغيل ميزات السيارة"</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"التحكّم في سياسة تشغيل ميزات السيارة"</string>

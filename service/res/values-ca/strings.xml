@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Supervisar l\'ús d\'emmagatzematge flaix"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"escolta l\'estat de conducció"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Escolta els canvis en l\'estat de conducció."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilitza el servei EVS del cotxe"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscriu-me a les reproduccions en continu de vídeo d\'EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Monitora l\'estat del servei EVS del cotxe"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Monitora un estat de CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"accedeix a la informació detallada sobre el motor del cotxe"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Accedeix a la informació detallada sobre el motor del cotxe."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"accedeix a la porta del combustible i al port de càrrega del cotxe"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"Activa o desactiva les funcions del cotxe."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"utilitza el temporitzador de vigilància del cotxe"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Utilitza el temporitzador de vigilància del cotxe."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"controlar la configuració de vigilància del cotxe"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Controlar la configuració de vigilància del cotxe."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"recollir mètriques de vigilància del cotxe"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Recollir mètriques de vigilància del cotxe."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"llegeix la política d\'energia del cotxe"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Llegeix la política d\'energia del cotxe."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"controla la política d\'energia del cotxe"</string>

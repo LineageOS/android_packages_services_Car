@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਵਰਤੋਂ ਦਾ ਨਿਰੀਖਣ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ ਨੂੰ ਜਾਣਨਾ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ ਵਿੱਚ ਹੋਣ ਵਾਲੀਆਂ ਤਬਦੀਲੀਆਂ ਨੂੰ ਜਾਣਨਾ।"</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ਕਾਰ ਦੀ EVS ਸੇਵਾ ਵਰਤੋ"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ਵੀਡੀਓ ਸਟ੍ਰੀਮਾਂ ਦੇ ਗਾਹਕ ਬਣੋ"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"ਕਾਰ ਦੀ EVS ਸੇਵਾ ਸਥਿਤੀ ਦਾ ਨਿਰੀਖਣ ਕਰੋ"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService ਦੀ ਸਥਿਤੀ ਦਾ ਨਿਰੀਖਣ ਕਰੋ"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ਕਾਰ ਦੇ ਇੰਜਣ ਦੀ ਪੂਰੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ਤੁਹਾਡੀ ਕਾਰ ਦੇ ਇੰਜਣ ਦੀ ਵੇਰਵੇ ਸਹਿਤ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ਕਾਰ ਦੀ ਈਂਧਣ ਵਾਲੀ ਜਗ੍ਹਾ ਅਤੇ ਚਾਰਜ ਪੋਰਟ ਤੱਕ ਪਹੁੰਚ"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"ਕਾਰ ਦੀਆਂ ਵਿਸ਼ੇਸ਼ਤਾਵਾਂ ਨੂੰ ਚਾਲੂ ਜਾਂ ਬੰਦ ਕਰੋ।"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"ਕਾਰ ਵਾਚਡੌਗ ਵਰਤੋ"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"ਕਾਰ ਵਾਚਡੌਗ ਵਰਤੋ।"</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"ਕਾਰ ਵਾਚਡੌਗ ਸੰਰੂਪਣ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"ਕਾਰ ਵਾਚਡੌਗ ਸੰਰੂਪਣ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ।"</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"ਕਾਰ ਵਾਚਡੌਗ ਮਾਪਕ ਇਕੱਤਰ ਕਰੋ"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"ਕਾਰ ਵਾਚਡੌਗ ਮਾਪਕ ਇਕੱਤਰ ਕਰੋ।"</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"ਕਾਰ ਪਾਵਰ ਨੀਤੀ ਨੂੰ ਪੜ੍ਹੋ"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"ਕਾਰ ਪਾਵਰ ਨੀਤੀ ਨੂੰ ਪੜ੍ਹੋ।"</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"ਕਾਰ ਪਾਵਰ ਨੀਤੀ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
