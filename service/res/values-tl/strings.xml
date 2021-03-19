@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Subaybayan ang paggamit ng storage ng flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"makinig sa status ng pagmamaneho"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Makinig sa mga Mga pagbabago ng status ng pagmamaneho."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Gamitin ang Serbisyo sa EVS na Kotse"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Mag-subscribe sa mga video stream ng EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Subaybayan ang status ng Serbisyo sa EVS na Kotse"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Magsubaybay ng status ng CarEvsService"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"i-access ang mga detalye ng makina ng sasakyan"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"I-access ang detalyadong impormasyon sa makina ng iyong sasakyan."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"i-access ang takip ng gasolina at charge port ng sasakyan"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"I-enable o i-disable ang mga feature ng kotse."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"gamitin ang watchdog ng sasakyan"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"Gamitin ang watchdog ng sasakyan."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"kontrolin ang config ng watchdog ng sasakyan"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"Kontrolin ang config ng watchdog ng sasakyan."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"kolektahin ang mga sukatan ng watchdog ng sasakyan"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"Kolektahin ang mga sukatan ng watchdog ng sasakyan."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"basahin ang patakaran sa power ng kotse"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"Basahin ang patakaran sa power ng kotse."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"kontrolin ang patakaran sa power ng kotse"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"Bisita"</string>
     <string name="importance_default" msgid="8587741629268312938">"Default na halaga"</string>
     <string name="importance_high" msgid="3141530792377745041">"Napakahalaga"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Kinakailangan ang pag-factory reset"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Buburahin ang lahat ng data sa infotainment system. Pagkatapos ng pag-reset, makakapag-set up ka ng bagong profile."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Higit pa"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"I-reset ang infotainment system"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"Nakatanggap ang iyong system ng kahilingang mag-factory reset at magbura ng lahat ng data. Puwede mo itong i-reset ngayon, o magre-reset ito sa susunod na mag-start ang sasakyan. Pagkatapos, makakapag-set up ka ng bagong profile."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"I-reset Ngayon"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"I-reset Mamaya"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"Magre-reset ang infotainment system sa susunod na mag-start ang sasakyan."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"Dapat nakaparada ang sasakyan para makapag-reset."</string>
 </resources>

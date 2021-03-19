@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"गाड़ी चलाते समय होने वाले बदलावों को सुन सकता है."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार की ईवीएस सेवा का इस्तेमाल करें"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ईवीएस वीडियो स्ट्रीम की सदस्यता लें"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"कार की ईवीएस सेवा की स्थिति को मॉनिटर करें"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService की स्थिति को मॉनिटर करें"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"कार के इंजन की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"आपकी कार के इंजन की पूरी जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"कार की सुविधाएं चालू या बंद करें."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"कार के वॉचडॉग का इस्तेमाल करें"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"कार के वॉचडॉग का इस्तेमाल करें."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"कार के वॉचडॉग कॉन्फ़िगरेशन को कंट्रोल करें"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"कार के वॉचडॉग कॉन्फ़िगरेशन को कंट्रोल करें."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"कार की वॉचडॉग मेट्रिक इकट्ठा करें"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"कार की वॉचडॉग मेट्रिक इकट्ठा करें."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"कार पावर नीति पढ़ें"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"कार पावर नीति पढ़ें."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"कार पावर नीति कंट्रोल करें"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"मेहमान"</string>
     <string name="importance_default" msgid="8587741629268312938">"डिफ़ॉल्ट अहमियत"</string>
     <string name="importance_high" msgid="3141530792377745041">"ज़्यादा अहमियत वाला"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"फ़ैक्ट्री रीसेट ज़रूरी है"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"सूचना और मनोरंजन की सुविधा देने वाले डिवाइस से, पूरा डेटा हमेशा के लिए मिटा दिया जाएगा. रीसेट करने के बाद, आप एक नई प्रोफ़ाइल सेट अप कर सकते हैं."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ज़्यादा देखें"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"सूचना और मनोरंजन की सुविधा देने वाले डिवाइस को रीसेट करें"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"आपके सिस्टम को, फ़ैक्ट्री रीसेट करने और पूरे डेटा को हमेशा के लिए मिटाने का अनुरोध मिला है. आप इसे अभी रीसेट कर सकते हैं या यह अगली बार कार के स्टार्ट होने पर रीसेट होगा. इसके बाद, आप नई प्रोफ़ाइल सेट अप कर सकते हैं."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"अभी रीसेट करें"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"बाद में रीसेट करें"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"अगली बार कार के स्टार्ट होने पर, सूचना और मनोरंजन की सुविधा देने वाला डिवाइस रीसेट होगा."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"रीसेट शुरू करने के लिए ज़रूरी है कि कार पार्क हो."</string>
 </resources>

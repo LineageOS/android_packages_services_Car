@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ಫ್ಲಾಶ್ ಸಂಗ್ರಹ ಬಳಕೆಯ ಉಸ್ತುವಾರಿ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಯನ್ನು ಆಲಿಸಿ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ಕಾರ್ EVS ಸೇವೆಯನ್ನು ಬಳಸಿ"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ವೀಡಿಯೋ ಸ್ಟ್ರೀಮ್‌ಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಮಾಡಿ"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"ಕಾರ್ EVS ಸೇವೆಯ ಸ್ಥಿತಿಯ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService ನ ಸ್ಥಿತಿಯ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ಕಾರಿನ ಇಂಜಿನ್‌ನ ಕುರಿತು ವಿವರಣೆಗಳನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ಕಾರಿನ ಇಂಜಿನ್‌ನ ವಿವರಣೆಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ಕಾರಿನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಮಾಹಿತಿ ಪಡೆಯಿರಿ"</string>
@@ -143,6 +147,14 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"ಕಾರ್ ಫೀಚರ್‌ಗಳನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿ ಅಥವಾ ನಿಷ್ಕ್ರಿಯಗೊಳಿಸಿ."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"ಕಾರ್ ಮಾನಿಟರಿಂಗ್ ಟೈಮರ್ ಬಳಸಿ"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"ಕಾರ್ ಮಾನಿಟರಿಂಗ್ ಟೈಮರ್ ಬಳಸಿ."</string>
+    <!-- no translation found for car_permission_label_control_car_watchdog_config (7002301555689209243) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_car_watchdog_config (2276721198186100781) -->
+    <skip />
+    <!-- no translation found for car_permission_label_collect_car_watchdog_metrics (6868646053065666480) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_collect_car_watchdog_metrics (5712074376194601441) -->
+    <skip />
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"ಕಾರಿನ ಪವರ್‌ ನೀತಿಯನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"ಕಾರಿನ ಪವರ್‌ ನೀತಿಯನ್ನು ಓದಿ."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"ಕಾರಿನ ಪವರ್‌ ನೀತಿಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
@@ -153,4 +165,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"ಅತಿಥಿ"</string>
     <string name="importance_default" msgid="8587741629268312938">"ಮಹತ್ವವಾದುದು: ಡೀಫಾಲ್ಟ್"</string>
     <string name="importance_high" msgid="3141530792377745041">"ಉನ್ನತ ಪ್ರಾಮುಖ್ಯತೆ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್‌ನ ಅಗತ್ಯವಿದೆ"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂನಲ್ಲಿರುವ ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಅಳಿಸಲಾಗುತ್ತದೆ. ರೀಸೆಟ್ ಮಾಡಿದ ನಂತರ, ನೀವು ಹೊಸ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಬಹುದು."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ಇನ್ನಷ್ಟು"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"ಫ್ಯಾಕ್ಟರಿ ರೀಸೆಟ್ ಮಾಡಲು ಮತ್ತು ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಅಳಿಸಲು ನಿಮ್ಮ ಸಿಸ್ಟಂ ವಿನಂತಿಯನ್ನು ಸ್ವೀಕರಿಸಿದೆ. ನೀವು ಅದನ್ನು ಈಗಲೇ ರೀಸೆಟ್ ಮಾಡಬಹುದು ಅಥವಾ ಮುಂದಿನ ಬಾರಿ ಕಾರ್ ಆರಂಭವಾದಾಗ ಅದನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ. ನಂತರ ನೀವು ಹೊಸ ಪ್ರೊಫೈಲ್ ಅನ್ನು ಸೆಟಪ್ ಮಾಡಬಹುದು."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"ಈಗಲೇ ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"ನಂತರ ರೀಸೆಟ್ ಮಾಡಿ"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ಮುಂದಿನ ಬಾರಿ ಕಾರ್ ಆರಂಭವಾದಾಗ ಇನ್‌ಫೋಟೈನ್‌ಮೆಂಟ್ ಸಿಸ್ಟಂ ಅನ್ನು ರೀಸೆಟ್ ಮಾಡಲಾಗುತ್ತದೆ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"ರೀಸೆಟ್ ಅನ್ನು ಪ್ರಾರಂಭಿಸಲು ಕಾರ್ ಅನ್ನು ನಿಲ್ಲಿಸಿರಬೇಕು."</string>
 </resources>

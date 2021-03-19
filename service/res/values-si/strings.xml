@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ෆ්ලෑෂ් ආචයන භාවිතය නිරීක්‍ෂණ කරන්න"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"රිය පැදවීමේ තත්ත්වයට සවන් දෙන්න"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"රිය පැදවීම් තත්ත්ව වෙනස්කම්වලට සවන් දෙන්න."</string>
+    <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"මෝටර් රථ EVS සේවාව භාවිත කරන්න"</string>
+    <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS වීඩියෝ ප්‍රවාහ වෙත දායක වන්න"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"මෝටර් රථ EVS සේවා තත්ත්වය නිරීක්ෂණය කරන්න"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService හි තත්ත්වය නිරීක්ෂණය කරන්න"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"මෝටර් රථයේ එන්ජින් විස්තරවලට ප්‍රවේශ වන්න"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ඔබේ මෝටර් රථයේ විස්තරාත්මක එන්ජින් තොරතුරුවලට ප්‍රවේශ වන්න."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"මෝටර් රථයේ ඉන්ධන දොර සහ ආරෝපණ කවුළුවට ප්‍රවේශ වන්න"</string>
@@ -143,6 +147,10 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"මෝටර් රථයේ විශේෂාංග සබල හෝ අබල කරන්න."</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"රිය මුරබල්ලා භාවිතා කරන්න"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"රිය මුරබල්ලා භාවිතා කරන්න."</string>
+    <string name="car_permission_label_control_car_watchdog_config" msgid="7002301555689209243">"මෝටර් රථ රැකවල් වින්‍යාසකරණ පාලනය කරන්න"</string>
+    <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"මෝටර් රථ රැකවල් වින්‍යාසකරණ පාලනය කරන්න."</string>
+    <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"මෝටර් රථ රැකවල් මිතික රැස් කරන්න"</string>
+    <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"මෝටර් රථ රැකවල් මිතික රැස් කරන්න."</string>
     <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"මෝටර් රථයේ බල ප්‍රතිපත්තිය කියවන්න"</string>
     <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"මෝටර් රථයේ බල ප්‍රතිපත්තිය පාලනය කියවන්න."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"මෝටර් රථයේ බල ප්‍රතිපත්තිය පාලනය කරන්න"</string>
@@ -153,4 +161,13 @@
     <string name="default_guest_name" msgid="2912812799433131476">"අමුත්තා"</string>
     <string name="importance_default" msgid="8587741629268312938">"පෙරනිමි වැදගත්කම"</string>
     <string name="importance_high" msgid="3141530792377745041">"ඉහළ වැදගත්කමකින් යුතු"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"කර්මාන්තශාලා යළි සැකසීම අවශ්‍යයි"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"තොරතුරු විනෝදාස්වාද පද්ධතියේ සියලු දත්ත මකනු ඇත. යළි සැකසීමෙන් පසුව, ඔබට නව පැතිකඩක් පිහිටුවිය හැකිය."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"තව"</string>
+    <string name="factory_reset_parked_title" msgid="258340498079453871">"තොරතුරු විනෝදාස්වාද පද්ධතිය යළි සකසන්න"</string>
+    <string name="factory_reset_parked_text" msgid="910347526834275166">"කර්මාන්තශාලා යළි සැකසීමට සහ සියලු දත්ත මැකීමට ඔබගේ පද්ධතියට ඉල්ලීමක් ලැබී ඇත. ඔබට දැන් එය යළි සැකසිය හැකිය, නැතහොත් ඊළඟ වතාවේ මෝටර් රථය ආරම්භ වන විට එය යළි සකසනු ඇත. ඔබට අනතුරුව නව පැතිකඩක් පිහිටුවිය හැකිය."</string>
+    <string name="factory_reset_now_button" msgid="1245040835119663310">"දැන් යළි සකසන්න"</string>
+    <string name="factory_reset_later_button" msgid="2401829720674483843">"පසුව යළි සකසන්න"</string>
+    <string name="factory_reset_later_text" msgid="5896142140528784784">"ඊළඟට මෝටර් රථය අරඹන විට තොරතුරු විනෝදාස්වාද පද්ධතිය යළි සැකසේ."</string>
+    <string name="factory_reset_driving_text" msgid="6702298505761254553">"යළි සැකසීම ඇරඹීමට මෝටර් රථය නවතා තැබිය යුතුය."</string>
 </resources>
