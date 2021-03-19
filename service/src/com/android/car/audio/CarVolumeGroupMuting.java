@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING;
+
 import android.annotation.NonNull;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.util.IndentingPrintWriter;
@@ -24,6 +26,7 @@ import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -37,16 +40,29 @@ final class CarVolumeGroupMuting {
     private static final String TAG = CarLog.tagFor(CarVolumeGroupMuting.class);
 
     private final SparseArray<CarAudioZone> mCarAudioZones;
+    private final AudioControlWrapper mAudioControlWrapper;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private List<MutingInfo> mLastMutingInformation;
 
-    CarVolumeGroupMuting(@NonNull SparseArray<CarAudioZone> carAudioZones) {
-        Objects.requireNonNull(carAudioZones, "Car Audio Zones can not be null");
+    CarVolumeGroupMuting(@NonNull SparseArray<CarAudioZone> carAudioZones,
+            @NonNull AudioControlWrapper audioControlWrapper) {
+        mCarAudioZones = Objects.requireNonNull(carAudioZones, "Car Audio Zones can not be null");
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "At least one car audio zone must be present.");
-        mCarAudioZones = carAudioZones;
+        mAudioControlWrapper = Objects.requireNonNull(audioControlWrapper,
+                "Audio Control Wrapper can not be null");
+        requireGroupMutingSupported(audioControlWrapper);
         mLastMutingInformation = new ArrayList<>();
+    }
+
+    private static void requireGroupMutingSupported(AudioControlWrapper audioControlWrapper) {
+        if (audioControlWrapper
+                .supportsFeature(AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING)) {
+            return;
+        }
+        throw new IllegalStateException("audioUseCarVolumeGroupMuting is enabled but "
+                + "IAudioControl HAL does not support volume group muting");
     }
 
     /**
@@ -58,7 +74,7 @@ final class CarVolumeGroupMuting {
         }
         List<MutingInfo> mutingInfo = generateMutingInfo();
         setLastMutingInfo(mutingInfo);
-        // TODO(175732501): Add AudioControl HAL mute communication
+        mAudioControlWrapper.onDevicesToMuteChange(mutingInfo);
     }
 
     private void setLastMutingInfo(List<MutingInfo> mutingInfo) {
@@ -92,7 +108,6 @@ final class CarVolumeGroupMuting {
         synchronized (mLock) {
             for (int index = 0; index < mLastMutingInformation.size(); index++) {
                 dumpCarMutingInfo(writer, mLastMutingInformation.get(index));
-
             }
         }
         writer.decreaseIndent();
