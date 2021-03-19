@@ -789,16 +789,35 @@ public final class Car {
             "android.car.permission.CAR_MONITOR_INPUT";
 
     /**
-     * Permission necessary to use the Extended View System service.
+     * Permission necessary to request CarEvsService to launch the special activity to show the
+     * camera preview.
      *
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_USE_CAR_EVS_SERVICE =
-            "android.car.permission.USE_CAR_EVS_SERVICE";
+    public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY =
+            "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
 
     /**
-     * Permission necessary to monitor the status of the Extended View System service.
+     * Permission necessary to control the special activity to show the camera preview.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_EVS_ACTIVITY =
+            "android.car.permission.CONTROL_CAR_EVS_ACTIVITY";
+
+    /**
+     * Permission necessary to use the camera streams via CarEvsService.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_USE_CAR_EVS_CAMERA =
+            "android.car.permission.USE_CAR_EVS_CAMERA";
+
+    /**
+     * Permission necessary to monitor the status of CarEvsService.
      *
      * @hide
      */

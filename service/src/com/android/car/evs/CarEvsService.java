@@ -73,12 +73,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @Override
     public void init() {
-        logd("Initializing service");
+        if (DBG) {
+            Slog.d(TAG, "Initializing service");
+        }
     }
 
     @Override
     public void release() {
-        logd("Finalizing service");
+        if (DBG) {
+            Slog.d(TAG, "Finalizing service");
+        }
         mStatusListeners.kill();
         mStreamCallbacks.kill();
     }
@@ -102,7 +106,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
         Objects.requireNonNull(listener);
 
-        logd("Registering a new service listener");
+        if (DBG) {
+            Slog.d(TAG, "Registering a new service listener");
+        }
         mStatusListeners.register(listener);
     }
 
@@ -123,35 +129,38 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     /**
-     * Requests to start a EVS service.
+     * Requests the system to start an activity to show the preview from a given EVS service type.
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY} permissions to
+     * access.
      *
      * @param type {@link android.car.evs.CarEvsManager#CarEvsServiceType}
+     * @return {@link android.car.evs.CarEvsManager#CarEvsError}
      */
     @Override
-    public int requestToStartService(int type) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+    public @CarEvsError int startActivity(int type) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
 
         return CarEvsManager.ERROR_UNAVAILABLE;
     }
 
     /**
-     * Requests to stop a current EVS service.
+     * Requests to stop a current previewing activity launched via {@link #startActivity}.
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY} permissions to
+     * access.
      */
     @Override
-    public int requestToStopService() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+    public void stopActivity() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
 
-        return CarEvsManager.ERROR_UNAVAILABLE;
+        return;
     }
 
     /**
      * Starts a video stream.
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
      *
      * @param type {@link android.car.evs.CarEvsManager#CarEvsServiceType}
      * @param privileged Boolean flag to tell whether or not the caller is a privileged client.
@@ -161,7 +170,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @Override
     public @CarEvsError int startVideoStream(@CarEvsServiceType int type, @Nullable IBinder token,
             @NonNull ICarEvsStreamCallback callback) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
         // TODO(b/179498566): Identifies the requesting client (or its callback object)
@@ -174,13 +183,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     /**
      * Stop a video stream
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
      *
      * @param callback {@link ICarEvsStreamCallback} listener to unregister.
      */
     @Override
     public void stopVideoStream(@NonNull ICarEvsStreamCallback callback) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
         Slog.e(TAG, "Not implemented yet.");
@@ -189,13 +198,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     /**
      * Returns an used buffer to EVS service
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permissions to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
      *
      * @param bufferId An unique 32-bit integer identifier of the buffer to return.
      */
     @Override
     public void returnFrameBuffer(int bufferId) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_SERVICE);
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
 
         Slog.e(TAG, "Not implemented yet.");
     }
@@ -231,13 +240,15 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     /**
      * Returns a session token to be used to request the services.
      *
-     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_SERVICE} permission to access.
+     * <p>Requires {@link android.car.Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY} permission to access.
      *
      * @return IBinder object as a session token.
      * @throws IllegalStateException if we fail to find System UI package.
      */
     @Override
     public IBinder generateSessionToken() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY);
+
         String systemUiPackageName = getSystemUiPackageName();
         IBinder token = null;
         try {
@@ -245,20 +256,28 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     .createContextAsUser(UserHandle.SYSTEM, /* flags = */ 0).getPackageManager()
                     .getPackageUid(systemUiPackageName, PackageManager.MATCH_SYSTEM_ONLY);
             int callerUid = Binder.getCallingUid();
-            if (systemUiUid == callerUid) {
+            if (systemUiUid != callerUid) {
                 // TODO(b/179498566): Records issued session tokens to identify the clients.
                 token = new Binder();
             }
         } catch (NameNotFoundException err) {
             throw new IllegalStateException(systemUiPackageName + " package not found.");
+        } finally {
+            return token;
         }
-
-        return token;
     }
 
-    private static void logd(String msg) {
-        if (DBG) {
-           Slog.d(TAG, msg);
-        }
+    /**
+     * Returns whether or not a given service type is supported.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS} permissions to
+     * access.
+     */
+    @Override
+    public boolean isSupported(@CarEvsServiceType int type) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+
+        // TODO(b/183141701): Please implement this method.
+        return false;
     }
 }
