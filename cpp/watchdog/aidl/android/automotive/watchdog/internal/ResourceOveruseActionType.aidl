@@ -16,24 +16,28 @@
 
 package android.automotive.watchdog.internal;
 
-import android.automotive.watchdog.IoOveruseStats;
-
 /**
- * Structure that describes the I/O overuse stats for a package.
+ * Describes the action taken on resource overuse.
  */
-parcelable PackageIoOveruseStats {
+@Backing(type="int")
+enum ResourceOveruseActionType {
   /**
-   * UID of the package whose stats are stored in the below fields.
+   * The package is not killed as it is not killable.
    */
-  int uid;
+  NOT_KILLED,
 
   /**
-   * Indicates whether or not to notify the overuse listeners for the package.
+   * The package is not killed as the user opted-out the package from killing on resource overuse.
    */
-  boolean shouldNotify;
+  NOT_KILLED_USER_OPTED,
 
-   /**
-    * I/O overuse stats for the package.
-    */
-  IoOveruseStats ioOveruseStats;
+  /**
+   * The package is killed on resource overuse.
+   */
+  KILLED,
+
+  /**
+   * The package is killed as it has recurring resource overuse pattern.
+   */
+  KILLED_RECURRING_OVERUSE,
 }
