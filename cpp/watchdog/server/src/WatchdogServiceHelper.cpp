@@ -197,15 +197,15 @@ Status WatchdogServiceHelper::getPackageInfosForUids(
     return service->getPackageInfosForUids(uids, prefixes, packageInfos);
 }
 
-Status WatchdogServiceHelper::notifyIoOveruse(
-        const std::vector<PackageIoOveruseStats>& ioOveruseStats) {
+Status WatchdogServiceHelper::latestIoOveruseStats(
+        const std::vector<PackageIoOveruseStats>& packageIoOveruseStats) {
     sp<ICarWatchdogServiceForSystem> service;
     if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_STATE, "Watchdog service is not initialized");
     } else {
         service = mService;
     }
-    return service->notifyIoOveruse(ioOveruseStats);
+    return service->latestIoOveruseStats(packageIoOveruseStats);
 }
 
 }  // namespace watchdog

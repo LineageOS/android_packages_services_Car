@@ -49,7 +49,7 @@ public:
                  std::vector<android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
     MOCK_METHOD(
-            android::binder::Status, notifyIoOveruse,
+            android::binder::Status, latestIoOveruseStats,
             (const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&),
             (override));
 

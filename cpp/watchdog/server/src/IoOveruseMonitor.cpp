@@ -37,6 +37,7 @@ using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
+using ::android::automotive::watchdog::internal::PackageResourceOveruseAction;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -98,8 +99,7 @@ Result<void> IoOveruseMonitor::init() {
     mIoOveruseWarnPercentage = static_cast<double>(
             sysprop::ioOveruseWarnPercentage().value_or(kDefaultIoOveruseWarnPercentage));
     /*
-     * TODO(b/167240592): Read the latest I/O overuse config, last per-package I/O usage, and
-     *  last N days per-package I/O overuse stats.
+     * TODO(b/167240592): Read the latest I/O overuse config.
      *  The latest I/O overuse config is read in this order:
      *  1. From /data partition as this contains the latest config and any updates received from OEM
      *    and system applications.
@@ -165,7 +165,6 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     }
     const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
     std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
-    std::unordered_map<uid_t, IoOveruseStats> overusingAppStats;
     for (const auto& [uid, uidIoStats] : perUidIoUsage) {
         const auto& packageInfo = packageInfosByUid.find(uid);
         if (packageInfo == packageInfosByUid.end()) {
@@ -190,26 +189,46 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 
         const auto threshold = mIoOveruseConfigs->fetchThreshold(dailyIoUsage->packageInfo);
 
-        IoOveruseStats stats;
-        stats.startTime = startTime;
-        stats.durationInSeconds = durationInSeconds;
-        stats.writtenBytes = dailyIoUsage->writtenBytes;
-        stats.remainingWriteBytes =
+        PackageIoOveruseStats stats;
+        stats.uid = uid;
+        stats.shouldNotify = false;
+        stats.ioOveruseStats.startTime = startTime;
+        stats.ioOveruseStats.durationInSeconds = durationInSeconds;
+        stats.ioOveruseStats.writtenBytes = dailyIoUsage->writtenBytes;
+        stats.ioOveruseStats.totalOveruses = dailyIoUsage->totalOveruses;
+        stats.ioOveruseStats.remainingWriteBytes =
                 diff(threshold, diff(dailyIoUsage->writtenBytes, dailyIoUsage->forgivenWriteBytes));
+        stats.ioOveruseStats.killableOnOveruse =
+                mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
 
-        if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
-            if (stats.remainingWriteBytes.foregroundBytes == 0 ||
-                stats.remainingWriteBytes.backgroundBytes == 0 ||
-                stats.remainingWriteBytes.garageModeBytes == 0) {
-                dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
-                stats.killableOnOveruse =
-                        mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
-                stats.totalOveruses = ++dailyIoUsage->totalOveruses;
-                overusingNativeStats[uid] = std::move(stats);
+        const auto& remainingWriteBytes = stats.ioOveruseStats.remainingWriteBytes;
+        if (remainingWriteBytes.foregroundBytes == 0 || remainingWriteBytes.backgroundBytes == 0 ||
+            remainingWriteBytes.garageModeBytes == 0) {
+            stats.ioOveruseStats.totalOveruses = ++dailyIoUsage->totalOveruses;
+            // Reset counters as the package may be disabled/killed by the watchdog service.
+            dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
+            dailyIoUsage->isPackageWarned = false;
+            if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
+                overusingNativeStats[uid] = stats.ioOveruseStats;
+            } else {
+                /*
+                 * Native services are handled by the daemon so notify only applications from
+                 * watchdog service.
+                 */
+                stats.shouldNotify = true;
             }
+            mLatestIoOveruseStats.emplace_back(std::move(stats));
             continue;
         }
-
+        if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE ||
+            !stats.ioOveruseStats.killableOnOveruse || dailyIoUsage->isPackageWarned) {
+            /*
+             * No need to warn native services or applications that won't be killed on I/O overuse
+             * as they will be sent a notification when they exceed their daily threshold.
+             */
+            mLatestIoOveruseStats.emplace_back(std::move(stats));
+            continue;
+        }
         const auto exceedsWarnThreshold = [&](double remaining, double threshold) {
             if (threshold == 0) {
                 return true;
@@ -217,48 +236,26 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             double usedPercent = (100 - (remaining / threshold) * 100);
             return usedPercent > mIoOveruseWarnPercentage;
         };
-        const bool exceedsWarnWriteBytes =
-                exceedsWarnThreshold(stats.remainingWriteBytes.foregroundBytes,
-                                     threshold.foregroundBytes) ||
-                exceedsWarnThreshold(stats.remainingWriteBytes.backgroundBytes,
-                                     threshold.backgroundBytes) ||
-                exceedsWarnThreshold(stats.remainingWriteBytes.garageModeBytes,
-                                     threshold.garageModeBytes);
-        /*
-         * Checking whether a package is safe-to-kill is expensive when done for all packages on
-         * each periodic collection. Thus limit this to only packages that need to be warned or
-         * notified of I/O overuse. This is less expensive because we expect only few packages
-         * per day to overuse I/O.
-         */
-        if (stats.remainingWriteBytes.foregroundBytes == 0 ||
-            stats.remainingWriteBytes.backgroundBytes == 0 ||
-            stats.remainingWriteBytes.garageModeBytes == 0) {
-            stats.killableOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
-            // Reset counters as the package may be disabled/killed by car watchdog service.
-            dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
-            stats.totalOveruses = ++dailyIoUsage->totalOveruses;
-            dailyIoUsage->isPackageWarned = false;
-            overusingAppStats[uid] = std::move(stats);
-        } else if (exceedsWarnWriteBytes && !dailyIoUsage->isPackageWarned) {
-            stats.killableOnOveruse = mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
-            /*
-             * No need to warn applications that won't be killed on I/O overuse as they will be sent
-             * a notification when they exceed their daily threshold.
-             */
-            if (stats.killableOnOveruse) {
-                overusingAppStats[uid] = std::move(stats);
-            }
+        if (exceedsWarnThreshold(remainingWriteBytes.foregroundBytes, threshold.foregroundBytes) ||
+            exceedsWarnThreshold(remainingWriteBytes.backgroundBytes, threshold.backgroundBytes) ||
+            exceedsWarnThreshold(remainingWriteBytes.garageModeBytes, threshold.garageModeBytes)) {
+            stats.shouldNotify = true;
             // Avoid duplicate warning before the daily threshold exceeded notification is sent.
             dailyIoUsage->isPackageWarned = true;
         }
+        mLatestIoOveruseStats.emplace_back(std::move(stats));
     }
 
     if (!overusingNativeStats.empty()) {
         notifyNativePackagesLocked(overusingNativeStats);
     }
 
-    if (!overusingAppStats.empty()) {
-        notifyWatchdogServiceLocked(overusingAppStats);
+    if (const auto status = mWatchdogServiceHelper->latestIoOveruseStats(mLatestIoOveruseStats);
+        !status.isOk()) {
+        // Don't clear the cache as it can be pushed again on the next collection.
+        ALOGW("Failed to push the latest I/O overuse stats to watchdog service");
+    } else {
+        mLatestIoOveruseStats.clear();
     }
 
     return {};
@@ -351,32 +348,6 @@ void IoOveruseMonitor::notifyNativePackagesLocked(
     // TODO(b/167240592): Upload I/O overuse metrics for native packages.
 }
 
-void IoOveruseMonitor::notifyWatchdogServiceLocked(
-        const std::unordered_map<uid_t, IoOveruseStats>& statsByUid) {
-    std::vector<PackageIoOveruseStats> packageIoOveruseStats;
-    for (const auto& [uid, ioOveruseStats] : statsByUid) {
-        PackageIoOveruseStats stats;
-        stats.packageIdentifier.uid = uid;
-        stats.ioOveruseStats = ioOveruseStats;
-        packageIoOveruseStats.emplace_back(std::move(stats));
-    }
-
-    if (const auto status = mWatchdogServiceHelper->notifyIoOveruse(packageIoOveruseStats);
-        !status.isOk()) {
-        ALOGW("Failed to notify car watchdog service of I/O overusing packages");
-        /*
-         * TODO(b/167240592): Upload metrics for all I/O overusing packages with decision as not
-         *  killed on I/O overuse.
-         */
-    }
-
-    /*
-     * TODO(b/167240592): Upload metrics only for I/O overusing packages that are not safe to kill
-     *  because for other packages car watchdog service will respond with the action taken then the
-     *  metrics will be uploaded.
-     */
-}
-
 Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
                                                             const IoOveruseConfiguration& config) {
     std::unique_lock writeLock(mRwMutex);
@@ -384,6 +355,12 @@ Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
         return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
     }
     return mIoOveruseConfigs->update(type, config);
+}
+
+Result<void> IoOveruseMonitor::actionTakenOnIoOveruse(
+        [[maybe_unused]] const std::vector<PackageResourceOveruseAction>& actions) {
+    // TODO(b/167240592): Upload metrics.
+    return {};
 }
 
 Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseListener>& listener) {

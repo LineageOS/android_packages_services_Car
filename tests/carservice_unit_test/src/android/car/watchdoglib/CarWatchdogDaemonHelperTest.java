@@ -202,6 +202,6 @@ public class CarWatchdogDaemonHelperTest {
         }
 
         @Override
-        public void notifyIoOveruse(List<PackageIoOveruseStats> ioOveruseStats) {}
+        public void latestIoOveruseStats(List<PackageIoOveruseStats> ioOveruseStats) {}
     }
 }

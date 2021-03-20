@@ -65,9 +65,9 @@ public:
     virtual android::binder::Status getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos) = 0;
-    virtual android::binder::Status notifyIoOveruse(
+    virtual android::binder::Status latestIoOveruseStats(
             const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    ioOveruseStats) = 0;
+                    packageIoOveruseStats) = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -104,9 +104,9 @@ public:
     android::binder::Status getPackageInfosForUids(
             const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
             std::vector<android::automotive::watchdog::internal::PackageInfo>* packageInfos);
-    android::binder::Status notifyIoOveruse(
+    android::binder::Status latestIoOveruseStats(
             const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
-                    ioOveruseStats);
+                    packageIoOveruseStats);
 
 protected:
     android::base::Result<void> init(
