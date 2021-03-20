@@ -20,6 +20,7 @@ import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.IoOveruseConfiguration;
+import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.StateType;
 
 /**
@@ -114,4 +115,12 @@ interface ICarWatchdog {
    * @param config               I/O overuse configuration.
    */
   void updateIoOveruseConfiguration(in ComponentType type, in IoOveruseConfiguration config);
+
+  /**
+   * CarWatchdogService notifies the native service with the actions taken on the resource overusing
+   * applications.
+   *
+   * @param actions              List of actions take on resource overusing packages.
+   */
+   void actionTakenOnResourceOveruse(in List<PackageResourceOveruseAction> actions);
 }

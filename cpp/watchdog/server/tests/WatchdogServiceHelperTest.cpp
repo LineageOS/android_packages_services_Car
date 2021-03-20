@@ -382,47 +382,48 @@ TEST_F(WatchdogServiceHelperTest,
     ASSERT_TRUE(actualPackageInfo.empty());
 }
 
-TEST_F(WatchdogServiceHelperTest, TestNotifyIoOveruse) {
+TEST_F(WatchdogServiceHelperTest, TestLatestIoOveruseStats) {
     PackageIoOveruseStats stats;
-    stats.packageIdentifier.name = String16("randomPackage");
-    stats.packageIdentifier.uid = 101000;
+    stats.uid = 101000;
     stats.ioOveruseStats.killableOnOveruse = true;
     stats.ioOveruseStats.startTime = 99898;
     stats.ioOveruseStats.durationInSeconds = 12345;
     stats.ioOveruseStats.totalOveruses = 10;
+    stats.shouldNotify = true;
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
     std::vector<PackageIoOveruseStats> actualOveruseStats;
 
     registerCarWatchdogService();
 
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(expectedIoOveruseStats))
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(expectedIoOveruseStats))
             .WillOnce(DoAll(SaveArg<0>(&actualOveruseStats), Return(Status::ok())));
 
-    Status status = mWatchdogServiceHelper->notifyIoOveruse(expectedIoOveruseStats);
+    Status status = mWatchdogServiceHelper->latestIoOveruseStats(expectedIoOveruseStats);
 
     ASSERT_TRUE(status.isOk()) << status;
     EXPECT_THAT(actualOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats));
 }
 
-TEST_F(WatchdogServiceHelperTest, TestErrorsOnNotifyIoOveruseWithNoCarWatchdogServiceRegistered) {
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(_)).Times(0);
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnLatetstIoOveruseStatsWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_)).Times(0);
 
-    Status status = mWatchdogServiceHelper->notifyIoOveruse({});
+    Status status = mWatchdogServiceHelper->latestIoOveruseStats({});
 
-    ASSERT_FALSE(status.isOk()) << "notifyIoOveruse should fail when no "
+    ASSERT_FALSE(status.isOk()) << "latetstIoOveruseStats should fail when no "
                                    "car watchdog service registered with the helper";
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnNotifyIoOveruseWithErrorStatusFromCarWatchdogService) {
+       TestErrorsOnLatetstIoOveruseStatsWithErrorStatusFromCarWatchdogService) {
     registerCarWatchdogService();
 
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, notifyIoOveruse(_))
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
 
-    Status status = mWatchdogServiceHelper->notifyIoOveruse({});
+    Status status = mWatchdogServiceHelper->latestIoOveruseStats({});
 
-    ASSERT_FALSE(status.isOk()) << "notifyIoOveruse should fail when car watchdog "
+    ASSERT_FALSE(status.isOk()) << "latetstIoOveruseStats should fail when car watchdog "
                                    "service API returns error";
 }
 

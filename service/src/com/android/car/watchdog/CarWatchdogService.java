@@ -149,6 +149,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         if (DEBUG) {
             Slog.d(TAG, "CarWatchdogService is initialized");
         }
+        /**
+         * TODO(b/170741935): Read the current day's I/O overuse stats from database and push them
+         * to the daemon.
+         */
     }
 
     @Override
@@ -718,9 +722,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
 
         @Override
-        public void notifyIoOveruse(List<PackageIoOveruseStats> ioOveruseStats) {
+        public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
           /**
-           * TODO(b/170741935): Take action on I/O overuse.
+           * TODO(b/170741935): Store the stats and take action on I/O overuse.
            * 1. Notify applications of their I/O overuse.
            * 2. Cache I/O overuse stats for the day.
            * 3. Identify applications to kill/disable. Plus identify daily disabling apps vs apps
