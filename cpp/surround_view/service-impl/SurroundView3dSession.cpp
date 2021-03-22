@@ -17,22 +17,22 @@
 
 #include "SurroundView3dSession.h"
 
+#include "CameraUtils.h"
+#include "sv_3d_params.h"
+
 #include <android-base/logging.h>
+#include <android/hardware/camera/device/3.2/ICameraDevice.h>
 #include <android/hardware_buffer.h>
 #include <android/hidl/memory/1.0/IMemory.h>
 #include <hidlmemory/mapping.h>
 #include <system/camera_metadata.h>
 #include <utils/SystemClock.h>
 #include <utils/Trace.h>
+#include <vndk/hardware_buffer.h>
 
 #include <array>
-#include <thread>
 #include <set>
-
-#include <android/hardware/camera/device/3.2/ICameraDevice.h>
-
-#include "CameraUtils.h"
-#include "sv_3d_params.h"
+#include <thread>
 
 using ::std::adopt_lock;
 using ::std::array;
@@ -74,7 +74,6 @@ typedef struct {
 static const size_t kStreamCfgSz = sizeof(RawStreamConfig) / sizeof(int32_t);
 static const uint8_t kGrayColor = 128;
 static const int kNumFrames = 4;
-static const int kInputNumChannels = 4;
 static const int kOutputNumChannels = 4;
 static const float kUndistortionScales[4] = {1.0f, 1.0f, 1.0f, 1.0f};
 
@@ -150,15 +149,28 @@ Return<void> SurroundView3dSession::FramesHandler::deliverFrame_1_1(
         }
 
         for (int i = 0; i < kNumFrames; i++) {
-            LOG(DEBUG) << "Copying buffer from camera ["
-                       << buffers[indices[i]].deviceId
-                       << "] to Surround View Service";
-            mSession->copyFromBufferToPointers(buffers[indices[i]],
-                                               mSession->mInputPointers[i]);
+            LOG(DEBUG) << "Importing graphic buffer from camera [" << buffers[indices[i]].deviceId
+                       << "]";
+            const AHardwareBuffer_Desc* pDesc = reinterpret_cast<const AHardwareBuffer_Desc*>(
+                    &buffers[indices[i]].buffer.description);
+
+            AHardwareBuffer* hardwareBuffer;
+            status_t status = AHardwareBuffer_createFromHandle(
+                    pDesc, buffers[indices[i]].buffer.nativeHandle,
+                    AHARDWAREBUFFER_CREATE_FROM_HANDLE_METHOD_CLONE, &hardwareBuffer);
+
+            if (status != NO_ERROR) {
+                LOG(ERROR) << "Can't create AHardwareBuffer from handle. Error: " << status;
+                return {};
+            }
+
+            mSession->mInputPointers[i].gpu_data_pointer = static_cast<void*>(hardwareBuffer);
+
+            // Keep a reference to the EVS graphic buffers, so we can
+            // release them after Surround View stitching is done.
+            mSession->mEvsGraphicBuffers = buffers;
         }
     }
-
-    mCamera->doneWithFrame_1_1(buffers);
 
     // Notify the session that a new set of frames is ready
     mSession->mFramesSignal.notify_all();
@@ -197,69 +209,6 @@ Return<void> SurroundView3dSession::FramesHandler::notify(const EvsEventDesc& ev
     }
 
     return {};
-}
-
-bool SurroundView3dSession::copyFromBufferToPointers(
-    BufferDesc_1_1 buffer, SurroundViewInputBufferPointers pointers) {
-
-    ATRACE_BEGIN(__PRETTY_FUNCTION__);
-
-    AHardwareBuffer_Desc* pDesc =
-        reinterpret_cast<AHardwareBuffer_Desc *>(&buffer.buffer.description);
-
-    ATRACE_BEGIN("Create Graphic Buffer");
-    // create a GraphicBuffer from the existing handle
-    sp<GraphicBuffer> inputBuffer = new GraphicBuffer(
-        buffer.buffer.nativeHandle, GraphicBuffer::CLONE_HANDLE, pDesc->width,
-        pDesc->height, pDesc->format, pDesc->layers,
-        GRALLOC_USAGE_HW_TEXTURE, pDesc->stride);
-
-    if (inputBuffer == nullptr) {
-        LOG(ERROR) << "Failed to allocate GraphicBuffer to wrap image handle";
-        // Returning "true" in this error condition because we already released the
-        // previous image (if any) and so the texture may change in unpredictable
-        // ways now!
-        return false;
-    } else {
-        LOG(INFO) << "Managed to allocate GraphicBuffer with "
-                  << " width: " << pDesc->width
-                  << " height: " << pDesc->height
-                  << " format: " << pDesc->format
-                  << " stride: " << pDesc->stride;
-    }
-    ATRACE_END();
-
-    ATRACE_BEGIN("Lock input buffer (gpu to cpu)");
-    // Lock the input GraphicBuffer and map it to a pointer.  If we failed to
-    // lock, return false.
-    void* inputDataPtr;
-    inputBuffer->lock(
-        GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_NEVER,
-        &inputDataPtr);
-    if (!inputDataPtr) {
-        LOG(ERROR) << "Failed to gain read access to GraphicBuffer";
-        inputBuffer->unlock();
-        return false;
-    } else {
-        LOG(INFO) << "Managed to get read access to GraphicBuffer";
-    }
-    ATRACE_END();
-
-    ATRACE_BEGIN("Copy input data");
-    // Both source and destination are with 4 channels
-    memcpy(pointers.cpu_data_pointer, inputDataPtr,
-           pDesc->height * pDesc->width * kInputNumChannels);
-    LOG(INFO) << "Buffer copying finished";
-    ATRACE_END();
-
-    ATRACE_BEGIN("Unlock input buffer (cpu to gpu)");
-    inputBuffer->unlock();
-    ATRACE_END();
-
-    // Paired with ATRACE_BEGIN in the beginning of the method.
-    ATRACE_END();
-
-    return true;
 }
 
 void SurroundView3dSession::processFrames() {
@@ -639,33 +588,20 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
             mStream->notify(SvEvent::FRAME_DROPPED);
             return true;
         }
+
+        // Release the frames for GPU solution.
+        mCamera->doneWithFrame_1_1(mEvsGraphicBuffers);
     }
 
-    // If the width/height was changed, re-allocate the data pointer.
+    // If the width/height was changed, re-allocate the Graphic Buffer and
+    // update the Surround View core lib.
     if (mOutputWidth != mConfig.width
         || mOutputHeight != mConfig.height) {
-        LOG(DEBUG) << "Config changed. Re-allocate memory. "
-                   << "Old width: "
-                   << mOutputWidth
-                   << ", old height: "
-                   << mOutputHeight
-                   << "; New width: "
-                   << mConfig.width
-                   << ", new height: "
-                   << mConfig.height;
-        delete[] static_cast<char*>(mOutputPointer.cpu_data_pointer);
         mOutputWidth = mConfig.width;
         mOutputHeight = mConfig.height;
         mOutputPointer.height = mOutputHeight;
         mOutputPointer.width = mOutputWidth;
         mOutputPointer.format = Format::RGBA;
-        mOutputPointer.cpu_data_pointer =
-                static_cast<void*>(new char[mOutputHeight * mOutputWidth * kOutputNumChannels]);
-
-        if (!mOutputPointer.cpu_data_pointer) {
-            LOG(ERROR) << "Memory allocation failed. Exiting.";
-            return false;
-        }
 
         Size2dInteger size = Size2dInteger(mOutputWidth, mOutputHeight);
         mSurroundView->Update3dOutputResolution(size);
@@ -743,6 +679,11 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         memset(mOutputPointer.cpu_data_pointer, kGrayColor,
                mOutputHeight * mOutputWidth * kOutputNumChannels);
     }
+    ATRACE_END();
+
+    // Release the frames for GPU solution.
+    ATRACE_BEGIN("Release the evs frames");
+    mCamera->doneWithFrame_1_1(mEvsGraphicBuffers);
     ATRACE_END();
 
     ATRACE_BEGIN("Lock output texture (gpu to cpu)");
@@ -844,16 +785,15 @@ bool SurroundView3dSession::initialize() {
     ATRACE_END();
 
     ATRACE_BEGIN("Allocate cpu buffers");
+
     mInputPointers.resize(kNumFrames);
     for (int i = 0; i < kNumFrames; i++) {
+        // We do not need to explicitly allocate cpu_data_pointer any more since the
+        // input data handling is purely on GPU side now.
         mInputPointers[i].width = mCameraParams[i].size.width;
         mInputPointers[i].height = mCameraParams[i].size.height;
         mInputPointers[i].format = Format::RGBA;
-        mInputPointers[i].cpu_data_pointer =
-                static_cast<void*>(new uint8_t[mInputPointers[i].width * mInputPointers[i].height *
-                                               kInputNumChannels]);
     }
-    LOG(INFO) << "Allocated " << kNumFrames << " input pointers";
 
     mOutputWidth = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.width;
     mOutputHeight = mIOModuleConfig->sv3dConfig.sv3dParams.resolution.height;
