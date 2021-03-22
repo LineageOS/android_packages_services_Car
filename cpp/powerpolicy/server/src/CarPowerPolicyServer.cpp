@@ -215,7 +215,8 @@ void CarPowerPolicyServer::terminateService() {
 CarPowerPolicyServer::CarPowerPolicyServer() :
       mSilentModeHandler(this),
       mIsPowerPolicyLocked(false),
-      mIsCarServiceInOperation(false) {
+      mIsCarServiceInOperation(false),
+      mIsFirstConnectionToVhal(false) {
     mMessageHandler = new MessageHandlerImpl(this);
     mBinderDeathRecipient = new BinderDeathRecipient(this);
     mHidlDeathRecipient = new HidlDeathRecipient(this);
@@ -327,6 +328,7 @@ Status CarPowerPolicyServer::notifyPowerPolicyChange(const std::string& policyId
                                                       ret.error().message().c_str())
                                                  .c_str());
     }
+    ALOGD("Policy(%s) is applied at CarService", policyId.c_str());
     return Status::ok();
 }
 
@@ -408,8 +410,6 @@ Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
     mHandlerLooper = looper;
     mPolicyManager.init();
     mComponentHandler.init();
-    // TODO(b/180773725): If it's not silent mode and first start, set the current power policy such
-    // that CPU is on, display is on, and audio is on.
     mSilentModeHandler.init();
 
     status_t status =
@@ -596,13 +596,26 @@ void CarPowerPolicyServer::connectToVhalHelper() {
         ALOGW("Failed to connect to VHAL. VHAL is dead. Retrying...");
         return;
     }
+    std::string currentPolicyId;
     {
         Mutex::Autolock lock(mMutex);
         mVhalService = vhalService;
+        if (isPowerPolicyAppliedLocked()) {
+            currentPolicyId = mCurrentPowerPolicyMeta.powerPolicy->policyId;
+        }
     }
-    ALOGI("Connected to VHAL");
-    applyInitialPowerPolicy();
+    /*
+     * When VHAL is first executed, a normal power management goes on. When VHAL is restarted due to
+     * some reasons, the current policy is notified to VHAL.
+     */
+    if (mIsFirstConnectionToVhal) {
+        applyInitialPowerPolicy();
+        mIsFirstConnectionToVhal = false;
+    } else if (!currentPolicyId.empty()) {
+        notifyVhalNewPowerPolicy(currentPolicyId);
+    }
     subscribeToVhal();
+    ALOGI("Connected to VHAL");
     return;
 }
 
@@ -612,6 +625,10 @@ void CarPowerPolicyServer::applyInitialPowerPolicy() {
     CarPowerPolicyPtr powerPolicy;
     {
         Mutex::Autolock lock(mMutex);
+        if (mIsCarServiceInOperation) {
+            ALOGI("Skipping initial power policy application because CarService is running");
+            return;
+        }
         policyId = mPendingPowerPolicyId;
         currentPolicyGroupId = mCurrentPolicyGroupId;
     }
@@ -631,6 +648,7 @@ void CarPowerPolicyServer::applyInitialPowerPolicy() {
         ALOGW("Cannot apply the initial power policy(%s): %s", policyId.c_str(),
               ret.error().message().c_str());
     }
+    ALOGD("Policy(%s) is applied as the initial one", policyId.c_str());
 }
 
 void CarPowerPolicyServer::subscribeToVhal() {
@@ -725,6 +743,7 @@ Result<void> CarPowerPolicyServer::notifyVhalNewPowerPolicy(const std::string& p
     if (!ret.isOk() || ret != StatusCode::OK) {
         return Error() << "Failed to set CURRENT_POWER_POLICY property";
     }
+    ALOGD("Policy(%s) is notified to VHAL", policyId.c_str());
     return {};
 }
 
