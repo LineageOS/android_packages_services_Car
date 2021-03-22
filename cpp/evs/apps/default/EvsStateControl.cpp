@@ -44,17 +44,14 @@ inline constexpr VehiclePropertyType getPropType(VehicleProperty prop) {
             & static_cast<int32_t>(VehiclePropertyType::MASK));
 }
 
-
-EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
-                                 android::sp <IEvsEnumerator> pEvs,
-                                 android::sp <IEvsDisplay>    pDisplay,
-                                 const ConfigManager&         config) :
-    mVehicle(pVnet),
-    mEvs(pEvs),
-    mDisplay(pDisplay),
-    mConfig(config),
-    mCurrentState(OFF) {
-
+EvsStateControl::EvsStateControl(android::sp<IVehicle> pVnet, android::sp<IEvsEnumerator> pEvs,
+                                 android::sp<IEvsDisplay> pDisplay, const ConfigManager& config) :
+      mVehicle(pVnet),
+      mEvs(pEvs),
+      mDisplay(pDisplay),
+      mConfig(config),
+      mCurrentState(OFF),
+      mEvsStats(EvsStats::build()) {
     // Initialize the property value containers we'll be updating (they'll be zeroed by default)
     static_assert(getPropType(VehicleProperty::GEAR_SELECTION) == VehiclePropertyType::INT32,
                   "Unexpected type for GEAR_SELECTION property");
@@ -113,7 +110,6 @@ EvsStateControl::EvsStateControl(android::sp <IVehicle>       pVnet,
 
     LOG(DEBUG) << "State controller ready";
 }
-
 
 bool EvsStateControl::startUpdateLoop() {
     // Create the thread and report success if it gets started
@@ -198,6 +194,12 @@ void EvsStateControl::updateLoop() {
 
                 // Send the finished image back for display
                 mDisplay->returnTargetBufferForDisplay(tgtBuffer);
+
+                if (!mFirstFrameIsDisplayed) {
+                    mFirstFrameIsDisplayed = true;
+                    // returnTargetBufferForDisplay() is finished, the frame should be displayed
+                    mEvsStats.finishComputingFirstFrameLatency(android::uptimeMillis());
+                }
             }
         } else if (run) {
             // No active renderer, so sleep until somebody wakes us with another command
@@ -213,6 +215,9 @@ void EvsStateControl::updateLoop() {
         // Deactive the renderer
         mCurrentRenderer->deactivate();
     }
+
+    // If `ICarTelemetry` service was not ready before, we need to try sending data again.
+    mEvsStats.sendCollectedDataBlocking();
 
     printf("Shutting down app due to state control loop ending\n");
     LOG(ERROR) << "Shutting down app due to state control loop ending";
@@ -294,6 +299,9 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
         // Nothing to do here...
         return true;
     }
+
+    // Used by CarStats to accurately compute stats, it needs to be close to the beginning.
+    auto desiredStateTimeMillis = android::uptimeMillis();
 
     LOG(DEBUG) << "Switching to state " << desiredState;
     LOG(DEBUG) << "  Current state " << mCurrentState
@@ -381,6 +389,13 @@ bool EvsStateControl::configureEvsPipeline(State desiredState) {
     // Record our current state
     LOG(INFO) << "Activated state " << desiredState;
     mCurrentState = desiredState;
+
+    mFirstFrameIsDisplayed = false;  // Got a new renderer, mark first frame is not displayed.
+
+    if (mCurrentRenderer != nullptr && desiredState == State::REVERSE) {
+        // Start computing the latency when the evs state changes.
+        mEvsStats.startComputingFirstFrameLatency(desiredStateTimeMillis);
+    }
 
     return true;
 }
