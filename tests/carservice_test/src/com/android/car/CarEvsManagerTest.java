@@ -175,6 +175,14 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
         //                    registered Surface.
     }
 
+    @Test
+    public void testIsSupported() throws Exception {
+        assertThat(mEvsManager.isSupported(CarEvsManager.SERVICE_TYPE_REARVIEW)).isTrue();
+        // TODO(b/179029031): Fix below test when the Surround View service is integrated into
+        // CarEvsService.
+        assertThat(mEvsManager.isSupported(CarEvsManager.SERVICE_TYPE_SURROUNDVIEW)).isFalse();
+    }
+
     /**
      * Class that implements the listener interface and gets called back from
      * {@link android.car.evs.CarEvsManager.CarEvsStatusListener}.
