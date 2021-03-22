@@ -17,15 +17,16 @@
 #ifndef CPP_TELEMETRY_SRC_CARTELEMETRYINTERNALIMPL_H_
 #define CPP_TELEMETRY_SRC_CARTELEMETRYINTERNALIMPL_H_
 
+#include "RingBuffer.h"
+#include "binderutils/BinderDeathRecipient.h"
+
 #include <android/automotive/telemetry/internal/BnCarTelemetryInternal.h>
 #include <android/automotive/telemetry/internal/CarDataInternal.h>
+#include <android/automotive/telemetry/internal/ICarDataListener.h>
+#include <binder/IBinder.h>
+#include <utils/Mutex.h>
 #include <utils/String16.h>
 #include <utils/Vector.h>
-
-#include <RingBuffer.h>
-
-#include <memory>
-#include <vector>
 
 namespace android {
 namespace automotive {
@@ -47,7 +48,14 @@ public:
     status_t dump(int fd, const android::Vector<android::String16>& args) override;
 
 private:
+    void listenerBinderDied(const wp<android::IBinder>& what);
+
     RingBuffer* mRingBuffer;  // not owned
+    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    std::mutex mMutex;  // a mutex for the whole instance
+
+    android::sp<android::automotive::telemetry::internal::ICarDataListener> mCarDataListener
+            GUARDED_BY(mMutex);
 };
 
 }  // namespace telemetry

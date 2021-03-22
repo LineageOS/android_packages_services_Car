@@ -17,14 +17,13 @@
 #ifndef CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
 #define CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
 
+#include "RingBuffer.h"
+
 #include <android/frameworks/automotive/telemetry/BnCarTelemetry.h>
 #include <android/frameworks/automotive/telemetry/CarData.h>
 #include <utils/String16.h>
 #include <utils/Vector.h>
 
-#include <RingBuffer.h>
-
-#include <memory>
 #include <vector>
 
 namespace android {
