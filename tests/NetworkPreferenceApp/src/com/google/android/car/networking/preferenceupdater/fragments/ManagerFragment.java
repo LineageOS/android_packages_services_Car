@@ -16,7 +16,11 @@
 package com.google.android.car.networking.preferenceupdater.fragments;
 
 import android.content.Context;
+import android.net.NetworkIdentity;
+import android.net.NetworkTemplate;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Message;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.LayoutInflater;
@@ -31,6 +35,7 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.car.networking.preferenceupdater.R;
 import com.google.android.car.networking.preferenceupdater.components.CarDriverDistractionManagerAdapter;
+import com.google.android.car.networking.preferenceupdater.components.MetricDisplay;
 import com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter;
 import com.google.android.car.networking.preferenceupdater.components.PersonalStorage;
 import com.google.android.car.networking.preferenceupdater.utils.Utils;
@@ -40,9 +45,34 @@ import java.util.Set;
 public final class ManagerFragment extends Fragment {
     private static final String TAG = ManagerFragment.class.getSimpleName();
 
+    public static final String METRIC_MSG_OEM_PREFERENCE_KEY = "oem_preference";
+    public static final String METRIC_MSG_OEM_PREFERENCE_TX_KEY = "oem_preference_tx";
+    public static final String METRIC_MSG_OEM_PREFERENCE_RX_KEY = "oem_preference_rx";
+
     private PersonalStorage mPersonalStorage;
     private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
     private CarDriverDistractionManagerAdapter mCarDriverDistractionManagerAdapter;
+
+    // Metric Display components
+    private MetricDisplay mMetricDisplay;
+    private TextView mOemPaidRxBytesTextView;
+    private TextView mOemPaidTxBytesTextView;
+    private TextView mOemPrivateRxBytesTextView;
+    private TextView mOemPrivateTxBytesTextView;
+    private TextView mOemTotalRxBytesTextView;
+    private TextView mOemTotalTxBytesTextView;
+    // Metric display handler that updates indicators
+    public final Handler mMetricMessageHandler =
+            new Handler() {
+                @Override
+                public void handleMessage(Message msg) {
+                    Bundle bundle = msg.getData();
+                    int oem_preference = bundle.getInt(METRIC_MSG_OEM_PREFERENCE_KEY);
+                    long tx = bundle.getLong(METRIC_MSG_OEM_PREFERENCE_TX_KEY);
+                    long rx = bundle.getLong(METRIC_MSG_OEM_PREFERENCE_RX_KEY);
+                    updateMetricIndicatorByType(oem_preference, tx, rx);
+                }
+            };
 
     private EditText mOEMPaidAppsEditText;
     private EditText mOEMPaidNoFallbackAppsEditText;
@@ -62,6 +92,7 @@ public final class ManagerFragment extends Fragment {
         mPersonalStorage = new PersonalStorage(context);
         mOemNetworkPreferencesAdapter = new OemNetworkPreferencesAdapter(context);
         mCarDriverDistractionManagerAdapter = new CarDriverDistractionManagerAdapter(context);
+        mMetricDisplay = new MetricDisplay(context, mMetricMessageHandler);
 
         defineViewsFromFragment(v);
         defineButtonActions();
@@ -71,12 +102,16 @@ public final class ManagerFragment extends Fragment {
         // Set the text to false.
         updatePansPolicyInEffectStatus(false);
 
+        // Let's start watching OEM traffic and updating indicators
+        mMetricDisplay.startWatching();
+
         return v;
     }
 
     @Override
     public void onDestroyView() {
         super.onDestroyView();
+        mMetricDisplay.stopWatching();
         mCarDriverDistractionManagerAdapter.destroy();
     }
 
@@ -90,6 +125,34 @@ public final class ManagerFragment extends Fragment {
         mReapplyPANSOnBootToggleButton = v.findViewById(R.id.reapplyPANSOnBootToggleButton);
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
         mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
+        // Since our Metric Display is going to be alive, we want to pass our TextView components
+        // into MetricDisplay instance to simplify refresh logic.
+        mOemPaidRxBytesTextView = v.findViewById(R.id.oemPaidRxBytesTextView);
+        mOemPaidTxBytesTextView = v.findViewById(R.id.oemPaidTxBytesTextView);
+        mOemPrivateRxBytesTextView = v.findViewById(R.id.oemPrivateRxBytesTextView);
+        mOemPrivateTxBytesTextView = v.findViewById(R.id.oemPrivateTxBytesTextView);
+        mOemTotalRxBytesTextView = v.findViewById(R.id.totalOemManagedRxBytesTextView);
+        mOemTotalTxBytesTextView = v.findViewById(R.id.totalOemManagedTxBytesTextView);
+        mMetricDisplay.setMainActivity(this);
+    }
+
+    private void updateMetricIndicatorByType(int type, long tx, long rx) {
+        switch (type) {
+            case NetworkIdentity.OEM_PAID:
+                mOemPaidTxBytesTextView.setText("" + tx);
+                mOemPaidRxBytesTextView.setText("" + rx);
+                break;
+            case NetworkIdentity.OEM_PRIVATE:
+                mOemPrivateTxBytesTextView.setText("" + tx);
+                mOemPrivateRxBytesTextView.setText("" + rx);
+                break;
+            case NetworkTemplate.OEM_MANAGED_YES:
+                mOemTotalTxBytesTextView.setText("" + tx);
+                mOemTotalRxBytesTextView.setText("" + rx);
+                break;
+            default:
+                Log.e(TAG, "Unknown NetworkIdentity " + type);
+        }
     }
 
     /** Defines actions of the buttons on the page */
