@@ -29,11 +29,10 @@
 namespace android {
 namespace automotive {
 namespace telemetry {
-namespace {
 
-using android::frameworks::automotive::telemetry::CarData;
-using android::frameworks::automotive::telemetry::ICarTelemetry;
-using testing::ContainerEq;
+using ::android::frameworks::automotive::telemetry::CarData;
+using ::android::frameworks::automotive::telemetry::ICarTelemetry;
+using ::testing::ContainerEq;
 
 const size_t kMaxBufferSizeBytes = 1024;
 
@@ -93,7 +92,6 @@ TEST_F(CarTelemetryImplTest, TestWriteBuffersOnlyLimitedAmount) {
     EXPECT_EQ(buffer.currentSizeBytes(), 6);
 }
 
-}  // namespace
 }  // namespace telemetry
 }  // namespace automotive
 }  // namespace android
