@@ -18,8 +18,6 @@ package android.car.userlib;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 
-import static com.google.common.truth.Truth.assertThat;
-
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -34,8 +32,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.InstrumentationRegistry;
-
-import com.android.car.internal.common.UserHelperLite;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -59,40 +55,6 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
         when(mContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
         when(mContext.getApplicationContext()).thenReturn(mContext);
         when(mContext.getResources()).thenReturn(mResources);
-    }
-
-    // TODO(b/162240867): Move UserHelperLite tests in separate class
-    @Test
-    public void testSafeName() {
-        assertThat(UserHelperLite.safeName(null)).isNull();
-
-        String safe = UserHelperLite.safeName("UnsafeIam");
-        assertThat(safe).isNotNull();
-        assertThat(safe).doesNotContain("UnsafeIAm");
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_system_headlessMode() {
-        mockIsHeadlessSystemUserMode(true);
-        assertThat(UserHelperLite.isHeadlessSystemUser(UserHandle.USER_SYSTEM)).isTrue();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_system_nonHeadlessMode() {
-        mockIsHeadlessSystemUserMode(false);
-        assertThat(UserHelperLite.isHeadlessSystemUser(UserHandle.USER_SYSTEM)).isFalse();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_nonSystem_headlessMode() {
-        mockIsHeadlessSystemUserMode(true);
-        assertThat(UserHelperLite.isHeadlessSystemUser(10)).isFalse();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_nonSystem_nonHeadlessMode() {
-        mockIsHeadlessSystemUserMode(false);
-        assertThat(UserHelperLite.isHeadlessSystemUser(10)).isFalse();
     }
 
     @Test
