@@ -38,8 +38,6 @@ import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
 
-import androidx.test.filters.FlakyTest;
-
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Ignore;
@@ -59,8 +57,8 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     private static final int STOP_TIMEOUT_MS = 300_000;
 
     /**
-     * Stopping the user takes a while, even when calling force stop - change it to false if this
-     * test becomes flaky.
+     * Stopping the user takes a while, even when calling force stop - change it to {@code false}
+     * if {@code testLifecycleListener} becomes flaky.
      */
     private static final boolean TEST_STOP_EVENTS = true;
 
@@ -86,9 +84,10 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         }
     }
 
+    @Ignore("TODO(b/183519890): STOPSHIP if not fixed")
     @Test
     public void testLifecycleListener() throws Exception {
-        int initialUserId = getInitialUserId();
+        int initialUserId = getCurrentUserId();
         int newUserId = createUser().id;
 
         BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
@@ -185,8 +184,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * created and switched to.
      */
     @Test
-    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
-    @Ignore("TODO(b/183051101): STOPSHIP if not fixed")
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
         UserInfo guestUser = createGuest();
@@ -221,8 +218,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
 
         assertWithMessage("userId on event %s", event).that(newGuestId)
                 .isNotEqualTo(guestUserId);
-        assertWithMessage("current user id").that(newGuestId)
-                .isEqualTo(ActivityManager.getCurrentUser());
+        assertWithMessage("current user id").that(newGuestId).isEqualTo(getCurrentUserId());
         UserInfo newGuest = mUserManager.getUserInfo(newGuestId);
         assertWithMessage("new user (%s) is a guest", newGuest.toFullString())
                 .that(newGuest.isGuest()).isTrue();
@@ -236,8 +232,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * resume to same guest user.
      */
     @Test
-    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
-    @Ignore("TODO(b/183051101): STOPSHIP if not fixed")
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
         UserInfo guestUser = createGuest();
@@ -263,19 +257,16 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
             suspendToRamAndResume();
 
             assertWithMessage("current user remains guest user (%s)", guestUser)
-                    .that(ActivityManager.getCurrentUser()).isEqualTo(guestUserId);
+                    .that(getCurrentUserId()).isEqualTo(guestUserId);
         } finally {
             clearUserLockCredentials(guestUserId, PIN);
         }
-
     }
 
     /**
      * Tests resume behavior when current user is persistent user.
      */
     @Test
-    @FlakyTest // TODO(b/158050171) remove once process is stable on user switching.
-    @Ignore("TODO(b/183051101): STOPSHIP if not fixed")
     public void testPersistentUserResumeToUser() throws Exception {
         int newUserId = createUser().id;
         BlockingUserLifecycleListener listener = BlockingUserLifecycleListener

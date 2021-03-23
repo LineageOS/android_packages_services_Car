@@ -84,7 +84,7 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
     @Test
     public void testRemoveUser_currentUserSetEphemeral() throws Exception {
         assertInitialUserIsAdmin();
-        int initialUserId = getInitialUserId();
+        int initialUserId = getCurrentUserId();
 
         UserInfo user = createUser();
         Log.d(TAG, "switching to user " + user.toFullString());
