@@ -276,7 +276,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isActivityDistractionOptimized(String packageName, String className) {
-        checkQueryPermission(packageName);
+        if (!callerCanQueryPackage(packageName)) return false;
         assertPackageAndClassName(packageName, className);
         synchronized (mLock) {
             if (DBG_POLICY_CHECK) {
@@ -312,22 +312,24 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     @VisibleForTesting
-    void checkQueryPermission(String packageName) {
+    boolean callerCanQueryPackage(String packageName) {
         int callingUid = Binder.getCallingUid();
         if (hasPermissionGranted(QUERY_ALL_PACKAGES, callingUid)) {
-            return;
+            return true;
         }
         String[] packages = mPackageManager.getPackagesForUid(callingUid);
         if (packages != null && packages.length > 0) {
             for (int i = 0; i < packages.length; i++) {
                 if (Objects.equals(packageName, packages[i])) {
-                    return;
+                    return true;
                 }
             }
         }
 
-        throw new SecurityException(QUERY_ALL_PACKAGES
-                + " permission is needed to query other packages.");
+        Slog.w(CarLog.TAG_PACKAGE,
+                QUERY_ALL_PACKAGES + " permission is needed to query other packages.");
+
+        return false;
     }
 
     private static boolean hasPermissionGranted(String permission, int uid) {
@@ -347,7 +349,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     @Override
     public boolean isServiceDistractionOptimized(String packageName, String className) {
-        checkQueryPermission(packageName);
+        if (!callerCanQueryPackage(packageName)) return false;
+
         if (packageName == null) {
             throw new IllegalArgumentException("Package name null");
         }
@@ -386,7 +389,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @Override
     public boolean isActivityBackedBySafeActivity(ComponentName activityName) {
         if (activityName == null) return false;
-        checkQueryPermission(activityName.getPackageName());
+        if (!callerCanQueryPackage(activityName.getPackageName())) return false;
+
         RootTaskInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
                 activityName);
         if (info == null) { // not top in focused stack
