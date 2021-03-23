@@ -21,7 +21,6 @@ import static com.android.compatibility.common.util.SystemUtil.eventually;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.annotation.NonNull;
-import android.app.ActivityManager;
 import android.app.KeyguardManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.Car;
@@ -40,7 +39,7 @@ import androidx.test.filters.FlakyTest;
 import org.junit.Before;
 import org.junit.Test;
 
-public final class CarDevicePolicyManagerTest extends CarApiTestBase {
+public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
 
     private static final String TAG = CarDevicePolicyManagerTest.class.getSimpleName();
 
@@ -60,7 +59,9 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
     @Test
     public void testRemoveUser() throws Exception {
-        UserInfo user = createUser("CarDevicePolicyManagerTest.testRemoveUser");
+        assertInitialUserIsAdmin();
+
+        UserInfo user = createUser();
         Log.d(TAG, "removing user " + user.toFullString());
 
         RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
@@ -82,32 +83,34 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
 
     @Test
     public void testRemoveUser_currentUserSetEphemeral() throws Exception {
-        int startUser = ActivityManager.getCurrentUser();
-        UserInfo user = createUser(
-                "CarDevicePolicyManagerTest.testRemoveUser_currentUserSetEphemeral");
+        assertInitialUserIsAdmin();
+        int initialUserId = getInitialUserId();
+
+        UserInfo user = createUser();
         Log.d(TAG, "switching to user " + user.toFullString());
         switchUser(user.id);
 
         Log.d(TAG, "removing user " + user.toFullString());
         RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
 
-        assertWithMessage("Failed to set ephemeral %s: %s", user.toFullString(), result)
+        assertWithMessage("status of remove user %s (%s)", user.toFullString(), result)
                 .that(result.getStatus())
                 .isEqualTo(RemoveUserResult.STATUS_SUCCESS_SET_EPHEMERAL);
 
-        assertWithMessage("User should still exist: %s", user).that(hasUser(user.id)).isTrue();
-        assertWithMessage("User should be set as ephemeral: %s", user)
+        assertWithMessage("User %s still exist", user).that(hasUser(user.id)).isTrue();
+        assertWithMessage("User %s set as ephemeral", user)
                 .that(getUser(user.id).isEphemeral())
                 .isTrue();
 
         // Switch back to the starting user.
-        Log.d(TAG, "switching to user " + startUser);
-        switchUser(startUser);
+        Log.d(TAG, "switching to user " + initialUserId);
+        resetStopUserOnSwitch(); // make sure it's stopped
+        switchUser(initialUserId);
 
         // User is removed once switch is complete
         Log.d(TAG, "waiting for user to be removed: " + user);
         waitForUserRemoval(user.id);
-        assertWithMessage("User should have been removed after switch: %s", user)
+        assertWithMessage("User %s exists after switch (should be removed)", user)
                 .that(hasUser(user.id))
                 .isFalse();
     }
@@ -125,7 +128,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
         UserHandle user = result.getUserHandle();
 
         try {
-            assertWithMessage("Failed to create user named %s and type %s: %s", name, type,
+            assertWithMessage("Created user named %s and type %s: %s", name, type,
                     result).that(result.isSuccess()).isTrue();
         } finally {
             if (user != null) {
@@ -213,8 +216,7 @@ public final class CarDevicePolicyManagerTest extends CarApiTestBase {
     }
 
     private void assertDeviceSecure() {
-        assertWithMessage("device is not secure / user credentials not set")
-                .that(mKeyguardManager.isDeviceSecure()).isTrue();
+        assertWithMessage("device is secure").that(mKeyguardManager.isDeviceSecure()).isTrue();
     }
 
     private void assertScreenOn() {
