@@ -100,7 +100,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         List<UserInfo> users = mUserManager.getAliveUsers();
 
         // Set current user
-        int currentUserId = ActivityManager.getCurrentUser();
+        int currentUserId = getCurrentUserId();
         Log.d(TAG, "Multi-user state on " + getTestName() + ": currentUser=" + currentUserId
                 + ", aliveUsers=" + users);
         for (UserInfo user : users) {
@@ -123,7 +123,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
             assertWithMessage("found a proper user to switch from %s", mInitialUser.toFullString())
                     .that(properUser).isNotNull();
 
-            Log.w(TAG, "Current user on start of " + getTestName() + " is a dangling user: "
+            Log.i(TAG, "Current user on start of " + getTestName() + " is a dangling user: "
                     + mInitialUser.toFullString() + "; switching to " + properUser.toFullString());
             switchUser(properUser.id);
             mInitialUser = properUser;
@@ -132,7 +132,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         // Remove dangling users from previous tests
         for (UserInfo user : users) {
             if (!isUserCreatedByTheseTests(user)) continue;
-            Log.w(TAG, "Removing dangling user " + user.toFullString() + " on @Before method of "
+            Log.e(TAG, "Removing dangling user " + user.toFullString() + " on @Before method of "
                     + getTestName());
             boolean removed = mUserManager.removeUser(user.id);
             if (!removed) {
@@ -154,22 +154,23 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         if (!mSetupFinished) return;
 
         try {
+            int currentUserId = getCurrentUserId();
+            int initialUserId = mInitialUser.id;
+            if (currentUserId != initialUserId) {
+                Log.i(TAG, "Wrong current userId at the end of " + getTestName() + ": "
+                        + currentUserId + "; switching back to " + initialUserId);
+                switchUser(initialUserId);
+
+            }
             if (!mUsersToRemove.isEmpty()) {
-                Log.i(TAG, "removing users on " + getTestName() + ".tearDown(): " + mUsersToRemove);
+                Log.i(TAG, "removing users at end of  " + getTestName() + ": " + mUsersToRemove);
                 for (Integer userId : mUsersToRemove) {
                     if (hasUser(userId)) {
                         removeUser(userId);
                     }
                 }
-            }
-
-            int currentUserId = ActivityManager.getCurrentUser();
-            int initialUserId = getInitialUserId();
-            if (currentUserId != initialUserId) {
-                Log.e(TAG, "Wrong current userId at the end of " + getTestName() + ": "
-                        + currentUserId + "; switching back to " + initialUserId);
-                switchUser(initialUserId);
-
+            } else {
+                Log.i(TAG, "no user to remove at end of " + getTestName());
             }
         } catch (Exception e) {
             // Must catch otherwise it would be the test failure, which could hide the real issue
@@ -179,8 +180,8 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     }
 
     @UserIdInt
-    protected int getInitialUserId() {
-        return mInitialUser.id;
+    protected int getCurrentUserId() {
+        return ActivityManager.getCurrentUser();
     }
 
     @NonNull
