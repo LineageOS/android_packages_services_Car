@@ -1248,7 +1248,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @AudioContext int getSuggestedAudioContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
-        return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+        return mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
                 getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalUsagesForZone(zoneId));
     }
