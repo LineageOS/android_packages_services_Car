@@ -15,7 +15,11 @@
  */
 package com.google.android.car.networking.preferenceupdater.components;
 
-import android.annotation.IntDef;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.content.Context;
@@ -34,31 +38,33 @@ public final class OemNetworkPreferencesAdapter {
 
     // Seconds to wait for setOemNetworkPreference() call to complete
     private static final int PANS_CALL_TIMEOUT_SEC = 5;
-
-    private ConnectivityManager mConnectivityManager;
-
-    // Convert constants from OemNetworkPreferences into enum
-    @IntDef(
-            prefix = {"OEM_NETWORK_PREFERENCE_"},
-            value = {
+    public static final int[] OEM_NETWORK_PREFERENCE_ARRAY =
+            new int[] {
                 OEM_NETWORK_PREFERENCE_OEM_PAID,
                 OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
                 OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
                 OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
-            })
-    public @interface Type {}
+            };
 
-    public static final int OEM_NETWORK_PREFERENCE_OEM_PAID =
-            android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
-    public static final int OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK =
-            android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
-    public static final int OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY =
-            android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
-    public static final int OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY =
-            android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
+    private final ConnectivityManager mConnectivityManager;
+    private final Context mContext;
 
-    public OemNetworkPreferencesAdapter(Context context) {
-        mConnectivityManager = context.getSystemService(ConnectivityManager.class);
+    private static class OemListenerCallback implements Runnable {
+        final CompletableFuture<Object> mDone = new CompletableFuture<>();
+
+        @Override
+        public void run() {
+            mDone.complete(new Object());
+        }
+
+        void expectOnComplete() throws Exception {
+            mDone.get(PANS_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
+        }
+    }
+
+    public OemNetworkPreferencesAdapter(Context ctx) {
+        mConnectivityManager = ctx.getSystemService(ConnectivityManager.class);
+        mContext = ctx;
     }
 
     /**
@@ -66,21 +72,15 @@ public final class OemNetworkPreferencesAdapter {
      * apply them.
      */
     public void applyPreference(@Nullable SparseArray<Set<String>> preference) {
-        Log.d(TAG, "Applying new OEM Network Preferences ...");
-        OemNetworkPreferences.Builder builder = new OemNetworkPreferences.Builder();
-        addPreference(OEM_NETWORK_PREFERENCE_OEM_PAID, builder, preference);
-        addPreference(OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK, builder, preference);
-        addPreference(OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY, builder, preference);
-        addPreference(OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY, builder, preference);
         // We want to create listener and wait for the call to end before proceeding further.
         // To address that better, we will use CompletableFuture.
-        CompletableFuture<Boolean> future = new CompletableFuture<>();
+        final OemListenerCallback listener = new OemListenerCallback();
         mConnectivityManager.setOemNetworkPreference(
-                builder.build(), r -> r.run(), () -> future.complete(true));
+                generatePrefsFrom(preference), r -> r.run(), listener);
         // We don't want to be blocked and wait for results forver, thus we will wait for 5 seconds
         // before cancelling future.
         try {
-            future.get(PANS_CALL_TIMEOUT_SEC, TimeUnit.SECONDS);
+            listener.expectOnComplete();
             Log.d(TAG, "New OEM Network Preferences are now applied.");
         } catch (Exception ex) {
             /**
@@ -88,8 +88,9 @@ public final class OemNetworkPreferencesAdapter {
              * ExecutionException - if this future completed exceptionally - InterruptedException -
              * if the current thread was interrupted while waiting - TimeoutException - if the wait
              * timed out For now since we are not handling exceptions customly, we simply print the
-             * exception and silence it. Might consider popping message or something if this
-             * happens.
+             * exception and silence it.
+             *
+             * TODO(b/183749278): Improve exceptoin handling in this case.
              */
             Log.e(TAG, "Call into setOemNetworkPreference() has failed with exception", ex);
         }
@@ -105,15 +106,24 @@ public final class OemNetworkPreferencesAdapter {
         applyPreference(null);
     }
 
-    private void addPreference(
-            int prefId,
-            @Nullable OemNetworkPreferences.Builder builder,
-            @NonNull SparseArray<Set<String>> preference) {
-        if (preference != null && preference.contains(prefId)) {
-            Set<String> apps = preference.get(prefId);
-            for (String app : apps) {
-                builder.addNetworkPreference(app, prefId);
-            }
+    private OemNetworkPreferences generatePrefsFrom(@Nullable SparseArray<Set<String>> preference) {
+        OemNetworkPreferences.Builder builder = new OemNetworkPreferences.Builder();
+
+        // Iterate through all available oem network preference types
+        for (int type : OEM_NETWORK_PREFERENCE_ARRAY) {
+            Set<String> apps =
+                    preference == null
+                            ? OemAppsManager.getDefaultAppsFor(mContext, type)
+                            : preference.get(type);
+            addPreferenceFromAppsSet(type, builder, apps);
+        }
+        return builder.build();
+    }
+
+    private void addPreferenceFromAppsSet(
+            int type, @NonNull OemNetworkPreferences.Builder builder, @NonNull Set<String> apps) {
+        for (String app : apps) {
+            builder.addNetworkPreference(app, type);
         }
     }
 }

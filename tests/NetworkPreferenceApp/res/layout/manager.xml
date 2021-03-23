@@ -17,7 +17,7 @@
     style="@style/SectionContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:weightSum="9"
+    android:weightSum="7"
     android:orientation="vertical">
     <include layout="@layout/metric_display" />
     <LinearLayout
@@ -26,33 +26,40 @@
         android:layout_height="wrap_content"
         android:layout_weight="1"
         android:weightSum="2">
-        <TextView
-            android:layout_width="wrap_content"
+        <LinearLayout
+            style="@style/SectionContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/label_is_pans_overridden"/>
-        <TextView
-            android:id="@+id/currentPANSStatusTextView"
-            android:layout_width="wrap_content"
+            android:layout_weight="1"
+            android:weightSum="2">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_is_pans_overridden"/>
+            <TextView
+                android:id="@+id/currentPANSStatusTextView"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/no"/>
+        </LinearLayout>
+        <LinearLayout
+            style="@style/SectionContainer"
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="@string/no"/>
-    </LinearLayout>
-    <LinearLayout
-        style="@style/SectionContainer"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:weightSum="2">
-        <TextView
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="@string/label_apply_latest_policy_on_boot"/>
-        <ToggleButton
-            android:id="@+id/reapplyPANSOnBootToggleButton"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:textOff="@string/off"
-            android:textOn="@string/on"
-            android:checked="false"/>
+            android:layout_weight="1"
+            android:weightSum="2">
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="@string/label_apply_latest_policy_on_boot"/>
+            <ToggleButton
+                android:id="@+id/reapplyPANSOnBootToggleButton"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:textOff="@string/off"
+                android:textOn="@string/on"
+                android:checked="false"/>
+        </LinearLayout>
     </LinearLayout>
     <LinearLayout
         style="@style/SectionContainer"
@@ -126,18 +133,25 @@
             android:layout_height="wrap_content"
             android:inputType="textNoSuggestions"/>
     </LinearLayout>
-    <Button
-        style="@style/Button"
-        android:id="@+id/applyConfigurationBtn"
+    <LinearLayout
+        style="@style/SectionContainer"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         android:layout_weight="1"
-        android:text="@string/button_apply_configuration"/>
-    <Button
-        style="@style/Button"
-        android:id="@+id/resetNetworkPreferencesBtn"
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:text="@string/button_reset_network_preference"/>
+        android:weightSum="2">
+        <Button
+            style="@style/Button"
+            android:id="@+id/applyConfigurationBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_apply_configuration"/>
+        <Button
+            style="@style/Button"
+            android:id="@+id/resetNetworkPreferencesBtn"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:text="@string/button_reset_network_preference"/>
+    </LinearLayout>
 </LinearLayout>

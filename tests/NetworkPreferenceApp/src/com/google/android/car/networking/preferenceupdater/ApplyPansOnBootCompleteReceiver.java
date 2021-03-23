@@ -42,7 +42,7 @@ public final class ApplyPansOnBootCompleteReceiver extends BroadcastReceiver {
             Log.v(TAG, "PANS Reapply logic enabled. Applying logic from PersonalStorage");
 
             // Get all preferences from PersonalStorage
-            new OemNetworkPreferencesAdapter(context).applyPreference(storage.getAllPrefs());
+            new OemNetworkPreferencesAdapter(context).applyPreference(storage.getAllPrefApps());
         } else {
             // This means PANS reapply logic is disabled
             Log.v(TAG, "NetworkPreferencesApp reapply PANS logic is disabled.");
