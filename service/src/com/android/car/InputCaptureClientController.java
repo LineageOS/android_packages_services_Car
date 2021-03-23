@@ -27,6 +27,7 @@ import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
+import android.content.ComponentName;
 import android.content.Context;
 import android.os.Binder;
 import android.os.IBinder;
@@ -103,7 +104,8 @@ public class InputCaptureClientController {
 
     // TODO(b/150818155) Need to migrate cluster code to use this to enable it.
     private static final List<Integer> SUPPORTED_DISPLAY_TYPES = List.of(
-            CarOccupantZoneManager.DISPLAY_TYPE_MAIN
+            CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+            CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
     );
 
     private static final int[] EMPTY_INPUT_TYPES = new int[0];
@@ -228,8 +230,12 @@ public class InputCaptureClientController {
     @GuardedBy("mLock")
     private int mNumRotaryEventsDispatched;
 
+    private final String mClusterHomePackage;
+
     public InputCaptureClientController(Context context) {
         mContext = context;
+        mClusterHomePackage = ComponentName.unflattenFromString(
+                mContext.getString(R.string.config_clusterHomeActivity)).getPackageName();
     }
 
     /**
@@ -248,7 +254,13 @@ public class InputCaptureClientController {
         boolean isRequestingAllEvents =
                 (requestFlags & CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY) != 0;
         if (isRequestingAllEvents) {
-            ICarImpl.assertCallingFromSystemProcessOrSelf();
+            if (targetDisplayType != CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER) {
+                ICarImpl.assertCallingFromSystemProcessOrSelf();
+            } else {  // for DISPLAY_TYPE_INSTRUMENT_CLUSTER
+                if (!ICarImpl.isCallingFromSystemProcessOrSelf()) {
+                    CarServiceUtils.assertPackageName(mContext, mClusterHomePackage);
+                }
+            }
             if (inputTypes.length != 1 || inputTypes[0] != CarInputManager.INPUT_TYPE_ALL_INPUTS) {
                 throw new IllegalArgumentException("Input type should be INPUT_TYPE_ALL_INPUTS"
                         + " for CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY");
@@ -502,7 +514,7 @@ public class InputCaptureClientController {
         }
         Integer inputType = KEY_EVENT_TO_INPUT_TYPE.get(event.getKeyCode());
         if (inputType == null) { // not supported key
-            return false;
+            inputType = CarInputManager.INPUT_TYPE_ALL_INPUTS;
         }
         ICarInputCallback callback;
         synchronized (mLock) {

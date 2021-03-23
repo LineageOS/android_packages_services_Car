@@ -39,6 +39,11 @@ import java.util.concurrent.Executor;
 /** @hide */
 public class ClusterHomeManager extends CarManagerBase {
     private static final String TAG = ClusterHomeManager.class.getSimpleName();
+    /**
+     * When the client reports ClusterHome state and if there is no UI in the sub area, it can
+     * reports UI_TYPE_CLUSTER_NONE instead.
+     */
+    public static final int UI_TYPE_CLUSTER_NONE = -1;
     public static final int UI_TYPE_CLUSTER_HOME = 0;
 
     /** @hide */
