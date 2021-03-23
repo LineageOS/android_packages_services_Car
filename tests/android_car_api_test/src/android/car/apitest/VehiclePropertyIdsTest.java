@@ -144,6 +144,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.RANGE_REMAINING));
         assertEquals("TIRE_PRESSURE",
                 VehiclePropertyIds.toString(VehiclePropertyIds.TIRE_PRESSURE));
+        assertEquals("CRITICALLY_LOW_TIRE_PRESSURE",
+                VehiclePropertyIds.toString(VehiclePropertyIds.CRITICALLY_LOW_TIRE_PRESSURE));
         assertEquals("GEAR_SELECTION",
                 VehiclePropertyIds.toString(VehiclePropertyIds.GEAR_SELECTION));
         assertEquals("CURRENT_GEAR", VehiclePropertyIds.toString(VehiclePropertyIds.CURRENT_GEAR));
@@ -169,6 +171,8 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.HVAC_TEMPERATURE_CURRENT));
         assertEquals("HVAC_TEMPERATURE_SET",
                 VehiclePropertyIds.toString(VehiclePropertyIds.HVAC_TEMPERATURE_SET));
+        assertEquals("HVAC_TEMPERATURE_VALUE_SUGGESTION",
+                VehiclePropertyIds.toString(VehiclePropertyIds.HVAC_TEMPERATURE_VALUE_SUGGESTION));
         assertEquals("HVAC_DEFROSTER",
                 VehiclePropertyIds.toString(VehiclePropertyIds.HVAC_DEFROSTER));
         assertEquals("HVAC_AC_ON", VehiclePropertyIds.toString(VehiclePropertyIds.HVAC_AC_ON));
