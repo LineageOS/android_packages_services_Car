@@ -33,6 +33,8 @@ android_app {
         enabled: false,
     },
 
+    required: ["allowed_privapp_com.google.android.car.defaultstoragemonitoringcompanionapp"],
+
     privileged: true,
 
     enforce_uses_libs: false,
