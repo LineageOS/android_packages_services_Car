@@ -362,14 +362,14 @@ public class CarInputService extends ICarInput.Stub
         }
 
         // Allow specifically targeted keys to be routed to the cluster
-        if (targetDisplay == CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER) {
-            handleInstrumentClusterKey(event);
-        } else {
-            if (mCaptureController.onKeyEvent(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, event)) {
-                return;
-            }
-            mMainDisplayHandler.onKeyEvent(event);
+        if (targetDisplay == CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
+                && handleInstrumentClusterKey(event)) {
+            return;
         }
+        if (mCaptureController.onKeyEvent(targetDisplay, event)) {
+            return;
+        }
+        mMainDisplayHandler.onKeyEvent(event);
     }
 
     @Override
@@ -677,15 +677,20 @@ public class CarInputService extends ICarInput.Stub
                 SHOW_SOURCE_PUSH_TO_TALK, mShowCallback, null /*activityToken*/);
     }
 
-    private void handleInstrumentClusterKey(KeyEvent event) {
+    /**
+     * @return false if the KeyEvent isn't consumed because there is no
+     * InstrumentClusterKeyListener.
+     */
+    private boolean handleInstrumentClusterKey(KeyEvent event) {
         KeyEventListener listener = null;
         synchronized (mLock) {
             listener = mInstrumentClusterKeyListener;
         }
         if (listener == null) {
-            return;
+            return false;
         }
         listener.onKeyEvent(event);
+        return true;
     }
 
     @Override
