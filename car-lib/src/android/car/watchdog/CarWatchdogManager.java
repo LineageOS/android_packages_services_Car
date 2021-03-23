@@ -23,7 +23,6 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
-import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.Handler;
@@ -390,13 +389,14 @@ public final class CarWatchdogManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS)
     @NonNull
     public ResourceOveruseStats getResourceOveruseStatsForUserPackage(
-            @NonNull String packageName, @UserIdInt int userId,
+            @NonNull String packageName, @NonNull UserHandle userHandle,
             @ResourceOveruseFlag int resourceOveruseFlag,
             @StatsPeriod int maxStatsPeriod) {
+        Objects.requireNonNull(packageName, "Package name must be non-null");
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
         // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
         //  overuse stats for the specified user package.
-        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("",
-                UserHandle.CURRENT);
+        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("", userHandle);
         return builder.build();
     }
 
@@ -523,7 +523,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     }
 
     /**
-     * Returns the list of packages killable on resource overuse.
+     * Returns the list of package killable states on resource overuse for the user.
      *
      * <p>This API may be used by CarSettings application or UI notification.
      *
@@ -534,7 +534,8 @@ public final class CarWatchdogManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG)
     @NonNull
-    public List<PackageKillableState> getPackageKillableStates(@NonNull UserHandle userHandle) {
+    public List<PackageKillableState> getPackageKillableStatesAsUser(
+            @NonNull UserHandle userHandle) {
         // TODO(b/177429052): Query CarWatchdogService for the killable states.
         return new ArrayList<>();
     }
