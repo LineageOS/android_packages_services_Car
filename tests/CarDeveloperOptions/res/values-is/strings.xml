@@ -4418,7 +4418,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Skipta yfir í <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Hreinsa SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Viltu hreinsa þetta sótta SIM-kort?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Ef þessu SIM-korti er eytt verður þjónusta <xliff:g id="CARRIER_0">%1$s</xliff:g> fjarlægð úr þessu tæki.\n\nÞjónustu <xliff:g id="CARRIER_1">%2$s</xliff:g> verður ekki sagt upp."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Ef þetta SIM-kort er hreinsað verður þjónusta <xliff:g id="CARRIER_0">%1$s</xliff:g> fjarlægð úr þessu tæki.\n\nÞjónustu <xliff:g id="CARRIER_1">%2$s</xliff:g> verður ekki sagt upp."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Eyða"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Eyðir SIM-korti…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Ekki hreinsa SIM"</string>

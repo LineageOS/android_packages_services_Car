@@ -2940,7 +2940,7 @@
     <string name="user_guest" msgid="6226240869459683235">"Gost"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"Uklonite gosta"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Ukloniti gosta?"</string>
-    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Sve aplikacije i podaci iz ove sesije će biti izbrisani."</string>
+    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Sve aplikacije i podaci iz ove sesije će se izbrisati."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Ukloniti"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Uključi telefonske pozive"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Uključi telefonske pozive i SMS-ove"</string>
@@ -4489,10 +4489,10 @@
     <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Neaktivno/preuzeti SIM-ovi"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Naziv SIM-a"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Promijeni naziv"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Koristite SIM"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Koristi SIM"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Isključeno"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"Prebaciti na operatera <xliff:g id="CARRIER">%1$s</xliff:g>?"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Aktivan može biti samo po jedan SIM.\n\nPrebacivanjem na operatera <xliff:g id="CARRIER1">%1$s</xliff:g> neće se otkazati usluga operatera <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"U datom trenutku može biti aktivna samo jedna preuzeta SIM kartica.\n\nPrebacivanjem na mobilnog operatera <xliff:g id="CARRIER1">%1$s</xliff:g> neće se otkazati usluga mobilnog operatera <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Prebaci na operatera <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Izbriši SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Izbrisati ovaj preuzeti SIM?"</string>

@@ -3027,8 +3027,10 @@
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"انتخاب درکار ہے"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"SIM کا انتخاب"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"ترتیبات"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for settings_suggestion_header_summary_hidden_items (4475734332610696843) -->
+    <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
+      <item quantity="other">%d مخفی آئٹمز دکھائیں</item>
+      <item quantity="one">%d مخفی آئٹم دکھائیں</item>
+    </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"نیٹ ورک اور انٹرنیٹ"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"موبائل"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"ڈیٹا کا استعمال"</string>

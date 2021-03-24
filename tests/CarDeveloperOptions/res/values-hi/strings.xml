@@ -2899,7 +2899,7 @@
     <string name="user_delete_button" msgid="6747802570634772774">"मिटाएं"</string>
     <string name="user_guest" msgid="6226240869459683235">"मेहमान"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"अतिथि को निकालें"</string>
-    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"अतिथि को निकालें?"</string>
+    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"क्या आप मेहमान को हटाना चाहते हैं?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"इस सत्र के सभी ऐप्लिकेशन और डेटा को हटा दिया जाएगा."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"निकालें"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"फ़ोन कॉल चालू करें"</string>

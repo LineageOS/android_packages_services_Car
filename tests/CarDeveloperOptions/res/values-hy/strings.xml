@@ -2899,7 +2899,7 @@
     <string name="user_delete_button" msgid="6747802570634772774">"Ջնջել"</string>
     <string name="user_guest" msgid="6226240869459683235">"Հյուր"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"Հեռացնել հյուրին"</string>
-    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Հեռացնե՞լ հյուրին:"</string>
+    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Հեռացնե՞լ հյուրին"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Այս աշխատաշրջանի բոլոր ծրագրերն ու տվյալները կջնջվեն:"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Հեռացնել"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Միացնել հեռախոսազանգերը"</string>
@@ -3637,7 +3637,7 @@
     <string name="filter_personal_apps" msgid="3473268022652904457">"Անձնական"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"Աշխատանքային"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Հավելվածներ՝ բոլորը"</string>
-    <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Ծանուցումներն անջատած են"</string>
+    <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Ծանուցումներն անջատված են"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Կատեգորիաներ՝ հրատապ կարևորություն"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"Կատեգորիաներ՝ ցածր կարևորություն"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"Կատեգորիաներ՝ անջատված"</string>
