@@ -34,9 +34,7 @@ import androidx.test.runner.AndroidJUnit4;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TestName;
 import org.junit.runner.RunWith;
 
 import java.io.File;
@@ -50,8 +48,6 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     // dumpstate runs around 3 minutes on emulator on a pretty fast computer.
     private static final int BUGREPORT_TIMEOUT_MILLIS = 360_000;
     private static final int NO_ERROR = -1;
-
-    @Rule public TestName testName = new TestName();
 
     private CarBugreportManager mManager;
     private FakeCarBugreportCallback mFakeCallback;
@@ -69,8 +65,11 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     @After
     public void tearDown() throws Exception {
         getPermissions();  // For cancelBugreport()
-        mManager.cancelBugreport();
-        dropPermissions();
+        try {
+            mManager.cancelBugreport();
+        } finally {
+            dropPermissions();
+        }
     }
 
     @Test
@@ -156,7 +155,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     private ParcelFileDescriptor createParcelFdInCache(String prefix, String extension)
             throws Exception {
         File f = File.createTempFile(
-                prefix + "_" + testName.getMethodName(), extension, getContext().getCacheDir());
+                prefix + "_" + getTestName(), extension, getContext().getCacheDir());
         f.setReadable(true, true);
         f.setWritable(true, true);
 
