@@ -2898,8 +2898,8 @@
     <string name="user_delete_user_description" msgid="3627684990761268859">"Foydalanuvchini o‘chirib tashlash"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"O‘chirib tashlash"</string>
     <string name="user_guest" msgid="6226240869459683235">"Mehmon"</string>
-    <string name="user_exit_guest_title" msgid="7279886200373071797">"Mehmon hisobini o‘chirish"</string>
-    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Mehmon hisobi o‘chirib tashlansinmi?"</string>
+    <string name="user_exit_guest_title" msgid="7279886200373071797">"Mehmonni olib tashlash"</string>
+    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Mehmon olib tashlansinmi?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Ushbu seansdagi barcha ilovalar va ma’lumotlar o‘chirib tashlanadi."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Olib tashlash"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Telefon chaqiruvlari"</string>

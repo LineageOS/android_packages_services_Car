@@ -805,7 +805,7 @@
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Đã kết nối"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"Đang được sử dụng"</string>
     <string name="wifi_display_status_not_available" msgid="5600448733204688205">"Không có sẵn"</string>
-    <string name="wifi_display_details" msgid="6379855523460749126">"Cài đặt hiển thị"</string>
+    <string name="wifi_display_details" msgid="6379855523460749126">"Cài đặt màn hình"</string>
     <string name="wifi_display_options_title" msgid="4587264519668872213">"Tùy chọn hiển thị không dây"</string>
     <string name="wifi_display_options_forget" msgid="7882982544626742073">"Xóa"</string>
     <string name="wifi_display_options_done" msgid="5922060890309265817">"Xong"</string>

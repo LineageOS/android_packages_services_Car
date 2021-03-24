@@ -2926,7 +2926,7 @@
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Në terminalin \"Prek dhe paguaj\", paguaj me:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagesa në terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaje pjesën e pasme të telefonit te një terminal me simbolin e pagesave pa kontakt."</string>
-    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"E kuptova!"</string>
+    <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"E kuptova"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Më shumë..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Të caktohet si preferencë?"</string>
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"Të përdoret gjithmonë <xliff:g id="APP">%1$s</xliff:g> për \"Prek dhe paguaj\"?"</string>

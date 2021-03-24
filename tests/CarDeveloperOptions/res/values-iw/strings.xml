@@ -2888,9 +2888,7 @@
     <string name="one_userkey" msgid="5349738921509013845">"מקש משתמש אחד"</string>
     <string name="one_usercrt" msgid="856282310586987313">"אישור למשתמש אחד"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"אישור CA אחד"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for n_cacrts (7539893176217891549) -->
-    <skip />
+    <string name="n_cacrts" msgid="7539893176217891549">"‏%d אישורי CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"פרטי כניסה"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"פרטי הכניסה שהוסרו: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"לא הותקנו פרטי כניסה של המשתמש"</string>

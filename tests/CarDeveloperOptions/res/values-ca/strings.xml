@@ -2448,7 +2448,7 @@
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Optimització de l\'aplicació"</string>
     <string name="battery_saver" msgid="3989710213758938398">"Estalvi de bateria"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Activa automàticament"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Sense programació"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Cap programació"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Segons la teva rutina"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Segons el percentatge"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"L\'estalvi de bateria s\'activa si és probable que et quedis sense bateria abans de la càrrega habitual següent"</string>
@@ -2474,7 +2474,7 @@
     <string name="process_stats_total_duration_percentage" msgid="737215062610178960">"<xliff:g id="PERCENT">%1$s</xliff:g> de RAM utilitzada durant <xliff:g id="TIMEDURATION">%2$s</xliff:g>"</string>
     <string name="process_stats_type_background" msgid="7867552451658035199">"Fons"</string>
     <string name="process_stats_type_foreground" msgid="9185538008409818577">"Primer pla"</string>
-    <string name="process_stats_type_cached" msgid="6774816751826613732">"Memòria"</string>
+    <string name="process_stats_type_cached" msgid="6774816751826613732">"A la memòria cau"</string>
     <string name="process_stats_os_label" msgid="2866711070924260440">"SO Android"</string>
     <string name="process_stats_os_native" msgid="8971193568864959041">"Nadiu"</string>
     <string name="process_stats_os_kernel" msgid="496627624157605578">"Kernel"</string>
@@ -2498,7 +2498,7 @@
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"Tipus d\'estadístiques"</string>
     <string name="menu_proc_stats_type_background" msgid="1898036847606845052">"Fons"</string>
     <string name="menu_proc_stats_type_foreground" msgid="8244384283966204023">"Primer pla"</string>
-    <string name="menu_proc_stats_type_cached" msgid="8238824117399683217">"Memòria"</string>
+    <string name="menu_proc_stats_type_cached" msgid="8238824117399683217">"A la memòria cau"</string>
     <string name="voice_input_output_settings" msgid="2180337183089517667">"Entrada i sortida de veu"</string>
     <string name="voice_input_output_settings_title" msgid="7080213653518526025">"Configuració d\'entrada i sortida de veu"</string>
     <string name="voice_search_settings_title" msgid="4999026024622014272">"Cerca per veu"</string>

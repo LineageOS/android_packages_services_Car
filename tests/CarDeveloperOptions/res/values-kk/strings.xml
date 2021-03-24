@@ -3130,7 +3130,7 @@
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"battery saver, бекітілген, тұрақты, power saver, батарея"</string>
     <string name="default_sound" msgid="6675629744816442953">"Әдепкі дыбыс"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Қоңыраудың дыбыс деңгейі: <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
-    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Дыбыс деңгейі, діріл, \"Мазаламау\" режимі"</string>
+    <string name="sound_dashboard_summary" msgid="5187301919242823508">"Дыбыс деңгейі, діріл, Мазаламау режимі"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Қоңырау дірілдеу режиміне қойылған"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Қоңырау үнсіз режимге қойылған"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Қоңыраудың дыбыс деңгейі: 80%"</string>
@@ -3169,7 +3169,7 @@
       <item quantity="one">1 іске қосылды</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"Мазаламау"</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"\"Мазаламау\" режимін қосу"</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"Мазаламау режимін қосу"</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"Ерекше жағдайлар"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"Әдепкі ұзақтық"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"Келесіден шыққан дыбыстар мен дірілдерге рұқсат беру"</string>
@@ -3185,7 +3185,7 @@
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Кесте"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Кесте"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Телефонды дыбыссыз режимге қою"</string>
-    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"\"Мазаламау\" ережесін орнату"</string>
+    <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Мазаламау ережесін орнату"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Кесте"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Кестені пайдалану"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Маңыздылары ғана"</string>
@@ -3194,14 +3194,14 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Көрнекі мазалағыштарды бөгеу"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Визуалды сигналдарды қосу"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"\"Мазаламау\" режимі қосулы кезде"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Мазаламау режимі қосулы кезде"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Хабарландыруларды шектеу"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Хабарландырулар дыбыстық сигналсыз беріледі"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Хабарландырулар экранға шығады"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Хабарландырулар келіп түскенде, телефон дыбыс шығармайды не дірілдемейді."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Хабарландырулар визуалды не дыбыстық сигналсыз беріледі"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Хабарландырулар көрсетілмейді не естілмейді"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңа немесе бұрыннан бар хабарландыруларды телефон көрсетпейді, дірілдемейді немесе дыбыс шығармайды. Бірақ телефон әрекетіне және күйіне қатысты маңызды хабарландырулар шыға береді.\n\n\"Мазаламау\" режимін өшірген соң, әлі ашылмаған хабарландыруларды көру үшін экранды жоғарыдан төмен қарай сипап өтіңіз."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңа немесе бұрыннан бар хабарландыруларды телефон көрсетпейді, дірілдемейді немесе дыбыс шығармайды. Бірақ телефон әрекетіне және күйіне қатысты маңызды хабарландырулар шыға береді.\n\nМазаламау режимін өшірген соң, әлі ашылмаған хабарландыруларды көру үшін экранды жоғарыдан төмен қарай сипап өтіңіз."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Арнаулы"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Арнаулы параметрді қосу"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Арнаулы параметрді өшіру"</string>
@@ -3232,11 +3232,11 @@
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"Қосу"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Қазір қосу"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Қазір өшіру"</string>
-    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"\"Мазаламау\" режимі <xliff:g id="FORMATTED_TIME">%s</xliff:g> дейін қосулы болады"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"\"Мазаламау\" режимі өшірілгенше қосулы болады"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"\"Мазаламау\" режимі <xliff:g id="RULE_NAME">%s</xliff:g> ережесі арқылы автоматты түрде қосылды"</string>
-    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"\"Мазаламау\" режимі <xliff:g id="APP_NAME">%s</xliff:g> қолданбасы арқылы автоматты түрде қосылды"</string>
-    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"<xliff:g id="RULE_NAMES">%s</xliff:g> үшін арнаулы параметрлер орнатылған \"Мазаламау\" режимі қосулы."</string>
+    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Мазаламау режимі <xliff:g id="FORMATTED_TIME">%s</xliff:g> дейін қосулы болады"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Мазаламау режимі өшірілгенше қосулы болады"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Мазаламау режимі <xliff:g id="RULE_NAME">%s</xliff:g> ережесі арқылы автоматты түрде қосылды"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Мазаламау режимі <xliff:g id="APP_NAME">%s</xliff:g> қолданбасы арқылы автоматты түрде қосылды"</string>
+    <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"<xliff:g id="RULE_NAMES">%s</xliff:g> үшін арнаулы параметрлер орнатылған Мазаламау режимі қосулы."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Арнаулы параметрлерді көру"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Маңыздылары ғана"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
@@ -3259,7 +3259,7 @@
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Ерекше жағдайлар"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"Кесте"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"Барлық ерекше жағдайларды көру"</string>
-    <string name="zen_sound_footer" msgid="1778673975517424878">"\"Мазаламау\" режимі қосулы кезде, дыбыс және діріл өшіріледі (жоғарыда рұқсат берілгендерді қоспағанда)."</string>
+    <string name="zen_sound_footer" msgid="1778673975517424878">"Мазаламау режимі қосулы кезде, дыбыс және діріл өшіріледі (жоғарыда рұқсат берілгендерді қоспағанда)."</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"Келесілерді қоспағанда, барлығының дыбысын өшіру:"</string>
     <string name="zen_sound_all_muted" msgid="4844094866910870591">"Дыбысы өшірулі"</string>
     <string name="zen_sound_none_muted" msgid="4869385974769188085">"Дыбысы өшірілмеген"</string>
@@ -3272,14 +3272,14 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"Хабарландырулар"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"Ұзақтығы"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"Хабарлар, іс-шаралар және еске салғыштар"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"\"Мазаламау\" режимі қосулы кезде, хабарлардың, еске салғыштардың және іс-шаралардың дыбысы өшіріледі (жоғарыда рұқсат берілгендерді қоспағанда). Достарыңыз, отбасы мүшелері не басқа контактілер сізге хабарласа алуы үшін, хабарлардың параметрлерін реттей аласыз."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Мазаламау режимі қосулы кезде, хабарлардың, еске салғыштардың және іс-шаралардың дыбысы өшіріледі (жоғарыда рұқсат берілгендерді қоспағанда). Достарыңыз, отбасы мүшелері не басқа контактілер сізге хабарласа алуы үшін, хабарлардың параметрлерін реттей аласыз."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Дайын"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Параметрлер"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Хабарландырулар визуалды не дыбыстық сигналсыз беріледі"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Хабарландырулар дыбыссыз беріледі"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Хабарландырулар көрсетілмейді не естілмейді. Жұлдызшалы және тұрақты контактілерден келетін қоңырауларға рұқсат етілген."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ағымдағы параметр)"</string>
-    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"Мазаламау\" режиміндегі хабарландыру параметрлері өзгертілсін бе?"</string>
+    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Мазаламау режиміндегі хабарландыру параметрлері өзгертілсін бе?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Жұмыс профилінің дыбыстары"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Жеке профиль дыбыстарын пайдалану"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Жұмыс профилі мен жеке профиль дыбыстары бірдей"</string>
@@ -3371,10 +3371,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Көмекші жоқ"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Орнатылған қолданбалардың ешбірі хабарландыруға кіруге рұқсат сұрамады."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> қызметіне хабарландыруға кіру рұқсатын беру қажет пе?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> барлық хабарландыруларды, соның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды өзгерте, жаба немесе олардағы әрекет түймелерін қоса алады. \n\nБұл әрі қолданбаға \"Мазаламау\" режимін қосуға немесе өшіруге және тиісті параметрлерді өзгертуге мүмкіндік береді."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> барлық хабарландыруларды, соның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды өзгерте, жаба немесе олардағы әрекет түймелерін қоса алады. \n\nБұл әрі қолданбаға Мазаламау режимін қосуға немесе өшіруге және тиісті параметрлерді өзгертуге мүмкіндік береді."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> үшін хабарландыруға кіру рұқсатын беру қажет пе?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> барлық хабарландыруларды, оның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды жаба немесе олардағы әрекет түймелерін қоса алатын болады. \n\nБұл әрі қолданбаға \"Мазаламау\" параметрін қосуға немесе өшіруге және байланысты параметрлерді өзгертуге мүмкіндік береді."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Егер <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> үшін хабарландыру параметрін өшірсеңіз, \"Мазаламау\" параметрі де өшуі мүмкін."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> барлық хабарландыруларды, оның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды жаба немесе олардағы әрекет түймелерін қоса алатын болады. \n\nБұл әрі қолданбаға Мазаламау параметрін қосуға немесе өшіруге және байланысты параметрлерді өзгертуге мүмкіндік береді."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Егер <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> үшін хабарландыру параметрін өшірсеңіз, Мазаламау параметрі де өшуі мүмкін."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Өшіру"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Бас тарту"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Виртуалды шынайылық көмекші қызметтері"</string>
@@ -3390,8 +3390,8 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Суреттегі сурет"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"\"Суреттегі сурет\" режиміне рұқсат беру"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Қолданба ашық болғанда не одан шыққанда (мысалы, бейнені көре беру үшін), бұл қолданбаға суреттегі сурет терезесін ашуға мүмкіндік береді. Бұл терезе пайдаланылып жатқан басқа қолданбалардың үстінен шығады."</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"\"Мазаламау\" режимін пайдалану"</string>
-    <string name="zen_access_detail_switch" msgid="8706332327904974500">"\"Мазаламау\" режимін пайдалануға рұқсат ету"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"Мазаламау режимін пайдалану"</string>
+    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Мазаламау режимін пайдалануға рұқсат ету"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Орнатылған қолданбалардың ешбірі Мазаламау режиміне кіруге рұқсат сұрамады"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Қолданбаларды жүктеу…"</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Сұрауыңыз бойынша Android бұл қолданбаның хабарландыруларын көрсетпейді"</string>
@@ -3422,8 +3422,8 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Тақтада немесе перифериялық құрылғыларда хабарландыруларды ешқашан көрсетпеу"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Хабарландыру белгісіне рұқсат беру"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Хабарландыру белгісін көрсету"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\"Мазаламау\" режимін елемеу"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\"Мазаламау\" режимі қосулы болса да, хабарландырулардың шығуына рұқсат ету"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Мазаламау режимін елемеу"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Мазаламау режимі қосулы болса да, хабарландырулардың шығуына рұқсат ету"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Құлып экранында"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Бөгелген"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Маңызды"</string>
@@ -3446,9 +3446,9 @@
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"\"<xliff:g id="RULE">%1$s</xliff:g>\" ережесін жою керек пе?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Жою"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Белгісіз"</string>
-    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Бұл параметрлер қазір өзгертілмейді. Қолданба (<xliff:g id="APP_NAME">%1$s</xliff:g>) \"Мазаламау\" режиміне автоматты түрде қосылды."</string>
-    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"Бұл параметрлер қазір өзгертілмейді. Қолданба \"Мазаламау\" режиміне автоматты түрде қосылды."</string>
-    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"Бұл параметрлер қазір өзгертілмейді. Қолданба \"Мазаламау\" режиміне қолмен қосылды."</string>
+    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"Бұл параметрлер қазір өзгертілмейді. Қолданба (<xliff:g id="APP_NAME">%1$s</xliff:g>) Мазаламау режиміне автоматты түрде қосылды."</string>
+    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"Бұл параметрлер қазір өзгертілмейді. Қолданба Мазаламау режиміне автоматты түрде қосылды."</string>
+    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"Бұл параметрлер қазір өзгертілмейді. Қолданба Мазаламау режиміне қолмен қосылды."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"Уақыт"</string>
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Көрсетілген уақыттарда «Мазаламау» режимін қосу туралы автоматты ереже орнатылған"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Іс-шара"</string>
@@ -3470,7 +3470,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Күн сайын"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Оятқыш аяқталу уақытын өзгерте алады"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Оятқыш қосылған кезде, кесте өшеді"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Мазаламау\" режимі"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Мазаламау режимі"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Әдепкі параметрлерді пайдалану"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Осы кесте үшін ерекше параметрлер орнату"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"\"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\" үшін"</string>
@@ -3511,8 +3511,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Қолданбаларға қайта анықтауға рұқсат беру"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Қолданбаларға арналған ерекшеліктер"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> қолданбадан келетін хабарландырулар \"Мазаламау\" режимін қайта анықтай алады</item>
-      <item quantity="one">1 қолданбадан келетін хабарландырулар \"Мазаламау\" режимін қайта анықтай алады</item>
+      <item quantity="other"><xliff:g id="NUMBER">%1$d</xliff:g> қолданбадан келетін хабарландырулар Мазаламау режимін қайта анықтай алады</item>
+      <item quantity="one">1 қолданбадан келетін хабарландырулар Мазаламау режимін қайта анықтай алады</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"оқиғалар"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"кез келген адам"</string>
@@ -3544,10 +3544,10 @@
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"<xliff:g id="FORMATTEDTIME">%1$s</xliff:g> дейін \"дабылдар ғана\" режиміне өзгерту"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"Әрқашан тоқтатуға өзгерту"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"Экран қосулы болғанда"</string>
-    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"\"Мазаламау\" режиміне орнатылған хабарландыруларға экранға шығып, күй жолағына белгіше шығаруға рұқсат ету"</string>
+    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"Мазаламау режиміне орнатылған хабарландыруларға экранға шығып, күй жолағына белгіше шығаруға рұқсат ету"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"Экран өшірулі болғанда"</string>
-    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"\"Мазаламау\" режимі арқылы хабарландырулардың дыбысы шықпайтындай, экран қосылып, шам жыпылықтайтындай ету"</string>
-    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"\"Мазаламау\" режимі арқылы хабарландырулардың дыбысы шықпайтындай, экран қосылатындай ету"</string>
+    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"Мазаламау режимі арқылы хабарландырулардың дыбысы шықпайтындай, экран қосылып, шам жыпылықтайтындай ету"</string>
+    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Мазаламау режимі арқылы хабарландырулардың дыбысы шықпайтындай, экран қосылатындай ету"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"Хабарландыру параметрлері"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"Жарайды"</string>
     <string name="device_feedback" msgid="4042352891448769818">"Осы құрылғы туралы пікір жіберу"</string>
@@ -3609,7 +3609,7 @@
     <string name="notifications_silenced" msgid="538923056987616372">"Үнсіз етілген"</string>
     <string name="notifications_redacted" msgid="308836040236690014">"Құлыпталған экранда құпия мазмұн жоқ"</string>
     <string name="notifications_hidden" msgid="3665505522897010205">"Құлыпталған экранда емес"</string>
-    <string name="notifications_priority" msgid="8849045645983017929">"\"Мазаламау\" режимі қайта анықталды"</string>
+    <string name="notifications_priority" msgid="8849045645983017929">"Мазаламау режимі қайта анықталды"</string>
     <string name="notifications_summary_divider" msgid="3148951310482572028">" / "</string>
     <string name="notification_summary_level" msgid="309162160355022027">"%d-деңгейі"</string>
     <string name="notification_summary_channel" msgid="3372346622071114366">"<xliff:g id="CHANNEL_NAME">%1$s</xliff:g> • <xliff:g id="GROUP_NAME">%2$s</xliff:g>"</string>
@@ -3641,7 +3641,7 @@
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Санаттар: аса маңызды"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"Санаттар: маңыздылығы төмен"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"Санаттар: өшірілген"</string>
-    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Санаттар: \"Мазаламау\" режимін қайта анықтайды"</string>
+    <string name="filter_notif_dnd_channels" msgid="3251570137256371092">"Санаттар: Мазаламау режимін қайта анықтайды"</string>
     <string name="advanced_apps" msgid="6643869089344883537">"Қосымша"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Қолданбаларды конфигурациялау"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Белгісіз қолданба"</string>
@@ -3789,8 +3789,8 @@
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> қолданбасына «Мазаламау» режиміне кіруге бола ма?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Қолданба «Мазаламау» режимін қосуы/өшіруі және қатысты параметрлерге өзгерістер енгізуі мүмкін."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Хабарландыру параметрі қосулы болғандықтан, міндетті түрде қосулы болуы тиіс"</string>
-    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> үшін \"Мазаламау\" режиміне қатынасты қайтару керек пе?"</string>
-    <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Осы қолданба жасаған барлық \"Мазаламау\" ережелері жойылады."</string>
+    <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"<xliff:g id="APP">%1$s</xliff:g> үшін Мазаламау режиміне қатынасты қайтару керек пе?"</string>
+    <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Осы қолданба жасаған барлық Мазаламау ережелері жойылады."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Оңтайландырмау"</string>
     <string name="ignore_optimizations_off" msgid="4372289432580282870">"Оңтайландыру"</string>
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"Батарея тезірек отыруы мүмкін: қолданбаларға енді фондық режимде батареяны пайдалануға шектеу қойылмайды"</string>
@@ -3890,7 +3890,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Хотспот қосулы"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"Ұшақ режимі қосулы"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Желілер қолжетімді емес."</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"\"Мазаламау\" режимі қосулы"</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"Мазаламау режимі қосулы"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Телефон дыбысы өшірулі"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Ерекше жағдайлар қарастырылған"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"Батарея үнемдегіш қосулы"</string>
@@ -4272,7 +4272,7 @@
     <string name="storage_movies_tv" msgid="7282484273991655296">"Фильм және телебағдарлама қолданбалары"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"Операторды инициализациялау туралы ақпарат"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"Операторды инциализациялауды іске қосу"</string>
-    <string name="zen_suggestion_title" msgid="2134699720214231950">"\"Мазаламау\" режимін жаңарту"</string>
+    <string name="zen_suggestion_title" msgid="2134699720214231950">"Мазаламау режимін жаңарту"</string>
     <string name="zen_suggestion_summary" msgid="4041062903237952737">"Алаңдататын хабарландыруларды кідірту"</string>
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"Бұл мүмкіндік құрылғыда жоқ"</string>
     <string name="disabled_feature" msgid="3747549387387702365">"Бұл функция қолжетімді емес."</string>
