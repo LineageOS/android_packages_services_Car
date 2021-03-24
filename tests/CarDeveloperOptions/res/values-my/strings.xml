@@ -309,8 +309,8 @@
     <string name="cellular_data_summary" msgid="8817717603450318646">"မိုဘိုင်းကွန်ရက်တွင် ဒေတာသုံးခွင့်ပြုပါ"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"ရိုမင်း လုပ်ချိန်မှာ ဒေတာ သုံးစွဲမှု ခွင့်ပြုရန်"</string>
     <string name="roaming" msgid="8860308342135146004">"ပြင်ပကွန်ရက်နှင့် ချိတ်ဆက်ခြင်း"</string>
-    <string name="roaming_enable" msgid="2108142024297441116">"ရုန်းမင်းဖြစ်နေလျှင် ဒေတာဝန်ဆောင်မှုများကို ချိတ်ဆက်ပါ"</string>
-    <string name="roaming_disable" msgid="1915440242079953809">"ရုန်းမင်းဖြစ်နေလျှင် ဒေတာဝန်ဆောင်မှုများကို ချိတ်ဆက်ပါ"</string>
+    <string name="roaming_enable" msgid="2108142024297441116">"ပြင်ပကွန်ရက်သုံးလျှင် ဒေတာဝန်ဆောင်မှုများကို ချိတ်ဆက်ပါ"</string>
+    <string name="roaming_disable" msgid="1915440242079953809">"ပြင်ပကွန်ရက်သုံးလျှင် ဒေတာဝန်ဆောင်မှုများကို ချိတ်ဆက်ပါ"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"ဒေတာဆက်သွယ်မှုပြတ်တောက်သွားပါသည် အဘယ်ကြောင့်ဆိုသော် သင့်အိမ်၏ကွန်ယက်မှထွက်ကာ ဒေတာရုန်းမင်းကွန်ယက်ကိုလဲပိတ်ထားသောကြောင့်ဖြစ်သည်"</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"ဖွင့်မည်"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"ငွေကြေး အတော်အတန်ကုန်ကျနိုင်ပါသည်။"</string>
@@ -4382,7 +4382,7 @@
     <string name="connect_later" msgid="4742215038190504328">"ဤကွန်ရက်ကို ဆက်သွယ်၍ မရပါ။ နောက်မှ ပြန်ကြိုးစားပါ။"</string>
     <string name="registration_done" msgid="8635020229073784432">"ကွန်ရက်ပေါ်တွင် မှတ်ပုံတင်ထားသည်။"</string>
     <string name="select_automatically" msgid="3421552364854534865">"ကွန်ရက်ကို အလိုအလျောက် ရွေးချယ်ရန်"</string>
-    <string name="carrier_settings_title" msgid="7989949967020825268">"ဖုန်းကုမ္ပဏီ ဆက်တင်များ"</string>
+    <string name="carrier_settings_title" msgid="7989949967020825268">"မိုဘိုင်းဖုန်းကုမ္ပဏီ ဆက်တင်များ"</string>
     <string name="cdma_lte_data_service" msgid="8996857851150069339">"ဒေတာဝန်ဆောင်မှု စတင်ရန်"</string>
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"မိုဘိုင်းဒေတာ"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"မိုဘိုင်းကွန်ရက်သုံးပြီး ဒေတာကို ဝင်သုံးခွင့်ပေးပါ"</string>

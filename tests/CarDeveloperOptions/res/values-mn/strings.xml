@@ -2900,7 +2900,7 @@
     <string name="user_guest" msgid="6226240869459683235">"Зочин"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"Зочныг хасах"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Зочныг хасах уу?"</string>
-    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Энэ сешний бүх апп болон дата устах болно."</string>
+    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Энэ харилцан үйлдлийн бүх апп болон дата устах болно."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Хасах"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Утасны дуудлага авах"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Утасны дуудлага &amp; SMS авах"</string>
@@ -3363,8 +3363,10 @@
     <string name="manage_notification_access_title" msgid="5348743662189787547">"Мэдэгдлийн хандалт"</string>
     <string name="work_profile_notification_access_blocked_summary" msgid="8148871282484870576">"Ажлын профайлын мэдэгдэлд хандахыг блоклосон байна"</string>
     <string name="manage_notification_access_summary_zero" msgid="236809421271593016">"Аппууд мэдэгдлийг уншиж чадахгүй"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for manage_notification_access_summary_nonzero (8496218948429646792) -->
+    <plurals name="manage_notification_access_summary_nonzero" formatted="false" msgid="8496218948429646792">
+      <item quantity="other">%d апп нь мэдэгдэл унших боломжтой байна</item>
+      <item quantity="one">%d апп нь мэдэгдэл унших боломжтой байна</item>
+    </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"Мэдэгдлийн туслах"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Туслах алга"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Суулгасан апп-аас мэдэгдлийн хандалт хүссэн апп байхгүй байна."</string>

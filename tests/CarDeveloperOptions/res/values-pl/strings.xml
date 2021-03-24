@@ -994,7 +994,7 @@
     <string name="wifi_dpp_sharing_wifi_with_this_device" msgid="2540529164687476827">"Udostępniam Wi‑temu urządzeniu…"</string>
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Łączę…"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Udostępnij hotspot"</string>
-    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Potwierdź swoją tożsamość"</string>
+    <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Potwierdź, że to Ty"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Hasło do Wi-Fi: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Hasło do hotspota: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Dodaj urządzenie"</string>

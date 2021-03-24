@@ -2900,7 +2900,7 @@
     <string name="user_guest" msgid="6226240869459683235">"અતિથિ"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"અતિથિ દૂર કરો"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"અતિથિ દૂર કરીએ?"</string>
-    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"આ સત્રમાંની તમામ ઍપ્લિકેશનો અને ડેટા કાઢી નાખવામાં આવશે."</string>
+    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"આ સત્રમાંની તમામ ઍપ અને ડેટા કાઢી નાખવામાં આવશે."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"દૂર કરો"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"ફોન કૉલ ચાલુ કરો"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"ફોન કૉલ અને SMS ચાલુ કરો"</string>

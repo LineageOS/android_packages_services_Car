@@ -2690,7 +2690,7 @@
     <string name="data_usage_tab_3g" msgid="4262659656028408064">"2G-3G"</string>
     <string name="data_usage_list_mobile" msgid="5623011459774885900">"Ponsel"</string>
     <string name="data_usage_list_none" msgid="5948870220795490796">"Tidak ada"</string>
-    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"Kuota seluler"</string>
+    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"Data seluler"</string>
     <string name="data_usage_enable_3g" msgid="3725838726334043367">"Data 2G-3G"</string>
     <string name="data_usage_enable_4g" msgid="8872517106293561179">"Data 4G"</string>
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"Roaming"</string>
@@ -4414,7 +4414,7 @@
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Gunakan SIM"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Nonaktif"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"Beralih ke <xliff:g id="CARRIER">%1$s</xliff:g>?"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Hanya satu SIM hasil download yang dapat diaktifkan pada satu waktu.\n\nBeralih ke <xliff:g id="CARRIER1">%1$s</xliff:g> tidak akan membatalkan layanan <xliff:g id="CARRIER2">%2$s</xliff:g> Anda."</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Hanya satu SIM hasil download yang dapat diaktifkan pada satu waktu.\n\nBeralih ke <xliff:g id="CARRIER1">%1$s</xliff:g> tidak akan membatalkan layanan <xliff:g id="CARRIER2">%2$s</xliff:g>."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Beralih ke <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Hapus SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Hapus SIM yang didownload?"</string>

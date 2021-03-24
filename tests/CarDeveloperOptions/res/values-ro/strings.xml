@@ -4485,8 +4485,8 @@
     <string name="mobile_network_list_add_more" msgid="65420172175416318">"Adăugați mai multe"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Activ/SIM"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Inactiv/SIM"</string>
-    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Activ/SIM-ul descărcat"</string>
-    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inactiv/SIM descărcat"</string>
+    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Activ / SIM descărcat"</string>
+    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inactiv / SIM descărcat"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Numele cardului SIM"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Redenumiți"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Folosiți cardul SIM"</string>
