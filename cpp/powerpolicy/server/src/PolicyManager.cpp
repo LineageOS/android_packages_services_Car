@@ -83,12 +83,10 @@ constexpr const char* kPowerComponentPrefix = "POWER_COMPONENT_";
 constexpr const char* kSystemPolicyPrefix = "system_power_policy_";
 
 // System power policy definition: ID, enabled components, and disabled components.
-constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
-constexpr const char* kSystemPolicyIdDefault = "system_power_policy_default";
-const std::vector<PowerComponent> kSystemPolicyEnabledComponents =
+const std::vector<PowerComponent> kNoUserInteractionEnabledComponents =
         {PowerComponent::WIFI, PowerComponent::CELLULAR, PowerComponent::ETHERNET,
-         PowerComponent::TRUSTED_DEVICE_DETECTION};
-const std::vector<PowerComponent> kSystemPolicyDisabledComponents =
+         PowerComponent::TRUSTED_DEVICE_DETECTION, PowerComponent::CPU};
+const std::vector<PowerComponent> kNoUserInteractionDisabledComponents =
         {PowerComponent::AUDIO,
          PowerComponent::MEDIA,
          PowerComponent::DISPLAY,
@@ -99,27 +97,33 @@ const std::vector<PowerComponent> kSystemPolicyDisabledComponents =
          PowerComponent::VOICE_INTERACTION,
          PowerComponent::VISUAL_INTERACTION,
          PowerComponent::LOCATION,
-         PowerComponent::MICROPHONE,
-         PowerComponent::CPU};
-const std::vector<PowerComponent> kSystemPolicyAllEnabledComponents =
-        {PowerComponent::AUDIO,
-         PowerComponent::MEDIA,
-         PowerComponent::DISPLAY,
-         PowerComponent::BLUETOOTH,
-         PowerComponent::WIFI,
-         PowerComponent::CELLULAR,
-         PowerComponent::ETHERNET,
-         PowerComponent::PROJECTION,
-         PowerComponent::NFC,
-         PowerComponent::INPUT,
-         PowerComponent::VOICE_INTERACTION,
-         PowerComponent::VISUAL_INTERACTION,
-         PowerComponent::TRUSTED_DEVICE_DETECTION,
-         PowerComponent::LOCATION,
-         PowerComponent::MICROPHONE,
-         PowerComponent::CPU};
-const std::vector<PowerComponent> kSystemPolicyNoDisabledComponents;
-const std::unordered_set<PowerComponent> kSystemPolicyConfigurableComponents =
+         PowerComponent::MICROPHONE};
+const std::vector<PowerComponent> kAllComponents = {PowerComponent::AUDIO,
+                                                    PowerComponent::MEDIA,
+                                                    PowerComponent::DISPLAY,
+                                                    PowerComponent::BLUETOOTH,
+                                                    PowerComponent::WIFI,
+                                                    PowerComponent::CELLULAR,
+                                                    PowerComponent::ETHERNET,
+                                                    PowerComponent::PROJECTION,
+                                                    PowerComponent::NFC,
+                                                    PowerComponent::INPUT,
+                                                    PowerComponent::VOICE_INTERACTION,
+                                                    PowerComponent::VISUAL_INTERACTION,
+                                                    PowerComponent::TRUSTED_DEVICE_DETECTION,
+                                                    PowerComponent::LOCATION,
+                                                    PowerComponent::MICROPHONE,
+                                                    PowerComponent::CPU};
+const std::vector<PowerComponent> kInitialOnComponents = {PowerComponent::AUDIO,
+                                                          PowerComponent::DISPLAY,
+                                                          PowerComponent::CPU};
+const std::vector<PowerComponent> kNoComponents;
+const std::vector<PowerComponent> kSuspendToRamDisabledComponents = {PowerComponent::AUDIO,
+                                                                     PowerComponent::BLUETOOTH,
+                                                                     PowerComponent::WIFI,
+                                                                     PowerComponent::LOCATION,
+                                                                     PowerComponent::CPU};
+const std::unordered_set<PowerComponent> kNoUserInteractionConfigurableComponents =
         {PowerComponent::BLUETOOTH, PowerComponent::NFC, PowerComponent::TRUSTED_DEVICE_DETECTION};
 
 void iterateAllPowerComponents(const std::function<bool(PowerComponent)>& processor) {
@@ -346,7 +350,7 @@ Result<std::unordered_map<std::string, PolicyGroup>> readPolicyGroups(
 }
 
 bool isConfigurableComponent(PowerComponent component) {
-    return kSystemPolicyConfigurableComponents.count(component) > 0;
+    return kNoUserInteractionConfigurableComponents.count(component) > 0;
 }
 
 Result<void> checkConfigurableComponents(const std::vector<PowerComponent>& components) {
@@ -446,45 +450,47 @@ bool isSystemPowerPolicy(const std::string& policyId) {
 }
 
 void PolicyManager::init() {
-    mRegisteredPowerPolicies.clear();
+    initRegularPowerPolicy();
     mPolicyGroups.clear();
-    initSystemPowerPolicy();
+    initPreemptivePowerPolicy();
     readPowerPolicyConfiguration();
 }
 
-CarPowerPolicyPtr PolicyManager::getPowerPolicy(const std::string& policyId) const {
-    if (mRegisteredPowerPolicies.count(policyId) == 0) {
-        ALOGW("Policy(id: %s) is not found", policyId.c_str());
-        return nullptr;
+Result<CarPowerPolicyMeta> PolicyManager::getPowerPolicy(const std::string& policyId) const {
+    if (mRegisteredPowerPolicies.count(policyId) > 0) {
+        return CarPowerPolicyMeta{
+                .powerPolicy = mRegisteredPowerPolicies.at(policyId),
+                .isPreemptive = false,
+        };
     }
-    return mRegisteredPowerPolicies.at(policyId);
+    if (mPreemptivePowerPolicies.count(policyId) > 0) {
+        return CarPowerPolicyMeta{
+                .powerPolicy = mPreemptivePowerPolicies.at(policyId),
+                .isPreemptive = true,
+        };
+    }
+    return Error() << StringPrintf("Power policy(id: %s) is not found", policyId.c_str());
 }
 
-CarPowerPolicyPtr PolicyManager::getDefaultPowerPolicyForState(
+Result<CarPowerPolicyPtr> PolicyManager::getDefaultPowerPolicyForState(
         const std::string& groupId, VehicleApPowerStateReport state) const {
     if (mPolicyGroups.count(groupId) == 0) {
-        ALOGW("Power policy group(%s) is not available", groupId.c_str());
-        return nullptr;
+        return Error() << StringPrintf("Power policy group(%s) is not available", groupId.c_str());
     }
     PolicyGroup policyGroup = mPolicyGroups.at(groupId);
     int32_t key = static_cast<int32_t>(state);
     if (policyGroup.count(key) == 0) {
-        ALOGW("Policy for %s is not found", toString(state).c_str());
-        return nullptr;
+        return Error() << StringPrintf("Policy for %s is not found", toString(state).c_str());
     }
     return mRegisteredPowerPolicies.at(policyGroup.at(key));
 }
 
-CarPowerPolicyPtr PolicyManager::getSystemPowerPolicy(const std::string& policyId) const {
-    if (mSystemPowerPolicies.count(policyId) == 0) {
-        ALOGW("System power policy(id: %s) is not found", policyId.c_str());
-        return nullptr;
-    }
-    return mSystemPowerPolicies.at(policyId);
-}
-
 bool PolicyManager::isPowerPolicyGroupAvailable(const std::string& groupId) const {
     return mPolicyGroups.count(groupId) > 0;
+}
+
+bool PolicyManager::isPreemptivePowerPolicy(const std::string& policyId) const {
+    return mPreemptivePowerPolicies.count(policyId) > 0;
 }
 
 Result<void> PolicyManager::definePowerPolicy(const std::string& policyId,
@@ -531,9 +537,9 @@ Result<void> PolicyManager::dump(int fd, const Vector<String16>& /*args*/) {
                             fd);
         }
     }
-    WriteStringToFd(StringPrintf("%sSystem power policy: %s\n", indent,
-                                 toString(
-                                         *mSystemPowerPolicies.at(kSystemPolicyIdNoUserInteraction))
+    WriteStringToFd(StringPrintf("%sNo user interaction power policy: %s\n", indent,
+                                 toString(*mPreemptivePowerPolicies.at(
+                                                  kSystemPolicyIdNoUserInteraction))
                                          .c_str()),
                     fd);
     return {};
@@ -580,12 +586,12 @@ void PolicyManager::readPowerPolicyFromXml(const XMLDocument& xmlDoc) {
 
     mRegisteredPowerPolicies = registeredPoliciesMap;
     mPolicyGroups = *policyGroups;
-    reconstructSystemPolicies(*systemPolicyOverrides);
+    reconstructNoUserInteractionPolicy(*systemPolicyOverrides);
 }
 
-void PolicyManager::reconstructSystemPolicies(
+void PolicyManager::reconstructNoUserInteractionPolicy(
         const std::vector<CarPowerPolicyPtr>& policyOverrides) {
-    CarPowerPolicyPtr systemPolicy = mSystemPowerPolicies.at(kSystemPolicyIdNoUserInteraction);
+    CarPowerPolicyPtr systemPolicy = mPreemptivePowerPolicies.at(kSystemPolicyIdNoUserInteraction);
     for (auto policy : policyOverrides) {
         configureComponents(policy->enabledComponents, &systemPolicy->enabledComponents,
                             &systemPolicy->disabledComponents);
@@ -594,15 +600,25 @@ void PolicyManager::reconstructSystemPolicies(
     }
 }
 
-void PolicyManager::initSystemPowerPolicy() {
-    mSystemPowerPolicies.emplace(kSystemPolicyIdNoUserInteraction,
-                                 createPolicy(kSystemPolicyIdNoUserInteraction,
-                                              kSystemPolicyEnabledComponents,
-                                              kSystemPolicyDisabledComponents));
-    mSystemPowerPolicies.emplace(kSystemPolicyIdDefault,
-                                 createPolicy(kSystemPolicyIdDefault,
-                                              kSystemPolicyAllEnabledComponents,
-                                              kSystemPolicyNoDisabledComponents));
+void PolicyManager::initRegularPowerPolicy() {
+    mRegisteredPowerPolicies.clear();
+    mRegisteredPowerPolicies.emplace(kSystemPolicyIdAllOn,
+                                     createPolicy(kSystemPolicyIdAllOn, kAllComponents,
+                                                  kNoComponents));
+    mRegisteredPowerPolicies.emplace(kSystemPolicyIdInitialOn,
+                                     createPolicy(kSystemPolicyIdInitialOn, kInitialOnComponents,
+                                                  kAllComponents));
+}
+
+void PolicyManager::initPreemptivePowerPolicy() {
+    mPreemptivePowerPolicies.clear();
+    mPreemptivePowerPolicies.emplace(kSystemPolicyIdNoUserInteraction,
+                                     createPolicy(kSystemPolicyIdNoUserInteraction,
+                                                  kNoUserInteractionEnabledComponents,
+                                                  kNoUserInteractionDisabledComponents));
+    mPreemptivePowerPolicies.emplace(kSystemPolicyIdSuspendToRam,
+                                     createPolicy(kSystemPolicyIdSuspendToRam, kNoComponents,
+                                                  kSuspendToRamDisabledComponents));
 }
 
 }  // namespace powerpolicy

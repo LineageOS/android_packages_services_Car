@@ -242,8 +242,8 @@ public final class PolicyReaderUnitTest {
     }
 
     private void assertSystemPowerPolicy(CarPowerPolicy expectedSystemPolicy) throws Exception {
-        CarPowerPolicy systemPolicy = mPolicyReader.getSystemPowerPolicy(
-                    PolicyReader.SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+        CarPowerPolicy systemPolicy = mPolicyReader.getPreemptivePowerPolicy(
+                NO_USER_INTERACTION_POLICY_ID);
         assertThat(systemPolicy).isNotNull();
         assertPolicyIdentical(systemPolicy, expectedSystemPolicy);
     }

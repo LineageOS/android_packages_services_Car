@@ -58,11 +58,11 @@ bool fileExists(const char* filename) {
 
 }  // namespace
 
-SilentModeHandler::SilentModeHandler(ICarPowerPolicyServerInterface* server) :
+SilentModeHandler::SilentModeHandler(ISilentModeChangeHandler* handler) :
       mSilentModeByHwState(false),
       mSilentModeHwStateFilename(kSilentModeHwStateFilename),
       mKernelSilentModeFilename(kKernelSilentModeFilename),
-      mPolicyServer(server),
+      mSilentModeChangeHandler(handler),
       mFdInotify(-1) {
     mBootReason = GetProperty(kPropertySystemBootReason, "");
 }
@@ -79,7 +79,7 @@ void SilentModeHandler::init() {
         if (auto ret = updateKernelSilentModeInternal(mSilentModeByHwState); !ret.ok()) {
             ALOGW("Failed to update kernel silent mode: %s", ret.error().message().c_str());
         }
-        mPolicyServer->notifySilentModeChange(mSilentModeByHwState);
+        mSilentModeChangeHandler->notifySilentModeChange(mSilentModeByHwState);
         ALOGI("Now in forced mode: monitoring %s is disabled", kSilentModeHwStateFilename);
     } else {
         startMonitoringSilentModeHwState();
@@ -87,7 +87,7 @@ void SilentModeHandler::init() {
 }
 
 void SilentModeHandler::release() {
-    stopMonitoringSilentModeHwState();
+    stopMonitoringSilentModeHwState(/*shouldWaitThread=*/false);
 }
 
 bool SilentModeHandler::isSilentMode() {
@@ -116,26 +116,29 @@ Result<void> SilentModeHandler::updateKernelSilentModeInternal(bool silent) {
     return status;
 }
 
-void SilentModeHandler::stopMonitoringSilentModeHwState() {
+void SilentModeHandler::stopMonitoringSilentModeHwState(bool shouldWaitThread) {
     if (mIsMonitoring) {
         mIsMonitoring = false;
         inotify_rm_watch(mFdInotify, mWdSilentModeHwState);
         mWdSilentModeHwState = -1;
+        if (shouldWaitThread && mSilentModeMonitoringThread.joinable()) {
+            mSilentModeMonitoringThread.join();
+        }
     }
     mFdInotify.reset(-1);
 }
 
 Result<void> SilentModeHandler::dump(int fd, const Vector<String16>& /*args*/) {
     const char* indent = "  ";
-    WriteStringToFd(StringPrintf("%sMonitoring HW state: %s", indent,
+    WriteStringToFd(StringPrintf("%sMonitoring HW state: %s\n", indent,
                                  mIsMonitoring ? "true" : "false"),
                     fd);
-    WriteStringToFd(StringPrintf("%sForced silent mode: %s", indent,
+    WriteStringToFd(StringPrintf("%sForced silent mode: %s\n", indent,
                                  mForcedMode ? "true" : "false"),
                     fd);
     if (mIsMonitoring) {
         Mutex::Autolock lock(mMutex);
-        WriteStringToFd(StringPrintf("%sSilent mode by HW state: %s", indent,
+        WriteStringToFd(StringPrintf("%sSilent mode by HW state: %s\n", indent,
                                      mSilentModeByHwState ? "silent" : "non-silent"),
                         fd);
     }
@@ -200,6 +203,8 @@ void SilentModeHandler::startMonitoringSilentModeHwState() {
         }
         ALOGI("Monitoring %s ended", mSilentModeHwStateFilename.c_str());
     });
+    // Read the current silent mode HW state.
+    handleSilentModeHwStateChange();
 }
 
 void SilentModeHandler::handleSilentModeHwStateChange() {
@@ -221,7 +226,7 @@ void SilentModeHandler::handleSilentModeHwStateChange() {
     if (newSilentMode != oldSilentMode) {
         ALOGI("%s is set to %s", mSilentModeHwStateFilename.c_str(),
               newSilentMode ? "silent" : "non-silent");
-        mPolicyServer->notifySilentModeChange(newSilentMode);
+        mSilentModeChangeHandler->notifySilentModeChange(newSilentMode);
     }
 }
 

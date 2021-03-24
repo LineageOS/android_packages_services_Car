@@ -70,6 +70,7 @@ cc_test {
     srcs: [
         "tests/CarPowerPolicyServerTest.cpp",
         "tests/PolicyManagerTest.cpp",
+        "tests/PowerComponentHandlerTest.cpp",
         "tests/SilentModeHandlerTest.cpp",
     ],
     static_libs: [

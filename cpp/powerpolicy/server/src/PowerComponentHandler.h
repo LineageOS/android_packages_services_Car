@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -17,10 +17,9 @@
 #ifndef CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTHANDLER_H_
 #define CPP_POWERPOLICY_SERVER_SRC_POWERCOMPONENTHANDLER_H_
 
-#include "PowerComponentMediator.h"
-
 #include <android-base/result.h>
 #include <android/frameworks/automotive/powerpolicy/CarPowerPolicy.h>
+#include <utils/Mutex.h>
 
 #include <memory>
 #include <unordered_map>
@@ -36,14 +35,20 @@ class PowerComponentHandler final {
 public:
     PowerComponentHandler() {}
 
+    // Sets the initial state of all power components.
     void init();
-    void finalize();
-    base::Result<void> applyPowerPolicy(CarPowerPolicyPtr powerPolicy);
-    base::Result<bool> getPowerComponentState(PowerComponent componentId);
-    base::Result<void> dump(int fd, const Vector<String16>& args);
+    // Applies the given power policy and updates the latest state of all power components.
+    void applyPowerPolicy(const CarPowerPolicyPtr& powerPolicy);
+    // Gets the current state of the given power component.
+    android::base::Result<bool> getPowerComponentState(const PowerComponent componentId) const;
+    // Gets the accumulated state of all components after applying power policies.
+    CarPowerPolicyPtr getAccumulatedPolicy() const;
+    // Dumps the internal status.
+    android::base::Result<void> dump(int fd);
 
 private:
-    std::unordered_map<PowerComponent, PowerComponentMediator*> mComponentMediators;
+    mutable android::Mutex mMutex;
+    CarPowerPolicyPtr mAccumulatedPolicy GUARDED_BY(mMutex);
 };
 
 }  // namespace powerpolicy
