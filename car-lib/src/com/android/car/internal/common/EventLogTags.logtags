@@ -48,11 +48,13 @@ option java_package com.android.car.internal.common
 150051 car_service_vhal_reconnected (number_services|1)
 150052 car_service_set_car_service_helper (pid|1)
 150053 car_service_on_user_lifecycle (type|1),(from_user_id|1),(to_user_id|1)
-150054 car_service_set_initial_user (user_id|1)
+#150054 (Not_used_anymore) car_service_set_initial_user (user_id|1)
 150055 car_service_create (has_vhal|1)
 150056 car_service_connected (interface|3)
 150057 car_service_destroy (has_vhal|1)
 150058 car_service_vhal_died (cookie|2)
+150059 car_service_init_boot_user
+150060 car_service_on_user_removed (user_id|1)
 
 ####
 #### Tags used by CarService subsystems, like user and power management.
@@ -118,6 +120,7 @@ option java_package com.android.car.internal.common
 150182 car_user_mgr_remove_user_req (uid|1),(user_id|1)
 150183 car_user_mgr_remove_user_resp (uid|1),(status|1)
 150184 car_user_mgr_notify_lifecycle_listener (number_listeners|1),(event_type|1),(from_user_id|1),(to_user_id|1)
+150185 car_user_mgr_pre_create_user_req (uid|1)
 
 #### Device policy related tags (range 150200 - 150299)
 150200 car_dp_mgr_remove_user_req (uid|1),(user_id|1)

@@ -218,8 +218,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     // TODO(b/163566866): Use mSwitchGuestUserBeforeSleep for new create guest request
     private final boolean mSwitchGuestUserBeforeSleep;
 
-    private final int mUserPreCreationDelayMs;
-
     @Nullable
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
@@ -317,8 +315,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
-        mUserPreCreationDelayMs = resources.getInteger(
-                R.integer.config_WaitDurationForUserPreCreation);
         mCarUxRestrictionService = uxRestrictionService;
     }
 
@@ -361,7 +357,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
-        writer.println("UserPreCreationDelayMs: " + mUserPreCreationDelayMs);
 
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
         List<UserInfo> allDrivers = getAllDrivers();
@@ -759,8 +754,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             initResumeReplaceGuest();
         }
 
-        // No delay required for pre-creating users on suspend.
-        preCreateUsersInternal(/*delay=*/ 0);
+        preCreateUsersInternal();
     }
 
     /**
@@ -2293,12 +2287,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     /**
      * Manages the required number of pre-created users.
      */
-    public void preCreateUsers() {
-        preCreateUsersInternal(mUserPreCreationDelayMs);
+    @Override
+    public void updatePreCreatedUsers() {
+        checkManageOrCreateUsersPermission("preCreateUsers");
+        preCreateUsersInternal();
     }
 
-    private void preCreateUsersInternal(int delay) {
-        mHandler.postDelayed(() -> mUserPreCreator.managePreCreatedUsers(), delay);
+    private void preCreateUsersInternal() {
+        mHandler.post(() -> mUserPreCreator.managePreCreatedUsers());
     }
 
     // TODO(b/167698977): members below were copied from UserManagerService; it would be better to

@@ -398,6 +398,4 @@
     <!-- Number of milliseconds to wait before the system goes into Suspend-to-RAM.
          The valid range is 0 to 3 * 60 * 1000. The default duration is 3 min (= 3 * 60 * 1000). -->
     <integer name="config_maxSuspendWaitDuration">180000</integer>
-    <!-- Number of milliseconds to wait before creating pre-created users after system start. -->
-    <integer name="config_WaitDurationForUserPreCreation">100000</integer>
 </resources>
