@@ -17,6 +17,7 @@
 package com.android.car.power;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.os.FileObserver;
 import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
@@ -71,24 +72,21 @@ final class SilentModeHandler {
     @GuardedBy("mLock")
     private boolean mForcedMode;
 
-    SilentModeHandler(@NonNull CarPowerManagementService service) {
-        this(service, SYSFS_FILENAME_HW_STATE_MONITORING, SYSFS_FILENAME_KERNEL_SILENTMODE,
-                SystemProperties.get(SYSTEM_BOOT_REASON));
-    }
-
     @VisibleForTesting
     SilentModeHandler(@NonNull CarPowerManagementService service,
-            @NonNull String hwStateMonitoringFileName, @NonNull String kernelSilentModeFileName,
-            @NonNull String bootReason) {
+            @Nullable String hwStateMonitoringFileName, @Nullable String kernelSilentModeFileName,
+            @Nullable String bootReason) {
         Objects.requireNonNull(service, "CarPowerManagementService must not be null");
-        Objects.requireNonNull(hwStateMonitoringFileName,
-                "Filename for HW state monitoring must not be null");
-        Objects.requireNonNull(kernelSilentModeFileName,
-                "Filename for Kernel silent mode must not be null");
-        Objects.requireNonNull(bootReason, "Boot reason must not be null");
         mService = service;
-        mHwStateMonitoringFileName = hwStateMonitoringFileName;
-        mKernelSilentModeFileName = kernelSilentModeFileName;
+        mHwStateMonitoringFileName = hwStateMonitoringFileName == null
+                ? SYSFS_FILENAME_HW_STATE_MONITORING
+                : hwStateMonitoringFileName;
+        mKernelSilentModeFileName = kernelSilentModeFileName == null
+                ? SYSFS_FILENAME_KERNEL_SILENTMODE
+                : kernelSilentModeFileName;
+        if (bootReason == null) {
+            bootReason = SystemProperties.get(SYSTEM_BOOT_REASON);
+        }
         switch (bootReason) {
             case FORCED_SILENT:
                 Slog.i(TAG, "Starting in forced silent mode");

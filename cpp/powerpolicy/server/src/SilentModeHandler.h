@@ -36,7 +36,7 @@ inline constexpr const char* kBootReasonForcedSilent = "reboot,forcedsilent";
 inline constexpr const char* kValueNonSilentMode = "0";
 inline constexpr const char* kValueSilentMode = "1";
 
-class ICarPowerPolicyServerInterface;
+class ISilentModeChangeHandler;
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -52,13 +52,19 @@ class SilentModeHandlerPeer;
  */
 class SilentModeHandler final {
 public:
-    explicit SilentModeHandler(ICarPowerPolicyServerInterface* server);
+    explicit SilentModeHandler(ISilentModeChangeHandler* server);
 
+    // Initialize SilentModeHandler instance.
     void init();
+    // Release the resource to prepare termination.
     void release();
+    // Returns the current Silent Mode.
     bool isSilentMode();
+    // Write the value corresponding to the given silent state to /sys/power/pm_silentmode_kernel.
     android::base::Result<void> updateKernelSilentMode(bool silent);
-    void stopMonitoringSilentModeHwState();
+    // Stops monitoring the change on /sys/power/pm_silentmode_hw_state.
+    void stopMonitoringSilentModeHwState(bool shouldWaitThread);
+    // Dumps the internal state.
     android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:
@@ -72,7 +78,7 @@ private:
     std::string mBootReason;
     std::string mSilentModeHwStateFilename;
     std::string mKernelSilentModeFilename;
-    ICarPowerPolicyServerInterface* mPolicyServer;
+    ISilentModeChangeHandler* mSilentModeChangeHandler;
     std::thread mSilentModeMonitoringThread;
     android::base::unique_fd mFdInotify;
     int mWdSilentModeHwState = -1;
