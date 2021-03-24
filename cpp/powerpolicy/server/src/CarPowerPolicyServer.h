@@ -229,6 +229,8 @@ private:
     std::optional<int64_t> mLastApplyPowerPolicyUptimeMs GUARDED_BY(mMutex);
     std::optional<int64_t> mLastSetDefaultPowerPolicyGroupUptimeMs GUARDED_BY(mMutex);
     bool mIsCarServiceInOperation GUARDED_BY(mMutex);
+    // No thread-safety guard is needed because only accessed through main thread handler.
+    bool mIsFirstConnectionToVhal;
     std::unordered_map<int32_t, bool> mSupportedProperties;
     android::sp<BinderDeathRecipient> mBinderDeathRecipient;
     android::sp<HidlDeathRecipient> mHidlDeathRecipient;
