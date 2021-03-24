@@ -45,14 +45,11 @@ import android.widget.LinearLayout;
 import android.widget.RadioGroup;
 import android.widget.Spinner;
 import android.widget.TextView;
-import android.widget.Toast;
-import android.widget.ToggleButton;
 
 import androidx.fragment.app.Fragment;
 
 import com.android.internal.util.Preconditions;
 
-import com.google.android.car.kitchensink.CarEmulator;
 import com.google.android.car.kitchensink.R;
 
 import java.util.ArrayList;
@@ -72,7 +69,6 @@ public class AudioTestFragment extends Fragment {
 
     private AudioManager mAudioManager;
     private FocusHandler mAudioFocusHandler;
-    private ToggleButton mEnableMocking;
 
     private AudioPlayer mMusicPlayer;
     @GuardedBy("mLock")
@@ -102,7 +98,6 @@ public class AudioTestFragment extends Fragment {
     private AudioAttributes mRadioAudioAttrib;
     private AudioAttributes mSystemSoundAudioAttrib;
     private AudioAttributes mMusicAudioAttribForDeviceAddress;
-    private CarEmulator mCarEmulator;
     private CarAudioManager mCarAudioManager;
     private Spinner mZoneSpinner;
     ArrayAdapter<Integer> mZoneAdapter;
@@ -276,23 +271,6 @@ public class AudioTestFragment extends Fragment {
                     v -> handleHwAudioSourceStop());
         }
 
-        mEnableMocking = view.findViewById(R.id.button_mock_audio);
-        mEnableMocking.setOnCheckedChangeListener((buttonView, isChecked) -> {
-            if (mCarEmulator == null) {
-                //TODO(pavelm): need to do a full switch between emulated and normal mode
-                // all Car*Manager references should be invalidated.
-                Toast.makeText(AudioTestFragment.this.getContext(),
-                        "Not supported yet :(", Toast.LENGTH_SHORT).show();
-                return;
-            }
-            if (isChecked) {
-                mCarEmulator.start();
-            } else {
-                mCarEmulator.stop();
-                mCarEmulator = null;
-            }
-        });
-
         // Manage buttons for audio player for device address
         view.findViewById(R.id.button_device_media_play_start).setOnClickListener(v -> {
             startDeviceAudio();
@@ -341,9 +319,6 @@ public class AudioTestFragment extends Fragment {
     @Override
     public void onDestroyView() {
         Log.i(TAG, "onDestroyView");
-        if (mCarEmulator != null) {
-            mCarEmulator.stop();
-        }
         for (AudioPlayer p : mAllPlayers) {
             p.stop();
         }
