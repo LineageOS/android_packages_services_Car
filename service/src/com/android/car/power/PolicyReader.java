@@ -27,7 +27,6 @@ import static org.xmlpull.v1.XmlPullParser.END_TAG;
 import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
-import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.PowerComponent;
@@ -64,12 +63,17 @@ import java.util.stream.Collectors;
  */
 final class PolicyReader {
     static final String SYSTEM_POWER_POLICY_PREFIX = "system_power_policy_";
-    // System power policy used for disabling user interaction in Silent Mode or Garage Mode.
-    static final String SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
-            SYSTEM_POWER_POLICY_PREFIX + "no_user_interaction";
-    // Hidden system power policy used when no power policy is explicitly applied. All components
-    // are on.
-    static final String SYSTEM_POWER_POLICY_DEFAULT = SYSTEM_POWER_POLICY_PREFIX + "default";
+    // Preemptive system power policy used for disabling user interaction in Silent Mode or Garage
+    // Mode.
+    static final String POWER_POLICY_ID_NO_USER_INTERACTION = SYSTEM_POWER_POLICY_PREFIX
+            + "no_user_interaction";
+    // Preemptive system power policy used for preparing Suspend-to-RAM.
+    static final String POWER_POLICY_ID_SUSPEND_TO_RAM = SYSTEM_POWER_POLICY_PREFIX
+            + "suspend_to_ram";
+    // Non-preemptive system power policy used for turning all components on.
+    static final String POWER_POLICY_ID_ALL_ON = SYSTEM_POWER_POLICY_PREFIX + "all_on";
+    // Non-preemptive system power policy used to represent minimally on state.
+    static final String POWER_POLICY_ID_INITIAL_ON = SYSTEM_POWER_POLICY_PREFIX + "initial_on";
 
     private static final String TAG = CarLog.tagFor(PolicyReader.class);
     private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
@@ -100,13 +104,16 @@ final class PolicyReader {
     private static final String POWER_STATE_DEEP_SLEEP_ENTRY = "DeepSleepEntry";
     private static final String POWER_STATE_SHUTDOWN_START = "ShutdownStart";
 
-    private static final int[] ALL_ENABLED_COMPONENTS;
-    private static final int[] NO_DISABLED_COMPONENTS = new int[0];
-    private static final int[] SYSTEM_POLICY_ENABLED_COMPONENTS = {
+    private static final int[] ALL_COMPONENTS;
+    private static final int[] NO_COMPONENTS = new int[0];
+    private static final int[] INITIAL_ON_COMPONENTS = {
+            PowerComponent.AUDIO, PowerComponent.DISPLAY, PowerComponent.CPU
+    };
+    private static final int[] NO_USER_INTERACTION_ENABLED_COMPONENTS = {
             PowerComponent.WIFI, PowerComponent.CELLULAR,
             PowerComponent.ETHERNET, PowerComponent.TRUSTED_DEVICE_DETECTION
     };
-    private static final int[] SYSTEM_POLICY_DISABLED_COMPONENTS = {
+    private static final int[] NO_USER_INTERACTION_DISABLED_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.MEDIA, PowerComponent.DISPLAY,
             PowerComponent.BLUETOOTH, PowerComponent.PROJECTION, PowerComponent.NFC,
             PowerComponent.INPUT, PowerComponent.VOICE_INTERACTION,
@@ -116,17 +123,31 @@ final class PolicyReader {
     private static final Set<Integer> SYSTEM_POLICY_CONFIGURABLE_COMPONENTS =
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,
             PowerComponent.TRUSTED_DEVICE_DETECTION));
+    private static final int[] SUSPEND_TO_RAM_DISABLED_COMPONENTS = {
+            PowerComponent.AUDIO, PowerComponent.BLUETOOTH, PowerComponent.WIFI,
+            PowerComponent.LOCATION
+    };
+    private static final CarPowerPolicy POWER_POLICY_ALL_ON;
+    private static final CarPowerPolicy POWER_POLICY_INITIAL_ON;
+    private static final CarPowerPolicy POWER_POLICY_SUSPEND_TO_RAM;
 
     static {
-        ALL_ENABLED_COMPONENTS = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
+        ALL_COMPONENTS = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
         for (int c = FIRST_POWER_COMPONENT; c <= LAST_POWER_COMPONENT; c++) {
-            ALL_ENABLED_COMPONENTS[c - FIRST_POWER_COMPONENT] = c;
+            ALL_COMPONENTS[c - FIRST_POWER_COMPONENT] = c;
         }
+
+        POWER_POLICY_ALL_ON = new CarPowerPolicy(POWER_POLICY_ID_ALL_ON, ALL_COMPONENTS.clone(),
+                NO_COMPONENTS.clone());
+        POWER_POLICY_INITIAL_ON = new CarPowerPolicy(POWER_POLICY_ID_INITIAL_ON,
+                INITIAL_ON_COMPONENTS.clone(), ALL_COMPONENTS.clone());
+        POWER_POLICY_SUSPEND_TO_RAM = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_TO_RAM,
+                NO_COMPONENTS.clone(), SUSPEND_TO_RAM_DISABLED_COMPONENTS.clone());
     }
 
     private ArrayMap<String, CarPowerPolicy> mRegisteredPowerPolicies;
     private ArrayMap<String, SparseArray<String>> mPolicyGroups;
-    private ArrayMap<String, CarPowerPolicy> mSystemPowerPolicy;
+    private ArrayMap<String, CarPowerPolicy> mPreemptivePowerPolicies;
 
     /**
      * Gets {@code CarPowerPolicy} corresponding to the given policy ID.
@@ -154,17 +175,22 @@ final class PolicyReader {
     }
 
     /**
-     * Gets the system power policy.
+     * Gets the preemptive power policy corresponding to the given policy ID.
      *
-     * <p> At this moment, only one system power policy is supported.
+     * <p> When a preemptive power policy is the current power policy, applying a regular power
+     * policy is deferred until the preemptive power policy is released.
      */
-    @NonNull
-    CarPowerPolicy getSystemPowerPolicy(String policyId) {
-        return mSystemPowerPolicy.get(policyId);
+    @Nullable
+    CarPowerPolicy getPreemptivePowerPolicy(String policyId) {
+        return mPreemptivePowerPolicies.get(policyId);
     }
 
-    boolean isPowerPolicyGroupAvailable(String policyGroupId) {
-        return mPolicyGroups.containsKey(policyGroupId);
+    boolean isPowerPolicyGroupAvailable(String groupId) {
+        return mPolicyGroups.containsKey(groupId);
+    }
+
+    boolean isPreemptivePowerPolicy(String policyId) {
+        return mPreemptivePowerPolicies.containsKey(policyId);
     }
 
     void init() {
@@ -225,15 +251,28 @@ final class PolicyReader {
             writer.decreaseIndent();
         }
         writer.decreaseIndent();
-        writer.printf("System power policy: %s\n",
-                toString(mSystemPowerPolicy.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION)));
+        writer.println("Preemptive power policy:\n");
+        writer.increaseIndent();
+        for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
+            writer.println(toString(mPreemptivePowerPolicies.valueAt(i)));
+        }
+        writer.decreaseIndent();
     }
 
     @VisibleForTesting
     void initPolicies() {
         mRegisteredPowerPolicies = new ArrayMap<>();
+        mRegisteredPowerPolicies.put(POWER_POLICY_ID_ALL_ON, POWER_POLICY_ALL_ON);
+        mRegisteredPowerPolicies.put(POWER_POLICY_ID_INITIAL_ON, POWER_POLICY_INITIAL_ON);
+
         mPolicyGroups = new ArrayMap<>();
-        initSystemPowerPolicy();
+
+        mPreemptivePowerPolicies = new ArrayMap<>();
+        mPreemptivePowerPolicies.put(POWER_POLICY_ID_NO_USER_INTERACTION,
+                new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
+                        NO_USER_INTERACTION_ENABLED_COMPONENTS.clone(),
+                        NO_USER_INTERACTION_DISABLED_COMPONENTS.clone()));
+        mPreemptivePowerPolicies.put(POWER_POLICY_ID_SUSPEND_TO_RAM, POWER_POLICY_SUSPEND_TO_RAM);
     }
 
     private void readPowerPolicyConfiguration() {
@@ -350,10 +389,10 @@ final class PolicyReader {
                     + numOverrides + " system policies exist");
         }
         CarPowerPolicy policyOverride =
-                systemOverrides.get(SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+                systemOverrides.get(POWER_POLICY_ID_NO_USER_INTERACTION);
         if (policyOverride == null) {
             throw new PolicyXmlException("system power policy id should be "
-                    + SYSTEM_POWER_POLICY_NO_USER_INTERACTION);
+                    + POWER_POLICY_ID_NO_USER_INTERACTION);
         }
         Set<Integer> visited = new ArraySet<>();
         checkSystemPowerPolicyComponents(policyOverride.getEnabledComponents(), visited);
@@ -509,10 +548,10 @@ final class PolicyReader {
     private void reconstructSystemPowerPolicy(@Nullable CarPowerPolicy policyOverride) {
         if (policyOverride == null) return;
 
-        List<Integer> enabledComponents = Arrays.stream(SYSTEM_POLICY_ENABLED_COMPONENTS).boxed()
-                .collect(Collectors.toList());
-        List<Integer> disabledComponents = Arrays.stream(SYSTEM_POLICY_DISABLED_COMPONENTS).boxed()
-                .collect(Collectors.toList());
+        List<Integer> enabledComponents = Arrays.stream(NO_USER_INTERACTION_ENABLED_COMPONENTS)
+                .boxed().collect(Collectors.toList());
+        List<Integer> disabledComponents = Arrays.stream(NO_USER_INTERACTION_DISABLED_COMPONENTS)
+                .boxed().collect(Collectors.toList());
         int[] overrideEnabledComponents = policyOverride.getEnabledComponents();
         int[] overrideDisabledComponents = policyOverride.getDisabledComponents();
         for (int i = 0; i < overrideEnabledComponents.length; i++) {
@@ -523,10 +562,10 @@ final class PolicyReader {
             removeComponent(enabledComponents, overrideDisabledComponents[i]);
             addComponent(disabledComponents, overrideDisabledComponents[i]);
         }
-        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
-                new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
-                    CarServiceUtils.toIntArray(enabledComponents),
-                    CarServiceUtils.toIntArray(disabledComponents)));
+        mPreemptivePowerPolicies.put(POWER_POLICY_ID_NO_USER_INTERACTION,
+                new CarPowerPolicy(POWER_POLICY_ID_NO_USER_INTERACTION,
+                        CarServiceUtils.toIntArray(enabledComponents),
+                        CarServiceUtils.toIntArray(disabledComponents)));
     }
 
     private void removeComponent(List<Integer> components, int component) {
@@ -541,17 +580,6 @@ final class PolicyReader {
         if (index == -1) {
             components.add(component);
         }
-    }
-
-    private void initSystemPowerPolicy() {
-        mSystemPowerPolicy = new ArrayMap<>();
-        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
-                new CarPowerPolicy(SYSTEM_POWER_POLICY_NO_USER_INTERACTION,
-                        SYSTEM_POLICY_ENABLED_COMPONENTS.clone(),
-                        SYSTEM_POLICY_DISABLED_COMPONENTS.clone()));
-        mSystemPowerPolicy.put(SYSTEM_POWER_POLICY_DEFAULT,
-                new CarPowerPolicy(SYSTEM_POWER_POLICY_DEFAULT,
-                        ALL_ENABLED_COMPONENTS.clone(), NO_DISABLED_COMPONENTS.clone()));
     }
 
     private String getText(XmlPullParser parser) throws PolicyXmlException, XmlPullParserException,
@@ -619,17 +647,6 @@ final class PolicyReader {
         }
     }
 
-    private String powerStateToString(int state) {
-        switch (state) {
-            case VehicleApPowerStateReport.WAIT_FOR_VHAL:
-                return POWER_STATE_WAIT_FOR_VHAL;
-            case VehicleApPowerStateReport.ON:
-                return POWER_STATE_ON;
-            default:
-                return "unknown power state";
-        }
-    }
-
     private String toString(CarPowerPolicy policy) {
         return policy.getPolicyId() + "(enabledComponents: "
                 + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
@@ -659,6 +676,17 @@ final class PolicyReader {
             components.put(component, enabled);
         }
         return null;
+    }
+
+    static String powerStateToString(int state) {
+        switch (state) {
+            case VehicleApPowerStateReport.WAIT_FOR_VHAL:
+                return POWER_STATE_WAIT_FOR_VHAL;
+            case VehicleApPowerStateReport.ON:
+                return POWER_STATE_ON;
+            default:
+                return "unknown power state";
+        }
     }
 
     static boolean isSystemPowerPolicy(String policyId) {

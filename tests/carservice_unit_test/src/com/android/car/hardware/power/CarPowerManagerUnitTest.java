@@ -41,14 +41,12 @@ import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
-import com.android.car.CarLocalServices;
 import com.android.car.R;
 import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.power.PowerComponentHandler;
-import com.android.car.power.SilentModeController;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.SystemStateInterface;
@@ -88,7 +86,6 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private SystemInterface mSystemInterface;
     private CarPowerManagementService mService;
     private CarPowerManager mCarPowerManager;
-    private SilentModeController mSilentModeController;
 
     @Mock
     private Resources mResources;
@@ -117,7 +114,6 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
     @After
     public void tearDown() throws Exception {
-        CarLocalServices.removeServiceForTest(SilentModeController.class);
         if (mService != null) {
             mService.release();
         }
@@ -355,11 +351,10 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         Log.i(TAG, "setService(): overridden overlay properties: "
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
-        mSilentModeController = new SilentModeController(mContext, mSystemInterface,
-                mVoiceInteractionManagerService, "");
-        CarLocalServices.addService(SilentModeController.class, mSilentModeController);
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
-                null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler);
+                null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
+                /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
+                /* bootReason= */ null);
         mService.init();
         mService.setShutdownTimersForTest(0, 0);
         assertStateReceived(MockedPowerHalService.SET_WAIT_FOR_VHAL, 0);

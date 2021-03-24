@@ -39,12 +39,23 @@ bool isSystemPowerPolicy(const std::string& policyId);
 using CarPowerPolicyPtr = std::shared_ptr<CarPowerPolicy>;
 using PolicyGroup = std::unordered_map<int32_t, std::string>;
 
+constexpr const char* kSystemPolicyIdNoUserInteraction = "system_power_policy_no_user_interaction";
+constexpr const char* kSystemPolicyIdAllOn = "system_power_policy_all_on";
+constexpr const char* kSystemPolicyIdInitialOn = "system_power_policy_initiall_on";
+constexpr const char* kSystemPolicyIdSuspendToRam = "system_power_policy_suspend_to_ram";
+
 // Forward declaration for testing use only.
 namespace internal {
 
 class PolicyManagerPeer;
 
 }  // namespace internal
+
+// CarPowerPolicyMeta includes a car power policy and its meta information.
+struct CarPowerPolicyMeta {
+    CarPowerPolicyPtr powerPolicy = nullptr;
+    bool isPreemptive = false;
+};
 
 /**
  * PolicyManager manages power policies, power policy mapping to power transision, and system power
@@ -55,26 +66,27 @@ class PolicyManagerPeer;
 class PolicyManager {
 public:
     void init();
-    CarPowerPolicyPtr getPowerPolicy(const std::string& policyId) const;
-    CarPowerPolicyPtr getDefaultPowerPolicyForState(
+    android::base::Result<CarPowerPolicyMeta> getPowerPolicy(const std::string& policyId) const;
+    android::base::Result<CarPowerPolicyPtr> getDefaultPowerPolicyForState(
             const std::string& groupId,
-            hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
-    CarPowerPolicyPtr getSystemPowerPolicy(const std::string& policyId) const;
+            android::hardware::automotive::vehicle::V2_0::VehicleApPowerStateReport state) const;
     bool isPowerPolicyGroupAvailable(const std::string& groupId) const;
-    base::Result<void> definePowerPolicy(const std::string& policyId,
-                                         const std::vector<std::string>& enabledComponents,
-                                         const std::vector<std::string>& disabledComponents);
-    base::Result<void> dump(int fd, const Vector<String16>& args);
+    bool isPreemptivePowerPolicy(const std::string& policyId) const;
+    android::base::Result<void> definePowerPolicy(
+            const std::string& policyId, const std::vector<std::string>& enabledComponents,
+            const std::vector<std::string>& disabledComponents);
+    android::base::Result<void> dump(int fd, const android::Vector<String16>& args);
 
 private:
-    void initSystemPowerPolicy();
+    void initRegularPowerPolicy();
+    void initPreemptivePowerPolicy();
     void readPowerPolicyConfiguration();
     void readPowerPolicyFromXml(const tinyxml2::XMLDocument& xmlDoc);
-    void reconstructSystemPolicies(const std::vector<CarPowerPolicyPtr>& policyOverrides);
+    void reconstructNoUserInteractionPolicy(const std::vector<CarPowerPolicyPtr>& policyOverrides);
 
 private:
     std::unordered_map<std::string, CarPowerPolicyPtr> mRegisteredPowerPolicies;
-    std::unordered_map<std::string, CarPowerPolicyPtr> mSystemPowerPolicies;
+    std::unordered_map<std::string, CarPowerPolicyPtr> mPreemptivePowerPolicies;
     std::unordered_map<std::string, PolicyGroup> mPolicyGroups;
 
     // For unit tests.

@@ -32,6 +32,7 @@ import android.net.wifi.WifiManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.AtomicFile;
+import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
@@ -67,12 +68,20 @@ public final class PowerComponentHandler {
     private final AtomicFile mComponentStateFile;
     private final SparseArray<PowerComponentMediator> mPowerComponentMediators =
             new SparseArray<>();
+    private final IVoiceInteractionManagerService mVoiceInteractionServiceHolder;
 
     PowerComponentHandler(Context context, SystemInterface systemInterface) {
+        this(context, systemInterface, null);
+    }
+
+    @VisibleForTesting
+    PowerComponentHandler(Context context, SystemInterface systemInterface,
+            IVoiceInteractionManagerService voiceInteractionService) {
         mContext = context;
         mSystemInterface = systemInterface;
         mComponentStateFile = new AtomicFile(new File(systemInterface.getSystemCarDir(),
                 FORCED_OFF_COMPONENTS_FILENAME));
+        mVoiceInteractionServiceHolder = voiceInteractionService;
     }
 
     void init() {
@@ -129,26 +138,13 @@ public final class PowerComponentHandler {
             Slog.w(TAG, powerComponentToString(component) + " doesn't have a mediator");
             return false;
         }
-        boolean componentModified = false;
         boolean isEnabled = mediator.isEnabled();
-        if (enabled) {
-            if (forcedOffComponents.get(component)) {
-                forcedOffComponents.delete(component);
-                componentModified = true;
-            } else {
-                // The last state set by user is off. So, we don't power on the component.
-                return false;
-            }
-        } else {
-            if (!forcedOffComponents.get(component)) {
-                forcedOffComponents.put(component, true);
-                componentModified = true;
-            }
-        }
-        if (enabled != isEnabled) {
+        boolean needUpdate = enabled != isEnabled;
+        // TODO(b/181230312): Make a final decision whether to turn on/off, respecting user setting.
+        if (needUpdate) {
             mediator.setEnabled(enabled);
         }
-        return componentModified;
+        return needUpdate;
     }
 
     private SparseBooleanArray readComponentState() {
@@ -202,7 +198,15 @@ public final class PowerComponentHandler {
         }
     }
 
-    abstract class PowerComponentMediator {
+    private void logd(String messageFormat, Object... args) {
+        if (Log.isLoggable(TAG, Log.DEBUG)) {
+            // TODO(b/182476140): Replace with formatted Slog.
+            String message = String.format(messageFormat, args);
+            Slog.d(TAG, message);
+        }
+    }
+
+    abstract static class PowerComponentMediator {
         protected int mComponentId;
 
         PowerComponentMediator(int component) {
@@ -236,6 +240,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             mSystemInterface.setDisplayState(enabled);
+            logd("Display power component is %s", enabled ? "on" : "off");
         }
 
         @Override
@@ -261,6 +266,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             mWifiManager.setWifiEnabled(enabled);
+            logd("Wifi power component is %s", enabled ? "on" : "off");
         }
 
         @Override
@@ -276,8 +282,12 @@ public final class PowerComponentHandler {
 
         VoiceInteractionPowerComponentMediator() {
             super(PowerComponent.VOICE_INTERACTION);
-            mVoiceInteractionManagerService = IVoiceInteractionManagerService.Stub.asInterface(
+            if (mVoiceInteractionServiceHolder == null) {
+                mVoiceInteractionManagerService = IVoiceInteractionManagerService.Stub.asInterface(
                         ServiceManager.getService(Context.VOICE_INTERACTION_MANAGER_SERVICE));
+            } else {
+                mVoiceInteractionManagerService = mVoiceInteractionServiceHolder;
+            }
         }
 
         @Override
@@ -290,6 +300,7 @@ public final class PowerComponentHandler {
             try {
                 mVoiceInteractionManagerService.setDisabled(!enabled);
                 mIsEnabled = enabled;
+                logd("Voice Interaction power component is %s", enabled ? "on" : "off");
             } catch (RemoteException e) {
                 Slog.w(TAG, "IVoiceInteractionManagerService.setDisabled(" + !enabled + ") failed",
                         e);
