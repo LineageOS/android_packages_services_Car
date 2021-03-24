@@ -21,6 +21,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
+
 import com.android.internal.infra.AndroidFuture;
 import com.android.internal.os.IResultReceiver;
 
@@ -33,6 +34,7 @@ interface ICarUserService {
     void setUserSwitchUiCallback(in IResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
+    void updatePreCreatedUsers();
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
     List<UserInfo> getAllDrivers();
     List<UserInfo> getPassengers(int driverId);
