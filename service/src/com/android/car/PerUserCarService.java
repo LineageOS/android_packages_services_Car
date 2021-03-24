@@ -25,9 +25,9 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.admin.PerUserCarDevicePolicyService;
+import com.android.server.utils.Slogf;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -51,17 +51,17 @@ public class PerUserCarService extends Service {
 
     @Override
     public IBinder onBind(Intent intent) {
-        if (DBG) Slog.d(TAG, "onBind()");
+        if (DBG) Slogf.d(TAG, "onBind()");
 
         if (mPerUserCarServiceBinder == null) {
-            Slog.e(TAG, "PerUserCarServiceBinder null");
+            Slogf.e(TAG, "PerUserCarServiceBinder null");
         }
         return mPerUserCarServiceBinder;
     }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (DBG) Slog.d(TAG, "onStart()");
+        if (DBG) Slogf.d(TAG, "onStart()");
 
         return START_STICKY;
     }
@@ -69,7 +69,7 @@ public class PerUserCarService extends Service {
     @Override
     public void onCreate() {
         Context context = getApplicationContext();
-        Slog.i(TAG, "created for user " + context.getUserId());
+        Slogf.i(TAG, "created for user %d", context.getUserId());
 
         mPerUserCarServiceBinder = new PerUserCarServiceBinder();
         mCarBluetoothUserService = new CarBluetoothUserService(this);
@@ -78,8 +78,8 @@ public class PerUserCarService extends Service {
             mPerUserCarDevicePolicyService = PerUserCarDevicePolicyService.getInstance(context);
             mPerUserCarDevicePolicyService.registerBroadcastReceiver();
         } else if (DBG) {
-            Slog.d(TAG, "Not setting PerUserCarDevicePolicyService because device doesn't have "
-                    + PackageManager.FEATURE_DEVICE_ADMIN);
+            Slogf.d(TAG, "Not setting PerUserCarDevicePolicyService because device doesn't have %s",
+                    PackageManager.FEATURE_DEVICE_ADMIN);
         }
 
         mLocationManagerProxy = new LocationManagerProxy(this);
@@ -88,7 +88,7 @@ public class PerUserCarService extends Service {
 
     @Override
     public void onDestroy() {
-        Slog.i(TAG, "destroyed for user " + getApplicationContext().getUserId());
+        Slogf.i(TAG, "destroyed for user %d", getApplicationContext().getUserId());
 
         if (mPerUserCarDevicePolicyService != null) {
             mPerUserCarDevicePolicyService.onDestroy();
