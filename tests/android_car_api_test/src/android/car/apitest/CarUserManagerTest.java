@@ -38,9 +38,10 @@ import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
 
+import androidx.test.filters.FlakyTest;
+
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.List;
@@ -84,7 +85,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         }
     }
 
-    @Ignore("TODO(b/183519890): STOPSHIP if not fixed")
+    @FlakyTest //TODO(b/183519890): STOPSHIP switch is getting wrong previous id
     @Test
     public void testLifecycleListener() throws Exception {
         int initialUserId = getCurrentUserId();
@@ -183,6 +184,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is ephemeral guest, a new guest user should be
      * created and switched to.
      */
+    @FlakyTest //TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
@@ -231,6 +233,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is guest but with secured lock screen,
      * resume to same guest user.
      */
+    @FlakyTest //TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
@@ -266,6 +269,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     /**
      * Tests resume behavior when current user is persistent user.
      */
+    @FlakyTest // TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testPersistentUserResumeToUser() throws Exception {
         int newUserId = createUser().id;
