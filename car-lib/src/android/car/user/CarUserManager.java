@@ -446,6 +446,29 @@ public final class CarUserManager extends CarManagerBase {
         return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
     }
 
+    /**
+     * Updates pre-created users.
+     * <p>
+     * Updates pre-created users based on the car properties defined
+     * {@code CarProperties.number_pre_created_guests} and (@code
+     * CarProperties.number_pre_created_users}.
+     *
+     * @hide
+     */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    public void updatePreCreatedUsers() {
+        int uid = myUid();
+        EventLog.writeEvent(EventLogTags.CAR_USER_MGR_PRE_CREATE_USER_REQ, uid);
+        try {
+            mService.updatePreCreatedUsers();
+        } catch (SecurityException e) {
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            handleExceptionFromCarService(e, null);
+        }
+    }
+
     // TODO(b/159283854): move to UserManager
     private void onGuestCreated(UserInfo user) {
         Settings.Secure.putStringForUser(getContext().getContentResolver(),

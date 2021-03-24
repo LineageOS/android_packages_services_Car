@@ -2032,6 +2032,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testUpdatePreCreatedUser_success() throws Exception {
+        mCarUserService.updatePreCreatedUsers();
+        waitForHandlerThreadToFinish();
+
+        verify(mUserPreCreator).managePreCreatedUsers();
+    }
+
+    @Test
     public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);

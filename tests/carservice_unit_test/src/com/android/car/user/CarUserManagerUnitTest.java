@@ -426,6 +426,13 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
+    public void testUpdatedPreCreatedUser_success() throws Exception {
+        mMgr.updatePreCreatedUsers();
+
+        verify(mService).updatePreCreatedUsers();
+    }
+
+    @Test
     public void testGetUserIdentificationAssociation_nullTypes() throws Exception {
         assertThrows(IllegalArgumentException.class,
                 () -> mMgr.getUserIdentificationAssociation(null));
