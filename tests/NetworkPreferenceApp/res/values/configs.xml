@@ -40,7 +40,25 @@
     -->
     <string-array name="config_network_preference_oem_paid_apps" translatable="false">
         <!-- <item>full.package.name</item> -->
+        <item>com.android.vending</item>
+        <item>com.google.android.apps.automotive.inputmethod</item>
         <item>com.google.android.apps.maps</item>
+        <item>com.google.android.car.setupwizard</item>
+        <item>com.google.android.configupdater</item>
+        <item>com.google.android.ext.services</item>
+        <item>com.google.android.ext.shared</item>
+        <item>com.google.android.feedback</item>
+        <item>com.google.android.gms</item>
+        <item>com.google.android.googlequicksearchbox</item>
+        <item>com.google.android.gsf</item>
+        <item>com.google.android.marvin.talkback</item>
+        <item>com.google.android.onetimeinitializer</item>
+        <item>com.google.android.packageinstaller</item>
+        <item>com.google.android.partnersetup</item>
+        <item>com.google.android.permissioncontroller</item>
+        <item>com.google.android.trichromelibrary</item>
+        <item>com.google.android.tts</item>
+        <item>com.google.android.webview</item>
     </string-array>
     <!--
         Preference: OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK
@@ -67,7 +85,6 @@
     -->
     <string-array name="config_network_preference_oem_private_only" translatable="false">
         <!-- <item>full.package.name</item> -->
-        <item>com.android.car</item>
-        <item>com.android.car.bugreport</item>
+        <item>com.google.android.car.netdbug</item>
     </string-array>
 </resources>
