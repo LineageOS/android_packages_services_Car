@@ -18,13 +18,11 @@ package com.android.car.pm;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
-import static junit.framework.Assert.assertEquals;
-import static junit.framework.Assert.assertTrue;
+import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
@@ -77,8 +75,7 @@ public class CarPackageManagerServiceTest extends AbstractExtendedMockitoTestCas
 
         mService.parseConfigList(config, map);
 
-        assertTrue(map.get("com.android.test").size() == 1);
-        assertEquals(".TestActivity", map.get("com.android.test").iterator().next());
+        assertThat(map.get("com.android.test")).containsExactly(".TestActivity");
     }
 
     @Test
@@ -88,7 +85,7 @@ public class CarPackageManagerServiceTest extends AbstractExtendedMockitoTestCas
 
         mService.parseConfigList(config, map);
 
-        assertTrue(map.get("com.android.test").size() == 0);
+        assertThat(map.get("com.android.test")).isEmpty();
     }
 
     @Test
@@ -98,9 +95,7 @@ public class CarPackageManagerServiceTest extends AbstractExtendedMockitoTestCas
 
         mService.parseConfigList(config, map);
 
-        assertTrue(map.get("com.android.test").size() == 2);
-        assertTrue(map.get("com.android.test").contains(".TestActivity0"));
-        assertTrue(map.get("com.android.test").contains(".TestActivity1"));
+        assertThat(map.get("com.android.test")).containsExactly(".TestActivity0", ".TestActivity1");
     }
 
     @Test
@@ -110,31 +105,28 @@ public class CarPackageManagerServiceTest extends AbstractExtendedMockitoTestCas
 
         mService.parseConfigList(config, map);
 
-        assertTrue(map.get("com.android.test").size() == 0);
+        assertThat(map.get("com.android.test")).isEmpty();
     }
 
     @Test
     public void test_checkQueryPermission_noPermission() {
         mockQueryPermission(false);
 
-        assertThrows(SecurityException.class,
-                () -> mService.checkQueryPermission("blah"));
+        assertThat(mService.callerCanQueryPackage("blah")).isFalse();
     }
 
     @Test
     public void test_checkQueryPermission_correctPermission() {
         mockQueryPermission(true);
 
-        // call should complete without exception
-        mService.checkQueryPermission("blah");
+        assertThat(mService.callerCanQueryPackage("blah")).isTrue();
     }
 
     @Test
     public void test_checkQueryPermission_samePackage() {
         mockQueryPermission(false);
 
-        // call should complete without exception
-        mService.checkQueryPermission("com.android.car.test");
+        assertThat(mService.callerCanQueryPackage("com.android.car.test")).isTrue();
     }
 
     private void mockQueryPermission(boolean granted) {
@@ -145,5 +137,4 @@ public class CarPackageManagerServiceTest extends AbstractExtendedMockitoTestCas
         doReturn(result).when(() -> ActivityManager.checkComponentPermission(any(), anyInt(),
                 anyInt(), anyBoolean()));
     }
-
 }
