@@ -763,7 +763,7 @@
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Dissocier"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Déconnecter et dissocier"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Options…"</string>
-    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Options avancées"</string>
+    <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Paramètres avancés"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Paramètres Bluetooth avancés"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Si la fonctionnalité Bluetooth est activée, l\'appareil peut communiquer avec les autres appareils Bluetooth à proximité."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Lorsque le Bluetooth est activé, votre appareil peut communiquer avec d\'autres appareils Bluetooth à proximité.\n\nPour améliorer l\'expérience d\'utilisation de l\'appareil, les applications et les services peuvent continuer de rechercher les appareils à proximité à tout moment, même si le Bluetooth est désactivé. Cette autorisation peut permettre, par exemple, d\'améliorer les fonctionnalités et les services basés sur la localisation. Vous pouvez modifier cette option dans les "<annotation id="link">"paramètres de recherche"</annotation>"."</string>
@@ -882,7 +882,7 @@
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Plus d\'options"</string>
     <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Scanner"</string>
-    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Options avancées"</string>
+    <string name="wifi_menu_advanced" msgid="5984484498045511072">"Paramètres avancés"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Configurer"</string>
     <string name="wifi_menu_connect" msgid="3984327567173931219">"Se connecter au réseau"</string>
     <string name="wifi_menu_remember" msgid="717257200269700641">"Mémoriser ce réseau"</string>
@@ -2533,7 +2533,7 @@
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Afficher les certificats d\'autorité de confiance"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Authentifiants d\'utilisateur"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Afficher et modifier les authentifiants stockés"</string>
-    <string name="advanced_security_title" msgid="286883005673855845">"Avancés"</string>
+    <string name="advanced_security_title" msgid="286883005673855845">"Paramètres avancés"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Type de stockage"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Intégré au matériel"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Uniquement logiciel"</string>

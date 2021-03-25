@@ -2940,7 +2940,7 @@
     <string name="user_guest" msgid="6226240869459683235">"Gost"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"Uklonite gosta"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Ukloniti gosta?"</string>
-    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Sve aplikacije i podaci iz ove sesije će biti izbrisani."</string>
+    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Sve aplikacije i podaci iz ove sesije će se izbrisati."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Ukloniti"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Uključi telefonske pozive"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Uključi telefonske pozive i SMS-ove"</string>

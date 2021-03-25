@@ -3690,9 +3690,9 @@
     <string name="always_running" msgid="5320183445080208766">"ఎల్లప్పుడూ అమలు చేయబడుతోంది (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
     <string name="sometimes_running" msgid="3830146615620696644">"కొన్నిసార్లు అమలు చేయబడుతోంది (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
     <string name="rarely_running" msgid="7726208127642450037">"అరుదుగా అమలు చేయబడుతోంది (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
-    <string name="memory_max_use" msgid="5493310646751769451">"గరిష్టం"</string>
+    <string name="memory_max_use" msgid="5493310646751769451">"గరిష్ఠం"</string>
     <string name="memory_avg_use" msgid="3686245197961237899">"సగటు"</string>
-    <string name="memory_max_desc" msgid="2013027702130684764">"గరిష్టం <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
+    <string name="memory_max_desc" msgid="2013027702130684764">"గరిష్ఠం <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_avg_desc" msgid="1200185697910086968">"సగటు <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
