@@ -143,4 +143,7 @@
     <string name="config_customResolverActivity" translatable="false"
         >com.android.car.activityresolver/.CarResolverActivity</string>
 
+    <!-- The name of the package that will hold the system cluster service role. -->
+    <string name="config_systemAutomotiveCluster" translatable="false">android.car.cluster</string>
+
 </resources>
