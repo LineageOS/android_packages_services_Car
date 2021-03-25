@@ -575,7 +575,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Attach the {@link AudioPolicyVolumeCallback}
         CarAudioPolicyVolumeCallback
-                .addVolumeCallbackToPolicy(builder, this, mAudioManager);
+                .addVolumeCallbackToPolicy(builder, this, mAudioManager,
+                        mUseCarVolumeGroupMuting);
 
 
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
@@ -1246,9 +1247,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
-    @AudioContext int getSuggestedAudioContextForPrimaryZone() {
+    @AudioContext int getSuggestedMuteContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
-        return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+        return mCarVolume.getSuggestedMuteContextAndSaveIfFound(
+                getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
+                getActiveHalUsagesForZone(zoneId));
+    }
+
+    @AudioContext int getSuggestedVolumeContextForPrimaryZone() {
+        int zoneId = PRIMARY_AUDIO_ZONE;
+        return mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
                 getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalUsagesForZone(zoneId));
     }
