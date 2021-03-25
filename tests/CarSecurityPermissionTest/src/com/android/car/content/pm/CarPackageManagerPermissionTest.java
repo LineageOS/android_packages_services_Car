@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
@@ -64,19 +66,17 @@ public class CarPackageManagerPermissionTest {
 
     @Test
     public void testIsActivityDistractionOptimized() {
-        assertThrows(SecurityException.class,
-                () -> mPm.isActivityDistractionOptimized("blah", "someClass"));
+        assertThat(mPm.isActivityDistractionOptimized("blah", "someClass")).isFalse();
     }
 
     @Test
     public void testIsServiceDistractionOptimized() {
-        assertThrows(SecurityException.class,
-                () -> mPm.isServiceDistractionOptimized("blah", "someClass"));
+        assertThat(mPm.isServiceDistractionOptimized("blah", "someClass")).isFalse();
     }
 
     @Test
     public void testIsActivityBackedBySafeActivity() {
-        assertThrows(SecurityException.class,
-                () -> mPm.isActivityBackedBySafeActivity(new ComponentName("blah", "someClass")));
+        assertThat(mPm.isActivityBackedBySafeActivity(new ComponentName("blah", "someClass")))
+                .isFalse();
     }
 }
