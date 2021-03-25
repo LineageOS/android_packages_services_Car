@@ -26,6 +26,7 @@ import static android.media.AudioManager.ADJUST_UNMUTE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
+import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -72,9 +73,11 @@ public class CarAudioPolicyVolumeCallbackTest {
     @Before
     public void setUp() {
         mCarAudioPolicyVolumeCallback =
-                new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager);
-        when(mMockCarAudioService.getSuggestedAudioContextForPrimaryZone())
+                new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager, false);
+        when(mMockCarAudioService.getSuggestedVolumeContextForPrimaryZone())
                 .thenReturn(VOICE_COMMAND);
+        when(mMockCarAudioService.getSuggestedMuteContextForPrimaryZone())
+                .thenReturn(MUSIC);
         when(mMockCarAudioService.getVolumeGroupIdForAudioContext(anyInt(), anyInt()))
                 .thenReturn(TEST_VOLUME_GROUP);
         when(mMockCarAudioService.getGroupMaxVolume(anyInt(), anyInt()))
@@ -87,28 +90,28 @@ public class CarAudioPolicyVolumeCallbackTest {
     public void addVolumeCallbackToPolicy_withNullPolicyBuilder_fails() {
         assertThrows(NullPointerException.class, () ->
                 CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(
-                        null, mMockCarAudioService, mMockAudioManager));
+                        null, mMockCarAudioService, mMockAudioManager, false));
     }
 
     @Test
     public void addVolumeCallbackToPolicy_withNullCarAudioService_fails() {
         assertThrows(NullPointerException.class, () ->
                 CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                        null, mMockAudioManager));
+                        null, mMockAudioManager, false));
     }
 
     @Test
     public void addVolumeCallbackToPolicy_withNullAudioManager_fails() {
         assertThrows(NullPointerException.class, () ->
                 CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                        mMockCarAudioService, null));
+                        mMockCarAudioService, null, false));
     }
 
 
     @Test
     public void addVolumeCallbackToPolicy_registersVolumePolicy() {
         CarAudioPolicyVolumeCallback.addVolumeCallbackToPolicy(mMockBuilder,
-                mMockCarAudioService, mMockAudioManager);
+                mMockCarAudioService, mMockAudioManager, false);
 
         verify(mMockBuilder).setAudioPolicyVolumeCallback(any());
     }
@@ -193,6 +196,42 @@ public class CarAudioPolicyVolumeCallbackTest {
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_TOGGLE_MUTE);
 
         verify(mMockCarAudioService).setMasterMute(eq(true), eq(TEST_EXPECTED_FLAGS));
+    }
+
+    @Test
+    public void onVolumeAdjustment_forGroupMute_withAdjustMute_mutesVolumeGroup() {
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager, true);
+
+        callback.onVolumeAdjustment(ADJUST_MUTE);
+
+        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_VOLUME_GROUP), eq(true), eq(TEST_EXPECTED_FLAGS));
+    }
+
+    @Test
+    public void onVolumeAdjustment_forGroupMute_withAdjustToggleMute_togglesMutesVolumeGroup() {
+        when(mMockCarAudioService.isVolumeGroupMuted(anyInt(), anyInt()))
+                .thenReturn(true);
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager, true);
+
+        callback.onVolumeAdjustment(ADJUST_TOGGLE_MUTE);
+
+        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_VOLUME_GROUP), eq(false), eq(TEST_EXPECTED_FLAGS));
+    }
+
+    @Test
+    public void onVolumeAdjustment_forGroupMute_withAdjustUnMute_UnMutesVolumeGroup() {
+        when(mMockCarAudioService.isVolumeGroupMuted(anyInt(), anyInt())).thenReturn(false);
+        CarAudioPolicyVolumeCallback callback =
+                new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager, true);
+
+        callback.onVolumeAdjustment(ADJUST_UNMUTE);
+
+        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
+                eq(TEST_VOLUME_GROUP), eq(false), eq(TEST_EXPECTED_FLAGS));
     }
 
     private void setGroupVolume(int groupVolume) {

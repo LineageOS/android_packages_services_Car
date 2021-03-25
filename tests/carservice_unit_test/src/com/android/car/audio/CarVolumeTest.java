@@ -25,6 +25,7 @@ import static android.telephony.TelephonyManager.CALL_STATE_OFFHOOK;
 import static android.telephony.TelephonyManager.CALL_STATE_RINGING;
 
 import static com.android.car.audio.CarAudioContext.ALARM;
+import static com.android.car.audio.CarAudioContext.ANNOUNCEMENT;
 import static com.android.car.audio.CarAudioContext.CALL;
 import static com.android.car.audio.CarAudioContext.CALL_RING;
 import static com.android.car.audio.CarAudioContext.INVALID;
@@ -36,6 +37,7 @@ import static com.android.car.audio.CarAudioService.DEFAULT_AUDIO_CONTEXT;
 import static com.android.car.audio.CarAudioService.SystemClockWrapper;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -82,68 +84,73 @@ public class CarVolumeTest {
     }
 
     @Test
-    public void createCarVolume_withVersionLessThanOne_failsTooLow() {
+    public void constructor_withVersionLessThanOne_failsTooLow() {
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
             new CarVolume(mMockClock, VERSION_ZERO, KEY_EVENT_TIMEOUT_MS);
         });
 
-        assertThat(thrown).hasMessageThat().contains("too low");
+        assertWithMessage("Constructor Exception")
+                .that(thrown).hasMessageThat().contains("too low");
     }
 
     @Test
-    public void createCarVolume_withVersionGreaterThanTwo_failsTooHigh() {
+    public void constructor_withVersionGreaterThanTwo_failsTooHigh() {
         IllegalArgumentException thrown = expectThrows(IllegalArgumentException.class, () -> {
             new CarVolume(mMockClock, VERSION_THREE, KEY_EVENT_TIMEOUT_MS);
         });
 
-        assertThat(thrown).hasMessageThat().contains("too high");
+        assertWithMessage("Constructor Exception")
+                .that(thrown).hasMessageThat().contains("too high");
     }
 
     @Test
-    public void createCarVolume_withNullSystemClock_fails() {
-        expectThrows(NullPointerException.class, () -> {
+    public void constructor_withNullSystemClock_fails() {
+        NullPointerException thrown = expectThrows(NullPointerException.class, () -> {
             new CarVolume(null, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
         });
+
+        assertWithMessage("Constructor Exception")
+                .that(thrown).hasMessageThat().contains("Clock");
     }
 
     @Test
-    public void getSuggestedAudioContext_withNullActivePlayback_fails() {
+    public void getSuggestedVolumeContext_withNullActivePlayback_fails() {
         assertThrows(NullPointerException.class,
-                () -> mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+                () -> mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
                 null, CALL_STATE_IDLE, new int[0]));
     }
 
     @Test
-    public void getSuggestedAudioContext_withNullHallUsages_fails() {
+    public void getSuggestedVolumeContext_withNullHallUsages_fails() {
         assertThrows(NullPointerException.class,
-                () -> mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+                () -> mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
                 new ArrayList<>(), CALL_STATE_IDLE, null));
     }
 
     @Test
-    public void getSuggestedAudioContext_withNoActivePlaybackAndIdleTelephony_returnsDefault() {
+    public void getSuggestedVolumeContext_withNoActivePlaybackAndIdleTelephony_returnsDefault() {
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CarAudioService.DEFAULT_AUDIO_CONTEXT);
     }
 
     @Test
-    public void getSuggestedAudioContext_withOneConfiguration_returnsAssociatedContext() {
+    public void getSuggestedVolumeContext_withOneConfiguration_returnsAssociatedContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
     }
 
     @Test
-    public void getSuggestedAudioContext_withCallStateOffHook_returnsCallContext() {
+    public void getSuggestedVolumeContext_withCallStateOffHook_returnsCallContext() {
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                         CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
@@ -151,152 +158,152 @@ public class CarVolumeTest {
 
     @Test
 
-    public void getSuggestedAudioContext_withV1AndCallStateRinging_returnsCallRingContext() {
+    public void getSuggestedVolumeContext_withV1AndCallStateRinging_returnsCallRingContext() {
         CarVolume carVolume = new CarVolume(mMockClock, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
 
         @AudioContext int suggestedContext =
-                carVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                carVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_RINGING, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL_RING);
     }
 
     @Test
-    public void getSuggestedAudioContext_withActivePlayback_returnsHighestPriorityContext() {
+    public void getSuggestedVolumeContext_withActivePlayback_returnsHighestPriorityContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(ALARM, CALL, NOTIFICATION);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_withLowerPriorityActivePlaybackAndCall_returnsCall() {
+    public void getSuggestedVolumeContext_withLowerPriorityActivePlaybackAndCall_returnsCall() {
         List<Integer> activePlaybackContexts = ImmutableList.of(ALARM, NOTIFICATION);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_withV1AndNavigationConfigurationAndCall_returnsNav() {
+    public void getSuggestedVolumeContext_withV1AndNavigationConfigurationAndCall_returnsNav() {
         CarVolume carVolume = new CarVolume(mMockClock, VERSION_ONE, KEY_EVENT_TIMEOUT_MS);
         List<Integer> activePlaybackContexts = ImmutableList.of(NAVIGATION);
 
         @AudioContext int suggestedContext = carVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(NAVIGATION);
     }
 
     @Test
-    public void getSuggestedAudioContext_withV2AndNavigationConfigurationAndCall_returnsCall() {
+    public void getSuggestedVolumeContext_withV2AndNavigationConfigurationAndCall_returnsCall() {
         List<Integer> activePlaybackContexts = ImmutableList.of(NAVIGATION);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_OFFHOOK,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_withUnprioritizedUsage_returnsDefault() {
+    public void getSuggestedVolumeContext_withUnprioritizedUsage_returnsDefault() {
         List<Integer> activePlaybackContexts = ImmutableList.of(INVALID);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         new int[0]);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
     }
 
     @Test
-    public void getSuggestedAudioContext_withHalActiveUsage_returnsHalActive() {
+    public void getSuggestedVolumeContext_withHalActiveUsage_returnsHalActive() {
         int[] activeHalUsages = new int[] {USAGE_ASSISTANT};
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
     }
 
     @Test
-    public void getSuggestedAudioContext_withHalUnprioritizedUsage_returnsDefault() {
+    public void getSuggestedVolumeContext_withHalUnprioritizedUsage_returnsDefault() {
         int[] activeHalUsages = new int[] {USAGE_VIRTUAL_SOURCE};
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
     }
 
     @Test
-    public void getSuggestedAudioContext_withConfigAndHalActiveUsage_returnsConfigActive() {
+    public void getSuggestedVolumeContext_withConfigAndHalActiveUsage_returnsConfigActive() {
         int[] activeHalUsages = new int[] {USAGE_ASSISTANT};
         List<Integer> activePlaybackContexts = ImmutableList.of(MUSIC);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
     }
 
     @Test
-    public void getSuggestedAudioContext_withConfigAndHalActiveUsage_returnsHalActive() {
+    public void getSuggestedVolumeContext_withConfigAndHalActiveUsage_returnsHalActive() {
         int[] activeHalUsages = new int[] {USAGE_MEDIA};
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
     }
 
     @Test
-    public void getSuggestedAudioContext_withHalActiveUsageAndActiveCall_returnsCall() {
+    public void getSuggestedVolumeContext_withHalActiveUsageAndActiveCall_returnsCall() {
         int[] activeHalUsages = new int[] {USAGE_MEDIA};
         List<Integer> activePlaybackContexts = new ArrayList<>();
 
-        @AudioContext int suggestedContext = mCarVolume.getSuggestedAudioContextAndSaveIfFound(
+        @AudioContext int suggestedContext = mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
                 activePlaybackContexts, CALL_STATE_OFFHOOK, activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_withMultipleHalActiveUsages_returnsMusic() {
+    public void getSuggestedVolumeContext_withMultipleHalActiveUsages_returnsMusic() {
         int[] activeHalUsages = new int[] {USAGE_MEDIA, USAGE_ANNOUNCEMENT, USAGE_ASSISTANT};
         List<Integer> activePlaybackContexts = new ArrayList<>();
 
         @AudioContext int suggestedContext = mCarVolume
-                .getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+                .getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         activeHalUsages);
 
         assertThat(suggestedContext).isEqualTo(MUSIC);
     }
 
     @Test
-    public void getSuggestedAudioContext_withStillActiveContext_returnsPrevActiveContext() {
+    public void getSuggestedVolumeContext_withStillActiveContext_returnsPrevActiveContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME_ONE_SECOND);
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
@@ -304,10 +311,10 @@ public class CarVolumeTest {
 
     @Test
     public void
-            getSuggestedAudioContext_withStillActiveContext_returnPrevActiveContextMultipleTimes() {
+            getSuggestedVolumeContext_withStillActiveContext_retPrevActiveContextMultipleTimes() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
         long deltaTime = KEY_EVENT_TIMEOUT_MS - 1;
@@ -316,7 +323,7 @@ public class CarVolumeTest {
                     .thenReturn(START_TIME + (volumeCounter * deltaTime));
 
             @AudioContext int suggestedContext =
-                    mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                    mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                             CALL_STATE_IDLE, new int[0]);
             assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
         }
@@ -324,32 +331,32 @@ public class CarVolumeTest {
 
     @Test
     public void
-            getSuggestedAudioContext_withActContextAndNewHigherPrioContext_returnPrevActContext() {
+            getSuggestedVolumeContext_withActContextAndNewHigherPrioContext_returnPrevActContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME_ONE_SECOND);
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(VOICE_COMMAND);
     }
 
     @Test
-    public void getSuggestedAudioContext_afterActiveContextTimeout_returnsDefaultContext() {
+    public void getSuggestedVolumeContext_afterActiveContextTimeout_returnsDefaultContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                         new int[0]);
 
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME_FOUR_SECOND);
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
@@ -357,16 +364,16 @@ public class CarVolumeTest {
 
     @Test
     public void
-            getSuggestedAudioContext_afterActiveContextTimeoutAndNewContext_returnsNewContext() {
+            getSuggestedVolumeContext_afterActiveContextTimeoutAndNewContext_returnsNewContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME_FOUR_SECOND);
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(CALL);
@@ -374,10 +381,10 @@ public class CarVolumeTest {
 
     @Test
     public void
-            getSuggestedAudioContext_afterMultipleQueriesAndNewContextCall_returnsNewContext() {
+            getSuggestedVolumeContext_afterMultipleQueriesAndNewContextCall_returnsNewContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
 
@@ -386,7 +393,7 @@ public class CarVolumeTest {
         for (int volumeCounter = 1; volumeCounter < TRIAL_COUNTS; volumeCounter++) {
             when(mMockClock.uptimeMillis()).thenReturn(START_TIME + volumeCounter * deltaTime);
 
-            mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(), CALL_STATE_IDLE,
+            mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(), CALL_STATE_IDLE,
                             new int[0]);
         }
 
@@ -394,17 +401,17 @@ public class CarVolumeTest {
                 .thenReturn(START_TIME + (TRIAL_COUNTS * deltaTime) + KEY_EVENT_TIMEOUT_MS);
 
         @AudioContext int newContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                 CALL_STATE_OFFHOOK, new int[0]);
 
         assertThat(newContext).isEqualTo(CALL);
     }
 
     @Test
-    public void getSuggestedAudioContext_afterResetSelectedVolumeContext_returnsDefaultContext() {
+    public void getSuggestedVolumeContext_afterResetSelectedVolumeContext_returnsDefaultContext() {
         List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
 
-        mCarVolume.getSuggestedAudioContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(activePlaybackContexts, CALL_STATE_IDLE,
                 new int[0]);
 
         when(mMockClock.uptimeMillis()).thenReturn(START_TIME_ONE_SECOND);
@@ -412,7 +419,7 @@ public class CarVolumeTest {
         mCarVolume.resetSelectedVolumeContext();
 
         @AudioContext int suggestedContext =
-                mCarVolume.getSuggestedAudioContextAndSaveIfFound(new ArrayList<>(),
+                mCarVolume.getSuggestedVolumeContextAndSaveIfFound(new ArrayList<>(),
                         CALL_STATE_IDLE, new int[0]);
 
         assertThat(suggestedContext).isEqualTo(DEFAULT_AUDIO_CONTEXT);
@@ -545,5 +552,74 @@ public class CarVolumeTest {
         assertThrows(NullPointerException.class,
                 () -> CarVolume.isAnyContextActive(activeContexts,
                         activePlaybackContexts, CALL_STATE_OFFHOOK, activeHalUsages));
+    }
+
+    @Test
+    public void
+            getSuggestedMuteContext_withNoActivePlaybackAndIdleTelephony_returnsDefault() {
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(new ArrayList<>(),
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(CarAudioService.DEFAULT_AUDIO_CONTEXT);
+    }
+
+    @Test
+    public void getSuggestedMuteContext_withActiveVoicePlayback_returnsDefault() {
+        List<Integer> activePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
+
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(activePlaybackContexts,
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(CarAudioService.DEFAULT_AUDIO_CONTEXT);
+    }
+
+    @Test
+    public void getSuggestedMuteContext_withActiveCall_returnsCallContext() {
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(new ArrayList<>(),
+                        CALL_STATE_OFFHOOK, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(CALL);
+    }
+
+    @Test
+    public void getSuggestedMuteContext_withActiveAnnouncementConfig_returnsAnnouncement() {
+        List<Integer> activePlaybackContexts = ImmutableList.of(ANNOUNCEMENT);
+
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(activePlaybackContexts,
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(ANNOUNCEMENT);
+    }
+
+    @Test
+    public void getSuggestedMuteContext_withVoiceLastActiveConfig_returnsAnnouncement() {
+        List<Integer> voiceActivePlaybackContexts = ImmutableList.of(VOICE_COMMAND);
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(voiceActivePlaybackContexts,
+                        CALL_STATE_IDLE, new int[0]);
+        List<Integer> activePlaybackContexts = ImmutableList.of(ANNOUNCEMENT);
+
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(activePlaybackContexts,
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(ANNOUNCEMENT);
+    }
+
+    @Test
+    public void getSuggestedMuteContext_withMusicLastActiveConfig_returnsMusic() {
+        List<Integer> musicActivePlaybackContexts = ImmutableList.of(MUSIC);
+        mCarVolume.getSuggestedVolumeContextAndSaveIfFound(musicActivePlaybackContexts,
+                CALL_STATE_IDLE, new int[0]);
+        List<Integer> activePlaybackContexts = ImmutableList.of(ANNOUNCEMENT);
+
+        @AudioContext int suggestedContext =
+                mCarVolume.getSuggestedMuteContextAndSaveIfFound(activePlaybackContexts,
+                        CALL_STATE_IDLE, new int[0]);
+
+        assertThat(suggestedContext).isEqualTo(MUSIC);
     }
 }
