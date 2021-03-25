@@ -123,7 +123,7 @@ final class CarVolumeGroupMuting {
 
         writer.println("Un-muted Devices:");
         writer.increaseIndent();
-        dumpDeviceAddresses(writer, info.deviceAddressesToMute);
+        dumpDeviceAddresses(writer, info.deviceAddressesToUnmute);
         writer.decreaseIndent();
     }
 
