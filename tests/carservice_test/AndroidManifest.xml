@@ -26,6 +26,7 @@
     <uses-permission android:name="android.car.permission.CONTROL_CAR_MIRRORS"/>
     <uses-permission android:name="android.car.permission.CONTROL_CAR_SEATS"/>
     <uses-permission android:name="android.car.permission.CAR_ENERGY"/>
+    <uses-permission android:name="android.car.permission.CAR_SPEED"/>
     <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_VOLUME"/>
     <uses-permission android:name="android.car.permission.CAR_CONTROL_AUDIO_SETTINGS"/>
