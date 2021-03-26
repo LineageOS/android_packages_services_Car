@@ -67,8 +67,9 @@ public class BluetoothDeviceConnectionPolicy {
     private final ICarPowerPolicyListener mPowerPolicyListener =
             new ICarPowerPolicyListener.Stub() {
                 @Override
-                public void onPolicyChanged(CarPowerPolicy policy) {
-                    boolean isOn = policy.isComponentEnabled(PowerComponent.BLUETOOTH);
+                public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                        CarPowerPolicy accumulatedPolicy) {
+                    boolean isOn = accumulatedPolicy.isComponentEnabled(PowerComponent.BLUETOOTH);
                     if (!mUserManager.isUserUnlocked(mUserId)) {
                         logd("User " + mUserId + " is locked, ignoring bluetooth power change "
                                 + (isOn ? "on" : "off"));

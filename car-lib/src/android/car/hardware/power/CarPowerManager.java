@@ -60,8 +60,9 @@ public class CarPowerManager extends CarManagerBase {
     private final ICarPowerPolicyListener mPolicyChangeBinderCallback =
             new ICarPowerPolicyListener.Stub() {
         @Override
-        public void onPolicyChanged(CarPowerPolicy policy) {
-            notifyPowerPolicyListeners(policy);
+        public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                CarPowerPolicy accumulatedPolicy) {
+            notifyPowerPolicyListeners(appliedPolicy, accumulatedPolicy);
         }
     };
 
@@ -577,13 +578,14 @@ public class CarPowerManager extends CarManagerBase {
         }
     }
 
-    private void notifyPowerPolicyListeners(CarPowerPolicy policy) {
+    private void notifyPowerPolicyListeners(CarPowerPolicy appliedPolicy,
+            CarPowerPolicy accumulatedPolicy) {
         ArrayList<Pair<CarPowerPolicyListener, Executor>> listeners = new ArrayList<>();
         synchronized (mLock) {
             for (int i = 0; i < mPolicyListenerMap.size(); i++) {
                 CarPowerPolicyListener listener = mPolicyListenerMap.keyAt(i);
                 Pair<Executor, CarPowerPolicyFilter> pair = mPolicyListenerMap.valueAt(i);
-                if (PowerComponentUtil.hasComponents(policy, pair.second)) {
+                if (PowerComponentUtil.hasComponents(appliedPolicy, pair.second)) {
                     listeners.add(
                             new Pair<CarPowerPolicyListener, Executor>(listener, pair.first));
                 }
@@ -591,9 +593,7 @@ public class CarPowerManager extends CarManagerBase {
         }
         for (int i = 0; i < listeners.size(); i++) {
             Pair<CarPowerPolicyListener, Executor> pair = listeners.get(i);
-            pair.second.execute(() -> {
-                pair.first.onPolicyChanged(policy);
-            });
+            pair.second.execute(() -> pair.first.onPolicyChanged(accumulatedPolicy));
         }
     }
 

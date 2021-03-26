@@ -33,6 +33,7 @@ import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.PowerComponent;
@@ -48,6 +49,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
+import android.util.AtomicFile;
 import android.util.Log;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -73,7 +75,6 @@ import com.android.internal.os.IResultReceiver;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Spy;
 
@@ -104,6 +105,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private final PowerSignalListener mPowerSignalListener = new PowerSignalListener();
     @Spy
     private final Context mContext = InstrumentationRegistry.getInstrumentation().getContext();
+    private final TemporaryFile mComponentStateFile;
 
     private MockedPowerHalService mPowerHal;
     private SystemInterface mSystemInterface;
@@ -123,6 +125,10 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     @Mock
     private IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
+    public CarPowerManagementServiceUnitTest() throws Exception {
+        mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
+    }
+
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
@@ -140,7 +146,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                mVoiceInteractionManagerService);
+                mVoiceInteractionManagerService, new AtomicFile(mComponentStateFile.getFile()));
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -169,6 +175,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mFileKernelSilentMode = new TemporaryFile("KERNEL_SILENT_MODE");
         mFileHwStateMonitoring.write(NONSILENT_STRING);
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
+        mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
+                mVoiceInteractionManagerService, new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
                 mFileHwStateMonitoring.getFile().getPath(),
@@ -395,15 +403,13 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         // Power policy which doesn't change any components.
         String policyId = "policy_id_no_changes";
         mService.definePowerPolicy(policyId, new String[0], new String[0]);
-        ArgumentCaptor<android.car.hardware.power.CarPowerPolicy> captor =
-                ArgumentCaptor.forClass(
-                        android.car.hardware.power.CarPowerPolicy.class);
 
         mService.applyPowerPolicy(policyId);
 
-        android.car.hardware.power.CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
         assertThat(policy.getPolicyId()).isEqualTo(policyId);
         assertThat(mPowerPolicyDaemon.getLastNotifiedPolicyId()).isEqualTo(policyId);
+        assertThat(mPowerComponentHandler.getAccumulatedPolicy().getPolicyId()).isEqualTo(policyId);
     }
 
     @Test
@@ -788,14 +794,15 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     private final class MockedPowerPolicyListener extends ICarPowerPolicyListener.Stub {
-        private android.car.hardware.power.CarPowerPolicy mCurrentPowerPolicy;
+        private CarPowerPolicy mCurrentPowerPolicy;
 
         @Override
-        public void onPolicyChanged(android.car.hardware.power.CarPowerPolicy policy) {
-            mCurrentPowerPolicy = policy;
+        public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                CarPowerPolicy accumulatedPolicy) {
+            mCurrentPowerPolicy = accumulatedPolicy;
         }
 
-        public android.car.hardware.power.CarPowerPolicy getCurrentPowerPolicy() {
+        public CarPowerPolicy getCurrentPowerPolicy() {
             return mCurrentPowerPolicy;
         }
     }
