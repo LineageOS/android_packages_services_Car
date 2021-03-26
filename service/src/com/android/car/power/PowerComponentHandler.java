@@ -32,6 +32,7 @@ import android.net.wifi.WifiManager;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.AtomicFile;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -39,6 +40,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
@@ -57,49 +59,88 @@ import java.nio.charset.StandardCharsets;
  * power component is created and registered to this class. A power component mediator encapsulates
  * the function of powering on/off.
  */
-@VisibleForTesting(visibility = VisibleForTesting.Visibility.PACKAGE)
+@VisibleForTesting
 public final class PowerComponentHandler {
     private static final String TAG = CarLog.tagFor(PowerComponentHandler.class);
     private static final String FORCED_OFF_COMPONENTS_FILENAME =
             "forced_off_components";
 
+    private final Object mLock = new Object();
     private final Context mContext;
     private final SystemInterface mSystemInterface;
     private final AtomicFile mComponentStateFile;
     private final SparseArray<PowerComponentMediator> mPowerComponentMediators =
             new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseBooleanArray mComponentStates =
+            new SparseBooleanArray(LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1);
     private final IVoiceInteractionManagerService mVoiceInteractionServiceHolder;
 
+    @GuardedBy("mLock")
+    private String mCurrentPolicyId = "";
+
     PowerComponentHandler(Context context, SystemInterface systemInterface) {
-        this(context, systemInterface, null);
+        this(context, systemInterface, /* voiceInteractionService= */ null,
+                new AtomicFile(new File(systemInterface.getSystemCarDir(),
+                        FORCED_OFF_COMPONENTS_FILENAME)));
     }
 
-    @VisibleForTesting
-    PowerComponentHandler(Context context, SystemInterface systemInterface,
-            IVoiceInteractionManagerService voiceInteractionService) {
+    public PowerComponentHandler(Context context, SystemInterface systemInterface,
+            IVoiceInteractionManagerService voiceInteractionService,
+            AtomicFile componentStateFile) {
         mContext = context;
         mSystemInterface = systemInterface;
-        mComponentStateFile = new AtomicFile(new File(systemInterface.getSystemCarDir(),
-                FORCED_OFF_COMPONENTS_FILENAME));
         mVoiceInteractionServiceHolder = voiceInteractionService;
+        mComponentStateFile = componentStateFile;
     }
 
     void init() {
         PowerComponentMediatorFactory factory = new PowerComponentMediatorFactory();
-        for (int component = FIRST_POWER_COMPONENT;
-                    component <= LAST_POWER_COMPONENT; component++) {
-            PowerComponentMediator mediator = factory.createPowerComponent(component);
-            String componentName = powerComponentToString(component);
-            if (mediator == null) {
-                Slog.w(TAG, "Power component(" + componentName + ") is not valid or doesn't need a "
-                        + "mediator");
-                continue;
+        synchronized (mLock) {
+            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                    component++) {
+                mComponentStates.put(component, false);
+                PowerComponentMediator mediator = factory.createPowerComponent(component);
+                String componentName = powerComponentToString(component);
+                if (mediator == null) {
+                    Slog.w(TAG, "Power component(" + componentName + ") is not valid or doesn't "
+                            + "need a mediator");
+                    continue;
+                }
+                if (!mediator.isComponentAvailable()) {
+                    Slog.w(TAG, "Power component(" + componentName + ") is not available");
+                    continue;
+                }
+                mPowerComponentMediators.put(component, mediator);
             }
-            if (!mediator.isComponentAvailable()) {
-                Slog.w(TAG, "Power component(" + componentName + ") is not available");
-                continue;
+        }
+    }
+
+    CarPowerPolicy getAccumulatedPolicy() {
+        synchronized (mLock) {
+            int enabledComponentsCount = 0;
+            int disabledComponentsCount = 0;
+            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                    component++) {
+                if (mComponentStates.get(component, false)) {
+                    enabledComponentsCount++;
+                } else {
+                    disabledComponentsCount++;
+                }
             }
-            mPowerComponentMediators.put(component, mediator);
+            int[] enabledComponents = new int[enabledComponentsCount];
+            int[] disabledComponents = new int[disabledComponentsCount];
+            int enabledIndex = 0;
+            int disabledIndex = 0;
+            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                    component++) {
+                if (mComponentStates.get(component, false)) {
+                    enabledComponents[enabledIndex++] = component;
+                } else {
+                    disabledComponents[disabledIndex++] = component;
+                }
+            }
+            return new CarPowerPolicy(mCurrentPolicyId, enabledComponents, disabledComponents);
         }
     }
 
@@ -119,6 +160,9 @@ public final class PowerComponentHandler {
         if (componentModified) {
             writeComponentState(forcedOffComponents);
         }
+        synchronized (mLock) {
+            mCurrentPolicyId = policy.getPolicyId();
+        }
     }
 
     void setComponentEnabled(int component, boolean enabled) throws PowerComponentException {
@@ -131,8 +175,24 @@ public final class PowerComponentHandler {
         }
     }
 
+    void dump(IndentingPrintWriter writer) {
+        writer.println("Power components state:");
+        writer.increaseIndent();
+        synchronized (mLock) {
+            for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
+                    component++) {
+                writer.printf("%s: %s\n", powerComponentToString(component),
+                        mComponentStates.get(component, false) ? "on" : "off");
+            }
+        }
+        writer.decreaseIndent();
+    }
+
     private boolean setComponentEnabledInternal(int component, boolean enabled,
             SparseBooleanArray forcedOffComponents) {
+        synchronized (mLock) {
+            mComponentStates.put(component, enabled);
+        }
         PowerComponentMediator mediator = mPowerComponentMediators.get(component);
         if (mediator == null) {
             Slog.w(TAG, powerComponentToString(component) + " doesn't have a mediator");
