@@ -3332,7 +3332,7 @@
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"ప్రొఫైల్ నోటిఫికేషన్‌లు"</string>
     <string name="notifications_title" msgid="8334011924253810654">"నోటిఫికేషన్‌లు"</string>
     <string name="app_notifications_title" msgid="1141791221581312325">"యాప్ నోటిఫికేషన్‌లు"</string>
-    <string name="notification_channel_title" msgid="6637705960909690229">"నోటిఫికేషన్ వర్గం"</string>
+    <string name="notification_channel_title" msgid="6637705960909690229">"నోటిఫికేషన్ కేటగిరీ"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"నోటిఫికేషన్ వర్గం సమూహం"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"ప్రవర్తన"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"ధ్వనిని అనుమతించండి"</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"నోటిఫికేషన్ డాట్‌ను అనుమతించండి"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"నోటిఫికేషన్ డాట్‌ చూపించు"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'అంతరాయం కలిగించవద్దు\'ను అధిగ‌మించు"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"అంతరాయం కలిగించవద్దు ఫీచర్‌ను ఆన్ చేసినప్పుడు, అంతరాయం కలిగించడం కొనసాగించడానికి ఈ నోటిఫికేషన్‌లను అనుమతిస్తుంది"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"అంతరాయం కలిగించవద్దు ఫీచర్‌ ఆన్‌లో ఉన్నా కూడా, నోటిఫికేషన్‌ వచ్చిన సంగతిని తెలియజెప్పడానికి ఈ నోటిఫికేషన్‌లను అనుమతిస్తుంది"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"లాక్ స్క్రీన్‌లో"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"బ్లాక్ చేయబడింది"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"ప్రాధాన్యత"</string>
