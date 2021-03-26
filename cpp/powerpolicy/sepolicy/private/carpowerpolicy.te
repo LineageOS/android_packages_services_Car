@@ -13,3 +13,6 @@ hwbinder_use(carpowerpolicyd)
 get_prop(carpowerpolicyd, system_boot_reason_prop)
 get_prop(carpowerpolicyd, hwservicemanager_prop)
 hal_client_domain(carpowerpolicyd, hal_vehicle)
+
+# Configuration for carpowerpolicyd to check car_service.
+allow carpowerpolicyd carservice_service:service_manager find;
