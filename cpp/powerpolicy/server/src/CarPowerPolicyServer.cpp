@@ -226,7 +226,7 @@ CarPowerPolicyServer::CarPowerPolicyServer() :
 
 Status CarPowerPolicyServer::getCurrentPowerPolicy(CarPowerPolicy* aidlReturn) {
     Mutex::Autolock lock(mMutex);
-    if (isPowerPolicyAppliedLocked()) {
+    if (!isPowerPolicyAppliedLocked()) {
         return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE,
                                          "The current power policy is not set");
     }

@@ -377,6 +377,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.printf("mFactoryResetCallback: %s\n", mFactoryResetCallback);
         }
         mPolicyReader.dump(writer);
+        mPowerComponentHandler.dump(writer);
         mSilentModeHandler.dump(writer);
     }
 
@@ -1065,12 +1066,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public CarPowerPolicy getCurrentPowerPolicy() {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
-        String policyId;
-        synchronized (mLock) {
-            policyId = mCurrentPowerPolicyId;
-        }
-        // TODO(b/181818647): Return a power policy which covers all power components.
-        return mPolicyReader.getPowerPolicy(policyId);
+        return mPowerComponentHandler.getAccumulatedPolicy();
     }
 
     /**
@@ -1295,23 +1291,23 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
 
         // Notify Java clients
-        // TODO(b/181818647): Notify with a power policy which covers all power components.
-        CarPowerPolicy powerPolicy = mPolicyReader.isPreemptivePowerPolicy(policyId)
+        CarPowerPolicy accumulatedPolicy = mPowerComponentHandler.getAccumulatedPolicy();
+        CarPowerPolicy appliedPolicy = mPolicyReader.isPreemptivePowerPolicy(policyId)
                 ? mPolicyReader.getPreemptivePowerPolicy(policyId)
                 : mPolicyReader.getPowerPolicy(policyId);
-        if (powerPolicy == null) {
-            Slog.wtf(TAG, "The new power policy(" + policyId + ") cannot be null");
+        if (appliedPolicy == null) {
+            Slog.wtf(TAG, "The new power policy(" + policyId + ") should exist");
         }
         int idx = mPowerPolicyListeners.beginBroadcast();
         while (idx-- > 0) {
             ICarPowerPolicyListener listener = mPowerPolicyListeners.getBroadcastItem(idx);
             CarPowerPolicyFilter filter =
                     (CarPowerPolicyFilter) mPowerPolicyListeners.getBroadcastCookie(idx);
-            if (!hasComponents(powerPolicy, filter)) {
+            if (!hasComponents(appliedPolicy, filter)) {
                 continue;
             }
             try {
-                listener.onPolicyChanged(powerPolicy);
+                listener.onPolicyChanged(appliedPolicy, accumulatedPolicy);
             } catch (RemoteException e) {
                 // It's likely the connection snapped. Let binder death handle the situation.
                 Slog.e(TAG, "onPolicyChanged() call failed: policyId = " + policyId, e);
