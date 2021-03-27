@@ -3332,7 +3332,7 @@
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"Profiilin ilmoitukset"</string>
     <string name="notifications_title" msgid="8334011924253810654">"Ilmoitukset"</string>
     <string name="app_notifications_title" msgid="1141791221581312325">"Sovellusilmoitukset"</string>
-    <string name="notification_channel_title" msgid="6637705960909690229">"Ilmoituksen luokka"</string>
+    <string name="notification_channel_title" msgid="6637705960909690229">"Ilmoituskategoria"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"Ilmoitusluokka"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"Käyttäytyminen"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"Salli ääni"</string>

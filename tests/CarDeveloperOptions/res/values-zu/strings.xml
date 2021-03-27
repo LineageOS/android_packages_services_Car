@@ -3423,7 +3423,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Ungalokothi ubonise izaziso kumthunzi noma kumadivayisi alawulwa ikhompuyutha"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Vumela ichashazi lesaziso"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Bonisa ichashazi lesaziso"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Bhala ngaphezulu okuthi ungaphazamisi"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Susa Ukungaphazamisi"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Vumela lezi zaziso ziqhubeke ziphazamise uma Ukungaphazamisi kuvuliwe"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Kusikrini sokukhiya"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Ivinjelwe"</string>

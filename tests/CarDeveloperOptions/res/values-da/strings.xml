@@ -4483,7 +4483,7 @@
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> blev kopieret til udklipsholderen."</string>
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>
     <string name="permission_bar_chart_empty_text" msgid="5893326513700540130">"0 apps har anvendt tilladelser"</string>
-    <string name="permission_bar_chart_title" msgid="874145405516650073">"Brug af tilladelse i de sidste 24 timer"</string>
+    <string name="permission_bar_chart_title" msgid="874145405516650073">"Anvendte tilladelser i de sidste 24 timer"</string>
     <string name="permission_bar_chart_details" msgid="942094334321073927">"Se alt i kontrolpanelet"</string>
     <plurals name="permission_bar_chart_label" formatted="false" msgid="2831305719356562097">
       <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> app</item>

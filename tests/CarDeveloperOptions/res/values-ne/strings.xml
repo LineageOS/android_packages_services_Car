@@ -3216,7 +3216,7 @@
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"बत्तीलाई धिपधिपाउन नदिनुहोस्"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"स्क्रिनमा सूचनाहरू  स्क्रिनमा सूचनाहरू देखिन नदिनुहोस्"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"स्क्रीनको शीर्षमा वस्तुस्थिति पट्टीका आइकनहरू लुकाउनुहोस्"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"एप आइकनमा सूचनाको प्रतीक जनाउने थोप्लो लुकाउनुहोस्‌"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"एप आइकनमा नोटिफिकेसन डट लुकाउनुहोस्‌"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"सूचना आउँदा सक्रिय नहोस्‌"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"सूचनाको सूचीबाट लुकाउनुहोस्"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"कहिल्यै होइन"</string>
@@ -3341,11 +3341,11 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"मौन रूपमा देखाउने"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"आवाज निकाल्ने"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"आवाज निकाल्ने र स्क्रिनमा पपअप देखाउने"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"स्क्रिनमा देखाउनुहोस्"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"स्क्रिनमा देखाइयोस्"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"सानो बनाउनुहोस्"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"सामान्य"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"उच्च"</string>
-    <string name="notification_importance_high_title" msgid="7258373094258585858">"स्क्रिनमा देखाउनुहोस्"</string>
+    <string name="notification_importance_high_title" msgid="7258373094258585858">"स्क्रिनमा देखाइयोस्"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"रोक लगाउनुहोस्"</string>
     <string name="notification_silence_title" msgid="6959637402003838093">"मौन रूपमा देखाउनुहोस्"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"अलर्ट"</string>
@@ -3422,8 +3422,8 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ओझेलमा वा पेरिफेरल यन्त्रहरूमा कहिल्यै सूचनाहरू नदेखाउनुहोस्"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"सूचनाको प्रतीक जनाउने थोप्लोलाई अनुमति दिनुहोस्"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"सूचनाको प्रतीक जनाउने थोप्लो देखाउनुहोस्"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"बाधा नपुर्याउनुहोस् नामक सुविधालाई ओभरराइड गर्नुहोस्"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"बाधा नपुर्‍याउनुहोस् नामक सुविधा सक्रिय भएका बेला यी सूचनाहरूलाई अवरोध जारी राख्न दिनुहोस्"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"बाधा नपुर्याउनुहोस् नामक सुविधा ओभरराइड गरियोस्"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"बाधा नपुर्‍याउनुहोस् नामक सुविधा अन भएका बेला पनि यी नोटिफिकेसन आइरहन दिनुहोस्"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"लक स्क्रिनमा"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"अवरूद्ध गरियो"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"प्राथमिकता"</string>

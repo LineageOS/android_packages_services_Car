@@ -3418,7 +3418,7 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"Անջատված է"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Արգելափակել բոլորը"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Երբեք չցուցադրել այս ծանուցումները"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"Ցուցադրել ծանուցումները"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"Ցույց տալ ծանուցումները"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Երբեք չցուցադրել ծանուցումները ստվերում կամ արտաքին սարքերի վրա"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Ցույց տալ ծանուցման կետիկը"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Ցույց տալ ծանուցման կետիկը"</string>
