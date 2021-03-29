@@ -28,6 +28,7 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.IActivityManager;
+import android.bluetooth.BluetoothAdapter;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.content.ContentResolver;
@@ -81,6 +82,7 @@ public class CarInputRotaryServiceTest {
     @Mock private InputCaptureClientController mCaptureController;
     @Mock private CarOccupantZoneService mCarOccupantZoneService;
     @Mock private CarUxRestrictionsManagerService mUxRestrictionService;
+    @Mock private BluetoothAdapter mBluetoothAdapter;
 
     @Spy private final Context mContext = ApplicationProvider.getApplicationContext();
     @Spy private final Handler mHandler = new Handler(Looper.getMainLooper());
@@ -225,7 +227,7 @@ public class CarInputRotaryServiceTest {
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
                 mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
-                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mBluetoothAdapter);
         mCarInputService.init();
     }
 
