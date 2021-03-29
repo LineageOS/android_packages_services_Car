@@ -27,13 +27,14 @@ namespace android {
 namespace automotive {
 namespace evs {
 
-EvsDeathRecipient::EvsDeathRecipient(const sp<IEvsEnumerator>& svc,
-                                     const std::function<void(const wp<IBase>&)>& handler) :
-      mService(svc), mHandler(handler) {}
+EvsDeathRecipient::EvsDeathRecipient(const sp<IEvsEnumerator>& svc, EvsServiceCallback* callback) :
+      mService(svc), mCallback(callback) {}
 
 void EvsDeathRecipient::serviceDied(uint64_t /*cookie*/, const wp<IBase>& who) {
     LOG(ERROR) << "EVS service has died.";
-    mHandler(who);
+    if (mCallback != nullptr) {
+        mCallback->onServiceDied(who);
+    }
 }
 
 }  // namespace evs

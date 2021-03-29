@@ -40,14 +40,9 @@ namespace android {
 namespace automotive {
 namespace evs {
 
-StreamHandler::StreamHandler(sp<IEvsCamera>& camera,
-                             std::function<void(const BufferDesc_1_1&)> frameCb,
-                             std::function<void(const EvsEventDesc&)> eventCb,
+StreamHandler::StreamHandler(sp<IEvsCamera>& camera, EvsServiceCallback* callback,
                              int maxNumFramesInFlight) :
-      mEvsCamera(camera),
-      mFrameCb(frameCb),
-      mEventCb(eventCb),
-      mMaxNumFramesInFlight(maxNumFramesInFlight) {
+      mEvsCamera(camera), mCallback(callback), mMaxNumFramesInFlight(maxNumFramesInFlight) {
     if (camera == nullptr) {
         LOG(ERROR) << "IEvsCamera is invalid.";
     } else {
@@ -142,19 +137,21 @@ void StreamHandler::blockingStopStream() {
         // EVS service may die so no stream-stop event occurs.
         std::lock_guard<std::mutex> lock(mLock);
         mRunning = false;
+        return;
     }
 
     // Waits until the stream has actually stopped
     std::unique_lock<std::mutex> lock(mLock);
-    if (mRunning) {
-        if (!mSignal.wait_for(lock, 1s, [this]() { return !mRunning; })) {
+    while (mRunning) {
+        if (!mCondition.wait_for(lock, 1s, [this]() { return !mRunning; })) {
             LOG(WARNING) << "STREAM_STOPPED event timer expired.  EVS service may die.";
+            break;
         }
     }
 }
 
 bool StreamHandler::isRunning() {
-    std::unique_lock<std::mutex> lock(mLock);
+    std::lock_guard<std::mutex> lock(mLock);
     return mRunning;
 }
 
@@ -221,11 +218,11 @@ Return<void> StreamHandler::deliverFrame_1_1(const hidl_vec<BufferDesc_1_1>& buf
                        << ", total = " << mReceivedBuffers.size();
 
             // Notify anybody who cares that things have changed
-            mSignal.notify_all();
+            mCondition.notify_all();
         }
 
         // Forwards a new frame
-        mFrameCb(frameDesc);
+        mCallback->onNewFrame(frameDesc);
     }
 
     return {};
@@ -260,7 +257,7 @@ Return<void> StreamHandler::notify(const EvsEventDesc& event) {
             break;
     }
 
-    mEventCb(event);
+    mCallback->onNewEvent(event);
 
     return {};
 }
