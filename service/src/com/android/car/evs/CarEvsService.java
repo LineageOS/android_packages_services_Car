@@ -317,7 +317,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         return ERROR_NONE;
                     } else {
                         // Requested to connect to the Extended View System service
-                        if (!nativeConnectToHalServiceIfNecessary()) {
+                        if (!nativeConnectToHalServiceIfNecessary(mNativeEvsServiceObj)) {
                             return ERROR_UNAVAILABLE;
                         }
                     }
@@ -333,7 +333,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         return ERROR_BUSY;
                     }
 
-                    stopService();
+                    // Reset a timer for this new request
+                    mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
                     break;
 
                 case SERVICE_STATE_ACTIVE:
@@ -355,7 +356,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 case SERVICE_STATE_UNAVAILABLE:
                     // Attempts to connect to the native EVS service and transits to the
                     // REQUESTED state if it succeeds.
-                    if (!nativeConnectToHalServiceIfNecessary()) {
+                    if (!nativeConnectToHalServiceIfNecessary(mNativeEvsServiceObj)) {
                         return ERROR_UNAVAILABLE;
                     }
                     break;
@@ -487,7 +488,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mStreamCallbacks.unregister(callback);
             if (mStreamCallbacks.getRegisteredCallbackCount() == 0) {
                 Slog.d(TAG_EVS, "Last stream client has been disconnected.");
-                nativeRequestToStopVideoStream();
+                nativeRequestToStopVideoStream(mNativeEvsServiceObj);
             }
         }
     }
@@ -506,7 +507,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_UNAVAILABLE;
         }
 
-        if (!nativeRequestToStartVideoStream()) {
+        if (!nativeRequestToStartVideoStream(mNativeEvsServiceObj)) {
             Slog.e(TAG_EVS, "Failed to start a video stream");
             mStreamCallbacks.unregister(callback);
             return ERROR_UNAVAILABLE;
@@ -567,12 +568,22 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         // Below registration may throw IllegalStateException if neither of EVS_SERVICE_REQUEST nor
         // GEAR_SELECTION VHAL properties are not supported.
-        mEvsHalService.setListener(this);
+        try {
+            mEvsHalService.setListener(this);
+        } catch (IllegalStateException e) {
+            Slog.e(TAG_EVS, Log.getStackTraceString(e));
+            return;
+        }
+
+        // Creates a handle to use the native Extended View System service
+        mNativeEvsServiceObj = CarEvsService.nativeCreateServiceHandle();
 
         // Attempts to transit to the INACTIVE state
         if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) !=
                 ERROR_NONE) {
             Slog.e(TAG_EVS, "Failed to transit to the INACTIVE state.");
+            CarEvsService.nativeDestroyServiceHandle(mNativeEvsServiceObj);
+            mNativeEvsServiceObj = 0;
         }
     }
 
@@ -585,7 +596,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         mStatusListeners.kill();
         mStreamCallbacks.kill();
 
-        nativeDisconnectFromHalService();
+        CarEvsService.nativeDestroyServiceHandle(mNativeEvsServiceObj);
+        mNativeEvsServiceObj = 0;
     }
 
     @Override
@@ -705,13 +717,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE, callback) !=
                 ERROR_NONE) {
-            Slog.e(TAG_EVS, "Failed to stop a video stream");
+            Slog.w(TAG_EVS, "Failed to stop a video stream");
 
             // We want to return if a video stop request fails.
             return;
         }
-
-        mStreamCallbacks.unregister(callback);
     }
 
     /**
@@ -748,7 +758,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         if (returnThisBuffer) {
             // This may throw a NullPointerException if the native EVS service handle is invalid.
-            nativeDoneWithFrame(bufferId);
+            nativeDoneWithFrame(mNativeEvsServiceObj, bufferId);
         }
     }
 
@@ -875,12 +885,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return false;
         }
 
-        if (!nativeConnectToHalServiceIfNecessary()) {
+        if (!nativeConnectToHalServiceIfNecessary(mNativeEvsServiceObj)) {
             Slog.e(TAG_EVS, "Failed to connect to EVS service");
             return false;
         }
 
-        if (!nativeOpenCamera(mContext.getString(R.string.config_evsRearviewCameraId))) {
+        if (!nativeOpenCamera(mNativeEvsServiceObj,
+                  mContext.getString(R.string.config_evsRearviewCameraId))) {
             Slog.e(TAG_EVS, "Failed to open a target camera device");
             return false;
         }
@@ -889,15 +900,28 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     /** Stops a current service */
-    private boolean stopService() {
-        boolean success = false;
+    private void stopService() {
         try {
-            nativeRequestToStopVideoStream();
-            success = true;
+            nativeRequestToStopVideoStream(mNativeEvsServiceObj);
         } catch (RuntimeException e) {
-            Slog.e(TAG_EVS, Log.getStackTraceString(e));
+            Slog.w(TAG_EVS, Log.getStackTraceString(e));
         } finally {
-            return success;
+            // Unregister all stream callbacks.
+            synchronized (mLock) {
+                int count = mStreamCallbacks.getRegisteredCallbackCount();
+                while (count-- > 0) {
+                    mStreamCallbacks.unregister(mStreamCallbacks.getRegisteredCallbackItem(count));
+                }
+            }
+
+            // We simply drop all buffer records; the native method will return all pending buffers
+            // to the native Extended System View service if it is alive.
+            synchronized (mBufferRecords) {
+                mBufferRecords.clear();
+            }
+
+            // Cancel a pending message to check a request timeout
+            mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
         }
     }
 
@@ -980,23 +1004,29 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private long mNativeEvsServiceObj = 0;
 
     /** Attempts to connect to the HAL service if it has not done yet */
-    private native boolean nativeConnectToHalServiceIfNecessary();
+    private native boolean nativeConnectToHalServiceIfNecessary(long handle);
 
     /** Attempts to disconnect from the HAL service */
-    private native void nativeDisconnectFromHalService();
+    private native void nativeDisconnectFromHalService(long handle);
 
     /** Attempts to open a target camera device */
-    private native boolean nativeOpenCamera(String cameraId);
+    private native boolean nativeOpenCamera(long handle, String cameraId);
 
     /** Requests to close a target camera device */
-    private native void nativeCloseCamera();
+    private native void nativeCloseCamera(long handle);
 
     /** Requests to start a video stream */
-    private native boolean nativeRequestToStartVideoStream();
+    private native boolean nativeRequestToStartVideoStream(long handle);
 
     /** Requests to stop a video stream */
-    private native void nativeRequestToStopVideoStream();
+    private native void nativeRequestToStopVideoStream(long handle);
 
     /** Request to return an used buffer */
-    private native void nativeDoneWithFrame(int bufferId);
+    private native void nativeDoneWithFrame(long handle, int bufferId);
+
+    /** Creates a EVS service handle */
+    private static native long nativeCreateServiceHandle();
+
+    /** Destroys a EVS service handle */
+    private static native void nativeDestroyServiceHandle(long handle);
 }
