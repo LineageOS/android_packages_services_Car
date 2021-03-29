@@ -57,6 +57,7 @@ android_test {
         "com.android.car.internal.common",
         "com.android.car.internal.system",
         "com.android.car.test.lib",
+        "compatibility-device-util-axt",
         "frameworks-base-testutils",
         "mockito-target-extended",
         "testng",
