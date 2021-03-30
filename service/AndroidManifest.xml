@@ -246,6 +246,22 @@
          android:label="@string/car_permission_label_car_exterior_environment"
          android:description="@string/car_permission_desc_car_exterior_environment"/>
 
+    <!-- Allows an application to read and write car's unix time.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CAR_UNIX_TIME"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_car_unix_time"
+                android:description="@string/car_permission_desc_car_unix_time"/>
+
+    <!-- Allows an application to read and write car's storage encryption binding seed.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.STORAGE_ENCRYPTION_BINDING_SEED"
+                android:protectionLevel="signature|privileged"
+                android:label="@string/car_permission_label_encryption_binding_seed"
+                android:description="@string/car_permission_desc_encryption_binding_seed"/>
+
     <!-- Allows an application to read the vehicle exterior lights state.
          <p>Protection level: signature|privileged
     -->
