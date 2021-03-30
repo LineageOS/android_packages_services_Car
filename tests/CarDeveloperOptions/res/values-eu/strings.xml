@@ -1573,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Berrezarri wifia, Bluetooth-a eta sare mugikorrak"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Hori eginez gero, sare guztien ezarpenak berrezarriko dira, besteak beste: \n\n"<li>"Wifia"</li>\n<li>"Datu-konexioa"</li>\n<li>"Bluetooth-a"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Ezabatu deskargatutako SIMetako edukia"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Ordezko SIM txartelak deskargatzeko, jarri operadorearekin harremanetan. Ez da utziko bertan behera mugikorraren zerbitzu-planik."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Ordezko SIM txartelak deskargatzeko, jarri operadorearekin harremanetan. Ez da utziko bertan behera mugikorreko zerbitzu-planik."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Berrezarri ezarpenak"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Sareko ezarpen guztiak berrezarri nahi dituzu? Ezin da desegin ekintza hori."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Sareko ezarpen guztiak berrezarri eta deskargatutako SIM txartelen datu guztiak ezabatu nahi dituzu? Ezin da desegin ekintza hori."</string>
@@ -1591,7 +1591,7 @@
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Badaude erabiltzaile gehiago gailu honetan.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Musika"</li>\n<li>"Argazkiak"</li>\n<li>"Bestelako erabiltzaile-datuak"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIM txartelak"</li></string>
-    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Horrek ez du utziko bertan behera operadorearekin kontratatuta duzun zerbitzu-plana."</string>
+    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Horrek ez du utziko bertan behera mugikorreko zerbitzu-plana."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"USB bidezko memoria"</b>" ezabatu behar da."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Musika, irudiak eta bestelako erabiltzaile-datuak garbitzeko, "<b>"SD txartela"</b>" ezabatu behar da."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Ezabatu USB bidezko memoria"</string>

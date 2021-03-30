@@ -2279,7 +2279,7 @@
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Батерейны менежерийг асаах"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батарей хэмнэгчийг асаах"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарей ердийн үеийнхээс хурдан дуусаж болзошгүй"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Тэжээл хэмнэгч асаалттай байна"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батарей хэмнэгч асаалттай байна"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Зарим онцлогийг хязгаарласан байж болзошгүй"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Утсыг ердийнхөөс их хэмжээгээр ашигласан"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Таблетыг ердийнхөөс их хэмжээгээр ашигласан"</string>
@@ -3555,7 +3555,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Идэвхтэй"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Идэвхгүй"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Дэлгэц тогтоох"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Энэ тохиргоо асаалттай үед та одоогийн дэлгэцийг тогтоохоо болих хүртлээ үргэлжлүүлэн харуулахын тулд дэлгэц тогтоох онцлогийг ашиглах боломжтой.\n\nДэлгэц тогтоох онцлогийг ашиглахын тулд:\n\n1. Дэлгэц тогтоох онцлог асаалттай эсэхийг шалгах\n\n2. Тоймыг нээх\n\n3. Дэлгэцийн дээд хэсгийн аппын дүрс тэмдгийг товшиж Тогтоох гэснийг товшино уу"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Энэ тохиргоо асаалттай үед та одоогийн дэлгэцийг бэхлэхээ болиулах хүртэл үргэлжлүүлэн харуулахын тулд дэлгэц бэхлэх онцлогийг ашиглах боломжтой.\n\nДэлгэц бэхлэх онцлогийг ашиглахын тулд:\n\n1. Дэлгэц бэхлэх онцлог асаалттай эсэхийг шалгах\n\n2. Тоймыг нээх\n\n3. Дэлгэцийн дээд хэсгийн аппын дүрс тэмдгийг товшиж Бэхлэх гэснийг товшино уу"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Тогтоосныг суллахаас өмнө түгжээ тайлах хээ асуух"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Бэхэлснийг болиулахаасаа өмнө PIN асуух"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Тогтоосныг суллахаас өмнө нууц үг асуух"</string>
@@ -3893,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Бүү саад бол горим асаалттай байна"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Утасны дууг хаасан"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Онцгой тохиолдолд"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Тэжээл хэмнэгч асаалттай"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Батарей хэмнэгч асаалттай"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Онцлогуудыг хязгаарласан"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Мобайл дата унтраалттай байна"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Интернэтэд зөвхөн Wi‑Fi-р холбогдох боломжтой байна"</string>
