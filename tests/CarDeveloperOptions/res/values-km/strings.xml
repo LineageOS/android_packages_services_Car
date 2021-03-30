@@ -2446,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"ប្រព័ន្ធ​ប្រតិបត្តិការ Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Mediaserver"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"បង្កើនប្រសិទ្ធិភាពកម្មវិធី"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"កម្មវិធីសន្សំថ្ម"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"មុខងារ​សន្សំ​ថ្ម"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"បើកដោយស្វ័យប្រវត្តិ"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"គ្មាន​កាលវិភាគ​ទេ"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"ផ្អែកលើ​ទម្លាប់​របស់អ្នក"</string>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"កុំ​បង្ហាញ​ការ​ជូន​ដំណឹង​នៅក្នុង​ផ្ទាំង​ទម្លាក់ ឬ​នៅលើ​ឧបករណ៍​ភ្ជាប់​ជាមួយ​កុំព្យូទ័រ"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"អនុញ្ញាតស្លាកជូនដំណឹង"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"បង្ហាញស្លាកជូនដំណឹង"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"បដិសេធមុខងារកុំរំខាន"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"លុបពីលើមុខងារកុំរំខាន"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"អនុញ្ញាត​ឱ្យ​ការជូនដំណឹង​ទាំងនេះ​បន្ត​រំខាន នៅពេល​មុខងារកុំរំខាន​បើក"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"នៅ​លើ​អេក្រង់​ចាក់សោ"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"បាន​រារាំង"</string>

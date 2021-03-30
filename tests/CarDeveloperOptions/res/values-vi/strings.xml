@@ -4447,7 +4447,7 @@
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Không sử dụng được khi kết nối với <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Thông tin y tế, người liên hệ lúc khẩn cấp"</string>
     <string name="see_more" msgid="7463940160389802632">"Xem thêm"</string>
-    <string name="see_less" msgid="3718892257002813387">"Xem bớt"</string>
+    <string name="see_less" msgid="3718892257002813387">"Ẩn bớt"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Thiết bị sẽ sử dụng với <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"Không tìm thấy thiết bị nào. Đảm bảo rằng các thiết bị đang bật và sẵn sàng kết nối."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Thử lại"</string>

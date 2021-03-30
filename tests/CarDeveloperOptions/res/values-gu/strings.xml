@@ -585,7 +585,7 @@
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"ચહેરા પ્રમાણીકરણ + પાસવર્ડ"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"ચહેરા ઓળખ વિના ચાલુ રાખો"</string>
     <string name="face_unlock_title" msgid="1298031162909236127">"તમે તમારા ફોનને તમારા ચહેરાની મદદથી અનલૉક કરી શકો છો. સુરક્ષા માટે, આ વિકલ્પ હેતુ બૅકઅપ સ્ક્રીન લૉક આવશ્યક છે."</string>
-    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"વ્યવસ્થાપક, એન્ક્રિપ્શન નીતિ અથવા ઓળખપત્ર સ્ટોરેજ દ્વારા અક્ષમ કરાયેલ"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"વ્યવસ્થાપક, એન્ક્રિપ્શન પૉલિસી કે ઓળખપત્ર સ્ટોરેજ દ્વારા બંધ કરાયેલ"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"કોઈ નહીં"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"સ્વાઇપ કરો"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"પૅટર્ન"</string>
@@ -1779,8 +1779,8 @@
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"તમારી કાર્યાલયની પ્રોફાઇલ અને ઉપકરણ સ્ક્રીન પર એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"એક લૉકનો ઉપયોગ કરીએ?"</string>
-    <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"તમારું ઉપકરણ તમારા કાર્યાલયની પ્રોફાઇલનાં સ્ક્રીન લૉકનો ઉપયોગ કરશે. કાર્ય નીતિઓ બન્ને લૉક પર લાગુ થશે."</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"તમારું કાર્યાલયની પ્રોફાઇલનું લૉક તમારી સંસ્થાની સુરક્ષા આવશ્યકતાઓને પૂર્ણ કરતું નથી. તમે તમારી ઉપકરણ સ્ક્રીન અને તમારી કાર્યાલયની પ્રોફાઇલ પર સમાન લૉકનો ઉપયોગ કરી શકો છો, પરંતુ કોઇપણ કાર્ય લૉક નીતિઓ લાગુ પડશે."</string>
+    <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"તમારું ડિવાઇસ તમારા ઑફિસની પ્રોફાઇલનાં સ્ક્રીન લૉકનો ઉપયોગ કરશે. કાર્ય પૉલિસીઓ બન્ને લૉક પર લાગુ થશે."</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"તમારું ઑફિસની પ્રોફાઇલનું લૉક તમારી સંસ્થાની સુરક્ષા આવશ્યકતાઓને પૂર્ણ કરતું નથી. તમે તમારી ડિવાઇસ સ્ક્રીન અને તમારી ઑફિસની પ્રોફાઇલ પર સમાન લૉકનો ઉપયોગ કરી શકો છો, પરંતુ કોઇપણ કાર્ય લૉક પૉલિસીઓ લાગુ પડશે."</string>
     <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ઉપકરણ સ્ક્રીન લૉકની સમાન"</string>

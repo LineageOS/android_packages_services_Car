@@ -3954,7 +3954,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Uključen način rada Ne ometaj"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Zvuk na telefonu je isključen"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"S izuzecima"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Čuvar baterije je uključen"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Ušteda baterije je uključena"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funkcije su ograničene"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Prijenos podataka na mobilnoj mreži je isključen"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet je dostupan samo putem WiFi mreže"</string>

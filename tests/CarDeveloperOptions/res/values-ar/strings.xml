@@ -4300,7 +4300,7 @@
     <string name="notification_log_details_parcel" msgid="4024970850647594029">"حجم طرد"</string>
     <string name="notification_log_details_ashmem" msgid="4272241723105041393">"ashmem"</string>
     <string name="notification_log_details_alerted" msgid="1891749888625061319">"تمّ تفعيل التنبيه للإشعار."</string>
-    <string name="notification_log_details_sound" msgid="4028782443557466322">"صوت"</string>
+    <string name="notification_log_details_sound" msgid="4028782443557466322">"الصوت"</string>
     <string name="notification_log_details_vibrate" msgid="8372400602058888072">"اهتزاز"</string>
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"النقش"</string>
     <string name="notification_log_details_default" msgid="455451833359888182">"تلقائي"</string>
