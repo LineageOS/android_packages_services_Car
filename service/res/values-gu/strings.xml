@@ -152,8 +152,8 @@
     <string name="car_permission_desc_control_car_watchdog_config" msgid="2276721198186100781">"કાર વૉચડોગના કન્ફિગને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_collect_car_watchdog_metrics" msgid="6868646053065666480">"કાર વૉચડોગના મેટ્રિક એકત્રિત કરો"</string>
     <string name="car_permission_desc_collect_car_watchdog_metrics" msgid="5712074376194601441">"કાર વૉચડોગના મેટ્રિક એકત્રિત કરો."</string>
-    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની નીતિ વાંચો"</string>
-    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની નીતિ વાંચો."</string>
+    <string name="car_permission_label_read_car_power_policy" msgid="4597484321338979324">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની પૉલિસી વાંચો"</string>
+    <string name="car_permission_desc_read_car_power_policy" msgid="5430714179790601808">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની પૉલિસી વાંચો."</string>
     <string name="car_permission_label_control_car_power_policy" msgid="6840069695926008330">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની નીતિને નિયંત્રિત કરો"</string>
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"કારની સુવિધાઓ ચાલુ/બંધ રહેવા વિશેની નીતિને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"નમૂના જનરેટ કરો"</string>
