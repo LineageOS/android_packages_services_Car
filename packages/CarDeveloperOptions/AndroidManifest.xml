@@ -2067,6 +2067,24 @@
         </activity>
 
         <activity
+            android:name="com.android.settings.Settings$MediaManagementAppsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$AppMediaManagementAppsActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
             android:name="com.android.settings.backup.UserBackupSettingsActivity"
             android:enabled="false"
             android:exported="false"
@@ -2441,6 +2459,10 @@
 
         <provider
             android:name="com.android.settings.deviceinfo.legal.ModuleLicenseProvider"
+            tools:node="remove"/>
+
+        <provider
+            android:name="com.android.settings.emergency.EmergencyActionContentProvider"
             tools:node="remove"/>
 
         <provider
