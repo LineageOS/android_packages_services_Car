@@ -190,7 +190,9 @@ public final class PowerComponentHandler {
 
     private boolean setComponentEnabledInternal(int component, boolean enabled,
             SparseBooleanArray forcedOffComponents) {
+        boolean isEnabled;
         synchronized (mLock) {
+            isEnabled = mComponentStates.get(component, false);
             mComponentStates.put(component, enabled);
         }
         PowerComponentMediator mediator = mPowerComponentMediators.get(component);
@@ -198,7 +200,6 @@ public final class PowerComponentHandler {
             Slog.w(TAG, powerComponentToString(component) + " doesn't have a mediator");
             return false;
         }
-        boolean isEnabled = mediator.isEnabled();
         boolean needUpdate = enabled != isEnabled;
         // TODO(b/181230312): Make a final decision whether to turn on/off, respecting user setting.
         if (needUpdate) {
