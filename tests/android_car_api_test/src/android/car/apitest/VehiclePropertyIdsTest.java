@@ -334,6 +334,10 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
         assertEquals("USER_IDENTIFICATION_ASSOCIATION",
                 VehiclePropertyIds.toString(VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION));
         assertEquals("0x3", VehiclePropertyIds.toString(3));
+        // Properties in S
+        assertEquals("UNIX_TIME", VehiclePropertyIds.toString(VehiclePropertyIds.UNIX_TIME));
+        assertEquals("STORAGE_ENCRYPTION_BINDING_SEED",
+                VehiclePropertyIds.toString(VehiclePropertyIds.STORAGE_ENCRYPTION_BINDING_SEED));
     }
 
     private static List<Integer> getListOfConstantValues(Class clazz) {
