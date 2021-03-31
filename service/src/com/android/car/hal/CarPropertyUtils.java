@@ -55,17 +55,17 @@ import java.util.List;
 
         // Handles each return value from {@link getJavaClass}.
         if (Boolean.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
-                                          v.int32Values.get(0) == 1);
+            boolean val = v.int32Values.size() == 0 ? false : (v.int32Values.get(0) == 1);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, val);
         } else if (Float.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
-                                          v.floatValues.get(0));
+            float val = v.floatValues.size() == 0 ? 0.0f : v.floatValues.get(0);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, val);
         } else if (Integer.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
-                                          v.int32Values.get(0));
+            int val = v.int32Values.size() == 0 ? 0 : v.int32Values.get(0);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, val);
         } else if (Long.class == clazz) {
-            return new CarPropertyValue<>(propertyId, areaId, status, timestamp,
-                                          v.int64Values.get(0));
+            long val = v.int64Values.size() == 0 ? 0 : v.int64Values.get(0);
+            return new CarPropertyValue<>(propertyId, areaId, status, timestamp, val);
         } else if (Float[].class == clazz) {
             Float[] values = new Float[v.floatValues.size()];
             for (int i = 0; i < values.length; i++) {
