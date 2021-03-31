@@ -24,6 +24,7 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_3;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.CUSTOM_4;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
+import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -127,6 +128,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SUSPEND = "suspend";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
+    private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
@@ -219,6 +221,8 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.MODIFY_DAY_NIGHT_MODE);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESET_VOLUME_CONTEXT,
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_MUTE_CAR_VOLUME_GROUP,
+                PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -232,6 +236,9 @@ final class CarShellCommand extends ShellCommand {
     private static final String PARAM_OFF_MODE = "off";
     private static final String PARAM_QUERY_MODE = "query";
     private static final String PARAM_REBOOT = "reboot";
+    private static final String PARAM_MUTE = "mute";
+    private static final String PARAM_UNMUTE = "unmute";
+
 
     private static final int RESULT_OK = 0;
     private static final int RESULT_ERROR = -1; // Arbitrary value, any non-0 is fine
@@ -415,6 +422,9 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Maps the audio zoneid to uid.");
         pw.printf("\t%s\n", COMMAND_RESET_VOLUME_CONTEXT);
         pw.println("\t  Resets the last selected volume context for volume changes.");
+        pw.printf("\t%s [zoneId] [groupId] [%s\\%s]\n", COMMAND_SET_MUTE_CAR_VOLUME_GROUP,
+                PARAM_MUTE, PARAM_UNMUTE);
+        pw.printf("\t  %s\\%s groupId in zoneId\n", PARAM_MUTE, PARAM_UNMUTE);
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
         pw.println("\tstop-fixed-mode displayId");
@@ -531,6 +541,20 @@ final class CarShellCommand extends ShellCommand {
         int uid = Integer.parseInt(uidString);
         int zoneId = Integer.parseInt(zoneString);
         mCarAudioService.setZoneIdForUid(zoneId, uid);
+    }
+
+    private void runSetMuteCarVolumeGroup(String zoneString, String groupIdString,
+            String muteString) {
+        int groupId = Integer.parseInt(groupIdString);
+        int zoneId = Integer.parseInt(zoneString);
+        if (!PARAM_MUTE.equalsIgnoreCase(muteString)
+                && !PARAM_UNMUTE.equalsIgnoreCase(muteString)) {
+            throw new IllegalArgumentException("Failed to set volume group mute for "
+                    + groupIdString + " in zone " + zoneString
+                    + ", bad mute argument: " + muteString);
+        }
+        boolean muteState = PARAM_MUTE.equalsIgnoreCase(muteString);
+        mCarAudioService.setVolumeGroupMute(zoneId, groupId, muteState, FLAG_SHOW_UI);
     }
 
     private void runResetSelectedVolumeContext() {
@@ -702,6 +726,12 @@ final class CarShellCommand extends ShellCommand {
                     return showInvalidArguments(writer);
                 }
                 runResetSelectedVolumeContext();
+                break;
+            case COMMAND_SET_MUTE_CAR_VOLUME_GROUP:
+                if (args.length != 4) {
+                    return showInvalidArguments(writer);
+                }
+                runSetMuteCarVolumeGroup(args[1], args[2], args[3]);
                 break;
             case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
                 if (args.length != 3) {

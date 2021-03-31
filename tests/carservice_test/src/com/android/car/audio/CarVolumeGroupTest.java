@@ -20,15 +20,16 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertNull;
 import static org.junit.Assert.assertTrue;
-import static org.mockito.Matchers.anyInt;
-import static org.mockito.Matchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.expectThrows;
 
+import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.UserHandle;
+import android.util.SparseBooleanArray;
+import android.util.SparseIntArray;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 
@@ -39,10 +40,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mockito;
 
-import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 
 @RunWith(AndroidJUnit4.class)
 public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
@@ -73,9 +71,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_associatesDeviceAddresses() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
         assertEquals(1, carVolumeGroup.getAddresses().size());
@@ -90,9 +87,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_checksForSameStepSize() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
         CarAudioDeviceInfo differentStepValueDevice = generateCarAudioDeviceInfo(
@@ -107,9 +103,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_updatesMinGainToSmallestValue() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         CarAudioDeviceInfo largestMinGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 10, 10);
@@ -132,9 +127,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_updatesMaxGainToLargestValue() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         CarAudioDeviceInfo smallestMaxGain = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, 1, 1, 5);
@@ -157,9 +151,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_checksThatTheSameContextIsNotBoundTwice() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         carVolumeGroup.bind(CarAudioContext.NAVIGATION, mMediaDevice);
 
@@ -263,10 +256,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void getMinGainIndex_alwaysReturnsZero() {
-
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
         CarAudioDeviceInfo minGainPlusOneDevice = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, 10, MAX_GAIN);
         carVolumeGroup.bind(CarAudioContext.NAVIGATION, minGainPlusOneDevice);
@@ -281,37 +272,32 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
     }
 
     @Test
-    public void loadVolumesForUser_setsCurrentGainIndexForUser() {
+    public void loadVolumesSettingsForUser_setsCurrentGainIndexForUser() {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setGainIndexForUser(TEST_USER_10, 2)
+                .setGainIndexForUser(TEST_USER_11, 0)
+                .build();
 
-        List<Integer> users = new ArrayList<>();
-        users.add(TEST_USER_10);
-        users.add(TEST_USER_11);
-
-        Map<Integer, Integer> storedGainIndex = new HashMap<>();
-        storedGainIndex.put(TEST_USER_10, 2);
-        storedGainIndex.put(TEST_USER_11, 0);
-
-        CarAudioSettings settings =
-                generateCarAudioSettings(users, 0 , 0, storedGainIndex);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
         carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
-        carVolumeGroup.loadVolumesForUser(TEST_USER_10);
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
 
         assertEquals(2, carVolumeGroup.getCurrentGainIndex());
 
-        carVolumeGroup.loadVolumesForUser(TEST_USER_11);
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_11);
 
         assertEquals(0, carVolumeGroup.getCurrentGainIndex());
     }
 
     @Test
-    public void loadUserStoredGainIndex_setsCurrentGainIndexToDefault() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(TEST_USER_10, 0, 0, 10);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+    public void loadVolumesSettingsForUser_setsCurrentGainIndexToDefault() {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setGainIndexForUser(TEST_USER_10, 10)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
@@ -321,27 +307,22 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
         assertEquals(2, carVolumeGroup.getCurrentGainIndex());
 
-        carVolumeGroup.loadVolumesForUser(0);
+        carVolumeGroup.loadVolumesSettingsForUser(0);
 
         assertEquals(0, carVolumeGroup.getCurrentGainIndex());
     }
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForUser() {
-        List<Integer> users = new ArrayList<>();
-        users.add(TEST_USER_11);
-
-        Map<Integer, Integer> storedGainIndex = new HashMap<>();
-        storedGainIndex.put(TEST_USER_11, 2);
-
-        CarAudioSettings settings =
-                generateCarAudioSettings(users, 0 , 0, storedGainIndex);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setGainIndexForUser(TEST_USER_11, 2)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
         carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
-        carVolumeGroup.loadVolumesForUser(TEST_USER_11);
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_11);
 
         carVolumeGroup.setCurrentGainIndex(MIN_GAIN);
 
@@ -350,15 +331,10 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void setCurrentGainIndex_setsCurrentGainIndexForDefaultUser() {
-        List<Integer> users = new ArrayList<>();
-        users.add(UserHandle.USER_CURRENT);
-
-        Map<Integer, Integer> storedGainIndex = new HashMap<>();
-        storedGainIndex.put(UserHandle.USER_CURRENT, 2);
-
-        CarAudioSettings settings =
-                generateCarAudioSettings(users, 0 , 0, storedGainIndex);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setGainIndexForUser(UserHandle.USER_CURRENT, 2)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
@@ -372,9 +348,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void bind_setsCurrentGainIndexToStoredGainIndex() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
                 NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
@@ -386,10 +361,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void getAddressForContext_returnsExpectedDeviceAddress() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
-
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
 
@@ -400,9 +373,8 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void getAddressForContext_returnsNull() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         String nullAddress = carVolumeGroup.getAddressForContext(CarAudioContext.MUSIC);
 
@@ -411,8 +383,6 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void isMuted_whenDefault_returnsFalse() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
 
         assertThat(carVolumeGroup.isMuted()).isFalse();
@@ -420,8 +390,6 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void isMuted_afterMuting_returnsTrue() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setMute(true);
 
@@ -430,19 +398,126 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
 
     @Test
     public void isMuted_afterUnMuting_returnsFalse() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
         CarVolumeGroup carVolumeGroup = testVolumeGroupSetup();
         carVolumeGroup.setMute(false);
 
         assertThat(carVolumeGroup.isMuted()).isFalse();
     }
 
-    private CarVolumeGroup testVolumeGroupSetup() {
-        CarAudioSettings settings =
-                generateCarAudioSettings(0 , 0, 2);
-        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(settings, 0, 0);
+    @Test
+    public void setMute_withMutedState_storesValueToSetting() {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setMuteForUser(TEST_USER_10, false)
+                .setIsPersistVolumeGroupEnabled(true)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, true);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
 
+        carVolumeGroup.setMute(true);
+
+        verify(settings)
+                .storeVolumeGroupMuteForUser(TEST_USER_10, 0, 0, true);
+    }
+
+    @Test
+    public void setMute_withUnMutedState_storesValueToSetting() {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setMuteForUser(TEST_USER_10, false)
+                .setIsPersistVolumeGroupEnabled(true)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, true);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
+
+        carVolumeGroup.setMute(false);
+
+        verify(settings)
+                .storeVolumeGroupMuteForUser(TEST_USER_10, 0, 0, false);
+    }
+
+    @Test
+    public void loadVolumesSettingsForUser_withMutedState_loadsMuteStateForUser() {
+        CarVolumeGroup carVolumeGroup = getVolumeGroupWithMuteForUser(true, true,
+                TEST_USER_10);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
+
+        assertEquals(true, carVolumeGroup.isMuted());
+    }
+
+    @Test
+    public void loadVolumesSettingsForUser_withDisabledUseVolumeGroupMute_doesNotLoadMute() {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setMuteForUser(TEST_USER_10, true)
+                .setIsPersistVolumeGroupEnabled(true)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
+
+        assertEquals(false, carVolumeGroup.isMuted());
+    }
+
+    @Test
+    public void loadVolumesSettingsForUser_withUnMutedState_loadsMuteStateForUser() {
+        CarVolumeGroup carVolumeGroup = getVolumeGroupWithMuteForUser(false, true,
+                TEST_USER_10);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
+
+        assertEquals(false, carVolumeGroup.isMuted());
+    }
+
+    @Test
+    public void loadVolumesSettingsForUser_withMutedStateAndNoPersist_returnsDefaultMuteState() {
+        CarVolumeGroup carVolumeGroup = getVolumeGroupWithMuteForUser(true, false,
+                TEST_USER_10);
+        CarAudioDeviceInfo deviceInfo = generateCarAudioDeviceInfo(
+                NAVIGATION_DEVICE_ADDRESS, STEP_VALUE, MIN_GAIN, MAX_GAIN);
+        carVolumeGroup.bind(CarAudioContext.NAVIGATION, deviceInfo);
+
+        carVolumeGroup.loadVolumesSettingsForUser(TEST_USER_10);
+
+        assertEquals(false, carVolumeGroup.isMuted());
+    }
+
+    CarVolumeGroup getVolumeGroupWithGainAndUser(int gain, @UserIdInt int userId) {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setGainIndexForUser(userId, gain)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, false);
+
+        return carVolumeGroup;
+    }
+
+    CarVolumeGroup getVolumeGroupWithMuteForUser(boolean isMuted, boolean persistMute,
+            @UserIdInt int userId) {
+        CarAudioSettings settings = new CarVolumeGroupSettingsBuilder(0, 0)
+                .setMuteForUser(userId, isMuted)
+                .setIsPersistVolumeGroupEnabled(persistMute)
+                .build();
+        CarVolumeGroup carVolumeGroup = new CarVolumeGroup(0, 0, settings, true);
+
+        return carVolumeGroup;
+    }
+
+    private CarVolumeGroup testVolumeGroupSetup() {
+        CarVolumeGroup carVolumeGroup =
+                getVolumeGroupWithGainAndUser(2, UserHandle.USER_CURRENT);
 
         carVolumeGroup.bind(CarAudioContext.MUSIC, mMediaDevice);
         carVolumeGroup.bind(CarAudioContext.CALL, mMediaDevice);
@@ -470,33 +545,49 @@ public class CarVolumeGroupTest extends AbstractExtendedMockitoTestCase{
         return cadiMock;
     }
 
-    private CarAudioSettings generateCarAudioSettings(int userId,
-            int zoneId, int id, int storedGainIndex) {
-        CarAudioSettings settingsMock = Mockito.mock(CarAudioSettings.class);
-        when(settingsMock.getStoredVolumeGainIndexForUser(userId, zoneId, id))
-                .thenReturn(storedGainIndex);
+    private static final class CarVolumeGroupSettingsBuilder {
+        private SparseIntArray mStoredGainIndexes = new SparseIntArray();
+        private SparseBooleanArray mStoreMuteStates = new SparseBooleanArray();
+        private boolean mPersistMute;
+        private final int mZoneId;
+        private final int mGroupId;
 
-        return settingsMock;
-    }
-
-    private CarAudioSettings generateCarAudioSettings(
-            int zoneId, int id, int storedGainIndex) {
-        CarAudioSettings settingsMock = Mockito.mock(CarAudioSettings.class);
-
-        when(settingsMock.getStoredVolumeGainIndexForUser(anyInt(), eq(zoneId),
-                eq(id))).thenReturn(storedGainIndex);
-
-        return settingsMock;
-    }
-
-    private CarAudioSettings generateCarAudioSettings(List<Integer> users,
-            int zoneId, int id, Map<Integer, Integer> storedGainIndex) {
-        CarAudioSettings settingsMock = Mockito.mock(CarAudioSettings.class);
-        for (Integer user : users) {
-            when(settingsMock.getStoredVolumeGainIndexForUser(user, zoneId,
-                    id)).thenReturn(storedGainIndex.get(user));
+        CarVolumeGroupSettingsBuilder(int zoneId, int groupId) {
+            mZoneId = zoneId;
+            mGroupId = groupId;
         }
-        return settingsMock;
-    }
 
+        CarVolumeGroupSettingsBuilder setGainIndexForUser(@UserIdInt int userId, int gainIndex) {
+            mStoredGainIndexes.put(userId, gainIndex);
+            return this;
+        }
+
+        CarVolumeGroupSettingsBuilder setMuteForUser(@UserIdInt int userId, boolean mute) {
+            mStoreMuteStates.put(userId, mute);
+            return this;
+        }
+
+        CarVolumeGroupSettingsBuilder setIsPersistVolumeGroupEnabled(boolean persistMute) {
+            mPersistMute = persistMute;
+            return this;
+        }
+
+        CarAudioSettings build() {
+            CarAudioSettings settingsMock = Mockito.mock(CarAudioSettings.class);
+            for (int storeIndex = 0; storeIndex < mStoredGainIndexes.size(); storeIndex++) {
+                int gainUserId = mStoredGainIndexes.keyAt(storeIndex);
+                when(settingsMock
+                        .getStoredVolumeGainIndexForUser(gainUserId, mZoneId,
+                        mGroupId)).thenReturn(mStoredGainIndexes.get(gainUserId, DEFAULT_GAIN));
+            }
+            for (int muteIndex = 0; muteIndex < mStoreMuteStates.size(); muteIndex++) {
+                int muteUserId = mStoreMuteStates.keyAt(muteIndex);
+                when(settingsMock.getVolumeGroupMuteForUser(muteUserId, mZoneId, mGroupId))
+                        .thenReturn(mStoreMuteStates.get(muteUserId, false));
+                when(settingsMock.isPersistVolumeGroupMuteEnabled(muteUserId))
+                        .thenReturn(mPersistMute);
+            }
+            return settingsMock;
+        }
+    }
 }
