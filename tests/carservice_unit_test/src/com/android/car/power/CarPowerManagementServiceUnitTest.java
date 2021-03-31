@@ -51,6 +51,7 @@ import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
+import android.util.SparseArray;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -205,7 +206,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testShutdown() throws Exception {
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
         mPowerHal.setCurrentPowerState(
                 new PowerState(
@@ -214,7 +215,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
         assertThat(mService.garageModeShouldExitImmediately()).isFalse();
         mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
-        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -224,7 +225,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testShutdownImmediately() throws Exception {
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
         mPowerHal.setCurrentPowerState(
                 new PowerState(
@@ -235,7 +236,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
         mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
-        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -245,7 +246,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testSuspend() throws Exception {
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
         // Request suspend
         mPowerHal.setCurrentPowerState(
                 new PowerState(
@@ -260,7 +261,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testShutdownOnSuspend() throws Exception {
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
         // Tell it to shutdown
         mService.requestShutdownOnNextSuspend();
         // Request suspend
@@ -270,7 +271,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
                         VehicleApPowerStateShutdownParam.CAN_SLEEP));
         // Verify shutdown
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
-        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -291,7 +292,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testShutdownCancel() throws Exception {
         // Start in the ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
         // Start shutting down
         mPowerHal.setCurrentPowerState(
                 new PowerState(
@@ -313,7 +314,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     public void testSleepImmediately() throws Exception {
         // Transition to ON state
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
-        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
 
         mPowerHal.setCurrentPowerState(
                 new PowerState(
@@ -321,20 +322,20 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
                         VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY, 0);
         assertThat(mService.garageModeShouldExitImmediately()).isTrue();
-        mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
 
         // Send the finished signal from HAL to CPMS
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
     }
 
     @Test
     public void testShutdownWithProcessing() throws Exception {
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, 0));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_SHUTDOWN_START);
-        mPowerSignalListener.waitForShutdown(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_SHUTDOWN_START, WAIT_TIMEOUT_MS);
         // Send the finished signal
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
@@ -345,12 +346,12 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
-        mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
         // Send the finished signal from HAL to CPMS
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
     }
 
     /**
@@ -476,7 +477,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
         assertVoiceInteractionDisabled();
-        mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
         verify(mUserService).onSuspend();
 
         // Send the finished signal
@@ -485,7 +486,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mSystemStateInterface.setWakeupCausedByTimer(true);
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        mPowerSignalListener.waitForSleepExit(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
         mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
         // second processing after wakeup
         assertThat(mDisplayInterface.isDisplayEnabled()).isFalse();
@@ -503,7 +504,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
-        mPowerSignalListener.waitForSleepEntry(WAIT_TIMEOUT_MS);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
 
         verify(mUserService, times(2)).onSuspend();
 
@@ -730,36 +731,31 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     private class PowerSignalListener implements MockedPowerHalService.SignalListener {
-        private final Semaphore mShutdownWait = new Semaphore(0);
-        private final Semaphore mSleepEntryWait = new Semaphore(0);
-        private final Semaphore mSleepExitWait = new Semaphore(0);
+        private final SparseArray<Semaphore> mSemaphores;
 
-        public void waitForSleepExit(long timeoutMs) throws Exception {
-            waitForSemaphore(mSleepExitWait, timeoutMs);
+        private PowerSignalListener() {
+            mSemaphores = new SparseArray<>();
+            mSemaphores.put(PowerHalService.SET_ON, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_SHUTDOWN_START, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_ENTRY, new Semaphore(0));
+            mSemaphores.put(PowerHalService.SET_DEEP_SLEEP_EXIT, new Semaphore(0));
         }
 
-        public void waitForShutdown(long timeoutMs) throws Exception {
-            waitForSemaphore(mShutdownWait, timeoutMs);
-        }
-
-        public void waitForSleepEntry(long timeoutMs) throws Exception {
-            waitForSemaphore(mSleepEntryWait, timeoutMs);
+        public void waitFor(int signal, long timeoutMs) throws Exception {
+            Semaphore semaphore = mSemaphores.get(signal);
+            if (semaphore == null) {
+                return;
+            }
+            waitForSemaphore(semaphore, timeoutMs);
         }
 
         @Override
         public void sendingSignal(int signal) {
-            if (signal == PowerHalService.SET_SHUTDOWN_START) {
-                mShutdownWait.release();
+            Semaphore semaphore = mSemaphores.get(signal);
+            if (semaphore == null) {
                 return;
             }
-            if (signal == PowerHalService.SET_DEEP_SLEEP_ENTRY) {
-                mSleepEntryWait.release();
-                return;
-            }
-            if (signal == PowerHalService.SET_DEEP_SLEEP_EXIT) {
-                mSleepExitWait.release();
-                return;
-            }
+            semaphore.release();
         }
     }
 
