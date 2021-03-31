@@ -17,7 +17,7 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CLUSTER_DISPLAY_STATE;
-import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE_LEGACY;
+import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
@@ -75,7 +75,7 @@ public final class ClusterHalService extends HalServiceBase {
             CLUSTER_DISPLAY_STATE,
             CLUSTER_REPORT_STATE,
             CLUSTER_REQUEST_DISPLAY,
-            CLUSTER_NAVIGATION_STATE_LEGACY,
+            CLUSTER_NAVIGATION_STATE,
     };
 
     private static final int[] CORE_PROPERTIES = new int[]{
@@ -151,8 +151,7 @@ public final class ClusterHalService extends HalServiceBase {
                 break;
             }
         }
-        mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE_LEGACY)
-                >= 0;
+        mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE) >= 0;
         if (DBG) {
             Log.d(TAG, "takeProperties: coreSupported=" + mIsCoreSupported
                     + ", navigationStateSupported=" + mIsNavigationStateSupported);
@@ -262,7 +261,7 @@ public final class ClusterHalService extends HalServiceBase {
      */
     public void sendNavigationState(byte[] navigateState) {
         if (!isNavigationStateSupported()) return;
-        VehiclePropValue request = createVehiclePropValue(CLUSTER_NAVIGATION_STATE_LEGACY);
+        VehiclePropValue request = createVehiclePropValue(CLUSTER_NAVIGATION_STATE);
         fillByteList(request.value.bytes, navigateState);
         send(request);
     }

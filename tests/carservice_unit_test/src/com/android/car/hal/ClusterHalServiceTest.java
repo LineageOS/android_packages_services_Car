@@ -17,7 +17,7 @@
 package com.android.car.hal;
 
 import static android.car.VehiclePropertyIds.CLUSTER_DISPLAY_STATE;
-import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE_LEGACY;
+import static android.car.VehiclePropertyIds.CLUSTER_NAVIGATION_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
@@ -96,7 +96,7 @@ public class ClusterHalServiceTest {
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
                 newSubscribableConfig(CLUSTER_REQUEST_DISPLAY),
-                newSubscribableConfig(CLUSTER_NAVIGATION_STATE_LEGACY)));
+                newSubscribableConfig(CLUSTER_NAVIGATION_STATE)));
 
         mClusterHalService.init();
         mClusterHalService.setCallback(mHalEventListener);
@@ -150,7 +150,7 @@ public class ClusterHalServiceTest {
                 newSubscribableConfig(CLUSTER_DISPLAY_STATE),
                 newSubscribableConfig(CLUSTER_REPORT_STATE),
                 newSubscribableConfig(CLUSTER_REQUEST_DISPLAY),
-                newSubscribableConfig(CLUSTER_NAVIGATION_STATE_LEGACY)));
+                newSubscribableConfig(CLUSTER_NAVIGATION_STATE)));
         assertThat(mClusterHalService.isCoreSupported()).isTrue();
         assertThat(mClusterHalService.isNavigationStateSupported()).isTrue();
     }
@@ -325,7 +325,7 @@ public class ClusterHalServiceTest {
 
         verify(mVehicleHal).set(mPropCaptor.capture());
         VehiclePropValue prop = mPropCaptor.getValue();
-        assertThat(prop.prop).isEqualTo(CLUSTER_NAVIGATION_STATE_LEGACY);
+        assertThat(prop.prop).isEqualTo(CLUSTER_NAVIGATION_STATE);
         assertThat(prop.value.bytes).containsExactly((byte) 1, (byte) 2, (byte) 3, (byte) 4);
     }
 
