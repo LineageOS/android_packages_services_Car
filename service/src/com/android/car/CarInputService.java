@@ -51,7 +51,6 @@ import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
-import android.view.Display;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
@@ -350,7 +349,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     @Override
-    public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplay) {
+    public void onKeyEvent(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
         // Special case key code that have special "long press" handling for automotive
         switch (event.getKeyCode()) {
             case KeyEvent.KEYCODE_VOICE_ASSIST:
@@ -363,15 +362,26 @@ public class CarInputService extends ICarInput.Stub
                 break;
         }
 
+        assignDisplayId(event, targetDisplayType);
+
         // Allow specifically targeted keys to be routed to the cluster
-        if (targetDisplay == CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
+        if (targetDisplayType == CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER
                 && handleInstrumentClusterKey(event)) {
             return;
         }
-        if (mCaptureController.onKeyEvent(targetDisplay, event)) {
+        if (mCaptureController.onKeyEvent(targetDisplayType, event)) {
             return;
         }
         mMainDisplayHandler.onKeyEvent(event);
+    }
+
+    private void assignDisplayId(KeyEvent event, @DisplayTypeEnum int targetDisplayType) {
+        // Setting display id for driver user id (currently MAIN and CLUSTER display types are
+        // linked to driver user only)
+        int newDisplayId = mCarOccupantZoneService.getDisplayIdForDriver(targetDisplayType);
+
+        // Display id is overridden even if already set.
+        event.setDisplayId(newDisplayId);
     }
 
     @Override
@@ -472,24 +482,6 @@ public class CarInputService extends ICarInput.Stub
                 android.Manifest.permission.INJECT_EVENTS)) {
             throw new SecurityException("Injecting KeyEvent requires INJECT_EVENTS permission");
         }
-
-        // Setting display id for driver user id (currently MAIN and CLUSTER display types are
-        // linked to driver user only)
-        int driverUserId = mCarOccupantZoneService.getDriverUserId();
-        int driverZoneId = mCarOccupantZoneService.getOccupantZoneIdForUserId(driverUserId);
-        int newDisplayId = mCarOccupantZoneService.getDisplayForOccupant(driverZoneId,
-                targetDisplayType);
-
-        // Sets KeyEvent display id
-        int oldDisplayId = event.getDisplayId();
-        if (oldDisplayId != Display.INVALID_DISPLAY && oldDisplayId != Display.DEFAULT_DISPLAY
-                && oldDisplayId != newDisplayId) {
-            Slog.w(CarLog.TAG_INPUT, "Incoming KeyEvent parameter is expected to be set "
-                    + "with INVALID_DISPLAY, DEFAULT_DISPLAY or the current display id associated"
-                    + "with driver user id (which is {" + newDisplayId
-                    + "}), but instead was set with {" + oldDisplayId + "}");
-        }
-        event.setDisplayId(newDisplayId);
 
         // Redirect event to onKeyEvent
         onKeyEvent(event, targetDisplayType);

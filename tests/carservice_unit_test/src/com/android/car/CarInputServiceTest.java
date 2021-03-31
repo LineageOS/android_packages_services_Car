@@ -21,6 +21,7 @@ import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static com.android.compatibility.common.util.SystemUtil.eventually;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -56,6 +57,7 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
+import android.view.Display;
 import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -596,13 +598,8 @@ public class CarInputServiceTest {
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext).checkCallingOrSelfPermission(
                 android.Manifest.permission.INJECT_EVENTS);
 
-        int anyDriverUserId = 1;
-        int anyZoneId = 1;
         int someDisplayId = Integer.MAX_VALUE;
-        when(mCarOccupantZoneService.getDriverUserId()).thenReturn(anyDriverUserId);
-        when(mCarOccupantZoneService.getOccupantZoneIdForUserId(anyInt())).thenReturn(anyZoneId);
-        when(mCarOccupantZoneService.getDisplayForOccupant(anyInt(), anyInt())).thenReturn(
-                someDisplayId);
+        when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(someDisplayId);
 
         assertThat(event.getDisplayId()).isNotEqualTo(someDisplayId);
 
@@ -611,6 +608,26 @@ public class CarInputServiceTest {
 
         // Assert display id was updated as expected
         assertThat(event.getDisplayId()).isEqualTo(someDisplayId);
+    }
+
+    @Test
+    public void onKey_assignDisplayId_mainDisplay() {
+        // Act
+        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_HOME, Display.MAIN);
+
+        // Arrange
+        assertWithMessage("display id expected to be assigned with Display.DEFAULT_DISPLAY").that(
+                event.getDisplayId()).isEqualTo(android.view.Display.DEFAULT_DISPLAY);
+    }
+
+    @Test
+    public void onKey_assignDisplayId_clusterDisplay() {
+        // Act
+        KeyEvent event = send(Key.DOWN, KeyEvent.KEYCODE_HOME, Display.INSTRUMENT_CLUSTER);
+
+        // Arrange
+        assertWithMessage("display id expected to be assigned with Display.DEFAULT_DISPLAY").that(
+                event.getDisplayId()).isEqualTo(android.view.Display.DEFAULT_DISPLAY);
     }
 
     private enum Key {DOWN, UP}
@@ -628,6 +645,7 @@ public class CarInputServiceTest {
                 action == Key.DOWN ? KeyEvent.ACTION_DOWN : KeyEvent.ACTION_UP,
                 keyCode,
                 repeatCount);
+        event.setDisplayId(android.view.Display.INVALID_DISPLAY);
         mCarInputService.onKeyEvent(
                 event,
                 display == Display.MAIN
