@@ -132,6 +132,7 @@ import java.util.stream.Collectors;
     private final SparseIntArray mZoneIdToOccupantZoneIdMapping;
     private final Set<Integer> mAudioZoneIds;
     private final Set<String> mInputAudioDevices;
+    private final boolean mUseCarVolumeGroupMute;
 
     private int mNextSecondaryZoneId;
     private int mCurrentVersion;
@@ -143,7 +144,7 @@ import java.util.stream.Collectors;
     CarAudioZonesHelper(@NonNull CarAudioSettings carAudioSettings,
             @NonNull InputStream inputStream,
             @NonNull List<CarAudioDeviceInfo> carAudioDeviceInfos,
-            @NonNull AudioDeviceInfo[] inputDeviceInfo) {
+            @NonNull AudioDeviceInfo[] inputDeviceInfo, boolean useCarVolumeGroupMute) {
         mCarAudioSettings = Objects.requireNonNull(carAudioSettings);
         mInputStream = Objects.requireNonNull(inputStream);
         Objects.requireNonNull(carAudioDeviceInfos);
@@ -156,6 +157,7 @@ import java.util.stream.Collectors;
         mZoneIdToOccupantZoneIdMapping = new SparseIntArray();
         mAudioZoneIds = new HashSet<>();
         mInputAudioDevices = new HashSet<>();
+        mUseCarVolumeGroupMute = useCarVolumeGroupMute;
     }
 
     SparseIntArray getCarAudioZoneIdToOccupantZoneIdMapping() {
@@ -399,7 +401,8 @@ import java.util.stream.Collectors;
 
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
-        CarVolumeGroup group = new CarVolumeGroup(mCarAudioSettings, zoneId, groupId);
+        CarVolumeGroup group =
+                new CarVolumeGroup(zoneId, groupId, mCarAudioSettings, mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {

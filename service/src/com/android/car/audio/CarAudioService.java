@@ -234,15 +234,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 setupLegacyVolumeChangedListener();
             }
 
-            restoreMuteState();
-
             mAudioManager.setSupportedSystemUsages(SYSTEM_USAGES);
         }
+
+        restoreMasterMuteState();
     }
 
-    private void restoreMuteState() {
+    private void restoreMasterMuteState() {
         if (mUseCarVolumeGroupMuting) {
-            //TODO(177251375) : Add muting restore for car volume groups
             return;
         }
         // Restore master mute state if applicable
@@ -519,7 +518,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         AudioDeviceInfo[] inputDevices = getAllInputDevices();
         try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mCarAudioSettings,
-                    inputStream, carAudioDeviceInfos, inputDevices);
+                    inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting);
             mAudioZoneIdToOccupantZoneIdMapping =
                     zonesHelper.getCarAudioZoneIdToOccupantZoneIdMapping();
             return zonesHelper.loadAudioZones();
@@ -1303,6 +1302,14 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             assignMissingZonesToDriverLocked(driverUserId, assignedZones);
         }
+        restoreVolumeGroupMuteState();
+    }
+
+    private void restoreVolumeGroupMuteState() {
+        if (!mUseCarVolumeGroupMuting) {
+            return;
+        }
+        mCarVolumeGroupMuting.carMuteChanged();
     }
 
     private void assignMissingZonesToDriverLocked(@UserIdInt int driverUserId,
@@ -1339,7 +1346,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                             + userId + ") to audioZoneId("
                             + zone.getId() + ")");
         }
-        zone.updateVolumeGroupsForUser(userId);
+        zone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(zone.getId(), userId);
         setUserIdForAudioZoneLocked(userId, zone.getId());
     }
@@ -1383,7 +1390,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         if (userId != driverUserId || occupantZoneId == occupantZoneForDriver) {
             setUserIdDeviceAffinitiesLocked(audioZone, userId, audioZoneId);
         }
-        audioZone.updateVolumeGroupsForUser(userId);
+        audioZone.updateVolumeGroupsSettingsForUser(userId);
         mFocusHandler.updateUserForZoneId(audioZoneId, userId);
         setUserIdForAudioZoneLocked(userId, audioZoneId);
     }
@@ -1411,7 +1418,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     private void resetZoneToDefaultUser(CarAudioZone zone, @UserIdInt int driverUserId) {
         resetCarZonesAudioFocus(zone.getId(), driverUserId);
-        zone.updateVolumeGroupsForUser(driverUserId);
+        zone.updateVolumeGroupsSettingsForUser(driverUserId);
     }
 
     private void resetCarZonesAudioFocus(int audioZoneId, @UserIdInt int driverUserId) {
