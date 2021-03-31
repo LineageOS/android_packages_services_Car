@@ -118,7 +118,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         addProperty(VehicleProperty.CLUSTER_REQUEST_DISPLAY, mPropertyHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
-        addProperty(VehicleProperty.CLUSTER_NAVIGATION_STATE_LEGACY, mPropertyHandler)
+        addProperty(VehicleProperty.CLUSTER_NAVIGATION_STATE, mPropertyHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }

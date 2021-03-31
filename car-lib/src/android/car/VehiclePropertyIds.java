@@ -1167,7 +1167,7 @@ public final class VehiclePropertyIds {
      *
      * @hide
      */
-    public static final int CLUSTER_NAVIGATION_STATE_LEGACY = 292556600;
+    public static final int CLUSTER_NAVIGATION_STATE = 292556600;
 
     /**
      * Current date and time, encoded as Unix time.
@@ -1487,8 +1487,8 @@ public final class VehiclePropertyIds {
                 return "CLUSTER_REPORT_STATE";
             case CLUSTER_REQUEST_DISPLAY:
                 return "CLUSTER_REQUEST_DISPLAY";
-            case CLUSTER_NAVIGATION_STATE_LEGACY:
-                return "CLUSTER_NAVIGATION_STATE_LEGACY";
+            case CLUSTER_NAVIGATION_STATE:
+                return "CLUSTER_NAVIGATION_STATE";
             case UNIX_TIME:
                 return "UNIX_TIME";
             case STORAGE_ENCRYPTION_BINDING_SEED:
