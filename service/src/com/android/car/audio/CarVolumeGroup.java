@@ -44,6 +44,7 @@ import java.util.Map;
  */
 /* package */ final class CarVolumeGroup {
 
+    private final boolean mUseCarVolumeGroupMute;
     private CarAudioSettings mSettingsManager;
     private final int mZoneId;
     private final int mId;
@@ -66,12 +67,14 @@ import java.util.Map;
      * @param Settings {@link CarAudioSettings} instance
      * @param zoneId Audio zone this volume group belongs to
      * @param id ID of this volume group
+     * @param useCarVolumeGroupMute flag to indicate whether to use car volume group mute or not
      */
-    CarVolumeGroup(CarAudioSettings settings, int zoneId, int id) {
+    CarVolumeGroup(int zoneId, int id, CarAudioSettings settings, boolean useCarVolumeGroupMute) {
         mSettingsManager = settings;
         mZoneId = zoneId;
         mId = id;
         mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId, mId);
+        mUseCarVolumeGroupMute = useCarVolumeGroupMute;
     }
 
     /**
@@ -84,7 +87,7 @@ import java.util.Map;
      */
     @Deprecated
     CarVolumeGroup(CarAudioSettings settings, int zoneId, int id, @NonNull int[] contexts) {
-        this(settings, zoneId, id);
+        this(zoneId, id, settings, false);
         // Deal with the pre-populated car audio contexts
         for (int audioContext : contexts) {
             mContextToAddress.put(audioContext, null);
@@ -318,6 +321,8 @@ import java.util.Map;
             writer.increaseIndent();
             writer.printf("Is Muted(%b)\n", mIsMuted);
             writer.printf("UserId(%d)\n", mUserId);
+            writer.printf("Persist Volume Group Mute(%b)\n",
+                    mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId));
             writer.printf("Gain values (min / max / default/ current): %d %d %d %d\n", mMinGain,
                     mMaxGain, mDefaultGain, getGainForIndexLocked(mCurrentGainIndex));
             writer.printf("Gain indexes (min / max / default / current): %d %d %d %d\n",
@@ -338,23 +343,38 @@ import java.util.Map;
     }
 
     /**
-     * Load volumes for new user
+     * Load volumes settings for new user
      * @param userId new user to load
      */
-    void loadVolumesForUser(@UserIdInt int userId) {
+    void loadVolumesSettingsForUser(@UserIdInt int userId) {
         synchronized (mLock) {
             //Update the volume for the new user
             updateUserIdLocked(userId);
             //Update the current gain index
             updateCurrentGainIndexLocked();
             //Reset devices with current gain index
+            updateGroupMuteLocked();
         }
         setCurrentGainIndex(getCurrentGainIndex());
+    }
+
+    private void updateGroupMuteLocked() {
+        if (!mUseCarVolumeGroupMute) {
+            return;
+        }
+        if (!mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
+            mIsMuted = false;
+            return;
+        }
+        mIsMuted = mSettingsManager.getVolumeGroupMuteForUser(mUserId, mZoneId, mId);
     }
 
     public void setMute(boolean mute) {
         synchronized (mLock) {
             mIsMuted = mute;
+            if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
+                mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mId, mute);
+            }
         }
     }
 
