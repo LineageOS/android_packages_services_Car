@@ -55,6 +55,8 @@ import android.os.SystemClock;
 import android.os.UserManager;
 import android.util.ArrayMap;
 
+import com.google.common.truth.Correspondence;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -196,7 +198,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     @Test
     public void testGetPackageInfosForUids() throws Exception {
-        int[] uids = new int[]{6001, 6050, 5100, 110035, 120056, 120078};
+        int[] uids = new int[]{6001, 6050, 5100, 110035, 120056, 120078, 1345678};
         List<PackageInfo> expectedPackageInfos = new ArrayList<>(Arrays.asList(
                 constructPackageInfo("system.package.A", 6001, new ArrayList<>(),
                         UidType.NATIVE, ComponentType.SYSTEM, ApplicationCategoryType.OTHERS),
@@ -215,6 +217,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 constructPackageInfo("shared:third_party.package", 120078,
                         new ArrayList<>(Arrays.asList("third_party.package.I")),
                         UidType.APPLICATION,  ComponentType.THIRD_PARTY,
+                        ApplicationCategoryType.OTHERS),
+                constructPackageInfo("vendor.package.J", 1345678, new ArrayList<>(),
+                        UidType.APPLICATION, ComponentType.VENDOR,
                         ApplicationCategoryType.OTHERS)));
 
         ArrayMap<String, ApplicationInfo> applicationInfos = new ArrayMap<>(9);
@@ -228,6 +233,8 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_OEM));
         applicationInfos.put("vendor.package.E",
                 constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_VENDOR));
+        applicationInfos.put("vendor.package.J",
+                constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_ODM));
         applicationInfos.put("third_party.package.C", constructApplicationInfo(0, 0));
         applicationInfos.put("third_party.package.G", constructApplicationInfo(0, 0));
         applicationInfos.put("third_party.package.H", constructApplicationInfo(0, 0));
@@ -238,9 +245,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     @Test
@@ -265,7 +270,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 ApplicationInfo.PRIVATE_FLAG_PRODUCT));
         applicationInfos.put("vendor.pkg.E", constructApplicationInfo(ApplicationInfo.FLAG_SYSTEM,
                 0));
-        /**
+        /*
          * A 3p package pretending to be a vendor package because 3p packages won't have the
          * required flags.
          */
@@ -279,9 +284,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>(Arrays.asList("vendor.package.", "vendor.pkg.")));
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     @Test
@@ -317,9 +320,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     @Override
@@ -413,7 +414,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 });
     }
 
-    private PackageInfo constructPackageInfo(String packageName, int uid,
+    private static PackageInfo constructPackageInfo(String packageName, int uid,
             List<String> sharedUidPackages, int uidType, int componentType, int appCategoryType) {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.packageIdentifier = new PackageIdentifier();
@@ -427,14 +428,14 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return packageInfo;
     }
 
-    private ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
+    private static ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
         ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.flags = flags;
         applicationInfo.privateFlags = privateFlags;
         return applicationInfo;
     }
 
-    private String toString(List<PackageInfo> packageInfos) {
+    private static String toString(List<PackageInfo> packageInfos) {
         StringBuilder builder = new StringBuilder();
         for (PackageInfo packageInfo : packageInfos) {
             builder = toString(builder, packageInfo).append('\n');
@@ -442,7 +443,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return builder.toString();
     }
 
-    private StringBuilder toString(StringBuilder builder, PackageInfo packageInfo) {
+    private static StringBuilder toString(StringBuilder builder, PackageInfo packageInfo) {
         if (packageInfo == null) {
             return builder.append("Null package info\n");
         }
@@ -466,26 +467,22 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return builder;
     }
 
-    private boolean equals(List<PackageInfo> lhs, List<PackageInfo> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-        for (int i = 0; i < lhs.size(); ++i) {
-            if (!equals(lhs.get(i), rhs.get(i))) {
-                return false;
-            }
-        }
-        return true;
+    private static void assertPackageInfoEquals(List<PackageInfo> actual,
+            List<PackageInfo> expected) throws Exception {
+        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
+                toString(expected), toString(actual)).that(actual).comparingElementsUsing(
+                Correspondence.from(CarWatchdogServiceUnitTest::isPackageInfoEquals,
+                        "is package info equal to")).containsExactlyElementsIn(expected);
     }
 
-    private boolean equals(PackageInfo lhs, PackageInfo rhs) {
-        return equals(lhs.packageIdentifier, rhs.packageIdentifier)
+    private static boolean isPackageInfoEquals(PackageInfo lhs, PackageInfo rhs) {
+        return isEquals(lhs.packageIdentifier, rhs.packageIdentifier)
                 && lhs.sharedUidPackages.equals(rhs.sharedUidPackages)
                 && lhs.componentType == rhs.componentType
                 && lhs.appCategoryType == rhs.appCategoryType;
     }
 
-    private boolean equals(PackageIdentifier lhs, PackageIdentifier rhs) {
+    private static boolean isEquals(PackageIdentifier lhs, PackageIdentifier rhs) {
         return lhs.name.equals(rhs.name) && lhs.uid == rhs.uid;
     }
 }
