@@ -17,8 +17,9 @@
     style="@style/SectionContainer"
     android:layout_width="match_parent"
     android:layout_height="wrap_content"
-    android:weightSum="8"
+    android:weightSum="9"
     android:orientation="vertical">
+    <include layout="@layout/metric_display" />
     <LinearLayout
         style="@style/SectionContainer"
         android:layout_width="match_parent"
