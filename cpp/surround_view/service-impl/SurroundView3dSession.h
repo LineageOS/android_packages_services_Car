@@ -116,9 +116,6 @@ private:
 
     bool handleFrames(int sequenceId);
 
-    bool copyFromBufferToPointers(BufferDesc_1_1 buffer,
-                                  SurroundViewInputBufferPointers pointers);
-
     enum StreamStateValues {
         STOPPED,
         RUNNING,
@@ -184,6 +181,8 @@ private:
     bool mOverlayIsUpdated GUARDED_BY(mAccessLock) = false;
 
     std::vector<VehiclePropValue> mPropertyValues;
+
+    hidl_vec<BufferDesc_1_1> mEvsGraphicBuffers;
 };
 
 }  // namespace implementation
