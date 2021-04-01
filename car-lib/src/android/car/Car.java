@@ -49,6 +49,7 @@ import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarProperty;
 import android.car.input.CarInputManager;
 import android.car.media.CarAudioManager;
+import android.car.media.CarMediaIntents;
 import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
@@ -837,26 +838,23 @@ public final class Car {
     public @interface ConnectionType {}
 
     /**
-     * Activity Action: Provide media playing through a media template app.
-     * <p>Input: String extra mapped by {@link android.app.SearchManager#QUERY} is the query
-     * used to start the media. String extra mapped by {@link #CAR_EXTRA_MEDIA_COMPONENT} is the
-     * component name of the media app which user wants to play media on.
-     * <p>Output: nothing.
+     * @deprecated Use {@link CarMediaIntents#ACTION_MEDIA_TEMPLATE} instead.
      */
+    @Deprecated
     @SdkConstant(SdkConstantType.ACTIVITY_INTENT_ACTION)
     public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE =
             "android.car.intent.action.MEDIA_TEMPLATE";
 
     /**
-     * Used as a string extra field with {@link #CAR_INTENT_ACTION_MEDIA_TEMPLATE} to specify the
-     * MediaBrowserService that user wants to start the media on.
+     * @deprecated Use {@link CarMediaIntents#EXTRA_MEDIA_COMPONENT} instead.
      */
+    @Deprecated
     public static final String CAR_EXTRA_MEDIA_COMPONENT =
             "android.car.intent.extra.MEDIA_COMPONENT";
 
     /**
      *
-     * @deprecated Use{@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
+     * @deprecated Use {@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
      * @removed Using this for specifying MediaBrowserService was not supported since API level 29
      * and above. Apps must use {@link #CAR_EXTRA_MEDIA_COMPONENT} instead.
      */
