@@ -17,8 +17,8 @@ package android.car {
     field public static final String APP_FOCUS_SERVICE = "app_focus";
     field public static final String AUDIO_SERVICE = "audio";
     field public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION = "android.media.session.BROWSE_SERVICE";
-    field public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
-    field public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
+    field @Deprecated public static final String CAR_EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
+    field @Deprecated public static final String CAR_INTENT_ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
     field public static final String CAR_NAVIGATION_SERVICE = "car_navigation_service";
     field public static final String CAR_OCCUPANT_ZONE_SERVICE = "car_occupant_zone_service";
     field public static final String CAR_UX_RESTRICTION_SERVICE = "uxrestriction";
@@ -674,6 +674,12 @@ package android.car.media {
     method public void onGroupMuteChanged(int, int, int);
     method public void onGroupVolumeChanged(int, int, int);
     method public void onMasterMuteChanged(int, int);
+  }
+
+  public final class CarMediaIntents {
+    field public static final String ACTION_MEDIA_TEMPLATE = "android.car.intent.action.MEDIA_TEMPLATE";
+    field public static final String EXTRA_MEDIA_COMPONENT = "android.car.intent.extra.MEDIA_COMPONENT";
+    field public static final String EXTRA_SEARCH_QUERY = "android.car.media.extra.SEARCH_QUERY";
   }
 
 }
