@@ -177,16 +177,17 @@ public class PropertyHalService extends HalServiceBase {
 
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         VehiclePropValue value = mVehicleHal.get(halPropId, areaId);
+        if (value == null) return null;
+
         if (isMixedTypeProperty(halPropId)) {
             VehiclePropConfig propConfig;
             synchronized (mLock) {
                 propConfig = mHalPropIdToVehiclePropConfig.get(halPropId);
             }
             boolean containBooleanType = propConfig.configArray.get(1) == 1;
-            return value == null ? null : toMixedCarPropertyValue(value,
-                    mgrPropId, containBooleanType);
+            return toMixedCarPropertyValue(value, mgrPropId, containBooleanType);
         }
-        return value == null ? null : toCarPropertyValue(value, mgrPropId);
+        return toCarPropertyValue(value, mgrPropId);
     }
 
     /**
