@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Достъп до информацията за разрешенията на автомобилния производител"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"четене на състоянието на външните светлини на автомобила"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Достъп до състоянието на външните светлини на автомобила."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"осъществяване на достъп до клеймото на UNIX за дата и час на автомобила"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Осъществяване на достъп до клеймото на UNIX за дата и час на автомобила."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"осъществяване на достъп до обвързващата базова стойност за шифроване на автомобила"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Осъществяване на достъп до обвързващата базова стойност за шифроване на автомобила."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"четене на външните светлини на автомобила"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Контролиране на външните светлини на автомобила."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"четене на вътрешните светлини на автомобила"</string>

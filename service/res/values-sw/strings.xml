@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Kufikia maelezo ya ruhusa ya muuzaji wa gari"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"kusoma hali ya taa za nje ya gari"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Kufikia hali ya taa za nje ya gari."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"fikia muda wa UNIX wa gari"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Fikia muda wa UNIX wa gari."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"fikia mfululizo wa biti za kuunganisha usimbaji fiche wa gari"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Fikia mfululizo wa biti za kuunganisha usimbaji fiche wa gari."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"kusoma taa za nje ya gari"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kudhibiti taa za nje ya gari."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"kusoma taa za ndani ya gari"</string>
