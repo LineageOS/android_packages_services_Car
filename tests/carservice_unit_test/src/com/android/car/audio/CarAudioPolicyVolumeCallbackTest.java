@@ -26,12 +26,10 @@ import static android.media.AudioManager.ADJUST_UNMUTE;
 import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
-import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -74,10 +72,8 @@ public class CarAudioPolicyVolumeCallbackTest {
     public void setUp() {
         mCarAudioPolicyVolumeCallback =
                 new CarAudioPolicyVolumeCallback(mMockCarAudioService, mMockAudioManager, false);
-        when(mMockCarAudioService.getSuggestedVolumeContextForPrimaryZone())
+        when(mMockCarAudioService.getSuggestedAudioContextForPrimaryZone())
                 .thenReturn(VOICE_COMMAND);
-        when(mMockCarAudioService.getSuggestedMuteContextForPrimaryZone())
-                .thenReturn(MUSIC);
         when(mMockCarAudioService.getVolumeGroupIdForAudioContext(anyInt(), anyInt()))
                 .thenReturn(TEST_VOLUME_GROUP);
         when(mMockCarAudioService.getGroupMaxVolume(anyInt(), anyInt()))
@@ -122,8 +118,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_RAISE);
 
-        verify(mMockCarAudioService).setGroupVolume(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(TEST_VOLUME + 1), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, TEST_VOLUME + 1, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -132,8 +128,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_LOWER);
 
-        verify(mMockCarAudioService).setGroupVolume(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(TEST_VOLUME - 1), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, TEST_VOLUME - 1, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -142,8 +138,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_LOWER);
 
-        verify(mMockCarAudioService).setGroupVolume(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(TEST_MIN_VOLUME), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, TEST_MIN_VOLUME, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -152,8 +148,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_RAISE);
 
-        verify(mMockCarAudioService).setGroupVolume(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(TEST_MAX_VOLUME), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setGroupVolume(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, TEST_MAX_VOLUME, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -170,14 +166,14 @@ public class CarAudioPolicyVolumeCallbackTest {
     public void onVolumeAdjustment_withAdjustMute_mutesMasterVolume() {
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_MUTE);
 
-        verify(mMockCarAudioService).setMasterMute(eq(true), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setMasterMute(true, TEST_EXPECTED_FLAGS);
     }
 
     @Test
     public void onVolumeAdjustment_withAdjustUnMute_unMutesMasterVolume() {
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_UNMUTE);
 
-        verify(mMockCarAudioService).setMasterMute(eq(false), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setMasterMute(false, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -186,7 +182,7 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_TOGGLE_MUTE);
 
-        verify(mMockCarAudioService).setMasterMute(eq(false), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setMasterMute(false, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -195,7 +191,7 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         mCarAudioPolicyVolumeCallback.onVolumeAdjustment(ADJUST_TOGGLE_MUTE);
 
-        verify(mMockCarAudioService).setMasterMute(eq(true), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setMasterMute(true, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -205,8 +201,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         callback.onVolumeAdjustment(ADJUST_MUTE);
 
-        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(true), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setVolumeGroupMute(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, true, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -218,8 +214,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         callback.onVolumeAdjustment(ADJUST_TOGGLE_MUTE);
 
-        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(false), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setVolumeGroupMute(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, false, TEST_EXPECTED_FLAGS);
     }
 
     @Test
@@ -230,8 +226,8 @@ public class CarAudioPolicyVolumeCallbackTest {
 
         callback.onVolumeAdjustment(ADJUST_UNMUTE);
 
-        verify(mMockCarAudioService).setVolumeGroupMute(eq(PRIMARY_AUDIO_ZONE),
-                eq(TEST_VOLUME_GROUP), eq(false), eq(TEST_EXPECTED_FLAGS));
+        verify(mMockCarAudioService).setVolumeGroupMute(PRIMARY_AUDIO_ZONE,
+                TEST_VOLUME_GROUP, false, TEST_EXPECTED_FLAGS);
     }
 
     private void setGroupVolume(int groupVolume) {
