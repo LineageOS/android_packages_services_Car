@@ -21,6 +21,7 @@ import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
+import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_FOCUS;
 
@@ -196,10 +197,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mAudioManager = (AudioManager) mContext.getSystemService(Context.AUDIO_SERVICE);
 
         mUseDynamicRouting = mContext.getResources().getBoolean(R.bool.audioUseDynamicRouting);
-        mUseCarVolumeGroupMuting = mUseDynamicRouting && mContext.getResources().getBoolean(
-                R.bool.audioUseCarVolumeGroupMuting);
-        mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
-                R.bool.audioPersistMasterMuteState);
         mKeyEventTimeoutMs =
                 mContext.getResources().getInteger(R.integer.audioVolumeKeyEventTimeoutMs);
         mUseHalDuckingSignals = mContext.getResources().getBoolean(
@@ -213,6 +210,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);
         mCarVolume = new CarVolume(mClock,
                 mAudioVolumeAdjustmentContextsVersion, mKeyEventTimeoutMs);
+        boolean useCarVolumeGroupMuting = mUseDynamicRouting && mContext.getResources().getBoolean(
+                R.bool.audioUseCarVolumeGroupMuting);
+        if (mAudioVolumeAdjustmentContextsVersion != VERSION_TWO && useCarVolumeGroupMuting) {
+            throw new IllegalArgumentException("audioUseCarVolumeGroupMuting is enabled but "
+                    + "this requires audioVolumeAdjustmentContextsVersion 2,"
+                    + " instead version " + mAudioVolumeAdjustmentContextsVersion + " was found");
+        }
+        mUseCarVolumeGroupMuting = useCarVolumeGroupMuting;
+        mPersistMasterMuteState = !mUseCarVolumeGroupMuting && mContext.getResources().getBoolean(
+                R.bool.audioPersistMasterMuteState);
     }
 
     /**
@@ -1246,16 +1253,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
-    @AudioContext int getSuggestedMuteContextForPrimaryZone() {
+    @AudioContext int getSuggestedAudioContextForPrimaryZone() {
         int zoneId = PRIMARY_AUDIO_ZONE;
-        return mCarVolume.getSuggestedMuteContextAndSaveIfFound(
-                getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
-                getActiveHalUsagesForZone(zoneId));
-    }
-
-    @AudioContext int getSuggestedVolumeContextForPrimaryZone() {
-        int zoneId = PRIMARY_AUDIO_ZONE;
-        return mCarVolume.getSuggestedVolumeContextAndSaveIfFound(
+        return mCarVolume.getSuggestedAudioContextAndSaveIfFound(
                 getAllActiveContextsForPrimaryZone(), getCallStateForZone(zoneId),
                 getActiveHalUsagesForZone(zoneId));
     }
