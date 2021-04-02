@@ -119,6 +119,14 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"מתן גישה למידע לגבי הרשאת הספק של המכונית."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"קריאה של מצב הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"גישה למצב הפנסים החיצוניים של הרכב."</string>
+    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
+    <skip />
+    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
+    <skip />
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"קריאת נתונים על הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"שליטה בפנסים החיצוניים של הרכב."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"קריאת נתונים של התאורה הפנימית של הרכב"</string>

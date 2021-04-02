@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Acceder a la información de permisos del proveedor del coche."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"consultar el estado de las luces exteriores del coche"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Acceder al estado de las luces exteriores del coche."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"acceder al tiempo UNIX del coche"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Acceder al tiempo UNIX del coche."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"acceder a la provisión de vinculación del cifrado del coche"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Acceder a la provisión de vinculación del cifrado del coche."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"controlar las luces exteriores del coche"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Controlar las luces exteriores del coche."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"consultar el estado de las luces interiores del coche"</string>

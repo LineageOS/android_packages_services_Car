@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Pristupanje informacijama o dopuštenju dobavljača automobila."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"čitati stanje vanjskih svjetala automobila"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"pristupiti stanju vanjskih svjetala automobila"</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"pristupi UNIX vremenu automobila"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Pristupi UNIX vremenu automobila."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"pristupi izvoru povezivanja enkripcije automobila"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Pristupi izvoru povezivanja enkripcije automobila."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"čitati podatke o vanjskim svjetlima automobila"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"upravljati vanjskim svjetlima automobila"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"čitati podatke o unutarnjim svjetlima automobila"</string>
