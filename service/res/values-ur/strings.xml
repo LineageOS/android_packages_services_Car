@@ -119,6 +119,14 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"کار کے وینڈر کے اجازت کی معلومات تک رسائی حاصل کریں۔"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"کار کی بیرونی روشنیوں کی صورتحال کے بارے میں پڑھیں"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"کار کی بیرونی روشنیوں کی صورتحال تک رسائی حاصل کریں۔"</string>
+    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
+    <skip />
+    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
+    <skip />
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"کار کی بیرونی روشنیوں کے بارے میں پڑھیں"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"کار کی بیرونی روشنیوں کو کنٹرول کریں۔"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"کار کی اندرونی روشنیوں کے بارے میں پڑھیں"</string>

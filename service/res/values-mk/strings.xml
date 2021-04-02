@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Пристап до информациите за дозволи на продавачот."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ја чита состојбата на надворешните светла на автомобилот"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Пристапува до состојбата на надворешните светла на автомобилот."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"пристап до UNIX-времето на автомобилот"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Пристап до UNIX-времето на автомобилот."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"пристап до обврзувачкиот извор за шифрирање на автомобилот"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Пристап до обврзувачкиот извор за шифрирање на автомобилот."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ги чита надворешните светла на автомобилот"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Ги контролира надворешните светла на автомобилот."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ги чита внатрешните светла на автомобилот"</string>

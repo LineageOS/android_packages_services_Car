@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Accedeix a la informació sobre permisos del fabricant del cotxe."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"llegeix l\'estat dels llums exteriors del cotxe"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Accedeix a l\'estat dels llums exteriors del cotxe."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"accedir a l\'hora UNIX del cotxe"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Accedir a l\'hora UNIX del cotxe."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"accedir a la provisió de vinculació de l\'encriptació del cotxe"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Accedir a la provisió de vinculació de l\'encriptació del cotxe."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"llegeix els llums exteriors del cotxe"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Controla els llums exteriors del cotxe."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"llegeix els llums interiors del cotxe"</string>
