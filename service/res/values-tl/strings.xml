@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"I-access ang impormasyon ng pahintulot ng vendor ng sasakyan."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"basahin ang status ng mga ilaw sa labas ng sasakyan"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"I-access ang status ng mga ilaw sa labas ng sasakyan."</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"i-access ang UNIX na oras ng sasakyan"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"I-access ang UNIX na oras ng sasakyan."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"i-access ang encryption binding seed ng sasakyan"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"I-access ang encryption binding seed ng sasakyan."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"basahin ang mga ilaw sa labas ng sasakyan"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"Kontrolin ang mga ilaw sa labas ng sasakyan."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"basahin ang mga ilaw sa loob ng sasakyan"</string>

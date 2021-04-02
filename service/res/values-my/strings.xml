@@ -119,6 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ကားရောင်းချသူ ခွင့်ပြုချက်ဆိုင်ရာ အချက်အလက်များကို ကြည့်ရန်။"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ကားအပြင်ဘက်ရှိ မီးလုံးများ၏ အခြေအနေကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ကား၏အပြင်ဘက်ရှိ မီးလုံးများ၏ အခြေအနေကို ကြည့်ပါမည်။"</string>
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"ကား၏ UNIX အချိန်ကို ရယူမည်"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"ကား၏ UNIX အချိန်ကို ရယူမည်။"</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ကား၏ အသွင်ဝှက်ခြင်း ပေါင်းစပ်သည့်ရင်းမြစ်ကို ရယူမည်"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ကား၏ အသွင်ဝှက်ခြင်း ပေါင်းစပ်သည့်ရင်းမြစ်ကို ရယူမည်။"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ကားအပြင်ဘက်ရှိ မီးလုံးများကို ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"ကားအပြင်ဘက်ရှိ မီးလုံးများကို ထိန်းချုပ်ပါမည်။"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ကားအတွင်းပိုင်းရှိ မီးလုံးများကို ကြည့်ပါမည်"</string>
