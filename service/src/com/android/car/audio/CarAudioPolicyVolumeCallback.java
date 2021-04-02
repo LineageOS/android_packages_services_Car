@@ -62,7 +62,8 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
 
     @Override
     public void onVolumeAdjustment(int adjustment) {
-        @AudioContext int suggestedContext = getSuggestedContextForAdjustment(adjustment);
+        @AudioContext int suggestedContext = mCarAudioService
+                .getSuggestedAudioContextForPrimaryZone();
 
         int zoneId = PRIMARY_AUDIO_ZONE;
         int groupId = mCarAudioService.getVolumeGroupIdForAudioContext(zoneId, suggestedContext);
@@ -97,27 +98,6 @@ final class CarAudioPolicyVolumeCallback extends AudioPolicy.AudioPolicyVolumeCa
             case AudioManager.ADJUST_SAME:
             default:
                 break;
-        }
-    }
-
-    private @AudioContext int getSuggestedContextForAdjustment(int adjustment) {
-        if (mUseCarVolumeGroupMuting && isMuteAdjustment(adjustment)) {
-            return mCarAudioService.getSuggestedMuteContextForPrimaryZone();
-        }
-        return mCarAudioService.getSuggestedVolumeContextForPrimaryZone();
-    }
-
-    private boolean isMuteAdjustment(int adjustment) {
-        switch (adjustment) {
-            case AudioManager.ADJUST_MUTE:
-            case AudioManager.ADJUST_UNMUTE:
-            case AudioManager.ADJUST_TOGGLE_MUTE:
-                return true;
-            case AudioManager.ADJUST_LOWER:
-            case AudioManager.ADJUST_RAISE:
-            case AudioManager.ADJUST_SAME:
-            default:
-                return false;
         }
     }
 
