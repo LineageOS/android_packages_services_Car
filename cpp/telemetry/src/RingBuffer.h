@@ -25,9 +25,16 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
+// A ring buffer that holds BufferedCarData. It drops old data if it's full.
+// Not thread-safe.
+// TODO(b/182608968): make it thread-safe
 class RingBuffer {
 public:
     // RingBuffer limits `currentSizeBytes()` to the given param `sizeLimitBytes`.
+    // There is also a hard limit on number of items, it's expected that reader clients will
+    // fetch all the data before the buffer gets full.
+    // TODO(b/182608968): Only limit the size using count, and restructure the methods to match
+    //                    the new internal API.
     explicit RingBuffer(int32_t sizeLimitBytes);
 
     // Pushes the data to the buffer. If the buffer is full, it removes the oldest data.
@@ -39,7 +46,7 @@ public:
     std::vector<BufferedCarData> popAllDataForId(int32_t id);
 
     // Dumps the current state for dumpsys.
-    void dump(int fd, int indent) const;
+    void dump(int fd) const;
 
     // Returns the total size of CarData content in the buffer.
     int32_t currentSizeBytes() const;
