@@ -319,7 +319,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
             << "\nActual: " << actualOverusingNativeStats.toString();
 
     expectedIoOveruseStats =
-            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/false,
+            {constructPackageIoOveruseStats(/*uid*=*/1001000, /*shouldNotify=*/true,
                                             /*isKillable=*/false, /*remaining=*/
                                             constructPerStateBytes(0, 20'000, 100'000),
                                             /*written=*/constructPerStateBytes(100'000, 20'000, 0),
