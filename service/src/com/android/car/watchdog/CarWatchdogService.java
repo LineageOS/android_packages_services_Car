@@ -84,9 +84,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
-        mWatchdogProcessHandler = new WatchdogProcessHandler(DEBUG, mWatchdogServiceForSystem,
-                mCarWatchdogDaemonHelper);
-        mWatchdogPerfHandler = new WatchdogPerfHandler(DEBUG);
+        mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
+                mCarWatchdogDaemonHelper, DEBUG);
+        mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
+                mPackageInfoHandler, DEBUG);
     }
 
     @Override
@@ -104,6 +105,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void release() {
+        mWatchdogPerfHandler.release();
         unregisterFromDaemon();
         mCarWatchdogDaemonHelper.disconnect();
     }
@@ -421,21 +423,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
-          /**
-           * TODO(b/170741935): Store the stats and take action on I/O overuse.
-           * 1. Notify applications of their I/O overuse.
-           * 2. Cache I/O overuse stats for the day.
-           * 3. Identify applications to kill/disable. Plus identify daily disabling apps vs apps
-           *    that should be disabled until user explicitly enables them (apps with recurring I/O
-           *    overuse).
-           * 4. Request package manager to disable/kill apps.
-           * 5. Cache info about apps that should be enabled the following day.
-           * 6. Notify CarWatchdogDaemon of the action taken on the packages whose remaining bytes
-           *    is zero.
-           *
-           * Confirm whether the package_manager service can be used to enable or disable packages
-           *  in garage mode.
-           */
+            if (packageIoOveruseStats.isEmpty()) {
+                Slogf.w(TAG, "Latest I/O overuse stats is empty");
+                return;
+            }
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return;
+            }
+            service.mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
         }
     }
 }

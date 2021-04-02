@@ -205,17 +205,19 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         if (remainingWriteBytes.foregroundBytes == 0 || remainingWriteBytes.backgroundBytes == 0 ||
             remainingWriteBytes.garageModeBytes == 0) {
             stats.ioOveruseStats.totalOveruses = ++dailyIoUsage->totalOveruses;
-            // Reset counters as the package may be disabled/killed by the watchdog service.
+            /*
+             * Reset counters as the package may be disabled/killed by the watchdog service.
+             * NOTE: If this logic is updated, update watchdog service side logic as well.
+             */
             dailyIoUsage->forgivenWriteBytes = dailyIoUsage->writtenBytes;
             dailyIoUsage->isPackageWarned = false;
+            /*
+             * Send notifications for native service I/O overuses as well because system listeners
+             * need to be notified of all I/O overuses.
+             */
+            stats.shouldNotify = true;
             if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
                 overusingNativeStats[uid] = stats.ioOveruseStats;
-            } else {
-                /*
-                 * Native services are handled by the daemon so notify only applications from
-                 * watchdog service.
-                 */
-                stats.shouldNotify = true;
             }
             mLatestIoOveruseStats.emplace_back(std::move(stats));
             continue;

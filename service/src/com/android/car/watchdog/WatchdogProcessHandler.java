@@ -84,8 +84,8 @@ public final class WatchdogProcessHandler {
     @GuardedBy("mMainHandler")
     private final SparseBooleanArray mStoppedUser = new SparseBooleanArray();
 
-    public WatchdogProcessHandler(boolean isDebugEnabled,
-            ICarWatchdogServiceForSystem serviceImpl, CarWatchdogDaemonHelper daemonHelper) {
+    public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
+            CarWatchdogDaemonHelper daemonHelper, boolean isDebugEnabled) {
         mIsDebugEnabled = isDebugEnabled;
         mWatchdogServiceForSystem = serviceImpl;
         mCarWatchdogDaemonHelper = daemonHelper;
