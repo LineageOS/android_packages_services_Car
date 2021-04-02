@@ -29,6 +29,8 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.SparseBooleanArray;
 
+import com.android.car.bluetooth.FastPairProvider;
+
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -66,6 +68,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     // while waiting for services to be bound to the proxy objects.
     private final ReentrantLock mBluetoothProxyLock;
     private final Condition mConditionAllProxiesConnected;
+    private final FastPairProvider mFastPairProvider;
     private SparseBooleanArray mBluetoothProfileStatus;
     private int mConnectedProfiles;
 
@@ -86,6 +89,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         mConditionAllProxiesConnected = mBluetoothProxyLock.newCondition();
         mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
         Objects.requireNonNull(mBluetoothAdapter, "Bluetooth adapter cannot be null");
+        mFastPairProvider = new FastPairProvider(service);
     }
 
     /**
@@ -111,6 +115,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             mBluetoothAdapter.getProfileProxy(mService.getApplicationContext(),
                     mProfileListener, profile);
         }
+        mFastPairProvider.start();
     }
 
     /**
@@ -146,6 +151,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         } finally {
             mBluetoothProxyLock.unlock();
         }
+        mFastPairProvider.stop();
     }
 
     /**
@@ -451,6 +457,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         pw.printf("BluetoothPbapClient: %s\n", mBluetoothPbapClient);
         pw.printf("BluetoothMapClient: %s\n", mBluetoothMapClient);
         pw.printf("BluetoothPan: %s\n", mBluetoothPan);
+        mFastPairProvider.dump(pw);
     }
 
     /**
