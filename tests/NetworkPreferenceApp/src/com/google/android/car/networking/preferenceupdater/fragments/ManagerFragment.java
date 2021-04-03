@@ -15,9 +15,15 @@
  */
 package com.google.android.car.networking.preferenceupdater.fragments;
 
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
+
 import android.content.Context;
 import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
+import android.net.OemNetworkPreferences.OemNetworkPreference;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -161,27 +167,28 @@ public final class ManagerFragment extends Fragment {
         mReapplyPANSOnBootToggleButton.setOnCheckedChangeListener(
                 (buttonView, isChecked) ->
                         mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
-        mResetNetworkPreferencesBtn.setOnClickListener(
-                view -> mOemNetworkPreferencesAdapter.resetNetworkPreferences());
+        mResetNetworkPreferencesBtn.setOnClickListener(view -> resetNetworkPreferences());
+    }
+
+    private void resetNetworkPreferences() {
+        mOemNetworkPreferencesAdapter.resetNetworkPreferences();
+        mPersonalStorage.resetNetworkPreferences();
+        setDefaultValues();
     }
 
     /** Sets default values of text fields */
     private void setDefaultValues() {
-        mOEMPaidAppsEditText.setText(
-                getFromStorage(OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID));
+        mOEMPaidAppsEditText.setText(getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PAID));
         mOEMPaidNoFallbackAppsEditText.setText(
-                getFromStorage(
-                        OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK));
-        mOEMPaidOnlyAppsEditText.setText(
-                getFromStorage(OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY));
+                getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK));
+        mOEMPaidOnlyAppsEditText.setText(getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY));
         mOEMPrivateOnlyAppsEditText.setText(
-                getFromStorage(
-                        OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
+                getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
         mReapplyPANSOnBootToggleButton.setChecked(
                 mPersonalStorage.getReapplyPansOnBootCompleteState());
     }
 
-    private String getFromStorage(@OemNetworkPreferencesAdapter.Type int type) {
+    private String getFromStorage(@OemNetworkPreference int type) {
         return Utils.toString(mPersonalStorage.get(type));
     }
 
@@ -202,16 +209,16 @@ public final class ManagerFragment extends Fragment {
         }
         SparseArray<Set<String>> preference = new SparseArray<>();
         preference.put(
-                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID,
+                OEM_NETWORK_PREFERENCE_OEM_PAID,
                 Utils.toSet(mOEMPaidAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
+                OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK,
                 Utils.toSet(mOEMPaidNoFallbackAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
+                OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY,
                 Utils.toSet(mOEMPaidOnlyAppsEditText.getText().toString()));
         preference.put(
-                OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
+                OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY,
                 Utils.toSet(mOEMPrivateOnlyAppsEditText.getText().toString()));
 
         mOemNetworkPreferencesAdapter.applyPreference(preference);
