@@ -26,8 +26,8 @@ import android.content.Context;
  * information about about driving state to the caller.
  */
 public final class CarDriverDistractionManagerAdapter {
-    private CarDriverDistractionManager mCarDriverDistractionManager;
-    private Car mCar;
+    private final CarDriverDistractionManager mCarDriverDistractionManager;
+    private final Car mCar;
 
     public CarDriverDistractionManagerAdapter(Context ctx) {
         // Connect to car service
@@ -36,6 +36,8 @@ public final class CarDriverDistractionManagerAdapter {
                 ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE)) {
             mCarDriverDistractionManager = (CarDriverDistractionManager) mCar.getCarManager(
                     ExperimentalCar.DRIVER_DISTRACTION_EXPERIMENTAL_FEATURE_SERVICE);
+        } else {
+            mCarDriverDistractionManager = null;
         }
     }
 
