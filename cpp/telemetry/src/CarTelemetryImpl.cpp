@@ -37,11 +37,11 @@ CarTelemetryImpl::CarTelemetryImpl(RingBuffer* buffer) : mRingBuffer(buffer) {}
 
 // TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
 Status CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
-    uid_t uid = IPCThreadState::self()->getCallingUid();
-    // NOTE: CarData here will be coped to BufferedCarData, as we don't know what Binder will do
-    //       with the current allocated CarData.
-    for (auto& carData : dataList) {
-        mRingBuffer->push(BufferedCarData(carData, uid));
+    uid_t publisherUid = IPCThreadState::self()->getCallingUid();
+    for (auto&& data : dataList) {
+        mRingBuffer->push({.mId = data.id,
+                           .mContent = std::move(data.content),
+                           .mPublisherUid = publisherUid});
     }
     return Status::ok();
 }

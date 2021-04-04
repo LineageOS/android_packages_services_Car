@@ -16,8 +16,6 @@
 
 #include "CarTelemetryInternalImpl.h"
 
-#include "BufferedCarData.h"
-
 #include <android-base/logging.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
