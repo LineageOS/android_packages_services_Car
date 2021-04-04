@@ -36,7 +36,7 @@ using ::android::automotive::telemetry::internal::ICarDataListener;
 using ::android::automotive::telemetry::internal::ICarTelemetryInternal;
 using ::android::binder::Status;
 
-const size_t kMaxBufferSizeBytes = 1024;
+const size_t kMaxBufferSize = 100;
 
 class FakeBinder : public BBinder {
 public:
@@ -78,7 +78,7 @@ private:
 class CarTelemetryInternalImplTest : public ::testing::Test {
 protected:
     CarTelemetryInternalImplTest() :
-          mBuffer(RingBuffer(kMaxBufferSizeBytes)),
+          mBuffer(RingBuffer(kMaxBufferSize)),
           mTelemetryInternal(std::make_unique<CarTelemetryInternalImpl>(&mBuffer)),
           mFakeCarDataListenerBinder(new FakeBinder()),
           mFakeCarDataListener(new FakeCarDataListener(mFakeCarDataListenerBinder)) {}

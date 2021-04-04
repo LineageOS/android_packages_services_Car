@@ -26,35 +26,38 @@ namespace automotive {
 namespace telemetry {
 
 // A ring buffer that holds BufferedCarData. It drops old data if it's full.
-// Not thread-safe.
-// TODO(b/182608968): make it thread-safe
+// Thread-safe.
 class RingBuffer {
 public:
-    // RingBuffer limits `currentSizeBytes()` to the given param `sizeLimitBytes`.
-    // There is also a hard limit on number of items, it's expected that reader clients will
-    // fetch all the data before the buffer gets full.
-    // TODO(b/182608968): Only limit the size using count, and restructure the methods to match
-    //                    the new internal API.
-    explicit RingBuffer(int32_t sizeLimitBytes);
+    // RingBuffer limits the number of elements in the buffer to the given param `sizeLimit`.
+    // Doesn't pre-allocate the memory.
+    explicit RingBuffer(int32_t sizeLimit);
+
+    // Not copyable or movable
+    RingBuffer(const RingBuffer&) = delete;
+    RingBuffer& operator=(const RingBuffer&) = delete;
+    RingBuffer(RingBuffer&&) = delete;
+    RingBuffer& operator=(RingBuffer&&) = delete;
 
     // Pushes the data to the buffer. If the buffer is full, it removes the oldest data.
     // Supports moving the data to the RingBuffer.
     void push(BufferedCarData&& data);
 
-    // Returns all the CarData with the given `id` and removes them from the buffer.
-    // Complexity is O(n), as this method is expected to be called infrequently.
-    std::vector<BufferedCarData> popAllDataForId(int32_t id);
+    // Returns the oldest element from the ring buffer and removes it from the buffer.
+    BufferedCarData popFront();
 
     // Dumps the current state for dumpsys.
     void dump(int fd) const;
 
-    // Returns the total size of CarData content in the buffer.
-    int32_t currentSizeBytes() const;
+    // Returns the number of elements in the buffer.
+    int32_t size() const;
 
 private:
-    const int32_t mSizeLimitBytes;
-    int32_t mCurrentSizeBytes;
+    mutable std::mutex mMutex;  // a mutex for the whole instance
 
+    const int32_t mSizeLimit;
+
+    // TODO(b/174608802): Improve dropped CarData handling, see ag/13818937 for details.
     int64_t mTotalDroppedDataCount;
 
     // Linked list that holds all the data and allows deleting old data when the buffer is full.
