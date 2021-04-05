@@ -115,7 +115,6 @@ public class ICarImpl extends ICar.Stub {
     private final ClusterNavigationService mClusterNavigationService;
     private final InstrumentClusterService mInstrumentClusterService;
     private final CarLocationService mCarLocationService;
-    private final SystemStateControllerService mSystemStateControllerService;
     private final CarBluetoothService mCarBluetoothService;
     private final PerUserCarServiceHelper mPerUserCarServiceHelper;
     private final CarDiagnosticService mCarDiagnosticService;
@@ -280,8 +279,6 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mInstrumentClusterService = null;
         }
-        mSystemStateControllerService = constructWithTrace(t, SystemStateControllerService.class,
-                () -> new SystemStateControllerService(serviceContext, mCarAudioService, this));
         mCarStatsService = constructWithTrace(t, CarStatsService.class, () -> {
             // This service should be initialized here.
             CarStatsService service = new CarStatsService(serviceContext);
@@ -371,7 +368,6 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mFixedActivityService);
         allServices.add(mClusterNavigationService);
         addServiceIfNonNull(allServices, mInstrumentClusterService);
-        allServices.add(mSystemStateControllerService);
         allServices.add(mPerUserCarServiceHelper);
         allServices.add(mCarBluetoothService);
         allServices.add(mCarProjectionService);
