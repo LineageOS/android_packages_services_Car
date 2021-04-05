@@ -16,8 +16,6 @@
 
 package com.android.car.power;
 
-import static android.car.hardware.power.PowerComponentUtil.hasComponents;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
@@ -346,6 +344,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mHandler.cancelAll();
             mListenersWeAreWaitingFor.clear();
         }
+        mPowerComponentHandler.release();
         mSystemInterface.stopDisplayStateMonitoring();
         mPowerManagerListeners.kill();
         mPowerPolicyListeners.kill();
@@ -1303,7 +1302,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             ICarPowerPolicyListener listener = mPowerPolicyListeners.getBroadcastItem(idx);
             CarPowerPolicyFilter filter =
                     (CarPowerPolicyFilter) mPowerPolicyListeners.getBroadcastCookie(idx);
-            if (!hasComponents(appliedPolicy, filter)) {
+            if (!mPowerComponentHandler.isComponentChanged(filter)) {
                 continue;
             }
             try {
