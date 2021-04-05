@@ -41,6 +41,7 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.security.Credentials;
 import android.security.KeyStore;
+import android.security.LegacyVpnProfileStore;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.Log;
@@ -52,15 +53,15 @@ import androidx.annotation.VisibleForTesting;
 import androidx.preference.Preference;
 import androidx.preference.PreferenceGroup;
 
+import com.android.car.developeroptions.R;
+import com.android.car.developeroptions.RestrictedSettingsFragment;
+import com.android.car.developeroptions.widget.GearPreference;
+import com.android.car.developeroptions.widget.GearPreference.OnGearClickListener;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.net.LegacyVpnInfo;
 import com.android.internal.net.VpnConfig;
 import com.android.internal.net.VpnProfile;
 import com.android.internal.util.ArrayUtils;
-import com.android.car.developeroptions.R;
-import com.android.car.developeroptions.RestrictedSettingsFragment;
-import com.android.car.developeroptions.widget.GearPreference;
-import com.android.car.developeroptions.widget.GearPreference.OnGearClickListener;
 import com.android.settingslib.RestrictedLockUtilsInternal;
 
 import com.google.android.collect.Lists;
@@ -543,7 +544,7 @@ public class VpnSettings extends RestrictedSettingsFragment implements
     static List<VpnProfile> loadVpnProfiles(KeyStore keyStore, int... excludeTypes) {
         final ArrayList<VpnProfile> result = Lists.newArrayList();
 
-        for (String key : keyStore.list(Credentials.VPN)) {
+        for (String key : LegacyVpnProfileStore.list(Credentials.VPN)) {
             final VpnProfile profile = VpnProfile.decode(key, keyStore.get(Credentials.VPN + key));
             if (profile != null && !ArrayUtils.contains(excludeTypes, profile.type)) {
                 result.add(profile);
