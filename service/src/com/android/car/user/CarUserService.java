@@ -960,6 +960,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         Objects.requireNonNull(receiver);
         UserInfo targetUser = mUserManager.getUserInfo(targetUserId);
         Preconditions.checkArgument(targetUser != null, "Target user doesn't exist");
+        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
+            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_NOT_SWITCHABLE);
+            return;
+        }
         mHandler.post(()-> switchUserInternal(targetUser, timeoutMs, receiver));
     }
 
