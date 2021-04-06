@@ -24,8 +24,6 @@
          android:targetPackage="android.car.apitest"
          android:label="Tests for Car APIs"
          android:debuggable="true"/>
-    <!-- TODO (b/184292607): remove it once bug is fixed. -->
-    <uses-permission android:name="android.permission.READ_PHONE_STATE"/>
 
     <application android:label="CarApiTest"
          android:debuggable="true">

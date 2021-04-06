@@ -1015,6 +1015,19 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSwitchUser_noUserSwitchability() throws Exception {
+        UserInfo currentUser = mAdminUser;
+        mockExistingUsersAndCurrentUser(mExistingUsers, currentUser);
+        doReturn(UserManager.SWITCHABILITY_STATUS_SYSTEM_USER_LOCKED).when(mMockedUserManager)
+                .getUserSwitchability();
+
+        switchUser(mGuestUser.id, mAsyncCallTimeoutMs, mUserSwitchFuture);
+
+        assertThat(getUserSwitchResult().getStatus())
+                .isEqualTo(UserSwitchResult.STATUS_NOT_SWITCHABLE);
+    }
+
+    @Test
     public void testSwitchUser_targetSameAsCurrentUser() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
 

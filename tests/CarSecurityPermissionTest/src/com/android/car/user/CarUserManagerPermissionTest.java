@@ -29,6 +29,7 @@ import static com.android.compatibility.common.util.ShellIdentityUtils.invokeMet
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.testng.Assert.assertThrows;
 import static org.testng.Assert.expectThrows;
 
 import android.app.Instrumentation;
@@ -157,6 +158,11 @@ public final class CarUserManagerPermissionTest {
                         new int[] {CUSTOM_1}, new int[] {42}));
         assertThat(e.getMessage()).contains(CREATE_USERS);
         assertThat(e.getMessage()).contains(MANAGE_USERS);
+    }
+
+    @Test
+    public void testIsValidUserPermission() {
+        assertThrows(SecurityException.class, () -> mCarUserManager.isValidUser(42));
     }
 
     @Test
