@@ -129,8 +129,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         boolean delayFocusForCurrentRequest = false;
 
-        final int requestedContext = CarAudioContext.getContextForUsage(
-                afi.getAttributes().getSystemUsage());
+        int requestedContext = CarAudioContext.getContextForAttributes(afi.getAttributes());
 
         // If we happen to find entries that this new request should replace, we'll store them here.
         // This happens when a client makes a second AF request on the same listener.
@@ -143,8 +142,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         // We don't allow sharing listeners (client IDs) between two concurrent requests
         // (because the app would have no way to know to which request a later event applied)
         if (mDelayedRequest != null && afi.getClientId().equals(mDelayedRequest.getClientId())) {
-            int delayedRequestedContext = CarAudioContext.getContextForUsage(
-                    mDelayedRequest.getAttributes().getSystemUsage());
+            int delayedRequestedContext = CarAudioContext.getContextForAttributes(
+                    mDelayedRequest.getAttributes());
             // If it is for a different context then reject
             if (delayedRequestedContext != requestedContext) {
                 // Trivially reject a request for a different USAGE
@@ -341,7 +340,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             removeBlockerAndRestoreUnblockedWaitersLocked(entry);
         }
 
-        // Finally, add the request we're granting to the focus holders' list
         if (delayFocusForCurrentRequest) {
             swapDelayedAudioFocusRequestLocked(afi);
             return AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
