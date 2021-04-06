@@ -345,11 +345,6 @@ public final class CarUserManager extends CarManagerBase {
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserSwitchResult> switchUser(@UserIdInt int targetUserId) {
         int uid = myUid();
-
-        if (mUserManager.getUserSwitchability() != UserManager.SWITCHABILITY_STATUS_OK) {
-            return newSwitchResuiltForFailure(UserSwitchResult.STATUS_NOT_SWITCHABLE);
-        }
-
         try {
             AndroidFuture<UserSwitchResult> future = new AndroidFuture<UserSwitchResult>() {
                 @Override
@@ -824,6 +819,8 @@ public final class CarUserManager extends CarManagerBase {
      *
      * @hide
      */
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
     public boolean isValidUser(@UserIdInt int userId) {
         List<UserInfo> allUsers = mUserManager.getAliveUsers();
         for (int i = 0; i < allUsers.size(); i++) {
