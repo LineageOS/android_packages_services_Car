@@ -587,4 +587,54 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         sendSeatOnOccupied(DRIVER_SEAT);
         verify(mMockBluetoothService, times(0)).connectDevices();
     }
+
+    /**
+     * Tests the case where if {@link VehiclePropertyIds.INFO_DRIVER_SEAT} is not registered or is
+     * not available, then car policy should still be able to proceed to be created, and not crash
+     * car Bluetooth.
+     *
+     * Preconditions:
+     * - {@code mCarPropertyService.getProperty(VehiclePropertyIds.INFO_DRIVER_SEAT,
+     *   VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)} returns {@code null}.
+     *
+     * Action:
+     * - Create a new {@link BluetoothDeviceConnectionPolicy}.
+     *
+     * Outcome:
+     * - A new instance of {@link BluetoothDeviceConnectionPolicy} is successfully created, e.g.,
+     *   no NPE or anything else that prevents creation of policy in this case
+     */
+    @Test
+    public void testGetDriverSeatLocationNull_policyCreated() {
+        when(mMockCarPropertyService
+                .getProperty(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
+                .thenReturn(null);
+
+        BluetoothDeviceConnectionPolicy policyUnderTest = BluetoothDeviceConnectionPolicy.create(
+                mMockContext, mUserId, mMockBluetoothService);
+        Assert.assertTrue(policyUnderTest != null);
+    }
+
+    /**
+     * Tests the case where if {@link CarDrivingStateService#getCurrentDrivingState()} returns
+     * null, {@link CarServicesHelper#isParked()} should not throw a NPE.
+     *
+     * Preconditions:
+     * - {@link CarDrivingStateService#getCurrentDrivingState()} returns {@code null}.
+     *
+     * Action:
+     * - Call {@link CarServicesHelper#isParked()}.
+     *
+     * Outcome:
+     * - {@link CarServicesHelper#isParked()} returns {@code false}.
+     */
+    @Test
+    public void testGetDrivingStateNull_noNpe() {
+        when(mMockCarDrivingStateService.getCurrentDrivingState()).thenReturn(null);
+
+        BluetoothDeviceConnectionPolicy.CarServicesHelper helperUnderTest =
+                mPolicy.new CarServicesHelper();
+
+        Assert.assertFalse(helperUnderTest.isParked());
+    }
 }

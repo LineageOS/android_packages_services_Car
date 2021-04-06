@@ -23,6 +23,7 @@ import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
 import android.car.drivingstate.CarDrivingStateEvent;
+import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
@@ -127,7 +128,7 @@ public class BluetoothDeviceConnectionPolicy {
     /**
      * A helper class to interact with the VHAL and the rest of the car.
      */
-    private final class CarServicesHelper {
+    final class CarServicesHelper {
         private final CarPropertyService mCarPropertyService;
         private final CarDrivingStateService mCarDrivingStateService;
 
@@ -219,11 +220,27 @@ public class BluetoothDeviceConnectionPolicy {
          * @return An {@code int} representing driver's seat location.
          */
         private int getDriverSeatLocationFromVhal() {
+            int defaultLocation = VehicleAreaSeat.SEAT_ROW_1_LEFT;
+
             if (mCarPropertyService == null) {
-                return VehicleAreaSeat.SEAT_ROW_1_LEFT;
+                return defaultLocation;
             }
-            return (int) mCarPropertyService.getProperty(VehiclePropertyIds.INFO_DRIVER_SEAT,
-                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL).getValue();
+            CarPropertyValue value = mCarPropertyService.getProperty(
+                    VehiclePropertyIds.INFO_DRIVER_SEAT, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
+            if (value == null) {
+                // Distinguish between two possible causes for null, based on
+                // {@code mConfigs.get(prop)} in {@link CarPropertyService#getProperty} and
+                // {@link CarPropertyService#getPropertyConfigList}
+                List<CarPropertyConfig> availableProp = mCarPropertyService.getPropertyConfigList(
+                        new int[] {VehiclePropertyIds.INFO_DRIVER_SEAT});
+                if (availableProp.isEmpty() || availableProp.get(0) == null) {
+                    logd("Driver seat location property is not in config list.");
+                } else {
+                    logd("Driver seat location property is not ready yet.");
+                }
+                return defaultLocation;
+            }
+            return (int) value.getValue();
         }
 
         public int getDriverSeatLocation() {
@@ -235,14 +252,17 @@ public class BluetoothDeviceConnectionPolicy {
          * <p>
          * We are being conservative and only want to trigger when car is in parked state. Extending
          * this conservative approach, we default return false if {@code mCarDrivingStateService}
-         * is not found.
+         * is not found, or if we otherwise can't get the value.
          */
         public boolean isParked() {
             if (mCarDrivingStateService == null) {
                 return false;
             }
-            return mCarDrivingStateService.getCurrentDrivingState().eventValue
-                    == CarDrivingStateEvent.DRIVING_STATE_PARKED;
+            CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
+            if (event == null) {
+                return false;
+            }
+            return event.eventValue == CarDrivingStateEvent.DRIVING_STATE_PARKED;
         }
     }
 
