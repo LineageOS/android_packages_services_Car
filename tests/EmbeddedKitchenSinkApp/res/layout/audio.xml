@@ -104,18 +104,6 @@
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:orientation="horizontal"
-                android:layout_weight="1" >
-                <ToggleButton
-                    android:id="@+id/button_mock_audio"
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:textOn="@string/mock_audio_on"
-                    android:textOff="@string/mock_audio_off" />
-            </LinearLayout>
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
                 android:orientation="vertical"
                 android:layout_weight="1" >
                 <LinearLayout

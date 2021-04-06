@@ -41,7 +41,7 @@ android_app {
     },
 
     static_libs: [
-        "car-service-test-static-lib",
+        "SettingsLib",
         "com.google.android.material_material",
         "androidx.appcompat_appcompat",
         "car-admin-ui-lib",
