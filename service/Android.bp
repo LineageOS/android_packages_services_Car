@@ -54,6 +54,7 @@ common_lib_deps = [
     // TODO(b/171603586): remove this after moving NewUserDisclaimerActivity
     // to CarSettings
     "car-admin-ui-lib",
+    "Slogf",
 ]
 
 android_app {
