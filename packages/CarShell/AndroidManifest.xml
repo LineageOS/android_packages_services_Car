@@ -39,4 +39,8 @@
     <uses-permission android:name="android.car.permission.CAR_POWER" />
     <!-- Permission required for 'adb shell cmd car_service day-night-mode [day|night]' -->
     <uses-permission android:name="android.car.permission.MODIFY_DAY_NIGHT_MODE" />
+    <!-- Permission required for ATS tests - AtsDeviceInfo -->
+    <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <!-- Permission required for ATS tests - AtsDeviceInfo -->
+    <uses-permission android:name="android.car.permission.READ_CAR_STEERING" />
 </manifest>
