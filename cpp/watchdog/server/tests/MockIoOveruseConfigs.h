@@ -35,8 +35,8 @@ public:
     MockIoOveruseConfigs() {}
     ~MockIoOveruseConfigs() {}
     MOCK_METHOD(android::base::Result<void>, update,
-                (const android::automotive::watchdog::internal::ComponentType,
-                 const android::automotive::watchdog::internal::IoOveruseConfiguration&),
+                (const std::vector<
+                        android::automotive::watchdog::internal::ResourceOveruseConfiguration>&),
                 (override));
 
     MOCK_METHOD((const std::unordered_set<std::string>&), vendorPackagePrefixes, (), (override));

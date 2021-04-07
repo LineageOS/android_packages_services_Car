@@ -38,6 +38,7 @@ using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
 using ::android::automotive::watchdog::internal::PackageResourceOveruseAction;
+using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -350,13 +351,13 @@ void IoOveruseMonitor::notifyNativePackagesLocked(
     // TODO(b/167240592): Upload I/O overuse metrics for native packages.
 }
 
-Result<void> IoOveruseMonitor::updateIoOveruseConfiguration(ComponentType type,
-                                                            const IoOveruseConfiguration& config) {
+Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
+        const std::vector<ResourceOveruseConfiguration>& configs) {
     std::unique_lock writeLock(mRwMutex);
     if (!isInitializedLocked()) {
         return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
     }
-    return mIoOveruseConfigs->update(type, config);
+    return mIoOveruseConfigs->update(configs);
 }
 
 Result<void> IoOveruseMonitor::actionTakenOnIoOveruse(

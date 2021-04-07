@@ -67,9 +67,10 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime
 class IIoOveruseMonitor : virtual public IDataProcessorInterface {
 public:
     // Below API is from internal/ICarWatchdog.aidl. Please refer to the AIDL for description.
-    virtual android::base::Result<void> updateIoOveruseConfiguration(
-            android::automotive::watchdog::internal::ComponentType type,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config) = 0;
+    virtual android::base::Result<void> updateResourceOveruseConfigurations(
+            const std::vector<
+                    android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
+                    configs) = 0;
     virtual android::base::Result<void> actionTakenOnIoOveruse(
             const std::vector<
                     android::automotive::watchdog::internal::PackageResourceOveruseAction>&
@@ -143,9 +144,10 @@ public:
     }
 
     // Below methods implement AIDL interfaces.
-    android::base::Result<void> updateIoOveruseConfiguration(
-            android::automotive::watchdog::internal::ComponentType type,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
+    android::base::Result<void> updateResourceOveruseConfigurations(
+            const std::vector<
+                    android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
+                    configs);
 
     android::base::Result<void> actionTakenOnIoOveruse(
             const std::vector<
