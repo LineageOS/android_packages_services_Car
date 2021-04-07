@@ -19,6 +19,7 @@ package com.android.car;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.spyOn;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -43,6 +44,7 @@ import android.hardware.display.DisplayManager;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArrayMap;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
@@ -145,11 +147,14 @@ public class CarOccupantZoneServiceTest {
             CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER,
             VehicleAreaSeat.SEAT_ROW_2_RIGHT);
 
+    private static final String CLUSTER_DISPLAY_UNIQUE_ID =
+            "virtual:android.car.cluster.ClusterDisplay0";
     // port address set to mocked displayid + 10 so that any possible mix of port address and
     // display id can be detected.
     private static final String[] DEFAULT_OCCUPANT_DISPLAY_MAPPING = {
             "displayPort=10,displayType=MAIN,occupantZoneId=0",
-            "displayPort=11,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0",
+            "displayUniqueId=" + CLUSTER_DISPLAY_UNIQUE_ID
+                    + ",displayType=INSTRUMENT_CLUSTER,occupantZoneId=0",
             "displayPort=12,displayType=MAIN,occupantZoneId=1",
             "displayPort=13,displayType=MAIN,occupantZoneId=2",
             "displayPort=14,displayType=MAIN,occupantZoneId=3"
@@ -197,6 +202,13 @@ public class CarOccupantZoneServiceTest {
         when(display.getAddress()).thenReturn(DisplayAddress.fromPhysicalDisplayId(portAddress));
     }
 
+    private void mockDisplay(DisplayManager displayManager, Display display, int displayId,
+            String uniqueId) {
+        when(displayManager.getDisplay(displayId)).thenReturn(display);
+        when(display.getDisplayId()).thenReturn(displayId);
+        when(display.getUniqueId()).thenReturn(uniqueId);
+    }
+
     @Before
     public void setUp() {
         when(mContext.getResources()).thenReturn(mResources);
@@ -213,7 +225,7 @@ public class CarOccupantZoneServiceTest {
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         mockDisplay(mDisplayManager, mDisplay0, 0, 10);
-        mockDisplay(mDisplayManager, mDisplay1, 1, 11);
+        mockDisplay(mDisplayManager, mDisplay1, 1, CLUSTER_DISPLAY_UNIQUE_ID);
         mockDisplay(mDisplayManager, mDisplay2, 2, 12);
         mockDisplay(mDisplayManager, mDisplay4, 4, 14);
         mockDisplay(mDisplayManager, mDisplay5, 5, 15);
@@ -290,14 +302,22 @@ public class CarOccupantZoneServiceTest {
         mService.init();
 
         // key: display port address
-        SparseArray<DisplayConfig> configs = mService.getDisplayConfigs();
-        assertThat(configs.size()).isEqualTo(DEFAULT_OCCUPANT_DISPLAY_MAPPING.length);
+        SparseArray<DisplayConfig> configs = mService.getDisplayPortConfigs();
         assertDisplayConfig(configs.get(10), CarOccupantZoneManager.DISPLAY_TYPE_MAIN, 0);
-        assertDisplayConfig(configs.get(11), CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
-                0);
         assertDisplayConfig(configs.get(12), CarOccupantZoneManager.DISPLAY_TYPE_MAIN, 1);
         assertDisplayConfig(configs.get(13), CarOccupantZoneManager.DISPLAY_TYPE_MAIN, 2);
         assertDisplayConfig(configs.get(14), CarOccupantZoneManager.DISPLAY_TYPE_MAIN, 3);
+
+        ArrayMap<String, DisplayConfig> uniqueIdConfigs = mService.getDisplayUniqueIdConfigs();
+        assertDisplayConfig(uniqueIdConfigs.get(CLUSTER_DISPLAY_UNIQUE_ID),
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, 0);
+
+        assertWithMessage(
+                "The sum of portConfigSize(%s) and uniqueIdConfigSize(%s) should be equal to "
+                        + "mapping size(%s).", configs.size(), uniqueIdConfigs.size(),
+                DEFAULT_OCCUPANT_DISPLAY_MAPPING.length).that(
+                configs.size() + uniqueIdConfigs.size()).isEqualTo(
+                DEFAULT_OCCUPANT_DISPLAY_MAPPING.length);
     }
 
     private void setUpServiceWithProfileSupportEnabled() {
@@ -354,8 +374,8 @@ public class CarOccupantZoneServiceTest {
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER1)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
-        assertDisplayAllowlist(PROFILE_USER1, new int[] {mDisplay2.getDisplayId()});
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
+        assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
     }
 
     @Test
@@ -382,15 +402,15 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
-        assertDisplayAllowlist(PROFILE_USER1, new int[] {mDisplay2.getDisplayId()});
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
+        assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
 
         mICarServiceHelper.mAllowlists.clear();
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 PROFILE_USER2)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
-        assertDisplayAllowlist(PROFILE_USER2, new int[] {mDisplay2.getDisplayId()});
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
+        assertDisplayAllowlist(PROFILE_USER2, new int[]{mDisplay2.getDisplayId()});
     }
 
     @Test
@@ -403,8 +423,8 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
-        assertDisplayAllowlist(PROFILE_USER1, new int[] {mDisplay2.getDisplayId()});
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
+        assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
 
         mICarServiceHelper.mAllowlists.clear();
         int newUserId = 200;
@@ -413,7 +433,7 @@ public class CarOccupantZoneServiceTest {
                 CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, newUserId));
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(newUserId, new int[] {mDisplay2.getDisplayId(),
+        assertDisplayAllowlist(newUserId, new int[]{mDisplay2.getDisplayId(),
                 mDisplay4.getDisplayId()});
         assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
     }
@@ -428,14 +448,14 @@ public class CarOccupantZoneServiceTest {
                 PROFILE_USER1)).isTrue();
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay4.getDisplayId()});
-        assertDisplayAllowlist(PROFILE_USER1, new int[] {mDisplay2.getDisplayId()});
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay4.getDisplayId()});
+        assertDisplayAllowlist(PROFILE_USER1, new int[]{mDisplay2.getDisplayId()});
 
         mICarServiceHelper.mAllowlists.clear();
         assertThat(mManager.assignProfileUserToOccupantZone(mZoneFrontPassengerLHD,
                 UserHandle.USER_NULL)).isTrue();
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay2.getDisplayId(),
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay2.getDisplayId(),
                 mDisplay4.getDisplayId()});
         assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
     }
@@ -447,7 +467,7 @@ public class CarOccupantZoneServiceTest {
         mService.setCarServiceHelper(mICarServiceHelper);
 
         assertPassengerDisplaysFromDefaultConfig();
-        assertDisplayAllowlist(CURRENT_USER, new int[] {mDisplay2.getDisplayId(),
+        assertDisplayAllowlist(CURRENT_USER, new int[]{mDisplay2.getDisplayId(),
                 mDisplay4.getDisplayId()});
         assertThat(mICarServiceHelper.mAllowlists).hasSize(1);
     }
@@ -811,7 +831,7 @@ public class CarOccupantZoneServiceTest {
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN)).isEqualTo(mDisplay0.getDisplayId());
         assertThat(mManager.getDisplayIdForDriver(
                 CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER)).isEqualTo(
-                        mDisplay1.getDisplayId());
+                mDisplay1.getDisplayId());
     }
 
     @Test
