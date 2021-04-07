@@ -172,6 +172,7 @@
     <string name="volume_up" translatable="false">Volume +</string>
     <string name="volume_down" translatable="false">Volume -</string>
     <string name="volume_mute" translatable="false">Mute</string>
+    <string name="volume_unmute" translatable="false">Unmute</string>
     <string name="voice" translatable="false">Voice</string>
     <string name="mock_vehicle_hal" translatable="false">Mock HAL</string>
     <string name="mock_vehicle_hal_off" translatable="false">Mock HAL OFF</string>

@@ -16,6 +16,8 @@
 
 package com.google.android.car.kitchensink.volume;
 
+import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
+
 import android.car.media.CarAudioManager;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -72,7 +74,7 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
                     int groupId = msg.arg1;
                     if (mFocusListener != null) {
                         mAudioManager.abandonAudioFocus(mFocusListener);
-                        mVolumeInfos[mGroupIdIndexMap.get(groupId)].mHasFocus = false;
+                        mVolumeInfos[mGroupIdIndexMap.get(groupId)].hasAudioFocus = false;
                         mCarAudioZoneVolumeAdapter.notifyDataSetChanged();
                     }
 
@@ -82,7 +84,7 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
                     break;
                 case MSG_FOCUS_CHANGED:
                     int focusGroupId = msg.arg1;
-                    mVolumeInfos[mGroupIdIndexMap.get(focusGroupId)].mHasFocus = true;
+                    mVolumeInfos[mGroupIdIndexMap.get(focusGroupId)].hasAudioFocus = true;
                     mCarAudioZoneVolumeAdapter.refreshVolumes(mVolumeInfos);
                     break;
                 default :
@@ -110,7 +112,8 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
         ListView volumeListView = v.findViewById(R.id.volume_list);
         mCarAudioZoneVolumeAdapter =
                 new CarAudioZoneVolumeAdapter(getContext(), R.layout.volume_item, mVolumeInfos,
-                        this);
+                        this, mCarAudioManager.isAudioFeatureEnabled(
+                        AUDIO_FEATURE_VOLUME_GROUP_MUTING));
         initVolumeInfo();
         volumeListView.setAdapter(mCarAudioZoneVolumeAdapter);
         return v;
@@ -121,27 +124,28 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
         mVolumeInfos = new CarAudioZoneVolumeInfo[volumeGroupCount + 1];
         mGroupIdIndexMap.clear();
         CarAudioZoneVolumeInfo titlesInfo = new CarAudioZoneVolumeInfo();
-        titlesInfo.mId = "Group id";
-        titlesInfo.mCurrent = "Current";
-        titlesInfo.mMax = "Max";
+        titlesInfo.id = "Group id";
+        titlesInfo.currentGain = "Current";
+        titlesInfo.maxGain = "Max";
         mVolumeInfos[0] = titlesInfo;
 
         int i = 1;
         for (int groupId = 0; groupId < volumeGroupCount; groupId++) {
             CarAudioZoneVolumeInfo volumeInfo = new CarAudioZoneVolumeInfo();
             mGroupIdIndexMap.put(groupId, i);
-            volumeInfo.mGroupId = groupId;
-            volumeInfo.mId = String.valueOf(groupId);
+            volumeInfo.groupId = groupId;
+            volumeInfo.id = String.valueOf(groupId);
             int current = mCarAudioManager.getGroupVolume(mZoneId, groupId);
             int max = mCarAudioManager.getGroupMaxVolume(mZoneId, groupId);
-            volumeInfo.mCurrent = String.valueOf(current);
-            volumeInfo.mMax = String.valueOf(max);
+            volumeInfo.currentGain = String.valueOf(current);
+            volumeInfo.maxGain = String.valueOf(max);
+            volumeInfo.isMuted = mCarAudioManager.isVolumeGroupMuted(mZoneId, groupId);
 
             mVolumeInfos[i] = volumeInfo;
             if (DEBUG)
             {
-                Log.d(TAG, groupId + " max: " + volumeInfo.mMax + " current: "
-                        + volumeInfo.mCurrent);
+                Log.d(TAG, groupId + " max: " + volumeInfo.maxGain + " current: "
+                        + volumeInfo.currentGain + " is muted " + volumeInfo.isMuted);
             }
             i++;
         }
@@ -159,6 +163,21 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
                 AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
         if (DEBUG) {
             Log.d(TAG, "Set group " + groupId + " volume " + volume + " in audio zone "
+                    + mZoneId);
+        }
+        mHandler.sendMessage(mHandler.obtainMessage(MSG_VOLUME_CHANGED));
+    }
+
+    public void toggleMute(int groupId) {
+        if (mCarAudioManager == null) {
+            Log.e(TAG, "CarAudioManager is null");
+            return;
+        }
+        boolean isMuted = mCarAudioManager.isVolumeGroupMuted(mZoneId, groupId);
+        mCarAudioManager.setVolumeGroupMute(mZoneId, groupId, !isMuted,
+                AudioManager.FLAG_SHOW_UI | AudioManager.FLAG_PLAY_SOUND);
+        if (DEBUG) {
+            Log.d(TAG, "Set group mute " + groupId + " mute " + !isMuted + " in audio zone "
                     + mZoneId);
         }
         mHandler.sendMessage(mHandler.obtainMessage(MSG_VOLUME_CHANGED));

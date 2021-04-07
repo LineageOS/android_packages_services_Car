@@ -322,11 +322,17 @@ public class AudioTestFragment extends Fragment {
         for (AudioPlayer p : mAllPlayers) {
             p.stop();
         }
+        if (mMusicPlayerForSelectedDeviceAddress != null) {
+            mMusicPlayerForSelectedDeviceAddress.stop();
+        }
         stopAudioTrack();
         handleHwAudioSourceStop();
         if (mAudioFocusHandler != null) {
             mAudioFocusHandler.release();
             mAudioFocusHandler = null;
+        }
+        if (mDelayedFocusRequest != null) {
+            mAudioManager.abandonAudioFocusRequest(mDelayedFocusRequest);
         }
         if (mAppFocusManager != null) {
             mAppFocusManager.abandonAppFocus(mOwnershipCallbacks);
@@ -395,7 +401,8 @@ public class AudioTestFragment extends Fragment {
                 mVrPlayer,
                 mSystemPlayer,
                 mWavPlayer,
-                mMusicPlayerWithDelayedFocus
+                mMusicPlayerWithDelayedFocus,
+                mPhoneAudioPlayer
         };
 
         mAudioTrackPlayer = new AudioTrackPlayer(getTone(0));
