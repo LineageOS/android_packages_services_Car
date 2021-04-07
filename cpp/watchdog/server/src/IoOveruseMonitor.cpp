@@ -360,6 +360,16 @@ Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
     return mIoOveruseConfigs->update(configs);
 }
 
+Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
+        std::vector<ResourceOveruseConfiguration>* configs) {
+    std::shared_lock readLock(mRwMutex);
+    if (!isInitializedLocked()) {
+        return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
+    }
+    mIoOveruseConfigs->get(configs);
+    return {};
+}
+
 Result<void> IoOveruseMonitor::actionTakenOnIoOveruse(
         [[maybe_unused]] const std::vector<PackageResourceOveruseAction>& actions) {
     // TODO(b/167240592): Upload metrics.

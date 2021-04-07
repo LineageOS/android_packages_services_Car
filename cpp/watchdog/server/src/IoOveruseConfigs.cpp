@@ -70,6 +70,16 @@ const int32_t kVendorComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRE
         PER_CATEGORY_THRESHOLDS | VENDOR_PACKAGE_PREFIXES;
 const int32_t kThirdPartyComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRESHOLDS;
 
+const std::vector<String16> toString16Vector(const std::unordered_set<std::string>& values) {
+    std::vector<String16> output;
+    for (const auto& v : values) {
+        if (!v.empty()) {
+            output.emplace_back(String16(String8(v.c_str())));
+        }
+    }
+    return output;
+}
+
 bool isZeroValueThresholds(const PerStateIoOveruseThreshold& thresholds) {
     return thresholds.perStateWriteBytes.foregroundBytes == 0 &&
             thresholds.perStateWriteBytes.backgroundBytes == 0 &&
@@ -460,6 +470,67 @@ Result<void> IoOveruseConfigs::update(
         return Error() << errorMsgs.c_str();
     }
     return {};
+}
+
+void IoOveruseConfigs::get(std::vector<ResourceOveruseConfiguration>* resourceOveruseConfigs) {
+    auto systemConfig = get(mSystemConfig, kSystemComponentUpdatableConfigs);
+    if (systemConfig.has_value()) {
+        systemConfig->componentType = ComponentType::SYSTEM;
+        resourceOveruseConfigs->emplace_back(std::move(*systemConfig));
+    }
+
+    auto vendorConfig = get(mVendorConfig, kVendorComponentUpdatableConfigs);
+    if (vendorConfig.has_value()) {
+        vendorConfig->componentType = ComponentType::VENDOR;
+        resourceOveruseConfigs->emplace_back(std::move(*vendorConfig));
+    }
+
+    auto thirdPartyConfig = get(mThirdPartyConfig, kThirdPartyComponentUpdatableConfigs);
+    if (thirdPartyConfig.has_value()) {
+        thirdPartyConfig->componentType = ComponentType::THIRD_PARTY;
+        resourceOveruseConfigs->emplace_back(std::move(*thirdPartyConfig));
+    }
+}
+
+std::optional<ResourceOveruseConfiguration> IoOveruseConfigs::get(
+        const ComponentSpecificConfig& componentSpecificConfig, const int32_t componentFilter) {
+    if (componentSpecificConfig.mGeneric.name == String16(kDefaultThresholdName)) {
+        return {};
+    }
+    ResourceOveruseConfiguration resourceOveruseConfiguration;
+    IoOveruseConfiguration ioOveruseConfiguration;
+    if ((componentFilter & OveruseConfigEnum::COMPONENT_SPECIFIC_GENERIC_THRESHOLDS)) {
+        ioOveruseConfiguration.componentLevelThresholds = componentSpecificConfig.mGeneric;
+    }
+    if (componentFilter & OveruseConfigEnum::VENDOR_PACKAGE_PREFIXES) {
+        resourceOveruseConfiguration.vendorPackagePrefixes =
+                toString16Vector(mVendorPackagePrefixes);
+    }
+    if (componentFilter & OveruseConfigEnum::COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS) {
+        for (const auto& [packageName, threshold] : componentSpecificConfig.mPerPackageThresholds) {
+            ioOveruseConfiguration.packageSpecificThresholds.push_back(threshold);
+        }
+    }
+    if (componentFilter & OveruseConfigEnum::COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES) {
+        resourceOveruseConfiguration.safeToKillPackages =
+                toString16Vector(componentSpecificConfig.mSafeToKillPackages);
+    }
+    if (componentFilter & OveruseConfigEnum::PER_CATEGORY_THRESHOLDS) {
+        for (const auto& [category, threshold] : mPerCategoryThresholds) {
+            ioOveruseConfiguration.categorySpecificThresholds.push_back(threshold);
+        }
+    }
+    if (componentFilter & OveruseConfigEnum::SYSTEM_WIDE_ALERT_THRESHOLDS) {
+        for (const auto& threshold : mAlertThresholds) {
+            ioOveruseConfiguration.systemWideThresholds.push_back(threshold);
+        }
+    }
+    ResourceSpecificConfiguration resourceSpecificConfig;
+    resourceSpecificConfig.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(
+            ioOveruseConfiguration);
+    resourceOveruseConfiguration.resourceSpecificConfigurations.emplace_back(
+            std::move(resourceSpecificConfig));
+    return resourceOveruseConfiguration;
 }
 
 PerStateBytes IoOveruseConfigs::fetchThreshold(const PackageInfo& packageInfo) const {

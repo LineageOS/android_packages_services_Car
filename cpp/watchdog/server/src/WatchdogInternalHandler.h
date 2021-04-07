@@ -85,6 +85,9 @@ public:
             const std::vector<
                     android::automotive::watchdog::internal::ResourceOveruseConfiguration>& configs)
             override;
+    android::binder::Status getResourceOveruseConfigurations(
+            std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
+                    configs) override;
     android::binder::Status actionTakenOnResourceOveruse(
             const std::vector<
                     android::automotive::watchdog::internal::PackageResourceOveruseAction>&

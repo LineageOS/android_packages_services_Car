@@ -71,6 +71,9 @@ public:
             const std::vector<
                     android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
                     configs) = 0;
+    virtual android::base::Result<void> getResourceOveruseConfigurations(
+            std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
+                    configs) = 0;
     virtual android::base::Result<void> actionTakenOnIoOveruse(
             const std::vector<
                     android::automotive::watchdog::internal::PackageResourceOveruseAction>&
@@ -147,6 +150,10 @@ public:
     android::base::Result<void> updateResourceOveruseConfigurations(
             const std::vector<
                     android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
+                    configs);
+
+    android::base::Result<void> getResourceOveruseConfigurations(
+            std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     configs);
 
     android::base::Result<void> actionTakenOnIoOveruse(

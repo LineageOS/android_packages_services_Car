@@ -39,6 +39,11 @@ public:
                         android::automotive::watchdog::internal::ResourceOveruseConfiguration>&),
                 (override));
 
+    MOCK_METHOD(
+            void, get,
+            (std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*),
+            (override));
+
     MOCK_METHOD((const std::unordered_set<std::string>&), vendorPackagePrefixes, (), (override));
 
     MOCK_METHOD(PerStateBytes, fetchThreshold,

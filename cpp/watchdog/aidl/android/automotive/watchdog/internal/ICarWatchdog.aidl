@@ -114,6 +114,14 @@ interface ICarWatchdog {
   void updateResourceOveruseConfigurations(in List<ResourceOveruseConfiguration> configs);
 
   /**
+   * Return the latest list of resource overuse configuration per component.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
+   *
+   * @return configs             List of resource overuse configurations.
+   */
+  List<ResourceOveruseConfiguration> getResourceOveruseConfigurations();
+
+  /**
    * CarWatchdogService notifies the native service with the actions taken on the resource overusing
    * applications.
    *

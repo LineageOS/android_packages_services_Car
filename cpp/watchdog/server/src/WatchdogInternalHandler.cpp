@@ -201,6 +201,19 @@ Status WatchdogInternalHandler::updateResourceOveruseConfigurations(
     return Status::ok();
 }
 
+Status WatchdogInternalHandler::getResourceOveruseConfigurations(
+        std::vector<ResourceOveruseConfiguration>* configs) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    if (const auto result = mIoOveruseMonitor->getResourceOveruseConfigurations(configs);
+        !result.ok()) {
+        return fromExceptionCode(result.error().code(), result.error().message());
+    }
+    return Status::ok();
+}
+
 Status WatchdogInternalHandler::actionTakenOnResourceOveruse(
         const std::vector<PackageResourceOveruseAction>& actions) {
     Status status = checkSystemUser();
