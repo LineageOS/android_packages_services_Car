@@ -154,8 +154,6 @@ android_library {
         "car-frameworks-service",
     ],
 
-    min_sdk_version: "25",
-
     product_variables: {
         pdk: {
             enabled: false,
