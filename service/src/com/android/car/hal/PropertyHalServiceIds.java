@@ -23,6 +23,8 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleHvacFanDirection;
 import android.car.hardware.property.VehicleVendorPermission;
+import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardStatus;
+import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardType;
 import android.hardware.automotive.vehicle.V2_0.EvConnectorType;
 import android.hardware.automotive.vehicle.V2_0.FuelType;
 import android.hardware.automotive.vehicle.V2_0.PortLocationType;
@@ -97,6 +99,10 @@ public class PropertyHalServiceIds {
             new HashSet<>(getIntegersFromDataEnums(VehicleLightSwitch.class));
     private static final int HVAC_FAN_DIRECTION_COMBINATIONS =
             generateAllCombination(VehicleHvacFanDirection.class);
+    private static final Set<Integer> ETC_CARD_TYPE =
+            new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardType.class));
+    private static final Set<Integer> ETC_CARD_STATUS =
+            new HashSet<>(getIntegersFromDataEnums(ElectronicTollCollectionCardStatus.class));
 
     // default vendor permission
     private static final int PERMISSION_CAR_VENDOR_DEFAULT = 0x00000000;
@@ -544,7 +550,12 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.SUPPORT_CUSTOMIZE_VENDOR_PERMISSION, new Pair<>(
                 Car.PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO,
                 null));
-
+        mProps.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE, new Pair<>(
+                Car.PERMISSION_CAR_INFO,
+                null));
+        mProps.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS, new Pair<>(
+                Car.PERMISSION_CAR_INFO,
+                null));
         // mPropToValidValue should contain all properties which has @data_enum in types.hal
         mPropToValidValue.put(VehicleProperty.INFO_FUEL_TYPE, FUEL_TYPE);
         mPropToValidValue.put(VehicleProperty.INFO_EV_CONNECTOR_TYPE, EV_CONNECTOR_TYPE);
@@ -574,7 +585,10 @@ public class PropertyHalServiceIds {
         mPropToValidValue.put(VehicleProperty.HAZARD_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.CABIN_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
         mPropToValidValue.put(VehicleProperty.READING_LIGHTS_SWITCH, VEHICLE_LIGHT_SWITCH);
-
+        mPropToValidValue.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE,
+                ETC_CARD_STATUS);
+        mPropToValidValue.put(VehicleProperty.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS,
+                ETC_CARD_TYPE);
         // mPropToValidBitFlag contains all properties which return values are combinations of bits
         mPropToValidBitFlag.put(VehicleProperty.HVAC_FAN_DIRECTION_AVAILABLE,
                 HVAC_FAN_DIRECTION_COMBINATIONS);
