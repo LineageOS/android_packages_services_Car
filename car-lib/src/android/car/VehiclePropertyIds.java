@@ -17,6 +17,8 @@
 package android.car;
 
 import android.annotation.RequiresPermission;
+import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
+import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
 
 /**
  * Copy from android.hardware.automotive.vehicle-V2.0-java_gen_java/gen/android/hardware/automotive
@@ -1189,6 +1191,28 @@ public final class VehiclePropertyIds {
     public static final int STORAGE_ENCRYPTION_BINDING_SEED = 292554247;
 
     /**
+     * Electronic Toll Collection card type.
+     *
+     * <p>This property indicates the type of ETC(Electronic Toll Collection) card in the vehicle.
+     * If the head unit is aware of an ETC card attached to the vehicle, this property should return
+     * the type of card attached; otherwise, this property should be UNAVAILABLE.
+     * The property value should be one of {@link VehicleElectronicTollCollectionCardType}.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873;
+
+    /**
+     * Electronic Toll Collection card status.
+     *
+     * <p>This property indicates the status of ETC(Electronic Toll Collection) card in the vehicle.
+     * If the head unit is aware of an ETC card attached to the vehicle, ETC_CARD_STATUS gives
+     * that status of the card; otherwise, this property should be UNAVAILABLE.
+     * The property value should be one of {@link VehicleElectronicTollCollectionCardStatus}.
+     */
+    @RequiresPermission(Car.PERMISSION_CAR_INFO)
+    public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874;
+
+    /**
      * Gets a user-friendly representation of a property.
      */
     public static String toString(int property) {
@@ -1493,6 +1517,10 @@ public final class VehiclePropertyIds {
                 return "UNIX_TIME";
             case STORAGE_ENCRYPTION_BINDING_SEED:
                 return "STORAGE_ENCRYPTION_BINDING_SEED";
+            case ELECTRONIC_TOLL_COLLECTION_CARD_STATUS:
+                return "ELECTRONIC_TOLL_COLLECTION_CARD_STATUS";
+            case ELECTRONIC_TOLL_COLLECTION_CARD_TYPE:
+                return "ELECTRONIC_TOLL_COLLECTION_CARD_TYPE";
             default:
                 return "0x" + Integer.toHexString(property);
         }

@@ -328,6 +328,12 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.READING_LIGHTS_SWITCH));
         assertEquals("VEHICLE_SPEED_DISPLAY_UNITS",
                 VehiclePropertyIds.toString(VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS));
+        assertEquals("ELECTRONIC_TOLL_COLLECTION_CARD_STATUS",
+                VehiclePropertyIds.toString(
+                        VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_STATUS));
+        assertEquals("ELECTRONIC_TOLL_COLLECTION_CARD_TYPE",
+                VehiclePropertyIds.toString(
+                        VehiclePropertyIds.ELECTRONIC_TOLL_COLLECTION_CARD_TYPE));
         assertEquals("INITIAL_USER_INFO",
                 VehiclePropertyIds.toString(VehiclePropertyIds.INITIAL_USER_INFO));
         assertEquals("SWITCH_USER", VehiclePropertyIds.toString(VehiclePropertyIds.SWITCH_USER));

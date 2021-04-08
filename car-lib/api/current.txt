@@ -240,6 +240,8 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_LOCK = 371198722; // 0x16200b02
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_MOVE = 373295873; // 0x16400b01
     field @RequiresPermission("android.car.permission.CONTROL_CAR_DOORS") public static final int DOOR_POS = 373295872; // 0x16400b00
+    field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874; // 0x11400f3a
+    field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873; // 0x11400f39
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_COOLANT_TEMP = 291504897; // 0x11600301
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_LEVEL = 289407747; // 0x11400303
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
@@ -655,6 +657,19 @@ package android.car.hardware.property {
   }
 
   public class PropertyNotAvailableException extends java.lang.IllegalStateException {
+  }
+
+  public class VehicleElectronicTollCollectionCardStatus {
+    field public static final int ELECTRONIC_TOLL_COLLECTION_CARD_INVALID = 2; // 0x2
+    field public static final int ELECTRONIC_TOLL_COLLECTION_CARD_NOT_INSERTED = 3; // 0x3
+    field public static final int ELECTRONIC_TOLL_COLLECTION_CARD_VALID = 1; // 0x1
+    field public static final int UNKNOWN = 0; // 0x0
+  }
+
+  public final class VehicleElectronicTollCollectionCardType {
+    field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD = 1; // 0x1
+    field public static final int JP_ELECTRONIC_TOLL_COLLECTION_CARD_V2 = 2; // 0x2
+    field public static final int UNKNOWN = 0; // 0x0
   }
 
 }
