@@ -54,6 +54,7 @@ import android.car.media.CarMediaManager;
 import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
+import android.car.telemetry.CarTelemetryManager;
 import android.car.test.CarTestManagerBinderWrapper;
 import android.car.user.CarUserManager;
 import android.car.vms.VmsClientManager;
@@ -363,6 +364,15 @@ public final class Car {
     @OptionalFeature
     @SystemApi
     public static final String CAR_EVS_SERVICE = "car_evs_service";
+
+    /**
+     * Service name for {@link android.car.telemetry.CarTelemetryManager}
+     *
+     * @hide
+     */
+    @OptionalFeature
+    @SystemApi
+    public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
 
     /** Permission necessary to access car's mileage information.
      *  @hide
@@ -795,6 +805,15 @@ public final class Car {
     @SystemApi
     public static final String PERMISSION_MONITOR_CAR_EVS_STATUS =
             "android.car.permission.MONITOR_CAR_EVS_STATUS";
+
+    /**
+     * Permission necessary to use the CarTelemetryService.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_USE_CAR_TELEMETRY_SERVICE =
+            "android.car.permission.USE_CAR_TELEMETRY_SERVICE";
 
     /**
      * Type of car connection: platform runs directly in car.
@@ -1873,6 +1892,9 @@ public final class Car {
                 break;
             case CAR_EVS_SERVICE:
                 manager = new CarEvsManager(this, binder);
+                break;
+            case CAR_TELEMETRY_SERVICE:
+                manager = new CarTelemetryManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing
