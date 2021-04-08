@@ -175,6 +175,11 @@
     <!-- Permission text: apps can listen to driving state changes [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_driving_state">Listen to Driving state changes.</string>
 
+    <!-- Permission text: apps can collect metrics. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_use_telemetry_service">Use Car Telemetry Service</string>
+    <!-- Permission text: apps can collect metrics. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_use_telemetry_service">Collect car system health data.</string>
+
     <!-- Permission text: apps can control EVS stream state. [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_use_evs_service">Use Car EVS Service</string>
     <!-- Permission text: apps can control EVS stream state. [CHAR LIMIT=NONE] -->
