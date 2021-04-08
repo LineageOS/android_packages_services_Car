@@ -48,7 +48,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
      * by calling the getInstance method before starting other service as they may access
      * PackageInfoResolver's instance during initialization.
      */
-    sp<IPackageInfoResolverInterface> packageInfoResolver = PackageInfoResolver::getInstance();
+    sp<IPackageInfoResolver> packageInfoResolver = PackageInfoResolver::getInstance();
     if (const auto result = startProcessAnrMonitor(looper); !result.ok()) {
         return result;
     }
