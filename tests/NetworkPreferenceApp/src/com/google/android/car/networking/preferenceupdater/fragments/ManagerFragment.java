@@ -23,7 +23,6 @@ import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVA
 import android.content.Context;
 import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
-import android.net.OemNetworkPreferences.OemNetworkPreference;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -188,7 +187,7 @@ public final class ManagerFragment extends Fragment {
                 mPersonalStorage.getReapplyPansOnBootCompleteState());
     }
 
-    private String getFromStorage(@OemNetworkPreference int type) {
+    private String getFromStorage(int type) {
         return Utils.toString(mPersonalStorage.get(type));
     }
 
