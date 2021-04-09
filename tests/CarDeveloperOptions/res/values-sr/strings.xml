@@ -502,7 +502,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Максималан број отисака прстију који можете да додате је <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Додали сте максималан број отисака прстију"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Не можете да додате још отисака прстију"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Уклањате све отиске прстију?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Уклонићете све отиске прстију?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Уклоните „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>“"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Желите ли да избришете овај отисак прста?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Нећете моћи да откључавате телефон, одобравате куповине нити да се пријављујете у апликације помоћу отисака прстију"</string>
@@ -1295,18 +1295,18 @@
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"Захтевај PIN ради употребе телефона"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"Захтевај PIN ради употребе таблета"</string>
     <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Захтевај PIN ради употребе телефона"</string>
-    <string name="sim_pin_change" msgid="5615972926944053213">"Промени SIM PIN"</string>
-    <string name="sim_enter_pin" msgid="149201344579560481">"SIM PIN"</string>
+    <string name="sim_pin_change" msgid="5615972926944053213">"Промени PIN за SIM"</string>
+    <string name="sim_enter_pin" msgid="149201344579560481">"PIN за SIM"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"Закључајте SIM картицу"</string>
     <string name="sim_disable_sim_lock" msgid="394864376519820956">"Откључајте SIM картицу"</string>
-    <string name="sim_enter_old" msgid="8984991229691526849">"Стари SIM PIN"</string>
-    <string name="sim_enter_new" msgid="1720792957661107585">"Нови SIM PIN"</string>
+    <string name="sim_enter_old" msgid="8984991229691526849">"Стари PIN за SIM"</string>
+    <string name="sim_enter_new" msgid="1720792957661107585">"Нови PIN за SIM"</string>
     <string name="sim_reenter_new" msgid="5692585822458989725">"Поново унесите нови PIN"</string>
-    <string name="sim_change_pin" msgid="1674620855223900785">"SIM PIN"</string>
+    <string name="sim_change_pin" msgid="1674620855223900785">"PIN за SIM"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"Нетачан PIN"</string>
     <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN-ови се не подударају"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"Није могуће променити PIN.\nМогуће је да је PIN нетачан."</string>
-    <string name="sim_change_succeeded" msgid="8802418023120614533">"SIM PIN је успешно промењен"</string>
+    <string name="sim_change_succeeded" msgid="8802418023120614533">"PIN за SIM је успешно промењен"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"Није могуће променити стање закључавања SIM картице.\nМогуће је да је PIN нетачан."</string>
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"Онемогућавање PIN-а није успело."</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"Омогућавање PIN-а није успело."</string>
@@ -1319,13 +1319,13 @@
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Користи <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Ажурирати жељени SIM?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> је једина SIM картица у уређају. Желите ли да користите ову SIM картицу за мобилне податке, позиве и SMS поруке?"</string>
-    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Нетачан SIM PIN кôд. Сада морате да контактирате мобилног оператера да бисте откључали уређај."</string>
+    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Нетачан PIN за SIM кôд. Сада морате да контактирате мобилног оператера да бисте откључали уређај."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="one">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушај.</item>
-      <item quantity="few">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
-      <item quantity="other">Нетачан SIM PIN кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
+      <item quantity="one">Нетачан PIN за SIM кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушај.</item>
+      <item quantity="few">Нетачан PIN за SIM кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
+      <item quantity="other">Нетачан PIN за SIM кôд. Имате још <xliff:g id="NUMBER_1">%d</xliff:g> покушаја.</item>
     </plurals>
-    <string name="pin_failed" msgid="4877356137480446727">"Радња са SIM PIN кодом није успела!"</string>
+    <string name="pin_failed" msgid="4877356137480446727">"Радња са PIN за SIM кодом није успела!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Ажурирања система"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android верзија"</string>
@@ -2612,10 +2612,10 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ограничи приступ SMS-овима и евиденцији позива"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Само подразумеване апликације за позиве и размену SMS-ова имају дозволе за приступ SMS-овима и евиденцији позива"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нема доступних поузданих агената"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Активирај апликацију за администраторе?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Активираћете апл. за администраторе?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Активирај ову апликацију за администраторе уређаја"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Администратор уређаја"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Активирање ове апликације за администраторе омогућиће апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> да обави следеће операције:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Активирањем ове апликације за администраторе се апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> омогућава да обавља следеће операције:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Ова апликација за администратора је активна и омогућава апликацији <xliff:g id="APP_NAME">%1$s</xliff:g> да обави следеће операције:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Активирати Менаџера профила?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Ако наставите, корисником ће управљати администратор, који ће можда моћи да чува и повезане податке, поред личних података.\n\nАдминистратор може да прати подешавања, приступ, апликације и податке повезане са овим корисником, укључујући активности на мрежи и информације о локацији уређаја, као и да управља њима."</string>

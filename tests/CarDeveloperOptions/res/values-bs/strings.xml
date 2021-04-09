@@ -563,7 +563,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Zaključavanje ekrana"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / odmah nakon izlaska iz stanja mirovanja"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> nakon izlaska iz stanja mirovanja"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Zaključ. radnog prof."</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Zaklj. radnog profila"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Promijeni zaključavanje ekrana"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Promijeni ili onemog. uzorak, PIN ili lozinku"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Odaberite način za zaključavanje ekrana"</string>
@@ -1797,7 +1797,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Sigurnost radnog profila"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Zaključavanje ekrana radnog profila"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Koristi jedno zaključavanje"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Koristi jedno zaključavanje za radni profil i ekran uređaja"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Koristite jedno zaključavanje za radni profil i ekran uređaja"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Želite li koristiti jedno zaključavanje?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Uređaj će koristiti zaključavanje ekrana vašeg radnog profila. Pravila za rad će se primjenjivati za oba tipa zaključavanja."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Zaključavanje vašeg radnog profila ne ispunjava sigurnosne zahtjeve vaše organizacije. Možete koristiti isto zaključavanje za ekran uređaja i radnog profila, ali važit će sve postavke zaključavanja radnog profila."</string>
@@ -2646,7 +2646,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"Sinhronizacija UKLJUČENA"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sinhronizacija ISKLJUČENA"</string>
     <string name="sync_error" msgid="988155155932442765">"Greška u sinhroniziranju"</string>
-    <string name="last_synced" msgid="4511434057768999129">"Posljednje sinhroniziranje: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="last_synced" msgid="4511434057768999129">"Posljednja sinhronizacija: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"Sinhroniziraj sada…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"Napravi rezervnu kopiju postavki"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"Napravi rezervnu kopiju mojih postavki"</string>
@@ -3471,7 +3471,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"Dozvoli tačku za obavještenja"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Prikaži tačku za obavještenja"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Zanemari način rada Ne ometaj"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Dozvoli da se obavještenja nastave pojavljivati kada je uključen način rada Ne ometaj"</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Omogućite da se obavještenja nastave pojavljivati kada je uključen način rada Ne ometaj"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Na zaključavanju ekrana"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Blokirano"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Prioritetna"</string>
@@ -3954,7 +3954,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Uključen način rada Ne ometaj"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Zvuk na telefonu je isključen"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"S izuzecima"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Čuvar baterije je uključen"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Ušteda baterije je uključena"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funkcije su ograničene"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Prijenos podataka na mobilnoj mreži je isključen"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Internet je dostupan samo putem WiFi mreže"</string>
@@ -4385,8 +4385,8 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Račun"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Naziv uređaja"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Upravljanje WiFi mrežom"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"family link da upravlja WiFi mrežom"</string>
-    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Dozvolite ovoj aplikaciji da uključi ili isključi WiFi, skenira i konektuje se na WiFi, doda ili ukloni mreže, te pokrene lokalnu pristupnu tačku"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Dozvoli aplikaciji da upravlja WiFi-jem"</string>
+    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Dozvolite ovoj aplikaciji da uključuje ili isključuje WiFi, skenira i povezuje se s WiFi mrežama, dodaje ili uklanja mreže te pokreće lokalnu pristupnu tačku"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Reprodukcija medija na"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Ovaj uređaj"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telefon"</string>

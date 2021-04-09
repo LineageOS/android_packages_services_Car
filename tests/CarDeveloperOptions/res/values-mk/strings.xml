@@ -1267,19 +1267,19 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Прикажување на времето, иконите за известување и други информации. Зголемена искористеност на батеријата."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Големина на фонт"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Намалете го или зголемете го текстот"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"Поставки на заклучување на SIM картичка"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"Поставки за заклучување SIM-картичка"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Заклучување SIM-картичка"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"Исклученo"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"Заклучено"</string>
     <string name="sim_lock_settings_title" msgid="877336472752342977">"Заклучување на SIM картичката"</string>
-    <string name="sim_pin_toggle" msgid="2026507420678167488">"Заклучи SIM картичка"</string>
+    <string name="sim_pin_toggle" msgid="2026507420678167488">"Заклучи SIM-картичка"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"Барај PIN за користење на таблетот"</string>
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"Потребен е PIN за користење на телефонот"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"Потребен е PIN за користење на таблетот"</string>
     <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Потребен е PIN за користење на телефонот"</string>
-    <string name="sim_pin_change" msgid="5615972926944053213">"Промени PIN на SIM картичка"</string>
+    <string name="sim_pin_change" msgid="5615972926944053213">"Промени PIN на SIM-картичка"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"PIN на SIM картичка"</string>
-    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"Заклучи SIM картичка"</string>
+    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"Заклучи SIM-картичка"</string>
     <string name="sim_disable_sim_lock" msgid="394864376519820956">"Отклучи SIM картичка"</string>
     <string name="sim_enter_old" msgid="8984991229691526849">"Стар PIN на SIM картичка"</string>
     <string name="sim_enter_new" msgid="1720792957661107585">"Нов PIN на SIM картичка"</string>
@@ -1747,7 +1747,7 @@
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"Погрешен PIN"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"Погрешна лозинка"</string>
     <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"Погрешна шема"</string>
-    <string name="lock_settings_title" msgid="233657584969886812">"Безбедност на уред"</string>
+    <string name="lock_settings_title" msgid="233657584969886812">"Безбедност на уредот"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Промени шема на отклучување"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Промени PIN за отклучување"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Нацртајте шема за отклучување"</string>
@@ -2313,7 +2313,7 @@
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"За да заштедите батерија, спречете ги овие апликации да ја користат батеријата во заднина. Ограничените апликации може да не работат правилно и известувањата може да бидат одложени.\n\nАпликации:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"За да заштедите батерија, спречете ги овие апликации да ја користат батеријата во заднина. Ограничените апликации може да не работат правилно и известувањата може да бидат одложени.\n\nАпликации:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Ограничи"</string>
-    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Дали да се отстрани ограничувањето?"</string>
+    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Да се отстрани ограничувањето?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Апликацијава ќе може да ја користи батеријата во заднина. Батеријата може да се потроши порано од очекуваното."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Да"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Откажи"</string>
@@ -2504,7 +2504,7 @@
     <string name="voice_search_settings_title" msgid="4999026024622014272">"Барај со глас"</string>
     <string name="keyboard_settings_title" msgid="2056233617644581410">"Тастатура за Android"</string>
     <string name="voice_input_settings" msgid="4983011614890521505">"Поставки за гласовен запис"</string>
-    <string name="voice_input_settings_title" msgid="6865032806501269306">"Гласовен запис"</string>
+    <string name="voice_input_settings_title" msgid="6865032806501269306">"Гласовно внесување"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"Услуги на гласовен запис"</string>
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Целосна услуга – клучен збор и интеракција"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Едноставна услуга – говор во текст"</string>
@@ -2528,7 +2528,7 @@
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Инсталирај сертификати од меморија"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Инсталирај сертификати од СД картичка"</string>
     <string name="credentials_reset" msgid="355080737664731678">"Избриши акредитиви"</string>
-    <string name="credentials_reset_summary" msgid="7622528359699428555">"Отстрани ги сите акредитиви"</string>
+    <string name="credentials_reset_summary" msgid="7622528359699428555">"Отстрани ги сите сертификати"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Доверливи акредитиви"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Прикажи доверливи CA сертификати"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Кориснички акредитиви"</string>
@@ -3694,7 +3694,7 @@
     <string name="memory_avg_desc" msgid="1200185697910086968">"Просечно <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
-    <string name="high_power_apps" msgid="2518319744362028920">"Оптимизација на батерија"</string>
+    <string name="high_power_apps" msgid="2518319744362028920">"Оптимизација на батеријата"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"Предупредувања за батеријата"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"Искористеност на целиот уред"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Искористеност на апликации"</string>
@@ -3821,8 +3821,8 @@
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Може да ги менува поставките на системот"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Може да ги менува поставките на системот"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Менување системски поставки"</string>
-    <string name="permit_write_settings" msgid="4198491281216818756">"Дозволи менување на поставките на системот"</string>
-    <string name="write_settings_description" msgid="2536706293042882500">"Оваа дозвола овозможува апликацијата да менува поставки на системот."</string>
+    <string name="permit_write_settings" msgid="4198491281216818756">"Дозволи менување на системските поставки"</string>
+    <string name="write_settings_description" msgid="2536706293042882500">"Оваа дозвола ѝ овозможува на апликацијата да менува системски поставки."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Да"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Не"</string>
     <string name="external_source_switch_title" msgid="5947220058496373178">"Дозволете од изворов"</string>
@@ -4081,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Плочки на програмерот за брзи поставки"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Трага од Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Сензорите се исклучени"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"Поставки на работен профил"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"Поставки за работен профил"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Пребарување контакти"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Дозволете при пребарувањата контакти на вашата организација да се препознаваат повикувачи и контакти"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Календар со измешани профили"</string>

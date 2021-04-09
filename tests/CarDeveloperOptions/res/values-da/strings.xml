@@ -348,7 +348,7 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Tid"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Lås automatisk"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> efter dvale"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Lige efter dvale, undtagen når <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> holder den låst op"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Lige efter dvale, undtagen når den holdes oplåst af <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> efter dvale, undtagen når den holdes oplåst af <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Vis tekst fra ejer på låseskærm"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Besked på låseskærm"</string>
@@ -2576,7 +2576,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Begræns adgang til sms og opkaldsliste"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Det er kun standardapps til opkald og beskeder, der har tilladelser for sms og opkaldsliste"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Der er ingen tilgængelige trust agents"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktiver appen til enhedsadministration?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktivér appen til enhedsadministration?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktivér denne app til enhedsadministration"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Enhedsadministrator"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Hvis denne administratorapp aktiveres, får appen <xliff:g id="APP_NAME">%1$s</xliff:g> tilladelse til at foretage følgende handlinger:"</string>
@@ -4483,7 +4483,7 @@
     <string name="copyable_slice_toast" msgid="1357518174923789947">"<xliff:g id="COPY_CONTENT">%1$s</xliff:g> blev kopieret til udklipsholderen."</string>
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>
     <string name="permission_bar_chart_empty_text" msgid="5893326513700540130">"0 apps har anvendt tilladelser"</string>
-    <string name="permission_bar_chart_title" msgid="874145405516650073">"Brug af tilladelse i de sidste 24 timer"</string>
+    <string name="permission_bar_chart_title" msgid="874145405516650073">"Anvendte tilladelser i de sidste 24 timer"</string>
     <string name="permission_bar_chart_details" msgid="942094334321073927">"Se alt i kontrolpanelet"</string>
     <plurals name="permission_bar_chart_label" formatted="false" msgid="2831305719356562097">
       <item quantity="one"><xliff:g id="NUMBER">%s</xliff:g> app</item>

@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> aktive App</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Trust Agents"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Lege zuerst eine Displaysperre fest, damit du die Option verwenden kannst."</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Lege zuerst eine Displaysperre fest, damit du die Option verwenden kannst"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Keine"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aktive Trust Agents</item>
@@ -2450,7 +2450,7 @@
     <string name="battery_saver" msgid="3989710213758938398">"Energiesparmodus"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Automatisch aktivieren"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Keine Aktivierung nach Zeitplan"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Anhand meiner üblichen Abläufe"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Gemäß meiner Gewohnheiten"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Anhand des Ladestands"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Der Energiesparmodus wird automatisch aktiviert, wenn der Akku wahrscheinlich nicht bis zum nächsten Aufladen hält (ermittelt anhand deines üblichen Aufladezeitpunkts)."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Wird bei <xliff:g id="PERCENT">%1$s</xliff:g> aktiviert"</string>
@@ -2580,7 +2580,7 @@
     <string name="add_device_admin_msg" msgid="3573765823476931173">"App zur Geräteverwaltung aktivieren?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Diese App zur Geräteverwaltung aktivieren"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Geräteadministrator"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Wenn diese App zur Geräteverwaltung aktiviert ist, kann die App \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" Folgendes tun:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Wenn diese App zur Geräteverwaltung aktiviert ist, kann die App „<xliff:g id="APP_NAME">%1$s</xliff:g>“ Folgendes tun:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Diese App zur Geräteverwaltung ist aktiv, sodass die App \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" Folgendes tun kann:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Profilverwaltung aktivieren?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Der Nutzer wird vom gewählten Administrator verwaltet, wenn fortgefahren wird. Dieser kann dann möglicherweise zusätzlich zu den personenbezogenen Daten auch damit verbundene Daten speichern.\n\nDer Administrator kann die mit diesem Nutzer verbundenen Einstellungen, Zugriffsrechte, Apps und Daten überwachen und verwalten, einschließlich der Netzwerkaktivitäten und der Standortinformationen des Geräts."</string>

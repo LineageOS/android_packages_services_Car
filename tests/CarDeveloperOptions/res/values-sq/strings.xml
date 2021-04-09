@@ -449,12 +449,12 @@
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Të kapërcehet gjurma e gishtit?"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Konfigurimi i gjurmëve të gishtave zgjat vetëm një ose dy minuta. Nëse e kapërcen këtë, mund të shtosh gjurmën tënde të gishtit më vonë te cilësimet."</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Të kapërcehet kyçja e ekranit?"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë tablet nëse ai humb, vidhet ose rivendoset."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë pajisje nëse ajo humb, vidhet ose rivendoset."</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë telefon nëse ai humb, vidhet ose rivendoset."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë tablet nëse ai humb ose vidhet."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë pajisje nëse ajo humb ose vidhet."</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Funksionet e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë telefon nëse ai humb ose vidhet."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë tablet nëse ai humb, vidhet ose rivendoset."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë pajisje nëse ajo humb, vidhet ose rivendoset."</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë telefon nëse ai humb, vidhet ose rivendoset."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë tablet nëse ai humb ose vidhet."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë pajisje nëse ajo humb ose vidhet."</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Veçoritë e mbrojtjes së pajisjes nuk do të aktivizohen. Ti nuk do mund të parandalosh që të tjerët të mos e përdorin këtë telefon nëse ai humb ose vidhet."</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Kapërceje gjithsesi"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Kthehu prapa"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Kapërce"</string>
@@ -549,9 +549,9 @@
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Mbroje pajisjen tënde"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"Mbroje telefonin tënd"</string>
     <string name="lock_settings_picker_biometrics_added_security_message" msgid="799453282539387294">"Për më shumë siguri, cakto një kyçje rezervë për ekranin"</string>
-    <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Parandalo që të tjerët ta përdorin këtë tablet pa lejen tënde duke aktivizuar funksionet e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
-    <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Parandalo që të tjerët ta përdorin këtë pajisje pa lejen tënde duke aktivizuar funksionet e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
-    <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Parandalo që të tjerët ta përdorin këtë telefon pa lejen tënde duke aktivizuar funksionet e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
+    <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"Parandalo që të tjerët ta përdorin këtë tablet pa lejen tënde duke aktivizuar veçoritë e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
+    <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Parandalo që të tjerët ta përdorin këtë pajisje pa lejen tënde duke aktivizuar veçoritë e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
+    <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Parandalo që të tjerët ta përdorin këtë telefon pa lejen tënde duke aktivizuar veçoritë e mbrojtjes së pajisjes. Zgjidh kyçjen e ekranit që dëshiron të përdorësh."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"Zgjidh mënyrën rezervë të kyçjes së ekranit"</string>
     <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Zgjidh mënyrën rezervë të kyçjes së ekranit"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Opsionet e kyçjes së ekranit"</string>
@@ -596,23 +596,23 @@
     <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Të hiqet mbrojtja e pajisjes?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Të hiqet mbrojtja e profilit?"</string>
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga kjo pajisje dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa kodin tënd PIN."</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa kodin tënd PIN.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa kodin tënd PIN."</string>
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa kodin tënd PIN.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga kjo pajisje dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
-    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa fjalëkalimin tënd."</string>
-    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa fjalëkalimin tënd.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa fjalëkalimin tënd."</string>
+    <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa fjalëkalimin tënd.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga kjo pajisje dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
-    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa kyçjen tënde të ekranit."</string>
-    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa kyçjen tënde të ekranit.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa kyçjen tënde të ekranit."</string>
+    <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa kyçjen tënde të ekranit.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga kjo pajisje dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Funksionet e mbrojtjes së profilit nuk do të funksionojnë pa motivin tënd."</string>
-    <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Funksionet e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Veçoritë e mbrojtjes së pajisjes nuk do të funksionojnë pa motivin tënd.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga ky profil dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Funksionet e mbrojtjes së profilit nuk do të funksionojnë pa kodin tënd PIN."</string>
@@ -623,8 +623,8 @@
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"Funksionet e mbrojtjes së profilit nuk do të funksionojnë pa fjalëkalimin tënd.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga ky profil dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
-    <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"Funksionet e mbrojtjes së profilit nuk do të funksionojnë pa kyçjen tënde të ekranit."</string>
-    <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"Funksionet e mbrojtjes së profilit nuk do të funksionojnë pa ekranin tënd të kyçjes.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"Veçoritë e mbrojtjes së profilit nuk do të funksionojnë pa kyçjen tënde të ekranit."</string>
+    <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"Veçoritë e mbrojtjes së profilit nuk do të funksionojnë pa ekranin tënd të kyçjes.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Gjurmët e gishtave të ruajtura do të hiqen nga ky profil dhe nuk do të jesh në gjendje të shkyçësh telefonin, të autorizosh blerjet apo të identifikohesh në aplikacione me to."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Po, hiqe"</string>
@@ -1793,8 +1793,8 @@
     <string name="install_applications_title" msgid="8164828577588659496">"Lejo të gjitha burimet e apl."</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Aplikacionet e hapura së fundi"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"Shiko të <xliff:g id="COUNT">%1$d</xliff:g> aplikacionet"</string>
-    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tableti dhe të dhënat e tua personale janë më të cenueshme për t\'u sulmuar nga aplikacione të panjohura. Duke instaluar aplikacionet nga ky burim, ti pranon se je plotësisht përgjegjës për çdo dëm ndaj tabletit ose çdo humbje të dhënash që mund të rezultojë nga përdorimi i tyre."</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefoni dhe të dhënat e tua personale janë më të cenueshme për t\'u sulmuar nga aplikacione të panjohura. Duke instaluar aplikacionet nga ky burim, ti pranon se je plotësisht përgjegjës për çdo dëm ndaj telefonit ose çdo humbje të dhënash që mund të rezultojë nga përdorimi i tyre."</string>
+    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Tableti dhe të dhënat e tua personale janë më të cenueshme nga sulmet nga aplikacione të panjohura. Duke instaluar aplikacionet nga ky burim, ti pranon se je përgjegjës për çdo dëm ndaj tabletit ose çdo humbje të të dhënave që mund të rezultojë nga përdorimi i tyre."</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefoni dhe të dhënat e tua personale janë më të cenueshme nga sulmet nga aplikacione të panjohura. Duke instaluar aplikacionet nga ky burim, ti pranon se je përgjegjës për çdo dëm ndaj telefonit ose çdo humbje të të dhënave që mund të rezultojë nga përdorimi i tyre."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Pajisja dhe të dhënat e tua personale janë më të cenueshme nga sulmet nga aplikacionet e panjohura. Duke instaluar aplikacionet nga ky burim, ti pranon se je përgjegjës për çdo dëm ndaj pajisjes tënde ose çdo humbje të të dhënave që mund të rezultojë nga përdorimi i tyre."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Cilësimet e përparuara"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Aktivizo më shumë opsione të cilësimeve"</string>
@@ -1882,7 +1882,7 @@
     <string name="does_not_exist" msgid="4821267479183197109">"Aplikacioni nuk ekziston."</string>
     <string name="invalid_location" msgid="8057409982223429673">"Vendndodhja e instalimit nuk është e vlefshme."</string>
     <string name="system_package" msgid="1824541892695233351">"Përditësimet e sistemit nuk mund të instalohen në median e jashtme."</string>
-    <string name="move_error_device_admin" msgid="6640501923867066901">"Aplikacioni i administratorit të pajisjes nuk mund të instalohet në media të jashtme"</string>
+    <string name="move_error_device_admin" msgid="6640501923867066901">"Aplikacioni i administrimit të pajisjes nuk mund të instalohet në media të jashtme"</string>
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"Të ndalohet me forcë?"</string>
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"Nëse e ndalon me forcë një aplikacion, ai mund të përjetojë çrregullime në funksionim."</string>
     <string name="app_install_location_title" msgid="5121617802063021720">"Vendndodhja e preferuar e instalimit"</string>
@@ -2543,7 +2543,7 @@
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Të hiqen të gjitha përmbajtjet?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Hapësira ruajtëse e kredencialeve është spastruar."</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Ruajtja e kred. s\'mund të fshihej."</string>
-    <string name="usage_access_title" msgid="7981321142726540574">"Aplikacionet me qasje përdorimi"</string>
+    <string name="usage_access_title" msgid="7981321142726540574">"Aplikacione me qasje te përdorimi"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Sinjali i telefonimit të urgjencës"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"Cakto sjelljen kur kryhet një telefonatë urgjence"</string>
     <string name="privacy_settings_title" msgid="3573891462732375772">"Rezervimi"</string>
@@ -2565,22 +2565,22 @@
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Ndalo rezervimin e të dhënave të pajisjes (si p.sh. fjalëkalimet e Wi-Fi dhe historikun e telefonatave) dhe të dhënave të aplikacioneve (si p.sh. cilësimet dhe skedarët e ruajtur nga aplikacionet) dhe spastro të gjitha kopjet në serverët në largësi?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Rezervo automatikisht në largësi të dhënat e pajisjes (si p.sh. fjalëkalimet e Wi-Fi dhe historikun e telefonatave) dhe të dhënat e aplikacioneve (si p.sh. cilësimet dhe skedarët e ruajtur nga aplikacionet).\n\nKur aktivizon rezervimin automatik, të dhënat e pajisjes dhe të aplikacioneve ruhen periodikisht në largësi. Të dhënat e aplikacioneve mund të jenë çdo e dhënë që ka ruajtur një aplikacion (bazuar në cilësimet e zhvilluesit), duke përfshirë të dhëna ndoshta delikate si kontaktet, mesazhet dhe fotografitë."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Cilësimet e administratorit të pajisjes"</string>
-    <string name="active_device_admin_msg" msgid="6929247869516924549">"Apl. administrimi i pajisjes"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Çaktivizo këtë aplikacion të administratorit të pajisjes"</string>
+    <string name="active_device_admin_msg" msgid="6929247869516924549">"Apl. i administrimit të pajisjes"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Çaktivizo këtë aplikacion të administrimit të pajisjes"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Çinstalo aplikacionin"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Çaktivizo dhe çinstalo"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Apl. e admin. të pajisjes"</string>
-    <string name="no_device_admins" msgid="4129231900385977460">"Nuk ka asnjë aplikacion administrimi të pajisjes në dispozicion"</string>
+    <string name="no_device_admins" msgid="4129231900385977460">"Nuk ka asnjë aplikacion të administrimit të pajisjes në dispozicion"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Personal"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Punë"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Kufizo qasjen tek evidenca e telefonatave dhe SMS-ve"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Vetëm aplikacionet e parazgjedhura të mesazheve dhe telefonit kanë leje për evidencën e telefonatave dhe SMS-ve"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nuk mundësohet asnjë agjent i besuar"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Të aktivizohet aplikacioni i administratorit të pajisjes?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"Aktivizo këtë aplikacion të administratorit të pajisjes"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Të aktivizohet apl. i admin. të pajisjes?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"Aktivizo këtë aplikacion të administrimit të pajisjes"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administratori i pajisjes"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Aktivizimi i këtij aplikacioni të administratorit do të lejojë që aplikacioni <xliff:g id="APP_NAME">%1$s</xliff:g> të kryejë veprimet e mëposhtme:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"Ky aplikacion administratori është aktiv dhe lejon apl. <xliff:g id="APP_NAME">%1$s</xliff:g> të kryejë veprimet e mëposhtme:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Aktivizimi i këtij aplikacioni administrimi do të lejojë që aplikacioni <xliff:g id="APP_NAME">%1$s</xliff:g> të kryejë veprimet e mëposhtme:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"Ky aplikacion administrimi është aktiv dhe lejon apl. <xliff:g id="APP_NAME">%1$s</xliff:g> të kryejë veprimet e mëposhtme:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Të aktivizohet menaxheri i profilit?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Duke vazhduar, profili yt si \"përdorues\" do të menaxhohet nga administratori yt, i cili mund të ruajë të dhënat e lidhura, përveç të dhënave të tua personale.\n\nAdministratori yt ka aftësinë që të monitorojë dhe të menaxhojë cilësimet, qasjen, aplikacionet dhe të dhënat e lidhura me këtë përdorues, duke përfshirë aktivitetin e rrjetit dhe informacionet e vendndodhjes së pajisjes tënde."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Opsionet e tjera janë çaktivizuar nga administratori yt"</string>
@@ -2610,7 +2610,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"Sinkronizimi është aktiv"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sinkronizimi është JOAKTIV"</string>
     <string name="sync_error" msgid="988155155932442765">"Gabim gjatë sinkronizimit"</string>
-    <string name="last_synced" msgid="4511434057768999129">"Sinkronizuar për herë të fundit <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="last_synced" msgid="4511434057768999129">"Sinkronizimi i fundit më <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"Po sinkronizon tani…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"Cilësimet e rezervimit"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"Rezervo cilësimet e mia"</string>
@@ -3556,7 +3556,7 @@
     <string name="switch_off_text" msgid="3539551289454353555">"Joaktiv"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Gozhdimi i ekranit"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Kur ky cilësim është i aktivizuar, mund të përdorësh gozhdimin e ekranit për të mbajtur pamjen aktuale të ekranit deri sa ta anulosh gozhdimin.\n\nPër të përdorur gozhdimin e ekranit:\n\n1. Sigurohu që gozhdimi i ekranit është i aktivizuar\n\n2. Hap \"Përmbledhja\"\n\n3. Trokit tek ikona e aplikacionit në krye të ekranit dhe më pas trokit te \"Gozhdo\""</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Kërko motivin e shkyçjes para anulimit të mbërthimit"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Kërko motivin e shkyçjes para heqjes së gozhdimit"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Zhgozhdimi kërkon PIN-in"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Kërko fjalëkalim para heqjes nga gozhdimi"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Kyçe pajisjen kur heq gozhdimin"</string>
@@ -3589,7 +3589,7 @@
     <string name="imei_information_summary" msgid="716516316022275083">"Informacioni përkatës i IMEI-t"</string>
     <string name="slot_number" msgid="785422579177068698">"(Foleja <xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Hap me parazgjedhje"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Lidhjet po hapen"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Hapja e lidhjeve"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Hap lidhjet e mbështetura"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Hape pa pyetur"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Lidhjet e mbështetura"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"Apl. që marrin të dhëna nga <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Trokit për ta zgjuar"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Trokit dy herë diku në ekran për ta zgjuar pajisjen."</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"Lidhjet po hapen"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"Hapja e lidhjeve"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"Mos i hap lidhjet e mbështetura"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Hap <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Hap <xliff:g id="DOMAIN">%s</xliff:g> dhe URL të tjera"</string>
@@ -3678,11 +3678,11 @@
     <string name="system_app" msgid="4111402206594443265">"(Sistemi)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Parazgjedhja e sistemit)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"Hapësira ruajtëse e apl."</string>
-    <string name="usage_access" msgid="2023443456361489516">"Qasja në përdorim"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"Lejoje qasjen te përdorimi"</string>
+    <string name="usage_access" msgid="2023443456361489516">"Qasja te përdorimi"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"Lejo qasjen te përdorimi"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Preferencat e përdorimit të aplikacioneve"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Koha para ekranit"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Qasja në përdorim lejon që një aplikacion të gjurmojë se çfarë përdorin aplikacionet e tjera dhe sa shpesh e përdorin, si edhe operatorin celular, cilësimet e gjuhës dhe detaje të tjera."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Qasja te përdorimi lejon që një aplikacion të gjurmojë se çfarë përdorin aplikacionet e tjera dhe sa shpesh e përdorin, si edhe operatorin celular, cilësimet e gjuhës dhe detaje të tjera."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Memoria"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Detajet e memories"</string>
     <string name="always_running" msgid="5320183445080208766">"Gjithmonë në funksionim (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3707,7 +3707,7 @@
       <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> po shkarkon baterinë</item>
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"Jo të optimizuara"</string>
-    <string name="high_power_on" msgid="3573501822510580334">"Nuk është i optimizuar"</string>
+    <string name="high_power_on" msgid="3573501822510580334">"Nuk është optimizuar"</string>
     <string name="high_power_off" msgid="5906679734326490426">"Optimizimi i përdorimit të baterisë"</string>
     <string name="high_power_system" msgid="739584574711292753">"Optimizimi i baterisë nuk ofrohet"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Mos zbato optimizimin e baterisë. Kjo mund ta shkarkojë baterinë më shpejt."</string>
@@ -3797,7 +3797,7 @@
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"Rekomandohet për një jetëgjatësi më të mirë të baterisë"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"Lejo që <xliff:g id="APP">%s</xliff:g> t\'i injorojë optimizimet e baterisë?"</string>
     <string name="app_list_preference_none" msgid="7100409177446935028">"Asnjë"</string>
-    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"Çaktivizimi i qasjes së përdorimit për këtë aplikacion nuk e parandalon administratorin tënd të monitorojë përdorimin e të dhënave për aplikacionet në profilin tënd të punës"</string>
+    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"Çaktivizimi i qasjes te përdorimi për këtë aplikacion nuk e parandalon administratorin tënd të monitorojë përdorimin e të dhënave për aplikacionet në profilin tënd të punës"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_0">%1$d</xliff:g> nga <xliff:g id="COUNT_1">%2$d</xliff:g> karaktere u përdorën"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"Shfaq mbi aplikacionet e tjera"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Shfaq mbi aplikacionet e tjera"</string>

@@ -498,11 +498,11 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Puedes agregar hasta <xliff:g id="COUNT">%d</xliff:g> huellas digitales"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Agregaste la cantidad máxima permitida de huellas digitales"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"No se pueden agregar más huellas digitales"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"¿Quitar las huellas digitales?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"¿Quitar las huellas dactilares?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Quitar \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"¿Quieres borrar esta huella dactilar?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"No podrás usar tus huellas digitales para desbloquear el teléfono, autorizar compras ni acceder a las apps"</string>
-    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"No podrás usar tus huellas digitales para desbloquear tu perfil de trabajo, autorizar compras ni acceder a apps de trabajo"</string>
+    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"No podrás usar tus huellas dactilares para desbloquear tu perfil de trabajo, autorizar compras ni acceder a apps de trabajo"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Sí, deseo quitarlas"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Encriptación"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Encriptar Tablet"</string>
@@ -598,19 +598,19 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Las funciones de protección del dispositivo no estarán disponibles sin el patrón."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Las funciones de protección del dispositivo no podrán usarse sin tu patrón.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>También se quitarán las huellas digitales guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
+</xliff:g>También se quitarán las huellas dactilares guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Las funciones de protección del dispositivo no estarán disponibles sin el PIN."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Las funciones de protección del dispositivo no podrán usarse sin tu PIN.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>También se quitarán las huellas digitales guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
+</xliff:g>También se quitarán las huellas dactilares guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Las funciones de protección del dispositivo no estarán disponibles sin la contraseña."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Las funciones de protección del dispositivo no podrán usarse sin tu contraseña.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>También se quitarán las huellas digitales guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
+</xliff:g>También se quitarán las huellas dactilares guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Las funciones de protección del dispositivo no estarán disponibles sin el bloqueo de pantalla."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Las funciones de protección del dispositivo no podrán usarse sin el bloqueo de pantalla.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>También se quitarán las huellas digitales guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
+</xliff:g>También se quitarán las huellas dactilares guardadas del dispositivo, por lo que no podrás usarlas para desbloquear el teléfono, autorizar compras ni acceder a las apps."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Las funciones de protección del perfil no podrán usarse sin tu patrón."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Las funciones de protección del perfil no podrán usarse sin tu patrón.<xliff:g id="EMPTY_LINE">
 

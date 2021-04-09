@@ -19,7 +19,7 @@
     <string name="yes" msgid="39117354665111159">"ହଁ"</string>
     <string name="no" msgid="4709057267400907161">"ନାହିଁ"</string>
     <string name="create" msgid="5131953868544187847">"ତିଆରି କରନ୍ତୁ"</string>
-    <string name="allow" msgid="128867119174713893">"ଅନୁମତି"</string>
+    <string name="allow" msgid="128867119174713893">"ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="deny" msgid="3998166389989144025">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="device_info_default" msgid="1548919563979154348">"ଅଜଣା"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
@@ -4176,7 +4176,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଥିବା ଆପ୍‌ଗୁଡ଼ିକର ତାଲିକା"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"ପ୍ରତି ଆପ୍‌ରେ ବିତାଇଥିବା ସମୟ ଏବଂ ଡାଟାର ପରିମାଣ"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"ଶେଷଥରର ନେଟ୍‌ୱର୍କ ଟ୍ରାଫିକ୍‌ ଲଗ୍‌"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"ସମ୍ପ୍ରତି ବଗ୍‌ ରିପୋର୍ଟ"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"ବର୍ତ୍ତମାନର ବଗ୍‌ ରିପୋର୍ଟ"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"ସମ୍ପ୍ରତି ସୁରକ୍ଷା ଲଗ୍‌"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"କିଛି ନୁହେଁ"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"ଆପ୍‌ଗୁଡ଼ିକ ଇନ୍‌ଷ୍ଟଲ୍‌ ହୋଇଗଲା"</string>

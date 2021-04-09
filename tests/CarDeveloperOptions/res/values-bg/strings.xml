@@ -4082,7 +4082,7 @@
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Трасиране на Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Сензорите са изключени"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Настройки за служебния потребителски профил"</string>
-    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Търсене на контакт"</string>
+    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Търсене на контакти"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Разрешете търсене на контакти от организацията ви с цел идентифициране на обаждащите се и контактите"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Календар за няколко потребителски профила"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Показване на служебните събития в личния ви календар"</string>

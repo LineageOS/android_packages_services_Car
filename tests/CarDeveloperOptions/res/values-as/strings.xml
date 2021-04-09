@@ -2446,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"মিডিয়াছাৰ্ভাৰ"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"এপ অপ্টিমাইজেশ্বন"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"বেটাৰি সঞ্চয়কাৰী"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"বেটাৰী সঞ্চয়কাৰী"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"স্বয়ংক্ৰিয়ভাৱে অন কৰক"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"কোনো সময়সূচী নাই"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"আপোনাৰ নিত্যকৰ্মৰ ওপৰত ভিত্তি কৰি"</string>

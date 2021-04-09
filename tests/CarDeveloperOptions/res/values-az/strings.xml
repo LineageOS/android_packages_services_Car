@@ -289,7 +289,7 @@
     <string name="sd_card_settings_label" product="nosdcard" msgid="3433188145440984933">"USB yaddaş"</string>
     <string name="sd_card_settings_label" product="default" msgid="1074813865245983607">"SD kart"</string>
     <string name="proxy_settings_label" msgid="7219106162267925123">"Proksi parametrləri"</string>
-    <string name="cancel" msgid="2582602392048772404">"Ləğv et"</string>
+    <string name="cancel" msgid="2582602392048772404">"Ləğv edin"</string>
     <string name="okay" msgid="5838476766924989056">"Ok"</string>
     <string name="forget" msgid="7735525146062672874">"Unut"</string>
     <string name="save" msgid="3418211178410498517">"Yadda saxlayın"</string>
@@ -440,8 +440,8 @@
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Barmaq izi ilə kiliddən çıxarın"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Barmaq izinizi istifadə edin"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Telefonunuzu kiliddən çıxarmaq, alışları təsdiqləmək və ya tətbiqlərə daxil olmaq üçün sadəcə barmaq izi sensoruna toxunun. Kimi əlavə etdiyinizə diqqət edin. Hətda əlavə edilmiş bir iz bunlardan hər hansı birini edə bilər.\n\nQeyd: Barmaq iziniz güclü model və ya PİN koddan daha az təhlükəsizdir."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Telefonu kiliddən çıxarmaq və ya satınalmaları təsdiq etmək üçün barmaq izindən istifadə edin.\n\nYadda saxlayın: Bu cihazı kiliddən çıxarmaq üçün barmaq izindən istifadə edə bilməzsiniz. Ətraflı məlumat üçün təşkilat admini ilə əlaqə saxlayın."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Telefonu kiliddən çıxarmaq və ya satınalmaları təsdiqləmək üçün barmaq izindən istifadə edin.\n\nYadda saxlayın: Barmaq izi güclü nümunə və ya PIN\'dən daha az təhlükəsiz ola bilər."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Telefonu kiliddən çıxarmaq və ya alışları təsdiqləmək üçün barmaq izini istifadə edin.\n\nBu cihazı kiliddən çıxarmaq üçün barmaq izini istifadə edə bilməzsiniz. Ətraflı məlumat üçün təşkilat admini ilə əlaqə saxlayın."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Telefonu kiliddən çıxarmaq və ya alışları təsdiqləmək üçün barmaq izini istifadə edin.\n\nBarmaq izi güclü qrafik açar və ya PIN-dən daha güvənsiz ola bilər."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Ləğv edin"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Davam edin"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Ötürün"</string>
@@ -460,7 +460,7 @@
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Keçin"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Ləğv edin"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Sensora toxunun"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Bu, telefonun arxa hissəsindədir. İkinci barmağınızı istifadə edin."</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Telefonun arxasındadır. Şəhadət barmağınızı istifadə edin."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Cihaz və barmaq izi sensoru ilə illustrasiya"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Ad"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
@@ -470,7 +470,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Qaldırın və təkrar toxunun"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Barmaq izini tam əlavə etmək üçün barmağınızı qaldırmağa davam edin"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Barmaq izi əlavə edildi"</string>
-    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Bu ikonanı görən zaman identifikasiya və ya satınalmaları təsdiq etmək üçün barmaq izindən istifadə edin"</string>
+    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Bu ikonu görəndə kimlik və ya alışları təsdiqləmək üçün barmaq izini istifadə edin"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Daha sonra edin"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Barmaq izi ayarları ötürülsün?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Telefon kilidini açmaq üçün barmaq izindən istifadə etməyi seçmisiniz. Bunu indi ötürsəniz, bu funksiyanı daha sonra ayarlamalı olacaqsınız. Ayarlamaq bir-iki dəqiqə vaxtınızı aparacaq."</string>
@@ -501,13 +501,13 @@
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Bütün barmaq izləri silinsin?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"\"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\" barmaq izini silin"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Bu barmaq izini silmək istəyirsiniz?"</string>
-    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Telefonun kilidini açmaq, alışları təsdiqləmək və ya onunla tətbiqlərə daxil olmaq üçün barmaq izini istifadə edə bilməyəcəksiniz"</string>
+    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Kilidi açmaq, alışları təsdiqləmək və ya tətbiqlərə giriş üçün barmaq izini istifadə edə bilməyəcəksiniz"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"İş profilini açmaq, alışları təsdiq etmək və ya iş tətbiqlərinə daxil olmaq üçün barmaq izindən istifadə edə bilməyəcəksiniz"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Bəli, silin"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Şifrələmə"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Planşeti şifrələyin"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Telefonu şifrələyin"</string>
-    <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"Şifrələnmiş"</string>
+    <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"Şifrəli"</string>
     <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Hesabları, ayarları, endirilmiş tətbiqləri və onların datasını, medianı və digər faylları şifrələyə bilərsiniz. Planşeti şifrələyəndən sonra hesab etsək ki, ekran kilidini quraşdırmısınız (yəni, model, rəqəmli PIN və ya parol), hər dəfə planşeti işə salanda deşifrə etmək üçün ekranı kiliddən çıxarmalı olacaqsınız. Deşifrə etməyin yeganə digər yolu fabrik sıfırlanmasının edilməsidir ki, bütün datanızın silinməsi ilə nəticələnir.\n\nŞifrələnmə bir və ya bir neçə saat vaxt aparır. Şifrələməyə dolmuş batareya ilə başlamalısınız və planşet bu müddət ərzində qidalanmalıdır. Proses tamamlanmamış kəsilsə, bütün datanız itəcək."</string>
     <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Hesabları, ayarları, endirilmiş tətbiqləri və onların datasını, medianı və digər faylları şifrələyə bilərsiniz. Telefonu şifrələyəndən sonra hesab etsək ki, ekran kilidini quraşdırmısınız (yəni, model, rəqəmli PIN və ya parol), hər dəfə telefonu işə salanda deşifrə etmək üçün ekranı kiliddən çıxarmalı olacaqsınız. Deşifrə etməyin yeganə digər yolu fabrik sıfırlanmasının edilməsidir ki, bütün datanızın silinməsi ilə nəticələnir.\n\nŞifrələnmə bir və ya bir neçə saat vaxt aparır. Şifrələməyə dolmuş batareya ilə başlamalısınız və telefon bu müddət ərzində qidalanmalıdır. Proses tamamlanmamış kəsilsə, bütün datanız itəcək."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"Planşeti şifrələ"</string>
@@ -705,10 +705,10 @@
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"Ümumi parollar IT admini tərəfindən blok edilib. Fərqli parolu sınayın."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"Artan, azalan və ya təkrarlanan rəqəm ardıcıllığı qadağandır"</string>
     <string name="lockpassword_confirm_label" msgid="1512364313516715624">"Təsdiq edin"</string>
-    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"Ləğv et"</string>
+    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"Ləğv edin"</string>
     <string name="lockpassword_clear_label" msgid="3201458533657963554">"Təmizləyin"</string>
     <string name="lockpassword_credential_changed" msgid="5183961439209866170">"Ekran kilidi artıq dəyişdirilib. Yeni ekran kilidi ilə bir daha cəhd edin."</string>
-    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Ləğv et"</string>
+    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Ləğv edin"</string>
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Növbəti"</string>
     <string name="lock_setup" msgid="8710689848703935088">"Quraşdırma tamamlandı."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"Cihaz admin tətbiqləri"</string>
@@ -717,7 +717,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> aktiv tətbiq</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> aktiv tətbiq</item>
     </plurals>
-    <string name="manage_trust_agents" msgid="8129970926213142261">"Əmanət agentləri"</string>
+    <string name="manage_trust_agents" msgid="8129970926213142261">"Güvən agentləri"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"İstifadə etmək üçün ilk öncə ekran kilidini ayarlayın"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Heç biri"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
@@ -1009,7 +1009,7 @@
     <string name="wifi_failed_forget_message" msgid="2581434074764127531">"Şəbəkəni unutmaq alınmadı"</string>
     <string name="wifi_save" msgid="4658298322696587492">"Yadda saxla"</string>
     <string name="wifi_failed_save_message" msgid="5068789092841891367">"Şəbəkəni yadda saxlamaq alınmadı"</string>
-    <string name="wifi_cancel" msgid="7618417075930426635">"Ləğv et"</string>
+    <string name="wifi_cancel" msgid="7618417075930426635">"Ləğv edin"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Şəbəkə unudulsun?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Bu şəbəkə üçün olan bütün parollar silinəcək"</string>
     <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
@@ -1286,14 +1286,14 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"PIN-i yenidən yazın"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"SIM PIN"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"Yanlış PIN"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN-lər üst-üstə düşmür"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN-lər eyni deyil"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"PIN dəyişdirilə bilməz.\nBəlkə də PIN yanlışdır."</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"SIM PIN uğurla dəyişdirildi"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"SIm kart kilid statusu dəyişdirilə bilmir.\nBəlkə PIN yanlışdır"</string>
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"PIN-i deaktiv etmək mümkün deyil."</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"PIN-i aktiv etmək mümkün deyil."</string>
     <string name="sim_enter_ok" msgid="5103626479976731229">"OK"</string>
-    <string name="sim_enter_cancel" msgid="2806801210236824592">"Ləğv et"</string>
+    <string name="sim_enter_cancel" msgid="2806801210236824592">"Ləğv edin"</string>
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"Çoxsaylı SIM-lər tapıldı"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Mobil data üçün tərcih etdiyiniz SIM-i seçin."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Mobil data üçün <xliff:g id="CARRIER">%1$s</xliff:g> istifadə edilsin?"</string>
@@ -1663,8 +1663,8 @@
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi və Bluetooth skanlaması"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi-Fi skan edilir"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wi‑Fi deaktiv olsa belə, tətbiq və xidmətlərin Wi‑Fi şəbəkələrini istənilən zaman skan etməsinə icazə verin. Məsələn, bu, məkanla bağlı funksiya və xidmətləri təkmilləşdirmək üçün istifadə edilə bilər."</string>
-    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth skan edilir"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Bluetooth deaktiv olsa belə, tətbiq və xidmətlərə yaxınlıqdakı cihazları istənilən zaman skan etməsinə icazə verin. Məsələn, bu, məkanla bağlı funksiya və xidmətləri təkmilləşdirmək üçün istifadə edilə bilər."</string>
+    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth axtarışı"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Bluetooth deaktiv olanda da tətbiq və xidmətlərin yaxınlıqda cihaz axtarmalarına icazə verir ki, məkana aid funksiya və xidmətlərin təkmilləşdirilməsi üçün istifadə edilsin."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"İş üçün məkan xidmətləri"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi və mobil şəbəkə yerləşməsi"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Yerləşmənizi daha tez tapmaq üçün tətbiqlərə Google\'un yerləşmə xidmətindən istifadə etməyə icazə verin."</string>
@@ -1689,7 +1689,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Yazarlar"</string>
     <string name="manual" msgid="5431859421432581357">"Dərslik"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Tənzimləyici etiketlər"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Təhlükəsizlik və tənzimləyici təlimatı"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Güvənlik və tənzimləmə bələdçisi"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Müəlliflik hüququ"</string>
     <string name="license_title" msgid="7582145947873528540">"Lisenziya"</string>
     <string name="terms_title" msgid="1804549588198223771">"Şərtlər"</string>
@@ -1706,18 +1706,18 @@
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"Data bağlantınız yoxdur. Bu informasiyaya indi baxmaq üçün internetə qoşulu olan istənilən kompüterdən %s ünvanına daxil olun."</string>
     <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"Yüklənir…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"Digər üsulu sınayın"</string>
-    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekran kilidini quraşdırın"</string>
+    <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekran kilidi ayarlayın"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Təhlükəsizlik üçün parol ayarlayın"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Barmaq izi üçün parol seçin"</string>
     <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Barmaq izi üçün nümunə seçin"</string>
-    <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Təhlükəsizlik üçün PIN ayarlayın"</string>
+    <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Güvənlik üçün PIN ayarlayın"</string>
     <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Barmaq izi üçün PIN ayarlayın"</string>
-    <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Təhlükəsizlik üçün nümunə ayarlayın"</string>
+    <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Qrafik açar hazırlayın"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Parolu yenidən daxil edin."</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Modeli təsdiq edin"</string>
-    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"PIN\'i yenidən daxil edin"</string>
+    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"PIN-i təkrar daxil edin"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Parollar uyğun gəlmir"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-lər üst-üstə düşmür"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-lər eyni deyil"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Modeli yenidən çəkin"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Kilid açma seçimi"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"Parol ayarlandı"</string>
@@ -1764,10 +1764,10 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"Kilid açan nümunə"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"Model tələb edin"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"Ekranın kilidini açmaq üçün model çəkilməlidir"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Modeli görünən et"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Profil modelini görünən edin"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Qrafik açar görünsün"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Qrafik açar görünsün"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Basarkən vibrasiya etdir"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Qidalanma düyməsi dərhal kilidləyir"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Qidalanma düyməsi ilə kilidlənsin"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> tərəfindən kilidli saxlanma istisna olmaqla"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Kilidi açmaq modeli ayarlayın"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Kilidi açma modelini dəyişin"</string>
@@ -1863,7 +1863,7 @@
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Tətbiq məlumatları silinsin?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Bu tətbiq datası həmişəlik silinəcək. Buraya bütün fayllar, ayarlar, hesablar, verilənlər bazası və sairləri aiddir."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
-    <string name="dlg_cancel" msgid="2434951039156262467">"Ləğv et"</string>
+    <string name="dlg_cancel" msgid="2434951039156262467">"Ləğv edin"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"Tətbiq qurulmuş tətbiqlərin siyahısında tapılmadı."</string>
     <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Tətbiqin yaddaşını təmizləyin."</string>
@@ -2217,7 +2217,7 @@
     <string name="print_print_jobs" msgid="7357841034181762157">"Çap işləri"</string>
     <string name="print_print_job" msgid="6846889971435170443">"Çap işi"</string>
     <string name="print_restart" msgid="4090462480288441779">"Yenidən başlat"</string>
-    <string name="print_cancel" msgid="4567831028966698753">"Ləğv et"</string>
+    <string name="print_cancel" msgid="4567831028966698753">"Ləğv edin"</string>
     <string name="print_job_summary" msgid="438156926959424058">"<xliff:g id="PRINTER">%1$s</xliff:g>\n<xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="print_configuring_state_title_template" msgid="5052801061241050737">"<xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g> konfiqurasiya edilir"</string>
     <string name="print_printing_state_title_template" msgid="8796814912920963803">"<xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g> çap edilir"</string>
@@ -2322,7 +2322,7 @@
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Tətbiqlər batareyadan normal istifadə edirlər. Tətbiqlər həddinən artıq çox batareya istifadə edərsə, cihaz Sizin üçün tədbirlər təklif edəcək.\n\nCihazdan az batareya ilə istifadə edirsinizsə, Batareya Qənaətini aktiv edin."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Batareya Meneceri"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Tətbiqləri avtomatik idarə edin"</string>
-    <string name="smart_battery_summary" msgid="640027046471198174">"Daima istifadə etmədiyiniz tətbiqlərin batareyadan istifadəsini məhdudlaşdırın"</string>
+    <string name="smart_battery_summary" msgid="640027046471198174">"Müntəzəm istifadə etmədiyiniz tətbiqlərin enerji istifadəsini məhdudlaşdırın"</string>
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Batareya Meneceri batareyadan çox istifadə edən tətbiqləri aşkarladıqda həmin tətbiqləri məhdudlaşdıra biləcəksiniz. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Batareya Meneceri batareyadan çox istifadə edən tətbiqləri aşkarladıqda həmin tətbiqləri məhdudlaşdıra biləcəksiniz. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Batareya Meneceri batareyadan çox istifadə edən tətbiqləri aşkarladıqda həmin tətbiqləri məhdudlaşdıra biləcəksiniz. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər."</string>
@@ -2465,7 +2465,7 @@
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Avtomatik aktivləşdir"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Heç vaxt"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> batareya"</string>
-    <string name="battery_percentage" msgid="7782252476471033843">"Batareya faizi"</string>
+    <string name="battery_percentage" msgid="7782252476471033843">"Enerji faizi"</string>
     <string name="battery_percentage_description" msgid="9219875229166700610">"Status panelində batareya faizini göstərin"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Proses Statistikası"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"İşləmə prosesləri haqqında çağırış statistikası"</string>
@@ -2529,7 +2529,7 @@
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Sertifikatları SD kartdan quraşdır"</string>
     <string name="credentials_reset" msgid="355080737664731678">"Etimadı silin"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Bütün sertifikatları sil"</string>
-    <string name="trusted_credentials" msgid="6989242522455395200">"İnanılmış etimadlar"</string>
+    <string name="trusted_credentials" msgid="6989242522455395200">"Güvənli sertifikatlar"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"İnanılmış CA sertifikatları göstər"</string>
     <string name="user_credentials" msgid="8365731467650306757">"İstifadəçi məlumatı"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Saxlanılan məlumatlara baxın və dəyişin"</string>
@@ -2610,7 +2610,7 @@
     <string name="sync_enabled" msgid="535172627223336983">"Synxronizasiya aktivdir"</string>
     <string name="sync_disabled" msgid="713721807204805062">"Sinxronizasiya deaktivdir"</string>
     <string name="sync_error" msgid="988155155932442765">"Sinxronizasiya xətası"</string>
-    <string name="last_synced" msgid="4511434057768999129">"Son sinxronlaşdırma <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
+    <string name="last_synced" msgid="4511434057768999129">"Son sinxronizasiya <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"İndi sinxronlaşdırılır…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"Parametrləri yedəklə"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"Parametrlərimi yedəklə"</string>
@@ -2764,7 +2764,7 @@
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Həmişə aktiv olan VPN üçün DNS serveri göstərilməlidir"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Həmişə aktiv olan VPN üçün DNS server ünvanları rəqəmli olmalıdır"</string>
     <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Daxil edilən məlumat həmişə aktiv volan VPN\'i dəstəkləmir"</string>
-    <string name="vpn_cancel" msgid="440645172381062337">"Ləğv et"</string>
+    <string name="vpn_cancel" msgid="440645172381062337">"Ləğv edin"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Rədd edin"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Yadda saxla"</string>
     <string name="vpn_connect" msgid="772295154834334710">"Qoş"</string>
@@ -2819,14 +2819,14 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d CA sertifikatlar"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Kredensial detalları"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Etimadnamə silindi: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"Heç bir istifadəçi kredensialı quraşdırılmadı"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"İstifadəçi kredensialı quraşdırılmayıb"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Orfoqrafik yoxlama"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"İş üçün orfoqrafiya yoxlayan"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Mövcud tam yedəkləmə parolunuzu bura daxil edin"</string>
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"Burada tam yedəkləmə etmək üçün yeni parol daxil edin"</string>
     <string name="confirm_new_backup_pw_prompt" msgid="3357847425183550770">"Tam yeni rezerv kopyası parolunuzu buraya yenidən yazın"</string>
     <string name="backup_pw_set_button_text" msgid="1331989759872017022">"Rezerv kopyası parolu seçin"</string>
-    <string name="backup_pw_cancel_button_text" msgid="6170984655621611957">"Ləğv et"</string>
+    <string name="backup_pw_cancel_button_text" msgid="6170984655621611957">"Ləğv edin"</string>
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"Əlavə sistem güncəlləmələri"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Şəbəkə nəzərdən keçirilə bilər"</string>
     <string name="done_button" msgid="7652373284597307008">"Hazırdır"</string>
