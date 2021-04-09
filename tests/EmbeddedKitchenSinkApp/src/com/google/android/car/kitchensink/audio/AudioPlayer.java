@@ -220,6 +220,7 @@ public class AudioPlayer {
         Log.i(TAG, "stop");
 
         mPlayer.stop();
+        mPlayer.release();
         mPlayer = null;
 
         if (mHandleFocus) {
