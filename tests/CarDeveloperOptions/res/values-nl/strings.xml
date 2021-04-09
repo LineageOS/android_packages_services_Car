@@ -602,7 +602,7 @@
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"De apparaatbeveiliging werkt niet zonder je pincode."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"De apparaatbeveiliging werkt niet zonder je pincode.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Je opgeslagen vingerafdrukken worden ook verwijderd van dit apparaat. Het is dan niet meer mogelijk je je telefoon te ontgrendelen, toestemming te geven voor aankopen of in te loggen bij apps met deze vingerafdrukken."</string>
+</xliff:g>Je opgeslagen vingerafdrukken worden ook verwijderd van dit apparaat. Het is dan niet meer mogelijk je telefoon te ontgrendelen, toestemming te geven voor aankopen of in te loggen bij apps met deze vingerafdrukken."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"De apparaatbeveiliging werkt niet zonder je wachtwoord."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"De apparaatbeveiliging werkt niet zonder je wachtwoord.<xliff:g id="EMPTY_LINE">
 
@@ -610,7 +610,7 @@
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"De apparaatbeveiliging werkt niet zonder je schermvergendeling."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"De apparaatbeveiliging werkt niet zonder je schermvergendeling.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Je opgeslagen vingerafdrukken worden ook verwijderd van dit apparaat. Het is dan niet meer mogelijk je je telefoon te ontgrendelen, toestemming te geven voor aankopen of in te loggen bij apps met deze vingerafdrukken."</string>
+</xliff:g>Je opgeslagen vingerafdrukken worden ook verwijderd van dit apparaat. Het is dan niet meer mogelijk je telefoon te ontgrendelen, toestemming te geven voor aankopen of in te loggen bij apps met deze vingerafdrukken."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Functies voor profielbeveiliging werken niet zonder je patroon."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Functies voor profielbeveiliging werken niet zonder je patroon.<xliff:g id="EMPTY_LINE">
 
@@ -3390,8 +3390,8 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Scherm-in-scherm"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Scherm-in-scherm toestaan"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Geef deze app toestemming om een beeld-in-beeld-venster te maken als de app open is of als je de app verlaat (bijvoorbeeld om een video te blijven kijken). Dit venster wordt weergegeven vóór andere apps die je gebruikt."</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"Toegang tot \'Niet storen\'"</string>
-    <string name="zen_access_detail_switch" msgid="8706332327904974500">"\'Niet storen\' toestaan"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"Toegang tot Niet storen"</string>
+    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Niet storen toestaan"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Er zijn geen geïnstalleerde apps die toegang tot \'Niet storen\' hebben aangevraagd"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Apps laden..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Op jouw verzoek blokkeert Android de weergave van meldingen van deze app op dit apparaat"</string>

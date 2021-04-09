@@ -503,7 +503,7 @@
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Ați adăugat numărul maxim de amprente digitale"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Nu se mai pot adăuga amprente digitale"</string>
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Eliminați toate amprentele?"</string>
-    <string name="fingerprint_delete_title" msgid="3120894112324235536">"Eliminați „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>”"</string>
+    <string name="fingerprint_delete_title" msgid="3120894112324235536">"Ștergeți „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>”"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Doriți să ștergeți această amprentă?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Nu veți putea folosi amprentele digitale ca să deblocați telefonul, să autorizați achiziții sau să vă conectați la aplicații"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Nu vă veți putea folosi amprentele digitale ca să deblocați profilul de serviciu, să autorizați achiziții sau să vă conectați la aplicațiile de serviciu"</string>
@@ -1787,7 +1787,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Faceți modelul vizibil"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Setați modelul profilului ca vizibil"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibrare la atingere"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Blocare instant cu butonul de pornire"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Blocare rapidă cu butonul de pornire"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Dacă dispozitivul nu este menținut în activitate de <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Setați modelul pentru deblocare"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Schimbați modelul pentru deblocare"</string>
@@ -2601,8 +2601,8 @@
     <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Doriți să nu li se mai facă backup datelor de pe dispozitiv (de exemplu, parolele Wi-Fi și istoricul apelurilor) și datelor din aplicații (de exemplu, setările și fișierele stocate de aplicații) și să ștergeți toate copiile de pe serverele la distanță?"</string>
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Faceți backup automat pentru datele dispozitivului (de exemplu, parolele Wi-Fi și istoricul apelurilor) și pentru datele aplicațiilor (de exemplu, setările și fișierele stocate de aplicații) de la distanță.\n\nCând activați backupul automat, datele dispozitivului și ale aplicațiilor sunt salvate periodic de la distanță. Datele unei aplicații pot fi orice date pe care le-a salvat aplicația (în funcție de setările dezvoltatorului), inclusiv date posibil sensibile, cum a fi persoanele de contact, mesajele și fotografiile."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Setările administratorului dispozitivului"</string>
-    <string name="active_device_admin_msg" msgid="6929247869516924549">"Aplicație pentru administratorul dispozitivului"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Dezactivați această aplicație pentru administratorul dispozitivului"</string>
+    <string name="active_device_admin_msg" msgid="6929247869516924549">"Aplicație de administrare a dispozitivului"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Dezactivați această aplicație de administrare a dispozitivului"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Dezinstalați aplicația"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Dezactivați și dezinstalați"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Aplicații pentru admin. dispozitivului"</string>
@@ -2612,8 +2612,8 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Limitați accesul la SMS-uri și jurnalul de apeluri"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Doar aplicațiile prestabilite de telefonie și de mesagerie au permisiuni să acceseze SMS-urile și jurnalul de apeluri"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nu există agenți de încredere disponibili"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Activați aplicația pentru administrator?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"Activați această aplicație pentru administratorul dispozitivului"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Activați aplicația de administrare?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"Activați această aplicație de administrare a dispozitivului"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administratorul dispozitivului"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Activând această aplicație de administrare, veți permite aplicației <xliff:g id="APP_NAME">%1$s</xliff:g> să efectueze următoarele operațiuni:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Această aplicație de administrare este activă și permite aplicației <xliff:g id="APP_NAME">%1$s</xliff:g> să efectueze următoarele operațiuni:"</string>

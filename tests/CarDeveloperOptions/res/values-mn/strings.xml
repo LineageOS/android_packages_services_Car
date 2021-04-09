@@ -1121,14 +1121,14 @@
     <string name="carrier" msgid="3413463182542176886">"Оператор компани"</string>
     <string name="display_settings_title" msgid="1243571562133261601">"Дэлгэц"</string>
     <string name="sound_settings" msgid="3306063041029638807">"Ая"</string>
-    <string name="all_volume_title" msgid="1750261506951315423">"Дууны хэмжээ"</string>
+    <string name="all_volume_title" msgid="1750261506951315423">"Дууны түвшин"</string>
     <string name="musicfx_title" msgid="6456079041566773649">"Хөгжмийн эффект"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"Хонх дуугаргах түвшин"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Дуугүй үед чичрэх"</string>
     <string name="notification_sound_title" msgid="6812164482799723931">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"Хонхны ая"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"Мэдэгдэл"</string>
-    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Ирж буй дуудлагын дууны хэмжээг мэдэгдэлд ашиглах"</string>
+    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Ирж буй дуудлагын дууны түвшинг мэдэгдэлд ашиглах"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"Ажлын профайлыг дэмждэггүй"</string>
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"Медиа"</string>
@@ -2279,7 +2279,7 @@
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"Батерейны менежерийг асаах"</string>
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"Батарей хэмнэгчийг асаах"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Батарей ердийн үеийнхээс хурдан дуусаж болзошгүй"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Тэжээл хэмнэгч асаалттай байна"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Батарей хэмнэгч асаалттай байна"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Зарим онцлогийг хязгаарласан байж болзошгүй"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Утсыг ердийнхөөс их хэмжээгээр ашигласан"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Таблетыг ердийнхөөс их хэмжээгээр ашигласан"</string>
@@ -3139,7 +3139,7 @@
     <string name="call_volume_option_title" msgid="5028003296631037334">"Дуудлагын дууны түвшин"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Сэрүүлгийн дууны түвшин"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Хонхны дууны түвшин"</string>
-    <string name="notification_volume_option_title" msgid="1358512611511348260">"Мэдэгдлийн дууны хэмжээ"</string>
+    <string name="notification_volume_option_title" msgid="1358512611511348260">"Мэдэгдлийн дууны түвшин"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Утасны хонхны ая"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Аппын санал болгосон дуу"</string>
@@ -3555,7 +3555,7 @@
     <string name="switch_on_text" msgid="7100491749799298324">"Идэвхтэй"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Идэвхгүй"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Дэлгэц тогтоох"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"Энэ тохиргоо асаалттай үед та одоогийн дэлгэцийг тогтоохоо болих хүртлээ үргэлжлүүлэн харуулахын тулд дэлгэц тогтоох онцлогийг ашиглах боломжтой.\n\nДэлгэц тогтоох онцлогийг ашиглахын тулд:\n\n1. Дэлгэц тогтоох онцлог асаалттай эсэхийг шалгах\n\n2. Тоймыг нээх\n\n3. Дэлгэцийн дээд хэсгийн аппын дүрс тэмдгийг товшиж Тогтоох гэснийг товшино уу"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"Энэ тохиргоо асаалттай үед та одоогийн дэлгэцийг бэхлэхээ болиулах хүртэл үргэлжлүүлэн харуулахын тулд дэлгэц бэхлэх онцлогийг ашиглах боломжтой.\n\nДэлгэц бэхлэх онцлогийг ашиглахын тулд:\n\n1. Дэлгэц бэхлэх онцлог асаалттай эсэхийг шалгах\n\n2. Тоймыг нээх\n\n3. Дэлгэцийн дээд хэсгийн аппын дүрс тэмдгийг товшиж Бэхлэх гэснийг товшино уу"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Тогтоосныг суллахаас өмнө түгжээ тайлах хээ асуух"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Бэхэлснийг болиулахаасаа өмнө PIN асуух"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Тогтоосныг суллахаас өмнө нууц үг асуух"</string>
@@ -3893,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Бүү саад бол горим асаалттай байна"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Утасны дууг хаасан"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"Онцгой тохиолдолд"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Тэжээл хэмнэгч асаалттай"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Батарей хэмнэгч асаалттай"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Онцлогуудыг хязгаарласан"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Мобайл дата унтраалттай байна"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Интернэтэд зөвхөн Wi‑Fi-р холбогдох боломжтой байна"</string>

@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Hakuna ratiba"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Kulingana na ratiba yako"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Kulingana na asilimia"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Kiokoa betri huwashwa kama betri yako inakaribia kuisha kabla ya muda wako wa kawaida wa kuchaji"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Kiokoa Betri huwashwa kama betri yako inakaribia kuisha kabla ya muda wako wa kawaida wa kuchaji"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Kitawaka ikifika <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Weka ratiba"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Zima kiokoa betri inapojazwa chaji"</string>

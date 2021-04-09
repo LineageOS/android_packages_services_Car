@@ -42,7 +42,7 @@
     <string name="dsds_dialog_title" msgid="3279829304547130217">"Käynnistetäänkö laite uudelleen?"</string>
     <string name="dsds_dialog_message" msgid="571197076181853304">"Laite on käynnistettävä uudelleen asetuksen muuttamiseksi."</string>
     <string name="dsds_dialog_confirm" msgid="4858826679303698086">"Käynnistä uudelleen"</string>
-    <string name="dsds_dialog_cancel" msgid="5436928622826294809">"Peruuta"</string>
+    <string name="dsds_dialog_cancel" msgid="5436928622826294809">"Peru"</string>
     <string name="radio_info_radio_power" msgid="1377208736090161142">"Mobiiliradion voimakkuus"</string>
     <string name="radioInfo_menu_viewADN" msgid="8833699138060620935">"Näytä SIM-kortin osoitekirja"</string>
     <string name="radioInfo_menu_viewFDN" msgid="617578481953919839">"Näytä sallitut numerot"</string>
@@ -173,7 +173,7 @@
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_title" msgid="7362106962085861626">"Käynnistä uudelleen?"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_message" msgid="4837282201316413412">"Laite on käynnistettävä uudelleen asetuksen muuttamiseksi."</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_confirm" msgid="9066883770039735632">"Käyn. uud."</string>
-    <string name="bluetooth_disable_a2dp_hw_offload_dialog_cancel" msgid="116355977067301404">"Peruuta"</string>
+    <string name="bluetooth_disable_a2dp_hw_offload_dialog_cancel" msgid="116355977067301404">"Peru"</string>
     <string name="connected_device_available_media_title" msgid="9126345752002774342">"Käytettävissä olevat medialaitteet"</string>
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Käytettävissä olevat soittolaitteet"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Yhdistetty tällä hetkellä"</string>
@@ -289,7 +289,7 @@
     <string name="sd_card_settings_label" product="nosdcard" msgid="3433188145440984933">"USB-tallennustila"</string>
     <string name="sd_card_settings_label" product="default" msgid="1074813865245983607">"SD-kortti"</string>
     <string name="proxy_settings_label" msgid="7219106162267925123">"Välityspalvelimen asetukset"</string>
-    <string name="cancel" msgid="2582602392048772404">"Peruuta"</string>
+    <string name="cancel" msgid="2582602392048772404">"Peru"</string>
     <string name="okay" msgid="5838476766924989056">"OK"</string>
     <string name="forget" msgid="7735525146062672874">"Unohda"</string>
     <string name="save" msgid="3418211178410498517">"Tallenna"</string>
@@ -398,7 +398,7 @@
     <string name="security_settings_face_enroll_introduction_accessibility" msgid="1563255314851533140">"Käytä esteettömyysvalintoja"</string>
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
-    <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"Peruuta"</string>
+    <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"Peru"</string>
     <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"Lukituksen avaaminen kasvoilla"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"Todennus kasvojen avulla"</string>
     <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"Voit avata puhelimen, hyväksyä ostoksia tai kirjautua sisään sovelluksiin kasvojen avulla."</string>
@@ -442,7 +442,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Avaa puhelimen lukitus, hyväksy ostoksia tai kirjaudu sovelluksiin koskettamalla sormenjälkitunnistinta. Ole varovainen lisätessäsi sormenjälkiä – edellä mainitut toiminnot onnistuvat vain yhdellä laitteeseen lisätyllä sormenjäljellä.\n\nHuom. Sormenjälki ei välttämättä ole yhtä turvallinen kuin vahva kuvio tai PIN-koodi."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Avaa puhelin tai hyväksy ostoksia sormenjäljellä.\n\nHuom. Tämän laitteen lukitusta ei voi avata sormenjäljellä. Saat lisätietoja organisaatiosi järjestelmänvalvojalta."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Avaa puhelin tai hyväksy ostoksia sormenjäljellä.\n\nHuom. Sormenjälki ei välttämättä ole yhtä turvallinen kuin vahva kuvio tai PIN-koodi."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Peruuta"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Peru"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Jatka"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Ohita"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Seuraava"</string>
@@ -458,7 +458,7 @@
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Ohita silti"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Takaisin"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Ohita"</string>
-    <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Peruuta"</string>
+    <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Peru"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Kosketa tunnistinta"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Se on puhelimen takaosassa. Käytä etusormea."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Laitteen ja sormenjälkianturin sijainnin kuva."</string>
@@ -474,12 +474,12 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Tee myöhemmin"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Ohitetaanko sormenjäljen määritys?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Olet valinnut sormenjäljen yhdeksi tavaksi avata puhelimesi lukitus. Jos ohitat tämän nyt, sinun on määritettävä se myöhemmin. Määritys kestää vain noin minuutin."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peruuta, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi sormenjälkitunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Suojaa tablettiasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Suojaa laitettasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Suojaa puhelintasi näytön lukituksella, jotta kukaan ei voi käyttää sitä, jos se katoaa tai varastetaan. Tarvitset näytön lukituksen myös määrittääksesi kasvojentunnistuksen. Valitse Peru, ja määritä sitten PIN-koodi tai valitse toinen näytönlukitustapa."</string>
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"Ohitetaanko PIN-koodin asetus?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Ohitetaanko salasanan asetus?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ohitetaanko kuvion asetus?"</string>
@@ -705,10 +705,10 @@
     <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"IT-järjestelmänvalvoja on estänyt yleiset salasanat. Kokeile eri salasanaa."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"Nousevat, laskevat tai toistuvat numerosarjat on kielletty."</string>
     <string name="lockpassword_confirm_label" msgid="1512364313516715624">"Vahvista"</string>
-    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"Peruuta"</string>
+    <string name="lockpassword_cancel_label" msgid="3799907375604482766">"Peru"</string>
     <string name="lockpassword_clear_label" msgid="3201458533657963554">"Tyhjennä"</string>
     <string name="lockpassword_credential_changed" msgid="5183961439209866170">"Näytön lukitus on jo vaihdettu. Yritä uudelleen uudella lukituksella."</string>
-    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Peruuta"</string>
+    <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Peru"</string>
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Seuraava"</string>
     <string name="lock_setup" msgid="8710689848703935088">"Asennus on valmis."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"Laitteenhallintasovellukset"</string>
@@ -1009,7 +1009,7 @@
     <string name="wifi_failed_forget_message" msgid="2581434074764127531">"Verkon unohtaminen epäonnistui."</string>
     <string name="wifi_save" msgid="4658298322696587492">"Tallenna"</string>
     <string name="wifi_failed_save_message" msgid="5068789092841891367">"Verkon tallentaminen epäonnistui."</string>
-    <string name="wifi_cancel" msgid="7618417075930426635">"Peruuta"</string>
+    <string name="wifi_cancel" msgid="7618417075930426635">"Peru"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Unohdetaanko verkko?"</string>
     <string name="wifi_forget_dialog_message" msgid="7899220710587511375">"Kaikki tämän verkon salasanat poistetaan."</string>
     <plurals name="wifi_saved_access_points_summary" formatted="false" msgid="6199295921035663421">
@@ -1031,7 +1031,7 @@
     <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IP-asetukset"</string>
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"Wi‑Fi-lisäasetukset eivät ole tämän käyttäjän käytettävissä."</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"Tallenna"</string>
-    <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"Peruuta"</string>
+    <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"Peru"</string>
     <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"Anna kelvollinen IP-osoite."</string>
     <string name="wifi_ip_settings_invalid_gateway" msgid="7602732367437862422">"Anna kelvollinen yhdyskäytävän osoite."</string>
     <string name="wifi_ip_settings_invalid_dns" msgid="4471473055625376300">"Anna kelvollinen nimipalvelun osoite."</string>
@@ -1293,7 +1293,7 @@
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"PIN-koodin käytöstä poistaminen epäonnistui."</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"PIN-koodin käyttöönotto epäonnistui."</string>
     <string name="sim_enter_ok" msgid="5103626479976731229">"OK"</string>
-    <string name="sim_enter_cancel" msgid="2806801210236824592">"Peruuta"</string>
+    <string name="sim_enter_cancel" msgid="2806801210236824592">"Peru"</string>
     <string name="sim_multi_sims_title" msgid="8816212852512189781">"SIM-kortteja löytyi useita"</string>
     <string name="sim_multi_sims_summary" msgid="8237021982527032257">"Valitse SIM-kortti mobiilidatan käyttöä varten."</string>
     <string name="sim_change_data_title" msgid="2512227368681250054">"Käytetäänkö mobiilidataa (<xliff:g id="CARRIER">%1$s</xliff:g>)?"</string>
@@ -1489,7 +1489,7 @@
     <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"Avaa käyttäjän <xliff:g id="APP">^1</xliff:g> lukitus siirtääksesi tietoja."</string>
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"Siirretään <xliff:g id="APP">^1</xliff:g>…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"Jätä <xliff:g id="NAME">^1</xliff:g> paikalleen siirron ajaksi. \n\nTämän laitteen <xliff:g id="APP">^2</xliff:g>-sovellus ei ole käytettävissä, ennen kuin siirto on valmis."</string>
-    <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"Peruuta siirto"</string>
+    <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"Peru siirto"</string>
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"<xliff:g id="NAME_0">^1</xliff:g>  vaikuttaa hitaalta.\n\nVoit jatkaa, mutta tähän sijaintiin siirrettävät sovellukset voivat toimia heikosti ja tiedonsiirto voi kestää kauan.\n\nNopeampi <xliff:g id="NAME_1">^1</xliff:g> voi toimia tehokkaammin."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"Miten <xliff:g id="NAME">^1</xliff:g> otetaan käyttöön?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"Tabletin lisätallennustila"</string>
@@ -1573,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Nollaa Wi-Fin, mobiiliverkon ja Bluetoothin asetukset"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Tämä nollaa kaikki verkkoasetukset, esimerkiksi seuraavat:\n\n"<li>"Wi‑Fi"</li>\n<li>"Mobiilidata"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Tyhjennä ladatut SIM-kortit"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Jos haluat ladata korvaavia SIM-kortteja, ota yhteyttä operaattoriin. Tämä ei peruuta liittymäsopimustasi."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Jos haluat ladata korvaavia SIM-kortteja, ota yhteyttä operaattoriin. Tämä ei peru liittymäsopimustasi."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Nollaa asetukset"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Nollataanko kaikki verkkoasetukset? Toimintoa ei voi kumota."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Haluatko nollata kaikki verkkoasetukset ja tyhjentää ladatut SIM-kortit? Toimintoa ei voi kumota."</string>
@@ -1591,7 +1591,7 @@
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Tällä laitteella on muita paikalla olevia käyttäjiä.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Musiikki"</li>\n<li>"Valokuvat"</li>\n<li>"Muut käyttäjän tiedot"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIMit"</li></string>
-    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Tämä ei peruuta mobiilipalvelupakettiasi."</string>
+    <string name="master_clear_desc_no_cancel_mobile_plan" msgid="6072668588881679461">\n\n"Tämä ei peru mobiilipalvelupakettiasi."</string>
     <string name="master_clear_desc_erase_external_storage" product="nosdcard" msgid="2723272952715259307">\n\n"Jos haluat poistaa musiikin, kuvat ja muut käyttäjän tiedot, "<b>"USB-tallennustila"</b>" tulee tyhjentää."</string>
     <string name="master_clear_desc_erase_external_storage" product="default" msgid="9003555775524798797">\n\n"Jos haluat poistaa musiikin, kuvat ja muut käyttäjän tiedot, "<b>"SD-kortti"</b>" tulee tyhjentää."</string>
     <string name="erase_external_storage" product="nosdcard" msgid="8989746770347525207">"Tyhjennä USB-tallennustila"</string>
@@ -1863,7 +1863,7 @@
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Poistetaanko sovelluksen tiedot?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Kaikki tämän sovelluksen tiedot poistetaan pysyvästi. Tähän sisältyvät kaikki tiedostot, asetukset, tilit, tietokannat jne."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
-    <string name="dlg_cancel" msgid="2434951039156262467">"Peruuta"</string>
+    <string name="dlg_cancel" msgid="2434951039156262467">"Peru"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"Sovellusta ei löydy asennettujen sovelluksien luettelosta."</string>
     <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Sovelluksen tietojen tyhjentäminen tallennustilasta epäonnistui."</string>
@@ -2217,7 +2217,7 @@
     <string name="print_print_jobs" msgid="7357841034181762157">"Tulostustyöt"</string>
     <string name="print_print_job" msgid="6846889971435170443">"Tulostustyö"</string>
     <string name="print_restart" msgid="4090462480288441779">"Käynnistä uudelleen"</string>
-    <string name="print_cancel" msgid="4567831028966698753">"Peruuta"</string>
+    <string name="print_cancel" msgid="4567831028966698753">"Peru"</string>
     <string name="print_job_summary" msgid="438156926959424058">"<xliff:g id="PRINTER">%1$s</xliff:g>\n<xliff:g id="TIME">%2$s</xliff:g>"</string>
     <string name="print_configuring_state_title_template" msgid="5052801061241050737">"Määritetään: <xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g>"</string>
     <string name="print_printing_state_title_template" msgid="8796814912920963803">"Tulostetaan <xliff:g id="PRINT_JOB_NAME">%1$s</xliff:g>"</string>
@@ -2316,7 +2316,7 @@
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Poistetaanko rajoitus?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Tämä sovellus voi käyttää akkua taustalla, joten akku saattaa loppua odotettua aiemmin."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Poista"</string>
-    <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Peruuta"</string>
+    <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Peru"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Sovelluksesi kuluttavat akkua normaalisti. Jos sovellusten virrankulutus on liian suurta, puhelin ehdottaa mahdollisia toimenpiteitä.\n\nJos akku on vähissä, voit ottaa virransäästön käyttöön."</string>
     <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Sovelluksesi kuluttavat akkua normaalisti. Jos sovellusten virrankulutus on liian suurta, tabletti ehdottaa mahdollisia toimenpiteitä.\n\nJos akku on vähissä, voit ottaa virransäästön käyttöön."</string>
     <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Sovelluksesi kuluttavat akkua normaalisti. Jos sovellusten virrankulutus on liian suurta, laite ehdottaa mahdollisia toimenpiteitä.\n\nJos akku on vähissä, voit ottaa virransäästön käyttöön."</string>
@@ -2449,7 +2449,7 @@
     <string name="battery_saver" msgid="3989710213758938398">"Virransäästö"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Ota käyttöön automaattisesti"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Ei aikataulua"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Perustuu ohjelmaasi"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Perustuu rutiiniisi"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Perustuu varausprosenttiin"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Virransäästö käynnistyy, jos akku näyttää todennäköisesti loppuvan ennen seuraavaa tavallista lataamista"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Menee päälle kun jäljellä on <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -2518,7 +2518,7 @@
     <string name="tts_install_voices_title" msgid="363811937643579286">"Asenna ääniä"</string>
     <string name="tts_install_voices_text" msgid="7464832428439739995">"Siirry sovellukseen <xliff:g id="TTS_APP_NAME">%s</xliff:g> asentamaan ääniä."</string>
     <string name="tts_install_voices_open" msgid="686776451008134790">"Avaa sovellus"</string>
-    <string name="tts_install_voices_cancel" msgid="1622512922523479646">"Peruuta"</string>
+    <string name="tts_install_voices_cancel" msgid="1622512922523479646">"Peru"</string>
     <string name="tts_reset" msgid="8864073594540705579">"Nollaa"</string>
     <string name="tts_play" msgid="9023430029380675514">"Toista"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
@@ -2615,7 +2615,7 @@
     <string name="settings_backup" msgid="3261579634252074247">"Varmuuskopioi asetukset"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"Varmuuskopioi asetukseni"</string>
     <string name="sync_menu_sync_now" msgid="3840755364554567507">"Synkronoi nyt"</string>
-    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"Peruuta synkronointi"</string>
+    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"Peru synkronointi"</string>
     <string name="sync_one_time_sync" msgid="6005174168405784256">"Synkronoi nyt koskettamalla – <xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
@@ -2764,7 +2764,7 @@
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Aina käytössä olevaa VPN-yhteyttä varten täytyy määrittää DNS-palvelin."</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Aina käytössä oleva VPN-yhteys edellyttää, että DNS-palvelimien osoitteet ovat numeromuodossa."</string>
     <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Annetut tiedot eivät ole yhteensopivia aina käytössä olevan VPN-yhteyden kanssa."</string>
-    <string name="vpn_cancel" msgid="440645172381062337">"Peruuta"</string>
+    <string name="vpn_cancel" msgid="440645172381062337">"Peru"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Hylkää"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Tallenna"</string>
     <string name="vpn_connect" msgid="772295154834334710">"Yhdistä"</string>
@@ -2826,7 +2826,7 @@
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"Anna uusi varmuuskopioinnin salasana"</string>
     <string name="confirm_new_backup_pw_prompt" msgid="3357847425183550770">"Anna uusi varmuuskopioinnin salasana uudelleen"</string>
     <string name="backup_pw_set_button_text" msgid="1331989759872017022">"Aseta varmuuskopion salasana"</string>
-    <string name="backup_pw_cancel_button_text" msgid="6170984655621611957">"Peruuta"</string>
+    <string name="backup_pw_cancel_button_text" msgid="6170984655621611957">"Peru"</string>
     <string name="additional_system_update_settings_list_item_title" msgid="8674710454802166341">"Järjestelmän lisäpäivitykset"</string>
     <string name="ssl_ca_cert_warning" msgid="7794291734272626026">"Verkkoa saatetaan valvoa"</string>
     <string name="done_button" msgid="7652373284597307008">"Valmis"</string>
@@ -3314,7 +3314,7 @@
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Ota kuplat käyttöön"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Sinun on otettava kuplat käyttöön laitteella, jotta voit ottaa ne käyttöön tässä sovelluksessa. Tämä vaikuttaa muihin sovelluksiin, joissa olet aiemmin ottanut kuplat käyttöön."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Ota käyttöön laitteella"</string>
-    <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Peruuta"</string>
+    <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"Peru"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"Pyyhkäisytoiminnot"</string>
     <string name="swipe_direction_ltr" msgid="944932514821822709">"Ohita pyyhkäisemällä oikealle ja näytä valikko pyyhkäisemällä vasemmalle."</string>
     <string name="swipe_direction_rtl" msgid="4521416787262888813">"Ohita pyyhkäisemällä vasemmalle ja näytä valikko pyyhkäisemällä oikealle."</string>
@@ -3332,7 +3332,7 @@
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"Profiilin ilmoitukset"</string>
     <string name="notifications_title" msgid="8334011924253810654">"Ilmoitukset"</string>
     <string name="app_notifications_title" msgid="1141791221581312325">"Sovellusilmoitukset"</string>
-    <string name="notification_channel_title" msgid="6637705960909690229">"Ilmoituksen luokka"</string>
+    <string name="notification_channel_title" msgid="6637705960909690229">"Ilmoituskategoria"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"Ilmoitusluokka"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"Käyttäytyminen"</string>
     <string name="notification_importance_unspecified" msgid="2515778981253707724">"Salli ääni"</string>
@@ -3376,7 +3376,7 @@
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> voi lukea kaikki ilmoitukset ja niiden sisältämät henkilökohtaiset tiedot, kuten yhteystietojen nimet ja viestien sisällön. Se voi myös hylätä ilmoituksia ja käyttää niiden toimintopainikkeita. \n\nTämä myöntää sovellukselle lisäksi oikeuden ottaa Älä häiritse ‑tilan käyttöön tai poistaa sen käytöstä ja muokata siihen liittyviä asetuksia."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Jos <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ei saa käyttää ilmoituksia, myös Älä häiritse ‑tilan käyttö voidaan estää."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Poista käytöstä"</string>
-    <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Peruuta"</string>
+    <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Peru"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR-avustinpalvelut"</string>
     <string name="no_vr_listeners" msgid="7675484190394450979">"Asennettuja sovelluksia ei ole pyydetty toimimaan VR-avustinpalveluina."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Sallitaanko VR-palveluiden käyttöoikeus palvelulle <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -4167,13 +4167,13 @@
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Synkronointi pois käytöstä kaikilla kohteilla"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Hallinnoidun laitteen tiedot"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Organisaatiosi hallitsemat valinnat ja asetukset"</string>
-    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"Valinnat ja asetukset, joita hallitsee <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"Valinnat ja asetukset, joita hallinnoi <xliff:g id="ORGANIZATION_NAME">%s</xliff:g>"</string>
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"Jotta organisaatiosi voi antaa sinulle työtietojesi käyttöoikeuden, sen on ehkä muutettava asetuksia ja asennettava ohjelmia laitteellesi. \n\nSaat lisätietoja organisaatiosi järjestelmänvalvojalta."</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"Minkä tyyppisiä tietoja organisaatiosi voi nähdä"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Organisaatiosi järjestelmänvalvojan tekemät muutokset"</string>
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Oikeutesi tämän laitteen käyttöön"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Työtilin tiedot, esimerkiksi sähköpostit ja kalenteri"</string>
-    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Luettelo laitteellasi olevista sovelluksista"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Laitteellasi olevat sovellukset"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Kussakin sovelluksessa vietetty aika ja niissä käytetyn datan määrä"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Viimeisin verkkoliikenneloki"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Viimeisin virheraportti"</string>

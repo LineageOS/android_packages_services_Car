@@ -401,9 +401,9 @@
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"Cancelar"</string>
     <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"Desbloquear com o rosto"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"Utilizar o rosto para autenticação"</string>
-    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"Utilize o seu rosto para desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações."</string>
+    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"Utilize o seu rosto para desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps."</string>
     <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"Utilize o seu rosto para desbloquear o telemóvel ou autorizar compras.\n\nNota: não pode utilizar o seu rosto para desbloquear este dispositivo. Para mais informações, contacte o administrador da sua entidade."</string>
-    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Utilize o seu rosto para desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações."</string>
+    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Utilize o seu rosto para desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps."</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"Centrar o rosto no círculo"</string>
     <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Fazer isto mais tarde"</string>
@@ -439,7 +439,7 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Desbloq. com impressão digital"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Utilizar a impressão digital"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Basta tocar no sensor de impressões digitais para desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações. Quaisquer impressões digitais adicionadas ao telemóvel podem executar estas ações, pelo que deve ter cuidado com quem adiciona.\n\nNota: a impressão digital pode ser menos segura do que um padrão ou um PIN fortes."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Basta tocar no sensor de impressões digitais para desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps. Quaisquer impressões digitais adicionadas ao telemóvel podem executar estas ações, pelo que deve ter cuidado com quem adiciona.\n\nNota: a impressão digital pode ser menos segura do que um padrão ou um PIN fortes."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Utilize a sua impressão digital para desbloquear o telemóvel ou para autorizar compras.\n\nNota: não pode utilizar a sua impressão digital para desbloquear este dispositivo. Para mais informações, contacte o gestor da sua entidade."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Utilize a sua impressão digital para desbloquear o telemóvel ou para autorizar compras.\n\nNota: a impressão digital pode ser menos segura do que um padrão ou um PIN fortes."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Cancelar"</string>
@@ -501,7 +501,7 @@
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Remover todas as impressões digitais?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Remover \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Pretende eliminar esta impressão digital?"</string>
-    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Não poderá utilizar as impressões digitais para desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações."</string>
+    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Não poderá utilizar as impressões digitais para desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps."</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Não poderá utilizar as impressões digitais para desbloquear o perfil de trabalho, autorizar compras ou iniciar sessão nas aplicações de trabalho"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Sim, remover"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Encriptação"</string>
@@ -598,35 +598,35 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"As funcionalidades de proteção do dispositivo não funcionam sem o padrão."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"As funcionalidades de proteção do dispositivo não funcionam sem o padrão.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"As funcionalidades de proteção do dispositivo não funcionam sem o PIN."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"As funcionalidades de proteção do dispositivo não funcionam sem o PIN.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas do dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas do dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"As funcionalidades de proteção do dispositivo não funcionam sem a palavra-passe."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"As funcionalidades de proteção do dispositivo não funcionam sem a palavra-passe.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"As funcionalidades de proteção do dispositivo não funcionam sem o bloqueio de ecrã."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"As funcionalidades de proteção do dispositivo não funcionam sem o bloqueio de ecrã.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As suas impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As suas impressões digitais guardadas também são removidas deste dispositivo e não pode desbloquear o telemóvel, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"As funcionalidades de proteção do perfil não funcionam sem o padrão."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"As funcionalidades de proteção do perfil não funcionam sem o padrão.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"As funcionalidades de proteção do perfil não funcionam sem o PIN."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"As funcionalidades de proteção do perfil não funcionam sem o PIN.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"As funcionalidades de proteção do perfil não funcionam sem a palavra-passe."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"As funcionalidades de proteção do perfil não funcionam sem a palavra-passe.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"As funcionalidades de proteção do perfil não funcionam sem o bloqueio de ecrã."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"As funcionalidades de proteção do perfil não funcionam sem o bloqueio de ecrã.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em aplicações com as mesmas."</string>
+</xliff:g>As impressões digitais guardadas também são removidas deste perfil e não pode desbloquear o perfil, autorizar compras ou iniciar sessão em apps com as mesmas."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Sim, remover"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Mudar padrão de desbloqueio"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Alterar PIN de desbloqueio"</string>
@@ -712,10 +712,10 @@
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Seguinte"</string>
     <string name="lock_setup" msgid="8710689848703935088">"A configuração está concluída."</string>
     <string name="manage_device_admin" msgid="322047441168191695">"Apps de administração do dispositivo"</string>
-    <string name="number_of_device_admins_none" msgid="8519193548630223132">"Sem aplicações ativas"</string>
+    <string name="number_of_device_admins_none" msgid="8519193548630223132">"Sem apps ativas"</string>
     <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> aplicações ativas</item>
-      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> aplicação ativa</item>
+      <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> app ativa</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Agentes fidedignos"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Para utilizar, defina primeiro um bloqueio de ecrã"</string>
@@ -1444,11 +1444,11 @@
     <string name="storage_dialog_unmounted" msgid="515810851912430933">"O <xliff:g id="NAME_0">^1</xliff:g> foi ejetado com êxito, mas continua disponível. \n\nPara utilizar este <xliff:g id="NAME_1">^1</xliff:g>, tem de o montar primeiro."</string>
     <string name="storage_dialog_unmountable" msgid="7082856306456936054">"Este <xliff:g id="NAME_0">^1</xliff:g> está danificado. \n\nPara utilizar este <xliff:g id="NAME_1">^1</xliff:g>, tem de o configurar primeiro."</string>
     <string name="storage_dialog_unsupported" msgid="8274023677580782553">"O dispositivo não suporta este <xliff:g id="NAME_0">^1</xliff:g>. \n\nPara utilizar este <xliff:g id="NAME_1">^1</xliff:g> com o dispositivo, tem de o configurar primeiro."</string>
-    <string name="storage_internal_format_details" msgid="2780806013122012384">"Após a formatação, pode utilizar este <xliff:g id="NAME_0">^1</xliff:g> noutros dispositivos. \n\nTodos os dados de <xliff:g id="NAME_1">^1</xliff:g> são apagados. Considere fazer uma cópia de segurança primeiro. \n\n"<b>"Fazer uma cópia de segurança das fotos e de outros conteúdos multimédia"</b>" \nMova os seus ficheiros multimédia para um armazenamento alternativo neste dispositivo ou transfira-os para um computador com um cabo USB. \n\n"<b>"Fazer uma cópia de segurança das aplicações"</b>" \nTodas as aplicações armazenadas neste <xliff:g id="NAME_6">^1</xliff:g> são desinstaladas e os respetivos dados são apagados. Para manter estas aplicações, mova-as para um armazenamento alternativo neste dispositivo."</string>
+    <string name="storage_internal_format_details" msgid="2780806013122012384">"Após a formatação, pode utilizar este <xliff:g id="NAME_0">^1</xliff:g> noutros dispositivos. \n\nTodos os dados de <xliff:g id="NAME_1">^1</xliff:g> são apagados. Considere fazer uma cópia de segurança primeiro. \n\n"<b>"Fazer uma cópia de segurança das fotos e de outros conteúdos multimédia"</b>" \nMova os seus ficheiros multimédia para um armazenamento alternativo neste dispositivo ou transfira-os para um computador com um cabo USB. \n\n"<b>"Fazer uma cópia de segurança das aplicações"</b>" \nTodas as apps armazenadas neste <xliff:g id="NAME_6">^1</xliff:g> são desinstaladas e os respetivos dados são apagados. Para manter estas aplicações, mova-as para um armazenamento alternativo neste dispositivo."</string>
     <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"Quando ejetar este <xliff:g id="NAME_0">^1</xliff:g>, as aplicações armazenadas no mesmo deixam de funcionar e os ficheiros multimédia armazenados deixam de estar disponíveis até voltar a inseri-lo."</b>" \n\nEste <xliff:g id="NAME_1">^1</xliff:g> está formatado para funcionar apenas neste dispositivo. Não funciona em mais nenhum."</string>
     <string name="storage_internal_forget_details" msgid="5655856574682184453">"Para utilizar as aplicações, as fotos ou os dados incluídos em <xliff:g id="NAME">^1</xliff:g>, insira-o novamente. \n\nEm alternativa, pode optar por esquecer este armazenamento se o mesmo não estiver disponível. \n\nSe optar por esquecê-lo, todos os dados presentes no dispositivo são eliminados permanentemente. \n\nPode reinstalar as aplicações posteriormente, mas os dados armazenados neste dispositivo são eliminados."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"Pretende esquecer <xliff:g id="NAME">^1</xliff:g>?"</string>
-    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"Todas as aplicações, as fotos e os dados armazenados neste <xliff:g id="NAME">^1</xliff:g> são eliminados definitivamente."</string>
+    <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"Todas as apps, as fotos e os dados armazenados neste <xliff:g id="NAME">^1</xliff:g> são eliminados definitivamente."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"Apps"</string>
     <string name="storage_detail_images" msgid="6996202225684468964">"Imagens"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"Vídeos"</string>
@@ -1661,7 +1661,7 @@
     <string name="location_high_battery_use" msgid="7177199869979522663">"Utilização de bateria elevada"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Utilização de bateria baixa"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Procura de Wi‑Fi e Bluetooth"</string>
-    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Procura de Wi‑Fi"</string>
+    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Procurar Wi‑Fi"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Permitir que as aplicações e os serviços procurem redes Wi‑Fi em qualquer altura, mesmo quando o Wi-Fi estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Procurar por Bluetooth"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Permitir que as aplicações e os serviços procurem dispositivos próximos em qualquer altura, mesmo quando o Bluetooth estiver desativado. Isto pode ser utilizado, por exemplo, para melhorar as funcionalidades e os serviços baseados na localização."</string>
@@ -1849,7 +1849,7 @@
     <string name="manage_space_text" msgid="6166469422303124302">"Gerir espaço"</string>
     <string name="filter" msgid="2426943916212457962">"Filtrar"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Escolher opções de filtro"</string>
-    <string name="filter_apps_all" msgid="3938077534861382701">"Todas as aplicações"</string>
+    <string name="filter_apps_all" msgid="3938077534861382701">"Todas as apps"</string>
     <string name="filter_apps_disabled" msgid="5394488790555678117">"Apps desativadas"</string>
     <string name="filter_apps_third_party" msgid="3985794876813232322">"Transferidas"</string>
     <string name="filter_apps_running" msgid="6852975378502426359">"Em execução"</string>
@@ -1857,7 +1857,7 @@
     <string name="filter_apps_onsdcard" product="default" msgid="135989136394672864">"No cartão SD"</string>
     <string name="not_installed" msgid="6432131218496140253">"Não instalado para utilizador"</string>
     <string name="installed" msgid="4824212968888080451">"Instalada"</string>
-    <string name="no_applications" msgid="6811396016303576024">"Sem aplicações."</string>
+    <string name="no_applications" msgid="6811396016303576024">"Sem apps."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Armaz. interno"</string>
     <string name="recompute_size" msgid="4290692197892743928">"A recalcular tamanho..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Eliminar dados da aplicação?"</string>
@@ -2307,7 +2307,7 @@
     </plurals>
     <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
       <item quantity="other">Restringir %1$d aplicações?</item>
-      <item quantity="one">Restringir a aplicação?</item>
+      <item quantity="one">Restringir a app?</item>
     </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Para poupar bateria, impeça que a aplicação <xliff:g id="APP">%1$s</xliff:g> consuma bateria em segundo plano. Esta aplicação poderá não funcionar corretamente e as notificações poderão sofrer atrasos."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Para poupar bateria, impeça estas aplicações de consumir bateria em segundo plano. As aplicações restringidas poderão não funcionar corretamente e as notificações poderão sofrer atrasos.\n\nApps:"</string>
@@ -2576,7 +2576,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restringir o acesso ao registo de chamadas e SMS"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Apenas as aplicações de mensagens e de telefone predefinidas têm autorizações de registo de chamadas e de SMS."</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nenhum agente fidedigno disponível"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Ativar aplicação admin. do dispositivo?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Ativar app admin do dispositivo?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Ativar a aplicação de administração deste dispositivo"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administrador do dispositivo"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"A ativação desta aplicação de administração permite que a aplicação <xliff:g id="APP_NAME">%1$s</xliff:g> execute as seguintes operações:"</string>
@@ -2600,7 +2600,7 @@
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"O perfil de trabalho ainda não está disponível"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Perfil de trabalho"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Gerido pela sua entidade"</string>
-    <string name="work_mode_off_summary" msgid="1688885392211178315">"As aplicações e as notificações estão desativadas"</string>
+    <string name="work_mode_off_summary" msgid="1688885392211178315">"As apps e notificações estão desativadas"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Remover perfil de trabalho"</string>
     <string name="background_data" msgid="8275750862371471171">"Dados em segundo plano"</string>
     <string name="background_data_summary" msgid="799640633948841990">"As aplicações podem sincronizar, enviar e receber dados em qualquer altura"</string>
@@ -2891,16 +2891,16 @@
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Remover perfil de trabalho?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Perderá os dados e espaço neste tablet. Não é possível anular esta ação."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Perderá os dados e espaço neste telemóvel. Não é possível anular esta ação."</string>
-    <string name="user_confirm_remove_message" msgid="5202150470271756013">"Todas as aplicações e os dados serão eliminados."</string>
+    <string name="user_confirm_remove_message" msgid="5202150470271756013">"Todas as apps e os dados serão eliminados."</string>
     <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Se continuar, todas as aplicações e todos os dados neste perfil são eliminados."</string>
-    <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Todas as aplicações e os dados serão eliminados."</string>
+    <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Todas as apps e os dados serão eliminados."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"A adicionar novo utilizador..."</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"Eliminar utilizador"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"Eliminar"</string>
     <string name="user_guest" msgid="6226240869459683235">"Convidado"</string>
     <string name="user_exit_guest_title" msgid="7279886200373071797">"Remover convidado"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"Remover o convidado?"</string>
-    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Todas as aplicações e dados desta sessão serão eliminados."</string>
+    <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"Todas as apps e dados desta sessão serão eliminados."</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"Remover"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"Ativar chamadas telefónicas"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Ativar chamadas telefónicas e SMS"</string>
@@ -3631,7 +3631,7 @@
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"Nenhuma permissão concedida"</string>
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"Nenhuma permissão solicitada"</string>
-    <string name="filter_all_apps" msgid="4042756539846043675">"Todas as aplicações"</string>
+    <string name="filter_all_apps" msgid="4042756539846043675">"Todas as apps"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Apps instaladas"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Apps instantâneas"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Pessoais"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(desativado para o utilizador <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"Preenchimento automático"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"automático, preenchimento, preenchimento automático"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Certifique-se de que confia nesta aplicação&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=O Preenchimento automático do Google&gt;%1$s&lt;/xliff:g&gt; utiliza o que está no ecrã para determinar o que pode ser preenchido automaticamente."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Certifique-se de que confia nesta app&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=O Preenchimento automático do Google&gt;%1$s&lt;/xliff:g&gt; utiliza o que está no ecrã para determinar o que pode ser preenchido automaticamente."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Preenchimento automático"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Nível de registo"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Máx. de pedidos por sessão"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Conta"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Nome do dispositivo"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Controlo do Wi-Fi"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Permitir à aplicação controlar o Wi-Fi"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Permitir à app controlar o Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Permitir a esta aplicação ativar ou desativar o Wi-Fi, procurar e estabelecer ligação a redes Wi-Fi, adicionar ou remover redes, assim como iniciar uma zona Wi-Fi apenas local."</string>
     <string name="media_output_title" msgid="8710632337456601848">"Reproduzir multimédia:"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Este dispositivo"</string>

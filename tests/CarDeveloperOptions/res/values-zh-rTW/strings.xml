@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> 個使用中的應用程式</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"信任的代理程式"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"如要使用，請先設定螢幕鎖定"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"如要使用這個選項，請先設定螢幕鎖定方式"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"無"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> 個信任的代理程式正在運作</item>
@@ -2309,11 +2309,11 @@
       <item quantity="other">要限制 %1$d 個應用程式嗎？</item>
       <item quantity="one">要限制應用程式嗎？</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"如要節省電量，請將「<xliff:g id="APP">%1$s</xliff:g>」設為停止在背景耗用電量。這麼做可能會導致這個應用程式無法正常運作，且相關通知可能會延遲。"</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"如要節省電量，請將這些應用程式設為停止在背景耗用電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式："</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"如要節省電量，請將這些應用程式設為停止在背景耗用電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式：\n<xliff:g id="APP_LIST">%1$s</xliff:g>。"</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"如要節省電量，請禁止「<xliff:g id="APP">%1$s</xliff:g>」在背景中消耗裝置電量。這麼做可能會導致這個應用程式無法正常運作，且相關通知可能會延遲。"</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"如要節省電量，請禁止這些應用程式在背景中消耗裝置電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式："</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"如要節省電量，請禁止這些應用程式在背景中消耗裝置電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式：\n<xliff:g id="APP_LIST">%1$s</xliff:g>。"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"限制"</string>
-    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"要移除限制嗎？"</string>
+    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"要解除限制嗎？"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"這個應用程式將會在背景耗用電量。你的電池電力可能會比預期更快耗盡。"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"移除"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"取消"</string>
@@ -2932,7 +2932,7 @@
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"要一律採用「<xliff:g id="APP">%1$s</xliff:g>」進行感應付款嗎？"</string>
     <string name="nfc_payment_set_default_instead_of" msgid="5746952277762109289">"要一律採用「<xliff:g id="APP_0">%1$s</xliff:g>」(而非「<xliff:g id="APP_1">%2$s</xliff:g>」) 進行感應付款嗎？"</string>
     <string name="restriction_settings_title" msgid="4143751894908963736">"限制"</string>
-    <string name="restriction_menu_reset" msgid="3642252461410370554">"移除限制"</string>
+    <string name="restriction_menu_reset" msgid="3642252461410370554">"解除限制"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"變更 PIN 碼"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"顯示通知"</string>
     <string name="help_label" msgid="1296484776243905646">"說明與意見回饋"</string>
@@ -3992,7 +3992,7 @@
     <string name="data_saver_off" msgid="7439439787358504018">"已關閉"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"使用數據節省模式"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"數據用量不受限"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"允許在數據節省模式開啟時無限量存取數據"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"開啟數據節省模式時，允許裝置不受限制使用數據流量"</string>
     <string name="home_app" msgid="3695063566006954160">"主畫面應用程式"</string>
     <string name="no_default_home" msgid="1518949210961918497">"沒有預設主畫面"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"安全啟動"</string>
@@ -4167,7 +4167,7 @@
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"已停用所有項目的同步處理功能"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"受管理的裝置資訊"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"由貴機構所管理的變更內容和設定"</string>
-    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"由 <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> 所管理的變更內容和設定"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"由「<xliff:g id="ORGANIZATION_NAME">%s</xliff:g>」管理的變更內容和設定"</string>
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"為提供你的工作資料存取權，貴機構可能會在你的裝置上變更設定及安裝軟體。\n\n請與貴機構的管理員聯絡以瞭解詳情。"</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"貴機構可查看的資訊類型"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"貴機構管理員進行的變更"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(已為使用者<xliff:g id="USER">%s</xliff:g>停用)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"自動填入服務"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"自動、填入、自動填入"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;請確定這是你信任的應用程式&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt;應用程式會根據你的畫面內容判斷要自動填入的內容。"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;請確定這是你信任的應用程式&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; 會根據畫面上顯示的內容判斷要自動填入哪些資訊。"</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"自動填入"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"記錄層級"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"每個工作階段的要求數上限"</string>

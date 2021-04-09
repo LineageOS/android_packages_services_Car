@@ -2934,7 +2934,7 @@
     <string name="restriction_settings_title" msgid="4143751894908963736">"ನಿರ್ಬಂಧಗಳು"</string>
     <string name="restriction_menu_reset" msgid="3642252461410370554">"ನಿರ್ಬಂಧಗಳನ್ನು ತೆಗೆದುಹಾಕಿ"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"ಪಿನ್‌ ಬದಲಾಯಿಸಿ"</string>
-    <string name="app_notifications_switch_label" msgid="670683308275498821">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸು"</string>
+    <string name="app_notifications_switch_label" msgid="670683308275498821">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಿ"</string>
     <string name="help_label" msgid="1296484776243905646">"ಸಹಾಯ,ಪ್ರತಿಕ್ರಿಯೆ"</string>
     <string name="support_summary" msgid="3278943815956130740">"ಸಹಾಯ ಲೇಖನಗಳು, ಫೋನ್, ಚಾಟ್‌ ಪ್ರಾರಂಭಿಸಲಾಗುತ್ತಿದೆ"</string>
     <string name="user_account_title" msgid="2108666882630552859">"ವಿಷಯಕ್ಕಾಗಿ ಖಾತೆ"</string>
@@ -3418,7 +3418,7 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"ಆಫ್"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"ಎಲ್ಲವನ್ನೂ ನಿರ್ಬಂಧಿಸು"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"ಈ ಅಧಿಸೂಚನೆಗಳನ್ನು ಎಂದಿಗೂ ತೋರಿಸಬೇಡ"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸು"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಿ"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ಶೇಡ್ ಅಥವಾ ಪೆರಿಪೆರಲ್ ಸಾಧನಗಳಲ್ಲಿ ಎಂದಿಗೂ ಅಧಿಸೂಚನೆಗಳನ್ನು ತೋರಿಸಬೇಡಿ"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"ಅಧಿಸೂಚನೆ ಡಾಟ್‌ಗೆ ಅನುಮತಿಸಿ"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"ಅಧಿಸೂಚನೆ ಡಾಟ್‌ ತೋರಿಸಿ"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> ಬಳಸುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"ಎಚ್ಚರಗೊಳಿಸಲು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"ಸಾಧನವನ್ನು ಎಚ್ಚರಗೊಳಿಸಲು ಪರದೆಯ ಯಾವುದೇ ಭಾಗದಲ್ಲಿ ಎರಡು ಬಾರಿ ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"ತೆರೆಯುವ ಲಿಂಕ್‌ಗಳು"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"ಲಿಂಕ್‍‍ಗಳನ್ನು ತೆರೆಯುವುದು"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"ಬೆಂಬಲಿತ ಲಿಂಕ್‌ಗಳನ್ನು ತೆರೆಯಬೇಡಿ"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"<xliff:g id="DOMAIN">%s</xliff:g> ತೆರೆಯಿರಿ"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"<xliff:g id="DOMAIN">%s</xliff:g> ಮತ್ತು ಇತರ URL ಗಳನ್ನು ತೆರೆಯಿರಿ"</string>

@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Հաջորդը"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Բացի հեռախոսը ապակողպելուց՝ մատնահետքը կարող եք նաև օգտագործել գնումները հաստատելու և հավելվածներից օգտվելու համար: "<annotation id="url">"Մանրամասն"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Էկրանի կողպման ընտրանքն անջատված է: Ավելին իմանալու համար դիմեք ձեր կազմակերպության ադմինիստրատորին: "<annotation id="admin_details">"Մանրամասներ"</annotation>\n\n"Գնումները և հավելվածների օգտագործումը թույլատրելու համար դուք կարող եք օգտագործել մատնահետքը: "<annotation id="url">"Իմանալ ավելին"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Բարձրացրեք մատը, ապա կրկին հպեք մատնահետքի ընթերցիչին"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Բարձրացրեք մատը, ապա կրկին հպեք սենսորին"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Կարող եք ավելացնել առավելագույնը <xliff:g id="COUNT">%d</xliff:g> մատնահետք"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Դուք ավելացրել եք մատնահետքերի առավելագույն թույլատրելի քանակը"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Հնարավոր չէ ավելացնել այլ մատնահետքեր"</string>
@@ -674,27 +674,27 @@
     <string name="lockpassword_password_requires_digit" msgid="6856775151626646011">"Պետք է պարունակի առնվազն մեկ թվանշան"</string>
     <string name="lockpassword_password_requires_symbol" msgid="5859035635265756172">"Պետք է պարունակի առնվազն մեկ նշան"</string>
     <plurals name="lockpassword_password_requires_letters" formatted="false" msgid="7383825189441790620">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> letters</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> տառ</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> տառ</item>
     </plurals>
     <plurals name="lockpassword_password_requires_lowercase" formatted="false" msgid="477315194231617994">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> lowercase letters</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> փոքրատառ</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> փոքրատառ</item>
     </plurals>
     <plurals name="lockpassword_password_requires_uppercase" formatted="false" msgid="6026476732572657588">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> uppercase letters</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> մեծատառ</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> մեծատառ</item>
     </plurals>
     <plurals name="lockpassword_password_requires_numeric" formatted="false" msgid="5072581827825645338">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> numerical digits</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> թվանշան</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> թվանշան</item>
     </plurals>
     <plurals name="lockpassword_password_requires_symbols" formatted="false" msgid="8393058207948961650">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> special symbols</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> հատուկ նշան</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> հատուկ նշան</item>
     </plurals>
     <plurals name="lockpassword_password_requires_nonletter" formatted="false" msgid="3692485784007607387">
-      <item quantity="one">Must contain at least <xliff:g id="COUNT">%d</xliff:g> non-letter characters</item>
+      <item quantity="one">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ-տառային գրանշան</item>
       <item quantity="other">Պետք է պարունակի առնվազն <xliff:g id="COUNT">%d</xliff:g> ոչ-տառային գրանշան</item>
     </plurals>
     <plurals name="lockpassword_password_requires_nonnumerical" formatted="false" msgid="6943707011152180150">
@@ -1793,9 +1793,9 @@
     <string name="install_applications_title" msgid="8164828577588659496">"Թույլ է տալիս ծրագրերի բոլոր աղբյուրները"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Վերջին օգտագործված հավելվածները"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"Տեսնել բոլոր հավելվածները (<xliff:g id="COUNT">%1$d</xliff:g>)"</string>
-    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Ձեր պլանշետն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր պլանշետին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Ձեր սարքն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Ձեր սարքն ու անձնական տվյալները առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Ձեր պլանշետն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր պլանշետին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Ձեր սարքն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Ձեր սարքն ու անձնական տվյալները առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ընդլայնված կարգավորումներ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Միացնել այլ կարգավորման ընտրանքներ"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Հավելվածի մասին"</string>
@@ -2199,7 +2199,7 @@
       <item quantity="other">Միացված է <xliff:g id="COUNT">%1$d</xliff:g> տպման ծառայություն</item>
     </plurals>
     <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> print jobs</item>
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> տպելու առաջադրանք</item>
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> տպելու առաջադրանք</item>
     </plurals>
     <string name="print_settings_title" msgid="2886445296786932763">"Տպման ծառայություններ"</string>
@@ -3028,7 +3028,7 @@
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"SIM քարտի ընտրություն"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"Կարգավորումներ"</string>
     <plurals name="settings_suggestion_header_summary_hidden_items" formatted="false" msgid="4475734332610696843">
-      <item quantity="one">Show %d hidden items</item>
+      <item quantity="one">Ցույց տալ %d թաքնված տարրեր</item>
       <item quantity="other">Ցույց տալ %d թաքնված տարրեր</item>
     </plurals>
     <string name="network_dashboard_title" msgid="8288134139584687806">"Ցանց և ինտերնետ"</string>
@@ -3411,14 +3411,14 @@
       <item quantity="other">Անջատված է <xliff:g id="COUNT_1">%d</xliff:g> հավելվածի համար</item>
     </plurals>
     <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> categories deleted</item>
+      <item quantity="one">Ջնջվել է <xliff:g id="COUNT_1">%d</xliff:g> կատեգորիա</item>
       <item quantity="other">Ջնջվել է <xliff:g id="COUNT_1">%d</xliff:g> կատեգորիա</item>
     </plurals>
     <string name="notification_toggle_on" msgid="5119816745741139542">"Միացված է"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"Անջատված է"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Արգելափակել բոլորը"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Երբեք չցուցադրել այս ծանուցումները"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"Ցուցադրել ծանուցումները"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"Ցույց տալ ծանուցումները"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Երբեք չցուցադրել ծանուցումները ստվերում կամ արտաքին սարքերի վրա"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Ցույց տալ ծանուցման կետիկը"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Ցույց տալ ծանուցման կետիկը"</string>
@@ -3534,11 +3534,11 @@
     <string name="zen_mode_end_time_next_day_summary_format" msgid="1598612215612648214">"Հաջորդ օրը <xliff:g id="FORMATTED_TIME">%s</xliff:g>-ին"</string>
     <string name="zen_mode_summary_alarms_only_indefinite" msgid="2470936648971337656">"Անորոշ ժամանակով ակտիվացնել «Միայն զարթուցիչը» ռեժիմը"</string>
     <plurals name="zen_mode_summary_alarms_only_by_minute" formatted="false" msgid="7192429395424304796">
-      <item quantity="one">Change to alarms only for <xliff:g id="DURATION">%1$d</xliff:g> minutes (until <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g>)</item>
+      <item quantity="one">Ակտիվացնել «Միայն զարթուցիչը» ռեժիմը <xliff:g id="DURATION">%1$d</xliff:g> րոպեով (մինչև <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g>)</item>
       <item quantity="other">Ակտիվացնել «Միայն զարթուցիչը» ռեժիմը <xliff:g id="DURATION">%1$d</xliff:g> րոպեով (մինչև <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g>)</item>
     </plurals>
     <plurals name="zen_mode_summary_alarms_only_by_hour" formatted="false" msgid="4198430986970707666">
-      <item quantity="one">Change to alarms only for <xliff:g id="DURATION">%1$d</xliff:g> hours until <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g></item>
+      <item quantity="one">Ակտիվացնել «Միայն զարթուցիչը» ռեժիմը <xliff:g id="DURATION">%1$d</xliff:g> ժամով մինչև <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g></item>
       <item quantity="other">Ակտիվացնել «Միայն զարթուցիչը» ռեժիմը <xliff:g id="DURATION">%1$d</xliff:g> ժամով մինչև <xliff:g id="FORMATTEDTIME_1">%2$s</xliff:g></item>
     </plurals>
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"Ակտիվացնել «Միայն զարթուցիչը» ռեժիմը մինչև <xliff:g id="FORMATTEDTIME">%1$s</xliff:g>-ը"</string>
@@ -3622,7 +3622,7 @@
       <item quantity="other">Տրամադրվել է <xliff:g id="COUNT_1">%d</xliff:g> թույլտվություն</item>
     </plurals>
     <plurals name="runtime_permissions_summary" formatted="false" msgid="3166036683687471356">
-      <item quantity="one"><xliff:g id="COUNT_2">%d</xliff:g> of <xliff:g id="COUNT_3">%d</xliff:g> permissions granted</item>
+      <item quantity="one">Տրվել է <xliff:g id="COUNT_3">%d</xliff:g>-ից <xliff:g id="COUNT_2">%d</xliff:g> թույլտվություն</item>
       <item quantity="other">Տրվել է <xliff:g id="COUNT_3">%d</xliff:g>-ից <xliff:g id="COUNT_2">%d</xliff:g> թույլտվություն</item>
     </plurals>
     <plurals name="runtime_permissions_additional_count" formatted="false" msgid="2068102378805218668">
@@ -3655,7 +3655,7 @@
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Բացել <xliff:g id="DOMAIN">%s</xliff:g> և այլ URL-ներ"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ոչ մի հավելված չի կարող աջակցվող հղումներ բացել"</string>
     <plurals name="domain_urls_apps_summary_on" formatted="false" msgid="3571309605151815405">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> apps opening supported links</item>
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> հավելված կարող է աջակցվող հղումներ բացել</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> հավելված կարող է աջակցվող հղումներ բացել</item>
     </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"Բացել այս հավելվածով"</string>
@@ -3699,11 +3699,11 @@
     <string name="show_all_apps" msgid="5442552004569634846">"Սարքի ամբողջ օգտագործումը"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Ցույց տալ հավելվածների օգտագործումը"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
-      <item quantity="one"><xliff:g id="NUMBER">%2$d</xliff:g> apps behaving abnormally</item>
+      <item quantity="one"><xliff:g id="NUMBER">%2$d</xliff:g> հավելված սխալ է աշխատում</item>
       <item quantity="other"><xliff:g id="NUMBER">%2$d</xliff:g> հավելված սխալ է աշխատում</item>
     </plurals>
     <plurals name="power_high_usage_title" formatted="false" msgid="63134064262760835">
-      <item quantity="one">Apps draining battery</item>
+      <item quantity="one">Հավելվածն արագ սպառում է մարտկոցի լիցքը</item>
       <item quantity="other">Մարտկոցի լիցքն արագ սպառող հավելվածներ</item>
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"Առանց օպտիմալացման"</string>
@@ -3780,7 +3780,7 @@
     <string name="free_memory" msgid="4758919141048544927">"Ազատ է"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Հավելվածների օգտագործած հիշողությունը"</string>
     <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> apps used memory in the last <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="one">Վերջին <xliff:g id="DURATION_1">%2$s</xliff:g>ում հիշողությունն օգտագործել է <xliff:g id="COUNT">%1$d</xliff:g> հավելված</item>
       <item quantity="other">Վերջին <xliff:g id="DURATION_1">%2$s</xliff:g>ում հիշողությունն օգտագործել է <xliff:g id="COUNT">%1$d</xliff:g> հավելված</item>
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Հաճախականություն"</string>
@@ -3852,7 +3852,7 @@
     <string name="data_usage_summary_format" msgid="7788095271598602797">"Օգտագործված տվյալներ՝ <xliff:g id="AMOUNT">%1$s</xliff:g>"</string>
     <string name="data_usage_wifi_format" msgid="9028934101966264710">"<xliff:g id="AMOUNT">^1</xliff:g>-ը փոխանցվել է Wi-Fi-ի միջոցով"</string>
     <plurals name="notification_summary" formatted="false" msgid="761061343339229103">
-      <item quantity="one">Off for <xliff:g id="COUNT">%d</xliff:g> apps</item>
+      <item quantity="one">Անջատված է <xliff:g id="COUNT">%d</xliff:g> հավելվածի համար</item>
       <item quantity="other">Անջատված է <xliff:g id="COUNT">%d</xliff:g> հավելվածի համար</item>
     </plurals>
     <string name="notification_summary_none" msgid="5003043219430054784">"Միացված է բոլոր հավելվածների համար"</string>
@@ -4182,7 +4182,7 @@
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Տեղադրված հավելվածներ"</string>
     <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"Հավելվածների թիվը մոտավոր է: Հնարավոր է, որ այն չի ներառում Play Խանութից դուրս տեղադրված հավելվածները:"</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
-      <item quantity="one">Minimum <xliff:g id="COUNT_1">%d</xliff:g> apps</item>
+      <item quantity="one">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> հավելված</item>
       <item quantity="other">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> հավելված</item>
     </plurals>
     <string name="enterprise_privacy_location_access" msgid="110406267468274216">"Տեղորոշման թույլտվությունները"</string>
@@ -4190,7 +4190,7 @@
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"Տեսախցիկի թույլտվությունները"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"Կանխադրված հավելվածները"</string>
     <plurals name="enterprise_privacy_number_packages" formatted="false" msgid="1480745164313890415">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> apps</item>
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> հավելված</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> հավելված</item>
     </plurals>
     <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"Կանխադրված ստեղնաշար"</string>
@@ -4204,14 +4204,14 @@
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"Վստահելի ՀԿ հավաստագրեր ձեր աշխատանքային պրոֆիլում"</string>
     <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
       <item quantity="one">Minimum <xliff:g id="COUNT_1">%d</xliff:g> CA certificates</item>
-      <item quantity="other">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> ՎԿ հավաստագիր</item>
+      <item quantity="other">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> CA հավաստագիր</item>
     </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"Ադմինիստրատորը կարող է կողպել սարքը և վերակայել գաղտնաբառը"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"Ադմինիստրատորը կարող է ջնջել սարքի բոլոր տվյալները"</string>
     <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"Գաղտնաբառ մուտքագրելու անհաջող փորձերի քանակը, որից հետո սարքի բոլոր տվյալները կջնջվեն"</string>
     <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"Գաղտնաբառ մուտքագրելու անհաջող փորձերի քանակը, որից հետո աշխատանքային պրոֆիլի տվյալները կջնջվեն"</string>
     <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="562550414712223382">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> attempts</item>
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> փորձ</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> փորձ</item>
     </plurals>
     <string name="do_disclosure_generic" msgid="2925786401209052566">"Այս սարքի կառավարիչը ձեր կազմակերպությունն է։"</string>
@@ -4219,18 +4219,18 @@
     <string name="do_disclosure_learn_more_separator" msgid="702345537118848010">" "</string>
     <string name="learn_more" msgid="6844160787130206258">"Մանրամասն"</string>
     <plurals name="default_camera_app_title" formatted="false" msgid="8762954032197483848">
-      <item quantity="one">Camera apps</item>
+      <item quantity="one">Տեսախցիկի հավելված</item>
       <item quantity="other">Տեսախցիկի հավելվածներ</item>
     </plurals>
     <string name="default_calendar_app_title" msgid="6484001237347739255">"Օրացույցի հավելված"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"Կոնտակտների հավելված"</string>
     <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
-      <item quantity="one">Email client apps</item>
+      <item quantity="one">Էլփոստի սպասառու հավելված</item>
       <item quantity="other">Էլփոստի սպասառու հավելվածներ</item>
     </plurals>
     <string name="default_map_app_title" msgid="6919751358166607185">"Քարտեզի հավելված"</string>
     <plurals name="default_phone_app_title" formatted="false" msgid="7593838689002912108">
-      <item quantity="one">Phone apps</item>
+      <item quantity="one">Հեռախոսի հավելված</item>
       <item quantity="other">Հեռախոսի հավելվածներ</item>
     </plurals>
     <string name="app_names_concatenation_template_2" msgid="8267577900046506189">"<xliff:g id="FIRST_APP_NAME">%1$s</xliff:g>, <xliff:g id="SECOND_APP_NAME">%2$s</xliff:g>"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Հաշիվ"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Սարքի անունը"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi-ի կառավարում"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Թույլ տվեք հավելվածին կառավարել Wi-Fi-ը"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Թույլ տալ հավելվածին վերահսկել Wi-Fi-ը"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Թույլ տվեք այս հավելվածին միացնել և անջատել Wi-Fi-ը, գտնել Wi-Fi ցանցեր և միանալ դրանց, ավելացնել և հեռացնել ցանցեր, միացնել միայն տեղային թեժ կետ"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Որտեղ նվագարկել"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Այս սարքը"</string>

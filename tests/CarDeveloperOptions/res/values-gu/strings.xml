@@ -585,7 +585,7 @@
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"ચહેરા પ્રમાણીકરણ + પાસવર્ડ"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"ચહેરા ઓળખ વિના ચાલુ રાખો"</string>
     <string name="face_unlock_title" msgid="1298031162909236127">"તમે તમારા ફોનને તમારા ચહેરાની મદદથી અનલૉક કરી શકો છો. સુરક્ષા માટે, આ વિકલ્પ હેતુ બૅકઅપ સ્ક્રીન લૉક આવશ્યક છે."</string>
-    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"વ્યવસ્થાપક, એન્ક્રિપ્શન નીતિ અથવા ઓળખપત્ર સ્ટોરેજ દ્વારા અક્ષમ કરાયેલ"</string>
+    <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"વ્યવસ્થાપક, એન્ક્રિપ્શન પૉલિસી કે ઓળખપત્ર સ્ટોરેજ દ્વારા બંધ કરાયેલ"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"કોઈ નહીં"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"સ્વાઇપ કરો"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"પૅટર્ન"</string>
@@ -599,7 +599,7 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"ઉપકરણની સુરક્ષા સુવિધાઓ તમારી પૅટર્ન વગર કાર્ય કરશે નહીં.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>આ ઉપકરણમાંથી તમારી સાચવેલ રેફરન્સ ફાઇલને પણ દૂર કરવામાં આવશે અને તમે તમારા ફોનને અનલૉક કરી શકશો નહીં, ખરીદીઓને અધિકૃત કરી શકશો નહીં અથવા તેના વડે ઍપ્લિકેશનો પર સાઇન ઇન કરી શકશો નહીં."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"તમારા પિન વગર ઉપકરણ સુરક્ષા સુવિધાઓ કામ કરશે નહીં."</string>
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"તમારા પિન વગર ડિવાઇસની સુરક્ષા સુવિધાઓ કામ કરશે નહીં."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"ઉપકરણની સુરક્ષા સુવિધાઓ તમારા પિન વગર કાર્ય કરશે નહીં.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>આ ઉપકરણમાંથી તમારી સાચવેલ રેફરન્સ ફાઇલને પણ દૂર કરવામાં આવશે અને તમે તમારા ફોનને અનલૉક કરી શકશો નહીં, ખરીદીઓને અધિકૃત કરી શકશો નહીં અથવા તેના વડે ઍપ્લિકેશનો પર સાઇન ઇન કરી શકશો નહીં."</string>
@@ -1311,7 +1311,7 @@
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android વર્ઝન"</string>
     <string name="security_patch" msgid="483709031051932208">"Android સુરક્ષા પૅચ સ્તર"</string>
-    <string name="model_info" msgid="1729765474260797594">"મોડલ"</string>
+    <string name="model_info" msgid="1729765474260797594">"મૉડલ"</string>
     <string name="model_summary" msgid="8781425868254352168">"મૉડલ: %1$s"</string>
     <string name="hardware_info" msgid="174270144950621815">"મૉડલ અને હાર્ડવેર"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"હાર્ડવેર વર્ઝન"</string>
@@ -1359,7 +1359,7 @@
     <string name="status_operator" msgid="6017986100643755390">"નેટવર્ક"</string>
     <string name="status_wifi_mac_address" msgid="3868452167971295995">"વાઇ-ફાઇ MAC ઍડ્રેસ"</string>
     <string name="status_bt_address" msgid="460568179311735657">"બ્લૂટૂથ ઍડ્રેસ"</string>
-    <string name="status_serial_number" msgid="8257722124627415159">"શૃંખલા ક્રમાંક"</string>
+    <string name="status_serial_number" msgid="8257722124627415159">"અનુક્રમ નંબર"</string>
     <string name="status_up_time" msgid="77128395333934087">"ચાલુ થયાનો સમય"</string>
     <string name="status_awake_time" msgid="1251959094010776954">"જાગૃત સમય"</string>
     <string name="internal_memory" msgid="8632841998435408869">"આંતરિક સ્ટોરેજ"</string>
@@ -1663,7 +1663,7 @@
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"વાઇ-ફાઇ અને બ્લૂટૂથના સ્કૅનિંગનું સેટિંગ"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"વાઇ-ફાઇ સ્કૅનિંગ"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"જ્યારે વાઇ-ફાઇ બંધ હોય ત્યારે પણ ગમે ત્યારે ઍપ અને સેવાઓને વાઇ-ફાઇ નેટવર્ક સ્કૅન કરવાની મંજૂરી આપો. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
-    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"બ્લૂટૂથ સ્કેનિંગ"</string>
+    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"બ્લૂટૂથ સ્કૅનિંગ"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"જ્યારે બ્લૂટૂથ બંધ હોય ત્યારે પણ ગમે ત્યારે ઍપ અને સેવાઓને નજીકના ઉપકરણો સ્કૅન કરવાની મંજૂરી આપો. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"કાર્ય માટે સ્થાનની સેવાઓ"</string>
     <string name="location_network_based" msgid="1535812159327454835">"વાઇ-ફાઇ અને મોબાઇલ નેટવર્ક સ્થાન"</string>
@@ -1688,17 +1688,17 @@
     <string name="legal_information" msgid="2374267257615182139">"કાનૂની માહિતી"</string>
     <string name="contributors_title" msgid="6800028420806884340">"સહયોગકર્તાઓ"</string>
     <string name="manual" msgid="5431859421432581357">"મેન્યુઅલ"</string>
-    <string name="regulatory_labels" msgid="380968489247381025">"નિયમનકારી લેબલ્સ"</string>
+    <string name="regulatory_labels" msgid="380968489247381025">"નિયમનકારી લેબલ"</string>
     <string name="safety_and_regulatory_info" msgid="7113766428000920132">"સુરક્ષા અને નિયમન મેન્યુઅલ"</string>
     <string name="copyright_title" msgid="3847703367689932190">"કોપિરાઇટ"</string>
     <string name="license_title" msgid="7582145947873528540">"લાઇસન્સ"</string>
     <string name="terms_title" msgid="1804549588198223771">"નિયમો અને શરતો"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"સિસ્ટમ વેબવ્યૂ લાઇસન્સ"</string>
-    <string name="wallpaper_attributions" msgid="2941987966332943253">"વૉલપેપર્સ"</string>
+    <string name="wallpaper_attributions" msgid="2941987966332943253">"વૉલપેપર"</string>
     <string name="wallpaper_attributions_values" msgid="4461979853894606323">"ઉપગ્રહ છબી પ્રદાતાઓ:\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"મેન્યુઅલ"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"મેન્યુઅલ લોડ કરવામાં સમસ્યા છે."</string>
-    <string name="settings_license_activity_title" msgid="1099045216283677608">"તૃતીય-પક્ષ લાઇસન્સીસ"</string>
+    <string name="settings_license_activity_title" msgid="1099045216283677608">"ત્રીજા પક્ષના લાઇસન્સ"</string>
     <string name="settings_license_activity_unavailable" msgid="1039356188263821287">"લાઇસન્સીસ લોડ કરવામાં સમસ્યા છે."</string>
     <string name="settings_license_activity_loading" msgid="7272151895113843742">"લોડ કરી રહ્યું છે..."</string>
     <string name="settings_safetylegal_title" msgid="2681094772308772633">"સલામતી માહિતી"</string>
@@ -1747,7 +1747,7 @@
     <string name="lockpassword_invalid_pin" msgid="3059022215815900137">"ખોટો પિન"</string>
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"ખોટો પાસવર્ડ"</string>
     <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"ખોટી પૅટર્ન"</string>
-    <string name="lock_settings_title" msgid="233657584969886812">"ઉપકરણ સુરક્ષા"</string>
+    <string name="lock_settings_title" msgid="233657584969886812">"ડિવાઇસની સુરક્ષા"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"અનલૉક પૅટર્ન બદલો"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"અનલૉક પિન બદલો"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"એક અનલૉક પૅટર્ન દોરો"</string>
@@ -1777,13 +1777,13 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"કાર્યાલયની પ્રોફાઇલની સુરક્ષા"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"કાર્યાલયની પ્રોફાઇલનું સ્ક્રીન લૉક"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"એક લૉકનો ઉપયોગ કરો"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"તમારી કાર્યાલયની પ્રોફાઇલ અને ઉપકરણ સ્ક્રીન પર એક લૉકનો ઉપયોગ કરો"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"તમારી કાર્યાલયની પ્રોફાઇલ અને ડિવાઇસની સ્ક્રીન પર એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"એક લૉકનો ઉપયોગ કરીએ?"</string>
-    <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"તમારું ઉપકરણ તમારા કાર્યાલયની પ્રોફાઇલનાં સ્ક્રીન લૉકનો ઉપયોગ કરશે. કાર્ય નીતિઓ બન્ને લૉક પર લાગુ થશે."</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"તમારું કાર્યાલયની પ્રોફાઇલનું લૉક તમારી સંસ્થાની સુરક્ષા આવશ્યકતાઓને પૂર્ણ કરતું નથી. તમે તમારી ઉપકરણ સ્ક્રીન અને તમારી કાર્યાલયની પ્રોફાઇલ પર સમાન લૉકનો ઉપયોગ કરી શકો છો, પરંતુ કોઇપણ કાર્ય લૉક નીતિઓ લાગુ પડશે."</string>
+    <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"તમારું ડિવાઇસ તમારા ઑફિસની પ્રોફાઇલનાં સ્ક્રીન લૉકનો ઉપયોગ કરશે. કાર્ય પૉલિસીઓ બન્ને લૉક પર લાગુ થશે."</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"તમારું ઑફિસની પ્રોફાઇલનું લૉક તમારી સંસ્થાની સુરક્ષા આવશ્યકતાઓને પૂર્ણ કરતું નથી. તમે તમારી ડિવાઇસ સ્ક્રીન અને તમારી ઑફિસની પ્રોફાઇલ પર સમાન લૉકનો ઉપયોગ કરી શકો છો, પરંતુ કોઇપણ કાર્ય લૉક પૉલિસીઓ લાગુ પડશે."</string>
     <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"એક લૉકનો ઉપયોગ કરો"</string>
-    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ઉપકરણ સ્ક્રીન લૉકની સમાન"</string>
+    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ડિવાઇસ સ્ક્રીન લૉકની સમાન"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"એપ્લિકેશન્સનું સંચાલન કરો"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"ઇન્સ્ટોલ કરેલ એપ્લિકેશન્સનું સંચાલન કરો અને દૂર કરો"</string>
     <string name="applications_settings" msgid="368331725658793179">"ઍપની માહિતી"</string>
@@ -2578,7 +2578,7 @@
     <string name="no_trust_agents" msgid="5757792915019113084">"કોઈ ઉપલબ્ધ ટ્રસ્ટ એજન્ટ્સ નથી"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"ડિવાઇસ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય કરીએ?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"આ ઉપકરણ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય કરો"</string>
-    <string name="device_admin_add_title" msgid="6097881332139146897">"ઉપકરણ વ્યવસ્થાપક"</string>
+    <string name="device_admin_add_title" msgid="6097881332139146897">"ડિવાઇસ વ્યવસ્થાપક"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"આ વ્યવસ્થાપક ઍપ્લિકેશનને સક્રિય કરવું ઍપ્લિકેશન <xliff:g id="APP_NAME">%1$s</xliff:g>ને નીચેની ક્રિયાઓ કરવાની મંજૂરી આપશે:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"આ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય છે અને ઍપ્લિકેશન <xliff:g id="APP_NAME">%1$s</xliff:g>ને નીચેની ક્રિયાઓ કરવાની મંજૂરી આપે છે:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"પ્રોફાઇલ સંચાલક સક્રિય કરીએ?"</string>
@@ -2934,7 +2934,7 @@
     <string name="restriction_settings_title" msgid="4143751894908963736">"પ્રતિબંધો"</string>
     <string name="restriction_menu_reset" msgid="3642252461410370554">"પ્રતિબંધો દૂર કરો"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"પિન બદલો"</string>
-    <string name="app_notifications_switch_label" msgid="670683308275498821">"સૂચનાઓ બતાવો"</string>
+    <string name="app_notifications_switch_label" msgid="670683308275498821">"નોટિફિકેશન બતાવો"</string>
     <string name="help_label" msgid="1296484776243905646">"સહાય અને પ્રતિસાદ"</string>
     <string name="support_summary" msgid="3278943815956130740">"સહાય લેખ, ફોન અને ચૅટ, પ્રારંભ કરવું"</string>
     <string name="user_account_title" msgid="2108666882630552859">"કન્ટેન્ટ માટે એકાઉન્ટ"</string>
@@ -3418,7 +3418,7 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"બંધ"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"બધાને બ્લૉક કરો"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"આ સૂચનાઓ ક્યારેય બતાવશો નહીં"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"સૂચનાઓ બતાવો"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"નોટિફિકેશન બતાવો"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"સૂચનાઓ ક્યારેય શૅડમાં અથવા પેરિફેરલ ઉપકરણો પર બતાવશો નહીં"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"નોટિફિકેશન માટેના ચિહ્નને મંજૂરી આપો"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"નોટિફિકેશન માટેનું ચિહ્ન બતાવો"</string>
@@ -4173,7 +4173,7 @@
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"તમારી સંસ્થાના વ્યવસ્થાપક દ્વારા કરવામાં આવેલા ફેરફારો"</string>
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"આ ઉપકરણ માટે તમારી ઍક્સેસ"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"તમારા કાર્ય એકાઉન્ટ સાથે સંકળાયેલ ડેટા, જેમ કે ઇમેઇલ અને કૅલેન્ડર"</string>
-    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"તમારા ઉપકરણમાંની ઍપ્લિકેશનોની સૂચિ"</string>
+    <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"તમારા ડિવાઇસમાંની ઍપની સૂચિ"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"પ્રત્યેક ઍપ્લિકેશનમાં વપરાયેલ સમય અને ડેટા"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"સૌથી તાજેતનો નેટવર્ક ટ્રાફિક લૉગ"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"સૌથી તાજેતરનો બગ રિપોર્ટ"</string>

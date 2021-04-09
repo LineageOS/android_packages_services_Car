@@ -599,7 +599,7 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"ویژگی‌های محافظ دستگاه بدون الگوی شما کار نمی‌کند.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید، یا به سیستم برنامه‌ها وارد شوید."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"قابلیت‌های محافظ دستگاه بدون پین شما کار نمی‌کند."</string>
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"ویژگی‌های محافظت از دستگاه بدون پین کار نخواهد کرد."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"قابلیت‌های محافظت از دستگاه، بدون پین شما کار نمی‌کنند.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید یا به سیستم برنامه‌ها وارد شوید."</string>
@@ -607,7 +607,7 @@
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"قابلیت‌های محافظت از دستگاه، بدون گذرواژه شما کار نخواهند کرد.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید یا به سیستم برنامه‌ها وارد شوید."</string>
-    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"قابلیت‌های محافظ دستگاه بدون قفل صفحه شما کار نمی‌کند."</string>
+    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"ویژگی‌های محافظت از دستگاه بدون قفل صفحه کار نخواهد کرد."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"قابلیت‌های محافظت از دستگاه، بدون قفل صفحه شما کار نمی‌کنند.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>اثرانگشت‌های ذخیره‌شده‌تان هم از این دستگاه پاک می‌شود و نمی‌توانید با آن‌ها قفل تلفنتان را باز کنید، خریدها را تأیید کنید یا به سیستم برنامه‌ها وارد شوید."</string>
@@ -1406,7 +1406,7 @@
     <string name="sd_ejecting_title" msgid="595074246815112145">"جدا کردن"</string>
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"جدا کردن در حال انجام است"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"فضای ذخیره‌سازی رو به اتمام است"</string>
-    <string name="storage_low_summary" msgid="4475275204869514141">"برخی از عملکردهای سیستم مانند همگام‌سازی ممکن است به نحوه صحیح کار نکنند. با حذف یا لغو پین کردن مواردی همچون برنامه‌ها یا محتوای رسانه، سعی کنید فضا را خالی کنید."</string>
+    <string name="storage_low_summary" msgid="4475275204869514141">"برخی از عملکردهای سیستم مانند همگام‌سازی ممکن است به نحوه صحیح کار نکنند. با حذف یا لغو سنجاق کردن مواردی همچون برنامه‌ها یا محتوای رسانه، سعی کنید فضا را خالی کنید."</string>
     <string name="storage_menu_rename" msgid="3731682449294417745">"تغییر نام"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"قرار دادن"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"خارج کردن"</string>
@@ -1715,7 +1715,7 @@
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"برای امنیت، الگو تنظیم کنید"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"گذرواژه‌ خود را دوباره وارد کنید"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"تأیید الگو"</string>
-    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"پین خود را دوباره وارد کنید"</string>
+    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"پین را دوباره وارد کنید"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"گذرواژه‌ها مطابقت ندارند"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"پین ها با یکدیگر مطابقت ندارند"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"الگویتان را دوباره بکشید"</string>
@@ -2543,7 +2543,7 @@
     <string name="credentials_reset_hint" msgid="3484350477764088169">"همه محتوا حذف شود؟"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"حافظه اطلاعات کاربری پاک شد."</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"حافظه اطلاعات کاربری پاک نمی‌شود."</string>
-    <string name="usage_access_title" msgid="7981321142726540574">"برنامه‌های مجاز به دسترسی"</string>
+    <string name="usage_access_title" msgid="7981321142726540574">"برنامه‌های مجاز به دسترسی به داده‌های مصرف"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"سیگنال شماره‌گیری اضطراری"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"واکنش موجود در هنگام برقراری تماس اضطراری را تنظیم کنید"</string>
     <string name="privacy_settings_title" msgid="3573891462732375772">"پشتیبان‌گیری"</string>
@@ -3554,12 +3554,12 @@
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"پین سرپرست را وارد کنید"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"روشن"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"خاموش"</string>
-    <string name="screen_pinning_title" msgid="578020318289781102">"پین کردن صفحه"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"وقتی این تنظیم روشن است، می‌توانید از ویژگی پین کردن صفحه برای حفظ صفحه کنونی در زاویه دید (تا وقتی پین آن را لغو می‌کنید) استفاده کنید.\n\nبرای استفاده از پین کردن صفحه:\n\n۱. مطمئن شوید ویژگی پین کردن روشن است\n\n۲. نمای کلی را باز کنید\n\n۳. روی نماد برنامه در بالای صفحه، سپس «پین کردن» ضربه بزنید"</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"درخواست الگوی باز کردن قفل قبل از برداشتن پین"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"درخواست کد پین قبل از برداشتن پین"</string>
-    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"درخواست گذرواژه قبل از برداشتن پین"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"قفل کردن دستگاه هنگام برداشتن پین"</string>
+    <string name="screen_pinning_title" msgid="578020318289781102">"سنجاق کردن صفحه"</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"وقتی این تنظیم روشن است، می‌توانید از ویژگی سنجاق کردن صفحه برای حفظ صفحه کنونی در زاویه دید (تا وقتی پین آن را لغو می‌کنید) استفاده کنید.\n\nبرای استفاده از سنجاق کردن صفحه:\n\n۱. مطمئن شوید ویژگی سنجاق کردن روشن است\n\n۲. نمای کلی را باز کنید\n\n۳. روی نماد برنامه در بالای صفحه، سپس «سنجاق کردن» ضربه بزنید"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"درخواست الگوی باز کردن قفل قبل از برداشتن سنجاق"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"درخواست کد پین قبل از برداشتن سنجاق"</string>
+    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"درخواست گذرواژه قبل از برداشتن سنجاق"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"قفل کردن دستگاه هنگام برداشتن سنجاق"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"سرپرست زیر این نمایه کاری را مدیریت می‌کند:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"مدیریت شده توسط <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(آزمایشی)"</string>
@@ -3678,11 +3678,11 @@
     <string name="system_app" msgid="4111402206594443265">"(سیستم)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(پیش‌فرض سیستم)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"فضای ذخیره‌سازی برنامه‌ها"</string>
-    <string name="usage_access" msgid="2023443456361489516">"دسترسی به میزان استفاده"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"اجازه دسترسی به میزان استفاده"</string>
+    <string name="usage_access" msgid="2023443456361489516">"دسترسی به داده‌های مصرف"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"اجازه دسترسی به داده‌های مصرف"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"اولویت‌های مصرف برنامه"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"مدت تماشای صفحه"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"دسترسی به میزان استفاده، امکان ردیابی اینکه از چه برنامه‌های دیگری و چند وقت یک‌بار استفاده می‌کنید و همچنین شرکت مخابراتی‌تان، تنظیمات زبان و سایر جزئیات را به برنامه می‌دهد."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"دسترسی به داده‌های مصرف، امکان ردیابی اینکه از چه برنامه‌های دیگری و چند وقت یک‌بار استفاده می‌کنید و همچنین شرکت مخابراتی‌تان، تنظیمات زبان و سایر جزئیات را به برنامه می‌دهد."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"حافظه"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"جزئیات حافظه"</string>
     <string name="always_running" msgid="5320183445080208766">"همیشه درحال اجرا (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3797,7 +3797,7 @@
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"برای ماندگاری بیشتر باتری توصیه می‌شود"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"به <xliff:g id="APP">%s</xliff:g> اجازه داده شود بهینه‌سازی‌های باتری را نادیده بگیرد؟"</string>
     <string name="app_list_preference_none" msgid="7100409177446935028">"هیچ‌کدام"</string>
-    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"خاموش کردن دسترسی میزان مصرف برای این برنامه، مانع از ردیابی سرپرست از میزان مصرف داده برای برنامه‌ها در نمایه کاری‌تان نمی‌شود."</string>
+    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"خاموش کردن دسترسی به داده‌های مصرف برای این برنامه، مانع از ردیابی سرپرست از میزان مصرف داده برای برنامه‌ها در نمایه کاری‌تان نمی‌شود."</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_0">%1$d</xliff:g> نویسه از <xliff:g id="COUNT_1">%2$d</xliff:g> نویسه استفاده شد"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"نمایش روی سایر برنامه‌ها"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"نمایش روی سایر برنامه‌ها"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(برای کاربر <xliff:g id="USER">%s</xliff:g> غیرفعال شد)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"سرویس تکمیل خودکار"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"خودکار، پر کردن، تکمیل خودکار"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;مطمئن شوید به این برنامه اطمینان دارید&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=تکمیل خودکار Google&gt;%1$s&lt;/xliff:g&gt; برای تعیین مواردی که می‌توانند به‌طور خودکار تکمیل شوند، از آنچه روی صفحه‌نمایش شما است استفاده می‌کند."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;مطمئن شوید به این برنامه اطمینان دارید&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=تکمیل خودکار Google&gt;%1$s&lt;/xliff:g&gt; برای تعیین آنچه که می‌تواند به‌طور خودکار تکمیل شود، از آنچه روی صفحه‌نمایش شما است استفاده می‌کند."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"تکمیل خودکار"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"سطح گزارش‌دهی"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"حداکثر درخواست در هر جلسه"</string>

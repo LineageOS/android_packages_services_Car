@@ -593,7 +593,7 @@
     <string name="unlock_set_unlock_mode_password" msgid="397703731925549447">"Aðgangsorð"</string>
     <string name="unlock_setup_wizard_fingerprint_details" msgid="6515136915205473675">"Þegar þú hefur stillt skjálás geturðu einnig sett inn fingrafarið þitt undir Stillingar &gt; Öryggi."</string>
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Slökkva á skjálás"</string>
-    <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Viltu fjarlægja eiginleika til að vernda tækið?"</string>
+    <string name="unlock_disable_frp_warning_title" msgid="5858589970505254193">"Viltu fjarlægja eiginleika sem vernda tækið?"</string>
     <string name="unlock_disable_frp_warning_title_profile" msgid="3814123014295965266">"Fjarlægja vernd fyrir sniðið?"</string>
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Öryggiseiginleikar til að vernda tækið virka ekki án mynsturs."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Öryggiseiginleikar til að vernda tækið virka ekki án mynsturs.<xliff:g id="EMPTY_LINE">
@@ -1716,7 +1716,7 @@
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Sláðu aðgangsorðið inn aftur"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Staðfestu mynstrið"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Sláðu PIN-númerið inn aftur"</string>
-    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Aðgangsorðin stemma ekki."</string>
+    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Aðgangsorðin stemma ekki"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-númerin stemma ekki"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Teiknaðu mynstrið aftur"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Veldu skjálás"</string>
