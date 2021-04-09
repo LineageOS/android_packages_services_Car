@@ -670,29 +670,54 @@ struct SurroundViewStaticDataParams {
           car_parts(parts) {}
 };
 
+// Constant used as an invalid memory id for SurroundViewInputBufferPointers and
+// SurroundViewResultPointer. Setting to `memory_id` to kInvalidMemoryId implies
+// no caching is performed.
+const uint64_t kInvalidMemoryId = UINT64_MAX;
+
+// Currently we keep both cpu and gpu data pointers, and only one of them should
+// be valid at a certain point. Also, users are responsible to allocate and
+// de-allocate the pointers.
+// TODO(b/174778117): consider use only one data pointer once GPU migration is
+// done.
+// TODO(b/184870125): Consider merging with SurroundViewInputBufferPointers.
 struct SurroundViewInputBufferPointers {
     void* gpu_data_pointer;
     void* cpu_data_pointer;
     Format format;
     int width;
     int height;
+    // Unique identifier for the CPU/GPU data buffer. If memory id is the same as
+    // a previously provided input buffer, cached intermediate allocated data will
+    // be used for faster operation. If `memory_id` is kInvalidMemoryId no caching
+    // is performed. Currently supported: SV2D GPU pipeline with
+    // `gpu_data_pointer`.
+    // Recommend the `memory_id` provided by client to be created as:
+    // ((camera_index) << 32 )  | (graphics_buffer_id).
+    uint64_t memory_id;
     SurroundViewInputBufferPointers() :
-          gpu_data_pointer(nullptr), cpu_data_pointer(nullptr), width(0), height(0) {}
+          gpu_data_pointer(nullptr),
+          cpu_data_pointer(nullptr),
+          width(0),
+          height(0),
+          memory_id(kInvalidMemoryId) {}
     SurroundViewInputBufferPointers(void* gpu_data_pointer_, void* cpu_data_pointer_,
-                                    Format format_, int width_, int height_) :
+                                    Format format_, int width_, int height_,
+                                    uint64_t memory_id_ = kInvalidMemoryId) :
           gpu_data_pointer(gpu_data_pointer_),
           cpu_data_pointer(cpu_data_pointer_),
           format(format_),
           width(width_),
-          height(height_) {}
+          height(height_),
+          memory_id(memory_id_) {}
 };
 
 // Currently we keep both cpu and gpu data pointers, and only one of them should
 // be valid at a certain point. Users need to check null before they make use of
 // the data pointers.
 // TODO(b/174778117): consider use only one data pointer once GPU migration is
-// done. If we are going to keep both cpu and gpu data pointer, specify the type
-// of data for cpu data pointer, instead of using a void pointer.
+// done.
+// TODO(b/184870125): Consider merging with SurroundViewInputBufferPointers.
 struct SurroundViewResultPointer {
     void* gpu_data_pointer;
     void* cpu_data_pointer;
@@ -700,24 +725,32 @@ struct SurroundViewResultPointer {
     int width;
     int height;
     bool is_data_preallocated;
+    // Unique identifier for the CPU/GPU data buffer. If memory id is the same as
+    // a previously provided result buffer, cached intermediate allocated data
+    // will be used for faster operation. If memory_id is kInvalidMemoryId no
+    // caching is performed. Currently supported: SV2D GPU pipeline with
+    // 'gpu_data_pointer'.
+    // Recommend the `memory_id` provided by client to be created as:
+    // ((camera_index) << 32 )  | (graphics_buffer_id).
+    uint64_t memory_id;
     SurroundViewResultPointer() :
           gpu_data_pointer(nullptr),
           cpu_data_pointer(nullptr),
           width(0),
           height(0),
-          is_data_preallocated(false) {}
+          is_data_preallocated(false),
+          memory_id(kInvalidMemoryId) {}
 
-    // Constructor with result data pointer being allocated within core lib.
+    // Constructor with result cpu data pointer being allocated within core lib.
     // Use for cases when no already existing buffer is available.
     SurroundViewResultPointer(Format format_, int width_, int height_) :
-          gpu_data_pointer(nullptr),
-          format(format_),
-          width(width_),
-          height(height_),
-          is_data_preallocated(false) {
+          format(format_), width(width_), height(height_) {
         // default formate is gray.
         const int byte_per_pixel = format_ == RGB ? 3 : format_ == RGBA ? 4 : 1;
         cpu_data_pointer = static_cast<void*>(new char[width * height * byte_per_pixel]);
+        gpu_data_pointer = nullptr;
+        is_data_preallocated = false;
+        memory_id = kInvalidMemoryId;
     }
 
     // Constructor with pre-allocated data.
@@ -730,7 +763,8 @@ struct SurroundViewResultPointer {
           format(format_),
           width(width_),
           height(height_),
-          is_data_preallocated(true) {}
+          is_data_preallocated(true),
+          memory_id(kInvalidMemoryId) {}
 
     ~SurroundViewResultPointer() {
         if (cpu_data_pointer) {
