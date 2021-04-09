@@ -379,7 +379,7 @@
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"இயல்பு"</item>
     <item msgid="6488643537808152001">"ஏதுமில்லை"</item>
-    <item msgid="552332815156010137">"வெளிக்கோடு"</item>
+    <item msgid="552332815156010137">"Outline"</item>
     <item msgid="7187891159463789272">"நிழலிடு"</item>
     <item msgid="8019330250538856521">"மேலெழும்பியது"</item>
     <item msgid="8987385315647049787">"அழுத்தப்பட்டது"</item>

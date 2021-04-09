@@ -379,7 +379,7 @@
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"ডিফল্ট"</item>
     <item msgid="6488643537808152001">"কোনো কিছুই নয়"</item>
-    <item msgid="552332815156010137">"রূপরেখা"</item>
+    <item msgid="552332815156010137">"আউটলাইন"</item>
     <item msgid="7187891159463789272">"ড্রপ শ্যাডো"</item>
     <item msgid="8019330250538856521">"উত্থাপিত"</item>
     <item msgid="8987385315647049787">"চাপা"</item>
