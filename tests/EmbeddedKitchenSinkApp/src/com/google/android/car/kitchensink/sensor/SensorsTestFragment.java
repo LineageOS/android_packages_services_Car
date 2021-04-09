@@ -136,7 +136,6 @@ public class SensorsTestFragment extends Fragment {
     private LocationListeners mLocationListener;
     private String mNaString;
     private List<CarPropertyConfig> mCarPropertyConfigs;
-    private Set<String> mActivePermissions = new HashSet<String>();
 
     private TextView mSensorInfo;
     private TextView mLocationInfo;
@@ -167,13 +166,22 @@ public class SensorsTestFragment extends Fragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        initPermissions();
+    }
+
+    @Override
     public void onResume() {
         super.onResume();
-        final Runnable r = () -> {
-            initPermissions();
-        };
-        ((KitchenSinkActivity) getActivity()).requestRefreshManager(r,
-                new Handler(getContext().getMainLooper()));
+        Set<String> missingPermissions = checkExistingPermissions();
+        if (!missingPermissions.isEmpty()) {
+            Log.e(TAG, "Permissions not granted. Cannot initialize sensors. " + missingPermissions);
+            return;
+        }
+
+        ((KitchenSinkActivity) getActivity()).requestRefreshManager(
+                this::initSensors, new Handler(getContext().getMainLooper()));
     }
 
     @Override
@@ -226,19 +234,13 @@ public class SensorsTestFragment extends Fragment {
         Set<String> missingPermissions = checkExistingPermissions();
         if (!missingPermissions.isEmpty()) {
             requestPermissions(missingPermissions);
-            // The callback with premission results will take care of calling initSensors for us
-        } else {
-            initSensors();
         }
     }
 
     private Set<String> checkExistingPermissions() {
         Set<String> missingPermissions = new HashSet<String>();
         for (String permission : REQUIRED_PERMISSIONS) {
-            if (mActivity.checkSelfPermission(permission)
-                == PackageManager.PERMISSION_GRANTED) {
-                mActivePermissions.add(permission);
-            } else {
+            if (mActivity.checkSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
                 missingPermissions.add(permission);
             }
         }
@@ -255,14 +257,6 @@ public class SensorsTestFragment extends Fragment {
     public void onRequestPermissionsResult(int requestCode, String[] permissions,
             int[] grantResults) {
         Log.d(TAG, "onRequestPermissionsResult reqCode=" + requestCode);
-        if (KS_PERMISSIONS_REQUEST == requestCode) {
-            for (int i=0; i<permissions.length; i++) {
-                if (grantResults[i] == PackageManager.PERMISSION_GRANTED) {
-                    mActivePermissions.add(permissions[i]);
-                }
-            }
-            initSensors();
-        }
     }
 
     private void refreshSensorInfoText() {

@@ -151,7 +151,7 @@ public class LocationListeners {
         if (mLocationMgr != null) {
             if (mLocationMgr.isProviderEnabled(LocationManager.GPS_PROVIDER)) {
                 mLocationMgr.removeUpdates(mLocationListener);
-                mTextUpdateHandler.setMagField("GPS stopped");
+                mTextUpdateHandler.setLocationField("GPS stopped");
             }
         }
 
