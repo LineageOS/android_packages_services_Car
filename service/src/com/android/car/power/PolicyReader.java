@@ -111,14 +111,13 @@ final class PolicyReader {
     };
     private static final int[] NO_USER_INTERACTION_ENABLED_COMPONENTS = {
             PowerComponent.WIFI, PowerComponent.CELLULAR,
-            PowerComponent.ETHERNET, PowerComponent.TRUSTED_DEVICE_DETECTION
+            PowerComponent.ETHERNET, PowerComponent.TRUSTED_DEVICE_DETECTION, PowerComponent.CPU
     };
     private static final int[] NO_USER_INTERACTION_DISABLED_COMPONENTS = {
             PowerComponent.AUDIO, PowerComponent.MEDIA, PowerComponent.DISPLAY,
             PowerComponent.BLUETOOTH, PowerComponent.PROJECTION, PowerComponent.NFC,
             PowerComponent.INPUT, PowerComponent.VOICE_INTERACTION,
-            PowerComponent.VISUAL_INTERACTION, PowerComponent.LOCATION, PowerComponent.MICROPHONE,
-            PowerComponent.CPU
+            PowerComponent.VISUAL_INTERACTION, PowerComponent.LOCATION, PowerComponent.MICROPHONE
     };
     private static final Set<Integer> SYSTEM_POLICY_CONFIGURABLE_COMPONENTS =
             new ArraySet<>(Arrays.asList(PowerComponent.BLUETOOTH, PowerComponent.NFC,
@@ -132,15 +131,21 @@ final class PolicyReader {
     private static final CarPowerPolicy POWER_POLICY_SUSPEND_TO_RAM;
 
     static {
-        ALL_COMPONENTS = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
+        int allCount = LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1;
+        ALL_COMPONENTS = new int[allCount];
+        int[] initialOnDisabledComponents = new int[allCount - INITIAL_ON_COMPONENTS.length];
+        int pos = 0;
         for (int c = FIRST_POWER_COMPONENT; c <= LAST_POWER_COMPONENT; c++) {
             ALL_COMPONENTS[c - FIRST_POWER_COMPONENT] = c;
+            if (!containsComponent(INITIAL_ON_COMPONENTS, c)) {
+                initialOnDisabledComponents[pos++] = c;
+            }
         }
 
         POWER_POLICY_ALL_ON = new CarPowerPolicy(POWER_POLICY_ID_ALL_ON, ALL_COMPONENTS.clone(),
                 NO_COMPONENTS.clone());
         POWER_POLICY_INITIAL_ON = new CarPowerPolicy(POWER_POLICY_ID_INITIAL_ON,
-                INITIAL_ON_COMPONENTS.clone(), ALL_COMPONENTS.clone());
+                INITIAL_ON_COMPONENTS.clone(), initialOnDisabledComponents);
         POWER_POLICY_SUSPEND_TO_RAM = new CarPowerPolicy(POWER_POLICY_ID_SUSPEND_TO_RAM,
                 NO_COMPONENTS.clone(), SUSPEND_TO_RAM_DISABLED_COMPONENTS.clone());
     }
@@ -707,6 +712,13 @@ final class PolicyReader {
             }
         }
         return ret;
+    }
+
+    private static boolean containsComponent(int[] arr, int component) {
+        for (int element : arr) {
+            if (element == component) return true;
+        }
+        return false;
     }
 
     @VisibleForTesting

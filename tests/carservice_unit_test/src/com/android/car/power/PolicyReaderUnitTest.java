@@ -86,15 +86,14 @@ public final class PolicyReaderUnitTest {
             new int[]{AUDIO, VOICE_INTERACTION, VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION});
     private static final CarPowerPolicy SYSTEM_POWER_POLICY_NO_USER_INTERACTION =
             new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
-                    new int[]{WIFI, CELLULAR, ETHERNET, TRUSTED_DEVICE_DETECTION},
+                    new int[]{WIFI, CELLULAR, ETHERNET, TRUSTED_DEVICE_DETECTION, CPU},
                     new int[]{AUDIO, MEDIA, DISPLAY, BLUETOOTH, PROJECTION, NFC, INPUT,
-                            VOICE_INTERACTION, VISUAL_INTERACTION, LOCATION, MICROPHONE, CPU});
+                            VOICE_INTERACTION, VISUAL_INTERACTION, LOCATION, MICROPHONE});
     private static final CarPowerPolicy SYSTEM_POWER_POLICY_MODIFIED =
             new CarPowerPolicy(NO_USER_INTERACTION_POLICY_ID,
-                    new int[]{BLUETOOTH, WIFI, CELLULAR, ETHERNET, NFC},
+                    new int[]{BLUETOOTH, WIFI, CELLULAR, ETHERNET, NFC, CPU},
                     new int[]{AUDIO, MEDIA, DISPLAY, PROJECTION, INPUT, VOICE_INTERACTION,
-                            VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE,
-                            CPU});
+                            VISUAL_INTERACTION, TRUSTED_DEVICE_DETECTION, LOCATION, MICROPHONE});
 
     private final Resources mResources =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getResources();
