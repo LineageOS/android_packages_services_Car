@@ -31,6 +31,7 @@ import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+import android.util.SparseIntArray;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -94,15 +95,21 @@ public final class CarWatchdogManager extends CarManagerBase {
 
     private final ICarWatchdogService mService;
     private final ICarWatchdogClientImpl mClientImpl;
+    private final IResourceOveruseListenerImpl mResourceOveruseListenerImpl;
+    private final IResourceOveruseListenerImpl mResourceOveruseListenerForSystemImpl;
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
 
     private final Object mLock = new Object();
     @GuardedBy("mLock")
+    private final SessionInfo mSession = new SessionInfo(INVALID_SESSION_ID, INVALID_SESSION_ID);
+    @GuardedBy("mLock")
+    private final List<ResourceOveruseListenerInfo> mResourceOveruseListenerInfos;
+    @GuardedBy("mLock")
+    private final List<ResourceOveruseListenerInfo> mResourceOveruseListenerForSystemInfos;
+    @GuardedBy("mLock")
     private CarWatchdogClientCallback mRegisteredClient;
     @GuardedBy("mLock")
     private Executor mCallbackExecutor;
-    @GuardedBy("mLock")
-    private SessionInfo mSession = new SessionInfo(INVALID_SESSION_ID, INVALID_SESSION_ID);
     @GuardedBy("mLock")
     private int mRemainingConditions;
 
@@ -151,6 +158,11 @@ public final class CarWatchdogManager extends CarManagerBase {
         super(car);
         mService = ICarWatchdogService.Stub.asInterface(service);
         mClientImpl = new ICarWatchdogClientImpl(this);
+        mResourceOveruseListenerImpl = new IResourceOveruseListenerImpl(this, /* isSystem= */false);
+        mResourceOveruseListenerForSystemImpl = new IResourceOveruseListenerImpl(this,
+                /* isSystem= */true);
+        mResourceOveruseListenerInfos = new ArrayList<>();
+        mResourceOveruseListenerForSystemInfos = new ArrayList<>();
     }
 
     /**
@@ -326,16 +338,21 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         resource overuse stats. If the calling package doesn't have sufficient stats for
      *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
      *         only for the period returned in the individual resource overuse stats.
+     *
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
+     *                                  invalid.
      */
     @NonNull
     public ResourceOveruseStats getResourceOveruseStats(
             @ResourceOveruseFlag int resourceOveruseFlag,
             @StatsPeriod int maxStatsPeriod) {
-        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
-        //  overuse stats for the calling package.
-        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("",
-                UserHandle.CURRENT);
-        return builder.build();
+        try {
+            return mService.getResourceOveruseStats(resourceOveruseFlag, maxStatsPeriod);
+        } catch (RemoteException e) {
+            ResourceOveruseStats.Builder builder =
+                    new ResourceOveruseStats.Builder("", UserHandle.CURRENT);
+            return handleRemoteExceptionFromCarService(e, builder.build());
+        }
     }
 
     /**
@@ -355,6 +372,9 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
      *         only for the period returned in the individual resource stats.
      *
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
+     *                                  invalid.
+     *
      * @hide
      */
     @SystemApi
@@ -364,9 +384,12 @@ public final class CarWatchdogManager extends CarManagerBase {
             @ResourceOveruseFlag int resourceOveruseFlag,
             @MinimumStatsFlag int minimumStatsFlag,
             @StatsPeriod int maxStatsPeriod) {
-        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
-        //  overuse stats for all packages.
-        return new ArrayList<>();
+        try {
+            return mService.getAllResourceOveruseStats(resourceOveruseFlag, minimumStatsFlag,
+                    maxStatsPeriod);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+        }
     }
 
     /**
@@ -383,6 +406,10 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         stats for {@code maxStatsPeriod} for a specified resource overuse type, the stats are
      *         returned only for the period returned in the individual resource overuse stats.
      *
+     * @throws NullPointerException if {@code packageName} or {@code userHandle} are null.
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
+     *                                  invalid.
+     *
      * @hide
      */
     @SystemApi
@@ -394,10 +421,14 @@ public final class CarWatchdogManager extends CarManagerBase {
             @StatsPeriod int maxStatsPeriod) {
         Objects.requireNonNull(packageName, "Package name must be non-null");
         Objects.requireNonNull(userHandle, "User handle must be non-null");
-        // TODO(b/177429052): Propagate the call to CarWatchdogService and fetch the resource
-        //  overuse stats for the specified user package.
-        ResourceOveruseStats.Builder builder = new ResourceOveruseStats.Builder("", userHandle);
-        return builder.build();
+        try {
+            return mService.getResourceOveruseStatsForUserPackage(packageName, userHandle,
+                    resourceOveruseFlag, maxStatsPeriod);
+        } catch (RemoteException e) {
+            ResourceOveruseStats.Builder builder =
+                    new ResourceOveruseStats.Builder("", userHandle);
+            return handleRemoteExceptionFromCarService(e, builder.build());
+        }
     }
 
     /**
@@ -433,8 +464,10 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
-     * @throws IllegalStateException if at least one {@link ResourceOveruseListener} is already
-     *                               registered.
+     *
+     * @throws NullPointerException if {@code executor} or {@code listener} are null.
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
+     * @throws IllegalStateException if (@code listener} is already added.
      */
     public void addResourceOveruseListener(
             @NonNull @CallbackExecutor Executor executor,
@@ -442,18 +475,69 @@ public final class CarWatchdogManager extends CarManagerBase {
             @NonNull ResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
         Objects.requireNonNull(executor, "Executor must be non-null");
-        // TODO(b/177429052): Verify the listener for duplicate registration and forward the call to
-        //  CarWatchdogService.
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        boolean shouldRemoveFromService;
+        boolean shouldAddToService;
+        synchronized (mLock) {
+            ResourceOveruseListenerInfo listenerInfo =
+                    new ResourceOveruseListenerInfo(listener, executor, resourceOveruseFlag);
+            if (mResourceOveruseListenerInfos.contains(listenerInfo)) {
+                throw new IllegalStateException(
+                        "Cannot add the listener as it is already added");
+            }
+            shouldRemoveFromService = mResourceOveruseListenerImpl.hasListeners();
+            shouldAddToService =  mResourceOveruseListenerImpl.maybeAppendFlag(resourceOveruseFlag);
+            mResourceOveruseListenerInfos.add(listenerInfo);
+        }
+        if (shouldAddToService) {
+            if (shouldRemoveFromService) {
+                removeResourceOveruseListenerImpl();
+            }
+            addResourceOveruseListenerImpl();
+        }
     }
 
     /**
      * Removes the {@link ResourceOveruseListener} for the calling package.
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     *
+     * @throws NullPointerException if {@code listener} is null.
      */
     public void removeResourceOveruseListener(@NonNull ResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
-        // TODO(b/177429052): Verify the listener and forward the call to CarWatchdogService.
+        boolean shouldRemoveFromService;
+        boolean shouldReAddToService;
+        synchronized (mLock) {
+            int index = 0;
+            int resourceOveruseFlag = 0;
+            for (; index != mResourceOveruseListenerInfos.size(); ++index) {
+                ResourceOveruseListenerInfo listenerInfo = mResourceOveruseListenerInfos.get(index);
+                if (listenerInfo.listener == listener) {
+                    resourceOveruseFlag = listenerInfo.resourceOveruseFlag;
+                    break;
+                }
+            }
+            if (index == mResourceOveruseListenerInfos.size()) {
+                Log.w(TAG, "Cannot remove the listener. It has not been added.");
+                return;
+            }
+            mResourceOveruseListenerInfos.remove(index);
+            if (!mResourceOveruseListenerImpl.hasListeners()) {
+                return;
+            }
+            shouldReAddToService =
+                    mResourceOveruseListenerImpl.maybeRemoveFlag(resourceOveruseFlag);
+            shouldRemoveFromService = mResourceOveruseListenerInfos.isEmpty()
+                    || shouldReAddToService;
+        }
+        if (shouldRemoveFromService) {
+            removeResourceOveruseListenerImpl();
+            if (shouldReAddToService) {
+                addResourceOveruseListenerImpl();
+            }
+        }
     }
 
     /**
@@ -464,8 +548,10 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
-     * @throws IllegalStateException if at least one {@link ResourceOveruseListener} is already
-     *                               registered.
+     *
+     * @throws NullPointerException if {@code executor} or {@code listener} are null.
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
+     * @throws IllegalStateException if (@code listener} is already added.
      *
      * @hide
      */
@@ -477,14 +563,36 @@ public final class CarWatchdogManager extends CarManagerBase {
             @NonNull ResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
         Objects.requireNonNull(executor, "Executor must be non-null");
-        // TODO(b/177429052): Verify the listener for duplicate registration and forward the call to
-        //  CarWatchdogService.
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        boolean shouldRemoveFromService;
+        boolean shouldAddToService;
+        synchronized (mLock) {
+            ResourceOveruseListenerInfo listenerInfo =
+                    new ResourceOveruseListenerInfo(listener, executor, resourceOveruseFlag);
+            if (mResourceOveruseListenerForSystemInfos.contains(listenerInfo)) {
+                throw new IllegalStateException(
+                        "Cannot add the listener as it is already added");
+            }
+            shouldRemoveFromService = mResourceOveruseListenerForSystemImpl.hasListeners();
+            shouldAddToService =
+                    mResourceOveruseListenerForSystemImpl.maybeAppendFlag(resourceOveruseFlag);
+            mResourceOveruseListenerForSystemInfos.add(listenerInfo);
+        }
+        if (shouldAddToService) {
+            if (shouldRemoveFromService) {
+                removeResourceOveruseListenerForSystemImpl();
+            }
+            addResourceOveruseListenerForSystemImpl();
+        }
     }
 
     /**
      * Removes {@link ResourceOveruseListener} from receiving system resource overuse notifications.
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
+     *
+     * @throws NullPointerException if {@code listener} is null.
      *
      * @hide
      */
@@ -493,7 +601,38 @@ public final class CarWatchdogManager extends CarManagerBase {
     public void removeResourceOveruseListenerForSystem(
             @NonNull ResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
-        // TODO(b/177429052): Verify the listener and forward the call to CarWatchdogService.
+        boolean shouldRemoveFromService;
+        boolean shouldReAddToService;
+        synchronized (mLock) {
+            int index = 0;
+            int resourceOveruseFlag = 0;
+            for (; index != mResourceOveruseListenerForSystemInfos.size(); ++index) {
+                ResourceOveruseListenerInfo listenerInfo =
+                        mResourceOveruseListenerForSystemInfos.get(index);
+                if (listenerInfo.listener == listener) {
+                    resourceOveruseFlag = listenerInfo.resourceOveruseFlag;
+                    break;
+                }
+            }
+            if (index == mResourceOveruseListenerForSystemInfos.size()) {
+                Log.w(TAG, "Cannot remove the listener. It has not been added.");
+                return;
+            }
+            mResourceOveruseListenerForSystemInfos.remove(index);
+            if (!mResourceOveruseListenerForSystemImpl.hasListeners()) {
+                return;
+            }
+            shouldReAddToService =
+                    mResourceOveruseListenerForSystemImpl.maybeRemoveFlag(resourceOveruseFlag);
+            shouldRemoveFromService = mResourceOveruseListenerForSystemInfos.isEmpty()
+                    || shouldReAddToService;
+        }
+        if (shouldRemoveFromService) {
+            removeResourceOveruseListenerForSystemImpl();
+            if (shouldReAddToService) {
+                addResourceOveruseListenerForSystemImpl();
+            }
+        }
     }
 
     /**
@@ -507,6 +646,8 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param isKillable  Whether or not the package for the specified user is killable on resource
      *                    overuse.
      *
+     * @throws NullPointerException if {@code packageName} or {@code userHandle} are null.
+     *
      * @hide
      */
     @SystemApi
@@ -515,11 +656,11 @@ public final class CarWatchdogManager extends CarManagerBase {
             @NonNull UserHandle userHandle, boolean isKillable) {
         Objects.requireNonNull(packageName, "Package name must be non-null");
         Objects.requireNonNull(userHandle, "User handle must be non-null");
-        /*
-         * TODO(b/177429052): Add/remove the package for the user to CarWatchdogService's do not
-         *  kill list. If the {@code userHandle == UserHandle.ALL}, update the settings for all
-         *  users.
-         */
+        try {
+            mService.setKillablePackageAsUser(packageName, userHandle, isKillable);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -529,6 +670,8 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param userHandle User whose killable states for all packages should to be returned.
      *
+     * @throws NullPointerException if {@code userHandle} is null.
+     *
      * @hide
      */
     @SystemApi
@@ -536,8 +679,12 @@ public final class CarWatchdogManager extends CarManagerBase {
     @NonNull
     public List<PackageKillableState> getPackageKillableStatesAsUser(
             @NonNull UserHandle userHandle) {
-        // TODO(b/177429052): Query CarWatchdogService for the killable states.
-        return new ArrayList<>();
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
+        try {
+            return mService.getPackageKillableStatesAsUser(userHandle);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+        }
     }
 
     /**
@@ -551,7 +698,11 @@ public final class CarWatchdogManager extends CarManagerBase {
      *                       component.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
      *                            set.
-     * @throws IllegalArgumentException if the configuration is invalid.
+     *
+     * @throws NullPointerException if {@code configurations} is null.
+     * @throws IllegalArgumentException if {@code configurations} or {@code resourceOveruseFlag} are
+     *                                  invalid.
+     *
      * @hide
      */
     @SystemApi
@@ -560,7 +711,11 @@ public final class CarWatchdogManager extends CarManagerBase {
             @NonNull List<ResourceOveruseConfiguration> configurations,
             @ResourceOveruseFlag int resourceOveruseFlag) {
         Objects.requireNonNull(configurations, "Configurations must be non-null");
-        // TODO(b/177429052): Forward the configuration to CarWatchdogService.
+        try {
+            mService.setResourceOveruseConfigurations(configurations, resourceOveruseFlag);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
     }
 
     /**
@@ -568,6 +723,8 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
      *                            return.
+     *
+     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
      *
      * @hide
      */
@@ -577,8 +734,11 @@ public final class CarWatchdogManager extends CarManagerBase {
     @NonNull
     public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
             @ResourceOveruseFlag int resourceOveruseFlag) {
-        // TODO(b/177429052): Query CarWatchdogService for resource overuse configuration.
-        return new ArrayList<>();
+        try {
+            return mService.getResourceOveruseConfigurations(resourceOveruseFlag);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new ArrayList<>());
+        }
     }
 
     /** @hide */
@@ -668,11 +828,96 @@ public final class CarWatchdogManager extends CarManagerBase {
         executor.execute(() -> client.onPrepareProcessTermination());
     }
 
+    private void addResourceOveruseListenerImpl() {
+        try {
+            mService.addResourceOveruseListener(
+                    mResourceOveruseListenerImpl.resourceOveruseFlag(),
+                    mResourceOveruseListenerImpl);
+            if (DEBUG) {
+                Log.d(TAG, "Resource overuse listener implementation is successfully added to "
+                        + "service");
+            }
+        } catch (RemoteException e) {
+            synchronized (mLock) {
+                mResourceOveruseListenerInfos.clear();
+            }
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    private void removeResourceOveruseListenerImpl() {
+        try {
+            mService.removeResourceOveruseListener(mResourceOveruseListenerImpl);
+            if (DEBUG) {
+                Log.d(TAG, "Resource overuse listener implementation is successfully removed "
+                        + "from service");
+            }
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    private void addResourceOveruseListenerForSystemImpl() {
+        try {
+            mService.addResourceOveruseListenerForSystem(
+                    mResourceOveruseListenerForSystemImpl.resourceOveruseFlag(),
+                    mResourceOveruseListenerForSystemImpl);
+            if (DEBUG) {
+                Log.d(TAG, "Resource overuse listener for system implementation is successfully "
+                        + "added to service");
+            }
+        } catch (RemoteException e) {
+            synchronized (mLock) {
+                mResourceOveruseListenerForSystemInfos.clear();
+            }
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    private void removeResourceOveruseListenerForSystemImpl() {
+        try {
+            mService.removeResourceOveruseListenerForSystem(mResourceOveruseListenerForSystemImpl);
+            if (DEBUG) {
+                Log.d(TAG, "Resource overuse listener for system implementation is successfully "
+                        + "removed from service");
+            }
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    private void onResourceOveruse(ResourceOveruseStats resourceOveruseStats, boolean isSystem) {
+        if (resourceOveruseStats.getIoOveruseStats() == null) {
+            Log.w(TAG, "Skipping resource overuse notification as the stats are missing");
+            return;
+        }
+        List<ResourceOveruseListenerInfo> listenerInfos;
+        synchronized (mLock) {
+            if (isSystem) {
+                listenerInfos = mResourceOveruseListenerForSystemInfos;
+            } else {
+                listenerInfos = mResourceOveruseListenerInfos;
+            }
+        }
+        if (listenerInfos.isEmpty()) {
+            Log.w(TAG, "Cannot notify resource overuse listener " + (isSystem ? "for system " : "")
+                    + "as it is not registered.");
+            return;
+        }
+        for (ResourceOveruseListenerInfo listenerInfo : listenerInfos) {
+            if ((listenerInfo.resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) == 1) {
+                listenerInfo.executor.execute(() -> {
+                    listenerInfo.listener.onOveruse(resourceOveruseStats);
+                });
+            }
+        }
+    }
+
     /** @hide */
     private static final class ICarWatchdogClientImpl extends ICarWatchdogServiceCallback.Stub {
         private final WeakReference<CarWatchdogManager> mManager;
 
-        private ICarWatchdogClientImpl(CarWatchdogManager manager) {
+        ICarWatchdogClientImpl(CarWatchdogManager manager) {
             mManager = new WeakReference<>(manager);
         }
 
@@ -693,13 +938,118 @@ public final class CarWatchdogManager extends CarManagerBase {
         }
     }
 
-    private final class SessionInfo {
+    private static final class SessionInfo {
         public int currentId;
         public int lastReportedId;
 
         SessionInfo(int currentId, int lastReportedId) {
             this.currentId = currentId;
             this.lastReportedId = lastReportedId;
+        }
+    }
+
+    /** @hide */
+    private static final class IResourceOveruseListenerImpl extends IResourceOveruseListener.Stub {
+        private static final int[] RESOURCE_OVERUSE_FLAGS = new int[]{ FLAG_RESOURCE_OVERUSE_IO };
+
+        private final WeakReference<CarWatchdogManager> mManager;
+        private final boolean mIsSystem;
+
+        private final Object mLock = new Object();
+        @GuardedBy("mLock")
+        private final SparseIntArray mNumListenersByResource;
+
+
+        IResourceOveruseListenerImpl(CarWatchdogManager manager, boolean isSystem) {
+            mManager = new WeakReference<>(manager);
+            mIsSystem = isSystem;
+            mNumListenersByResource = new SparseIntArray();
+        }
+
+        @Override
+        public void onOveruse(ResourceOveruseStats resourceOveruserStats) {
+            CarWatchdogManager manager = mManager.get();
+            if (manager != null) {
+                manager.onResourceOveruse(resourceOveruserStats, mIsSystem);
+            }
+        }
+
+        public boolean hasListeners() {
+            synchronized (mLock) {
+                return mNumListenersByResource.size() != 0;
+            }
+        }
+
+        public boolean maybeAppendFlag(int appendFlag) {
+            boolean isChanged = false;
+            synchronized (mLock) {
+                for (int flag : RESOURCE_OVERUSE_FLAGS) {
+                    if ((appendFlag & flag) != 1) {
+                        continue;
+                    }
+                    int value = mNumListenersByResource.get(flag, 0);
+                    isChanged = ++value == 1;
+                    mNumListenersByResource.put(flag, value);
+                }
+            }
+            return isChanged;
+        }
+
+        public boolean maybeRemoveFlag(int removeFlag) {
+            boolean isChanged = false;
+            synchronized (mLock) {
+                for (int flag : RESOURCE_OVERUSE_FLAGS) {
+                    if ((removeFlag & flag) != 1) {
+                        continue;
+                    }
+                    int value = mNumListenersByResource.get(flag, 0);
+                    if (value == 0) {
+                        continue;
+                    }
+                    if (--value == 0) {
+                        isChanged = true;
+                        mNumListenersByResource.delete(flag);
+                    } else {
+                        mNumListenersByResource.put(flag, value);
+                    }
+                }
+            }
+            return isChanged;
+        }
+
+        public int resourceOveruseFlag() {
+            int flag = 0;
+            for (int i = 0; i < mNumListenersByResource.size(); ++i) {
+                flag |= mNumListenersByResource.valueAt(i) > 0 ? mNumListenersByResource.keyAt(i)
+                        : 0;
+            }
+            return flag;
+        }
+    }
+
+    /** @hide */
+    private static final class ResourceOveruseListenerInfo {
+        public final ResourceOveruseListener listener;
+        public final Executor executor;
+        public final int resourceOveruseFlag;
+
+        ResourceOveruseListenerInfo(ResourceOveruseListener listener,
+                Executor executor, int resourceOveruseFlag) {
+            this.listener = listener;
+            this.executor = executor;
+            this.resourceOveruseFlag = resourceOveruseFlag;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (obj == this) {
+                return true;
+            }
+            if (!(obj instanceof ResourceOveruseListenerInfo)) {
+                return false;
+            }
+            ResourceOveruseListenerInfo listenerInfo = (ResourceOveruseListenerInfo) obj;
+            return listenerInfo.listener == listener;
         }
     }
 }

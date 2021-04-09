@@ -18,6 +18,7 @@ package com.android.car.watchdog;
 
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
+import static android.car.watchdog.CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_MODERATE;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_NORMAL;
@@ -37,10 +38,16 @@ import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
 import android.automotive.watchdog.internal.UserState;
+import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
+import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdog.ICarWatchdogServiceCallback;
+import android.car.watchdog.IResourceOveruseListener;
+import android.car.watchdog.PackageKillableState;
+import android.car.watchdog.ResourceOveruseConfiguration;
+import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -54,6 +61,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -62,17 +70,21 @@ import android.util.SparseBooleanArray;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.ICarImpl;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
+import com.android.internal.util.Preconditions;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
+import java.util.Set;
 
 /**
  * Service to implement CarWatchdogManager API.
@@ -275,6 +287,175 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 }
             }
         }
+    }
+
+    /** Returns {@link android.car.watchdog.ResourceOveruseStats} for the calling package. */
+    @Override
+    @NonNull
+    public ResourceOveruseStats getResourceOveruseStats(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        Preconditions.checkArgument((maxStatsPeriod > 0),
+                "Must provide valid maximum stats period");
+        // TODO(b/170741935): Implement this method.
+        return new ResourceOveruseStats.Builder("",
+                UserHandle.getUserHandleForUid(Binder.getCallingUid())).build();
+    }
+
+    /**
+      *  Returns {@link android.car.watchdog.ResourceOveruseStats} for all packages for the maximum
+      *  specified period, and the specified resource types with stats greater than or equal to the
+      *  minimum specified stats.
+      */
+    @Override
+    @NonNull
+    public List<ResourceOveruseStats> getAllResourceOveruseStats(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @CarWatchdogManager.MinimumStatsFlag int minimumStatsFlag,
+            @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        Preconditions.checkArgument((maxStatsPeriod > 0),
+                "Must provide valid maximum stats period");
+        // TODO(b/170741935): Implement this method.
+        return new ArrayList<>();
+    }
+
+    /** Returns {@link android.car.watchdog.ResourceOveruseStats} for the specified user package. */
+    @Override
+    @NonNull
+    public ResourceOveruseStats getResourceOveruseStatsForUserPackage(
+            @NonNull String packageName, @NonNull UserHandle userHandle,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        Objects.requireNonNull(packageName, "Package name must be non-null");
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        Preconditions.checkArgument((maxStatsPeriod > 0),
+                "Must provide valid maximum stats period");
+        // TODO(b/170741935): Implement this method.
+        return new ResourceOveruseStats.Builder("", userHandle).build();
+    }
+
+    /**
+     * Adds {@link android.car.watchdog.IResourceOveruseListener} for the calling package's resource
+     * overuse notifications.
+     */
+    @Override
+    public void addResourceOveruseListener(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @NonNull IResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        // TODO(b/170741935): Implement this method.
+    }
+
+    /**
+     * Removes the previously added {@link android.car.watchdog.IResourceOveruseListener} for the
+     * calling package's resource overuse notifications.
+     */
+    @Override
+    public void removeResourceOveruseListener(@NonNull IResourceOveruseListener listener) {
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        // TODO(b/170741935): Implement this method.
+    }
+
+    /**
+     * Adds {@link android.car.watchdog.IResourceOveruseListener} for all packages' resource overuse
+     * notifications.
+     */
+    @Override
+    public void addResourceOveruseListenerForSystem(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @NonNull IResourceOveruseListener listener) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        // TODO(b/170741935): Implement this method.
+    }
+
+    /**
+     * Removes the previously added {@link android.car.watchdog.IResourceOveruseListener} for all
+     * packages' resource overuse notifications.
+     */
+    @Override
+    public void removeResourceOveruseListenerForSystem(@NonNull IResourceOveruseListener listener) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        Objects.requireNonNull(listener, "Listener must be non-null");
+        // TODO(b/170741935): Implement this method.
+    }
+
+    /** Sets whether or not a user package is killable on resource overuse. */
+    @Override
+    public void setKillablePackageAsUser(String packageName, UserHandle userHandle,
+            boolean isKillable) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        Objects.requireNonNull(packageName, "Package name must be non-null");
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
+        /*
+         * TODO(b/170741935): Add/remove the package from the user do-no-kill list.
+         *  If the {@code userHandle == UserHandle.ALL}, update the settings for all users.
+         */
+    }
+
+    /**
+     * Returns all {@link android.car.watchdog.PackageKillableState} on resource overuse for
+     * the specified user.
+     */
+    @Override
+    @NonNull
+    public List<PackageKillableState> getPackageKillableStatesAsUser(UserHandle userHandle) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        Objects.requireNonNull(userHandle, "User handle must be non-null");
+        // TODO(b/170741935): Implement this method.
+        return new ArrayList<>();
+    }
+
+    /**
+     * Sets {@link android.car.watchdog.ResourceOveruseConfiguration} for the specified resources.
+     */
+    @Override
+    public void setResourceOveruseConfigurations(
+            List<ResourceOveruseConfiguration> configurations,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        Objects.requireNonNull(configurations, "Configurations must be non-null");
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        Set<Integer> seenComponentTypes = new ArraySet<>();
+        for (ResourceOveruseConfiguration config : configurations) {
+            int componentType = config.getComponentType();
+            if (seenComponentTypes.contains(componentType)) {
+                throw new IllegalArgumentException(
+                        "Cannot provide duplicate configurations for the same component type");
+            }
+            if ((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0
+                    && config.getIoOveruseConfiguration() == null) {
+                throw new IllegalArgumentException("Must provide I/O overuse configuration");
+            }
+            seenComponentTypes.add(config.getComponentType());
+        }
+        // TODO(b/170741935): Implement this method.
+    }
+
+    /** Returns the available {@link android.car.watchdog.ResourceOveruseConfiguration}. */
+    @Override
+    @NonNull
+    public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        ICarImpl.assertAnyPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG,
+                Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
+        Preconditions.checkArgument((resourceOveruseFlag > 0),
+                "Must provide valid resource overuse flag");
+        // TODO(b/170741935): Implement this method.
+        return new ArrayList<>();
     }
 
     @VisibleForTesting
