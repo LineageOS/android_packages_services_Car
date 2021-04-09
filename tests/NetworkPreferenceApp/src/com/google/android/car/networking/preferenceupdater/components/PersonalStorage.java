@@ -15,12 +15,16 @@
  */
 package com.google.android.car.networking.preferenceupdater.components;
 
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
+import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_UNINITIALIZED;
+
 import static com.google.android.car.networking.preferenceupdater.components.OemNetworkPreferencesAdapter.OEM_NETWORK_PREFERENCE_ARRAY;
 
 import android.content.Context;
 import android.content.SharedPreferences;
-import android.net.OemNetworkPreferences;
-import android.net.OemNetworkPreferences.OemNetworkPreference;
 import android.util.SparseArray;
 
 import java.util.Set;
@@ -40,9 +44,9 @@ public final class PersonalStorage {
         mSharedPrefs = ctx.getSharedPreferences(KEY_PREFERENCE_APP, Context.MODE_PRIVATE);
     }
 
-    public Set<String> get(@OemNetworkPreference int type) {
+    public Set<String> get(int type) {
         return mSharedPrefs.getStringSet(
-                OemNetworkPreferences.oemNetworkPreferenceToString(type), getPrefApps(type));
+                oemNetworkPreferenceToString(type), getPrefApps(type));
     }
 
     public void store(SparseArray<Set<String>> preference) {
@@ -50,7 +54,7 @@ public final class PersonalStorage {
         for (int type : OEM_NETWORK_PREFERENCE_ARRAY) {
             if (preference.contains(type)) {
                 editor.putStringSet(
-                        OemNetworkPreferences.oemNetworkPreferenceToString(type),
+                        oemNetworkPreferenceToString(type),
                         preference.get(type));
             }
         }
@@ -85,9 +89,26 @@ public final class PersonalStorage {
         saveReapplyPansOnBootCompleteState(false);
     }
 
-    private Set<String> getPrefApps(@OemNetworkPreference int type) {
+    private Set<String> getPrefApps(int type) {
         return mSharedPrefs.getStringSet(
-                OemNetworkPreferences.oemNetworkPreferenceToString(type),
+                oemNetworkPreferenceToString(type),
                 OemAppsManager.getDefaultAppsFor(mContext, type));
+    }
+
+    private static String oemNetworkPreferenceToString(int value) {
+        switch (value) {
+            case OEM_NETWORK_PREFERENCE_UNINITIALIZED:
+                return "OEM_NETWORK_PREFERENCE_UNINITIALIZED";
+            case OEM_NETWORK_PREFERENCE_OEM_PAID:
+                return "OEM_NETWORK_PREFERENCE_OEM_PAID";
+            case OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK:
+                return "OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK";
+            case OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY:
+                return "OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY";
+            case OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY:
+                return "OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY";
+            default:
+                return Integer.toHexString(value);
+        }
     }
 }
