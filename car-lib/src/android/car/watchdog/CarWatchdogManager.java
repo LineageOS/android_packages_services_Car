@@ -338,9 +338,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         resource overuse stats. If the calling package doesn't have sufficient stats for
      *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
      *         only for the period returned in the individual resource overuse stats.
-     *
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
-     *                                  invalid.
      */
     @NonNull
     public ResourceOveruseStats getResourceOveruseStats(
@@ -371,9 +368,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         overuse stats. If any package doesn't have sufficient stats for
      *         {@code maxStatsPeriod} for a specified resource overuse type, the stats are returned
      *         only for the period returned in the individual resource stats.
-     *
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
-     *                                  invalid.
      *
      * @hide
      */
@@ -406,10 +400,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      *         stats for {@code maxStatsPeriod} for a specified resource overuse type, the stats are
      *         returned only for the period returned in the individual resource overuse stats.
      *
-     * @throws NullPointerException if {@code packageName} or {@code userHandle} are null.
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} or {@code maxStatsPeriod} are
-     *                                  invalid.
-     *
      * @hide
      */
     @SystemApi
@@ -419,8 +409,6 @@ public final class CarWatchdogManager extends CarManagerBase {
             @NonNull String packageName, @NonNull UserHandle userHandle,
             @ResourceOveruseFlag int resourceOveruseFlag,
             @StatsPeriod int maxStatsPeriod) {
-        Objects.requireNonNull(packageName, "Package name must be non-null");
-        Objects.requireNonNull(userHandle, "User handle must be non-null");
         try {
             return mService.getResourceOveruseStatsForUserPackage(packageName, userHandle,
                     resourceOveruseFlag, maxStatsPeriod);
@@ -465,8 +453,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
      *
-     * @throws NullPointerException if {@code executor} or {@code listener} are null.
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
      * @throws IllegalStateException if (@code listener} is already added.
      */
     public void addResourceOveruseListener(
@@ -502,8 +488,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      * Removes the {@link ResourceOveruseListener} for the calling package.
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
-     *
-     * @throws NullPointerException if {@code listener} is null.
      */
     public void removeResourceOveruseListener(@NonNull ResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
@@ -549,8 +533,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
      * @param resourceOveruseFlag Flag to indicate the types of resource overuses to listen.
      *
-     * @throws NullPointerException if {@code executor} or {@code listener} are null.
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
      * @throws IllegalStateException if (@code listener} is already added.
      *
      * @hide
@@ -591,8 +573,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      * Removes {@link ResourceOveruseListener} from receiving system resource overuse notifications.
      *
      * @param listener Listener implementing {@link ResourceOveruseListener} interface.
-     *
-     * @throws NullPointerException if {@code listener} is null.
      *
      * @hide
      */
@@ -646,16 +626,12 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param isKillable  Whether or not the package for the specified user is killable on resource
      *                    overuse.
      *
-     * @throws NullPointerException if {@code packageName} or {@code userHandle} are null.
-     *
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG)
     public void setKillablePackageAsUser(@NonNull String packageName,
             @NonNull UserHandle userHandle, boolean isKillable) {
-        Objects.requireNonNull(packageName, "Package name must be non-null");
-        Objects.requireNonNull(userHandle, "User handle must be non-null");
         try {
             mService.setKillablePackageAsUser(packageName, userHandle, isKillable);
         } catch (RemoteException e) {
@@ -670,8 +646,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param userHandle User whose killable states for all packages should to be returned.
      *
-     * @throws NullPointerException if {@code userHandle} is null.
-     *
      * @hide
      */
     @SystemApi
@@ -679,7 +653,6 @@ public final class CarWatchdogManager extends CarManagerBase {
     @NonNull
     public List<PackageKillableState> getPackageKillableStatesAsUser(
             @NonNull UserHandle userHandle) {
-        Objects.requireNonNull(userHandle, "User handle must be non-null");
         try {
             return mService.getPackageKillableStatesAsUser(userHandle);
         } catch (RemoteException e) {
@@ -699,9 +672,7 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
      *                            set.
      *
-     * @throws NullPointerException if {@code configurations} is null.
-     * @throws IllegalArgumentException if {@code configurations} or {@code resourceOveruseFlag} are
-     *                                  invalid.
+     * @throws IllegalArgumentException if {@code configurations} are invalid.
      *
      * @hide
      */
@@ -710,7 +681,6 @@ public final class CarWatchdogManager extends CarManagerBase {
     public void setResourceOveruseConfigurations(
             @NonNull List<ResourceOveruseConfiguration> configurations,
             @ResourceOveruseFlag int resourceOveruseFlag) {
-        Objects.requireNonNull(configurations, "Configurations must be non-null");
         try {
             mService.setResourceOveruseConfigurations(configurations, resourceOveruseFlag);
         } catch (RemoteException e) {
@@ -723,8 +693,6 @@ public final class CarWatchdogManager extends CarManagerBase {
      *
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
      *                            return.
-     *
-     * @throws IllegalArgumentException if {@code resourceOveruseFlag} is invalid.
      *
      * @hide
      */
