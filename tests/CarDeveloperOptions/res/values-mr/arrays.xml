@@ -379,7 +379,7 @@
   <string-array name="captioning_edge_type_selector_titles">
     <item msgid="3865198759294188069">"डीफॉल्ट"</item>
     <item msgid="6488643537808152001">"काहीही नाही"</item>
-    <item msgid="552332815156010137">"रुपरेषा"</item>
+    <item msgid="552332815156010137">"Outline"</item>
     <item msgid="7187891159463789272">"ड्रॉप शॅडो"</item>
     <item msgid="8019330250538856521">"उन्नत"</item>
     <item msgid="8987385315647049787">"हताश"</item>
