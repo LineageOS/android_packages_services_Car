@@ -69,7 +69,7 @@
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System रिड गर्ने पहुँच"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System को स्थिति र पत्ता लगाउनेसम्बन्धी डेटा रिड गर्न दिन्छ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System सम्बन्धी ग्राफको नियन्त्रण गर्नुहोस्"</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्न अनुमति दिनुहोस्"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्ने अनुमति दिनुहोस्"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कारको इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
@@ -119,14 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कारको विक्रेतासम्बन्धी अनुमतिको जानकारीमाथि पहुँच राख्नुहोस्।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कारका बाहिरी बत्तीहरूको स्थिति पढ्ने"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कारका बाहिरी बत्तीहरूको स्थितिमाथि पहुँच राख्ने।"</string>
-    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
-    <skip />
-    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
-    <skip />
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"कारको UNIX समय हेर्ने"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"कारको UNIX समय हेर्ने।"</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कारका बाहिरी बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"कारका बाहिरी बत्तीहरू नियन्त्रण गर्ने।"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"कारका भित्री बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>
@@ -165,7 +161,7 @@
     <string name="car_permission_desc_control_car_power_policy" msgid="8565782440893507028">"कारको पावरसम्बन्धी नीति नियन्त्रण गर्नुहोस्।"</string>
     <string name="car_permission_label_template_renderer" msgid="3464887382919754850">"टेम्प्लेटहरू रेन्डर गर्ने"</string>
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"टेम्प्लेटहरू रेन्डर गर्ने।"</string>
-    <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो यन्त्र"</string>
+    <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो डिभाइस"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"अतिथि"</string>
     <string name="importance_default" msgid="8587741629268312938">"पूर्वनिर्धारित महत्त्व"</string>
     <string name="importance_high" msgid="3141530792377745041">"उच्च महत्त्वको सूचना"</string>
