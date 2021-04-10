@@ -119,14 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ਕਾਰ ਵਿਕਰੇਤਾ ਦੀ ਇਜਾਜ਼ਤ ਸੰਬੰਧੀ ਜਾਣਕਾਰੀ ਤੱਕ ਪਹੁੰਚ।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ ਦੀ ਸਥਿਤੀ ਨੂੰ ਪੜ੍ਹਨਾ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ ਦੀ ਸਥਿਤੀ ਤੱਕ ਪਹੁੰਚ।"</string>
-    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
-    <skip />
-    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
-    <skip />
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"ਕਾਰ ਦੇ UNIX ਸਮੇਂ ਤੱਕ ਪਹੁੰਚ ਕਰੋ"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"ਕਾਰ ਦੇ UNIX ਸਮੇਂ ਤੱਕ ਪਹੁੰਚ ਕਰੋ।"</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ਕਾਰ ਦੀ ਇਨਕ੍ਰਿਪਸ਼ਨ ਬਾਈਂਡਿੰਗ ਸੀਡ ਤੱਕ ਪਹੁੰਚ ਕਰੋ"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ਕਾਰ ਦੀ ਇਨਕ੍ਰਿਪਸ਼ਨ ਬਾਈਂਡਿੰਗ ਸੀਡ ਤੱਕ ਪਹੁੰਚ ਕਰੋ।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ \'ਤੇ ਕੰਟਰੋਲ"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"ਕਾਰ ਦੀਆਂ ਬਾਹਰੀ ਲਾਈਟਾਂ \'ਤੇ ਕੰਟਰੋਲ।"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"ਕਾਰ ਦੀਆਂ ਅੰਦਰੂਨੀ ਲਾਈਟਾਂ ਤੱਕ ਪਹੁੰਚ"</string>

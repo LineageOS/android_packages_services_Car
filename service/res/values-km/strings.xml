@@ -119,14 +119,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"ចូលប្រើ​ព័ត៌មាន​អំពី​ការអនុញ្ញាត​ពី​អ្នកលក់​របស់​រថយន្ត​។"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"អានស្ថានភាពភ្លើងផ្នែក​ខាងក្រៅ​រថយន្ត"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"ចូលប្រើ​ស្ថានភាពភ្លើង​ផ្នែកខាងក្រៅ​រថយន្ត។"</string>
-    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
-    <skip />
-    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
-    <skip />
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"ចូលប្រើ​ម៉ោង UNIX របស់​រថយន្ត"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"ចូលប្រើ​ម៉ោង UNIX របស់​រថយន្ត​។"</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ចូលប្រើ​ដំណាក់កាល​ចាប់ផ្ដើម​ដែលភ្ជាប់​ការអ៊ីនគ្រីប​របស់រថយន្ត"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ចូលប្រើ​ដំណាក់កាល​ចាប់ផ្ដើម​ដែលភ្ជាប់​ការអ៊ីនគ្រីប​របស់រថយន្ត​។"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"អានភ្លើងផ្នែកខាងក្រៅ​រថយន្ត"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"គ្រប់គ្រងភ្លើង​ផ្នែកខាងក្រៅរថយន្ត។"</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"អានភ្លើង​ផ្នែកខាងក្នុង​រថយន្ត"</string>
