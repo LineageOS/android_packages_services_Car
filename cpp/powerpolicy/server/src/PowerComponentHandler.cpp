@@ -101,6 +101,7 @@ Result<void> PowerComponentHandler::dump(int fd) {
             }
             WriteStringToFd(toString(component), fd);
         }
+        WriteStringToFd("\n", fd);
     };
 
     WriteStringToFd(StringPrintf("%sCurrent state of power components:\n", indent), fd);
