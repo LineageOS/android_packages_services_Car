@@ -74,6 +74,7 @@ const int32_t MSG_CONNECT_TO_VHAL = 1;  // Message to request of connecting to V
 const nsecs_t kConnectionRetryIntervalNs = 200000000;  // 200 milliseconds.
 const int32_t kMaxConnectionRetry = 25;                // Retry up to 5 seconds.
 
+constexpr const char* kCarServiceInterface = "car_service";
 constexpr const char* kCarPowerPolicyServerInterface =
         "android.frameworks.automotive.powerpolicy.ICarPowerPolicyServer/default";
 constexpr const char* kCarPowerPolicySystemNotificationInterface =
@@ -405,8 +406,15 @@ status_t CarPowerPolicyServer::dump(int fd, const Vector<String16>& args) {
 }
 
 Result<void> CarPowerPolicyServer::init(const sp<Looper>& looper) {
-    // TODO(b/181800782): In case that carpowerpolicyd is restarted, mIsCarServiceInOperation should
-    // be set to true.
+    sp<IBinder> binderCarService =
+            defaultServiceManager()->checkService(String16(kCarServiceInterface));
+    {
+        // Before initializing power policy daemon, we need to update mIsCarServiceInOperation
+        // according to whether CPMS is running.
+        Mutex::Autolock lock(mMutex);
+        mIsCarServiceInOperation = binderCarService != nullptr;
+    }
+
     mHandlerLooper = looper;
     mPolicyManager.init();
     mComponentHandler.init();
