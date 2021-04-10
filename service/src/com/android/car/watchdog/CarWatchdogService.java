@@ -63,7 +63,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -77,6 +76,7 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
+import com.android.server.utils.Slogf;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
@@ -134,6 +134,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final SparseArray<Boolean> mClientCheckInProgress = new SparseArray<>();
     @GuardedBy("mLock")
     private final ArrayList<ClientInfo> mClientsNotResponding = new ArrayList<>();
+    /*
+     * Cache of added resource overuse listeners by uid.
+     */
+    @GuardedBy("mLock")
+    private final SparseArray<ResourceOveruseListenerInfo> mOveruseListenerInfosByUid =
+            new SparseArray<>();
+    @GuardedBy("mLock")
+    private final SparseArray<ResourceOveruseListenerInfo> mOveruseSystemListenerInfosByUid =
+            new SparseArray<>();
     @GuardedBy("mMainHandler")
     private int mLastSessionId;
     @GuardedBy("mMainHandler")
@@ -159,7 +168,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
         if (DEBUG) {
-            Slog.d(TAG, "CarWatchdogService is initialized");
+            Slogf.d(TAG, "CarWatchdogService is initialized");
         }
         /**
          * TODO(b/170741935): Read the current day's I/O overuse stats from database and push them
@@ -211,7 +220,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void registerClient(ICarWatchdogServiceCallback client, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         if (clients == null) {
-            Slog.w(TAG, "Cannot register the client: invalid timeout");
+            Slogf.w(TAG, "Cannot register the client: invalid timeout");
             return;
         }
         synchronized (mLock) {
@@ -219,7 +228,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             for (int i = 0; i < clients.size(); i++) {
                 ClientInfo clientInfo = clients.get(i);
                 if (binder == clientInfo.client.asBinder()) {
-                    Slog.w(TAG,
+                    Slogf.w(TAG,
                             "Cannot register the client: the client(pid:" + clientInfo.pid
                             + ") has been already registered");
                     return;
@@ -231,12 +240,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.linkToDeath();
             } catch (RemoteException e) {
-                Slog.w(TAG, "Cannot register the client: linkToDeath to the client failed");
+                Slogf.w(TAG, "Cannot register the client: linkToDeath to the client failed");
                 return;
             }
             clients.add(clientInfo);
             if (DEBUG) {
-                Slog.d(TAG, "Client(pid: " + pid + ") is registered");
+                Slogf.d(TAG, "Client(pid: " + pid + ") is registered");
             }
         }
     }
@@ -259,13 +268,13 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     clientInfo.unlinkToDeath();
                     clients.remove(i);
                     if (DEBUG) {
-                        Slog.d(TAG, "Client(pid: " + clientInfo.pid + ") is unregistered");
+                        Slogf.d(TAG, "Client(pid: " + clientInfo.pid + ") is unregistered");
                     }
                     return;
                 }
             }
         }
-        Slog.w(TAG, "Cannot unregister the client: the client has not been registered before");
+        Slogf.w(TAG, "Cannot unregister the client: the client has not been registered before");
         return;
     }
 
@@ -353,7 +362,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         Objects.requireNonNull(listener, "Listener must be non-null");
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
-        // TODO(b/170741935): Implement this method.
+        synchronized (mLock) {
+            addResourceOveruseListenerLocked(resourceOveruseFlag, listener,
+                    mOveruseListenerInfosByUid);
+        }
     }
 
     /**
@@ -363,7 +375,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     public void removeResourceOveruseListener(@NonNull IResourceOveruseListener listener) {
         Objects.requireNonNull(listener, "Listener must be non-null");
-        // TODO(b/170741935): Implement this method.
+        synchronized (mLock) {
+            removeResourceOveruseListenerLocked(listener, mOveruseListenerInfosByUid);
+        }
     }
 
     /**
@@ -378,7 +392,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         Objects.requireNonNull(listener, "Listener must be non-null");
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
-        // TODO(b/170741935): Implement this method.
+        synchronized (mLock) {
+            addResourceOveruseListenerLocked(resourceOveruseFlag, listener,
+                    mOveruseSystemListenerInfosByUid);
+        }
     }
 
     /**
@@ -389,7 +406,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void removeResourceOveruseListenerForSystem(@NonNull IResourceOveruseListener listener) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_COLLECT_CAR_WATCHDOG_METRICS);
         Objects.requireNonNull(listener, "Listener must be non-null");
-        // TODO(b/170741935): Implement this method.
+        synchronized (mLock) {
+            removeResourceOveruseListenerLocked(listener, mOveruseSystemListenerInfosByUid);
+        }
     }
 
     /** Sets whether or not a user package is killable on resource overuse. */
@@ -470,10 +489,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         try {
             mCarWatchdogDaemonHelper.registerCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
-                Slog.d(TAG, "CarWatchdogService registers to car watchdog daemon");
+                Slogf.d(TAG, "CarWatchdogService registers to car watchdog daemon");
             }
         } catch (RemoteException | RuntimeException e) {
-            Slog.w(TAG, "Cannot register to car watchdog daemon: " + e);
+            Slogf.w(TAG, "Cannot register to car watchdog daemon: " + e);
         }
         UserManager userManager = UserManager.get(mContext);
         List<UserInfo> users = userManager.getUsers();
@@ -491,7 +510,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 }
             }
         } catch (RemoteException | RuntimeException e) {
-            Slog.w(TAG, "Notifying system state change failed: " + e);
+            Slogf.w(TAG, "Notifying system state change failed: " + e);
         }
     }
 
@@ -499,10 +518,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         try {
             mCarWatchdogDaemonHelper.unregisterCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {
-                Slog.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
+                Slogf.d(TAG, "CarWatchdogService unregisters from car watchdog daemon");
             }
         } catch (RemoteException | RuntimeException e) {
-            Slog.w(TAG, "Cannot unregister from car watchdog daemon: " + e);
+            Slogf.w(TAG, "Cannot unregister from car watchdog daemon: " + e);
         }
     }
 
@@ -566,7 +585,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.client.onCheckHealthStatus(clientInfo.sessionId, timeout);
             } catch (RemoteException e) {
-                Slog.w(TAG, "Sending a ping message to client(pid: " +  clientInfo.pid
+                Slogf.w(TAG, "Sending a ping message to client(pid: " +  clientInfo.pid
                         + ") failed: " + e);
                 synchronized (mLock) {
                     pingedClients.remove(clientInfo.sessionId);
@@ -617,8 +636,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             try {
                 clientInfo.client.onPrepareProcessTermination();
             } catch (RemoteException e) {
-                Slog.w(TAG, "Notifying onPrepareProcessTermination to client(pid: " + clientInfo.pid
-                        + ") failed: " + e);
+                Slogf.w(TAG, "Notifying onPrepareProcessTermination to client(pid: "
+                        + clientInfo.pid + ") failed: " + e);
             }
         }
 
@@ -626,8 +645,79 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             mCarWatchdogDaemonHelper.tellCarWatchdogServiceAlive(
                     mWatchdogServiceForSystem, clientsNotResponding, sessionId);
         } catch (RemoteException | RuntimeException e) {
-            Slog.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): "
+            Slogf.w(TAG, "Cannot respond to car watchdog daemon (sessionId=" + sessionId + "): "
                     + e);
+        }
+    }
+
+    private void addResourceOveruseListenerLocked(
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
+            @NonNull IResourceOveruseListener listener,
+            SparseArray<ResourceOveruseListenerInfo> listenerInfosByUid) {
+        int callingPid = Binder.getCallingPid();
+        int callingUid = Binder.getCallingUid();
+        boolean isListenerForSystem = listenerInfosByUid == mOveruseSystemListenerInfosByUid;
+        String listenerType = isListenerForSystem ? "resource overuse listener for system" :
+                "resource overuse listener";
+
+        ResourceOveruseListenerInfo existingListenerInfo = listenerInfosByUid.get(callingUid, null);
+        if (existingListenerInfo != null) {
+            IBinder binder = listener.asBinder();
+            if (existingListenerInfo.listener.asBinder() == binder) {
+                throw new IllegalStateException(
+                        "Cannot add " + listenerType + " as it is already added");
+            }
+        }
+
+        ResourceOveruseListenerInfo listenerInfo = new ResourceOveruseListenerInfo(listener,
+                resourceOveruseFlag, callingPid, callingUid, isListenerForSystem);
+        try {
+            listenerInfo.linkToDeath();
+        } catch (RemoteException e) {
+            Slogf.w(TAG, "Cannot add %s: linkToDeath to listener failed", listenerType);
+            return;
+        }
+
+        if (existingListenerInfo != null) {
+            Slogf.w(TAG, "Overwriting existing %s: pid %d, uid: %d", listenerType,
+                    existingListenerInfo.pid, existingListenerInfo.uid);
+            existingListenerInfo.unlinkToDeath();
+        }
+
+        listenerInfosByUid.put(callingUid, listenerInfo);
+        if (DEBUG) {
+            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is added", listenerType,
+                    callingPid, callingUid);
+        }
+    }
+
+    private void removeResourceOveruseListenerLocked(@NonNull IResourceOveruseListener listener,
+            SparseArray<ResourceOveruseListenerInfo> listenerInfosByUid) {
+        int callingUid = Binder.getCallingUid();
+
+        String listenerType = listenerInfosByUid == mOveruseSystemListenerInfosByUid
+                ? "resource overuse system listener" : "resource overuse listener";
+
+        ResourceOveruseListenerInfo listenerInfo = listenerInfosByUid.get(callingUid, null);
+        if (listenerInfo == null || listenerInfo.listener != listener) {
+            Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
+            return;
+        }
+        listenerInfo.unlinkToDeath();
+        listenerInfosByUid.remove(callingUid);
+        if (DEBUG) {
+            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is removed", listenerType, listenerInfo.pid,
+                    listenerInfo.uid);
+        }
+    }
+
+    private void onResourceOveruseListenerDeath(int uid, boolean isListenerForSystem) {
+        synchronized (mLock) {
+            if (isListenerForSystem) {
+                mOveruseSystemListenerInfosByUid.remove(uid);
+            } else {
+                mOveruseListenerInfosByUid.remove(uid);
+            }
         }
     }
 
@@ -635,7 +725,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         CarPowerManagementService powerService =
                 CarLocalServices.getService(CarPowerManagementService.class);
         if (powerService == null) {
-            Slog.w(TAG, "Cannot get CarPowerManagementService");
+            Slogf.w(TAG, "Cannot get CarPowerManagementService");
             return;
         }
         powerService.registerListener(new ICarPowerStateListener.Stub() {
@@ -661,11 +751,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
                             powerCycle, /* arg2= */ -1);
                     if (DEBUG) {
-                        Slog.d(TAG, "Notified car watchdog daemon a power cycle("
+                        Slogf.d(TAG, "Notified car watchdog daemon a power cycle("
                                 + powerCycle + ")");
                     }
                 } catch (RemoteException | RuntimeException e) {
-                    Slog.w(TAG, "Notifying system state change failed: " + e);
+                    Slogf.w(TAG, "Notifying system state change failed: " + e);
                 }
             }
         });
@@ -674,7 +764,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private void subscribeUserStateChange() {
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         if (userService == null) {
-            Slog.w(TAG, "Cannot get CarUserService");
+            Slogf.w(TAG, "Cannot get CarUserService");
             return;
         }
         userService.addUserLifecycleListener((event) -> {
@@ -701,11 +791,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE, userId,
                         userState);
                 if (DEBUG) {
-                    Slog.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
+                    Slogf.d(TAG, "Notified car watchdog daemon a user state: userId = " + userId
                             + ", userState = " + userStateDesc);
                 }
             } catch (RemoteException | RuntimeException e) {
-                Slog.w(TAG, "Notifying system state change failed: " + e);
+                Slogf.w(TAG, "Notifying system state change failed: " + e);
             }
         });
     }
@@ -738,7 +828,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             case TIMEOUT_NORMAL:
                 return "normal";
             default:
-                Slog.w(TAG, "Unknown timeout value");
+                Slogf.w(TAG, "Unknown timeout value");
                 return "unknown";
         }
     }
@@ -752,7 +842,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             case TIMEOUT_NORMAL:
                 return 10000L;
             default:
-                Slog.w(TAG, "Unknown timeout value");
+                Slogf.w(TAG, "Unknown timeout value");
                 return 10000L;
         }
     }
@@ -816,7 +906,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                         seenThirdParty = true;
                         break;
                     default:
-                        Slog.w(TAG,
+                        Slogf.w(TAG,
                                 "Unknown component type " + componentType + " for package "
                                 + curPackageName);
                 }
@@ -858,7 +948,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return ComponentType.SYSTEM;
             }
         } catch (PackageManager.NameNotFoundException e) {
-            Slog.e(TAG, "Package '" + packageName + "' not found for user " + userId + ": ", e);
+            Slogf.e(TAG, "Package '" + packageName + "' not found for user " + userId + ": ", e);
             return ComponentType.UNKNOWN;
         }
         return ComponentType.THIRD_PARTY;
@@ -876,7 +966,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         public void checkIfAlive(int sessionId, int timeout) {
             CarWatchdogService service = mService.get();
             if (service == null) {
-                Slog.w(TAG, "CarWatchdogService is not available");
+                Slogf.w(TAG, "CarWatchdogService is not available");
                 return;
             }
             service.postHealthCheckMessage(sessionId);
@@ -884,19 +974,19 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void prepareProcessTermination() {
-            Slog.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
+            Slogf.w(TAG, "CarWatchdogService is about to be killed by car watchdog daemon");
         }
 
         @Override
         public List<PackageInfo> getPackageInfosForUids(
                 int[] uids, List<String> vendorPackagePrefixes) {
             if (ArrayUtils.isEmpty(uids)) {
-                Slog.w(TAG, "UID list is empty");
+                Slogf.w(TAG, "UID list is empty");
                 return null;
             }
             CarWatchdogService service = mService.get();
             if (service == null) {
-                Slog.w(TAG, "CarWatchdogService is not available");
+                Slogf.w(TAG, "CarWatchdogService is not available");
                 return null;
             }
             return service.getPackageInfosForUids(uids, vendorPackagePrefixes);
@@ -939,7 +1029,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         @Override
         public void binderDied() {
-            Slog.w(TAG, "Client(pid: " + pid + ") died");
+            Slogf.w(TAG, "Client(pid: " + pid + ") died");
             onClientDeath(client, timeout);
         }
 
@@ -949,6 +1039,40 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
         private void unlinkToDeath() {
             client.asBinder().unlinkToDeath(this, 0);
+        }
+    }
+
+    private final class ResourceOveruseListenerInfo implements IBinder.DeathRecipient {
+        public final IResourceOveruseListener listener;
+        public final @CarWatchdogManager.ResourceOveruseFlag int flag;
+        public final int pid;
+        public final int uid;
+        public final boolean isListenerForSystem;
+
+        private ResourceOveruseListenerInfo(IResourceOveruseListener listener,
+                @CarWatchdogManager.ResourceOveruseFlag int flag, int pid, int uid,
+                boolean isListenerForSystem) {
+            this.listener = listener;
+            this.flag = flag;
+            this.pid = pid;
+            this.uid = uid;
+            this.isListenerForSystem = isListenerForSystem;
+        }
+
+        @Override
+        public void binderDied() {
+            Slogf.w(TAG, "Resource overuse listener%s (pid: %d) died",
+                    isListenerForSystem ? " for system" : "", pid);
+            onResourceOveruseListenerDeath(uid, isListenerForSystem);
+            unlinkToDeath();
+        }
+
+        private void linkToDeath() throws RemoteException {
+            listener.asBinder().linkToDeath(this, 0);
+        }
+
+        private void unlinkToDeath() {
+            listener.asBinder().unlinkToDeath(this, 0);
         }
     }
 }
