@@ -120,14 +120,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"કારના વિક્રેતાની પરવાનગી વિશેની માહિતીને ઍક્સેસ કરો."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"કારની બહારની લાઇટની સ્થિતિને વાંચો"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"કારની બહારની લાઇટની સ્થિતિને ઍક્સેસ કરો."</string>
-    <!-- no translation found for car_permission_label_car_unix_time (1670260167623542214) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_unix_time (9104228524876348441) -->
-    <skip />
-    <!-- no translation found for car_permission_label_encryption_binding_seed (4652180636501144684) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_encryption_binding_seed (6290944678417286024) -->
-    <skip />
+    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"કારના UNIX સમયને ઍક્સેસ કરો"</string>
+    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"કારના UNIX સમયને ઍક્સેસ કરો."</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"કારના એન્ક્રિપ્શન બાઇન્ડિંગ સીડને ઍક્સેસ કરો"</string>
+    <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"કારના એન્ક્રિપ્શન બાઇન્ડિંગ સીડને ઍક્સેસ કરો."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"કારની બહારની લાઇટ વિશે વાંચો"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"કારની બહારની લાઇટને નિયંત્રિત કરો."</string>
     <string name="car_permission_label_car_interior_lights" msgid="8506302199784427680">"કારની અંદરની લાઇટ વિશે વાંચો"</string>

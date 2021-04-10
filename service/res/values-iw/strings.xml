@@ -121,7 +121,7 @@
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"גישה למצב הפנסים החיצוניים של הרכב."</string>
     <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"גישה לזמן יוניקס של המכונית"</string>
     <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"גישה לזמן יוניקס של המכונית."</string>
-    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"גישה ל-seed כובל ההצפנה של המכונית"</string>
+    <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"גישה למקור קישור ההצפנה של המכונית"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"גישה למקור קישור ההצפנה של המכונית."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"קריאת נתונים על הפנסים החיצוניים של הרכב"</string>
     <string name="car_permission_desc_control_car_exterior_lights" msgid="6332252612685264180">"שליטה בפנסים החיצוניים של הרכב."</string>
