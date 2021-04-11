@@ -614,7 +614,7 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"لن تعمل ميزات حماية الجهاز بدون النقش."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"لن تعمل ميزات حماية الجهاز بدون النقش.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>ستتم إزالة بصمات الإصبع المحفوظة أيضًا من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"لن تعمل ميزات حماية الجهاز بدون رقم التعريف الشخصي."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"لن تعمل ميزات حماية الجهاز بدون رقم التعريف الشخصي.<xliff:g id="EMPTY_LINE">
 
@@ -626,7 +626,7 @@
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"لن تعمل ميزات حماية الجهاز بدون قفل الشاشة."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"لن تعمل ميزات حماية الجهاز بدون قفل الشاشة.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>كما ستتم إزالة بصمات الإصبع المحفوظة من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
+</xliff:g>ستتم إزالة بصمات الإصبع المحفوظة أيضًا من هذا الجهاز ولن تتمكن من فتح قفل هاتفك أو السماح بعمليات الشراء أو تسجيل الدخول إلى التطبيقات باستخدامها."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"لن تعمل ميزات حماية الملف الشخصي بدون النقش."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"لن تعمل ميزات حماية الملف الشخصي بدون النقش.<xliff:g id="EMPTY_LINE">
 
@@ -2573,7 +2573,7 @@
     <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"تفاصيل الاستخدام منذ آخر شحن كامل"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"آخر شحن كامل"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"يمكن استخدام البطارية المشحونة بالكامل حوالي"</string>
-    <string name="battery_footer_summary" msgid="4828444679643906943">"بيانات استخدام البطارية تقديرية ويمكن أن تتغير حسب الاستخدام"</string>
+    <string name="battery_footer_summary" msgid="4828444679643906943">"بيانات استخدام البطارية تقديرية ويمكن أن تتغير حسب الاستخدام."</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"أثناء الاستخدام النشط"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"أثناء الاستخدام في الخلفية"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"استخدام البطارية"</string>
@@ -3365,10 +3365,10 @@
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"عند تفعيل إعداد \"عدم الإزعاج\""</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"تقييد الإشعارات"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"بدون تنبيهات صوتية من الإشعارات"</string>
-    <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"سترى الإشعارات على شاشتك"</string>
+    <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"سترى الإشعارات على شاشتك."</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"عند ظهور إشعارات، لن يُصدر هاتفك صوتًا أو يهتزّ."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"بدون تنبيهات مرئيّة أو صوتية من الإشعارات"</string>
-    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"لن ترى أو تسمع الإشعارات"</string>
+    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"لن ترى أو تسمع الإشعارات."</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"لن يهتز هاتفك للإشعارات الجديدة أو الحالية ولن يعرضها ولن يُصدِر تنبيهات صوتية لها. ملاحظة: ستستمر الإشعارات المهمّة عن نشاط الهاتف وحالته في الظهور.\n\nعندما توقِف وضع \"عدم الإزعاج\"، يمكنك العثور على الإشعارات الفائتة من خلال التمرير سريعًا للأسفل من أعلى الشاشة."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"الإعدادات المخصّصة"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"تفعيل الإعداد المخصّص"</string>
@@ -3458,7 +3458,7 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"هل تريد تغيير إعدادات إشعار \"الرجاء عدم الإزعاج\"؟"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"أصوات الملف الشخصي للعمل"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"استخدام أصوات الملف الشخصي"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"يتم استخدام الأصوات نفسها للملف الشخصي وملف العمل الشخصي"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"يتم استخدام الأصوات نفسها لكل من الملف الشخصي للعمل والملف الشخصي."</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"نغمة رنين هاتف العمل"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"الصوت التلقائي للإشعارات"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"الصوت التلقائي لمنبّه العمل"</string>
@@ -3758,7 +3758,7 @@
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"إعدادات الإشعارات"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"حسنًا"</string>
-    <string name="device_feedback" msgid="4042352891448769818">"إرسال تعليقات حول هذا الجهاز"</string>
+    <string name="device_feedback" msgid="4042352891448769818">"إرسال ملاحظات حول هذا الجهاز"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"إدخال رقم التعريف الشخصي للمشرف"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"مفعّل"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"غير مفعّل"</string>

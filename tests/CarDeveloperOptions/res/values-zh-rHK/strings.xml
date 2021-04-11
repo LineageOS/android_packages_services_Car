@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"藍牙"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"藍牙"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"管理連線，設定裝置名稱和可偵測性"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"與<xliff:g id="DEVICE_NAME">%1$s</xliff:g>配對？"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"要與<xliff:g id="DEVICE_NAME">%1$s</xliff:g>配對嗎？"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"藍牙配對碼"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"輸入配對代碼，然後按 [返回] 或 Enter 鍵"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN 中含有字母或符號"</string>
@@ -751,7 +751,7 @@
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"互聯網連線"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"鍵盤"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"通訊錄和通話記錄"</string>
-    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"與這個裝置配對？"</string>
+    <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"要與這部裝置配對嗎？"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"共用電話簿？"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> 要求存取您的通訊錄和通話記錄。"</string>
     <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"「<xliff:g id="DEVICE_NAME">%1$s</xliff:g>」提出藍牙配對要求。一旦配對成功，對方將可存取您的通訊錄和通話記錄。"</string>
@@ -3440,7 +3440,7 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"輸入日程表名稱"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"日程表名稱已使用"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"加入更多"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"加入日程表 (活動)"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"加入日程表活動"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表 (時間)"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"刪除日程表"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"選擇時間表類型"</string>

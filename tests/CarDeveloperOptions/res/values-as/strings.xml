@@ -3796,7 +3796,7 @@
     <string name="ignore_optimizations_on_desc" msgid="2904484569799521559">"আপোনাৰ বেটাৰি খৰকৈ শেষ কৰিব পাৰে। এপটোক নেপথ্যত বেটাৰি ব্যৱহাৰ কৰাত আৰু বাধা দিয়া নহ’ব।"</string>
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"বেটাৰিৰ অৱস্থা উন্নত কৰাৰ বাবে পৰামৰ্শ দিয়া হৈছে"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"<xliff:g id="APP">%s</xliff:g>-ক বেটাৰি অপ্টিমাইজেশ্বন অবজ্ঞা কৰিবলৈ অনুমতি দিবনে?"</string>
-    <string name="app_list_preference_none" msgid="7100409177446935028">"একোএই নাই"</string>
+    <string name="app_list_preference_none" msgid="7100409177446935028">"একোৱেই নাই"</string>
     <string name="work_profile_usage_access_warning" msgid="403208064382097510">"এই এপক প্ৰাপ্ত হৈ থকা ব্যৱহাৰৰ সুবিধা অফ কৰিলেও আপোনাৰ প্ৰশাসকক আপোনাৰ কৰ্মস্থানৰ প্ৰ\'ফাইলত থকা এপসমূহৰ ডেটা ব্যৱহাৰ নিৰীক্ষণ কৰাত বাধা নিদিয়ে"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_1">%2$d</xliff:g>ৰ ভিতৰত <xliff:g id="COUNT_0">%1$d</xliff:g> বৰ্ণ ব্যৱহাৰ কৰা হৈছে"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"অন্য এপসমূহত দেখুৱাওক"</string>

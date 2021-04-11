@@ -1121,14 +1121,14 @@
     <string name="carrier" msgid="3413463182542176886">"Оператор компани"</string>
     <string name="display_settings_title" msgid="1243571562133261601">"Дэлгэц"</string>
     <string name="sound_settings" msgid="3306063041029638807">"Ая"</string>
-    <string name="all_volume_title" msgid="1750261506951315423">"Дууны хэмжээ"</string>
+    <string name="all_volume_title" msgid="1750261506951315423">"Дууны түвшин"</string>
     <string name="musicfx_title" msgid="6456079041566773649">"Хөгжмийн эффект"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"Хонх дуугаргах түвшин"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"Дуугүй үед чичрэх"</string>
     <string name="notification_sound_title" msgid="6812164482799723931">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"Хонхны ая"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"Мэдэгдэл"</string>
-    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Ирж буй дуудлагын дууны хэмжээг мэдэгдэлд ашиглах"</string>
+    <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Ирж буй дуудлагын дууны түвшинг мэдэгдэлд ашиглах"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"Ажлын профайлыг дэмждэггүй"</string>
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"Медиа"</string>
@@ -3139,7 +3139,7 @@
     <string name="call_volume_option_title" msgid="5028003296631037334">"Дуудлагын дууны түвшин"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Сэрүүлгийн дууны түвшин"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Хонхны дууны түвшин"</string>
-    <string name="notification_volume_option_title" msgid="1358512611511348260">"Мэдэгдлийн дууны хэмжээ"</string>
+    <string name="notification_volume_option_title" msgid="1358512611511348260">"Мэдэгдлийн дууны түвшин"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Утасны хонхны ая"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Мэдэгдлийн өгөгдмөл ая"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Аппын санал болгосон дуу"</string>

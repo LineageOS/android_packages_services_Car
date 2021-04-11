@@ -2323,9 +2323,9 @@
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Pengurus Bateri"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Urus apl secara automatik"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Hadkan bateri untuk apl yang jarang digunakan"</string>
-    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberikan pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
-    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberikan pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
-    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberikan pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
+    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberi pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
+    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberi pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
+    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Apabila Pengurus Bateri mengesan apl menyusutkan bateri, anda diberi pilihan untuk mengehadkan apl ini. Apl terhad mungkin tidak berfungsi dengan betul dan pemberitahuan mungkin ditangguhkan."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"Apl terhad"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">Mengehadkan penggunaan bateri untuk %1$d apl</item>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Tiada jadual"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Berdasarkan rutin anda"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Berdasarkan peratusan"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Penjimat bateri dihidupkan jika bateri anda mungkin habis sebelum pengecasan biasa anda yang seterusnya"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Penjimat Bateri dihidupkan jika bateri anda mungkin habis sebelum pengecasan biasa anda yang seterusnya"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Akan dihidupkan pada <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Tetapkan jadual"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Matikan apabila dicas penuh"</string>
@@ -3550,7 +3550,7 @@
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"Benarkan pemberitahuan yang disenyapkan oleh Jangan Ganggu menghidupkan skrin"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"Tetapan pemberitahuan"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"Ok"</string>
-    <string name="device_feedback" msgid="4042352891448769818">"Hntr mklm balas mngenai peranti ini"</string>
+    <string name="device_feedback" msgid="4042352891448769818">"Hantar maklum balas ttg peranti ini"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"Masukkan PIN pentadbir"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"Dihidupkan"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"Dimatikan"</string>
@@ -3992,7 +3992,7 @@
     <string name="data_saver_off" msgid="7439439787358504018">"Mati"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Gunakan Penjimat Data"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Penggunaan data tanpa had"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Bnrkn akses data tnpa had apbl Penjimat Data dihdpkn"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Benarkan akses data tanpa had apabila Penjimat Data dihidupkan"</string>
     <string name="home_app" msgid="3695063566006954160">"Apl skrin utama"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Tiada Skrin Utama lalai"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Permulaan selamat"</string>
@@ -4171,7 +4171,7 @@
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"Untuk menyediakan akses kepada data kerja, organisasi anda mungkin mengubah tetapan dan memasang perisian pada peranti anda.\n\nUntuk mendapatkan butiran lanjut, hubungi pentadbir organisasi anda."</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"Jenis maklumat yang dapat dilihat oleh organisasi anda"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Perubahan yang dibuat oleh pentadbir organisasi anda"</string>
-    <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Akses anda ke peranti ini"</string>
+    <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Akses anda kepada peranti ini"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Data yang dikaitkan dengan akaun kerja anda, seperti e-mel dan kalendar"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Senarai apl pada peranti anda"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Jumah masa dan data yang digunakan dalam setiap apl"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Akaun"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Nama peranti"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Kawalan Wi-Fi"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Benrakan apl mengawal Wi-Fi"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Benarkan apl mengawal Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Benarkan apl ini menghidupkan atau mematikan Wi-Fi, mengimbas dan menyambung ke rangkaian Wi-Fi, menambah atau mengalih keluar rangkaian atau memulakan tempat liputan setempat sahaja"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Mainkan media ke"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Peranti ini"</string>

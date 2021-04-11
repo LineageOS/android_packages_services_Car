@@ -3391,7 +3391,7 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"चित्रा मध्‍ये चित्र"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"चित्रामध्‍ये चित्राची अनुमती द्या"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"अ‍ॅप खुले असताना किंवा तुम्ही ते सोडल्यानंतर या अ‍ॅपला चित्रामध्ये चित्र विंडो तयार करण्याची परवानगी द्या (उदाहरणार्थ, व्हिडिओ पाहणे सुरू ठेवणे). ही विंडो तुम्ही वापरत असलेल्या इतर अ‍ॅप्सच्या वरती दिसते."</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"व्यत्यय आणू नका प्रवेश"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"व्यत्यय आणू नका अ‍ॅक्सेस"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"व्यत्यय आणू नका ची अनुमती द्या"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"कोणत्याही इंस्टॉल केलेल्या ॲप्सने व्यत्यय आणू नका प्रवेशाची विनंती केली नाही"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"अ‍ॅप्स लोड करत आहे..."</string>
@@ -3679,7 +3679,7 @@
     <string name="system_app" msgid="4111402206594443265">"(सिस्टम)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(सिस्टम डीफॉल्ट)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"अ‍ॅप्स स्टोरेज"</string>
-    <string name="usage_access" msgid="2023443456361489516">"वापर प्रवेश"</string>
+    <string name="usage_access" msgid="2023443456361489516">"वापर अ‍ॅक्सेस"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"वापर प्रवेशास परवानगी द्या"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"अ‍ॅप वापर प्राधान्ये"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"स्क्रीन वेळ"</string>
@@ -3826,7 +3826,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"ही परवानगी ॲपला सिस्टम सेटिंग्ज सुधारित करण्‍याची अनुमती देते."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"होय"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"नाही"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"या स्त्रोतातून अनुमती द्या"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"या स्रोतातून अनुमती द्या"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"कॅमेर्‍यासाठी दोनदा वळवा"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"तुमचे मनगट दोनदा वळवून कॅमेरा अ‍ॅप उघडा"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"कॅमेर्‍यासाठी पॉवर बटण दोनदा दाबा"</string>

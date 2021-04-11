@@ -492,8 +492,8 @@
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Registrazione dell\'impronta digitale non riuscita. Riprova o utilizza un dito diverso."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Aggiungine un\'altra"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Avanti"</string>
-    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Oltre che per sbloccare il telefono, puoi utilizzare la tua impronta digitale per autorizzare acquisti e accessi alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" L\'opzione di blocco dello schermo è disattivata. Per ulteriori informazioni, contatta l\'amministratore della tua organizzazione. "<annotation id="admin_details">"Altri dettagli"</annotation>\n\n"Puoi comunque utilizzare la tua impronta digitale per autorizzare acquisti e accessi alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Oltre che per sbloccare il telefono, puoi utilizzare la tua impronta digitale per autorizzare acquisti e accessi alle app. "<annotation id="url">"Scopri di più"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" L\'opzione di blocco dello schermo è disattivata. Per ulteriori informazioni, contatta l\'amministratore della tua organizzazione. "<annotation id="admin_details">"Altri dettagli"</annotation>\n\n"Puoi comunque utilizzare la tua impronta digitale per autorizzare acquisti e accessi alle app. "<annotation id="url">"Scopri di più"</annotation></string>
     <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Solleva il dito, quindi tocca di nuovo il sensore"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Puoi aggiungere fino a <xliff:g id="COUNT">%d</xliff:g> impronte digitali"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Hai aggiunto il numero massimo di impronte digitali"</string>
@@ -1663,7 +1663,7 @@
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Scansione Wi‑Fi e Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Ricerca di reti Wi-Fi"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Consenti ad app e servizi di cercare reti Wi-Fi in qualsiasi momento, anche quando il Wi-Fi non è attivo. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
-    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Scansione di dispositivi Bluetooth"</string>
+    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Ricerca di dispositivi Bluetooth"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Consenti ad app e servizi di cercare dispositivi nelle vicinanze in qualsiasi momento, anche quando il Bluetooth non è attivo. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Location services for work"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Posizione Wi‑Fi e rete mobile"</string>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Nessuna pianificazione"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"In base alla tua routine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"In base alla percentuale"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"La funzionalità Risparmio energetico viene attivata se è probabile che la batteria si scarichi prima della successiva ricarica prevista"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"La funzionalità Risparmio energetico viene attivata se è probabile che la batteria si scarichi prima della successiva ricarica abituale"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Si attiva quando la batteria raggiunge <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Imposta una pianificazione"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Disattiva quando la ricarica è completa"</string>
@@ -2580,7 +2580,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"Attiva questa app di amministrazione del dispositivo"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Amministrazione dispositivo"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Attivando questa app di amministrazione, l\'app <xliff:g id="APP_NAME">%1$s</xliff:g> potrà eseguire le seguenti operazioni:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"Questa app di amministrazione è attiva e consente all\'app <xliff:g id="APP_NAME">%1$s</xliff:g> di eseguire le operazioni seguenti:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"Questa app di amministrazione è attiva e consente all\'app <xliff:g id="APP_NAME">%1$s</xliff:g> di eseguire le seguenti operazioni:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Attivare Profile Manager?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Se procedi, l\'utente verrà gestito dal tuo amministratore, che potrebbe anche memorizzare dati associati, oltre ai tuoi dati personali.\n\nL\'amministratore ha la possibilità di monitorare e gestire impostazioni, accesso, app e dati associati a questo utente, incluse le attività di rete e le informazioni sulla posizione del dispositivo."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Altre opzioni sono state disattivate dall\'amministratore."</string>
@@ -3378,7 +3378,7 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Disattiva"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Annulla"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Servizi helper VR"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"Nessuna delle app installate ha richiesto di essere eseguita come servizio helper VR."</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"Nessuna app installata ha richiesto di essere eseguita come servizio helper VR."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Consentire l\'accesso a <xliff:g id="SERVICE">%1$s</xliff:g> al servizio VR?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> potrà essere eseguito quando utilizzi applicazioni in modalità realtà virtuale."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Quando in modalità VR"</string>
@@ -3389,7 +3389,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"pip picture in picture"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Picture in picture"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Consenti Picture in picture"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Consenti a questa app di creare una finestra Picture in picture quando l\'app è aperta o dopo essere uscito (ad esempio, per continuare a guardare un video). Questa finestra viene visualizzata sopra le altre app in uso."</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Consenti a questa app di creare una finestra Picture in picture quando l\'app è aperta o dopo l\'uscita (ad esempio, per continuare a guardare un video). Questa finestra viene visualizzata sopra le altre app in uso."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Accesso Non disturbare"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Consenti \"Non disturbare\""</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Nessuna delle app installate ha richiesto l\'accesso Non disturbare"</string>
@@ -3559,7 +3559,7 @@
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Richiedi sequenza di sblocco prima di sbloccare"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Richiedi il PIN per lo sblocco"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Richiedi password prima di sbloccare"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Blocca dispositivo per sblocco"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Blocca dispositivo dopo lo sblocco app"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Questo profilo di lavoro è gestito da:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Gestito da <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Sperimentale)"</string>
@@ -4162,7 +4162,7 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Sincronizza dati di lavoro automaticamente"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Consenti aggiornamento automatico dei dati delle app"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Sincronizzazione account"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronizzazione attiva per <xliff:g id="ID_1">%1$d</xliff:g> elementi su <xliff:g id="ID_2">%2$d</xliff:g>"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronizzazione attiva per <xliff:g id="ID_1">%1$d</xliff:g> di <xliff:g id="ID_2">%2$d</xliff:g> elementi"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Sincronizzazione attivata per tutti gli elementi"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Sincronizzazione disattivata per tutti gli elementi"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Informazioni sul dispositivo gestito"</string>
@@ -4174,7 +4174,7 @@
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Il tuo accesso a questo dispositivo"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Dati associati al tuo account di lavoro, ad esempio email e calendario."</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Elenco di app installate sul dispositivo"</string>
-    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Quantità di tempo e dati consumati in ogni app"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Tempo trascorso e dati utilizzati per ogni app"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Log più recente del traffico di rete"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"Segnalazione di bug più recente"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"Log di sicurezza più recente"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(disattivato per l\'utente <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"Compilazione automatica"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"automatico, compilazione, compilazione automatica"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Verifica che questa app sia attendibile&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=La Compilazione Automatica di Google&gt;%1$s&lt;/xliff:g&gt; usa ciò che è presente nella schermata per stabilire quali contenuti possono essere compilati automaticamente."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Verifica che questa app sia attendibile&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=La Compilazione automatica di Google&gt;%1$s&lt;/xliff:g&gt; usa ciò che appare sullo schermo per stabilire quali contenuti possono essere compilati automaticamente."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Compilazione automatica"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Livello di logging"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Numero richieste massime per sessione"</string>

@@ -607,8 +607,8 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Без графического ключа защита устройства работать не будет.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Сохраненные отпечатки пальцев будут удалены, поэтому вы больше не сможете снимать блокировку, совершать покупки и входить в приложения с их помощью."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Без PIN-кода не будет работать защита устройства."</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Без PIN-кода не будет работать защита устройства.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Защита устройства не будет работать без PIN-кода."</string>
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Защита устройства не будет работать без PIN-кода.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Сохраненные отпечатки пальцев будут удалены, поэтому вы больше не сможете снимать блокировку, совершать покупки и входить в приложения с их помощью."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Без пароля не будет работать защита устройства."</string>
@@ -623,8 +623,8 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Без графического ключа защита профиля работать не будет.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Сохраненные отпечатки пальцев будут удалены, поэтому вы больше не сможете снимать блокировку, совершать покупки и входить в приложения с их помощью."</string>
-    <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Без PIN-кода не будет работать защита профиля."</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"Без PIN-кода не будет работать защита профиля.<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Защита профиля не будет работать без PIN-кода."</string>
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"Защита профиля не будет работать без PIN-кода.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Сохраненные отпечатки пальцев будут удалены, поэтому вы больше не сможете снимать блокировку, совершать покупки и входить в приложения с их помощью."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"Без пароля защита профиля работать не будет."</string>
@@ -2377,9 +2377,9 @@
       <item quantity="many">Ограничить работу %1$d приложений?</item>
       <item quantity="other">Ограничить работу %1$d приложений?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Для экономии заряда батареи остановите работу приложения \"<xliff:g id="APP">%1$s</xliff:g>\" в фоновом режиме. Это может ограничить его функциональность и вызвать задержку уведомлений."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Для экономии заряда батареи остановите работу указанных приложений в фоновом режиме. Это может ограничить их функциональность и вызвать задержку уведомлений.\n\nПриложения:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Для экономии заряда батареи остановите работу указанных приложений в фоновом режиме. Это может ограничить их функциональность и вызвать задержку уведомлений.\n\nПриложения:\n<xliff:g id="APP_LIST">%1$s</xliff:g>"</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Чтобы экономить заряд батареи, отключите потребление энергии приложением \"<xliff:g id="APP">%1$s</xliff:g>\" в фоновом режиме. Приложения могут работать неправильно, а уведомления могут задерживаться."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Чтобы экономить заряд батареи, отключите потребление энергии этими приложениями в фоновом режиме. Приложения могут работать неправильно, а уведомления могут задерживаться.\n\nПриложения:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Чтобы экономить заряд батареи, отключите потребление энергии этими приложениями в фоновом режиме. Приложения могут работать неправильно, а уведомления могут задерживаться.\n\nПриложения:\n<xliff:g id="APP_LIST">%1$s</xliff:g>"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Ограничить"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Отменить ограничение?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Это приложение будет расходовать заряд батареи в фоновом режиме. Устройство разрядится быстрее, чем обычно."</string>
@@ -2671,7 +2671,7 @@
     <string name="add_account_label" msgid="4461298847239641874">"Добавить аккаунт"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Рабочий профиль пока не доступен"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Рабочий профиль"</string>
-    <string name="work_mode_on_summary" msgid="1682781113156323592">"Управляется вашей организацией."</string>
+    <string name="work_mode_on_summary" msgid="1682781113156323592">"Управляется вашей организацией"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Приложения и уведомления отключены."</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Удалить рабочий профиль"</string>
     <string name="background_data" msgid="8275750862371471171">"Фоновый режим"</string>
@@ -3113,7 +3113,7 @@
       <item quantity="many">Показать %d скрытых объектов</item>
       <item quantity="other">Показать %d скрытых объекта</item>
     </plurals>
-    <string name="network_dashboard_title" msgid="8288134139584687806">"Сеть и Интернет"</string>
+    <string name="network_dashboard_title" msgid="8288134139584687806">"Сеть и интернет"</string>
     <string name="network_dashboard_summary_mobile" msgid="5560545061217580626">"моб. сети"</string>
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"передача данных"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"точка доступа"</string>
@@ -3495,7 +3495,7 @@
       <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> категорий</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> категории</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"Для этого приложения нет уведомлений."</string>
+    <string name="no_channels" msgid="8884254729302501652">"Это приложение не отправляло уведомлений."</string>
     <string name="app_settings_link" msgid="8465287765715790984">"Доп. настройки в приложении"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Включено для всех приложений"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
@@ -3796,7 +3796,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"Доступ к истории использования"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Настройки использования приложения"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Время использования"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Доступ к истории использования позволяет отслеживать, какие приложения вы используете и как часто, а также определять оператора сети, язык и другие параметры."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Приложение сможет отслеживать, какие ещё приложения вы используете и как часто, а также определять оператора сети, язык и другие параметры."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Память"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Подробности"</string>
     <string name="always_running" msgid="5320183445080208766">"Постоянно (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3882,7 +3882,7 @@
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Разрешить приложению-помощнику доступ к изображению на экране"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Подсвечивать экран"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Подсвечивать края экрана, когда приложение-помощник получает доступ к тексту или скриншоту"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Приложения-помощники работают с информацией на экране. Для большего удобства некоторые из них поддерживают панель запуска и голосовой ввод."</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Приложения-помощники могут использовать информацию на экране. Для большего удобства некоторые из них поддерживают запуск других приложений и голосовой ввод."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Средний объем исп. памяти"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Макс. объем исп. памяти"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Используемая память"</string>
@@ -4118,7 +4118,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Посмотреть тарифный план"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Подробнее"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"Экономия трафика"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Неограниченный мобильный Интернет"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Неограниченный мобильный интернет"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Фоновый режим выключен"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Включено"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Отключено"</string>
@@ -4303,11 +4303,11 @@
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"Обновлять данные приложений автоматически"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Синхронизация аккаунта"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Синхронизация включена для некоторых элементов (<xliff:g id="ID_1">%1$d</xliff:g> из <xliff:g id="ID_2">%2$d</xliff:g>)"</string>
-    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Включена синхронизация всех компонентов"</string>
+    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Включена синхронизация всех элементов"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Синхронизация отключена для всех элементов"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Информация об управляемом устройстве"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"Изменения и настройки, управляемые организацией"</string>
-    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"Изменения и настройки, управляемые организацией \"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g>\""</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"Настройки, доступные организации \"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g>\", и внесенные ею изменения"</string>
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"Чтобы предоставить доступ к рабочим данным, ваша организация может менять настройки и устанавливать ПО на устройство.\n\nЗа дополнительной информацией обращайтесь к администратору."</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"Какие данные доступны вашей организации"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Изменения, внесенные администратором организации"</string>

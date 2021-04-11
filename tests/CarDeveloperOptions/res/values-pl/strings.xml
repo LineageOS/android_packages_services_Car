@@ -478,7 +478,7 @@
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Podnieś palec i przyłóż ponownie"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Unoś palec, by odcisk był dokładniejszy"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Odcisk palca dodany"</string>
-    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Gdy zobaczysz tę ikonę, możesz użyć odcisku palca, aby się zidentyfikować lub zatwierdzić zakup"</string>
+    <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Gdy zobaczysz tę ikonę, możesz użyć odcisku palca, aby potwierdzić swoją tożsamość lub zatwierdzić zakup."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Później"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Pominąć konfigurację odcisku palca?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Chcesz odblokowywać telefon m.in. odciskiem palca. Jeśli nie skonfigurujesz tej funkcji teraz, musisz to zrobić później. Zajmie Ci to około minuty."</string>
@@ -507,7 +507,7 @@
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Dodano maksymalną liczbę odcisków palców"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Nie można dodać więcej odcisków palców"</string>
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Usunąć wszystkie odciski palców?"</string>
-    <string name="fingerprint_delete_title" msgid="3120894112324235536">"Usuń odcisk palca „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>”"</string>
+    <string name="fingerprint_delete_title" msgid="3120894112324235536">"Usuń „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>”"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Czy chcesz usunąć ten odcisk palca?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Odcisków palców nie będzie można używać do odblokowywania telefonu, autoryzowania zakupów ani logowania się w aplikacjach"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Nie będziesz mieć możliwości używania odcisków palców, by odblokować profil służbowy, autoryzować zakupy czy logować się w aplikacjach służbowych"</string>
@@ -2319,9 +2319,9 @@
     <string name="awake" msgid="8956720170442161285">"Czas aktywności urządzenia"</string>
     <string name="wifi_on_time" msgid="2487820618265936068">"Czas z włączonym Wi-Fi"</string>
     <string name="bluetooth_on_time" msgid="6400569492287292639">"Czas z wł. Wi-Fi"</string>
-    <string name="advanced_battery_title" msgid="5026866913848464170">"Zużycie baterii"</string>
+    <string name="advanced_battery_title" msgid="5026866913848464170">"Wykorzystanie baterii"</string>
     <string name="history_details_title" msgid="8608193822257799936">"Historia – szczegóły"</string>
-    <string name="battery_details_title" msgid="5358230551490703067">"Zużycie baterii"</string>
+    <string name="battery_details_title" msgid="5358230551490703067">"Wykorzystanie baterii"</string>
     <string name="details_subtitle" msgid="7279638828004951382">"Szczegóły użycia"</string>
     <string name="controls_subtitle" msgid="6920199888882834620">"Dostosuj wykorzystanie energii"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Dołączone pakiety"</string>
@@ -2504,9 +2504,9 @@
     <string name="battery_footer_summary" msgid="4828444679643906943">"Dane o wykorzystaniu baterii są przybliżone i mogą się zmienić w zależności od wykorzystania"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Podczas aktywnej pracy"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"W tle"</string>
-    <string name="battery_detail_power_usage" msgid="3606930232257489212">"Zużycie baterii"</string>
+    <string name="battery_detail_power_usage" msgid="3606930232257489212">"Wykorzystanie baterii"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Od pełnego naładowania"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"Zarządzaj zużyciem baterii"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"Zarządzaj wykorzystaniem baterii"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Pozostały czas pracy na baterii jest szacowany na podstawie wykorzystania urządzenia"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"Szacowany pozostały czas"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"Do pełnego naładowania"</string>
@@ -4217,7 +4217,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Wyłącz czujniki"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Ustawienia profilu służbowego"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Wyszukiwanie kontaktów"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Zezwalaj na wyszukiwanie kontaktów do identyfikacji rozmówców i kontaktów przez Twoją organizację"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Zezwalaj swojej organizacji na wyszukiwanie kontaktów do identyfikacji rozmówców i kontaktów"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Wszystkie profile w kalendarzu"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Pokazuj zdarzenia w profilu służbowym w kalendarzu osobistym"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Twoja organizacja nie zezwala aplikacjom osobistym na dostęp do Twojego kalendarza służbowego"</string>

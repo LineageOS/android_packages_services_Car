@@ -2676,7 +2676,7 @@
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Oyning qaysi kunida trafik sarfi davri yangilansin:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Ushbu vaqt oralig‘ida hech qanday ilova trafik sarflamadi."</string>
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"Faol rejim"</string>
-    <string name="data_usage_label_background" msgid="1618794447370396845">"Orqa fon rejimi"</string>
+    <string name="data_usage_label_background" msgid="1618794447370396845">"Fon rejimi"</string>
     <string name="data_usage_app_restricted" msgid="7569077654579299326">"cheklangan"</string>
     <string name="data_usage_disable_mobile" msgid="4125335076749119451">"Mobil internet uzilsinmi?"</string>
     <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Mobil trafikka cheklov o‘rnatish"</string>
@@ -2695,7 +2695,7 @@
     <string name="data_usage_enable_4g" msgid="8872517106293561179">"4G trafik"</string>
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"Rouming"</string>
     <string name="data_usage_forground_label" msgid="8992577451178005406">"Faol rejim:"</string>
-    <string name="data_usage_background_label" msgid="8460891123904985128">"Orqa fon rejimi:"</string>
+    <string name="data_usage_background_label" msgid="8460891123904985128">"Fon rejimi:"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Ilova sozlamalari"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Fon rejimi"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Orqa fonda mobil internetdan foydalanish imkoniyati"</string>
@@ -3388,10 +3388,10 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Oʻrnatilgan ilovalar Tasvir ustida tasvir rejimi bilan mos emas"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"tasvir ustida tasvir"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Tasvir ustida tasvir"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Tasvir ustida tasvir rejimiga ruxsat berish"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Tasvir ustida tasvir rejimiga ruxsat"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Bu ilova ochiqligida yoki uni qoldirib ketganingizda (masalan, video tomosha qilishni davom ettirish uchun) bu ilova Tasvir ustida tasvir rejimida ishlashiga ruxsat bering. Bu oyna boshqa ishlatilayotgan ilovalar ustida ochiladi."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Bezovta qilinmasin rejimi"</string>
-    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Bezovta qilinmasin ruxsatini berish"</string>
+    <string name="zen_access_detail_switch" msgid="8706332327904974500">"Bezovta qilinmasin rejimiga ruxsat"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Hech qanday ilova “Bezovta qilinmasin” funksiyasiga ruxsat so‘ramagan"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Ilovalar yuklanmoqda…"</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android ushbu ilova bildirishnomalarini ekranga chiqarmaydi"</string>
@@ -3679,7 +3679,7 @@
     <string name="system_default_app" msgid="1454719098589351197">"(birlamchi)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"Ilovalar xotirasi"</string>
     <string name="usage_access" msgid="2023443456361489516">"Foydalanish tarixiga kirish"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"Foydalanish tarixiga kirishga ruxsat berish"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"Foydalanish tarixiga ruxsat"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Ilovadan foydalanish sozlamalari"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Foydalanish vaqti"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"Foydalanish tarixiga kirish huquqi qanday ilovalardan va qancha muddatda foydalanishingiz, shuningdek, tarmoq operatori, til  va boshqa parametrlarni kuzatish imkonini beradi."</string>
@@ -3825,7 +3825,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"Bu ruxsatnoma ilovaga tizim sozlamalarini o‘zgaritish uchun ruxsat beradi."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Ha"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Yo‘q"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"Bu manbaga ruxsat bering"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"Bu manbaga ruxsat"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"Kamera uchun bilakni ikki marta bukish"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Kamera ilovasini ochish uchun bilagingizni ikki marta buking"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Kamerani tezkor ishga tushirish"</string>
@@ -4067,9 +4067,9 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Hammasi"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Yordam va maslahatlar"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Eng kichik eni"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"O‘rnatilgan ilovalardan hech biri SMSdan foydalanish uchun ruxsat so‘ramagan."</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"O‘rnatilgan ilovalardan hech biri pulli SMS yuborish uchun ruxsat so‘ramagan"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"SMS uchun sizdan haq olinishi va operatorga qo‘shimcha to‘lov amalga oshirilishi mumkin. Agar ilova uchun ruxsatnoma taqdim etsangiz, o‘sha ilovadan SMS yuborishingiz mumkin bo‘ladi."</string>
-    <string name="premium_sms_access" msgid="4550027460595822851">"Pulli SMS xabarlarga ruxsat"</string>
+    <string name="premium_sms_access" msgid="4550027460595822851">"Pulli SMS yuborishga ruxsat"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Yoqilmagan"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> qurilmasiga ulangan"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Bir nechta qurilmaga ulangan"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Hisob"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Qurilma nomi"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi tarmoqlarni boshqarish"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Ilovaga Wi-Fi aloqasini boshqarish uchun ruxsat berish"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Wi-Fi aloqasini boshqarishga ruxsat"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Bu ilovaga Wi-Fi aloqasini yoqish yoki faolsizlantirish, Wi-Fi tarmoqlarni aniqlash va ularga ulanish, tarmoqlar qo‘shish yoki olib tashlash yoki faqat mahalliy hotspot boshlash uchun ruxsat berish"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Yoqish"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Shu qurilma"</string>

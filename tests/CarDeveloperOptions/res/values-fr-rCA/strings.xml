@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"découpe d\'affichage, encoche"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Valeurs par défaut de l\'appareil"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Impossible d\'appliquer la superposition"</string>
-    <string name="special_access" msgid="1453926335914696206">"Accès spéciaux applis"</string>
+    <string name="special_access" msgid="1453926335914696206">"Accès spéciaux aux applis"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> application peut utiliser les données sans restriction</item>
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> applications peuvent utiliser les données sans restriction</item>

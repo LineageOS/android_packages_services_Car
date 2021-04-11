@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Penggunaan baterai rendah"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Pemindaian Wi‑Fi dan Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Pemindaian Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Izinkan aplikasi dan layanan untuk memindai jaringan Wi-Fi kapan saja, meski Wi-Fi nonaktif. Ini dapat dilakukan, misalnya, untuk menyempurnakan fitur dan layanan berbasis lokasi."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Izinkan aplikasi dan layanan untuk memindai jaringan Wi-Fi kapan saja, meski Wi-Fi nonaktif. Ini dapat dilakukan, misalnya, untuk meningkatkan fitur dan layanan berbasis lokasi."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Pemindaian Bluetooth"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Izinkan aplikasi dan layanan untuk memindai perangkat di sekitar kapan saja, meski Bluetooth nonaktif. Ini dapat dilakukan, misalnya, untuk menyempurnakan fitur dan layanan berbasis lokasi."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Izinkan aplikasi dan layanan untuk memindai perangkat di sekitar kapan saja, meski Bluetooth nonaktif. Ini dapat dilakukan, misalnya, untuk meningkatkan fitur dan layanan berbasis lokasi."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Layanan lokasi untuk profil kerja"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Lokasi Wi-Fi &amp; seluler"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Izinkan aplikasi menggunakan layanan lokasi Google untuk memperkirakan lokasi Anda dengan lebih cepat. Data lokasi anonim akan dikumpulkan dan dikirim ke Google."</string>
@@ -2506,7 +2506,7 @@
     <string name="voice_input_settings" msgid="4983011614890521505">"Setelan masukan suara"</string>
     <string name="voice_input_settings_title" msgid="6865032806501269306">"Masukan suara"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"Layanan masukan suara"</string>
-    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Kata cepat dan interaksi lengkap"</string>
+    <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Frasa pengaktif dan interaksi lengkap"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Speech to text yang sederhana"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Layanan masukan suara ini akan dapat melakukan pemantauan suara yang selalu aktif dan mengontrol aplikasi yang aktif untuk suara atas nama Anda. Layanan ini berasal dari aplikasi <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>. Aktifkan penggunaan layanan ini?"</string>
     <string name="tts_engine_preference_title" msgid="1183116842356275061">"Mesin yang dipilih"</string>
@@ -2697,8 +2697,8 @@
     <string name="data_usage_forground_label" msgid="8992577451178005406">"Latar depan:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"Latar belakang:"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Setelan aplikasi"</string>
-    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Kuota latar belakang"</string>
-    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Aktifkan penggunaan kuota seluler di latar belakang"</string>
+    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Data latar belakang"</string>
+    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Aktifkan penggunaan data seluler di latar belakang"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Untuk membatasi data latar belakang pada apl ini, setel batas data seluler terlebih dulu."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Batasi data latar belakang?"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Fitur ini dapat menghentikan aplikasi yang bergantung pada data latar saat hanya ada jaringan seluler.\n\nAnda dapat menemukan kontrol penggunaan data yang lebih sesuai dalam setelan yang tersedia dalam aplikasi."</string>
@@ -3785,7 +3785,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Frekuensi"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Penggunaan maksimum"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Tidak ada kuota yang digunakan"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Tidak ada data seluler yang digunakan"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Izinkan akses ke status Jangan Ganggu untuk <xliff:g id="APP">%1$s</xliff:g>?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Aplikasi akan dapat mengaktifkan/menonaktifkan status Jangan Ganggu dan mengubah setelan terkait."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Harus tetap aktif karena akses notifikasi juga aktif"</string>
@@ -4067,7 +4067,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Semua"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Tips &amp; dukungan"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Lebar terkecil"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Tidak ada aplikasi yang terpasang yang meminta akses SMS Premium"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Tidak ada aplikasi terinstal yang meminta akses SMS Premium"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"SMS Premium mungkin memerlukan biaya dan akan menambah tagihan operator. Jika izin aplikasi diaktifkan, Anda dapat mengirim SMS premium menggunakan aplikasi tersebut."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Akses SMS Premium"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Nonaktif"</string>

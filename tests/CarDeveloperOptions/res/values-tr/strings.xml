@@ -598,35 +598,35 @@
     <string name="unlock_disable_frp_warning_content_pattern" msgid="1843950215687159135">"Cihaz koruma özellikleri deseniniz olmadan çalışmayacak."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Cihaz koruma özellikleri deseniniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilen dijital parmak iziniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Cihaz koruma özellikleri PIN\'iniz olmadan çalışmayacak."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Cihaz koruma özellikleri PIN\'iniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilmiş dijital parmak iziniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Cihaz koruma özellikleri şifreniz olmadan çalışmayacak."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Cihaz koruma özellikleri şifreniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilen dijital parmak iziniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Cihaz koruma özellikleri ekran kilidi olmadan çalışmayacak."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Cihaz koruma özellikleri ekran kilidi olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilmiş dijital parmak iziniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu cihazdan kaldırılacak ve telefonunuzun kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"Profil koruma özellikleri deseniniz olmadan çalışmayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Profil koruma özellikleri deseniniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilmiş dijital parmak iziniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Profil koruma özellikleri PIN\'iniz olmadan çalışmayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"Profil koruma özellikleri PIN\'iniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilmiş dijital parmak iziniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"Profil koruma özellikleri şifreniz olmadan çalışmayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"Profil koruma özellikleri şifreniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilen dijital parmak iziniz de bu cihazdan kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu cihazdan kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"Profil koruma özellikleri ekran kilidiniz olmadan çalışmayacaktır."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"Profil koruma özellikleri ekran kilidiniz olmadan çalışmayacaktır.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>Kaydedilmiş dijital parmak iziniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
+</xliff:g>Kaydedilmiş dijital parmak izleriniz de bu profilden kaldırılacak ve profilinizin kilidini açmak, satın alma işlemlerine yetki vermek veya uygulamalarda oturum açmak için kullanılamayacaktır."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Evet, kaldır"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Kilit açma desenini değiştir"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Kilit açma PIN\'ini değiştir"</string>
@@ -1662,7 +1662,7 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Düşük pil kullanımı"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Kablosuz ağ ve Bluetooth taraması"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Kablosuz ağ taraması"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Uygulamaların ve hizmetlerin kablosuz ağları Kablosuz özelliği kapalıyken bile her zaman taramasına izin verin. Bu özellik, örneğin, konuma dayalı özellikleri ve hizmetleri iyileştirmek için kullanılabilir."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Uygulamaların ve hizmetlerin kablosuz ağları Kablosuz özelliği kapalıyken bile her zaman taramasına izin verir. Bu özellik, örneğin, konuma dayalı özellikleri ve hizmetleri iyileştirmek için kullanılabilir."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth taraması"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Uygulamaların ve hizmetlerin etrafınızdaki cihazları Bluetooth kapalıyken bile her zaman taramasına izin verin. Bu özellik, örneğin, konuma dayalı özellikleri ve hizmetleri iyileştirmek için kullanılabilir."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"İş için konum hizmetleri"</string>
@@ -1689,7 +1689,7 @@
     <string name="contributors_title" msgid="6800028420806884340">"Katkıda bulunanlar"</string>
     <string name="manual" msgid="5431859421432581357">"Manuel"</string>
     <string name="regulatory_labels" msgid="380968489247381025">"Yönetmelik etiketleri"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Güvenlik ve mevzuat kılavuzu"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Güvenlik ve yönetmelik kılavuzu"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Telif Hakkı"</string>
     <string name="license_title" msgid="7582145947873528540">"Lisans"</string>
     <string name="terms_title" msgid="1804549588198223771">"Şartlar ve koşullar"</string>
@@ -3761,7 +3761,7 @@
     <string name="assist_access_context_title" msgid="2274614501747710439">"Ekrandaki metni kullan"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Asistan uygulamasının metin biçimindeki ekran içeriklerine erişmesine izin ver"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Ekran görüntüsü kullan"</string>
-    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Asistan uygulamasının ekrandaki bir resme erişmesine izin ver"</string>
+    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Asistan uygulamasının ekranın görüntüsüne erişmesine izin ver"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Ekranda ışık yakıp söndür"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Asistan uygulaması, ekrandan veya ekran görüntüsünden metne eriştiğinde ekran kenarlarında ışık yakıp söndür"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Asistan uygulamaları, görüntülemekte olduğunuz ekrandaki bilgilere dayalı olarak size yardım edebilir. Bazı uygulamalar, entegre yardım sağlamak için hem başlatıcıyı hem de ses girişi hizmetlerini destekler."</string>
@@ -3822,7 +3822,7 @@
     <string name="write_settings_title" msgid="5852614614193830632">"Sistem ayarlarını değiştirebilir"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Sistem ayarlarını değiştir"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Sistem ayarlarının değiştirilmesine izin ver"</string>
-    <string name="write_settings_description" msgid="2536706293042882500">"Bu izin, bir uygulanın sistem ayarlarını değiştirmesine olanak sağlar."</string>
+    <string name="write_settings_description" msgid="2536706293042882500">"Bu izin, bir uygulamanın sistem ayarlarını değiştirmesine olanak sağlar."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Evet"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Hayır"</string>
     <string name="external_source_switch_title" msgid="5947220058496373178">"Bu kaynaktan izin verin"</string>
@@ -4176,7 +4176,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Cihazınızdaki uygulamaların listesi"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Her uygulamada harcanan zaman ve veri miktarı"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"En son ağ trafiği günlüğü"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"En son hata raporu"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"En yeni hata raporu"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"En son güvenlik günlüğü"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"Yok"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"Yüklü uygulamalar"</string>

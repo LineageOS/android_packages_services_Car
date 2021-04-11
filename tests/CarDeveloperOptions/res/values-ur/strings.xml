@@ -904,7 +904,7 @@
     <string name="wifi_ssid" msgid="6746270925975522641">"نیٹ ورک کا نام"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID درج کریں"</string>
     <string name="wifi_security" msgid="9136702039496152831">"سیکیورٹی"</string>
-    <string name="wifi_hidden_network" msgid="6647772204699776833">"نیٹ ورک مخفی ہے"</string>
+    <string name="wifi_hidden_network" msgid="6647772204699776833">"پوشیدہ نیٹ ورک"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"اگر آپ کا روٹر کوئی نیٹ ورک ID نشر نہیں کر رہا ہے لیکن آپ مستقبل میں اس سے منسلک ہونا چاہتے ہیں، تو آپ نیٹ ورک کو مخفی کے بطور سیٹ کر سکتے ہیں۔\n\nاس سے سیکیورٹی کا خطرہ پیدا ہو سکتا ہے کیونکہ آپ کا فون نیٹ ورک تلاش کرنے کیلئے مستقل طور پر اپنا سگنل نشر کرے گا۔\n\nنیٹ ورک کو بطور مخفی سیٹ کرنے سے آپ کے روٹر کی ترتیبات تبدیل نہیں ہوں گی۔"</string>
     <string name="wifi_signal" msgid="696548364467704808">"سگنل کی قوت"</string>
     <string name="wifi_status" msgid="3439931558930689940">"اسٹیٹس"</string>
@@ -1360,7 +1360,7 @@
     <string name="status_wifi_mac_address" msgid="3868452167971295995">"Wi‑Fi MAC پتہ"</string>
     <string name="status_bt_address" msgid="460568179311735657">"بلوٹوتھ پتہ"</string>
     <string name="status_serial_number" msgid="8257722124627415159">"سیریل نمبر"</string>
-    <string name="status_up_time" msgid="77128395333934087">"چلنے کا وقت"</string>
+    <string name="status_up_time" msgid="77128395333934087">"آلہ اتنی دیر سے چل رہا ہے"</string>
     <string name="status_awake_time" msgid="1251959094010776954">"بیداری کا وقت"</string>
     <string name="internal_memory" msgid="8632841998435408869">"داخلی اسٹوریج"</string>
     <string name="sd_memory" product="nosdcard" msgid="1377713983817298275">"USB اسٹوریج"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"علاوہ اس کے کہ کوئی دوسری ادائیگی ایپ کھلی ہو"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"تھپتھپائیں اور ادائیگی کریں ٹرمینل پر، اس کے ساتھ ادائیگی کریں:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ٹرمینل پر ادا کرنا"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ادائیگی کی ایپ سیٹ اپ کریں۔ پھر بس اپنے فون کے پچھلے حصے کو کسی بھی بغیر رابطے والی علامت کے ٹرمینل کے پاس پکڑ کر رکھیں۔"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ادائیگی کی ایپ سیٹ اپ کریں۔ پھر بس اپنے فون کے پچھلے حصے کو کسی بھی کنٹیکٹ لیس علامت کے ٹرمینل کے پاس پکڑ کر رکھیں۔"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"سمجھ آ گئی"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"مزید…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"اپنی ترجیح کے بطور سیٹ کریں؟"</string>
@@ -4162,12 +4162,12 @@
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"خود کار طور پر دفتری ڈیٹا سنک کریں"</string>
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"ایپس کو خود کار طور پر ڈیٹا ریفریش کرنے دیں"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"اکاؤنٹ کی مطابقت پذیری"</string>
-    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> میں سے <xliff:g id="ID_1">%1$d</xliff:g> آئٹمز کیلئے مطابق پذیری آن ہے"</string>
+    <string name="account_sync_summary_some_on" msgid="1934556869158274053">"<xliff:g id="ID_2">%2$d</xliff:g> میں سے <xliff:g id="ID_1">%1$d</xliff:g> آئٹمز کیلئے مطابقت پذیری آن ہے"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"تمام آئٹمز کیلئے مطابقت پذیری آن ہے"</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"تمام آئٹمز کیلئے مطابقت پذیری آف ہے"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"نظم کردہ آلے کی معلومات"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"آپ کی تنظیم کے ذریعے نظم کردہ ترتیبات اور تبدیلیاں"</string>
-    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> کے ذریعے نظم کردہ ترتیبات اور تبدیلیاں"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"‫<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> کے ذریعے نظم کردہ ترتیبات اور تبدیلیاں"</string>
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"آپ کے دفتری ڈیٹا تک رسائی فراہم کرنے کیلئے، آپ کی تنظیم ترتیبات تبدیل کر کے آپ کے آلے پر سافٹ ویئر انسٹال کر سکتی ہے۔\n\nمزید تفصیلات کیلئے، اپنی تنظیم کے منتظم سے رابطہ کریں۔"</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"معلومات کی وہ قسمیں جنہیں آپ کی تنظیم دیکھ سکتی ہے"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"آپ کی تنظیم کے منتظم کے ذریعے کی گئی تبدیلیاں"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(صارف کے لیے غیر فعال ہوگیا <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"آٹو فل سروس"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"آٹو، فل، آٹو فل"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;یہ یقینی بنائیں کہ آپ کو اس ایپ پر اعتماد ہے&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt;  آٹو فل کی جانے والی چیزوں کی تعیین کرنے کیلئے آپ کی اسکرین پر موجود چیزوں کو استعمال کرتا ہے۔"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;یہ یقینی بنائیں کہ آپ کو اس ایپ پر اعتماد ہے&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; ‫&lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; آٹو فل کی جا سکنے والی چیزوں کی تعیین کرنے کیلئے آپ کی اسکرین پر موجود چیزوں کو استعمال کرتا ہے۔"</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"آٹو فل"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"لاگنگ کی سطح"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"فی سیشن زیادہ سے زیادہ درخواستیں"</string>
