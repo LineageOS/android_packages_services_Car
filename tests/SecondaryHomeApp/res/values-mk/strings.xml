@@ -19,6 +19,6 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="app_name" msgid="1232190134475133062">"SecondaryHomeApp"</string>
     <string name="app_launcher" msgid="3285007106222765396">"Стартер на SecHome"</string>
-    <string name="launch_fail_msg" msgid="2935729218024647088">"Не можеше да се стартува"</string>
+    <string name="launch_fail_msg" msgid="2935729218024647088">"Не може да се стартува"</string>
     <string name="clear_all" msgid="7403807937179450743">"Исчисти сѐ"</string>
 </resources>
