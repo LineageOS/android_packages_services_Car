@@ -45,5 +45,5 @@
     <string name="toast_status_dump_state_failed" msgid="8072469535227541761">"डंप स्थितीवर बदलता आले नाही"</string>
     <string name="notification_bugreport_in_progress" msgid="8486454116357963238">"बग रिपोर्ट तयार करणे प्रगतिपथावर आहे"</string>
     <string name="notification_bugreport_finished_title" msgid="3970195939909624320">"बग रिपोर्ट गोळा केला"</string>
-    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"बग रिपोर्ट स्थिती चॅनेल"</string>
+    <string name="notification_bugreport_channel_name" msgid="776902295433824255">"बग रिपोर्ट स्थिती चॅनल"</string>
 </resources>
