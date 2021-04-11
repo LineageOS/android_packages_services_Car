@@ -3365,10 +3365,10 @@
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"عند تفعيل إعداد \"عدم الإزعاج\""</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"تقييد الإشعارات"</string>
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"بدون تنبيهات صوتية من الإشعارات"</string>
-    <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"سترى الإشعارات على شاشتك"</string>
+    <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"سترى الإشعارات على شاشتك."</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"عند ظهور إشعارات، لن يُصدر هاتفك صوتًا أو يهتزّ."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"بدون تنبيهات مرئيّة أو صوتية من الإشعارات"</string>
-    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"لن ترى أو تسمع الإشعارات"</string>
+    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"لن ترى أو تسمع الإشعارات."</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"لن يهتز هاتفك للإشعارات الجديدة أو الحالية ولن يعرضها ولن يُصدِر تنبيهات صوتية لها. ملاحظة: ستستمر الإشعارات المهمّة عن نشاط الهاتف وحالته في الظهور.\n\nعندما توقِف وضع \"عدم الإزعاج\"، يمكنك العثور على الإشعارات الفائتة من خلال التمرير سريعًا للأسفل من أعلى الشاشة."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"الإعدادات المخصّصة"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"تفعيل الإعداد المخصّص"</string>
@@ -3458,7 +3458,7 @@
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"هل تريد تغيير إعدادات إشعار \"الرجاء عدم الإزعاج\"؟"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"أصوات الملف الشخصي للعمل"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"استخدام أصوات الملف الشخصي"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"يتم استخدام الأصوات نفسها للملف الشخصي وملف العمل الشخصي"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"يتم استخدام الأصوات نفسها لكل من الملف الشخصي للعمل والملف الشخصي."</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"نغمة رنين هاتف العمل"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"الصوت التلقائي للإشعارات"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"الصوت التلقائي لمنبّه العمل"</string>

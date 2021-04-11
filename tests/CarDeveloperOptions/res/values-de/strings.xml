@@ -3747,7 +3747,7 @@
     <string name="usb_control_device" msgid="9154790265254725254">"Dieses Gerät"</string>
     <string name="usb_switching" msgid="1230386065163529904">"Wird gewechselt…"</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"Wechsel nicht möglich"</string>
-    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Gerät aufladen"</string>
+    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Dieses Gerät aufladen"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Verbundenes Gerät wird aufgeladen"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Dateiübertragung"</string>
     <string name="usb_summary_tether" msgid="778845069037366883">"USB-Tethering"</string>
@@ -4084,7 +4084,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Sensoren aus"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Einstellungen für Arbeitsprofil"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Suche nach Kontakten"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Suche nach Kontakten durch deine Organisation erlauben, um Anrufer und Kontakte zu identifizieren"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Deiner Organisation erlauben, nach Kontakten zu suchen, um Anrufer und Kontakte zu identifizieren"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Profilübergreifender Kalender"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Geschäftliche Termine in meinem persönlichen Kalender anzeigen"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Deine Organisation lässt den Zugriff privater Apps auf deinen Arbeitskalender nicht zu"</string>

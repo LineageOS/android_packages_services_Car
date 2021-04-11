@@ -181,7 +181,7 @@
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Le Bluetooth sera activé pour permettre l\'association"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Préférences de connexion"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Appareils connectés précédemment"</string>
-    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Connecté précedemment"</string>
+    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Connecté précédemment"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth activé"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"Tout afficher"</string>
     <string name="date_and_time" msgid="2957463607025909857">"Date et heure"</string>
@@ -771,11 +771,11 @@
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Impossible de se connecter. Réessayez."</string>
     <string name="device_details_title" msgid="726517818032923222">"Infos sur l\'appareil"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Adresse Bluetooth de l\'appareil : <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Dissocier l\'appareil ?"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Oublier l\'appareil ?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Votre téléphone ne sera plus associé à \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\""</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Votre tablette ne sera plus associée à \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\""</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Votre appareil ne sera plus associé à \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\""</string>
-    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Dissocier l\'appareil"</string>
+    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Oublier l\'appareil"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Se connecter à…"</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sera déconnecté de l\'audio du support."</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> sera déconnecté de l\'audio en mains libres."</string>
@@ -2924,7 +2924,7 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Toujours"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Sauf si une autre application de paiement est ouverte"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Application à utiliser pour le paiement sans contact :"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Paiement à un terminal"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Payer sur un terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configurez une application de paiement. Il suffit ensuite d\'approcher l\'arrière de votre appareil de n\'importe quel terminal disposant du symbole Sans contact."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"OK"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Plus..."</string>
@@ -3144,7 +3144,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Son de notification par défaut"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Son fourni par l\'application"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Son de notification par défaut"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Son de l\'alarme par défaut"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Sonnerie du réveil"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibreur pour les appels"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Autres sons"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Sons du clavier numérique"</string>
@@ -3177,17 +3177,17 @@
     <string name="zen_mode_behavior_total_silence" msgid="371498357539257671">"Aucune interruption"</string>
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Aucun son, sauf <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Aucun son, sauf alarmes et médias"</string>
-    <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Plages horaires"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Supprimer des plages horaires"</string>
+    <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Programmes"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Supprimer des programmes"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Supprimer"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Modifier"</string>
-    <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Plages horaires"</string>
+    <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Programmes"</string>
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Programmer"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Programme"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Tél. en silence à certains moments"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Définir les règles du mode Ne pas déranger"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Programmer"</string>
-    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Programmer des plages horaires"</string>
+    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Utiliser ce programme"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Prioritaires uniquement"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"Alarmes uniquement"</string>
     <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"Aucune interruption"</string>
@@ -3252,8 +3252,8 @@
     </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> minutes (sauf en cas d\'activation automatique)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
-      <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> planification peut être activée automatiquement</item>
-      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> planifications peuvent être activées automatiquement</item>
+      <item quantity="one"><xliff:g id="ON_COUNT">%d</xliff:g> programme peut s\'activer automatiquement</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> programmes peuvent s\'activer automatiquement</item>
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"Couper le son de l\'appareil, mais autoriser les exceptions"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Exceptions"</string>
@@ -3283,9 +3283,9 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Sons du profil professionnel"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utiliser les sons du profil perso"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Les sons des profils professionnel et personnel sont identiques"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone professionnel"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son des notifications pro par défaut"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Son de l\'alarme professionnelle par défaut"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone pro"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son des notifications pro"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonnerie du réveil pro"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Mêmes sons que pour le profil professionnel"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Remplacer des sons ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Remplacer"</string>
@@ -3435,14 +3435,14 @@
     <string name="notification_channel_sound_title" msgid="7635366839003304745">"Signal sonore"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"Supprimer"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"Renommer"</string>
-    <string name="zen_mode_rule_name" msgid="8583652780885724670">"Nom de la plage horaire"</string>
-    <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Saisissez le nom de plage horaire"</string>
-    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Ce nom de plage horaire est déjà utilisé"</string>
+    <string name="zen_mode_rule_name" msgid="8583652780885724670">"Nom du programme"</string>
+    <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Saisissez le nom du programme"</string>
+    <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Ce nom de programme est déjà utilisé"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Ajouter"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Ajouter une plage horaire liée à un événement"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Ajouter planification basée sur l\'heure"</string>
-    <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Supprimer la planification"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Sélectionner le type de plage horaire"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Ajouter un programme selon l\'événement"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Ajouter un programme selon l\'heure"</string>
+    <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Supprimer le programme"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Sélectionner le type de programme"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Supprimer la règle \"<xliff:g id="RULE">%1$s</xliff:g>\" ?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Supprimer"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Inconnu"</string>
@@ -3453,8 +3453,8 @@
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Règle automatique pour activer le mode \"Ne pas déranger\" aux heures indiquées"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Événement"</string>
     <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Règle automatique pour activer le mode \"Ne pas déranger\" pendant les événements indiqués"</string>
-    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Durant les événements pour"</string>
-    <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"Durant les événements pour <xliff:g id="CALENDAR">%1$s</xliff:g>"</string>
+    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Pendant les événements de"</string>
+    <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"Pendant les événements de <xliff:g id="CALENDAR">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"tous les agendas"</string>
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Si la réponse est <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Tous les agendas"</string>
@@ -3469,11 +3469,11 @@
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Aucun"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Tous les jours"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"L\'alarme peut remplacer l\'heure de fin"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"La fonctionnalité sera désactivée lorsqu\'une alarme sonnera"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Le programme se désactive lorsqu\'une alarme sonne"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Comportement du mode Ne pas déranger"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Utiliser les paramètres par défaut"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Créer des paramètres personnalisés pour cette plage horaire"</string>
-    <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Pendant la plage horaire \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Créer des paramètres personnalisés pour ce programme"</string>
+    <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Pour \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> – <xliff:g id="END">%2$s</xliff:g>"</string>
     <string name="summary_range_verbal_combination" msgid="8799629589758200970">"Du <xliff:g id="START">%1$s</xliff:g> au <xliff:g id="END">%2$s</xliff:g>"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"Configurer"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Autres applications incluses dans la consommation"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> application est autorisée à utiliser des données sans restrictions lorsque l\'économiseur de données est activé</item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> applications sont autorisées à utiliser des données sans restrictions lorsque l\'économiseur de données est activé</item>
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> application autorisée à utiliser des données sans restrictions lorsque l\'économiseur de données est activé</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> applications autorisées à utiliser des données sans restrictions lorsque l\'économiseur de données est activé</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Données principales"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Données Wi-Fi"</string>

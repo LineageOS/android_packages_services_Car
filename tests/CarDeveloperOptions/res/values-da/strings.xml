@@ -3212,7 +3212,7 @@
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Når skærmen er tændt"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Når skærmen er slukket"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Slå lyd og vibration fra"</string>
-    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Aktiver ikke skærmen"</string>
+    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Aktivér ikke skærmen"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Undlad at bruge blinkende lys"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Undlad at vise notifikationer på skærmen"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Skjul statusbjælkeikoner øverst på skærmen"</string>

@@ -181,7 +181,7 @@
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth жұптау үшін қосылады"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Байланыс параметрлері"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Бұрын жалғанған құрылғылар"</string>
-    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Бұрын қосылған"</string>
+    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Бұрын жалғанған"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth қосылды"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"Барлығын көру"</string>
     <string name="date_and_time" msgid="2957463607025909857">"Күн және уақыт"</string>
@@ -772,9 +772,9 @@
     <string name="device_details_title" msgid="726517818032923222">"Құрылғы мәліметтері"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Құрылғының Bluetooth мекенжайы: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Құрылғы ұмытылсын ба?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефон <xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысымен байланыстан ажыратылады"</string>
-    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Планшет <xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысымен байланыстан ажыратылады"</string>
-    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Құрылғы <xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысымен байланыстан ажыратылады"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефон мен <xliff:g id="DEVICE_NAME">%1$s</xliff:g> байланысы ажырайды."</string>
+    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Планшет пен <xliff:g id="DEVICE_NAME">%1$s</xliff:g> байланысы ажырайды."</string>
+    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Құрылғы мен <xliff:g id="DEVICE_NAME">%1$s</xliff:g> байланысы ажырайды."</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Құрылғыны ұмыту"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"…қосылу"</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> медиа аудиосынан ажыратылады."</string>
@@ -800,7 +800,7 @@
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Байланыстырылған Bluetooth аудиоқұрылғылардың максималды санын таңдау"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Трансляция"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Сымсыз дисплейді қосу"</string>
-    <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Маңайдан құрылғылар табылмады"</string>
+    <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Маңайдан құрылғылар табылмады."</string>
     <string name="wifi_display_status_connecting" msgid="3799827425457383349">"Қосылуда"</string>
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Жалғанған"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"Қолданыста"</string>
@@ -826,7 +826,7 @@
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"NFC желісін қосу"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"NFC арқылы бұл құрылғы басқа маңайдағы құрылғылармен не нысандармен, соның ішінде төлем терминалдарымен, кіру деректерін оқу құралдармен және интеративті жарнамалармен немесе тэгтермен деректер алмасады."</string>
     <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Қауіпсіз NFC"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Экранның құлпы ашық тұрғанда ғана, NFC арқылы төлем жасауға және жолақыны төлеуге рұқсат ету"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Экран құлпы ашық тұрғанда ғана, NFC арқылы төлем жасауға және жолақы төлеуге рұқсат ету"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Қолданба мазмұнын NFC арқылы жіберуге әзір"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Өшірулі"</string>
@@ -1185,7 +1185,7 @@
     <string name="brightness" msgid="7309120144111305275">"Жарықтық деңгейі"</string>
     <string name="brightness_title" msgid="5660190946911149690">"Жарықтығы"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"Экранның жарықтығын реттеу"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"Бейімделгіш жарықтық"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"Жарықтықты бейімдеу"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"Қосулы"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"Өшірулі"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"Өте төмен жарық деңгейі таңдалған"</string>
@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Қолжетімді жарықтандыруға сәйкес реттемеу"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Батарея заряды тезірек таусылады"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Қолжетімді жарықтандыруға сәйкес жарық деңгейін оңтайландырыңыз. Бұл функция қосулы кезде, жарық деңгейін уақытша реттей аласыз."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Экран жарықтығы қоршаған ортаға және әрекеттерге автоматты түрде бейімделеді. Бейімделгіш жарықтық параметрлерде сақталуы үшін, жүгірткіні қолмен жылжытуыңызға болады."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Экран жарықтығы қоршаған ортаға және әрекеттерге автоматты түрде бейімделеді. Жүгірткіні қолмен жылжытуыңызға болады."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Дисплейдің ақ түс балансы"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Адаптивті ұйқы режимі"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Қосулы кезде экранға қарап тұрсаңыз, ол өшпейді."</string>
@@ -2212,7 +2212,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"Қызмет қосу"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Принтер қосу"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Іздеу"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"Принтерлерді іздеуде"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"Принтерлер ізделуде"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"Қызмет өшірілген"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"Басу жұмыстары"</string>
     <string name="print_print_job" msgid="6846889971435170443">"Баспа жұмысы"</string>
@@ -3115,7 +3115,7 @@
     <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"экранды күңгірттеу, ұйқы режимі, батарея, күту уақыты, назар, дисплей, экран, әрекетсіздік"</string>
     <string name="keywords_auto_rotate" msgid="4320791369951647513">"бұру, аудару, айналдыру, портреттік, альбомдық, бағыт, тік, көлденең"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"жаңа нұсқа орнату, Android"</string>
-    <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"мазаламау, кесте, хабарландырулар, бөгеу, дыбыссыз режим, діріл, ұйқы, жұмыс, ерекшелеу, дыбыс, дыбысын өшіру, күн, жұмыс күні, демалыс күндері, жұмыс күнгі кеш, оқиға"</string>
+    <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"мазаламау, кесте, хабарландырулар, бөгеу, үнсіз режим, діріл, ұйқы, жұмыс, ерекшелеу, дыбыс, дыбысын өшіру, күн, жұмыс күні, демалыс күндері, жұмыс күнгі кеш, оқиға"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"экран, құлыптау уақыты, күту уақыты, құлыптау экраны"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"жад, кэш, дерек, жою, тазалау, бос, орын"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"жалғанды, құрылғы, құлаққаптар, гарнитура, динамик, сымсыз, жұптау, құлақаспап, музыка, мультимедиа"</string>
@@ -3140,11 +3140,11 @@
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Оятқыштың дыбыс деңгейі"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Қоңыраудың дыбыс деңгейі"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Хабарландырудың дыбыс деңгейі"</string>
-    <string name="ringtone_title" msgid="1409086028485922583">"Телефон әуені"</string>
+    <string name="ringtone_title" msgid="1409086028485922583">"Телефон рингтоны"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Әдепкі хабарландыру сигналы"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Қолданбамен берілген дыбыс"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Әдепкі хабарландыру дыбысы"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі оятқыш сигналы"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Әдепкі оятқыш дыбысы"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Қоңырау кезіндегі діріл"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Басқа дыбыстар"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Нөмір тергіш дыбысы"</string>
@@ -3184,7 +3184,7 @@
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Кестелер"</string>
     <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Кесте"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Кесте"</string>
-    <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Телефонды дыбыссыз режимге қою"</string>
+    <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Телефонды үнсіз режимге қою"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Мазаламау ережесін орнату"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Кесте"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Кестені пайдалану"</string>
@@ -3196,16 +3196,16 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Визуалды сигналдарды қосу"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"Мазаламау режимі қосулы кезде"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Хабарландыруларды шектеу"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Хабарландырулар дыбыстық сигналсыз беріледі"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Хабарландырулар үнсіз беріледі"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Хабарландырулар экранға шығады"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Хабарландырулар келіп түскенде, телефон дыбыс шығармайды не дірілдемейді."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Хабарландырулар визуалды не дыбыстық сигналсыз беріледі"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Хабарландырулар көрсетілмейді не естілмейді"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңа немесе бұрыннан бар хабарландыруларды телефон көрсетпейді, дірілдемейді немесе дыбыс шығармайды. Бірақ телефон әрекетіне және күйіне қатысты маңызды хабарландырулар шыға береді.\n\nМазаламау режимін өшірген соң, әлі ашылмаған хабарландыруларды көру үшін экранды жоғарыдан төмен қарай сипап өтіңіз."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Жаңа немесе бұрыннан бар хабарландыруларды телефон көрсетпейді, дірілдемейді немесе дыбыс шығармайды. Бірақ телефон әрекетіне және күйіне қатысты маңызды хабарландырулар шыға береді.\n\nМазаламау режимін өшірген соң, ашылмаған хабарландыруларды көру үшін экранды жоғарыдан төмен қарай сырғытыңыз."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Арнаулы"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Арнаулы параметрді қосу"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Арнаулы параметрді өшіру"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Хабарландырулар дыбыстық сигналсыз беріледі"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Хабарландырулар дыбыссыз беріледі"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Бір бөлігі жасырулы"</string>
     <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Хабарландырулар визуалды не дыбыстық сигналсыз беріледі"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Арнаулы шектеулер"</string>
@@ -3215,8 +3215,8 @@
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Экранды қоспау"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Шамды жыпылықтатпау"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Экранда хабарландыруларды көрсетпеу"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Күй жолағы белгішелерін экранның жоғарғы жағында көрсетпеу"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Хабарландыру белгілерін қолданба белгішелерінде көрсетпеу"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Экранның жоғарғы жағында күй жолағы белгішелерін көрсетпеу"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Қолданба белгішелерінде хабарландыру белгісін көрсетпеу"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Хабарландырулар үшін оятпау"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Хабарландыру тізімінен жасыру"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Ешқашан"</string>
@@ -3303,8 +3303,8 @@
     <string name="asst_capability_prioritizer_summary" msgid="3525640645743790796">"Маңызы төмен хабарландырулардың автоматты түрде дыбысы өшіріледі және олардың деңгейі төмендетіледі."</string>
     <string name="asst_capabilities_actions_replies_title" msgid="3929395108744251338">"Смарт әрекеттер және жауаптар"</string>
     <string name="asst_capabilities_actions_replies_summary" msgid="5647029698181357902">"Контекстік хабарландыру әрекеттері және хабарландыруларға жылдам жауаптар автоматты түрде енгізіледі."</string>
-    <string name="hide_silent_icons_title" msgid="1070905516921542662">"Дыбыссыз хабарландыру күйінің белгішелерін жасыру"</string>
-    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Күй жолағындағы дыбыссыз хабарландырулардың белгішелерін жасыру"</string>
+    <string name="hide_silent_icons_title" msgid="1070905516921542662">"Үнсіз хабарландыру күйінің белгішелерін жасыру"</string>
+    <string name="hide_silent_icons_summary" msgid="2624346914488256888">"Күй жолағындағы үнсіз хабарландырулардың белгішелерін жасыру"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"Хабарландыру белгілеріне рұқсат беру"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Қалқыма хабарлар"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Қалқымалы таңбашалар арқылы кез келген жерден қолданба мазмұнына жылдам кіру"</string>
@@ -3439,8 +3439,8 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Кесте атауын енгізіңіз"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Кесте атауы әлдеқашан пайдаланылуда"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Тағы енгізу"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Іс-шара кестесін енгізу"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Уақыт кестесін енгізу"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Іс-шара кестесін қосу"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Уақыт кестесін қосу"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Кестені жою"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Кесте түрін таңдау"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"\"<xliff:g id="RULE">%1$s</xliff:g>\" ережесін жою керек пе?"</string>
@@ -3479,7 +3479,7 @@
     <string name="summary_range_verbal_combination" msgid="8799629589758200970">"<xliff:g id="START">%1$s</xliff:g> – <xliff:g id="END">%2$s</xliff:g>"</string>
     <string name="zen_mode_calls" msgid="1844534357711539325">"Қоңырауға рұқсат ету"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"Қоңыраулар"</string>
-    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Сізге қоңырау шалғанда, дыбыс шығуы үшін, құрылғының шылдыр, діріл немесе дыбыссыз режимде тұрғанын тексеріңіз."</string>
+    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Сізге қоңырау шалғанда, дыбыс шығуы үшін, құрылғының шылдыр, діріл немесе үнсіз режимде тұрғанын тексеріңіз."</string>
     <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"\"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\" үшін кіріс қоңыраулар бөгеледі. Параметрлерді достарыңыз, отбасы мүшелері не басқа контактілер сізге хабарласа алатын етіп реттей аласыз."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Жұлдызшалы контактілер"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
@@ -3487,7 +3487,7 @@
       <item quantity="one">Тағы 1 контакт</item>
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Мәтіндік хабарларға рұқсат ету"</string>
-    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Сізге хабар келгенде, дыбыс шығуы үшін, құрылғының шылдыр, діріл немесе дыбыссыз режимде тұрғанын тексеріңіз."</string>
+    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Сізге хабар келгенде, дыбыс шығуы үшін, құрылғының шылдыр, діріл немесе үнсіз режимде тұрғанын тексеріңіз."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"\"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\" үшін кіріс мәтіндік хабарлар бөгеледі. Параметрлерді достарыңыз, отбасы мүшелері не басқа контактілер сізге хабарласа алатын етіп реттей аласыз."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS және хабар алмасу қолданбалары"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Бәрінен"</string>
@@ -3986,7 +3986,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Жоспарды көру"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Мәліметтерді көру"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"Трафикті үнемдеу"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Шектелмейтін деректер"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Мобильдік интернет шектелмеген"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Фондық дерек өшірілген"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Қосулы"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Өшірулі"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Қоңырау дыбысын өшіру"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Қуат және дыбысты арттыру түймелерін қатар басу"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Шырылды жылдам өшіру"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Қоңырау дыбысын жылдам өшіру"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Діріл"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Дыбысын өшіру"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Ештеңе істемеу"</string>

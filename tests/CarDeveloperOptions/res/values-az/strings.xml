@@ -376,7 +376,7 @@
     </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"Yüklənir…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"Hesablar"</string>
-    <string name="security_settings_title" msgid="8228075165942416425">"Təhlükəsizlik"</string>
+    <string name="security_settings_title" msgid="8228075165942416425">"Güvənlik"</string>
     <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"Şifrələmə və kredensiallar"</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"Telefon şifrələnib"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"Telefon şifrələnmədi"</string>
@@ -903,13 +903,13 @@
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"Aşağı açılan siyahı Qabaqcıl Seçimlər. Genişləndirmək üçün iki dəfə tıklayın."</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"Şəbəkə adı"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID daxil edin"</string>
-    <string name="wifi_security" msgid="9136702039496152831">"Təhlükəsizlik"</string>
+    <string name="wifi_security" msgid="9136702039496152831">"Güvənlik"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Gizlədilmiş şəbəkə"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Yönləndirici şəbəkə ID-sini yayımlamırsa, lakin ona gələcəkdə qoşulmaq istəyirsinizsə, şəbəkəni gizlədə bilərsiniz.\n\nBu təhlükəsizliyinizi riskə ata bilər, çünki telefon şəbəkəni tapmaq üçün daima siqnal yayımlayacaq.\n\nŞəbəkəini gizlətmək yönləndirici ayarlarını dəyişməyəcək."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Ruteriniz şəbəkə ID-sini yayımlamırsa və ona qoşulmaq fikrindəsinizsə, şəbəkəni gizlədə bilərsiniz.\n\nSmartfon şəbəkəni tapmaq üçün həmişə siqnal yayımlayacaq deyə, güvənliyiniz risk altında ola bilər.\n\nŞəbəkəni gizlətmək ruter ayarlarına təsir etməyəcək."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Siqnal gücü"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Link sürətini ötürün"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Link sürətini əldə edin"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Verilənlərin ötürülməsi sürəti"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Verilənlərin qəbulu sürəti"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Tezlik"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP ünvanı"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Yadda saxlama vasitəsi:"</string>
@@ -922,7 +922,7 @@
     <string name="wifi_eap_identity" msgid="5280457017705738773">"İdentiklik"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Anonim kimlik"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Parol"</string>
-    <string name="wifi_show_password" msgid="7878398590772942202">"Parolu göstər"</string>
+    <string name="wifi_show_password" msgid="7878398590772942202">"Parol görünsün"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"AP Band Seçin"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Avtomatik"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2.4 GHz Diapazon"</string>
@@ -931,7 +931,7 @@
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2.4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5.0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Wi‑Fi hotspotu üçün minimum bir bağlantı seçin:"</string>
-    <string name="wifi_ip_settings" msgid="4636102290236116946">"IP parametrləri"</string>
+    <string name="wifi_ip_settings" msgid="4636102290236116946">"IP ayarları"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Məxfilik"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Təsadüfi MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Cihaz əlavə edin"</string>
@@ -1007,7 +1007,7 @@
     <string name="wifi_forget" msgid="8257999175003213594">"Unut"</string>
     <string name="wifi_modify" msgid="4709189827578923892">"Dəyişdirin"</string>
     <string name="wifi_failed_forget_message" msgid="2581434074764127531">"Şəbəkəni unutmaq alınmadı"</string>
-    <string name="wifi_save" msgid="4658298322696587492">"Yadda saxla"</string>
+    <string name="wifi_save" msgid="4658298322696587492">"Yadda saxlayın"</string>
     <string name="wifi_failed_save_message" msgid="5068789092841891367">"Şəbəkəni yadda saxlamaq alınmadı"</string>
     <string name="wifi_cancel" msgid="7618417075930426635">"Ləğv edin"</string>
     <string name="wifi_forget_dialog_title" msgid="1757468516279704915">"Şəbəkə unudulsun?"</string>
@@ -1045,7 +1045,7 @@
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Bu bağlantını yadda saxla"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"Cihaz axtarışı"</string>
     <string name="wifi_p2p_menu_searching" msgid="7443249001543208106">"Axtarır..."</string>
-    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Cihazı yenidən adlandır"</string>
+    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Cihazın adını dəyişin"</string>
     <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"Əlçatımlı cihazlar"</string>
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"Qrupları yadda saxla"</string>
     <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Bağlana bilmədi."</string>
@@ -1069,7 +1069,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP Diapazonu"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Digər cihazlara Wi‑Fi şəbəkəsi yaratmaq üçün hotspot istifadə edin. Hotspot mobil data bağlantısından istifadə edərək internet təmin edir. Əlavə mobil data xərcləri tətbiq edilə bilər."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Tətbiq yaxınlıqdakı cihazlarla kontenti paylaşmaq üçün hotspot yarada bilər."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Hotspotu avtomatik deaktiv edin"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Hotspot avtomatik deaktiv edilsin"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Heç bir cihaz qoşulu olmazsa, Wi‑Fi hotspot\'u deaktiv ediləcək"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Hotspot yandırılır..."</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Hotspot söndürülür…"</string>
@@ -1557,7 +1557,7 @@
     <string name="mvno_match_data" msgid="629287305803195245">"Mobil Virtual Şəbəkə Operatoru dəyəri"</string>
     <string name="menu_delete" msgid="8646081395424055735">"APN silin"</string>
     <string name="menu_new" msgid="7529219814721969024">"Yeni APN"</string>
-    <string name="menu_save" msgid="7310230314430623215">"Yadda saxla"</string>
+    <string name="menu_save" msgid="7310230314430623215">"Yadda saxlayın"</string>
     <string name="menu_cancel" msgid="1292949233623397786">"Kənarlaşdır"</string>
     <string name="error_title" msgid="6595678722641187629"></string>
     <string name="error_name_empty" msgid="4638536651499727722">"Ad sahəsi boş ola bilməz."</string>
@@ -1610,26 +1610,26 @@
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Lütfən, gözləyin..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Zəng ayarları"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Səsli poçt, çağrı yönləndirməsi, çağrı gözləmə, çağrı kimliyi quraşdırın"</string>
-    <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB Birləşmə"</string>
+    <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB-modem"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Portativ hotspot"</string>
-    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Bluetooth birləşmə"</string>
-    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Birləşmə"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspot və qoşulma"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot aktivdir, birləşdirilir"</string>
+    <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Bluetooth-modem"</string>
+    <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Modem rejimi"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspot və modem rejimi"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot aktivdir, qoşulur"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Hotspot aktivdir"</string>
-    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Birləşmə"</string>
-    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Data Qənaəti aktiv olduqda daşınan hotspotları birləşdirmək və ya istifadə etmək olmur"</string>
+    <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Modem rejimi"</string>
+    <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Trafikə qənaət ediləndə modem rejiminə keçmək olar"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
-    <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB Birləşmə"</string>
+    <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB-modem"</string>
     <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"USB vasitəsilə telefonun internet bağlantısını paylaşın"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"USB vasitəsilə planşetin internet bağlantısını paylaşın"</string>
-    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth Birləşmə"</string>
+    <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth-modem"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Planşetin internet bağlantısını Bluetooth vasitəsilə paylaşın"</string>
     <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Telefonun internet bağlantısını Bluetooth vasitəsilə paylaşın"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"<xliff:g id="DEVICE_NAME">%1$d</xliff:g> cihazının internet bağlantısı Bluetooth vasitəsilə paylaşılır"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"<xliff:g id="MAXCONNECTION">%1$d</xliff:g> cihazdan çoxu ilə birləşə bilməz."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> idarəolunmaz olacaq."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Mobil data bağlantısı vasitəsilə digər cihazları internetlə təmin etmək üçün hotspot və birləşmədən istifadə edin. Tətbiqlər yaxınlıqdakı cihazlarla kontenti paylaşmaq üçün də hotspot yarada bilər."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Digər cihazları mobil internetlə təmin etmək üçün hotspot və modem rejimini istifadə edin. Tətbiqlər kontent paylaşmaq üçün də hotspot yarada bilər."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Yardım"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Mobil şəbəkə"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Mobil plan"</string>
@@ -1637,7 +1637,7 @@
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"SMS tətbiqi dəyişilsin?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"<xliff:g id="NEW_APP">%1$s</xliff:g> tətbiqi <xliff:g id="CURRENT_APP">%2$s</xliff:g> yerinə SMS tətbiqiniz olaraq işlənsin?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"<xliff:g id="NEW_APP">%s</xliff:g> tətbiqi SMS tətbiqiniz olaraq işlənsin?"</string>
-    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Şəbəkə reytinq provayderi"</string>
+    <string name="network_scorer_picker_title" msgid="1691073966560952916">"Şəbəkə reytinqi mənbəsi"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Heç biri"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wi‑Fi yardımçısı dəyişdirilsin?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Şəbəkə bağlantılarını idarə etmək üçün <xliff:g id="CURRENT_APP">%2$s</xliff:g> əvəzinə <xliff:g id="NEW_APP">%1$s</xliff:g> istifadə edilsin?"</string>
@@ -2734,7 +2734,7 @@
     <string name="data_usage_metered_wifi" msgid="2955256408132426720">"Ölçülmüş Wi‑Fi şəbəkələri"</string>
     <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Ölçülmüş şəbəkələri seçmək üçün Wi‑Fi aktiv olmalıdır."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"Avtomatik"</string>
-    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Ödənişli"</string>
+    <string name="data_usage_metered_yes" msgid="7333744880035386073">"Tarif sayğacılı"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Ödənişsiz"</string>
     <string name="data_usage_disclaimer" msgid="4683321532922590425">"Operator data hesablanması cihazınızdakından fərqli ola bilər."</string>
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"Təcili zəng"</string>
@@ -2766,7 +2766,7 @@
     <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Daxil edilən məlumat həmişə aktiv volan VPN\'i dəstəkləmir"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Ləğv edin"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Rədd edin"</string>
-    <string name="vpn_save" msgid="1332625259182278316">"Yadda saxla"</string>
+    <string name="vpn_save" msgid="1332625259182278316">"Yadda saxlayın"</string>
     <string name="vpn_connect" msgid="772295154834334710">"Qoş"</string>
     <string name="vpn_replace" msgid="7818130465019803404">"Əvəz edin"</string>
     <string name="vpn_edit" msgid="7284861108584255618">"VPN profilə düzəliş edin"</string>
@@ -3023,7 +3023,7 @@
     <string name="sim_notification_title" msgid="2457890173055955672">"SİM kartlar dəyişib."</string>
     <string name="sim_notification_summary" msgid="6421556454979313850">"Quraşdırmaq üçün tıklayın"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"Bunun üçün seçilmiş SIM:"</string>
-    <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Hər dəfə soruşun"</string>
+    <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Həmişə soruşulsun"</string>
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"Seçim tələb olunur"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"SIM seçimi"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"Ayarlar"</string>
@@ -3149,7 +3149,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Digər səslər"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Klaviş tonları"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Ekran kilidləmə səsləri"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Batareya səs və vibrasiyası"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Şarj səsi və vibrasiyası"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Toqquşma səsləri"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Toxunma səsləri"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Toxunuş vibrasiyası"</string>
@@ -3161,7 +3161,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"Zənglər"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"Vibrasiyalar"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"Səsləri aktiv edin"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"Canlı Subtitrlər"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"Avtomatik subtitrlər"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"Avtomatik başlıq mediası"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"Heç vaxt"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -3194,29 +3194,29 @@
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>: <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Vizual fəsadları blok edin"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Görünən siqnallara icazə verin"</string>
-    <string name="zen_mode_settings_category" msgid="5601680733422424922">"Narahat Etmə rejimi aktiv olduqda"</string>
+    <string name="zen_mode_settings_category" msgid="5601680733422424922">"\"Narahat Etməyin\" rejimi aktiv olduqda"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Bildirişləri məhdudlaşdırın"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Bildirişlər səs çıxarmır"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Bildirişlər səssiz olsun"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Ekranda bildirişləri görəcəksiniz"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Bildirişlər gəldikdə telefon səs çıxarmayacaq və vibrasiya etməyəcək."</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Bildirişlər görünməyəcək və səs çıxartmayacaq"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Bildirişlər tam söndürülsün"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Bildirişləri görməyəcəksiniz və ya eşitməyəcəksiniz"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefon yeni yaxud mövcud bildirişləri göstərməməklə yanaşı, vibrasiya və ya səs də çıxarmayacaq. Nəzərə alın ki, telefon fəaliyyəti və statusu üçün vacib bildirişlər yenə görünəcək. \n\n\"Narahat Etməyin\" rejimini deaktiv etdikdə ekranın yuxarısından aşağısına doğru sürüşdürməklə buraxılmış bildirişlərə baxa bilərsiniz."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefon yeni yaxud mövcud bildirişləri göstərməməklə yanaşı, titrəməcəyək və ya səssiz qalacaq. Telefon fəaliyyəti və statusu üçün önəmli bildirişlər görünəcək. \n\n\"Narahat Etməyin\" rejimini deaktiv etdikdə ekranın yuxarısından aşağısına doğru sürüşdürməklə buraxılmış bildirişləri görə bilərsiniz."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Fərdi"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Fərdi ayarı aktiv edin"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fərdi ayarı silin"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Bildirişlər səs çıxarmır"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Bildirişlər səssiz olsun"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Qismən gizlədilib"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Bildirişlər görünməyəcək və səs çıxartmayacaq"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Bildirişlər tam söndürülsün"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Fərdi məhdudiyyətlər"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Ekran yanılı olduqda"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Ekran sönülü olduqda"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Səsi və vibrasiyanı susdurun"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Ekranı yandırmayın"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"İşığı yandırmayın"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Bildirişləri ekranda göstərməyin"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Ekranın yuxarısındakı status paneli ikonalarını gizlədin"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Tətbiq ikonasındakı bildiriş nöqtələrini gizlədin"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Bildirişlər ekranda göstərilməsin"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Ekranın yuxarısındakı status paneli ikonları gizlədilsin"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Tətbiq ikonunda bildiriş nöqtələri gizlədilsin"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Bildirişlər üçün oyandırmayın"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Bildiriş siyahısında göstərməyin"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Heç vaxt"</string>
@@ -3225,7 +3225,7 @@
     <string name="zen_mode_block_effect_summary_sound" msgid="4907185880913861880">"Səsi və vibrasiya"</string>
     <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"Bildirişlərin səsi, vibrasiyası və bəzi vizual işarələri"</string>
     <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"Bildirişlərin səsi, vibrasiyası və vizual işarələri"</string>
-    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"Əsas telefon fəaliyyəti və status üçün lazım olan bildirişlər heç vaxt gizlədilməyəcək"</string>
+    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"Təməl telefon fəaliyyəti və statusa lazımlı bildirişlər gizlədilməyəcək"</string>
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"Yoxdur"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"digər seçimlər"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"Əlavə edin"</string>
@@ -3244,7 +3244,7 @@
     <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Deaktiv / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Deaktiv"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Aktiv"</string>
-    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Hər dəfə soruşun (avtomatik aktiv edilənə qədər)"</string>
+    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Hər dəfə soruşulsun (avtomatik aktiv edilənə qədər)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Siz deaktiv edənə qədər (avtomatik aktiv edilənə qədər)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
       <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> saat (avtomatik aktiv edilənə qədər)</item>
@@ -3275,8 +3275,8 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"\"Narahat Etməyin\" aktiv olduğu zaman yuxarıda seçdiyiniz elementlər istisna olmaqla mesaj, xatırlatma və tədbirlər səssiz ediləcək. Dostlar, ailə və digər kontaktların Sizinlə əlaqə saxlaması üçün ayarları nizamlaya bilərsiniz."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Hazırdır"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Ayarlar"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Bildirişlər görünməyəcək və səs çıxartmayacaq"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Bildirişlər səs çıxarmır"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Bildirişlər tam söndürülsün"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Bildirişlər səssiz olsun"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Bildirişlərə baxa və ya eşidə bilməyəcəksiniz. Ulduzlanmış kontaktlar və təkrarlanan zənglər icazəlidir."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Cari ayarlar)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"Narahat Etməyin\" bildiriş ayarları dəyişdirilsin?"</string>
@@ -3419,7 +3419,7 @@
     <string name="app_notification_block_title" msgid="7898269373875294367">"Hamısını bloklayın"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Bu bildirişlər heç vaxt göstərilməsin"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"Bildirişləri göstərin"</string>
-    <string name="notification_content_block_summary" msgid="2743896875255591743">"Bildirişləri heç vaxt ekranda və ya periferik cihazlarda göstərməyin."</string>
+    <string name="notification_content_block_summary" msgid="2743896875255591743">"Bildirişlər ekranda və ya periferik cihazlarda göstərilməsin"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Bildiriş nöqtəsinə icazə verin"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Bildiriş nöqtəsini göstərin"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\"Narahat etməyin\" seçimini buraxın"</string>
@@ -3487,7 +3487,7 @@
       <item quantity="one">1 digər</item>
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Bütün mətn mesajları"</string>
-    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"İcazəli mesajların səsli olduğuna əmin olmaq üçün cihazın səsli, vibrasiya yoxsa səssiz olaraq ayarlanıb-ayarlanmadığını yoxlayın."</string>
+    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"Önəmli zənglərin buraxılmaması üçün cihaz susdurulmamalıdır."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"\"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\" üçün daxil olan mətn mesajları blok edilir. Dostlar, ailə və ya digər kontakların əlaqə saxlaması üçün ayarları tənzimləyə bilərsiniz."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS və mesajlaşma tətbiqləri"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Hər kəsdən"</string>
@@ -3659,7 +3659,7 @@
       <item quantity="one">Bir tətbiq dəstəklənən linki açır</item>
     </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"Bu tətbiqdə açın"</string>
-    <string name="app_link_open_ask" msgid="4054678686331517561">"Hər dəfə soruşun"</string>
+    <string name="app_link_open_ask" msgid="4054678686331517561">"Həmişə soruşulsun"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"Bu tətbiqdə açmayın"</string>
     <string name="default_apps_title" msgid="3848048391400989931">"Defolt"</string>
     <string name="default_for_work" msgid="7290411716804495366">"İş üçün defolt"</string>
@@ -3733,7 +3733,7 @@
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Faylları başqa cihaza köçürün"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
     <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"Əgər MTP dəstəklənmirsə (PTP), foto və faylları transfer edin"</string>
-    <string name="usb_use_tethering" msgid="4250626730173163846">"USB birləşmə"</string>
+    <string name="usb_use_tethering" msgid="4250626730173163846">"USB-modem"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"Bu cihazı MIDI kimi istifadə edin"</string>
     <string name="usb_use" msgid="8940500223316278632">"USB istifadəsi"</string>
@@ -3749,11 +3749,11 @@
     <string name="usb_summary_charging_only" msgid="4118449308708872339">"Enerji dodlurulması"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Qoşulmuş cihaza enerji doldurulur"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Fayl transferi"</string>
-    <string name="usb_summary_tether" msgid="778845069037366883">"USB birləşmə"</string>
+    <string name="usb_summary_tether" msgid="778845069037366883">"USB modem rejimi"</string>
     <string name="usb_summary_photo_transfers" msgid="4743028167400644354">"PTP"</string>
     <string name="usb_summary_MIDI" msgid="5540604166270861247">"MIDI"</string>
     <string name="usb_summary_file_transfers_power" msgid="1684501026426766867">"Fayl transferi və enerji tədarükü"</string>
-    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB birləşmə və enerji tədarükü"</string>
+    <string name="usb_summary_tether_power" msgid="5684170912136320002">"USB modem və şarj"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP və enerji tədarükü"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI və enerji tədarükü"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Arxa fon yoxlaması"</string>
@@ -3897,7 +3897,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"Funksiyalar məhdudlaşdırıldı"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Mobil data deaktivdir"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"İnternet yanlız Wi‑Fi ilə əlçatandır"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"Data Qənaəti"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"Trafikə qənaət edilir"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"Funksiyalar məhdudlaşdırıldı"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"İş profili deaktivdir"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"Tətbiq və bildirişlər üçün"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"Konfiqurasiya edin"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Digər tətbiqlər istifadəyə əlavə edildi"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">Data Qənaəti aktiv olduğu zaman <xliff:g id="COUNT">%1$d</xliff:g> tətbiqə məhdudlaşdırılmamış data girişini istifadə etməyə icazə verilir</item>
-      <item quantity="one">Data Qənaəti aver aktiv olduğu zaman 1 tətbiqə məhdudlaşdırılmamış data girişini istifadə etməyə icazə verilir</item>
+      <item quantity="other">Data qənaətlə istifadə olunduğu zaman <xliff:g id="COUNT">%1$d</xliff:g> tətbiqə məhdudlaşmamış mobil internet istifadə etməyə icazə verilir</item>
+      <item quantity="one">Data qənaətlə istifadə olunduğu zaman 1 tətbiqə tətbiqə məhdudlaşmamış mobil internet istifadə etməyə icazə verilir</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Əsas data"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi datası"</string>
@@ -3985,12 +3985,12 @@
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"İndi güncəlləşdirilib"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Plana baxın"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Detallara baxın"</string>
-    <string name="data_saver_title" msgid="7903308134514179256">"Data Qənaəti"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Məhdudlaşdırılmamış data"</string>
+    <string name="data_saver_title" msgid="7903308134514179256">"Trafikə qənaət"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Məhdudlaşmamış mobil internet"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Arxa fon datası deaktiv edilib"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Aktiv"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Deaktiv"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Data Qənaətindən istifadə edin"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Datanı qənaətlə işlədin"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Məhdudlaşdırılmamış data istifadəsi"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Data Saver aktiv olduğu zaman məhdudlaşdırılmamış data girişinə icazə verin"</string>
     <string name="home_app" msgid="3695063566006954160">"Əsas səhifə tətbiqi"</string>
@@ -4323,9 +4323,9 @@
     <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Cihazın batareya istifadəsini təkmilləşdirin"</string>
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Telefonun batareya istifadəsini təkmilləşdirin"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
-    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Zəngin qarşısını alın"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"\"Yandırıb-söndürmə\" və \"Səs Artırma\" düymələrinə birlikdə basın"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Zəngin qarşısını almaq üçün qısayol"</string>
+    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Zəng çalınmasının qarşısını alın"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"\"Qidalanma\" və \"Səsartırma\" düymələrini birlikdə basın"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Zəng səsinin cəld söndürülməsi"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrasiya"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Susdurun"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Heç nə etməyin"</string>
@@ -4389,7 +4389,7 @@
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Aralıqda olduqda telefon avtomatik bu operatora keçəcək"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Zəng seçimi"</string>
     <string name="sms_preference" msgid="8449270011976880">"SMS seçimi"</string>
-    <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Həmişə soruşun"</string>
+    <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Həmişə soruşulsun"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Şəbəkə əlavə edin"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
       <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> SIM-lər</item>

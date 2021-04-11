@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"صداهای نمایه کاری"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"استفاده از صداهای نمایه شخصی"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"صداهای نمایه کاری‌ و شخصی‌تان یکسان هستند"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"آهنگ زنگ تلفن پیش‌فرض"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"آهنگ زنگ تلفن کاری"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"صدای اعلان کار پیش‌فرض"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"صدای زنگ کار پیش‌فرض"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"مانند نمایه شخصی"</string>
@@ -3523,7 +3523,7 @@
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"اجازه دادن به تماس‌گیرندگان تکراری"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"اجازه از <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"اجازه از <xliff:g id="CALLER_TYPE">%1$s</xliff:g> و <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
-    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"اگر فردی در طول یک دوره <xliff:g id="MINUTES">%d</xliff:g> دقیقه‌ای، برای بار دوم تماس بگیرد"</string>
+    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"اگر یک نفر درعرض <xliff:g id="MINUTES">%d</xliff:g> دقیقه، برای بار دوم تماس بگیرد"</string>
     <string name="zen_mode_behavior_summary_custom" msgid="3909532602640130841">"سفارشی"</string>
     <string name="zen_mode_when" msgid="7835420687948416255">"روشن شدن خودکار"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"هیچ‌وقت"</string>

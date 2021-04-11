@@ -179,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Учурда туташып турган түзмөктөр"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Сакталган түзмөктөр"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth күйгүзүлөт"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"Туташуу параметрлери"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"Байланыш параметрлери"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Буга чейин туташкан түзмөктөр"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Мурда туташкан"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth күйгүзүлдү"</string>
@@ -309,8 +309,8 @@
     <string name="cellular_data_summary" msgid="8817717603450318646">"Дайындар моб. тармак аркылуу өткөрүлсүн"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"Роуминг учурунда дайындарды пайдаланууга уруксат берүү"</string>
     <string name="roaming" msgid="8860308342135146004">"Роуминг"</string>
-    <string name="roaming_enable" msgid="2108142024297441116">"Роуминг учурунда дайын-даректерди өткөрүүчү кызматтарга туташуу"</string>
-    <string name="roaming_disable" msgid="1915440242079953809">"Роуминг учурунда дайын-даректерди өткөрүүчү кызматтарга туташуу"</string>
+    <string name="roaming_enable" msgid="2108142024297441116">"Роуминг учурунда маалыматтарды өткөрүүчү кызматтарга туташуу"</string>
+    <string name="roaming_disable" msgid="1915440242079953809">"Роуминг учурунда маалыматтарды өткөрүүчү кызматтарга туташуу"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"Жергиликтүү тармагыңыздан интернет-роуминг өчүрүлгөн абалда кеткендиктен Интернет туташуусун жоготтуңуз."</string>
     <string name="roaming_turn_it_on_button" msgid="4370846458830537578">"Аны күйгүзүү"</string>
     <string name="roaming_warning" msgid="5488050911277592868">"Бир топ чыгымдарга дуушар болуп калышыңыз мүмкүн."</string>
@@ -772,9 +772,9 @@
     <string name="device_details_title" msgid="726517818032923222">"Түзмөктүн чоо-жайы"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Түзмөктүн Bluetooth дареги: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Түзмөк унутулсунбу?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Мындан ары телефонуңуз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгү менен жупташтырылбайт"</string>
-    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Мындан ары планшетиңиз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгү менен жупташтырылбайт"</string>
-    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Мындан ары түзмөгүңүз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгү менен жупташтырылбайт"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Мындан ары телефонуңуз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
+    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Мындан ары планшетиңиз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
+    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Мындан ары түзмөгүңүз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Түзмөк унутулсун"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Төмөнкүгө туташтыруу…"</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> медианын аудио түзмөгүнөн ажыратылат."</string>
@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID киргизиңиз"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Коопсуздук"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Жашырылган тармак"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Эгер роутериңиз тармактын идентификаторун таратпай жатса, бирок ага кийинчерээк туташа турган болсоңуз, аны жашыруун кылып койсоңуз болот.\n\nБирок телефонуңуз сигнал берип, тармакты издей берет. Ушундан улам, түзмөгүңүздүн коопсуздугуна коркунуч келтирилиши мүмкүн.\n\nЖашыруун тармактын сакталышы роутердин параметрлерин өзгөртпөйт."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Роутериңиз тармактын идентификаторун таратпай жатса, бирок ага кийинчерээк кошула турган болсоңуз, тармакты жашыруун кылып койсоңуз болот.\n\nБирок телефонуңуз сигнал берип, тармакты издей берет. Ушундан улам, түзмөгүңүздүн коопсуздугуна коркунуч келтирилиши мүмкүн.\n\nЖашыруун тармактын сакталышы роутердин параметрлерин өзгөртпөйт."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Сигналдын күчү"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Абалы"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Маалымат берүү ылдамдыгы"</string>
@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Купуялык"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Кокустан тандалган MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Түзмөк кошуу"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"\"<xliff:g id="SSID">%1$s</xliff:g>\" тармагына кошулуу үчүн, камераны төмөнкү QR кодго алып келиңиз"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"\"<xliff:g id="SSID">%1$s</xliff:g>\" тармагына кошулуу үчүн камераны төмөнкү QR кодго алып келиңиз"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR кодун скандоо"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"\"<xliff:g id="SSID">%1$s</xliff:g>\" тармагына туташуу үчүн, камераңызды төмөнкү QR кодго алып келиңиз"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi\'га кошулуу үчүн, QR кодун скандаңыз"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Wi‑Fi\'га кошулуу үчүн QR кодун скандаңыз"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi\'ды бөлүшүү"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"\"<xliff:g id="SSID">%1$s</xliff:g>\" тармагына туташып, сырсөз менен бөлүшүү үчүн, бул QR кодун скандаңыз"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"\"<xliff:g id="SSID">%1$s</xliff:g>\" тармагына туташуу үчүн, бул QR кодун скандаңыз"</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"<xliff:g id="PEER_NAME">%1$s</xliff:g> менен байланышууга чакырууну жокко чыгарууну каалайсызбы?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Бул топ унутулсунбу?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi байланыш түйүнү"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Интернет же мазмун башка түзмөктөр менен бөлүшүлгөн жок"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Интернет же материалдар башка түзмөктөр менен бөлүшүлгөн жок"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Бул планшеттин Интернети байланыш түйүнү аркылуу бөлүшүлүүдө"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Бул телефондун Интернети байланыш түйүнү аркылуу бөлүшүлүүдө"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Колдонмо мазмунду бөлүшүүдө. Интернет байланышын бөлүшүү үчүн байланыш түйүнүн өчүрүп, кайра күйгүзүңүз"</string>
@@ -1441,12 +1441,12 @@
     <string name="storage_format_success" msgid="5626883039766897517">"<xliff:g id="NAME">%1$s</xliff:g> форматталды"</string>
     <string name="storage_format_failure" msgid="4383764964041410256">"<xliff:g id="NAME">%1$s</xliff:g> форматталбай койду"</string>
     <string name="storage_rename_title" msgid="9117863170875961530">"Сактагыч аталышын өзгөртүү"</string>
-    <string name="storage_dialog_unmounted" msgid="515810851912430933">"Бул <xliff:g id="NAME_0">^1</xliff:g> өчүрүлгөн, бирок дале түзмөктө сайылып турат. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> кайра колдонуу үчүн, адегенде аны туташтырышыңыз керек."</string>
-    <string name="storage_dialog_unmountable" msgid="7082856306456936054">"Бул <xliff:g id="NAME_0">^1</xliff:g> бузулуп калган. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> түзмөктү колдонуу үчүн, адегенде аны жөндөп алыңыз."</string>
-    <string name="storage_dialog_unsupported" msgid="8274023677580782553">"Бул түзмөктө бул <xliff:g id="NAME_0">^1</xliff:g> колдоого алынбайт. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> ушул түзмөктө колдонуу үчүн, адегенде аны жөндөшүңүз керек."</string>
+    <string name="storage_dialog_unmounted" msgid="515810851912430933">"Бул <xliff:g id="NAME_0">^1</xliff:g> өчүрүлгөн, бирок дале түзмөктө сайылып турат. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> кайра колдонуу үчүн адегенде аны туташтырышыңыз керек."</string>
+    <string name="storage_dialog_unmountable" msgid="7082856306456936054">"Бул <xliff:g id="NAME_0">^1</xliff:g> бузулуп калган. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> түзмөктү колдонуу үчүн адегенде аны жөндөп алыңыз."</string>
+    <string name="storage_dialog_unsupported" msgid="8274023677580782553">"Бул түзмөктө бул <xliff:g id="NAME_0">^1</xliff:g> колдоого алынбайт. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> ушул түзмөктө колдонуу үчүн адегенде аны жөндөшүңүз керек."</string>
     <string name="storage_internal_format_details" msgid="2780806013122012384">"Форматталгандан кийин, бул <xliff:g id="NAME_0">^1</xliff:g> башка түзмөктөрдө колдонула берет. \n\nБул <xliff:g id="NAME_1">^1</xliff:g> ичиндеги дайындардын бардыгы тазаланат. Адегенде камдык көчүрмөсүн сактоону ойлонуштуруңуз. \n\n"<b>"Сүрөттөрдүн жана башка медиалардын камдык көчүрмөсүн сактаңыз"</b>" \nМедиа файлдарыңызды ушул түзмөктөгү кошумча сактагычка жылдырыңыз же аларды USB кабель менен компьютерге өткөрүңүз. \n\n"<b>"Колдонмолордун камдык көчүрмөсүн сактаңыз"</b>" \nУшул <xliff:g id="NAME_6">^1</xliff:g> ичинде сакталган колдонмолордун баары чыгарылып салынат жана алардын дайындары тазаланат. Бул колдонмолорду калтыруу үчүн, аларды ушул түзмөктөгү кошумча сактагычка жылдырыңыз."</string>
     <string name="storage_internal_unmount_details" msgid="4667435317528624039"><b>"Бул <xliff:g id="NAME_0">^1</xliff:g> карта түзмөктөн чыгарылганда, ал кайра кыстарылмайынча, анда сакталган колдонмолор менен медиа файлдар иштебей калат."</b>\n\n"Бул <xliff:g id="NAME_1">^1</xliff:g> карта ушул түзмөктө гана иштегидей болуп форматталып, башка эч бир түзмөктө иштебейт."</string>
-    <string name="storage_internal_forget_details" msgid="5655856574682184453">"Колдонмолорду, сүрөттөрдү жана башка дайындарды колдонуу үчүн, <xliff:g id="NAME">^1</xliff:g> картасын кайра кыстарыңыз. \n\nБолбосо, \"Сактагыч унутулсун\" деген вариантты тандаңыз. \n\nСактагыч унутулгандан кийин, картада сакталган бардык дайындар биротоло жок болот. \n\nКолдонмону кийин кайра орнотсоңуз болот, бирок түзмөктөгү жоголгон дайындар кайра калыбына келбейт."</string>
+    <string name="storage_internal_forget_details" msgid="5655856574682184453">"Колдонмолорду, сүрөттөрдү жана башка дайындарды колдонуу үчүн <xliff:g id="NAME">^1</xliff:g> картасын кайра кыстарыңыз. \n\nБолбосо, \"Сактагыч унутулсун\" деген вариантты тандаңыз. \n\nСактагыч унутулгандан кийин, картада сакталган бардык дайындар биротоло жок болот. \n\nКолдонмону кийин кайра орнотсоңуз болот, бирок түзмөктөгү жоголгон дайындар кайра калыбына келбейт."</string>
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> унутулсунбу?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"Бул <xliff:g id="NAME">^1</xliff:g> ичинде сакталган бардык колдонмолор, сүрөттөр жана дайындар биротоло жоголот."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"Колдонмолор"</string>
@@ -1483,7 +1483,7 @@
     <string name="storage_wizard_migrate_details" msgid="4269509141637554985">"Жылдыруу учурунда: \n• <xliff:g id="NAME">^1</xliff:g> түзмөгүн чыгарбаңыз. \n• Айрым колдонмолор туура иштебей калат. \n• Түзмөктү кубаттап туруңуз."</string>
     <string name="storage_wizard_ready_title" msgid="4905921139763520341">"<xliff:g id="NAME">^1</xliff:g> түзмөгүңүз колдонууга даяр"</string>
     <string name="storage_wizard_ready_external_body" msgid="8785407468656286236">"Сиздин <xliff:g id="NAME">^1</xliff:g> сүрөттөр жана башка медиа менен колдонууга дапдаяр."</string>
-    <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"Сиздин жаңы <xliff:g id="NAME">^1</xliff:g> иштеп жатат. \n\nСүрөттөр, файлдар жана колдонмо дайындарын бул түзмөккө жылдыруу үчүн, Жөндөөлөр &gt; Сактагычка өтүңүз."</string>
+    <string name="storage_wizard_ready_internal_body" msgid="2258287496678469217">"Сиздин жаңы <xliff:g id="NAME">^1</xliff:g> иштеп жатат. \n\nСүрөттөр, файлдар жана колдонмо дайындарын бул түзмөккө жылдыруу үчүн Жөндөөлөр &gt; Сактагычка өтүңүз."</string>
     <string name="storage_wizard_move_confirm_title" msgid="7362472162039287488">"<xliff:g id="APP">^1</xliff:g> колдонмосун жылдыруу"</string>
     <string name="storage_wizard_move_confirm_body" msgid="502315190416551319">"<xliff:g id="APP">^1</xliff:g> жана анын дайындарын <xliff:g id="NAME_0">^2</xliff:g> ичине жылдыруу бир нече көз ирмемге гана созулат. Жылдыруу аяктамайынча колдонмону пайдалана албай каласыз. \n\nЖылдыруу учурунда <xliff:g id="NAME_1">^2</xliff:g> түзмөгүн чыгарбаңыз."</string>
     <string name="storage_wizard_move_unlock" msgid="7978193904519827600">"Дайындарды жылдыруу үчүн <xliff:g id="APP">^1</xliff:g> бөгөттөн чыгарылышы керек."</string>
@@ -1583,8 +1583,8 @@
     <string name="reset_network_complete_toast" msgid="128225929536005495">"Тармак жөндөөлөрү баштапкы абалга келди"</string>
     <string name="reset_esim_error_title" msgid="4728931209471875632">"SIM карталар тазаланбай жатат"</string>
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Жүктөлүп алынган SIM карталарды катадан улам тазалоого болбойт.\n\nТүзмөгүңүздү өчүрүп күйгүзүп, кайталап көрүңүз."</string>
-    <string name="master_clear_title" msgid="1560712943955904673">"Бардык дайын-даректерди өчүрүү (баштапкы абалга келтирүү)"</string>
-    <string name="master_clear_short_title" msgid="919098101581335101">"Бардык дайын-даректерди өчүрүү"</string>
+    <string name="master_clear_title" msgid="1560712943955904673">"Бардык маалыматтарды өчүрүү (баштапкы абалга келтирүү)"</string>
+    <string name="master_clear_short_title" msgid="919098101581335101">"Бардык маалыматтарды өчүрүү"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Планшетиңиздин "<b>"ички сактагычындагы"</b>" бардык маалымат өчүрүлөт, тактап айтканда:\n\n"<li>"Google аккаунтуңуз"</li>\n<li>"Тутумдун жана колдонмолордун жөндөөлөрү жана дайындары"</li>\n<li>"Жүктөлүп алынган колдонмолор"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Телефонуңуздун "<b>"ички сактагычындагы"</b>" бардык маалымат өчүрүлөт, тактап айтканда:\n\n"<li>"Google аккаунтуңуз"</li>\n<li>"Тутумдун жана колдонмолордун жөндөөлөрү жана дайындары"</li>\n<li>"Жүктөлүп алынган колдонмолор"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Ушул түзмөктөгү аккаунттар:\n"</string>
@@ -2060,7 +2060,7 @@
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Чоңойтуп/кичирейтүү үчүн баскычты басыңыз"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Чоңойтуу үчүн"</b>" экранды бир манжаңыз менен 3 жолу бат-бат таптаңыз.\n"<ul><li>"Эки манжаңыз менен сыдырып карасаңыз болот."</li>\n<li>"Масштабын тууралоо үчүн эки манжаңызды бириктирип жана ажыратыңыз."</li></ul>\n\n<b>"Ал эми убактылуу чоңойтуу үчүн"</b>" экранды 3 жолу бат-бат таптап, үчүнчүсүндө манжаңызды басып туруңуз.\n"<ul><li>"Көрүнүштүн экранга батпаган жерлерин ары-бери сүйрөп карасаңыз болот."</li>\n<li>"Кичирейтүү үчүн манжаңызды көтөрүп коюңуз."</li></ul>\n\n"Баскычтоптон же чабыттоо тилкесинен чоңойто албайсыз."</string>
     <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"Чоңойтуу функциясын күйгүзгөндөн кийин, экрандын аягындагы Атайын мүмкүнчүлүктөр баскычы менен дисплейди тез эле чоңойтуп аласыз.\n\n"<b>"Чоңойтуу үчүн"</b>" Атайын мүмкүнчүлүктөр баскычын, андан соң экрандын бир жерин таптап коюңуз.\n"<ul><li>"Эки манжаңыз менен сыдырып карасаңыз болот."</li>\n<li>"Масштабын тууралоо үчүн эки манжаңызды бириктирип жана ажыратыңыз."</li></ul>\n\n<b>"Убактылуу чоңойтуу үчүн"</b>" Атайын мүмкүнчүлүктөр баскычын таптап, экрандын бир жерин басып, кармап туруңуз.\n"<ul><li>"Көрүнүштүн экранга батпаган жерлерин ары-бери сүйрөп карасаңыз болот."</li>\n<li>"Кичирейтүү үчүн манжаңызды көтөрүп коюңуз."</li></ul>\n\n"Баскычтоптон же чабыттоо тилкесинен чоңойто албайсыз."</string>
-    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Атайын мүмкүнчүлүктөр баскычы <xliff:g id="SERVICE">%1$s</xliff:g> кызматы үчүн коюлган. Чоңойтуу функциясын колдонуу үчүн, Атайын мүмкүнчүлүктөр баскычын басып, кармап туруңуз да, чоңойтуу функциясын тандаңыз."</string>
+    <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"Атайын мүмкүнчүлүктөр баскычы <xliff:g id="SERVICE">%1$s</xliff:g> кызматы үчүн коюлган. Чоңойтуу функциясын колдонуу үчүн Атайын мүмкүнчүлүктөр баскычын басып, кармап туруңуз да, чоңойтуу функциясын тандаңыз."</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"Үн деңгээлинин баскычтары"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"Кызматты ыкчам иштетүү"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"Кулпуланган экранда иштетүү"</string>
@@ -2920,11 +2920,11 @@
     <string name="nfc_payment_default" msgid="7869273092463612271">"Демейки төлөө ыкмасы"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Коюлган эмес"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Демейкини колдонуу"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Демейки колдонмону колдонуу"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Ар дайым"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Башка төлөм колдонмосу ачылып турбаса"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Аралыктан төлөө терминалында төмөнкүнү колдонуу:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Терминалдан акы төлөө"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Терминалдан төлөө"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Төлөм колдонмосун жөндөп туруп, телефондун арткы бетин тийбей төлөө белгиси түшүрүлгөн терминалга жакындатыңыз."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Түшүндүм"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Дагы…"</string>
@@ -3214,9 +3214,9 @@
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Үнүн жана дирилдөөнү басуу"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Экран күйгүзүлбөсүн"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Жарык индикатору күйгүзүлбөсүн"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Билдрмлер башка колднмолрдн үстнөн көрүнбсүн"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Экрандн өйдө жагындгы абал тилксндги сүртчлрдү жашруу"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Билдирме белгилерин/сүрөтчөлөрдү жашыруу"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Билдирмелер башка колдонмолордун үстүнөн көрүнбөсүн"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Экрандын өйдө жагындагы абал тилкесинде сүрөтчөлөр көрүнбөсүн"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Колдонмолордун сүрөтчөлөрүндө билдирмелердин сүрөтчөлөрү көрүнбөсүн"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Билдирмелер тынчымды албасын"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Билдирмелер тизмесинен жашырылат"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Эч качан"</string>
@@ -3284,8 +3284,8 @@
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Жеке профилдин үндөрүн колдонуу"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Жумуш жана жеке профилдер үчүн окшош добуштар колдонулат"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Жумуш телефонунун рингтону"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Жумуш жөнүндө эскертменин демейки үнү"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Жумуш сигналынын демейки үнү"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Билдирменин демейки үнү"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Ойготкучтун демейки үнү"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Жеке профилдеги үндөргө окшош"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Добуштар алмаштырылсынбы?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Алмаштыруу"</string>
@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Мүчүлүштүк тууралуу бул баяндама IT администраторуңуз менен бөлүшүлүүдө. Көбүрөөк маалымат үчүн администраторуңузга кайрылыңыз."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Бөлүшүү"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Четке кагуу"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Дайын-даректер өткөрүлбөйт"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Маалыматтар өткөрүлбөйт"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Жөн гана бул түзмөктү кубаттоо"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Туташкан түзмөктү кубаттоо"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Файл өткөрүү"</string>

@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s wil toegang tot je berichten. Toegang geven aan %2$s?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Toegangsverzoek voor simkaart"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> wil toegang tot je simkaart. Als je toegang tot de simkaart verleent, wordt de gegevensverbinding op je apparaat uitgeschakeld voor de duur van de verbinding. Toegang verlenen aan <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Zichtbaar als \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' voor andere apparaten"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Zichtbaar als <xliff:g id="DEVICE_NAME">^1</xliff:g> voor andere apparaten"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Schakel Bluetooth in om verbinding met andere apparaten te maken."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Je apparaten"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Nieuw apparaat koppelen"</string>
@@ -935,9 +935,9 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Privacy"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Willekeurig MAC-adres"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Apparaat toevoegen"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Centreer de onderstaande QR-code om het apparaat toe te voegen aan \'<xliff:g id="SSID">%1$s</xliff:g>\'"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Centreer de onderstaande QR-code om het apparaat toe te voegen aan <xliff:g id="SSID">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR-code scannen"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Centreer de onderstaande QR-code om verbinding te maken met \'<xliff:g id="SSID">%1$s</xliff:g>\'"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Centreer de onderstaande QR-code om verbinding te maken met <xliff:g id="SSID">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Maak verbinding met wifi door een QR-code te scannen"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wifi delen"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Scan deze QR-code om verbinding te maken met \'<xliff:g id="SSID">%1$s</xliff:g>\' en het wachtwoord te delen"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Wanneer er meldingen binnenkomen, laat je telefoon geen geluid horen en trilt deze niet"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Geen zichtbare of hoorbare meldingen"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Je ziet of hoort geen meldingen"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Je telefoon trilt niet en maakt geen geluid voor nieuwe of bestaande meldingen. Ook laat je telefoon deze niet zien. Belangrijke meldingen over je telefoonactiviteit en -status blijven echter wel verschijnen.\n\nAls je \'Niet storen\' uitschakelt, kun je de gemiste meldingen zien door van boven naar beneden te vegen op je scherm."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Je telefoon trilt niet en maakt geen geluid voor nieuwe of bestaande meldingen. Ook laat je telefoon deze niet zien. Belangrijke meldingen over je telefoonactiviteit en -status blijven echter wel verschijnen.\n\nAls je Niet storen uitzet, kun je de gemiste meldingen zien door vanaf de bovenkant van het scherm omlaag te swipen."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Aangepast"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Aangepaste instelling inschakelen"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Aangepaste instelling verwijderen"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Huidige instelling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Instellingen voor meldingen in modus \'Niet storen\' wijzigen?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Geluiden voor werkprofiel"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Gebruik geluid persoonsprofiel"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Gebruik geluid persoonlijk profiel"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Geluiden voor werkprofielen en persoonlijke profielen komen overeen"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Ringtone voor werktelefoon"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standaardmeldingsgeluid voor werk"</string>
@@ -3470,7 +3470,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Elke dag"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"De wekker kan de eindtijd negeren"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"De planning wordt uitgeschakeld wanneer een wekker afgaat"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Gedrag van \'Niet storen\'"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Gedrag van Niet storen"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Standaardinstellingen gebruiken"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Instellingen voor deze planning aanpassen"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Voor \'<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\'"</string>
@@ -3523,7 +3523,7 @@
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Terugkerende bellers toestaan"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Toestaan van <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Toestaan van <xliff:g id="CALLER_TYPE">%1$s</xliff:g> en <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
-    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Als dezelfde persoon binnen <xliff:g id="MINUTES">%d</xliff:g> minuten een tweede keer belt"</string>
+    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Als dezelfde persoon binnen <xliff:g id="MINUTES">%d</xliff:g> minuten een 2e keer belt"</string>
     <string name="zen_mode_behavior_summary_custom" msgid="3909532602640130841">"Aangepast"</string>
     <string name="zen_mode_when" msgid="7835420687948416255">"Automatisch aan"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"Nooit"</string>
@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"De batterijduur van de telefoon verbeteren"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Ringtone uitschakelen"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Druk tegelijkertijd op de aan/uit-knop en de knop \'Volume omhoog\' voor"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Druk tegelijk op de aan/uit-knop en de knop Volume omhoog voor"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Snelkoppeling om ringtone uit te schakelen"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Trillen"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Dempen"</string>
