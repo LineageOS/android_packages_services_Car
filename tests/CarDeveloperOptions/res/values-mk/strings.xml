@@ -63,7 +63,7 @@
     <string name="radioInfo_phone_idle" msgid="1893851191227617344">"Во мирување"</string>
     <string name="radioInfo_phone_ringing" msgid="5587975376222853265">"Ѕвонење"</string>
     <string name="radioInfo_phone_offhook" msgid="3186071430568806208">"Повик во тек"</string>
-    <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Исклучени"</string>
+    <string name="radioInfo_data_disconnected" msgid="5311119240521915279">"Не е поврзано"</string>
     <string name="radioInfo_data_connecting" msgid="47095003276717745">"Се поврзува"</string>
     <string name="radioInfo_data_connected" msgid="3755289851642913750">"Поврзани"</string>
     <string name="radioInfo_data_suspended" msgid="5013451375409737795">"Суспендирани"</string>
@@ -118,7 +118,7 @@
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"Адреса на Bluetooth на телефонот: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"Адреса на Bluetooth на таблетот: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"Адреса на Bluetooth на уредот: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"Исклучи <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"Да се прекине врската со <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"Емитување"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"Неименуван уред со Bluetooth"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Пребарување"</string>
@@ -758,10 +758,10 @@
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"Достапни уреди"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"Нема достапни уреди"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"Поврзи се"</string>
-    <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Исклучи"</string>
+    <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"Прекини врска"</string>
     <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"Спари и поврзи"</string>
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"Распари"</string>
-    <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Исклучи и распари"</string>
+    <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"Прекини врска и распари"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Опции..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Напредни"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Напреден Bluetooth"</string>
@@ -779,10 +779,10 @@
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Поврзи се со..."</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи од аудио на медиум."</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи од аудио на интерфон."</string>
-    <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи од влезниот уред."</string>
+    <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> нема да биде поврзан со влезниот уред."</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"Интернет пристапот преку <xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи."</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи од споделување интернет-врска на овој таблет."</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ќе се исклучи од споделување интернет-врска на овој телефон."</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> нема да биде поврзан со споделувањето интернет-врска на овој таблет."</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> нема да биде поврзан со споделувањето интернет-врска на овој телефон."</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"Спарен уред со Bluetooth"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Поврзи се"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Поврзи се со уред со Bluetooth"</string>
@@ -1050,7 +1050,7 @@
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"Запаметени групи"</string>
     <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Не може да се поврзе."</string>
     <string name="wifi_p2p_failed_rename_message" msgid="638656605352538706">"Не успеа да го преименува уредот."</string>
-    <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"Исклучи?"</string>
+    <string name="wifi_p2p_disconnect_title" msgid="915880461655863812">"Да се прекине врската?"</string>
     <string name="wifi_p2p_disconnect_message" msgid="3745286932812740784">"Ако се исклучите, вашата врска со <xliff:g id="PEER_NAME">%1$s</xliff:g> ќе заврши."</string>
     <string name="wifi_p2p_disconnect_multiple_message" msgid="6051173422663731688">"Ако се исклучите, вашето поврзување со <xliff:g id="PEER_NAME">%1$s</xliff:g> и <xliff:g id="PEER_COUNT">%2$s</xliff:g> други уреди ќе заврши."</string>
     <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Откажи покана?"</string>
@@ -2209,7 +2209,7 @@
     <string name="print_menu_item_add_printers" msgid="8198201275621756510">"Додај печатачи"</string>
     <string name="print_feature_state_on" msgid="1838010230650403367">"Вклучено"</string>
     <string name="print_feature_state_off" msgid="208580346723223688">"Исклучено"</string>
-    <string name="print_menu_item_add_service" msgid="6803000110578493782">"Додај услуга"</string>
+    <string name="print_menu_item_add_service" msgid="6803000110578493782">"Додајте услуга"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Додај печатач"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Пребарување"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"Пребарување печатачи"</string>
@@ -2773,7 +2773,7 @@
     <string name="vpn_forget" msgid="7662717604542624887">"Заборави"</string>
     <string name="vpn_connect_to" msgid="7926776854873218762">"Поврзи се со <xliff:g id="PROFILE">%s</xliff:g>"</string>
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"Да се исклучи оваа VPN?"</string>
-    <string name="vpn_disconnect" msgid="4625914562388652486">"Исклучи"</string>
+    <string name="vpn_disconnect" msgid="4625914562388652486">"Прекини врска"</string>
     <string name="vpn_version" msgid="2006792987077940456">"Верзија <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="vpn_forget_long" msgid="8457511440635534478">"Заборави VPN"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"Да се замени постојната VPN?"</string>
@@ -2800,7 +2800,7 @@
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Ниедна"</string>
     <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"VPN секогаш вклучена бара ИП адреса за серверот и за DNS."</string>
     <string name="vpn_no_network" msgid="8313250136194588023">"Нема мрежно поврзување. Обидете се повторно подоцна."</string>
-    <string name="vpn_disconnected" msgid="4597953053220332539">"Исклучено од VPN"</string>
+    <string name="vpn_disconnected" msgid="4597953053220332539">"Не е поврзано со VPN"</string>
     <string name="vpn_disconnected_summary" msgid="3784118965271376808">"Ниедна"</string>
     <string name="vpn_missing_cert" msgid="2713254242731992902">"Недостасува сертификат. Изменете го профилот."</string>
     <string name="trusted_credentials_system_tab" msgid="426064957548011864">"Систем"</string>
@@ -3123,7 +3123,7 @@
     <string name="keywords_assist_input" msgid="8392362788794886564">"стандарден, помошник"</string>
     <string name="keywords_default_payment_app" msgid="845369409578423996">"плаќање, стандарден"</string>
     <string name="keywords_ambient_display" msgid="8835182491798487184">"дојдовно известување"</string>
-    <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"интернет преку USB, интернет преку Bluetooth, Wi-Fi точка на пристап"</string>
+    <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"интернет преку USB, интернет преку Bluetooth, точка на пристап за Wi-Fi"</string>
     <string name="keywords_touch_vibration" msgid="2081175517528255224">"повратни информации со допир, вибрации, чувствителност"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"повратни информации со допир, вибрации, телефон, повик, чувствителност, ѕвонење"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"повратни информации со допир, вибрации, чувствителност"</string>
@@ -4333,12 +4333,12 @@
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"Вклучено (исклучен звук)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"Исклучено"</string>
     <string name="pref_title_network_details" msgid="3971074015034595956">"Детали за мрежата"</string>
-    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Името на уредот е видливо за апликациите на телефонот. Може да го видат и други луѓе кога ќе се поврзете со уреди со Bluetooth или кога ќе поставите Wi-Fi точка на пристап."</string>
+    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Името на уредот е видливо за апликациите на телефонот. Може да го видат и други луѓе кога ќе се поврзете со уреди со Bluetooth или кога ќе поставите точка на пристап за Wi-Fi."</string>
     <string name="devices_title" msgid="4768432575951993648">"Уреди"</string>
     <string name="homepage_all_settings" msgid="3201220879559136116">"Сите поставки"</string>
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Предлози"</string>
     <string name="choose_network_title" msgid="3213314359630522396">"Изберете мрежа"</string>
-    <string name="network_disconnected" msgid="8677203031237141594">"Исклучена"</string>
+    <string name="network_disconnected" msgid="8677203031237141594">"Не е поврзано"</string>
     <string name="network_connected" msgid="8197627827976712053">"Поврзано"</string>
     <string name="network_connecting" msgid="8798611458457547110">"Се поврзува…"</string>
     <string name="network_could_not_connect" msgid="552874922030763713">"Не може да се поврзе"</string>
@@ -4518,7 +4518,7 @@
     <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"Не може да се сними слика од меморијата на системот"</string>
     <string name="automatic_system_heap_dump_title" msgid="2153897396923488317">"Автоматски снимај слики од меморијата на системот"</string>
     <string name="automatic_system_heap_dump_summary" msgid="4962129546638974661">"Автоматски снимај слика од меморијата за системот Android кога користи премногу меморија"</string>
-    <string name="wifi_disconnect_button_text" msgid="787688024070426706">"Исклучи"</string>
+    <string name="wifi_disconnect_button_text" msgid="787688024070426706">"Прекини врска"</string>
     <string name="wfc_disclaimer_emergency_limitation_title_text" msgid="26884532087670844">"Итни повици"</string>
     <string name="wfc_disclaimer_emergency_limitation_desc_text" msgid="8726152486964822599">"Вашиот оператор не поддржува итни повици преку услугата „Повици преку Wi-Fi“.\nУредот се префрла автоматски на мобилна мрежа за да се оствари итен повик.\nИтните повици се можни само во области покриени со мобилна мрежа."</string>
 </resources>

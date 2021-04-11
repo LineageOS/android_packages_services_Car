@@ -179,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Tilkoblet nå"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Lagrede enheter"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth slås på for å koble til"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"Tilkoblingsinnstillinger"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"Tilkoblingsvalg"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Enheter som har vært tilkoblet tidligere"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Tidligere tilkoblet"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth er på"</string>
@@ -905,11 +905,11 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Skriv inn SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Sikkerhet"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Skjult nettverk"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Hvis ruteren din ikke sender en nettverks-ID, men du vil koble til den i fremtiden, kan du sette nettverket som skjult.\n\nDette kan utgjøre en sikkerhetsrisiko fordi telefonen sender signalet sitt regelmessig for å finne nettverket.\n\nRuterinnstillingene dine endres ikke hvis du setter nettverket til å være skjult."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Hvis ruteren din ikke sender en nettverks-ID, men du vil koble til den i fremtiden, kan du angi at nettverket skal være skjult.\n\nDette kan utgjøre en sikkerhetsrisiko fordi telefonen sender signalet sitt regelmessig for å finne nettverket.\n\nRuterinnstillingene dine endres ikke hvis du setter nettverket til å være skjult."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signalstyrke"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Overføringshastighet for sending"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Linkhastighet for mottak"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Overføringshastighet for mottak"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frekvens"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP-adresse"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Lagret via"</string>
@@ -935,9 +935,9 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Personvern"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Tilfeldig valgt MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Legg til en enhet"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Sentrér QR-koden nedenfor for å legge til enheten i «<xliff:g id="SSID">%1$s</xliff:g>»"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Midtstill QR-koden nedenfor for å legge til enheten i «<xliff:g id="SSID">%1$s</xliff:g>»"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skann QR-koden"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Sentrér QR-koden nedenfor for å koble til «<xliff:g id="SSID">%1$s</xliff:g>»"</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Midtstill QR-koden nedenfor for å koble til «<xliff:g id="SSID">%1$s</xliff:g>»"</string>
     <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Koble til Wi‑Fi ved å skanne en QR-kode"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Del Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Skann denne QR-koden for å koble til «<xliff:g id="SSID">%1$s</xliff:g>» og dele passordet"</string>
@@ -3200,8 +3200,8 @@
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Du ser varsler på skjermen"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Når du mottar varsler, kommer ikke telefonen til å lage lyd eller vibrere."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ingen lyd eller visuelle elementer fra varsler"</string>
-    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Du kommer ikke til å se eller høre varsler"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonen din kommer ikke til å vise, vibrere for eller lage lyd for nye eller eksisterende varsler. Husk at viktige varsler om telefonaktivitet og status fremdeles vises.\n\nNår du slår av «Ikke forstyrr», kan du finne varsler du gikk glipp av, ved å sveipe ned fra toppen av skjermen."</string>
+    <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Du verken ser eller hører varsler"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonen verken viser, vibrerer for eller lager lyd for nye eller eksisterende varsler. Husk at viktige varsler om telefonaktivitet og status fremdeles vises.\n\nNår du slår av «Ikke forstyrr», kan du finne varsler du gikk glipp av, ved å sveipe ned fra toppen av skjermen."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Tilpasset"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Slå på tilpasset innstilling"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fjern tilpasset innstilling"</string>
@@ -3277,7 +3277,7 @@
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Innstillinger"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ingen lyd eller visuelle elementer fra varsler"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ingen lyd fra varsler"</string>
-    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Du kommer ikke til å se eller høre varsler. Anrop fra stjernemerkede kontakter og gjentatte oppringere tillates."</string>
+    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Du verken ser eller hører varsler. Anrop fra stjernemerkede kontakter og gjentatte oppringere tillates."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Gjeldende innstilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vil du endre innstillinger for varsler for «Ikke forstyrr»?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Lyder i jobbprofilen"</string>
@@ -3468,19 +3468,19 @@
     <string name="zen_mode_schedule_rule_days" msgid="220627703673691816">"Dager"</string>
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Ingen"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Hver dag"</string>
-    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Alarmer kan overstyre sluttider"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Tidsplanen slås av når alarmer ringer"</string>
+    <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Alarmer kan overstyre sluttid"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Tidsplanen slås av når en alarm ringer"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Atferd for «Ikke forstyrr»"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Bruk standardinnstillinger"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Opprett tilpassede innstillinger for denne tidsplanen"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Lag egne innstillinger for denne tidsplanen"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"For «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>»"</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g>–<xliff:g id="END">%2$s</xliff:g>"</string>
     <string name="summary_range_verbal_combination" msgid="8799629589758200970">"<xliff:g id="START">%1$s</xliff:g> til <xliff:g id="END">%2$s</xliff:g>"</string>
     <string name="zen_mode_calls" msgid="1844534357711539325">"Tillat anrop"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"Anrop"</string>
-    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"For å kontrollere at tillatte anrop lager lyd, sjekk om enheten din er satt til ringing, vibrering eller lydløs."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Innkommende anrop er blokkert for «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>». Du kan justere innstillinger for å la venner, familie eller andre kontakter nå deg."</string>
+    <string name="zen_mode_calls_footer" msgid="6319824006810688433">"For å forsikre deg om at tillatte anrop lager lyd, sjekk om enheten din er satt til ringing, vibrering eller lydløs."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Innkommende anrop er blokkert for «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>». Du kan justere innstillingene for å la venner, familie eller andre kontakter nå deg."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Stjernemerkede kontakter"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="other"><xliff:g id="NUM_PEOPLE">%d</xliff:g> andre</item>
@@ -3488,7 +3488,7 @@
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"Tillat SMS-er"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"For å kontrollere at tillatte meldinger lager lyd, sjekk om enheten din er satt til ringing, vibrering eller lydløs."</string>
-    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"Innkommende tekstmeldinger er blokkert for «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>». Du kan justere innstillinger for å la venner, familie eller andre kontakter nå deg."</string>
+    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"Innkommende tekstmeldinger er blokkert for «<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>». Du kan justere innstillingene for å la venner, familie eller andre kontakter nå deg."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS og meldingsapper"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"Fra alle"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"Bare fra kontakter"</string>
@@ -3736,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"USB-internettdeling"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"Bruk denne enheten som MIDI"</string>
-    <string name="usb_use" msgid="8940500223316278632">"Bruk USB for"</string>
+    <string name="usb_use" msgid="8940500223316278632">"Bruk USB til"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"Standard USB-konfigurasjon"</string>
     <string name="usb_default_info" msgid="953775292571786528">"Disse innstillingene gjelder når en annen enhet er koblet til og telefonen din er låst opp. Du bør bare koble til godkjente enheter."</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>

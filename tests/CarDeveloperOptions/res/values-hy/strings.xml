@@ -771,7 +771,7 @@
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Չհաջողվեց կապակցվել: Փորձեք նորից:"</string>
     <string name="device_details_title" msgid="726517818032923222">"Սարքի տվյալները"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Սարքի Bluetooth հասցեն՝ <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Մոռանա՞լ սարքը:"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Մոռանա՞լ սարքը"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Ձեր հեռախոսը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Ձեր պլանշետը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Ձեր սարքը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>

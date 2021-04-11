@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Tietosuoja"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Satunnaistettu MAC-osoite"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Lisää laite"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Keskitä QR-koodi alle yhdistääksesi laitteen <xliff:g id="SSID">%1$s</xliff:g>:iin"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> keskittämällä QR-koodi alle"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Lue QR-koodi"</string>
-    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Keskitä QR-koodi alle yhdistääksesi <xliff:g id="SSID">%1$s</xliff:g>:iin"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Yhdistä Wi-Fi-verkkoon lukemalla QR-koodi."</string>
+    <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> keskittämällä QR-koodi alle"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Yhdistä Wi-Fi-verkkoon lukemalla QR-koodi"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Jaa Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> ja jaa salasana lukemalla tämä QR-koodi."</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> skannaamalla tämä QR-koodi"</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Haluatko peruuttaa laitteelle <xliff:g id="PEER_NAME">%1$s</xliff:g> lähetetyn yhteydenmuodostuskutsun?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Unohdetaanko tämä ryhmä?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi‑Fi-hotspot"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetyhteyttä tai sisältöä ei jaeta muille laitteille."</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Internetyhteyttä tai sisältöä ei jaeta muille laitteille"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Tabletin internetyhteys jaetaan hotspotin kautta"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Puhelimen internetyhteys jaetaan hotspotin kautta"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Sovellus jakaa sisältöä – jos haluat jakaa internetyhteyden, sammuta hotspot ja käynnistä se uudelleen"</string>
@@ -3281,8 +3281,8 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(nykyinen asetus)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Muutetaanko Älä häiritse ‑ilmoitusasetuksia?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Työprofiilin äänet"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Käytä henk. koht. prof. ääniä"</string>
-    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Työ- ja henkilökohtaisessa profiilissa käytetään samoja ääniä."</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Käytä oman profiilin ääniä"</string>
+    <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Työ- ja henkilökohtaisessa profiilissa käytetään samoja ääniä"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Puhelimen työsoittoääni"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Työilmoituksen oletusääni"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Työherätyksen oletusääni"</string>

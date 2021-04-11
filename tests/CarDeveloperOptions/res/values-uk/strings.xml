@@ -3274,7 +3274,7 @@
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Використовувати розклад"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"Лише пріоритетні"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"Лише будильник"</string>
-    <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"Без сигналів"</string>
+    <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"Повна тиша"</string>
     <string name="zen_mode_summary_combination" msgid="6960111215170691605">"<xliff:g id="MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_visual_interruptions_settings_title" msgid="8378266552787406849">"Блокувати візуальні сповіщення"</string>
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Дозволити візуальні сигнали"</string>
@@ -3567,7 +3567,7 @@
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Будильник може ігнорувати час завершення"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Розклад вимкнеться, коли задзвонить будильник"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Режим \"Не турбувати\""</string>
-    <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Використовувати налаштування за умовчанням"</string>
+    <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Налаштування за умовчанням"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Створити власні налаштування для цього розкладу"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Для розкладу \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>

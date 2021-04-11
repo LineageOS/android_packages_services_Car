@@ -911,7 +911,7 @@
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ప్రసార లింక్ వేగం"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"లింక్ వేగాన్ని స్వీకరించండి"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"ఫ్రీక్వెన్సీ"</string>
-    <string name="wifi_ip_address" msgid="5572539114989914831">"IP చిరునామా"</string>
+    <string name="wifi_ip_address" msgid="5572539114989914831">"IP అడ్రస్"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"దీని ద్వారా సేవ్ చేయబడింది"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> ఆధారాలు"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP పద్ధతి"</string>
@@ -1019,7 +1019,7 @@
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"అధునాతన Wi‑Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC చిరునామా"</string>
-    <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP చిరునామా"</string>
+    <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP అడ్రస్"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"నెట్‌వర్క్ వివరాలు"</string>
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"సబ్‌నెట్ మాస్క్"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
@@ -1357,8 +1357,8 @@
     <string name="status_signal_strength" msgid="4302597886933728789">"సిగ్నల్ సామర్థ్యం"</string>
     <string name="status_roaming" msgid="5191044997355099561">"రోమింగ్‌"</string>
     <string name="status_operator" msgid="6017986100643755390">"నెట్‌వర్క్"</string>
-    <string name="status_wifi_mac_address" msgid="3868452167971295995">"Wi‑Fi MAC చిరునామా"</string>
-    <string name="status_bt_address" msgid="460568179311735657">"బ్లూటూత్ చిరునామా"</string>
+    <string name="status_wifi_mac_address" msgid="3868452167971295995">"Wi‑Fi MAC అడ్రస్"</string>
+    <string name="status_bt_address" msgid="460568179311735657">"బ్లూటూత్ అడ్రస్"</string>
     <string name="status_serial_number" msgid="8257722124627415159">"క్రమ సంఖ్య"</string>
     <string name="status_up_time" msgid="77128395333934087">"గడిచిన సమయం"</string>
     <string name="status_awake_time" msgid="1251959094010776954">"మేల్కొని ఉన్న సమయం"</string>
@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"తక్కువ బ్యాటరీ వినియోగం"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi, బ్లూటూత్‌ స్కానింగ్‌"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi స్కానింగ్"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wi‑Fi ఆఫ్‌లో ఉన్నా కూడా, ఏ సమయంలోనైనా Wi‑Fi నెట్‌‍వర్క్‌లను స్కాన్ చేయడానికి యాప్‌లను మరియు సేవలను అనుమతించండి. ఉదాహరణకు, ఇది స్థాన ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచడానికి ఉపయోగించబడుతుంది."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wi‑Fi ఆఫ్‌లో ఉన్నా కూడా, ఏ సమయంలోనైనా Wi‑Fi నెట్‌‍వర్క్‌లను స్కాన్ చేయడానికి యాప్‌లను, సర్వీస్‌లను అనుమతించండి. ఈ అనుమతి, లొకేషన్ ఆధారిత ఫీచర్‌లను, సర్వీస్‌లను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. అనుమతి వల్ల కలిగే ప్రయోజనాలకు ఇది ఒక ఉదాహరణ మాత్రమే."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"బ్లూటూత్ స్కానింగ్"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"బ్లూటూత్ ఆఫ్‌లో ఉన్నప్పుడు కూడా, ఏ సమయంలోనైనా సమీపంలోని పరికరాలను స్కాన్ చేయడానికి యాప్‌లను మరియు సేవలను అనుమతించండి. ఉదాహరణకు, ఇది స్థాన ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచడానికి ఉపయోగించబడుతుంది."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"బ్లూటూత్ ఆఫ్‌లో ఉన్నప్పుడు కూడా, ఏ సమయంలోనైనా సమీపంలోని పరికరాలను స్కాన్ చేయడానికి యాప్‌లను, సర్వీస్‌లను అనుమతించండి. ఈ అనుమతి, లొకేషన్ ఆధారిత ఫీచర్‌లను, సర్వీస్‌లను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. అనుమతి వల్ల కలిగే ప్రయోజనాలకు ఇది ఒక ఉదాహరణ మాత్రమే."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"ఆఫీస్ కోసం స్థాన సేవలు"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi‑Fi &amp; మొబైల్ నెట్‌వర్క్ స్థానం"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"మీ స్థానాన్ని వేగవంతంగా అంచనా వేయడం కోసం Google స్థాన సేవను ఉపయోగించడానికి అనువర్తనాలను అనుమతించండి. అనామక స్థాన డేటా సేకరించబడుతుంది మరియు Googleకు పంపబడుతుంది."</string>
@@ -2213,7 +2213,7 @@
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ప్రింటర్‌ను జోడించు"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"ప్రింటర్‌ల కోసం వెతుకుతోంది"</string>
-    <string name="print_service_disabled" msgid="6376344992705893436">"సేవ నిలిపివేయబడింది"</string>
+    <string name="print_service_disabled" msgid="6376344992705893436">"సర్వీస్ డిజేబుల్ చేయబడింది"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ముద్రణ జాబ్‌లు"</string>
     <string name="print_print_job" msgid="6846889971435170443">"ముద్రణ జాబ్"</string>
     <string name="print_restart" msgid="4090462480288441779">"మళ్లీ ప్రారంభించు"</string>
@@ -3550,7 +3550,7 @@
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"అంతరాయం కలిగించవద్దు ద్వారా నిశ్శబ్దం చేయబడిన నోటిఫికేషన్‌లను స్క్రీన్‌ని ఆన్ చేయనివ్వండి"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"నోటిఫికేషన్ సెట్టింగ్‌లు"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"సరే"</string>
-    <string name="device_feedback" msgid="4042352891448769818">"ఈ పరికరం గురించి అభిప్రాయం పంపండి"</string>
+    <string name="device_feedback" msgid="4042352891448769818">"ఈ పరికరంపై ఫీడ్‌బ్యాక్‌ ఇవ్వండి"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"నిర్వాహకుల పిన్‌ని నమోదు చేయండి"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"ఆన్‌లో ఉంది"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"ఆఫ్‌‌లో ఉంది"</string>
