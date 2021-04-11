@@ -286,7 +286,73 @@
     <item msgid="1165623660533024666">"spustenie na pozadí"</item>
     <item msgid="6423861043647911030">"objem aplikácií dostupnosti"</item>
   </string-array>
-    <!-- no translation found for app_ops_labels:41 (2464189519136248621) -->
+  <string-array name="app_ops_labels">
+    <item msgid="7892361636570580123">"Poloha"</item>
+    <item msgid="6656077694190491067">"Poloha"</item>
+    <item msgid="8790228218278477369">"Poloha"</item>
+    <item msgid="7836406246005211990">"Vibrovanie"</item>
+    <item msgid="3951439024549922598">"Čítanie kontaktov"</item>
+    <item msgid="8802152411647068">"Úprava kontaktov"</item>
+    <item msgid="229544934599698735">"Čítanie denníka hovorov"</item>
+    <item msgid="7396102294405899613">"Úprava denníka hovorov"</item>
+    <item msgid="3597797992398484655">"Čítanie kalendára"</item>
+    <item msgid="2705975774250907343">"Úprava kalendára"</item>
+    <item msgid="4668747371441932697">"Poloha"</item>
+    <item msgid="1487578921720243646">"Upozornenie na príspevok"</item>
+    <item msgid="4636080349724146638">"Poloha"</item>
+    <item msgid="673510900286463926">"Volanie na telefón"</item>
+    <item msgid="542083422784609790">"Čítanie SMS/MMS"</item>
+    <item msgid="1033780373029588436">"Písanie SMS/MMS"</item>
+    <item msgid="5647111115517787488">"Príjem SMS/MMS"</item>
+    <item msgid="8591105601108455893">"Príjem SMS/MMS"</item>
+    <item msgid="7730995008517841903">"Príjem SMS/MMS"</item>
+    <item msgid="2613033109026626086">"Príjem SMS/MMS"</item>
+    <item msgid="3037159047591081136">"Odosielanie SMS/MMS"</item>
+    <item msgid="4726682243833913568">"Čítanie SMS/MMS"</item>
+    <item msgid="6555678522277865572">"Písanie SMS/MMS"</item>
+    <item msgid="6981734935578130884">"Úprava nastavení"</item>
+    <item msgid="8705854389991425629">"Vykreslenie navrch"</item>
+    <item msgid="5861356020344153651">"Prístup k upozorneniam"</item>
+    <item msgid="78432174621628659">"Fotoaparát"</item>
+    <item msgid="3986116419882154794">"Nahrávať zvuk"</item>
+    <item msgid="4516840825756409490">"Prehrať zvuk"</item>
+    <item msgid="6811712502798183957">"Načítať schránku"</item>
+    <item msgid="2780369012602289114">"Upraviť schránku"</item>
+    <item msgid="2331359440170850868">"Tlačidlá médií"</item>
+    <item msgid="6133599737122751231">"Zameranie zvuku"</item>
+    <item msgid="6844485713404805301">"Hlavná hlasitosť"</item>
+    <item msgid="1600379420669104929">"Hlasitosť hlasu"</item>
+    <item msgid="6296768210470214866">"Hlasitosť zvonenia"</item>
+    <item msgid="510690696071629241">"Hlasitosť médií"</item>
+    <item msgid="406861638631430109">"Hlasitosť budíkov"</item>
+    <item msgid="4715864795872233884">"Hlasitosť upozornení"</item>
+    <item msgid="2311478519251301183">"Hlasitosť zariadenia Bluetooth"</item>
+    <item msgid="5133991377896747027">"Zakázať režim spánku"</item>
+    <item msgid="2464189519136248621">"Umiestnenie"</item>
+    <item msgid="2062677934050803037">"Poloha"</item>
+    <item msgid="1735171933192715957">"Získanie štatistiky využívania"</item>
+    <item msgid="1014093788778383554">"Stlmenie alebo zrušenie stlmenia mikrofónu"</item>
+    <item msgid="4199297950608622850">"Zobrazenie oznamu"</item>
+    <item msgid="2527962435313398821">"Projekcia médií"</item>
+    <item msgid="5117506254221861929">"Aktivácia VPN"</item>
+    <item msgid="8291198322681891160">"Zápis tapety"</item>
+    <item msgid="7106921284621230961">"Asistujúca štruktúra"</item>
+    <item msgid="4496533640894624799">"Asistujúca snímka obrazovky"</item>
+    <item msgid="2598847264853993611">"Čítanie stavu telefónu"</item>
+    <item msgid="9215610846802973353">"Pridanie hlasovej schránky"</item>
+    <item msgid="9186411956086478261">"Používanie volania SIP"</item>
+    <item msgid="6884763100104539558">"Spracovanie odchádzajúcich hovorov"</item>
+    <item msgid="125513972170580692">"Odtlačok prsta"</item>
+    <item msgid="2556071024281275619">"Telesné senzory"</item>
+    <item msgid="617168514928339387">"Čítať správy informačných služieb"</item>
+    <item msgid="7134693570516523585">"Napodobnenie miesta"</item>
+    <item msgid="7224489175375229399">"Čítanie úložiska"</item>
+    <item msgid="8472735063903258202">"Zápis do úložiska"</item>
+    <item msgid="4069276819909595110">"Zapnutie obrazovky"</item>
+    <item msgid="1228338896751121025">"Získanie účtov"</item>
+    <item msgid="3181581793459233672">"Spustenie na pozadí"</item>
+    <item msgid="2340936043025374076">"Objem aplikácií dostupnosti"</item>
+  </string-array>
   <string-array name="long_press_timeout_selector_titles">
     <item msgid="8950313530602254787">"Krátke"</item>
     <item msgid="4816511817309094890">"Stredná"</item>
@@ -357,9 +423,19 @@
     <item msgid="7718817231348607934">"Nikdy nepovoliť"</item>
     <item msgid="8184570120217958741">"Vždy povoliť"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normálne"</item>
+    <item msgid="5101233285497327432">"Stredný"</item>
+    <item msgid="1555861583162930714">"Nízka"</item>
+    <item msgid="1719683776264798117">"Kritický"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normálny"</item>
+    <item msgid="6107138933849816768">"Stredný"</item>
+    <item msgid="182695359839047859">"Nízka"</item>
+    <item msgid="8577246509202964244">"Kritické"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Pretrvávajúci"</item>
     <item msgid="167418068739176448">"Najčastejšia aktivita"</item>
@@ -401,8 +477,8 @@
     <item msgid="1008268820118852416">"Považovať za nemeranú sieť"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Používať randomizovanú adresu MAC (predvolené)"</item>
-    <item msgid="214234417308375326">"Použiť adresu MAC zariadenia"</item>
+    <item msgid="6545683814310036454">"Použiť náhodnú MAC (predvolené)"</item>
+    <item msgid="214234417308375326">"Používať adresu MAC zariadenia"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
     <item msgid="7426878022650940844">"Nie"</item>
