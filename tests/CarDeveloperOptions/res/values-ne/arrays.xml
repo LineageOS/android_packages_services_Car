@@ -70,7 +70,7 @@
     <item msgid="4157625910392775808">"स्क्यान गरिँदै..."</item>
     <item msgid="5597394826455877834">"जडान हुँदै..."</item>
     <item msgid="5848277343965362748">"प्रमाणित गर्दै..."</item>
-    <item msgid="3391238031431440676">"IP ठेगाना पत्ता लगाउँदै ..."</item>
+    <item msgid="3391238031431440676">"IP एड्रेस पत्ता लगाउँदै ..."</item>
     <item msgid="5257597310494000224">"जडान गरियो"</item>
     <item msgid="8472497592913050396">"निलम्बित"</item>
     <item msgid="1228072488815999109">"जडान हटाइँदै ..."</item>
@@ -84,7 +84,7 @@
     <item msgid="6816207058895999545">"स्क्यान गर्दै ..."</item>
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडान हुँदै..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>का साथ प्रमाणीकरण गर्दै..."</item>
-    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट IP ठेगाना प्राप्त गर्दै..."</item>
+    <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट IP एड्रेस प्राप्त गर्दै..."</item>
     <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> मा जोडिएको छ"</item>
     <item msgid="6600156231416890902">"निलम्बित"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट विच्छेदन गर्दै..."</item>
@@ -124,7 +124,7 @@
   <string-array name="wifi_signal">
     <item msgid="1709949377823900951">"कमजोर"</item>
     <item msgid="7882129634982603782">"कमजोर"</item>
-    <item msgid="6457357501905996224">"ठिकठाक"</item>
+    <item msgid="6457357501905996224">"राम्रै"</item>
     <item msgid="405271628162918841">"राम्रो"</item>
     <item msgid="999948812884919584">"उत्कृष्ट"</item>
   </string-array>
@@ -391,7 +391,7 @@
     <item msgid="6462911487571123954">"१००%"</item>
   </string-array>
   <string-array name="captioning_preset_selector_titles">
-    <item msgid="326819345272910536">"एपका पूर्वनिर्धारित सेटिङहरू प्रयोग गर्नुहोस्"</item>
+    <item msgid="326819345272910536">"एपका डिफल्ट सेटिङ प्रयोग गरियोस्"</item>
     <item msgid="8611890312638868524">"कालोमा सेतो"</item>
     <item msgid="5891360837786277638">"सेतोमा कालो"</item>
     <item msgid="2798457065945456853">"कालोमा पहेँलो"</item>
@@ -439,7 +439,7 @@
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"लगातार"</item>
     <item msgid="167418068739176448">"उच्च गतिविधि"</item>
-    <item msgid="4760813290195199773">"महत्वपूर्ण (अग्रभूमि)"</item>
+    <item msgid="4760813290195199773">"महत्वपूर्ण (फ‍ोरग्राउन्ड)"</item>
     <item msgid="2328684826817647595">"महत्वपूर्ण (पृष्ठभूमि)"</item>
     <item msgid="7746406490652867365">"ब्याकअप"</item>
     <item msgid="5597404364389196754">"भारी वजन"</item>
@@ -473,11 +473,11 @@
   </string-array>
   <string-array name="wifi_metered_entries">
     <item msgid="4329206416008519163">"स्वतः पत्ता लगाउनुहोस्"</item>
-    <item msgid="773943026484148895">"शुल्क लाग्ने वाइफाइका रूपमा लिनुहोस्"</item>
-    <item msgid="1008268820118852416">"नि:शुल्क वाइफाइको रूपमा व्यवहार गर्नुहोस्"</item>
+    <item msgid="773943026484148895">"शुल्क लाग्ने Wi-Fi का रूपमा लिनुहोस्"</item>
+    <item msgid="1008268820118852416">"नि:शुल्क Wi-Fi का रूपमा लिनुहोस्"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"क्रमरहित MAC प्रयोग गर्नुहोस् (पूर्वनिर्धारित)"</item>
+    <item msgid="6545683814310036454">"क्रमरहित MAC प्रयोग गरियोस् (डिफल्ट)"</item>
     <item msgid="214234417308375326">"MAC यन्त्र प्रयोग गर्नुहोस्"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
