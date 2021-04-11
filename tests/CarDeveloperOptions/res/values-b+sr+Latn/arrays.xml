@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Tretiraj kao mrežu bez ograničenja"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Koristi nasumično izabranu MAC adresu (podrazumevano)"</item>
+    <item msgid="6545683814310036454">"Koristi nasumičnu MAC adresu (podrazumevano)"</item>
     <item msgid="214234417308375326">"Koristi MAC adresu uređaja"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

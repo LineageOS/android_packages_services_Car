@@ -49,7 +49,7 @@
     <item msgid="8271452751594598661">"30分"</item>
   </string-array>
   <string-array name="lock_after_timeout_entries">
-    <item msgid="2232921187970351881">"すぐ"</item>
+    <item msgid="2232921187970351881">"直後"</item>
     <item msgid="2038544972632026612">"5秒"</item>
     <item msgid="5558060663472279597">"15秒"</item>
     <item msgid="45341168505452037">"30秒"</item>
