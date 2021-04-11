@@ -3821,7 +3821,7 @@
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Módosíthatja a rendszerbeállításokat"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Módosíthatja a rendszerbeállításokat"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Rendszerbeállítások módosítása"</string>
-    <string name="permit_write_settings" msgid="4198491281216818756">"Rendszerbeállítás-módosítások engedélyezése"</string>
+    <string name="permit_write_settings" msgid="4198491281216818756">"Módosíthatja a rendszer beállításait"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Ez az engedély lehetővé teszi az alkalmazás számára a rendszerbeállítások módosítását."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Igen"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Nem"</string>
@@ -4067,9 +4067,9 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Összes"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Tippek és támogatás"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Legkeskenyebb szélesség"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Egy telepített alkalmazás sem kért hozzáférést a Prémium sms-ekhez"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Egy telepített alkalmazás sem kért hozzáférést emelt díjas SMS küldéséhez"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"A Prémium sms-ek használata pénzbe kerülhet Önnek, és a szolgáltató által kiállított számlák végösszegét növeli. Ha engedélyt ad valamelyik alkalmazásnak, akkor azzal lehetősége lesz prémium sms-eket küldeni."</string>
-    <string name="premium_sms_access" msgid="4550027460595822851">"Prémium sms-hozzáférés"</string>
+    <string name="premium_sms_access" msgid="4550027460595822851">"Emelt díjas SMS küldése"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Kikapcsolva"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"A(z) <xliff:g id="ID_1">%1$s</xliff:g> eszközhöz csatlakozik"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Több eszközhöz csatlakozik"</string>

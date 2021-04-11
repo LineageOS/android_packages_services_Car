@@ -2431,7 +2431,7 @@
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Durada aproximada de la càrrega completa"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"Les dades d\'ús de la bateria són aproximades i poden variar en funció de l\'ús"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Mentre està en ús actiu"</string>
-    <string name="battery_detail_background" msgid="7938146832943604280">"Mentre està segon pla"</string>
+    <string name="battery_detail_background" msgid="7938146832943604280">"Mentre està en segon pla"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Ús de la bateria"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Des de la càrrega completa"</string>
     <string name="battery_detail_manage_title" msgid="745194290572617507">"Gestiona l\'ús de la bateria"</string>

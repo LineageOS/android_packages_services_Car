@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Unahitaji kujaza uga wa kituo."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Sehemu ya mlango sharti iwe wazi iwapo sehemu ya mpangishaji haina chochote"</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Lango uliloandika si halali."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Proksi ya HTTP inayotumiwa na kivinjari lakini haiwezi kutumika na programu zingine."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Seva mbadala ya HTTP inayotumiwa na kivinjari lakini haiwezi kutumika na programu zingine."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"URL ya PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Kipimo Data cha DL (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Kipimo Data cha UL (kbps):"</string>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Hakuna ratiba"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Kulingana na ratiba yako"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Kulingana na asilimia"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Kiokoa betri huwashwa kama betri yako inakaribia kuisha kabla ya muda wako wa kawaida wa kuchaji"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Kiokoa Betri huwashwa kama betri yako inakaribia kuisha kabla ya muda wako wa kawaida wa kuchaji"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Kitawaka ikifika <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Weka ratiba"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Zima kiokoa betri inapojazwa chaji"</string>
@@ -3280,7 +3280,7 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Hutaona wala kusikia arifa. Simu kutoka anwani zenye nyota na wanaorudia kupiga simu zinaruhusiwa."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Mipangilio ya sasa)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Ungependa kubadilisha mipangilio ya arifa za Usinisumbue?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"Sauti za wasifu wa kazi"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"Sauti za wasifu wa kazini"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Tumia sauti za wasifu wako binafsi"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Sauti za wasifu wa binafsi na wa kazini ni sawa"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Mlio wa simu ya kazini"</string>

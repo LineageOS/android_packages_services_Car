@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> 個使用中的應用程式</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"信任的代理程式"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"如要使用，請先設定螢幕鎖定"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"如要使用這個選項，請先設定螢幕鎖定方式"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"無"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> 個信任的代理程式正在運作</item>
@@ -2277,9 +2277,9 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"延長平板電腦的電池續航力"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"延長裝置的電池續航力"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"開啟 Battery Manager"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"開啟節約耗電量模式"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"開啟省電模式"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"電池電力可能會比平常更快耗盡"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"節約耗電量模式已開啟"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"省電模式已開啟"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"部分功能可能受到限制"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"手機使用率比平常高"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"平板電腦使用率比平常高"</string>
@@ -2309,17 +2309,17 @@
       <item quantity="other">要限制 %1$d 個應用程式嗎？</item>
       <item quantity="one">要限制應用程式嗎？</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"如要節省電量，請將「<xliff:g id="APP">%1$s</xliff:g>」設為停止在背景耗用電量。這麼做可能會導致這個應用程式無法正常運作，且相關通知可能會延遲。"</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"如要節省電量，請將這些應用程式設為停止在背景耗用電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式："</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"如要節省電量，請將這些應用程式設為停止在背景耗用電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式：\n<xliff:g id="APP_LIST">%1$s</xliff:g>。"</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"如要節省電量，請禁止「<xliff:g id="APP">%1$s</xliff:g>」在背景中消耗裝置電量。這麼做可能會導致這個應用程式無法正常運作，且相關通知可能會延遲。"</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"如要節省電量，請禁止這些應用程式在背景中消耗裝置電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式："</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"如要節省電量，請禁止這些應用程式在背景中消耗裝置電量。受限制的應用程式可能無法正常運作，且相關通知可能會延遲。\n\n應用程式：\n<xliff:g id="APP_LIST">%1$s</xliff:g>。"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"限制"</string>
-    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"要移除限制嗎？"</string>
+    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"要解除限制嗎？"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"這個應用程式將會在背景耗用電量。你的電池電力可能會比預期更快耗盡。"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"移除"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"取消"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的手機會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟節約耗電量模式。"</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的平板電腦會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟節約耗電量模式。"</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的裝置會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟節約耗電量模式。"</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的手機會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟省電模式。"</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的平板電腦會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟省電模式。"</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"你的應用程式目前耗用的電力正常。如果應用程式耗用過多電力，你的裝置會為你提供操作建議。\n\n如果電池電量偏低，你隨時可以開啟省電模式。"</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Battery Manager"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"自動管理應用程式"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"針對不常使用的應用程式限制電池用量"</string>
@@ -2446,22 +2446,22 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android 作業系統"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"媒體伺服器"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"應用程式最佳化"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"節約耗電量"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"省電模式"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"自動開啟"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"未設定時間表"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"根據你平常充電的時間"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"根據電量百分比"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"如果電池電量可能會在你下次的例行充電時間前耗盡，系統就會開啟「節約耗電量」模式"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"如果電池電量可能會在你下次的例行充電時間前耗盡，系統就會開啟「省電模式」"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"將在電量為 <xliff:g id="PERCENT">%1$s</xliff:g> 時開啟"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"設定時間表"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"充電完成後關閉"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"在你手機的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉節約耗電量模式"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"在你平板電腦的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉節約耗電量模式"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"在你裝置的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉節約耗電量模式"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"在你手機的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉省電模式"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"在你平板電腦的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉省電模式"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"在你裝置的電池電量達 <xliff:g id="PERCENT">%1$s</xliff:g> 時關閉省電模式"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"開啟"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"使用節約耗電量模式"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"使用省電模式"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"自動開啟"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"永遠不要"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"電量為 <xliff:g id="PERCENT">%1$s</xliff:g> 時"</string>
@@ -2932,7 +2932,7 @@
     <string name="nfc_payment_set_default" msgid="1186837502664412132">"要一律採用「<xliff:g id="APP">%1$s</xliff:g>」進行感應付款嗎？"</string>
     <string name="nfc_payment_set_default_instead_of" msgid="5746952277762109289">"要一律採用「<xliff:g id="APP_0">%1$s</xliff:g>」(而非「<xliff:g id="APP_1">%2$s</xliff:g>」) 進行感應付款嗎？"</string>
     <string name="restriction_settings_title" msgid="4143751894908963736">"限制"</string>
-    <string name="restriction_menu_reset" msgid="3642252461410370554">"移除限制"</string>
+    <string name="restriction_menu_reset" msgid="3642252461410370554">"解除限制"</string>
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"變更 PIN 碼"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"顯示通知"</string>
     <string name="help_label" msgid="1296484776243905646">"說明與意見回饋"</string>
@@ -3127,7 +3127,7 @@
     <string name="keywords_touch_vibration" msgid="2081175517528255224">"觸覺回饋, 震動, 螢幕, 敏感度"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"觸動回饋, 震動, 手機, 通話, 敏感度, 響鈴"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"觸動回饋, 震動, 敏感度"</string>
-    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"節約耗電量, 固定式, 保留, 省電功能, 電池"</string>
+    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"省電模式, 固定式, 保留, 省電功能, 電池"</string>
     <string name="default_sound" msgid="6675629744816442953">"預設音效"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"鈴聲音量為 <xliff:g id="PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"音量、震動、零打擾"</string>
@@ -3284,8 +3284,8 @@
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔音效"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"工作資料夾和個人設定檔使用相同的音效"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"工作手機鈴聲"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設 Work 通知音效"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"預設 Work 鬧鐘音效"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設工作通知音效"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"預設工作鬧鐘音效"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"與個人設定檔相同"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"要取代音效嗎？"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"取代"</string>
@@ -3662,7 +3662,7 @@
     <string name="app_link_open_ask" msgid="4054678686331517561">"每次都詢問"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"不要在這個應用程式中開啟"</string>
     <string name="default_apps_title" msgid="3848048391400989931">"預設"</string>
-    <string name="default_for_work" msgid="7290411716804495366">"Work 預設值"</string>
+    <string name="default_for_work" msgid="7290411716804495366">"工作資料夾預設應用程式"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"小幫手和語音輸入"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"小幫手應用程式"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"要將「<xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g>」設為你的小幫手嗎？"</string>
@@ -3893,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"已開啟零打擾模式"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"手機已設為靜音"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"允許例外"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"節約耗電量模式已開啟"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"省電模式已開啟"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"只能使用部分功能"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"行動數據已關閉"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"只能透過 Wi-Fi 使用網際網路"</string>
@@ -3992,7 +3992,7 @@
     <string name="data_saver_off" msgid="7439439787358504018">"已關閉"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"使用數據節省模式"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"數據用量不受限"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"允許在數據節省模式開啟時無限量存取數據"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"開啟數據節省模式時，允許裝置不受限制使用數據流量"</string>
     <string name="home_app" msgid="3695063566006954160">"主畫面應用程式"</string>
     <string name="no_default_home" msgid="1518949210961918497">"沒有預設主畫面"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"安全啟動"</string>
@@ -4167,7 +4167,7 @@
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"已停用所有項目的同步處理功能"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"受管理的裝置資訊"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"由貴機構所管理的變更內容和設定"</string>
-    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"由 <xliff:g id="ORGANIZATION_NAME">%s</xliff:g> 所管理的變更內容和設定"</string>
+    <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"由「<xliff:g id="ORGANIZATION_NAME">%s</xliff:g>」管理的變更內容和設定"</string>
     <string name="enterprise_privacy_header" msgid="2680588186952421841">"為提供你的工作資料存取權，貴機構可能會在你的裝置上變更設定及安裝軟體。\n\n請與貴機構的管理員聯絡以瞭解詳情。"</string>
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"貴機構可查看的資訊類型"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"貴機構管理員進行的變更"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(已為使用者<xliff:g id="USER">%s</xliff:g>停用)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"自動填入服務"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"自動、填入、自動填入"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;請確定這是你信任的應用程式&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt;應用程式會根據你的畫面內容判斷要自動填入的內容。"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;請確定這是你信任的應用程式&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; 會根據畫面上顯示的內容判斷要自動填入哪些資訊。"</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"自動填入"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"記錄層級"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"每個工作階段的要求數上限"</string>

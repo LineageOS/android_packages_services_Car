@@ -1702,9 +1702,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"שימוש בסוללה חלשה"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"חיפוש נקודות Wi‑Fi ו-Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"חיפוש נקודות Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"אפליקציות ושירותים יוכלו לסרוק רשתות Wi‑Fi בכל עת, גם כאשר ה-Wi‑Fi כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי מיקום."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"אפליקציות ושירותים יוכלו לסרוק רשתות Wi‑Fi בכל שלב, גם כאשר ה-Wi‑Fi כבוי. ניתן להשתמש בכך, למשל, כדי לשפר את הביצועים של תכונות ושירותים מבוססי מיקום."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"סריקת Bluetooth"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"אפליקציות ושירותים יוכלו לסרוק מכשירים בקרבת מקום בכל עת, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי מיקום."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"אפליקציות ושירותים יוכלו לסרוק מכשירים בקרבת מקום בכל שלב, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר את הביצועים של תכונות ושירותים מבוססי מיקום."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"שירותי מיקום לעבודה"</string>
     <string name="location_network_based" msgid="1535812159327454835">"מיקום רשת Wi-Fi ורשת סלולרית"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"אפשר לאפליקציות להשתמש בשירות המיקום של Google כדי להעריך את מיקומך מהר יותר. נתוני מיקום אנונימיים ייאספו ויישלחו אל Google."</string>
@@ -2391,9 +2391,9 @@
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"מנהל הסוללה"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"ניהול אפליקציות באופן אוטומטי"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"הגבלת שימוש בסוללה לאפליקציות שבהן לא נעשה שימוש לעתים קרובות"</string>
-    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
-    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
-    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"אפליקציות בשימוש מוגבל"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="two">מגביל שימוש בסוללה של %1$d אפליקציות</item>
@@ -2538,7 +2538,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"אף פעם"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"סוללה ברמת טעינה של <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"אחוז הטעינה של הסוללה"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"הצגה של אחוז הטעינה של הסוללה בשורת הסטטוס"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"הצגת אחוז הטעינה של הסוללה בשורת הסטטוס"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"סטטיסטיקה של תהליך"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"סטטיסטיקה של מומחי מחשבים על התהליכים הפועלים"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"זיכרון בשימוש"</string>
@@ -2671,7 +2671,7 @@
     <string name="add_account_label" msgid="4461298847239641874">"הוספת חשבון"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"פרופיל עבודה עדיין אינו זמין"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"פרופיל עבודה"</string>
-    <string name="work_mode_on_summary" msgid="1682781113156323592">"מנוהל בידי הארגון"</string>
+    <string name="work_mode_on_summary" msgid="1682781113156323592">"מנוהל על ידי הארגון"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"אפליקציות והתראות מושבתות"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"הסר פרופיל עבודה"</string>
     <string name="background_data" msgid="8275750862371471171">"נתוני רקע"</string>
@@ -3811,7 +3811,7 @@
     <string name="high_power_apps" msgid="2518319744362028920">"אופטימיזציה של סוללה"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"התראות על ניצול סוללה"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"הצג נתונים מלאים על השימוש במכשיר"</string>
-    <string name="hide_extra_apps" msgid="6798261081113299441">"הצג את נתוני השימוש באפליקציה"</string>
+    <string name="hide_extra_apps" msgid="6798261081113299441">"הצגת נתוני השימוש באפליקציה"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
       <item quantity="two"><xliff:g id="NUMBER">%2$d</xliff:g> אפליקציות מתנהגות באופן חריג</item>
       <item quantity="many"><xliff:g id="NUMBER">%2$d</xliff:g> אפליקציות מתנהגות באופן חריג</item>
@@ -4134,7 +4134,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"הוספת טביעת אצבע"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"ביטול נעילה עם אצבע אחרת"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"פועל"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"יופעל ב-<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"יופעל כשהסוללה תגיע ל-<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"כבוי"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"הפעלה עכשיו"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"כיבוי עכשיו"</string>

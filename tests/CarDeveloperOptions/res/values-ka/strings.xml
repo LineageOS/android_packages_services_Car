@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"სამსახურის პროფილის უსაფრთხოება"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"სამსახურის პროფილის ეკრანის დაბლოკვა"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"დაბლოკვის საერთო მეთოდის გამოყენება"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"სამსახურის პროფილისთვისა და მოწყობილობისთვის ეკრანის დაბლოკვის საერთო მეთოდის გამოყენება"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"სამსახურის პროფილისა და მოწყობილობისთვის ეკრანის დაბლოკვის საერთო მეთოდის გამოყენება"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"გსურთ დაბლოკვის საერთო მეთოდის გამოყენება?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"თქვენი მოწყობილობა ეკრანის დაბლოკვის იმ მეთოდს გამოიყენებს, რომელიც თქვენს სამსახურის პროფილშია განსაზღვრული. ეკრანის დაბლოკვის ორივე მეთოდზე სამსახურის წესები გავრცელდება."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"სამსახურის პროფილის ეკრანის დაბლოკვის ამჟამინდელი მეთოდი თქვენი ორგანიზაციის უსაფრთხოების მოთხოვნებს არ პასუხობს. შეგიძლიათ თქვენი მოწყობილობისთვისა და სამსახურის პროფილისთვის ეკრანის დაბლოკვის საერთო მეთოდი გამოიყენოთ, თუმცა ამ შემთხვევაში, სამსახურის ეკრანის დაბლოკვის მეთოდისთვის მოქმედი წესები გავრცელდება."</string>

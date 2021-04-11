@@ -899,7 +899,7 @@
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"ਚਾਲੂ ਕਰੋ"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"ਵਾਈ-ਫਾਈ ਸਕੈਨਿੰਗ ਚਾਲੂ ਕੀਤੀ ਗਈ ਹੈ"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"ਉਨੱਤ ਵਿਕਲਪ"</string>
-    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"ਡ੍ਰੌਪ-ਡਾਊਨ ਸੂਚੀ ਉੱਨਤ ਵਿਕਲਪ। ਸੰਖਿਪਤ ਲਈ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
+    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"ਡ੍ਰੌਪ-ਡਾਊਨ ਸੂਚੀ ਉੱਨਤ ਵਿਕਲਪ। ਸਮੇਟਣ ਲਈ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"ਡ੍ਰੌਪ-ਡਾਊਨ ਸੂਚੀ ਉੱਨਤ ਵਿਕਲਪ। ਵਿਸਤਾਰ ਕਰਨ ਲਈ ਡਬਲ ਟੈਪ ਕਰੋ।"</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"ਨੈੱਟਵਰਕ ਦਾ ਨਾਮ"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID ਦਾਖਲ ਕਰੋ"</string>
@@ -4174,7 +4174,7 @@
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"ਇਸ ਡੀਵਾਈਸ \'ਤੇ ਤੁਹਾਡੀ ਪਹੁੰਚ"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"ਤੁਹਾਡੇ ਕਾਰਜ ਖਾਤੇ ਨਾਲ ਸਬੰਧਿਤ ਡਾਟਾ, ਜਿਵੇਂ ਕਿ ਈਮੇਲ ਅਤੇ ਕੈਲੰਡਰ"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"ਤੁਹਾਡੇ ਡੀਵਾਈਸ \'ਤੇ ਸਥਾਪਤ ਕੀਤੀਆਂ ਐਪਾਂ ਦੀ ਸੂਚੀ"</string>
-    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"ਹਰੇਕ ਐਪ ਵਿੱਚ ਲਗਾਇਆ ਸਮਾਂ ਅਤੇ ਵਰਤਿਆ ਗਿਆ  ਡਾਟਾ"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"ਹਰੇਕ ਐਪ ਵਿੱਚ ਲਗਾਇਆ ਸਮਾਂ ਅਤੇ ਵਰਤਿਆ ਗਿਆ ਡਾਟਾ"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"ਸਭ ਤੋਂ ਹਾਲੀਆ ਨੈੱਟਵਰਕ ਟਰੈਫਿਕ ਲੌਗ"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"ਸਭ ਤੋਂ ਹਾਲੀਆ ਬੱਗ ਰਿਪੋਰਟ"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"ਸਭ ਤੋਂ ਹਾਲੀਆ ਸੁਰੱਖਿਆ ਲੌਗ"</string>

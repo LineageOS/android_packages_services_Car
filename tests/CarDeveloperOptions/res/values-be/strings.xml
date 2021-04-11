@@ -502,7 +502,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Далей"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Акрамя разблакіроўкі тэлефона вы можаце выкарыстоўваць свае адбіткі пальцаў для аўтарызацыі пакупак і доступу да дадаткаў. "<annotation id="url">"Даведацца больш"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Опцыя блакіроўкі экрана адключана. Звяжыцеся з адміністратарам сваёй арганізацыі, каб даведацца больш. "<annotation id="admin_details">"Дадатковая інфармацыя"</annotation>\n\n"Вы па-ранейшаму можаце выкарыстоўваць адбіткі пальцаў для аўтарызацыі куплі і доступу да праграм. "<annotation id="url">"Даведацца больш"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Падніміце палец, потым дакраніцеся да сэнсара зноў"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Падыміце палец, потым дакраніцеся да сканера зноў"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Вы можаце дадаць да <xliff:g id="COUNT">%d</xliff:g> адбіткаў пальца"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Вы дадалі максімальную колькасць адбіткаў пальцаў"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Немагчыма дадаць больш адбіткаў пальцаў"</string>
@@ -764,7 +764,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Кіраваць злучэннямі, назвай прылады і бачнасцю"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Спалучыцца з <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Код спалучэння Bluetooth"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Код спалучэння па Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Увядзіце код спалучэння, затым націсніце кнопку Назад або Ўвод"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN-код складаецца з літар ці знакаў"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Звычайна 0000 або 1234"</string>
@@ -805,11 +805,11 @@
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Не атрымалася ўсталяваць злучэнне. Паўтарыце спробу."</string>
     <string name="device_details_title" msgid="726517818032923222">"Звесткі пра прыладу"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Адрас Bluetooth прылады: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Выдаліць прыладу?"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Разлучыць прыладу?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Ваш тэлефон больш не будзе злучаны з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Ваш планшэт больш не будзе злучаны з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Ваша прылада больш не будзе злучана з прыладай <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Выдаліць прыладу"</string>
+    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Разлучыць прыладу"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"Падключыцца да..."</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"Прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> будзе адключаная ад аўдыёфайлаў."</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"Прылада <xliff:g id="DEVICE_NAME">%1$s</xliff:g> будзе адключаная ад аудыёгарнітуры."</string>
@@ -1371,7 +1371,7 @@
     <string name="storage_settings_summary" product="default" msgid="6233147555590816245">"Адмацаваць SD-карту, прагледзець даступныя сховішчы"</string>
     <string name="imei_multi_sim" msgid="6462221220123699987">"IMEI (слот для SIM-карты %1$d)"</string>
     <string name="status_number" product="tablet" msgid="1594311542611046121">"MDN"</string>
-    <string name="status_number" product="default" msgid="6404365757066475145">"Нумар тэлефону"</string>
+    <string name="status_number" product="default" msgid="6404365757066475145">"Нумар тэлефона"</string>
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (слот для SIM-карты %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"Нумар тэлефона (слот SIM %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"MDN на SIM-карце"</string>
@@ -1703,7 +1703,7 @@
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Праверка Wi‑Fi і Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Пошук сетак Wi-Fi"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Дазвольце праграмам і сэрвісам шукаць сеткі Wi‑Fi, нават калі Wi‑Fi не падключаны. Гэту функцыю можна выкарыстоўваць для паляпшэння працы геасэрвісаў."</string>
-    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Сканіраванне Bluetooth"</string>
+    <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Пошук прылад Bluetooth"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Дазвольце праграмам і сэрвісам шукаць прылады паблізу, нават калі Bluetooth выключаны. Гэту функцыю можна выкарыстоўваць для паляпшэння працы геасэрвісаў."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Службы геалакацыі для працы"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Месцазнаходжанне Wi-Fi і мабiльнай сеткi"</string>
@@ -1728,7 +1728,7 @@
     <string name="legal_information" msgid="2374267257615182139">"Юрыдычная інфармацыя"</string>
     <string name="contributors_title" msgid="6800028420806884340">"Удзельнікі"</string>
     <string name="manual" msgid="5431859421432581357">"Кіраўніцтва"</string>
-    <string name="regulatory_labels" msgid="380968489247381025">"Ярлыкі сертыфікацыі"</string>
+    <string name="regulatory_labels" msgid="380968489247381025">"Этыкеткі сертыфікацыі"</string>
     <string name="safety_and_regulatory_info" msgid="7113766428000920132">"Інфармацыя па эксплуатацыі і бяспецы"</string>
     <string name="copyright_title" msgid="3847703367689932190">"Аўтарскія правы"</string>
     <string name="license_title" msgid="7582145947873528540">"Ліцэнзія"</string>
@@ -2507,7 +2507,7 @@
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Выкарыстанне зараду"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"З моманту поўнай зарадкі"</string>
     <string name="battery_detail_manage_title" msgid="745194290572617507">"Кіраваць выкарыстаннем зараду"</string>
-    <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Ацэнка стану акумулятара заснаваная на выкарыстанні прылады"</string>
+    <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Ацэнка стану акумулятара заснавана на выкарыстанні прылады"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"Прыблзіны час, які застаўся"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"Да поўнай зарадкі"</string>
     <string name="estimated_time_description" msgid="9220355793080184567">"Прыблізны час можа мяняцца ў залежнасці ад умоў выкарыстання"</string>
@@ -2672,7 +2672,7 @@
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Рабочы профіль яшчэ недаступны"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Працоўны профіль"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Пад кіраваннем вашай арганізацыі"</string>
-    <string name="work_mode_off_summary" msgid="1688885392211178315">"Праграмы і апавяшчэнні выключаныя"</string>
+    <string name="work_mode_off_summary" msgid="1688885392211178315">"Праграмы і апавяшчэнні выключаны"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Выдаліць рабочы профіль"</string>
     <string name="background_data" msgid="8275750862371471171">"Зыходныя дадзеныя"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Прыкладанні ў любы час могуць сінхранізаваць, адпраўляць і атрымлiваць дадзеныя"</string>
@@ -2700,7 +2700,7 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Налады ўліковага запісу"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Выдаліць уліковы запіс"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Дадаць уліковы запіс"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"Выдаліць уліковы запіс"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"Выдаліць уліковы запіс?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Выдаленне гэтага ўлiковага запiсу прывядзе да выдалення ўсіх паведамленняў, кантактаў і іншых дадзеных з планшэта."</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Выдаленне гэтага ўлiковага запiсу прывядзе да выдалення ўсіх паведамленняў, кантактаў і іншых дадзеных з тэлефона."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Выдаленне гэтага ўліковага запісу прывядзе да выдалення з прылады ўсіх паведамленняў, кантактаў і іншых даных!"</string>
@@ -3796,7 +3796,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"Адкрыць доступ да даных аб выкарыстанні"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Перавагі выкарыстання дадатку"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Час карыстання"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"Доступ да даных аб выкарыстанні дазваляе дадатку адсочваць, якія іншыя дадаткі вы выкарыстоўваеце і як часта, а таксама атрымліваць даныя пра вашага аператара, моўныя налады і іншую інфармацыю."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"Доступ да даных аб выкарыстанні дазваляе праграме адсочваць, якія іншыя праграмы вы выкарыстоўваеце і як часта, а таксама атрымліваць даныя пра вашага аператара, моўныя налады і іншую інфармацыю."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Памяць"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Падрабязная інф-цыя пра памяць"</string>
     <string name="always_running" msgid="5320183445080208766">"Запушчаны заўсёды (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3824,10 +3824,10 @@
       <item quantity="many">Праграм разраджаюць акумулятар</item>
       <item quantity="other">Праграмы разраджаюць акумулятар</item>
     </plurals>
-    <string name="high_power_filter_on" msgid="5294209328473386403">"Не аптымізаваныя"</string>
+    <string name="high_power_filter_on" msgid="5294209328473386403">"Неаптымізаваныя"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Не аптымізавана"</string>
     <string name="high_power_off" msgid="5906679734326490426">"Аптымізацыя выкарыстання акумулятара"</string>
-    <string name="high_power_system" msgid="739584574711292753">"Аптымізацыя акумулятара недаступна"</string>
+    <string name="high_power_system" msgid="739584574711292753">"Аптымізацыя акумулятара недаступная"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Не ўжываць аптымізацыю акумулятара. Акумулятар можа разраджацца хутчэй."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Дазволіць праграме заўсёды працаваць у фонавым рэжыме?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Калі вы дазволіце праграме <xliff:g id="APP_NAME">%1$s</xliff:g> заўсёды працаваць у фонавым рэжыме, час працы ад акумулятара можа паменшыцца. \n\nВы можаце змяніць гэта пазней у раздзеле \"Налады &gt; Праграмы і апавяшчэнні\"."</string>
@@ -4125,7 +4125,7 @@
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Уключыць эканомію трафіка"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Неабмежаваная перадача даных"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Не абмяжоўваць перадачу даных пры ўключанай Эканоміі трафіка"</string>
-    <string name="home_app" msgid="3695063566006954160">"Галоўная праграма"</string>
+    <string name="home_app" msgid="3695063566006954160">"Галоўны экран"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Няма стандартнай Галоўнай старонкі"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Бяспечны запуск"</string>
     <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"Патрабаваць узор для запуску прылады. У час, калі прылада адключана, на ёй нельга прымаць выклікі, паведамленні, апавяшчэнні і не працуе функцыя будзільніка."</string>
@@ -4217,7 +4217,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Датчыкі выключаны"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Налады працоўнага профілю"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Пошук кантактаў"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Дазволіць вашай арганізацыі пошук кантактаў, каб вызначаць абанентаў і кантакты"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Дазволіць пошук кантактаў у арганізацыі для вызначэння абанентаў і кантактаў"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Каляндар для некалькіх профіляў"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Паказваць падзеі, звязаныя з працай, у прыватным календары"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"Ваша арганізацыя не дазваляе асабістым праграмам мець доступ да працоўнага календара"</string>

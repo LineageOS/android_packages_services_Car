@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Հաջորդը"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Բացի հեռախոսը ապակողպելուց՝ մատնահետքը կարող եք նաև օգտագործել գնումները հաստատելու և հավելվածներից օգտվելու համար: "<annotation id="url">"Մանրամասն"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Էկրանի կողպման ընտրանքն անջատված է: Ավելին իմանալու համար դիմեք ձեր կազմակերպության ադմինիստրատորին: "<annotation id="admin_details">"Մանրամասներ"</annotation>\n\n"Գնումները և հավելվածների օգտագործումը թույլատրելու համար դուք կարող եք օգտագործել մատնահետքը: "<annotation id="url">"Իմանալ ավելին"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Բարձրացրեք մատը, ապա կրկին հպեք մատնահետքի ընթերցիչին"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Բարձրացրեք մատը, ապա կրկին հպեք սենսորին"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Կարող եք ավելացնել առավելագույնը <xliff:g id="COUNT">%d</xliff:g> մատնահետք"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Դուք ավելացրել եք մատնահետքերի առավելագույն թույլատրելի քանակը"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Հնարավոր չէ ավելացնել այլ մատնահետքեր"</string>
@@ -771,7 +771,7 @@
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Չհաջողվեց կապակցվել: Փորձեք նորից:"</string>
     <string name="device_details_title" msgid="726517818032923222">"Սարքի տվյալները"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Սարքի Bluetooth հասցեն՝ <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Մոռանա՞լ սարքը:"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Մոռանա՞լ սարքը"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Ձեր հեռախոսը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Ձեր պլանշետը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Ձեր սարքը <xliff:g id="DEVICE_NAME">%1$s</xliff:g> սարքի հետ այլևս զուգակցված չի լինի"</string>
@@ -1793,9 +1793,9 @@
     <string name="install_applications_title" msgid="8164828577588659496">"Թույլ է տալիս ծրագրերի բոլոր աղբյուրները"</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Վերջին օգտագործված հավելվածները"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"Տեսնել բոլոր հավելվածները (<xliff:g id="COUNT">%1$d</xliff:g>)"</string>
-    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Ձեր պլանշետն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր պլանշետին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Ձեր սարքն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
-    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Ձեր սարքն ու անձնական տվյալները առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին պատճառած ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Ձեր պլանշետն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր պլանշետին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Ձեր սարքն ու անձնական տվյալներն առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
+    <string name="install_all_warning" product="device" msgid="9141585291103603515">"Ձեր սարքն ու անձնական տվյալները առավել խոցելի են անհայտ հավելվածների գրոհների նկատմամբ: Տեղադրելով հավելվածներ այս աղբյուրից՝ դուք ընդունում եք, որ պատասխանատվություն եք կրում ձեր սարքին հասցված ցանկացած վնասի կամ տվյալների կորստի համար, որը կարող է տեղի ունենալ դրանք օգտագործելու արդյունքում:"</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Ընդլայնված կարգավորումներ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Միացնել այլ կարգավորման ընտրանքներ"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Հավելվածի մասին"</string>
@@ -4204,7 +4204,7 @@
     <string name="enterprise_privacy_ca_certs_work" msgid="836419648894546893">"Վստահելի ՀԿ հավաստագրեր ձեր աշխատանքային պրոֆիլում"</string>
     <plurals name="enterprise_privacy_number_ca_certs" formatted="false" msgid="7953528945502561752">
       <item quantity="one">Minimum <xliff:g id="COUNT_1">%d</xliff:g> CA certificates</item>
-      <item quantity="other">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> ՎԿ հավաստագիր</item>
+      <item quantity="other">Նվազագույնը <xliff:g id="COUNT_1">%d</xliff:g> CA հավաստագիր</item>
     </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"Ադմինիստրատորը կարող է կողպել սարքը և վերակայել գաղտնաբառը"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"Ադմինիստրատորը կարող է ջնջել սարքի բոլոր տվյալները"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Հաշիվ"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Սարքի անունը"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi-ի կառավարում"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Թույլ տվեք հավելվածին կառավարել Wi-Fi-ը"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Թույլ տալ հավելվածին վերահսկել Wi-Fi-ը"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Թույլ տվեք այս հավելվածին միացնել և անջատել Wi-Fi-ը, գտնել Wi-Fi ցանցեր և միանալ դրանց, ավելացնել և հեռացնել ցանցեր, միացնել միայն տեղային թեժ կետ"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Որտեղ նվագարկել"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Այս սարքը"</string>

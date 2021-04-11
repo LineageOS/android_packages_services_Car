@@ -19,7 +19,7 @@
     <string name="yes" msgid="39117354665111159">"ହଁ"</string>
     <string name="no" msgid="4709057267400907161">"ନାହିଁ"</string>
     <string name="create" msgid="5131953868544187847">"ତିଆରି କରନ୍ତୁ"</string>
-    <string name="allow" msgid="128867119174713893">"ଅନୁମତି"</string>
+    <string name="allow" msgid="128867119174713893">"ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="deny" msgid="3998166389989144025">"ଅଗ୍ରାହ୍ୟ କରନ୍ତୁ"</string>
     <string name="device_info_default" msgid="1548919563979154348">"ଅଜଣା"</string>
     <plurals name="show_dev_countdown" formatted="false" msgid="3953785659137161981">
@@ -459,13 +459,13 @@
     <string name="go_back_button_label" msgid="7310586887969860472">"ପଛକୁ ଫେରନ୍ତୁ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"ବାଦ୍ ଦିଅନ୍ତୁ"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"ବାତିଲ୍"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"ସେନ୍ସର୍‌କୁ ଛୁଁଅନ୍ତୁ"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"ସେନ୍ସର୍‌କୁ ସ୍ପର୍ଶ କରନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"ଏହା ଆପଣଙ୍କ ଫୋନ୍‌ର ପଛରେ ଅଛି। ନିଜ ପ୍ରଥମ ଆଙ୍ଗୁଠିର ବ୍ୟବହାର କରନ୍ତୁ।"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"ଡିଭାଇସ୍‌ ଏବଂ ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେନ୍ସର୍‌ ଲୋକେସନ୍‌ ସହ ଉଦାହରଣ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"ନାମ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ଠିକ୍‍ ଅଛି"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"ବିଲୋପ କରନ୍ତୁ"</string>
-    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"ସେନ୍ସର୍‌କୁ ଛୁଅଁନ୍ତୁ"</string>
+    <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"ସେନ୍ସର୍‌କୁ ସ୍ପର୍ଶ କରନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"ନିଜ ଆଙ୍ଗୁଠିକୁ ସେନ୍ସର୍ ଉପରେ ରଖନ୍ତୁ ଏବଂ ଏକ କମ୍ପନ ଅନୁଭବ କରିବା ପରେ ଉଠାଇଦିଅନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ଉଠାନ୍ତୁ, ତା\'ପରେ ପୁଣି ଛୁଅଁନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"ନିଜ ଟିପଚିହ୍ନର ବିଭିନ୍ନ ଅଂଶ ଯୋଗ କରିବା ପାଇଁ ଆଙ୍ଗୁଠି ଉଠାଉଥାନ୍ତୁ"</string>
@@ -600,9 +600,9 @@
 
 </xliff:g>ଆପଣଙ୍କର ସେଭ ହୋଇଥିବା ଆଙ୍ଗୁଠି ଚିହ୍ନଗୁଡ଼ିକ ମଧ୍ୟ ଏହି ଡିଭାଇସରୁ ଉଡ଼ାଇଦିଆଯିବ ଏବଂ ଆପଣ ନିଜ ଫୋନକୁ ଅନଲକ କରିପାରିବେ ନାହିଁ, କିଣାକିଣି କରିପାରିବେ ନାହିଁ କିମ୍ୱା ତାହା ଦ୍ୱାରା ଏପଗୁଡ଼ିକରେ ସାଇନ ଇନ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"ଆପଣଙ୍କର ପିନ୍‌ ନମ୍ୱର୍ ବିନା ଡିଭାଇସ୍‌‍ ସୁରକ୍ଷା ବୈଶିଷ୍ଟ୍ୟ କାମ କରିବ ନାହିଁ।"</string>
-    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"ଆପଣଙ୍କ PIN‌ ବିନା ଡିଭାଇସ୍‌ ସୁରକ୍ଷା ବୈଶିଷ୍ଟ୍ୟ କାମ କରିବ ନାହିଁ।<xliff:g id="EMPTY_LINE">
+    <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"ଆପଣଙ୍କ PIN‌ ବିନା ଡିଭାଇସ୍‌ ସୁରକ୍ଷା ଫିଚରଗୁଡ଼ିକ କାମ କରିବ ନାହିଁ।<xliff:g id="EMPTY_LINE">
 
-</xliff:g>ଆପଣ ସେଭ କରିଥିବା ଆଙ୍ଗୁଠି ଚିହ୍ନଗୁଡ଼ିକ ମଧ୍ୟ ଏହି ଡିଭାଇସ୍‌ରୁ ବାହାର କରିଦିଆଯିବ ଏବଂ ଆପଣ ନିଜ ଫୋନ୍‌କୁ ଅନ୍‌ଲକ୍‌ କରିପାରିବେ ନାହିଁ, କିଣାକିଣିକୁ ସ୍ୱୀକୃତି ଦେଇ ପାରିବେ ନାହିଁ କିମ୍ୱା ତାହା ଦ୍ୱାରା ଆପଗୁଡ଼ିକରେ ସାଇନ୍‌ ଇନ୍‌ କରିପାରିବେ ନାହିଁ।"</string>
+</xliff:g>ଆପଣ ସେଭ୍ କରିଥିବା ଟିପଚିହ୍ନଗୁଡ଼ିକ ମଧ୍ୟ ଏହି ଡିଭାଇସରୁ ବାହାର କରିଦିଆଯିବ ଏବଂ ଆପଣ ଆପଣଙ୍କ ଫୋନ୍‌କୁ ଅନ୍‌ଲକ୍‌ କରିପାରିବେ ନାହିଁ, କ୍ରୟଗୁଡ଼ିକୁ ସ୍ୱୀକୃତି ଦେଇ ପାରିବେ ନାହିଁ କିମ୍ୱା ସେଗୁଡ଼ିକ ମାଧ୍ୟମରେ ଆପଗୁଡ଼ିକରେ ସାଇନ୍‌ ଇନ୍‌ କରିପାରିବେ ନାହିଁ।"</string>
     <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"ଆପଣଙ୍କ ପାସ୍‌ୱାର୍ଡ ବିନା ଡିଭାଇସ୍‌ର ସୁରକ୍ଷା ବୈଶିଷ୍ଟ୍ୟ କାମ କରିବ ନାହିଁ।"</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"ଆପଣଙ୍କ ପାସୱର୍ଡ୍ ବିନା ଡିଭାଇସ୍‌ ସୁରକ୍ଷା ବୈଶିଷ୍ଟ୍ୟ କାମ କରିବ ନାହିଁ।<xliff:g id="EMPTY_LINE">
 
@@ -1286,7 +1286,7 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"ନିଜ ନୂଆ PIN କୁ ପୁଣିଥରେ ଟାଇପ୍‌ କରନ୍ତୁ"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"SIM PIN"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"ଭୁଲ୍ PIN"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PINଗୁଡିକ ମେଳ ଖାଉ ନାହିଁ"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PINଗୁଡ଼ିକ ମେଳ ହେଉନାହିଁ"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"PIN ପରିବର୍ତ୍ତନ କରିପାରିବ ନାହିଁ।\nସମ୍ଭବତଃ ଭୁଲ୍‌ PIN।"</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"ସିମ୍‌ ପିନ୍‌ ବଦଳାଇଦିଆଗଲା"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"SIM କାର୍ଡ ଲକ୍‌ ସ୍ଥିତି ପରିବର୍ତ୍ତନ କରିପାରିବେ ନାହିଁ।\nସମ୍ଭବତଃ ଭୁଲ୍‌ PIN ଅଟେ।"</string>
@@ -1716,8 +1716,8 @@
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"ପାସ୍‌ୱର୍ଡ ପୁନଃ-ପ୍ରବେଶ କରନ୍ତୁ"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"ଆପଣଙ୍କ ପ୍ୟାଟର୍ନ ନିଶ୍ଚିତ କରନ୍ତୁ"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"ଆପଣଙ୍କ PIN ପୁଣି ଲେଖନ୍ତୁ"</string>
-    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"ପାସ୍‌ୱର୍ଡ ମେଳ ଖାଉନାହିଁ"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"ପିନ୍‌ ମେଳ ଖାଉନାହିଁ"</string>
+    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"ପାସୱାର୍ଡଗୁଡ଼ିକ ମେଳ ହେଉନାହିଁ"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PINଗୁଡ଼ିକ ମେଳ ହେଉନାହିଁ"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"ଆପଣଙ୍କର ପାଟର୍ନ ପୁଣି ଆଙ୍କନ୍ତୁ"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"ଚୟନ ଅନ୍‌ଲକ୍‌ କରନ୍ତୁ"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"ପାସ୍‌ୱର୍ଡକୁ ସେଟ୍‌ କରିଦିଆଗଲା"</string>
@@ -1764,7 +1764,7 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"ଅନ୍‌ଲକ୍‌ ପାଟର୍ନ"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"ପାଟର୍ନ ଆବଶ୍ୟକ"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"ସ୍କ୍ରୀନ୍‌କୁ ଅନ୍‌ଲକ୍‌ କରିବା ପାଇଁ ପାଟର୍ନ ଆଙ୍କିବା ନିହାତି ଦରକାର"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ପାଟର୍ନ ଦେଖାଦେଉ"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ପାଟର୍ନକୁ ଭିଜିବୁଲ୍ କରନ୍ତୁ"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"ପ୍ରୋଫାଇଲ୍‌ ପାଟର୍ନ ଦେଖାଦେଉ"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ଟାପ୍‌ରେ କମ୍ପନ"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"ପାୱର୍‌ ବଟନ୍‌ ତୁରନ୍ତ ଲକ୍‌ କରେ"</string>
@@ -3679,7 +3679,7 @@
     <string name="system_default_app" msgid="1454719098589351197">"(ସିଷ୍ଟମ୍‌ ପୂର୍ବ-ନିର୍ଦ୍ଧାରିତ)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"ଆପ୍‌ ଷ୍ଟୋରେଜ୍"</string>
     <string name="usage_access" msgid="2023443456361489516">"ବ୍ୟବହାର ଆକ୍ସେସ୍"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"ଉପଯୋଗର ତଥ୍ୟ ବ୍ୟବହାର କରିବାର ଅନୁମତି ଦିଅନ୍ତୁ"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"ବ୍ୟବହାରର ଆକ୍ସେସକୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"ଆପ୍‌ ବ୍ୟବହାରର ପସନ୍ଦ"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"ସ୍କ୍ରିନ୍‌ ସମୟ"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"ଅନ୍ୟ ଆପ୍‌ଗୁଡ଼ିକ କଣ ଓ କେତେଥର ବ୍ୟବହାର କରୁଛନ୍ତି, ତଥା ଆପଣଙ୍କ କେରିଅର୍‌, ଭାଷା ସେଟିଙ୍ଗ, ଓ ଅନ୍ୟାନ୍ୟ ବିବରଣୀ ଟ୍ରାକ୍‌ କରିବା ପାଇଁ ଏକ ଆପ୍‌କୁ ବ୍ୟବହାର ଆକସେସ୍‌ ଅନୁମତି ଦେଇଥାଏ।"</string>
@@ -3825,7 +3825,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"ଏହି ଅନୁମତି ଦ୍ୱାରା ଗୋଟିଏ ଏପ, ସିଷ୍ଟମ ସେଟିଙ୍ଗରେ ସଂଶୋଧନ କରିଥାଏ।"</string>
     <string name="write_settings_on" msgid="7328986337962635118">"ହଁ"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"ନା"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"ଏହି ଉତ୍ସରୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"ଏହି ସୋର୍ସରୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"କ୍ୟାମେରା ଖୋଲିବା ପାଇଁ ଡବଲ୍‌ ଟ୍ୱିଷ୍ଟ କରନ୍ତୁ"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"କ୍ୟାମେରା ଆପ୍‌ ଖୋଲିବା ପାଇଁ ଫୋନ୍‌କୁ ଦୁଇଥର ଟ୍ୱିଷ୍ଟ କରନ୍ତୁ"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"କ୍ୟାମେରା ପାଇଁ ପାୱର୍‌ ବଟନ୍‌କୁ ଦୁଇଥର ଦବାନ୍ତୁ"</string>
@@ -4082,7 +4082,7 @@
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope ଟ୍ରେସ୍"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"ସେନ୍ସର୍‍ଗୁଡ଼ିକ ବନ୍ଦ ଅଛି"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସେଟିଙ୍ଗ"</string>
-    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"ସମ୍ପର୍କ ସନ୍ଧାନ"</string>
+    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"ଯୋଗାଯୋଗ ସନ୍ଧାନ"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"କଲର୍‌ ଓ ଯୋଗାଯୋଗଗୁଡ଼ିକୁ ଚିହ୍ନିବା ପାଇଁ ଆପଣଙ୍କ ସଂସ୍ଥା ଦ୍ୱାରା ଯୋଗାଯୋଗ ଖୋଜିବାକୁ ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"କ୍ରସ୍‌-ପ୍ରୋଫାଇଲ୍ କ୍ୟାଲେଣ୍ଡର୍‌"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"ଆପଣଙ୍କର ବ୍ୟକ୍ତିଗତ କ୍ୟାଲେଣ୍ଡର୍‌ରେ କାର୍ଯ୍ୟର ଇଭେଣ୍ଟଗୁଡ଼ିକ ଦେଖାନ୍ତୁ"</string>
@@ -4176,7 +4176,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"ଆପଣଙ୍କ ଡିଭାଇସ୍‌ରେ ଥିବା ଆପ୍‌ଗୁଡ଼ିକର ତାଲିକା"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"ପ୍ରତି ଆପ୍‌ରେ ବିତାଇଥିବା ସମୟ ଏବଂ ଡାଟାର ପରିମାଣ"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"ଶେଷଥରର ନେଟ୍‌ୱର୍କ ଟ୍ରାଫିକ୍‌ ଲଗ୍‌"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"ସମ୍ପ୍ରତି ବଗ୍‌ ରିପୋର୍ଟ"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"ବର୍ତ୍ତମାନର ବଗ୍‌ ରିପୋର୍ଟ"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"ସମ୍ପ୍ରତି ସୁରକ୍ଷା ଲଗ୍‌"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"କିଛି ନୁହେଁ"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"ଆପ୍‌ଗୁଡ଼ିକ ଇନ୍‌ଷ୍ଟଲ୍‌ ହୋଇଗଲା"</string>
