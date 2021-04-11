@@ -28,7 +28,7 @@
       <item quantity="other">אתה כעת במרחק של <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> צעדים מלהיות מפתח.</item>
       <item quantity="one">אתה כעת במרחק של צעד <xliff:g id="STEP_COUNT_0">%1$d</xliff:g> מלהיות מפתח.</item>
     </plurals>
-    <string name="show_dev_on" msgid="9075712234786224065">"אתה כעת מפתח!"</string>
+    <string name="show_dev_on" msgid="9075712234786224065">"הוגדרת כמפתח!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"אין צורך, אתה כבר מפתח."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"קודם עליך להפעיל את אפשרויות המפתח."</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"רשתות ותקשורת אלחוטית"</string>
@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"שינוי גודל הטקסט שמופיע במסך."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"הקטנה"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"הגדלה"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"טקסט לדוגמה"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"הקוסם המופלא מארץ עוץ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"פרק 11: עיר הברקת המופלאה של ארץ עוץ"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"‎@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"‎@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"סלולרי"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"אם חיבור Wi‑Fi לא זמין, ייעשה שימוש ברשת סלולרית"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"אם אין רשת סלולרית זמינה יש להשתמש ב-Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"התקשרות בחיבור Wi-Fi. אם חיבור ה-Wi‑Fi יתנתק, השיחה תסתיים."</string>
@@ -1700,9 +1702,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"שימוש בסוללה חלשה"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"חיפוש נקודות Wi‑Fi ו-Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"חיפוש נקודות Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"אפליקציות ושירותים יוכלו לסרוק רשתות Wi‑Fi בכל עת, גם כאשר ה-Wi‑Fi כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי מיקום."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"אפליקציות ושירותים יוכלו לסרוק רשתות Wi‑Fi בכל שלב, גם כאשר ה-Wi‑Fi כבוי. ניתן להשתמש בכך, למשל, כדי לשפר את הביצועים של תכונות ושירותים מבוססי מיקום."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"סריקת Bluetooth"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"אפליקציות ושירותים יוכלו לסרוק מכשירים בקרבת מקום בכל עת, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי מיקום."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"אפליקציות ושירותים יוכלו לסרוק מכשירים בקרבת מקום בכל שלב, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר את הביצועים של תכונות ושירותים מבוססי מיקום."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"שירותי מיקום לעבודה"</string>
     <string name="location_network_based" msgid="1535812159327454835">"מיקום רשת Wi-Fi ורשת סלולרית"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"אפשר לאפליקציות להשתמש בשירות המיקום של Google כדי להעריך את מיקומך מהר יותר. נתוני מיקום אנונימיים ייאספו ויישלחו אל Google."</string>
@@ -2089,7 +2091,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"סימוני תכונות"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"קורא מסך המיועד בעיקר לעיוורים או לבעלי ראייה לקויה"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"הקש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"ניתן להקיש על פריטים במסך כדי לשמוע הקראה שלהם"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"כתוביות"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"הגדלה"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"הגדלה על-ידי הקשה שלוש פעמים"</string>
@@ -2389,9 +2391,9 @@
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"מנהל הסוללה"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"ניהול אפליקציות באופן אוטומטי"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"הגבלת שימוש בסוללה לאפליקציות שבהן לא נעשה שימוש לעתים קרובות"</string>
-    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
-    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
-    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"כשמנהל הסוללה יזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיש להן הגבלה לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
+    <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"כשהתכונה \'ניהול הסוללה\' תזהה שאפליקציות גורמות להתרוקנות הסוללה, תהיה לך אפשרות להגביל אותן. ייתכן שהאפליקציות שיוגבלו לא יפעלו כראוי ויהיה עיכוב בקבלת התראות."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"אפליקציות בשימוש מוגבל"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="two">מגביל שימוש בסוללה של %1$d אפליקציות</item>
@@ -2536,7 +2538,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"אף פעם"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"סוללה ברמת טעינה של <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"אחוז הטעינה של הסוללה"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"הצגה של אחוז הטעינה של הסוללה בשורת הסטטוס"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"הצגת אחוז הטעינה של הסוללה בשורת הסטטוס"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"סטטיסטיקה של תהליך"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"סטטיסטיקה של מומחי מחשבים על התהליכים הפועלים"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"זיכרון בשימוש"</string>
@@ -2669,7 +2671,7 @@
     <string name="add_account_label" msgid="4461298847239641874">"הוספת חשבון"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"פרופיל עבודה עדיין אינו זמין"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"פרופיל עבודה"</string>
-    <string name="work_mode_on_summary" msgid="1682781113156323592">"מנוהל בידי הארגון"</string>
+    <string name="work_mode_on_summary" msgid="1682781113156323592">"מנוהל על ידי הארגון"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"אפליקציות והתראות מושבתות"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"הסר פרופיל עבודה"</string>
     <string name="background_data" msgid="8275750862371471171">"נתוני רקע"</string>
@@ -2886,9 +2888,7 @@
     <string name="one_userkey" msgid="5349738921509013845">"מקש משתמש אחד"</string>
     <string name="one_usercrt" msgid="856282310586987313">"אישור למשתמש אחד"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"אישור CA אחד"</string>
-    <!-- String.format failed for translation -->
-    <!-- no translation found for n_cacrts (7539893176217891549) -->
-    <skip />
+    <string name="n_cacrts" msgid="7539893176217891549">"‏%d אישורי CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"פרטי כניסה"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"פרטי הכניסה שהוסרו: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"לא הותקנו פרטי כניסה של המשתמש"</string>
@@ -3478,15 +3478,15 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"אין אפליקציות מותקנות שתומכות ב\'תמונה בתוך תמונה\'"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"תמונה בתוך תמונה"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"עם תמונה בתוך תמונה"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"תמונה בתוך תמונה"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"אפליקציה זו תוכל ליצור חלון מסוג תמונה-בתוך-תמונה בזמן שהיא תהיה פתוחה או לאחר היציאה ממנה (למשל, כדי להמשיך לצפות בסרטון). חלון זה מוצג מעל אפליקציות אחרות שנמצאות בשימוש."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"גישה אל \'נא לא להפריע\'"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"הפעלת ההרשאה \'נא לא להפריע\'"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"אין אפליקציות מותקנות שביקשו גישה אל \'נא לא להפריע\'"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"טוען אפליקציות..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android חוסמת במכשיר זה הצגת התראות מאפליקציה זו"</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של קטגוריית התראות זו"</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android חוסמת במכשיר הצגה של מקבץ הודעות זה"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מהאפליקציה הזו"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
@@ -3745,7 +3745,7 @@
     <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"לא התבקשו הרשאות"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"כל האפליקציות"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"אפליקציות מותקנות"</string>
-    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות אינסטנט"</string>
+    <string name="filter_instant_apps" msgid="8087483282854072366">"אפליקציות ללא התקנה"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"אישיות"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"עבודה"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"אפליקציות: הכל"</string>
@@ -3811,7 +3811,7 @@
     <string name="high_power_apps" msgid="2518319744362028920">"אופטימיזציה של סוללה"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"התראות על ניצול סוללה"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"הצג נתונים מלאים על השימוש במכשיר"</string>
-    <string name="hide_extra_apps" msgid="6798261081113299441">"הצג את נתוני השימוש באפליקציה"</string>
+    <string name="hide_extra_apps" msgid="6798261081113299441">"הצגת נתוני השימוש באפליקציה"</string>
     <plurals name="power_high_usage_summary" formatted="false" msgid="4658343710126205199">
       <item quantity="two"><xliff:g id="NUMBER">%2$d</xliff:g> אפליקציות מתנהגות באופן חריג</item>
       <item quantity="many"><xliff:g id="NUMBER">%2$d</xliff:g> אפליקציות מתנהגות באופן חריג</item>
@@ -4134,7 +4134,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"הוספת טביעת אצבע"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"ביטול נעילה עם אצבע אחרת"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"פועל"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"יופעל ב-<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"יופעל כשהסוללה תגיע ל-<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"כבוי"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"הפעלה עכשיו"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"כיבוי עכשיו"</string>
@@ -4289,10 +4289,10 @@
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"לא זמין במכשירים הנעולים לספק"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"יש להפעיל מחדש את המכשיר כדי להפעיל את התכונה של הגנת המכשיר."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"סה\"כ <xliff:g id="SIZE">%1$s</xliff:g> הפכו לזמינים\n\nהורץ לאחרונה בתאריך <xliff:g id="DATE">%2$s</xliff:g>"</string>
-    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות אינסטנט"</string>
+    <string name="web_action_enable_title" msgid="4462106633708675959">"אפליקציות ללא התקנה"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"פתיחת קישורים באפליקציות, גם אם הן לא מותקנות"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות אינסטנט"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות אינסטנט"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"אפליקציות ללא התקנה"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"העדפות של אפליקציות ללא התקנה"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"אפליקציות מותקנות"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"האחסון שלך מנוהל כעת על ידי מנהל האחסון"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"חשבונות עבור <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
@@ -4421,7 +4421,7 @@
     <string name="storage_manager_indicator" msgid="4255140732848476875">"מנהל אחסון: <xliff:g id="STATUS">^1</xliff:g>"</string>
     <string name="storage_manager_indicator_off" msgid="6404056007102580777">"כבוי"</string>
     <string name="storage_manager_indicator_on" msgid="5295306384982062320">"פועל"</string>
-    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה אינסטנט"</string>
+    <string name="install_type_instant" msgid="6248487669862821874">"אפליקציה ללא התקנה"</string>
     <string name="automatic_storage_manager_deactivation_warning" msgid="7867793739491286374">"האם לכבות את מנהל האחסון?"</string>
     <string name="storage_movies_tv" msgid="7282484273991655296">"אפליקציות סרטים וטלוויזיה"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"פרטי ניהול תצורה של ספק סלולרי"</string>
