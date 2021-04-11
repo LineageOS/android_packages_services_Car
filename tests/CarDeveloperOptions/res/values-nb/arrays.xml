@@ -392,8 +392,8 @@
   </string-array>
   <string-array name="captioning_preset_selector_titles">
     <item msgid="326819345272910536">"Bruk appens standardvalg"</item>
-    <item msgid="8611890312638868524">"Hvitt på svart"</item>
-    <item msgid="5891360837786277638">"Svart på hvitt"</item>
+    <item msgid="8611890312638868524">"Hvit på svart"</item>
+    <item msgid="5891360837786277638">"Svart på hvit"</item>
     <item msgid="2798457065945456853">"Gult på svart"</item>
     <item msgid="5799049811524553967">"Gult på blått"</item>
     <item msgid="3673930830658169860">"Tilpasset"</item>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"Aldri tillat"</item>
     <item msgid="8184570120217958741">"Alltid tillat"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Moderat"</item>
+    <item msgid="1555861583162930714">"Lav"</item>
+    <item msgid="1719683776264798117">"Kritisk"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normal"</item>
+    <item msgid="6107138933849816768">"Moderat"</item>
+    <item msgid="182695359839047859">"Lav"</item>
+    <item msgid="8577246509202964244">"Kritisk"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Vedvarende"</item>
     <item msgid="167418068739176448">"Høyeste aktivitet"</item>
@@ -467,7 +477,7 @@
     <item msgid="1008268820118852416">"Behandle som uten datamåling"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Bruk tilfeldig valgt MAC-adresse (standard)"</item>
+    <item msgid="6545683814310036454">"Bruk tilfeldig MAC-adresse (standard)"</item>
     <item msgid="214234417308375326">"Bruk enhetens MAC-adresse"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">

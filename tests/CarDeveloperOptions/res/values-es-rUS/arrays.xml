@@ -275,7 +275,7 @@
     <item msgid="6329507266039719587">"agregar buzón de voz"</item>
     <item msgid="7692440726415391408">"usar SIP"</item>
     <item msgid="8572453398128326267">"procesar llamada saliente"</item>
-    <item msgid="7775674394089376306">"huella digital"</item>
+    <item msgid="7775674394089376306">"huella dactilar"</item>
     <item msgid="3182815133441738779">"sensores corporales"</item>
     <item msgid="2793100005496829513">"leer emisiones móviles"</item>
     <item msgid="2633626056029384366">"ubicación ficticia"</item>
@@ -342,7 +342,7 @@
     <item msgid="9215610846802973353">"Agregar buzón de voz"</item>
     <item msgid="9186411956086478261">"Usar SIP"</item>
     <item msgid="6884763100104539558">"Procesar llamada saliente"</item>
-    <item msgid="125513972170580692">"Huella digital"</item>
+    <item msgid="125513972170580692">"Huella dactilar"</item>
     <item msgid="2556071024281275619">"Sensores corporales"</item>
     <item msgid="617168514928339387">"Leer emisiones móviles"</item>
     <item msgid="7134693570516523585">"Ubicación ficticia"</item>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"No permitir nunca"</item>
     <item msgid="8184570120217958741">"Permitir siempre"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Moderado"</item>
+    <item msgid="1555861583162930714">"Baja"</item>
+    <item msgid="1719683776264798117">"Crítico"</item>
+    <item msgid="1567326459340152525">"Desconocido"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normal"</item>
+    <item msgid="6107138933849816768">"Moderado"</item>
+    <item msgid="182695359839047859">"Baja"</item>
+    <item msgid="8577246509202964244">"Crítico"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Persistente"</item>
     <item msgid="167418068739176448">"Actividad principal"</item>
@@ -467,7 +477,7 @@
     <item msgid="1008268820118852416">"Tratar como red sin tarifa plana"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Usar MAC aleatoria (predeterminada)"</item>
+    <item msgid="6545683814310036454">"Usar MAC aleatoria (pred.)"</item>
     <item msgid="214234417308375326">"Usar MAC del dispositivo"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
