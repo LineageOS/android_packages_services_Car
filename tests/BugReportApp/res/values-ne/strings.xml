@@ -24,7 +24,7 @@
     <string name="bugreport_dialog_submit" msgid="2789636252713280633">"पेस गर्नुहोस्"</string>
     <string name="bugreport_dialog_cancel" msgid="4741928791364757040">"रद्द गर्नुहोस्"</string>
     <string name="bugreport_dialog_upload" msgid="2517386929450370781">"अपलोड गर्नुहोस्"</string>
-    <string name="bugreport_dialog_save" msgid="3291363266190644226">"सुरक्षित गर्नुहोस्"</string>
+    <string name="bugreport_dialog_save" msgid="3291363266190644226">"सेभ गर्नुहोस्"</string>
     <string name="bugreport_dialog_show_bugreports" msgid="6964385141627170297">"बग रिपोर्टहरू देखाउनुहोस्"</string>
     <string name="bugreport_dialog_close" msgid="289925437277364266">"बन्द गर्नुहोस्"</string>
     <string name="bugreport_dialog_title" msgid="3315160684205929910">"बोलेर समस्याको वर्णन गर्नुहोस्"</string>
