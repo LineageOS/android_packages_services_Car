@@ -67,7 +67,7 @@
     <string name="car_permission_label_read_car_occupant_awareness_state" msgid="125517953575032758">"Occupant Awareness System रिड गर्ने पहुँच"</string>
     <string name="car_permission_desc_read_car_occupant_awareness_state" msgid="188865882598414986">"Occupant Awareness System को स्थिति र पत्ता लगाउनेसम्बन्धी डेटा रिड गर्न दिन्छ"</string>
     <string name="car_permission_label_control_car_occupant_awareness_system" msgid="7163330266691094542">"Occupant Awareness System सम्बन्धी ग्राफको नियन्त्रण गर्नुहोस्"</string>
-    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्न अनुमति दिनुहोस्"</string>
+    <string name="car_permission_desc_control_car_occupant_awareness_system" msgid="7123482622084531911">"Occupant Awareness System पत्ता लगाउनेसम्बन्धी ग्राफको सुरु र समाप्त हुने कार्य नियन्त्रण गर्ने अनुमति दिनुहोस्"</string>
     <string name="car_permission_label_bind_input_service" msgid="6698489034024273750">"कारको इनपुट सेवा"</string>
     <string name="car_permission_desc_bind_input_service" msgid="1670323419931890170">"इनपुट गरिएका कार्यक्रमहरू व्यवस्थापन गर्ने"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus असफल भयो"</string>
@@ -141,6 +141,6 @@
     <string name="car_permission_desc_control_car_features" msgid="7646711104530599901">"कारका सुविधाहरू सक्षम वा असक्षम पार्नुहोस्।"</string>
     <string name="car_permission_label_use_car_watchdog" msgid="6973938293170413475">"कारको प्रणालीको निगरानी गर्ने सुविधा प्रयोग गर्नुहोस्"</string>
     <string name="car_permission_desc_use_car_watchdog" msgid="8244592601805516086">"कारको प्रणालीको निगरानी गर्ने सुविधा प्रयोग गर्नुहोस्"</string>
-    <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो यन्त्र"</string>
+    <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो डिभाइस"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"अतिथि"</string>
 </resources>
