@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"ការចុះឈ្មោះ IMS៖ <xliff:g id="STATUS">%1$s</xliff:g>\nសំឡេងតាមរយៈ LTE៖ <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nសំឡេងតាមរយៈ WiFi៖ <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nការហៅជាវីដេអូ៖ <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nចំណុចប្រទាក់ UT៖ <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"កំពុងដំណើរការ"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"មិនដំណើរការ"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"សម្រាប់តែការហៅពេលអាសន្នប៉ុណ្ណោះ"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"ការហៅទៅលេខសង្គ្រោះបន្ទាន់​តែប៉ុណ្ណោះ"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"បិទវិទ្យុ"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"រ៉ូមីង"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"មិនរ៉ូមីងទេ"</string>
@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"ធ្វើឲ្យអត្ថបទនៅលើអេក្រង់តូចជាងមុន ឬធំជាងមុន។"</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"កំណត់ឲ្យតូចជាងមុន"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"កំណត់ឲ្យធំជាងមុន"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"អត្ថបទគំរូ"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"មេធ្មប់ដ៏អស្ចារ្យនៃទឹកដីពិសិដ្ឋ"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"ជំពូកទី 11៖ ទីក្រុងមរកតដ៏អស្ចារ្យនៃទឹកដីពិសិដ្ឋ"</string>
@@ -456,7 +455,7 @@
     <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ថេប្លេតនេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ឧបករណ៍នេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
     <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"មុខងារការពារឧបករណ៍នឹងមិនត្រូវបានបើកទេ។ អ្នកនឹងមិនអាច​រារាំង​អ្នកផ្សេង​មិនឲ្យប្រើប្រាស់ទូរសព្ទនេះបានទេ ប្រសិនបើវាបាត់ ឬត្រូវបានគេលួច។"</string>
-    <string name="skip_anyway_button_label" msgid="4437815969645175429">"រំលងទោះបីយ៉ាងណាក៏ដោយ"</string>
+    <string name="skip_anyway_button_label" msgid="4437815969645175429">"មិនអីទេ រំលង​ចុះ"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"ថយ​ក្រោយ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"រំលង"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"បោះបង់"</string>
@@ -560,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ចាក់សោ​អេក្រង់"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / ភ្លាមៗ​បន្ទាប់ពីគេង"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> បន្ទាប់ពីគេង"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ការចាក់សោប្រវត្តិរូបការងារ"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ការចាក់សោកម្រងព័ត៌មានការងារ"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"ប្ដូរ​ការ​ចាក់​សោ​អេក្រង់"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"ប្ដូរ ឬ​បិទ​លំនាំ, កូដ PIN ឬ​​ពាក្យ​សម្ងាត់"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"ជ្រើស​វិធី​ចាក់​សោ​អេក្រង់"</string>
@@ -574,7 +573,7 @@
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"សុវត្ថិភាព​ពី​មធ្យម​ទៅ​ខ្ពស់"</string>
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"ពាក្យសម្ងាត់​"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"សុវត្ថិភាព​ខ្ពស់"</string>
-    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"កុំអាល"</string>
+    <string name="unlock_set_do_later_title" msgid="2939110070503695956">"កុំទាន់"</string>
     <string name="current_screen_lock" msgid="398328543694154510">"ការចាក់សោអេក្រង់បច្ចុប្បន្ន"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"ស្នាមម្រាមដៃ + លំនាំ"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"ស្នាមម្រាមដៃ + កូដ PIN"</string>
@@ -600,7 +599,7 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"មុខងារ​ការពារ​ឧបករណ៍​នឹងមិនដំណើរការ​ដោយគ្មាន​លំនាំ​របស់អ្នក​ទេ។<xliff:g id="EMPTY_LINE">
 
 </xliff:g>ស្នាមម្រាមដៃ​របស់អ្នក​ដែលបាន​រក្សាទុក​ក៏នឹង​ត្រូវលុបចេញ​ពី​ឧបករណ៍​នេះដែរ ហើយ​អ្នកនឹង​មិនអាច​ដោះសោ​ទូរសព្ទ​របស់អ្នក ផ្តល់សិទ្ធិ​សម្រាប់​ការទិញ ឬ​ចូលកម្មវិធី​ដោយប្រើ​ស្នាមម្រាមដៃ​ទាំងនេះ​បានទេ។"</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"លក្ខណៈពិសេសការពារឧបករណ៍នឹងមិនដំណើរការទេបើគ្មានកូដ PIN របស់អ្នក។"</string>
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"មុខងារការពារឧបករណ៍នឹងមិនដំណើរការទេបើគ្មានកូដ PIN របស់អ្នក។"</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"មុខងារ​ការពារ​ឧបករណ៍​នឹងមិន​ដំណើរការ​ដោយគ្មាន​កូដ PIN របស់អ្នក​ទេ។<xliff:g id="EMPTY_LINE">
 
 </xliff:g>ស្នាមម្រាមដៃ​របស់អ្នក​ដែលបាន​រក្សាទុក​ក៏នឹង​ត្រូវលុបចេញ​ពីឧបករណ៍​នេះដែរ ហើយអ្នក​នឹងមិន​អាចដោះសោ​ទូរសព្ទ​របស់អ្នក ផ្តល់សិទ្ធិ​សម្រាប់ការ​ទិញ ឬចូល​កម្មវិធី​ដោយប្រើ​ស្នាមម្រាមដៃ​ទាំងនេះ​បានទេ។"</string>
@@ -656,8 +655,8 @@
       <item quantity="one">ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_0">%d</xliff:g> តួ</item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
-      <item quantity="other">កូដ PIN ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_1">%d</xliff:g> ខ្ទង់</item>
-      <item quantity="one">កូដ PIN ត្រូវ​តែ​មាន​យ៉ាង​ហោច​ណាស់ <xliff:g id="COUNT_0">%d</xliff:g> ខ្ទង់</item>
+      <item quantity="other">កូដ PIN ត្រូវ​មានយ៉ាងតិច <xliff:g id="COUNT_1">%d</xliff:g> ខ្ទង់</item>
+      <item quantity="one">កូដ PIN ត្រូវ​មានយ៉ាងតិច <xliff:g id="COUNT_0">%d</xliff:g> ខ្ទង់</item>
     </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"បន្ត"</string>
     <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
@@ -715,8 +714,8 @@
     <string name="manage_device_admin" msgid="322047441168191695">"កម្មវិធីអ្នកគ្រប់គ្រងឧបករណ៍"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"មិនមានកម្មវិធីដែលដំណើរការទេ"</string>
     <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
-      <item quantity="other">កម្មវិធី <xliff:g id="COUNT_1">%d</xliff:g> បាន​បើកដំណើរការ</item>
-      <item quantity="one">កម្មវិធី <xliff:g id="COUNT_0">%d</xliff:g> បាន​បើកដំណើរការ</item>
+      <item quantity="other">កម្មវិធី <xliff:g id="COUNT_1">%d</xliff:g> កំពុងដំណើរការ</item>
+      <item quantity="one">កម្មវិធី <xliff:g id="COUNT_0">%d</xliff:g> កំពុងដំណើរការ</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"ភ្នាក់ងារ​ទុកចិត្ត"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"ដើម្បី​ប្រើ ដំបូង​អ្នក​ត្រូវ​កំណត់​ការ​ចាក់សោ​អេក្រង់"</string>
@@ -906,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"បញ្ចូល SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"សុវត្ថិភាព"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"បណ្តាញ​ដែល​បាន​លាក់"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ប្រសិនបើ​រូតទ័រ​របស់អ្នក​មិន​បង្ហាញ​លេខសម្គាល់​បណ្តាញ ប៉ុន្តែ​អ្នក​ចង់​ភ្ជាប់វា​នៅ​ពេល​អនាគត អ្នក​អាច​កំណត់​បណ្តាញ​ដូច​ដែល​បានលាក់។\n\nសកម្មភាព​នេះ​អាច​បង្កើតឱ្យមាន​ហានិភ័យ​ផ្នែក​សុវត្ថិភាព ដោយសារ​ទូរសព្ទ​របស់អ្នក​នឹងបង្ហាញ​រលកសញ្ញា​របស់វា​ជាប្រចាំ ដើម្បី​ស្វែងរក​បណ្តាញ។\n\nការកំណត់​បណ្តាញ​ដូច​ដែល​បាន​លាក់​នឹង​មិន​ប្តូរ​ការកំណត់​រូតទ័រ​របស់អ្នក​នោះទេ។"</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"ប្រសិនបើ​រូតទ័រ​របស់អ្នក​មិន​ផ្សាយ​លេខសម្គាល់​បណ្តាញ ប៉ុន្តែ​អ្នក​ចង់​ភ្ជាប់វា​នៅ​ពេល​អនាគត អ្នក​អាច​កំណត់​បណ្តាញ​ថា​បានលាក់។\n\nសកម្មភាព​នេះ​អាច​បង្កើតឱ្យមាន​ហានិភ័យ​ផ្នែក​សុវត្ថិភាព ដោយសារ​ទូរសព្ទ​របស់អ្នក​នឹងផ្សាយ​រលកសញ្ញា​របស់វា​ជាប្រចាំ ដើម្បី​ស្វែងរក​បណ្តាញ។\n\nការកំណត់​បណ្តាញ​ថា​បាន​លាក់​នឹង​មិន​ប្តូរ​ការកំណត់​រូតទ័រ​របស់អ្នក​នោះទេ។"</string>
     <string name="wifi_signal" msgid="696548364467704808">"កម្លាំង​សញ្ញា"</string>
     <string name="wifi_status" msgid="3439931558930689940">"ស្ថានភាព"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ល្បឿនតភ្ជាប់​សម្រាប់​ការផ្ទេរ"</string>
@@ -916,7 +915,7 @@
     <string name="passpoint_label" msgid="7429247462404128615">"បានរក្សាទុកតាមរយៈ"</string>
     <string name="passpoint_content" msgid="340527524510304327">"អត្តសញ្ញាណ <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"វិធីសាស្ត្រ EAP"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"ជំហាន​ ២ ផ្ទៀងផ្ទាត់"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"ការផ្ទៀងផ្ទាត់ជំហាន​ទី 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"វិញ្ញាបនបត្រ CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domain"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"វិញ្ញាបនបត្រ​អ្នក​ប្រើ"</string>
@@ -946,7 +945,7 @@
     <string name="wifi_dpp_could_not_detect_valid_qr_code" msgid="27667719861826438">"មិនអាច​អាន​កូដ QR បានទេ។ ដាក់កូដ​ឱ្យនៅចំកណ្ដាលវិញ រួច​ព្យាយាម​ម្ដងទៀត"</string>
     <string name="wifi_dpp_failure_authentication_or_configuration" msgid="9142051662156233679">"សូមព្យាយាមម្ដងទៀត។ ប្រសិនបើ​បញ្ហា​នៅតែបន្តកើតឡើង សូមទាក់ទង​ក្រុមហ៊ុនផលិត​ឧបករណ៍"</string>
     <string name="wifi_dpp_failure_not_compatible" msgid="4320027179973678283">"មានអ្វីមួយ​ខុសប្រក្រតី"</string>
-    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានបើក និងសាកថ្ម​ចូលហើយ"</string>
+    <string name="wifi_dpp_failure_timeout" msgid="5060065168142109420">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានដោត សាកថ្ម និងបើក"</string>
     <string name="wifi_dpp_failure_generic" msgid="7840142544736640189">"សូមប្រាកដថា​ឧបករណ៍​ត្រូវបានបើក និងសាកថ្ម​ចូលហើយ។ ប្រសិនបើ​បញ្ហា​នៅតែបន្តកើតឡើង សូមទាក់ទង​ក្រុមហ៊ុនផលិត​ឧបករណ៍"</string>
     <string name="wifi_dpp_failure_not_supported" msgid="111779621766171626">"មិន​អាច​បញ្ចូល “<xliff:g id="SSID">%1$s</xliff:g>” ទៅក្នុងឧបករណ៍​នេះ​បាន​ទេ"</string>
     <string name="wifi_dpp_check_connection_try_again" msgid="7144663015219170999">"សូម​ពិនិត្យមើល​ការតភ្ជាប់ រួចព្យាយាម​ម្ដងទៀត"</string>
@@ -1025,7 +1024,7 @@
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"របាំងបណ្តាញរង"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"អាសយដ្ឋាន IPv6"</string>
-    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"បណ្ដាញ​បាន​រក្សាទុក"</string>
+    <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"បណ្ដាញ​ដែលបាន​រក្សាទុក"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"ការ​ជាវ"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"ទូរសព្ទ​ចល័ត"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"ប្រសិនបើ​មិនអាច​ប្រើ Wi‑Fi សូមប្រើ​បណ្ដាញ​ទូរសព្ទ​ចល័ត"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"ប្រសិនបើ​មិន​អាច​ប្រើបណ្ដាញ​ទូរសព្ទ​ចល័ត សូម​ប្រើ Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"ហៅទូរសព្ទតាមរយៈ Wi‑Fi ។ ប្រសិនបើ​ដាច់ Wi‑Fi ការហៅទូរសព្ទនឹងបញ្ចប់។"</string>
@@ -1284,7 +1286,7 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"បញ្ចូល​កូដ PIN ថ្មី​ឡើងវិញ"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"កូដ​ PIN ស៊ីម​កាត"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"កូដ PIN មិន​ត្រឹមត្រូវ"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"កូដ PINs មិន​ដូច​គ្នា"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"កូដ PIN មិន​ដូច​គ្នា"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"មិន​អាច​ប្ដូរ​កូដ PIN ។\nប្រហែលជា​កូដ PIN មិន​ត្រឹមត្រូវ។"</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"បាន​ប្ដូរ​​​កូដ PIN ស៊ីម​កាត់​ដោយ​ជោគជ័យ"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"មិន​អាច​ប្ដូរ​ស្ថានភាព​ការ​ចាក់​សោ​ស៊ីម​កាត។\nប្រហែល​ជា​កូដ​ PIN មិន​ត្រឹមត្រូវ។"</string>
@@ -1311,7 +1313,7 @@
     <string name="security_patch" msgid="483709031051932208">"កម្រិតបំណះសុវត្ថិភាព Android"</string>
     <string name="model_info" msgid="1729765474260797594">"ម៉ូដែល"</string>
     <string name="model_summary" msgid="8781425868254352168">"ម៉ូដែល៖ %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"ម៉ូដែល និង​ផ្នែករឹង"</string>
+    <string name="hardware_info" msgid="174270144950621815">"ម៉ូដែល និង​ហាតវែរ"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"កំណែ​ផ្នែករឹង"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"លេខ​សម្គាល់​បរិក្ខារ"</string>
     <string name="baseband_version" msgid="9115560821840757786">"កំណែ​មូលដ្ឋាន"</string>
@@ -1645,7 +1647,7 @@
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"សូម​បញ្ចូល​ស៊ីមកាត និង​ចាប់ផ្ដើម​ឡើង​វិញ"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"សូម​ភ្ជាប់​អ៊ីនធឺណិត"</string>
     <string name="location_title" msgid="8664674161765477168">"ទីតាំង​ខ្ញុំ"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ទីតាំងសម្រាប់ប្រវត្តិរូបការងាររបស់អ្នក"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ទីតាំងសម្រាប់កម្រងព័ត៌មានការងារ"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"ការអនុញ្ញាតកម្មវិធី"</string>
     <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"ទីតាំង​បាន​បិទ"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
@@ -1660,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"​ប្រើ​ថ្ម​តិច"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"ការស្កេន Wi‑Fi និងប៊្លូធូស"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"ការស្កេន Wi‑Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ស្កេនរក​បណ្ដាញ Wi‑Fi បាន​គ្រប់ពេល ទោះបីជា Wi‑Fi ​បិទក៏ដោយ។ ឧទាហរណ៍ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង។"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ស្កេនរក​បណ្ដាញ Wi‑Fi បាន​គ្រប់ពេល ទោះបី Wi‑Fi ​បិទក៏ដោយ។ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង​ជាដើម។"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"ការស្កេនប៊្លូធូស"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ស្កេនរក​ឧបករណ៍ដែល​នៅ​ជិត​បាន​គ្រប់ពេល ទោះបីជា​ប៊្លូធូសបិទ​ក៏ដោយ។ ឧទាហរណ៍ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង។"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ស្កេនរក​ឧបករណ៍ដែល​នៅ​ជិត​បាន​គ្រប់ពេល ទោះបី​ប៊្លូធូសបិទ​ក៏ដោយ។ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង​ជាដើម។"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"សេវាកម្មទីតាំង​សម្រាប់​ការងារ"</string>
     <string name="location_network_based" msgid="1535812159327454835">"វ៉ាយហ្វាយ &amp; ទីតាំង​បណ្ដាញ​ចល័ត"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"ឲ្យ​កម្មវិធី​ប្រើ​សេវាកម្ម​ទីតាំង​របស់ Google ដើម្បី​ស្មាន​ទីតាំង​របស់​អ្នក​កាន់តែ​លឿន។ ទិន្នន័យ​ទីតាំង​អនាមិក​នឹង​ត្រូវ​បាន​ប្រមូល​ រួច​ផ្ញើ​ទៅ Google ។"</string>
@@ -1693,7 +1695,7 @@
     <string name="terms_title" msgid="1804549588198223771">"លក្ខខណ្ឌ​ប្រើប្រាស់"</string>
     <string name="webview_license_title" msgid="8244960025549725051">"អាជ្ញាប័ណ្ណ System WebView"</string>
     <string name="wallpaper_attributions" msgid="2941987966332943253">"ផ្ទាំង​រូបភាព"</string>
-    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"កម្មវិធី​ផ្ដល់​សេវា​រូបភាព​ផ្កាយ​រណប​៖\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
+    <string name="wallpaper_attributions_values" msgid="4461979853894606323">"ក្រុមហ៊ុន​ផ្ដល់​សេវា​រូបភាព​ផ្កាយ​រណប​៖\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"ឯកសារណែនាំ"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"មានបញ្ហាក្នុងការបើកឯកសារណែនាំ"</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"អាជ្ញាបណ្ណភាគីទីបី"</string>
@@ -1715,7 +1717,7 @@
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"បញ្ជាក់​លំនាំដើម​របស់​អ្នក"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"បញ្ចូល​កូដ PIN របស់អ្នក​ម្តងទៀត"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"ពាក្យសម្ងាត់​មិន​ដូចគ្នា"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"កូដ PINs មិន​ដូច​គ្នា"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"កូដ PIN មិន​ដូច​គ្នា"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"គូរ​លំនាំ​របស់អ្នក​ម្ដង​ទៀត"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"ជម្រើស​ដោះ​សោ"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"បាន​កំណត់​ពាក្យ​សម្ងាត់"</string>
@@ -1762,7 +1764,7 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"លំនាំ​ដោះ​សោ"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"ទាមទារ​លំនាំ"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"ត្រូវ​តែ​គូរ​លំនាំ​ ដើម្បី​ដោះ​សោ​អេក្រង់"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ធ្វើ​ឲ្យ​លំនាំ​មើល​ឃើញ"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ធ្វើ​ឲ្យ​​មើល​ឃើញលំនាំ"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"ធ្វើឲ្យមើលឃើញលំនាំប្រវត្តិរូប"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ញ័រនៅពេលប៉ះ"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"ប៊ូតុង​ថាមពល​​ចាក់សោ​ភ្លាមៗ"</string>
@@ -1772,10 +1774,10 @@
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"វិធី​គូរ​លំនាំ​ដោះ​សោ"</string>
     <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"ការព្យាយាមចូលខុសច្រើនពេក។ សូមព្យាយាមម្តងទៀតក្នុងពេល <xliff:g id="NUMBER">%d</xliff:g> វិនាទី។"</string>
     <string name="activity_not_found" msgid="3492413375341165453">"មិន​បាន​ដំឡើង​កម្មវិធី​ក្នុង​ទូរស័ព្ទ​របស់​អ្នក​ទេ"</string>
-    <string name="lock_settings_profile_title" msgid="3928992050074556160">"សុវត្ថិភាពប្រវត្តិរូបការងារ"</string>
+    <string name="lock_settings_profile_title" msgid="3928992050074556160">"សុវត្ថិភាពនៃកម្រងព័ត៌មានការងារ"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"ការចាក់សោអេក្រង់របស់ប្រវត្តិរូបការងារ"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"ប្រើការចាក់សោតែមួយ"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"ប្រើការចាក់សោតែមួយសម្រាប់ប្រវត្តិរូបការងារ និងអេក្រង់ឧបករណ៍"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"ប្រើការចាក់សោតែមួយសម្រាប់កម្រងព័ត៌មានការងារ និងអេក្រង់ឧបករណ៍"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"ប្រើការចាក់សោតែមួយឬ?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"ឧបករណ៍​របស់អ្នក​នឹង​ប្រើ​ការចាក់សោអេក្រង់នៃកម្រងព័ត៌មាន​ការងារ​របស់អ្នក។ គោលការណ៍ការងារ​នឹង​អនុវត្ត​ចំពោះ​ការចាក់សោទាំងពីរប្រភេទ។"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"ការចាក់សោប្រវត្តិរូបការងាររបស់អ្នកមិនស្របតាមតម្រូវការផ្នែកសុវត្ថិភាពរបស់ស្ថាប័នរបស់អ្នកទេ។ អ្នកអាចប្រើការចាក់សោដូចគ្នាសម្រាប់អេក្រង់ឧបករណ៍ និងប្រវត្តិរូបការងាររបស់អ្នក ប៉ុន្តែគោលការណ៍ចាក់សោការងារទាំងឡាយនឹងអនុវត្ត។"</string>
@@ -1792,7 +1794,7 @@
     <string name="recent_app_category_title" msgid="7688788038277126727">"កម្មវិធីដែលទើបបើកថ្មីៗ"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"មើលកម្មវិធី​ទាំង <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"ថេប្លេត និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ មានន័យថាអ្នកទទួលខុសត្រូវលើការខូចខាតណាមួយចំពោះទូរសព្ទ ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្តាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"ទូរសព្ទ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ មានន័យថាអ្នកនឹងទទួលខុសត្រូវលើការខូចខាតណាមួយចំពោះទូរសព្ទ ឬការបាត់បង់ទិន្នន័យរបស់អ្នក ដែលអាចបណ្តាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"ទូរសព្ទ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកកាន់តែងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ អ្នកយល់ព្រមថា អ្នកទទួលខុសត្រូវលើការខូចខាតទាំងឡាយមកលើទូរសព្ទរបស់អ្នក ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្ដាលមកពីការប្រើប្រាស់កម្មវិធីនេះ។"</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"ឧបករណ៍ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ មានន័យថាអ្នកទទួលខុសត្រូវលើការខូចខាតទាំងឡាយចំពោះឧបករណ៍ ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្តាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
     <string name="advanced_settings" msgid="6282069364060968122">"ការ​កំណត់​កម្រិត​ខ្ពស់"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"បើក​ជម្រើស​កំណត់​ច្រើន​ទៀត"</string>
@@ -1855,7 +1857,7 @@
     <string name="filter_apps_onsdcard" product="default" msgid="135989136394672864">"លើ​កាត​អេសឌី"</string>
     <string name="not_installed" msgid="6432131218496140253">"មិន​បាន​ដំឡើង​សម្រាប់​អ្នក​ប្រើ​នេះ"</string>
     <string name="installed" msgid="4824212968888080451">"បាន​ដំឡើង"</string>
-    <string name="no_applications" msgid="6811396016303576024">"គ្មាន​កម្មវិធី"</string>
+    <string name="no_applications" msgid="6811396016303576024">"គ្មាន​កម្មវិធី។"</string>
     <string name="internal_storage" msgid="7392373600013294853">"ឧបករណ៍​ខាង​ក្នុង"</string>
     <string name="recompute_size" msgid="4290692197892743928">"កំពុង​គណនា​ទំហំ​ឡើងវិញ…"</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"លុប​ទិន្នន័យ​កម្មវិធី?"</string>
@@ -2278,7 +2280,7 @@
     <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"បើក​កម្មវិធី​សន្សំ​ថ្ម​"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"អាចនឹងឆាប់​អស់​ថ្ម​​ជាងធម្មតា"</string>
     <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"កម្មវិធីសន្សំថ្មបានបើក"</string>
-    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"មុខងារ​មួយចំនួន​អាច​ត្រូវ​បាន​កម្រិត"</string>
+    <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"មុខងារ​មួយចំនួន​អាច​ត្រូវ​បាន​ដាក់កំហិត"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"ទូរសព្ទ​ត្រូវបានប្រើ​ប្រាស់ច្រើន​ជាង​ធម្មតា"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"ថេប្លេត​ត្រូវបានប្រើប្រាស់ច្រើន​ជាង​ធម្មតា"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"ឧបករណ៍​ត្រូវបានប្រើប្រាស់​ច្រើន​ជាង​ធម្មតា"</string>
@@ -2444,9 +2446,9 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"ប្រព័ន្ធ​ប្រតិបត្តិការ Android"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Mediaserver"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"បង្កើនប្រសិទ្ធិភាពកម្មវិធី"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"កម្មវិធីសន្សំថ្ម"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"មុខងារ​សន្សំ​ថ្ម"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"បើកដោយស្វ័យប្រវត្តិ"</string>
-    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"គ្មាន​កាលវិភាគ​ទេ"</string>
+    <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"គ្មាន​កាលវិភាគ"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"ផ្អែកលើ​ទម្លាប់​របស់អ្នក"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"ផ្អែកលើ​ភាគរយ"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"កម្មវិធី​សន្សំ​ថ្មនឹង​បើក ប្រសិនបើ​ថ្មរបស់អ្នកទំនង​ជាអស់​ មុនពេល​សាកថ្មបន្ទាប់​ធម្មតា"</string>
@@ -2578,7 +2580,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"បើកដំណើរការ​កម្មវិធី​អ្នក​គ្រប់គ្រង​ឧបករណ៍​នេះ"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"អ្នកគ្រប់គ្រងឧបករណ៍"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ការបើក​ដំណើរការ​កម្មវិធី​អ្នកគ្រប់គ្រង​នេះ​នឹងអនុញ្ញាតកម្មវិធី <xliff:g id="APP_NAME">%1$s</xliff:g> ធ្វើប្រតិបត្តិការដូចខាងក្រោម៖"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"កម្មវិធីអ្នក​គ្រប់គ្រង​នេះ​បានដំណើរការ និងអនុញ្ញាតឲ្យកម្មវិធី <xliff:g id="APP_NAME">%1$s</xliff:g> ធ្វើប្រតិបត្តិការដូចខាងក្រោម៖"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"កម្មវិធីអ្នក​គ្រប់គ្រង​នេះ​កំពុងដំណើរការ និងអនុញ្ញាតឲ្យកម្មវិធី <xliff:g id="APP_NAME">%1$s</xliff:g> ធ្វើប្រតិបត្តិការដូចខាងក្រោម៖"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"ឲ្យកម្មវិធីគ្រប់គ្រងប្រវត្តិរូបសកម្ម?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"ប្រសិនបើបន្ត មានន័យថា​អ្នកប្រើប្រាស់​របស់អ្នក​នឹង​ត្រូវ​បាន​គ្រប់គ្រងដោយ​អ្នកគ្រប់គ្រងរបស់អ្នក​ ដែលគេអាចនឹង​ផ្ទុក​ទិន្នន័យដែល​ពាក់ព័ន្ធ បន្ថែមពីលើទិន្នន័យ​ផ្ទាល់ខ្លួនអ្នក។\n\nអ្នកគ្រប់គ្រង​របស់អ្នក​មានលទ្ធភាពធ្វើការតាមដាន និងគ្រប់គ្រងការកំណត់ ការចូលប្រើប្រាស់ កម្មវិធី និងទិន្នន័យដែលពាក់ព័ន្ធជាមួយអ្នកប្រើប្រាស់នេះ ដោយរាប់បញ្ចូលទាំងសកម្មភាពបណ្តាញ និងព័ត៌មានអំពីទីតាំងរបស់ឧបករណ៍អ្នកផងដែរ។"</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"ជម្រើស​ផ្សេងទៀត​ត្រូវ​បាន​បិទ​ដោយ​អ្នកគ្រប់គ្រង​របស់អ្នក"</string>
@@ -2599,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"កម្រងព័ត៌មានការងារ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"គ្រប់គ្រងដោយ​ស្ថាប័ន​របស់អ្នក"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"កម្មវិធី និង​ការ​ជូនដំណឹង​បាន​បិទ"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុប​ប្រវត្តិរូប​ការងារ"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"លុបកម្រងព័ត៌មានការងារ"</string>
     <string name="background_data" msgid="8275750862371471171">"ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ"</string>
     <string name="background_data_summary" msgid="799640633948841990">"កម្មវិធី​អាច​ធ្វើ​សម​កាល​កម្ម​ ផ្ញើ និង​ទទួល​ទិន្នន័យ​នៅ​ពេល​ណា​មួយ"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"បិទ​ទិន្នន័យ​ផ្ទៃ​ខាង​ក្រោយ?"</string>
@@ -2874,7 +2876,7 @@
     <string name="user_setup_dialog_message" msgid="2988559933258353919">"សូម​ប្រាកដ​ថា​​អ្នក​ប្រើ​ប្រាស់នេះ​អាច​យក​​ឧបករណ៍ ​និង​រៀបចំ​​ទំហំ​ផ្ទុករបស់​គេបាន"</string>
     <string name="user_setup_profile_dialog_message" msgid="7611900802824048526">"រៀបចំ​ប្រវត្តិរូប​ឥឡូវ?"</string>
     <string name="user_setup_button_setup_now" msgid="4941459406266856176">"រៀបចំ​ឥឡូវ"</string>
-    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"កុំអាល"</string>
+    <string name="user_setup_button_setup_later" msgid="6596031428556518752">"កុំទាន់"</string>
     <string name="user_cannot_manage_message" product="tablet" msgid="7108992906553210763">"មាន​តែ​ម្ចាស់​កុំព្យូទ័រ​បន្ទះ​ប៉ុណ្ណោះ​អាច​គ្រប់គ្រង​អ្នកប្រើ"</string>
     <string name="user_cannot_manage_message" product="default" msgid="915260531390608092">"មាន​តែ​ម្ចាស់​ទូរស័ព្ទ​ប៉ុណ្ណោះ​អាច​គ្រប់គ្រង​អ្នកប្រើ។"</string>
     <string name="user_cannot_add_accounts_message" msgid="5993561303748749097">"ប្រវត្តិរូប​បាន​ដាក់កម្រិត​មិន​អាច​បន្ថែម​គណនី"</string>
@@ -2886,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"លុប​ខ្លួន​ឯង​ផ្ទាល់?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"លុបអ្នកប្រើប្រាស់​នេះ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"លុប​ប្រវត្តិ​រូប​នេះ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុប​ប្រវត្តិរូប​ការងារ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"លុបកម្រងព័ត៌មានការងារឬ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"អ្នក​នឹង​បាត់បង់​ទំហំ​ ព្រម​ទាំង​ទិន្នន័យ​របស់​អ្នក​លើ​កុំព្យូទ័រ​បន្ទះ​នេះ​។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"អ្នក​នឹង​បាត់បង់​ទំហំ និង​ទិន្នន័យ​របស់​អ្នក​លើ​ទូរស័ព្ទ​នេះ។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"កម្មវិធី និង​ទិន្នន័យ​ទាំងអស់​នឹង​ត្រូវ​បាន​លុប។"</string>
@@ -3134,7 +3136,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"កម្រិតសំឡេងរោទ៍ត្រឹម 80%"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"កម្រិត​សំឡេង​មេឌៀ"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"កម្រិតសំឡេងនៃការបញ្ជូន"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"កម្រិត​សំឡេង​ហៅ"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"កម្រិត​សំឡេង​ហៅទូរសព្ទ"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"កម្រិត​សំឡេងម៉ោង​រោទ៍"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"កម្រិត​សំឡេង​រោទ៍"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"កម្រិត​សំឡេង​ការ​ជូន​ដំណឹង"</string>
@@ -3151,7 +3153,7 @@
     <string name="docking_sounds_title" msgid="2573137471605541366">"សំឡេង​​ភ្ជាប់"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"សំឡេង​ប៉ះ"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"ការ​ញ័រ​ពេល​ប៉ះ"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"មតិស្ថាបនា​តាម​ការប៉ះ​សម្រាប់​ការចុច ក្ដារចុច និងច្រើនទៀត"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ប្រតិកម្មញ័រពេលចុច ក្ដារចុច និងច្រើនទៀត"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"ភ្ជាប់ការ​ចាក់​តាមអូប៉ាល័រ"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"អូឌីយ៉ូ​​ទាំងអស់"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"តែ​អូឌីយ៉ូ​​មេឌៀ​ប៉ុណ្ណោះ"</string>
@@ -3392,7 +3394,7 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"អនុញ្ញាតមុខងារកុំរំខាន"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"គ្មានកម្មវិធីបានដំឡើងណាមួយបានស្នើការចូលដំណើរការមុខងារកុំរំខានទេ"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"កំពុង​ផ្ទុក​កម្មវិធី..."</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"តាមសំណើ​របស់អ្នក ប្រព័ន្ធ​ប្រតិបត្តិការ Android កំពុង​ទប់ស្កាត់​ការជូនដំណឹង​របស់កម្មវិធី​នេះ​មិន​ឱ្យ​បង្ហាញ​នៅលើ​ឧបករណ៍​នេះទេ"</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"តាមសំណើ​របស់អ្នក Android កំពុង​ទប់ស្កាត់​ការជូនដំណឹង​របស់កម្មវិធី​នេះ​មិន​ឱ្យ​បង្ហាញ​នៅលើ​ឧបករណ៍​នេះទេ"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"តាមសំណើ​របស់អ្នក ប្រព័ន្ធ​ប្រតិបត្តិការ Android កំពុង​ទប់ស្កាត់​ប្រភេទនៃការជូនដំណឹង​​នេះ​មិន​ឱ្យ​បង្ហាញ​នៅលើ​ឧបករណ៍​នេះទេ"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"តាមសំណើ​របស់អ្នក ប្រព័ន្ធ​ប្រតិបត្តិការ Android កំពុង​ទប់ស្កាត់​ក្រុមនៃ​ការជូនដំណឹង​នេះ​មិន​ឱ្យ​បង្ហាញ​នៅលើ​ឧបករណ៍​នេះទេ"</string>
     <string name="notification_channels" msgid="956764228116145956">"ប្រភេទ"</string>
@@ -3420,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"កុំ​បង្ហាញ​ការ​ជូន​ដំណឹង​នៅក្នុង​ផ្ទាំង​ទម្លាក់ ឬ​នៅលើ​ឧបករណ៍​ភ្ជាប់​ជាមួយ​កុំព្យូទ័រ"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"អនុញ្ញាតស្លាកជូនដំណឹង"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"បង្ហាញស្លាកជូនដំណឹង"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"បដិសេធមុខងារកុំរំខាន"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"លុបពីលើមុខងារកុំរំខាន"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"អនុញ្ញាត​ឱ្យ​ការជូនដំណឹង​ទាំងនេះ​បន្ត​រំខាន នៅពេល​មុខងារកុំរំខាន​បើក"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"នៅ​លើ​អេក្រង់​ចាក់សោ"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"បាន​រារាំង"</string>
@@ -3457,8 +3459,8 @@
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"នៅពេលឆ្លើយតបថា <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"ប្រតិទិនណាមួយ"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"នៅពេលឆ្លើយតបថា"</string>
-    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"យល់ព្រម ប្រហែល ឬមិនឆ្លើយតប"</string>
-    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"យល់ព្រម ឬប្រហែល"</string>
+    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"បាទ/ចាស ប្រហែល ឬមិនឆ្លើយតប"</string>
+    <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"បាទ/ចាស ឬប្រហែល"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"បាទ/ចាស"</string>
     <string name="zen_mode_rule_not_found_text" msgid="6553855397424553685">"រកមិនឃើញច្បាប់ទេ។"</string>
     <string name="zen_mode_rule_summary_enabled_combination" msgid="8269105393636454359">"បើក / <xliff:g id="MODE">%1$s</xliff:g>"</string>
@@ -3548,16 +3550,16 @@
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"អនុញ្ញាតឱ្យការជូនដំណឹង​ដែល​បិទសំឡេងដោយ​មុខងារ​កុំរំខាន ​បើក​អេក្រង់"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"​កំណត់​ការ​ជូនដំណឹង"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"យល់ព្រម"</string>
-    <string name="device_feedback" msgid="4042352891448769818">"ផ្ដល់​មតិ​ស្ថាបនា​អំពី​ឧបករណ៍​នេះ"</string>
+    <string name="device_feedback" msgid="4042352891448769818">"ផ្ដល់​មតិ​កែលម្អ​អំពី​ឧបករណ៍​នេះ"</string>
     <string name="restr_pin_enter_admin_pin" msgid="8577847751493521230">"បញ្ចូលកូដ PIN របស់អ្នកគ្រប់គ្រង"</string>
     <string name="switch_on_text" msgid="7100491749799298324">"បើក"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"បិទ"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"ភ្ជាប់​អេក្រង់"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"នៅ​ពេល​បើក​ការកំណត់នេះ អ្នក​អាច​ប្រើ​ការ​ភ្ជាប់​អេក្រង់ ដើម្បី​រក្សាការបង្ហាញ​អេក្រង់​បច្ចុប្បន្ន​​ រហូតដល់ពេល​អ្នក​ឈប់​ភ្ជាប់។\n\nដើម្បី​ប្រើ​ការ​ភ្ជាប់​អេក្រង់៖\n\n1. ត្រូវប្រាកដ​ថាការ​ភ្ជាប់​អេក្រង់ត្រូវ​បាន​បើក\n\n2. បើក​ទិដ្ឋភាពរួម\n\n3. ចុច​រូប​កម្មវិធី​នៅ​ផ្នែក​ខាងលើ​អេក្រង់ រួចចុចភ្ជាប់"</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"សួរ​រក​លំនាំ​ដោះ​សោ​មុន​ពេល​ផ្ដាច់"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"សួរ​រក​លំនាំ​ដោះ​សោ​មុន​ពេលដោះខ្ទាស់"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"សួរ​រក​កូដ PIN មុន​ពេល​ផ្ដាច់"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"សួរ​រក​ពាក្យ​សម្ងាត់​មុន​ពេល​ផ្ដាច់"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ចាក់​សោ​ឧបករណ៍​ពេល​មិន​ភ្ជាប់"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ចាក់​សោ​ឧបករណ៍​ពេល​មិន​ខ្ទាស់"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"ប្រវត្តិរូបការងារនេះត្រូវបានគ្រប់គ្រងដោយ៖"</string>
     <string name="managing_admin" msgid="3212584016377581608">"គ្រប់គ្រងដោយ <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(ពិសោធន៍​)"</string>
@@ -3587,12 +3589,12 @@
     <string name="imei_information_summary" msgid="716516316022275083">"ព័ត៌មាន​ទាក់ទង​នឹង IMEI"</string>
     <string name="slot_number" msgid="785422579177068698">"(រន្ធ <xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"បើកតាមលំនាំដើម"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"តំណសម្រាប់បើក"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"បើកតំណគាំទ្រ"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"ការបើកតំណ"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"បើកតំណ​ដែលស្គាល់"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"បើកដោយមិនបាច់សួរ"</string>
-    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"តំណគាំទ្រ"</string>
+    <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"តំណដែលស្គាល់"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"លំនាំដើមផ្សេងទៀត"</string>
-    <string name="storage_summary_format" msgid="2166430500147022935">"បានប្រើអស់<xliff:g id="SIZE">%1$s</xliff:g> នៅក្នុង <xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
+    <string name="storage_summary_format" msgid="2166430500147022935">"បានប្រើអស់ <xliff:g id="SIZE">%1$s</xliff:g> នៅក្នុង​<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"ឧបករណ៍ផ្ទុកខាងក្នុង"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"ឧបករណ៍ផ្ទុកខាងក្រៅ"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"បានប្រើ <xliff:g id="SIZE">%1$s</xliff:g> ចាប់តាំងពី <xliff:g id="DATE">%2$s</xliff:g>"</string>
@@ -3628,7 +3630,7 @@
       <item quantity="one">សិទ្ធិអនុញ្ញាតបន្ថែម <xliff:g id="COUNT_0">%d</xliff:g></item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"គ្មានការផ្តល់សិទ្ធិអនុញ្ញាតទេ"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"គ្មានការស្នើសិទ្ធិអនុញ្ញាតទេ"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"គ្មានការអនុញ្ញាត​ដែលបានស្នើសុំទេ"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"កម្មវិធីទាំងអស់"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"កម្មវិធី​ដែល​បាន​ដំឡើង"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"កម្មវិធី​ប្រើ​ភ្លាមៗ"</string>
@@ -3647,8 +3649,8 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"កម្មវិធីកំពុងប្រើ<xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"ប៉ះដើម្បីដាស់"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"ប៉ះកន្លែងណាមួយនៅលើអេក្រង់ពីរដងដើម្បីដាស់ឧបករណ៍ឲ្យភ្ញាក់"</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"តំណសម្រាប់បើក"</string>
-    <string name="domain_urls_summary_none" msgid="5401203416941265109">"កុំបើកតំណគាំទ្រ"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"ការបើកតំណ"</string>
+    <string name="domain_urls_summary_none" msgid="5401203416941265109">"កុំបើក​តំណ​ដែលស្គាល់"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"បើក <xliff:g id="DOMAIN">%s</xliff:g>"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"បើក <xliff:g id="DOMAIN">%s</xliff:g> និង URL ផ្សេងទៀត"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"មិនមានកម្មវិធី​ដែល​បើក​តំណ​ដែល​ស្គាល់ទេ"</string>
@@ -3676,7 +3678,7 @@
     <string name="system_app" msgid="4111402206594443265">"(ប្រព័ន្ធ)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(លំនាំដើមប្រព័ន្ធ)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"ទំហំផ្ទុកកម្មវិធី"</string>
-    <string name="usage_access" msgid="2023443456361489516">"ចូលទៅការប្រើប្រាស់"</string>
+    <string name="usage_access" msgid="2023443456361489516">"ចូលប្រើប្រាស់"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"ការអនុញ្ញាតចូលប្រើប្រាស់"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"ចំណូលចិត្តប្រើប្រាស់កម្មវិធី"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"រយៈពេល​នៅលើ​អេក្រង់"</string>
@@ -3705,7 +3707,7 @@
       <item quantity="one"><xliff:g id="APP">%1$s</xliff:g> កំពុងប្រើថាមពលថ្ម</item>
     </plurals>
     <string name="high_power_filter_on" msgid="5294209328473386403">"មិនបានបង្កើនប្រសិទ្ធភាព"</string>
-    <string name="high_power_on" msgid="3573501822510580334">"មិនបានសម្រួលឲ្យមានប្រសិទ្ធភាពទេ"</string>
+    <string name="high_power_on" msgid="3573501822510580334">"មិនបានបង្កើនប្រសិទ្ធភាព"</string>
     <string name="high_power_off" msgid="5906679734326490426">"បង្កើនប្រសិទ្ធភាពប្រើប្រាស់ថ្ម"</string>
     <string name="high_power_system" msgid="739584574711292753">"មិនមានការបង្កើនប្រសិទ្ធភាពថ្ម"</string>
     <string name="high_power_desc" msgid="333756885680362741">"កុំប្រើការបង្កើនប្រសិទ្ធភាពថ្ម។ អាចនឹងស៊ីថ្មរបស់អ្នកលឿនជាងមុន។"</string>
@@ -3734,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"ការ​ភ្ជាប់តាម USB"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"ប្រើឧបករណ៍នេះជាមីឌី"</string>
-    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB ដើម្បី"</string>
+    <string name="usb_use" msgid="8940500223316278632">"ប្រើ USB សម្រាប់"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"ការកំណត់​រចនាសម្ព័ន្ធ USB លំនាំ​ដើម"</string>
     <string name="usb_default_info" msgid="953775292571786528">"ការកំណត់​ទាំងនេះ​នឹងអនុវត្ត នៅពេល​ដែល​ទូរសព្ទ​របស់អ្នក​ដោះសោ ហើយឧបករណ៍​ផ្សេងទៀត​ត្រូវបានភ្ជាប់​។ សូម​ភ្ជាប់​ជាមួយឧបករណ៍​ដែលទុកចិត្ត​តែប៉ុណ្ណោះ។"</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
@@ -3962,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"កំណត់រចនាសម្ព័ន្ធ"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"កម្មវិធីផ្សេងទៀតដែលរួមបញ្ចូលទៅក្នុងការប្រើប្រាស់"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">អនុញ្ញាតឲ្យកម្មវិធី <xliff:g id="COUNT">%1$d</xliff:g> ប្រើទិន្នន័យគ្មានកំណត់ នៅពេលកម្មវិធីសន្សំសំចៃទិន្នន័យបានបើក</item>
-      <item quantity="one">អនុញ្ញាតឲ្យកម្មវិធី 1 ប្រើទិន្នន័យគ្មានកំណត់ នៅពេលកម្មវិធីសន្សំសំចៃទិន្នន័យបានបើក</item>
+      <item quantity="other">អនុញ្ញាតឲ្យកម្មវិធី <xliff:g id="COUNT">%1$d</xliff:g> ប្រើទិន្នន័យដែលគ្មានការដាក់កំហិត នៅពេលបើកកម្មវិធីសន្សំសំចៃទិន្នន័យ</item>
+      <item quantity="one">អនុញ្ញាតឲ្យកម្មវិធី 1 ប្រើទិន្នន័យដែលគ្មានការដាក់កំហិត នៅពេលបើកកម្មវិធីសន្សំសំចៃទិន្នន័យ</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"ទិន្នន័យ​ចម្បង"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"ទិន្នន័យ Wi‑Fi"</string>
@@ -4050,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ឆក, ក្បាលឆក"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"លំនាំដើម​របស់ឧបករណ៍"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"មិនអាចប្រើ​ការដាក់​ត្រួតគ្នា​បានទេ"</string>
-    <string name="special_access" msgid="1453926335914696206">"ការចូលប្រើប្រាស់កម្មវិធីពិសេស"</string>
+    <string name="special_access" msgid="1453926335914696206">"សិទ្ធិចូលប្រើប្រាស់កម្មវិធីពិសេស"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other">កម្មវិធី <xliff:g id="COUNT">%d</xliff:g> អាច​ប្រើ​ទិន្នន័យដែលគ្មានការដាក់កំហិត</item>
       <item quantity="one">កម្មវិធី 1 អាច​ប្រើ​ទិន្នន័យដែលគ្មានការដាក់កំហិត</item>
@@ -4065,7 +4067,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"ទាំងអស់"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"គន្លឹះ និង​ជំនួយ"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"ទទឹងតូចបំផុត"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"មិនមានកម្មវិធីដែលដំឡើងហើយបានស្នើសុំការចូលដំណើរការសេវាកម្ម SMS ពិសេសទេ"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"គ្មានកម្មវិធីដែលបានដំឡើងណាមួយបានស្នើសុំចូលប្រើ SMS លំដាប់ខ្ពស់ទេ"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"សេវាកម្ម SMS ពិសេសអាចនឹងគិតថ្លៃ ហើយបន្ថែមតម្លៃនោះទៅក្នុងវិក្កយបត្រក្រុមហ៊ុនផ្តល់សេវាទូរស័ព្ទរបស់អ្នក។ ប្រសិនបើដំណើរការសិទ្ធិអនុញ្ញាតសម្រាប់កម្មវិធីណាមួយ នោះអ្នកនឹងអាចផ្ញើសេវាកម្ម SMS ពិសេសដោយប្រើកម្មវិធីនោះ។"</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"ចូលប្រើ SMS លំដាប់ខ្ពស់"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"បិទ"</string>
@@ -4079,7 +4081,7 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ប្រអប់​ការ​កំណត់​រហ័ស​សម្រាប់​អ្នកអភិវឌ្ឍន៍"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"ដាន Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"ឧបករណ៍​ចាប់សញ្ញាបានបិទ"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់ប្រវត្តិរូបការងារ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"ការកំណត់កម្រងព័ត៌មានការងារ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"ការស្វែងរកទំនាក់ទំនង"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"អនុញ្ញាតការស្វែងរកទំនាក់ទំនងដោយស្ថាប័នរបស់អ្នកដើម្បីកំណត់អត្តសញ្ញាណអ្នកហៅ និងលេខទំនាក់ទំនង"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"ប្រតិទិនអន្តរ​កម្រងព័ត៌មាន"</string>
@@ -4151,7 +4153,7 @@
     <string name="web_action_enable_summary" msgid="1729016644691793085">"បើកតំណ​នៅក្នុង​កម្មវិធី​បើទោះ​បីជា​ពួកវា​មិនត្រូវ​បាន​ដំឡើង​ក៏ដោយ"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"កម្មវិធី​ប្រើ​ភ្លាមៗ"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"ចំណូលចិត្ត​កម្មវិធី​ប្រើភ្លាមៗ"</string>
-    <string name="domain_url_section_title" msgid="206403507921518321">"កម្មវិធី​បាន​ដំឡើង"</string>
+    <string name="domain_url_section_title" msgid="206403507921518321">"កម្មវិធី​ដែលបាន​ដំឡើង"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"នៅពេលនេះទំហំផ្ទុករបស់អ្នកត្រូវបានគ្រប់គ្រងដោយកម្មវិធីគ្រប់គ្រងទំហំផ្ទុក"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"គណនី​សម្រាប់ <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="configure_section_header" msgid="6988981883075615136">"កំណត់រចនាសម្ព័ន្ធ"</string>
@@ -4251,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(បានបិទ​សម្រាប់​អ្នក​ប្រើ <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"សេវាកម្មបំពេញដោយស្វ័យប្រវត្តិ"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"ស្វ័យ​ប្រវត្តិ បំពេញ បំពេញ​ស្វ័យ​ប្រវត្តិ"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;ត្រូវ​ប្រាកដថា​អ្នក​ជឿជាក់​លើ​កម្មវិធី​នេះ&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google បំពេញស្វ័យប្រវត្តិ&gt;%1$s&lt;/xliff:g&gt; ប្រើប្រាស់​អ្វី​ដែល​មាននៅ​លើ​អេក្រង់​របស់អ្នក ដើម្បី​កំណត់​អ្វីដែល​អាចបំពេញ​ដោយ​ស្វ័យប្រវត្តិ។"</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;ត្រូវ​ប្រាកដថា​អ្នក​ទុកចិត្ត​កម្មវិធី​នេះ&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google បំពេញស្វ័យប្រវត្តិ&gt;%1$s&lt;/xliff:g&gt; ប្រើប្រាស់​អ្វី​ដែល​មាននៅ​លើ​អេក្រង់​របស់អ្នក ដើម្បី​កំណត់​អ្វីដែល​អាចបំពេញ​ដោយ​ស្វ័យប្រវត្តិ។"</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"បំពេញ​ដោយស្វ័យប្រវត្តិ"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"កម្រិត​កត់ត្រា"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"សំណើ​អតិបរមា​ក្នុងមួយវគ្គ"</string>
@@ -4307,8 +4309,8 @@
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"ឈ្មោះ​ឧបករណ៍"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"ការ​គ្រប់គ្រង Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"អនុញ្ញាត​ឱ្យ​កម្មវិធី​គ្រប់គ្រង Wi-Fi"</string>
-    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"អនុញ្ញាត​ឱ្យ​កម្មវិធី​នេះ​បើក ឬបិទ Wi-Fi ស្កេន និងភ្ជាប់បណ្តាញ Wi-Fi បញ្ចូល ឬលុប​បណ្តាញ ឬចាប់ផ្តើមតែហតស្ប៉តមូលដ្ឋាន​ប៉ុណ្ណោះ"</string>
-    <string name="media_output_title" msgid="8710632337456601848">"ចាក់​មេឌៀទៅកាន់"</string>
+    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"អនុញ្ញាត​ឱ្យ​កម្មវិធី​នេះ​បើកឬបិទ Wi-Fi, ស្កេន​និងភ្ជាប់បណ្តាញ Wi-Fi, បញ្ចូល​ឬលុប​បណ្តាញ ឬចាប់ផ្តើមហតស្ប៉តភ្ជាប់រវាងគ្នា"</string>
+    <string name="media_output_title" msgid="8710632337456601848">"ចាក់​មេឌៀនៅលើ"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"ឧបករណ៍នេះ"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"ទូរសព្ទ"</string>
     <string name="media_output_summary" product="tablet" msgid="6672024060360538526">"ថេប្លេត"</string>
