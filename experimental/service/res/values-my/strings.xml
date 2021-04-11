@@ -16,6 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label_driver_distraction" msgid="4864958399001183048">"ယာဉ်မောင်းသူ အနှောင့်အယှက်ဖြစ်မှု"</string>
+    <string name="car_permission_label_driver_distraction" msgid="4362982084385602611">"ယာဉ်မောင်းသူ၏ စိတ်အနှောင့်အယှက်ဖြစ်မှု အဆင့်ကို ကြည့်ရန်"</string>
     <string name="car_permission_desc_driver_distraction" msgid="2506435411900299264">"ယာဉ်မောင်းသူ အနှောင့်အယှက်ဖြစ်မှုအဆင့်ကို ဖတ်ရန်။"</string>
 </resources>
