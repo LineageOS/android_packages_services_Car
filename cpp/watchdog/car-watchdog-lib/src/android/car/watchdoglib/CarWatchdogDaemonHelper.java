@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -33,6 +34,7 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
 
@@ -245,6 +247,17 @@ public final class CarWatchdogDaemonHelper {
      */
     public void notifySystemStateChange(int type, int arg1, int arg2) throws RemoteException {
         invokeDaemonMethod((daemon) -> daemon.notifySystemStateChange(type, arg1, arg2));
+    }
+
+    /**
+     * Notifies car watchdog daemon with the actions taken on resource overuse.
+     *
+     * @param actions List of actions taken on resource overuse. One action taken per resource
+     *                overusing user package.
+     */
+    public void actionTakenOnResourceOveruse(List<PackageResourceOveruseAction> actions)
+            throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.actionTakenOnResourceOveruse(actions));
     }
 
     private void invokeDaemonMethod(Invokable r) throws RemoteException {
