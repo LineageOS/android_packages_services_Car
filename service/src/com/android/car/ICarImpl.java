@@ -67,6 +67,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.stats.CarStatsService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.car.util.LimitedTimingsTraceLog;
@@ -131,6 +132,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarDevicePolicyService mCarDevicePolicyService;
     private final ClusterHomeService mClusterHomeService;
     private final CarEvsService mCarEvsService;
+    private final CarTelemetryService mCarTelemetryService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -347,6 +349,12 @@ public class ICarImpl extends ICar.Stub {
             mCarEvsService = null;
         }
 
+        if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
+            mCarTelemetryService = new CarTelemetryService(serviceContext);
+        } else {
+            mCarTelemetryService = null;
+        }
+
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
@@ -381,6 +389,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarDevicePolicyService);
         addServiceIfNonNull(allServices, mClusterHomeService);
         addServiceIfNonNull(allServices, mCarEvsService);
+        addServiceIfNonNull(allServices, mCarTelemetryService);
 
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
@@ -616,6 +625,8 @@ public class ICarImpl extends ICar.Stub {
                 return mClusterHomeService;
             case Car.CAR_EVS_SERVICE:
                 return mCarEvsService;
+            case Car.CAR_TELEMETRY_SERVICE:
+                return mCarTelemetryService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {

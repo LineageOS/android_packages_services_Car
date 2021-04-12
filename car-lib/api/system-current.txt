@@ -25,6 +25,7 @@ package android.car {
     field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
     field public static final String CAR_INPUT_SERVICE = "android.car.input";
     field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
     field public static final String CAR_USER_SERVICE = "car_user_service";
     field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
     field public static final int FEATURE_REQUEST_ALREADY_IN_THE_STATE = 1; // 0x1
@@ -71,6 +72,7 @@ package android.car {
     field public static final String PERMISSION_TEMPLATE_RENDERER = "android.car.permission.TEMPLATE_RENDERER";
     field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
     field public static final String PERMISSION_USE_CAR_EVS_SERVICE = "android.car.permission.USE_CAR_EVS_SERVICE";
+    field public static final String PERMISSION_USE_CAR_TELEMETRY_SERVICE = "android.car.permission.USE_CAR_TELEMETRY_SERVICE";
     field public static final String PERMISSION_USE_CAR_WATCHDOG = "android.car.permission.USE_CAR_WATCHDOG";
     field public static final String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
     field public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
@@ -1249,6 +1251,19 @@ package android.car.storagemonitoring {
     field @NonNull public final android.car.storagemonitoring.WearEstimate newEstimate;
     field @NonNull public final android.car.storagemonitoring.WearEstimate oldEstimate;
     field public final long uptimeAtChange;
+  }
+
+}
+
+package android.car.telemetry {
+
+  public final class CarTelemetryManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void clearListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE) public void setListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.telemetry.CarTelemetryManager.CarTelemetryResultsListener);
+  }
+
+  public static interface CarTelemetryManager.CarTelemetryResultsListener {
+    method public void onDataReceived(@NonNull byte[]);
   }
 
 }
