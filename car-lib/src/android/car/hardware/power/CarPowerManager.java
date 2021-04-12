@@ -419,11 +419,12 @@ public class CarPowerManager extends CarManagerBase {
         CarPowerPolicyFilter newFilter = null;
         synchronized (mLock) {
             mPolicyListenerMap.remove(listener);
+            int[] filterComponents = filter.getComponents().clone();
             Pair<Executor, CarPowerPolicyFilter> pair =
-                    new Pair<>(executor, new CarPowerPolicyFilter(filter.components.clone()));
+                    new Pair<>(executor, new CarPowerPolicyFilter(filterComponents));
             mPolicyListenerMap.put(listener, pair);
-            for (int i = 0; i < filter.components.length; i++) {
-                int key = filter.components[i];
+            for (int i = 0; i < filterComponents.length; i++) {
+                int key = filterComponents[i];
                 int currentCount = mInterestedComponentMap.get(key);
                 if (currentCount == 0) {
                     updateCallbackNeeded = true;
@@ -458,8 +459,9 @@ public class CarPowerManager extends CarManagerBase {
             if (pair == null) {
                 return;
             }
-            for (int i = 0; i < pair.second.components.length; i++) {
-                int key = pair.second.components[i];
+            int[] filterComponents = pair.second.getComponents();
+            for (int i = 0; i < filterComponents.length; i++) {
+                int key = filterComponents[i];
                 int currentCount = mInterestedComponentMap.get(key);
                 if (currentCount == 0 || currentCount == 1) {
                     mInterestedComponentMap.delete(key);

@@ -81,7 +81,8 @@ public class CarAudioPowerListenerTest {
                 CarPowerPolicyFilter.class);
         verify(mMockCarPowerService).addPowerPolicyListener(
                 captor.capture(), any(ICarPowerPolicyListener.class));
-        assertThat(captor.getValue().components).asList().containsExactly(PowerComponent.AUDIO);
+        assertThat(captor.getValue().getComponents()).asList()
+                .containsExactly(PowerComponent.AUDIO);
 
     }
 

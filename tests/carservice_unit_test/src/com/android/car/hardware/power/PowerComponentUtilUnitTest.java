@@ -58,13 +58,13 @@ public final class PowerComponentUtilUnitTest {
         CarPowerPolicy policy = new CarPowerPolicy("testPolicy", new int[]{PowerComponent.AUDIO},
                 new int[]{PowerComponent.WIFI, PowerComponent.NFC});
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.AUDIO}).build();
+                .setComponents(PowerComponent.AUDIO).build();
         CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.WIFI}).build();
+                .setComponents(PowerComponent.WIFI).build();
         CarPowerPolicyFilter filterLocationNfc = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.LOCATION, PowerComponent.NFC}).build();
+                .setComponents(PowerComponent.LOCATION, PowerComponent.NFC).build();
         CarPowerPolicyFilter filterMedia = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.MEDIA}).build();
+                .setComponents(PowerComponent.MEDIA).build();
 
         assertThat(PowerComponentUtil.hasComponents(policy, filterAudio)).isTrue();
         assertThat(PowerComponentUtil.hasComponents(policy, filterWifi)).isTrue();
