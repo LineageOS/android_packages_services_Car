@@ -16,9 +16,14 @@
 
 package com.android.car.watchdog;
 
+import static android.automotive.watchdog.internal.ResourceOveruseActionType.KILLED;
+import static android.automotive.watchdog.internal.ResourceOveruseActionType.NOT_KILLED;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -28,43 +33,61 @@ import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
+import android.app.ActivityThread;
+import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
+import android.automotive.watchdog.internal.PackageIoOveruseStats;
+import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.UidType;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdog.IResourceOveruseListener;
+import android.car.watchdog.IoOveruseStats;
+import android.car.watchdog.ResourceOveruseStats;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.ServiceManager;
 import android.os.SystemClock;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.SparseArray;
+import android.util.SparseBooleanArray;
+
+import com.google.common.truth.Correspondence;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -86,12 +109,22 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
+        builder
+            .spyStatic(ServiceManager.class)
+            .spyStatic(Binder.class)
+            .spyStatic(ActivityThread.class);
+    }
+
     /**
      * Initialize all of the objects with the @Mock annotation.
      */
     @Before
     public void setUpMocks() throws Exception {
         when(mMockContext.getPackageManager()).thenReturn(mMockPackageManager);
+        when(mMockContext.getPackageName()).thenReturn(
+                CarWatchdogServiceUnitTest.class.getCanonicalName());
         mCarWatchdogService = new CarWatchdogService(mMockContext);
         mockWatchdogDaemon();
         setupUsers();
@@ -145,14 +178,6 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
-    public void testAddResourceOveruseListener() throws Exception {
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                mockListener);
-        // TODO(b/170741935): Test that the mockListener is called on overuse.
-    }
-
-    @Test
     public void testAddResourceOveruseListenerThrowsWithInvalidFlag() throws Exception {
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         assertThrows(IllegalArgumentException.class, () -> {
@@ -161,20 +186,38 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
-    public void testRemoveResourceOveruseListener() throws Exception {
+    public void testResourceOveruseListener() throws Exception {
+        int callingUid = Binder.getCallingUid();
+        SparseArray<String> packageNamesByUid = new SparseArray<>();
+        packageNamesByUid.put(callingUid, "critical.system.package");
+        injectUidToPackageNameMapping(packageNamesByUid);
+
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListener(CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
                 mockListener);
-        mCarWatchdogService.removeResourceOveruseListener(mockListener);
-        // TODO(b/170741935): Test that the mockListener is not called on overuse.
-    }
 
-    @Test
-    public void testAddResourceOveruseListenerForSystem() throws Exception {
-        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
-        mCarWatchdogService.addResourceOveruseListenerForSystem(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
-        // TODO(b/170741935): Test that the mockListener is called on overuse.
+        IBinder mockBinder = mockListener.asBinder();
+        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>(
+                Collections.singletonList(constructPackageIoOveruseStats(
+                        callingUid, /* shouldNotify= */true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
+                                constructPerStateBytes(20, 20, 20),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2))));
+
+        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        verify(mockListener, times(1)).onOveruse(any());
+
+        mCarWatchdogService.removeResourceOveruseListener(mockListener);
+
+        verify(mockListener, atLeastOnce()).asBinder();
+        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+
+        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        verifyNoMoreInteractions(mockListener);
     }
 
     @Test
@@ -186,17 +229,151 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
-    public void testRemoveResourceOveruseListenerForSystem() throws Exception {
+    public void testResourceOveruseListenerForSystem() throws Exception {
+        int callingUid = Binder.getCallingUid();
+        SparseArray<String> packageNamesByUid = new SparseArray<>();
+        packageNamesByUid.put(callingUid, "critical.system.package");
+        injectUidToPackageNameMapping(packageNamesByUid);
+
         IResourceOveruseListener mockListener = createMockResourceOveruseListener();
         mCarWatchdogService.addResourceOveruseListenerForSystem(
                 CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        IBinder mockBinder = mockListener.asBinder();
+        verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>(
+                Collections.singletonList(constructPackageIoOveruseStats(
+                        callingUid, /* shouldNotify= */true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
+                                constructPerStateBytes(20, 20, 20),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2))));
+
+        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        verify(mockListener, times(1)).onOveruse(any());
+
         mCarWatchdogService.removeResourceOveruseListenerForSystem(mockListener);
-        // TODO(b/170741935): Test that the mockListener is not called on overuse.
+
+        verify(mockListener, atLeastOnce()).asBinder();
+        verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
+
+        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        verifyNoMoreInteractions(mockListener);
+    }
+
+    @Test
+    public void testLatestIoOveruseStats() throws Exception {
+        int criticalSysPkgUid = Binder.getCallingUid();
+        int nonCriticalSysPkgUid = getUid(1056);
+        int nonCriticalVndrPkgUid = getUid(2564);
+        int thirdPartyPkgUid = getUid(2044);
+
+        SparseArray<String> packageNamesByUid = new SparseArray<>();
+        packageNamesByUid.put(criticalSysPkgUid, "critical.system.package");
+        packageNamesByUid.put(nonCriticalSysPkgUid, "non_critical.system.package");
+        packageNamesByUid.put(nonCriticalVndrPkgUid, "non_critical.vendor.package");
+        packageNamesByUid.put(thirdPartyPkgUid, "third_party.package");
+
+        SparseBooleanArray killableOnOveruseByUid = new SparseBooleanArray();
+        killableOnOveruseByUid.put(criticalSysPkgUid, false);
+        killableOnOveruseByUid.put(nonCriticalSysPkgUid, true);
+        killableOnOveruseByUid.put(nonCriticalVndrPkgUid, true);
+        killableOnOveruseByUid.put(thirdPartyPkgUid, true);
+        injectUidToPackageNameMapping(packageNamesByUid);
+
+        IResourceOveruseListener mockSystemListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListenerForSystem(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockSystemListener);
+
+        IResourceOveruseListener mockListener = createMockResourceOveruseListener();
+        mCarWatchdogService.addResourceOveruseListener(
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, mockListener);
+
+        IPackageManager packageManagerService = Mockito.spy(ActivityThread.getPackageManager());
+        when(ActivityThread.getPackageManager()).thenReturn(packageManagerService);
+        mockApplicationEnabledSettingAccessors(packageManagerService);
+
+        List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>(Arrays.asList(
+                /* Overuse occurred but cannot be killed/disabled. */
+                constructPackageIoOveruseStats(criticalSysPkgUid, /* shouldNotify= */true,
+                        constructInternalIoOveruseStats(
+                                killableOnOveruseByUid.get(criticalSysPkgUid),
+                                constructPerStateBytes(0, 0, 0),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2)),
+                /* No overuse occurred but should be notified. */
+                constructPackageIoOveruseStats(nonCriticalSysPkgUid, /* shouldNotify= */true,
+                        constructInternalIoOveruseStats(
+                                killableOnOveruseByUid.get(nonCriticalSysPkgUid),
+                                constructPerStateBytes(20, 30, 40),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2)),
+                /* Neither overuse occurred nor be notified. */
+                constructPackageIoOveruseStats(nonCriticalVndrPkgUid, /* shouldNotify= */false,
+                        constructInternalIoOveruseStats(
+                                killableOnOveruseByUid.get(nonCriticalVndrPkgUid),
+                                constructPerStateBytes(200, 300, 400),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2)),
+                /* Overuse occurred and can be killed/disabled. */
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */true,
+                        constructInternalIoOveruseStats(
+                                killableOnOveruseByUid.get(thirdPartyPkgUid),
+                                constructPerStateBytes(0, 0, 0),
+                                constructPerStateBytes(100, 200, 300), /* totalOveruses= */2))));
+
+        mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        List<ResourceOveruseStats> expectedStats = new ArrayList<>();
+
+        expectedStats.add(constructResourceOveruseStats(criticalSysPkgUid,
+                packageNamesByUid.get(criticalSysPkgUid),
+                killableOnOveruseByUid.get(criticalSysPkgUid),
+                packageIoOveruseStats.get(0).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockListener);
+
+        expectedStats.add(constructResourceOveruseStats(nonCriticalSysPkgUid,
+                packageNamesByUid.get(nonCriticalSysPkgUid),
+                killableOnOveruseByUid.get(nonCriticalSysPkgUid),
+                packageIoOveruseStats.get(1).ioOveruseStats));
+
+        expectedStats.add(constructResourceOveruseStats(thirdPartyPkgUid,
+                packageNamesByUid.get(thirdPartyPkgUid),
+                killableOnOveruseByUid.get(thirdPartyPkgUid),
+                packageIoOveruseStats.get(3).ioOveruseStats));
+
+        verifyOnOveruseCalled(expectedStats, mockSystemListener);
+
+        verify(packageManagerService, times(1)).getApplicationEnabledSetting(
+                packageNamesByUid.get(thirdPartyPkgUid), UserHandle.getUserId(thirdPartyPkgUid));
+        verify(packageManagerService, times(1)).setApplicationEnabledSetting(
+                eq(packageNamesByUid.get(thirdPartyPkgUid)), anyInt(), anyInt(),
+                eq(UserHandle.getUserId(thirdPartyPkgUid)), anyString());
+
+        List<PackageResourceOveruseAction> expectedActions = new ArrayList<>(Arrays.asList(
+                constructPackageResourceOveruseAction(packageNamesByUid.get(criticalSysPkgUid),
+                        criticalSysPkgUid, new int[]{ ResourceType.IO }, NOT_KILLED),
+                constructPackageResourceOveruseAction(packageNamesByUid.get(thirdPartyPkgUid),
+                        thirdPartyPkgUid, new int[]{ ResourceType.IO }, KILLED)));
+        verifyActionsTakenOnResourceOveruse(expectedActions);
+    }
+
+    @Test
+    public void testLatestIoOveruseStatsWithUserOptedOutPackage() throws Exception {
+        // TODO(b/170741935): Test that the user opted out package is not killed on overuse.
+    }
+
+    @Test
+    public void testLatestIoOveruseStatsWithRecurringOveruse() throws Exception {
+        /*
+         * TODO(b/170741935): Test that non-critical packages are killed on recurring overuse
+         *  regardless of user settings.
+         */
     }
 
     @Test
     public void testGetPackageInfosForUids() throws Exception {
-        int[] uids = new int[]{6001, 6050, 5100, 110035, 120056, 120078};
+        int[] uids = new int[]{6001, 6050, 5100, 110035, 120056, 120078, 1345678};
         List<PackageInfo> expectedPackageInfos = new ArrayList<>(Arrays.asList(
                 constructPackageInfo("system.package.A", 6001, new ArrayList<>(),
                         UidType.NATIVE, ComponentType.SYSTEM, ApplicationCategoryType.OTHERS),
@@ -215,6 +392,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 constructPackageInfo("shared:third_party.package", 120078,
                         new ArrayList<>(Arrays.asList("third_party.package.I")),
                         UidType.APPLICATION,  ComponentType.THIRD_PARTY,
+                        ApplicationCategoryType.OTHERS),
+                constructPackageInfo("vendor.package.J", 1345678, new ArrayList<>(),
+                        UidType.APPLICATION, ComponentType.VENDOR,
                         ApplicationCategoryType.OTHERS)));
 
         ArrayMap<String, ApplicationInfo> applicationInfos = new ArrayMap<>(9);
@@ -228,6 +408,8 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_OEM));
         applicationInfos.put("vendor.package.E",
                 constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_VENDOR));
+        applicationInfos.put("vendor.package.J",
+                constructApplicationInfo(0, ApplicationInfo.PRIVATE_FLAG_ODM));
         applicationInfos.put("third_party.package.C", constructApplicationInfo(0, 0));
         applicationInfos.put("third_party.package.G", constructApplicationInfo(0, 0));
         applicationInfos.put("third_party.package.H", constructApplicationInfo(0, 0));
@@ -238,9 +420,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     @Test
@@ -265,7 +445,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 ApplicationInfo.PRIVATE_FLAG_PRODUCT));
         applicationInfos.put("vendor.pkg.E", constructApplicationInfo(ApplicationInfo.FLAG_SYSTEM,
                 0));
-        /**
+        /*
          * A 3p package pretending to be a vendor package because 3p packages won't have the
          * required flags.
          */
@@ -279,9 +459,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>(Arrays.asList("vendor.package.", "vendor.pkg.")));
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     @Test
@@ -317,14 +495,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         List<PackageInfo> actualPackageInfos = mWatchdogServiceForSystemImpl.getPackageInfosForUids(
                 uids, new ArrayList<>());
 
-        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
-            toString(expectedPackageInfos), toString(actualPackageInfos))
-            .that(equals(expectedPackageInfos, actualPackageInfos)).isTrue();
-    }
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(ServiceManager.class);
+        assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
     }
 
     private void mockWatchdogDaemon() {
@@ -356,6 +527,117 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).tellCarWatchdogServiceAlive(
                 eq(mWatchdogServiceForSystemImpl), notRespondingClients.capture(), eq(987654));
         assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
+    }
+
+    private void injectUidToPackageNameMapping(SparseArray<String> packageNamesByUid) {
+        doAnswer(args -> {
+            int[] uids = args.getArgument(0);
+            String[] packageNames = new String[uids.length];
+            for (int i = 0; i < uids.length; ++i) {
+                packageNames[i] = packageNamesByUid.get(uids[i], null);
+            }
+            return packageNames;
+        }).when(mMockPackageManager).getNamesForUids(any());
+    }
+
+    private void mockApplicationEnabledSettingAccessors(IPackageManager pm) throws Exception {
+        doReturn(COMPONENT_ENABLED_STATE_ENABLED).when(pm)
+                .getApplicationEnabledSetting(anyString(), eq(UserHandle.myUserId()));
+
+        doNothing().when(pm).setApplicationEnabledSetting(anyString(), anyInt(),
+                anyInt(), eq(UserHandle.myUserId()), anyString());
+    }
+
+    private void verifyActionsTakenOnResourceOveruse(List<PackageResourceOveruseAction> expected)
+            throws Exception {
+        ArgumentCaptor<List<PackageResourceOveruseAction>> resourceOveruseActionsCaptor =
+                ArgumentCaptor.forClass((Class) List.class);
+
+        verify(mCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).actionTakenOnResourceOveruse(
+                resourceOveruseActionsCaptor.capture());
+        List<PackageResourceOveruseAction> actual = resourceOveruseActionsCaptor.getValue();
+
+        assertThat(actual).comparingElementsUsing(
+                Correspondence.from(
+                        CarWatchdogServiceUnitTest::isPackageResourceOveruseActionEquals,
+                        "is overuse action equal to")).containsExactlyElementsIn(expected);
+    }
+
+    public static boolean isPackageResourceOveruseActionEquals(PackageResourceOveruseAction actual,
+            PackageResourceOveruseAction expected) {
+        return isEquals(actual.packageIdentifier, expected.packageIdentifier)
+                && Arrays.equals(actual.resourceTypes, expected.resourceTypes)
+                && actual.resourceOveruseActionType == expected.resourceOveruseActionType;
+    }
+
+    private static void verifyOnOveruseCalled(List<ResourceOveruseStats> expectedStats,
+            IResourceOveruseListener mockListener) throws Exception {
+        ArgumentCaptor<ResourceOveruseStats> resourceOveruseStatsCaptor =
+                ArgumentCaptor.forClass(ResourceOveruseStats.class);
+
+        verify(mockListener, times(expectedStats.size()))
+                .onOveruse(resourceOveruseStatsCaptor.capture());
+
+        ResourceOveruseStatsSubject.assertThat(resourceOveruseStatsCaptor.getAllValues())
+                .containsExactlyElementsIn(expectedStats);
+    }
+
+    private static int getUid(int appId) {
+        return UserHandle.getUid(UserHandle.myUserId(), appId);
+    }
+
+    private static PackageIoOveruseStats constructPackageIoOveruseStats(int uid,
+            boolean shouldNotify, android.automotive.watchdog.IoOveruseStats ioOveruseStats) {
+        PackageIoOveruseStats stats = new PackageIoOveruseStats();
+        stats.uid = uid;
+        stats.shouldNotify = shouldNotify;
+        stats.ioOveruseStats = ioOveruseStats;
+        return stats;
+    }
+
+    private static ResourceOveruseStats constructResourceOveruseStats(int uid, String packageName,
+            boolean killableOnOveruse,
+            android.automotive.watchdog.IoOveruseStats internalIoOveruseStats) {
+        IoOveruseStats ioOveruseStats =
+                WatchdogPerfHandler.toIoOveruseStatsBuilder(internalIoOveruseStats)
+                        .setKillableOnOveruse(killableOnOveruse).build();
+
+        return new ResourceOveruseStats.Builder(packageName, UserHandle.getUserHandleForUid(uid))
+                .setIoOveruseStats(ioOveruseStats).build();
+    }
+
+    private static android.automotive.watchdog.IoOveruseStats constructInternalIoOveruseStats(
+            boolean killableOnOveruse,
+            android.automotive.watchdog.PerStateBytes remainingWriteBytes,
+            android.automotive.watchdog.PerStateBytes writtenBytes, int totalOveruses) {
+        android.automotive.watchdog.IoOveruseStats stats =
+                new android.automotive.watchdog.IoOveruseStats();
+        stats.killableOnOveruse = killableOnOveruse;
+        stats.remainingWriteBytes = remainingWriteBytes;
+        stats.writtenBytes = writtenBytes;
+        stats.totalOveruses = totalOveruses;
+        return stats;
+    }
+
+    private static android.automotive.watchdog.PerStateBytes constructPerStateBytes(long fgBytes,
+            long bgBytes, long gmBytes) {
+        android.automotive.watchdog.PerStateBytes perStateBytes =
+                new android.automotive.watchdog.PerStateBytes();
+        perStateBytes.foregroundBytes = fgBytes;
+        perStateBytes.backgroundBytes = bgBytes;
+        perStateBytes.garageModeBytes = gmBytes;
+        return perStateBytes;
+    }
+
+    public static PackageResourceOveruseAction constructPackageResourceOveruseAction(
+            String packageName, int uid, int[] resourceTypes, int resourceOveruseActionType) {
+        PackageResourceOveruseAction action = new PackageResourceOveruseAction();
+        action.packageIdentifier = new PackageIdentifier();
+        action.packageIdentifier.name = packageName;
+        action.packageIdentifier.uid = uid;
+        action.resourceTypes = resourceTypes;
+        action.resourceOveruseActionType = resourceOveruseActionType;
+        return action;
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {
@@ -413,7 +695,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 });
     }
 
-    private PackageInfo constructPackageInfo(String packageName, int uid,
+    private static PackageInfo constructPackageInfo(String packageName, int uid,
             List<String> sharedUidPackages, int uidType, int componentType, int appCategoryType) {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.packageIdentifier = new PackageIdentifier();
@@ -427,14 +709,14 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return packageInfo;
     }
 
-    private ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
+    private static ApplicationInfo constructApplicationInfo(int flags, int privateFlags) {
         ApplicationInfo applicationInfo = new ApplicationInfo();
         applicationInfo.flags = flags;
         applicationInfo.privateFlags = privateFlags;
         return applicationInfo;
     }
 
-    private String toString(List<PackageInfo> packageInfos) {
+    private static String toString(List<PackageInfo> packageInfos) {
         StringBuilder builder = new StringBuilder();
         for (PackageInfo packageInfo : packageInfos) {
             builder = toString(builder, packageInfo).append('\n');
@@ -442,7 +724,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return builder.toString();
     }
 
-    private StringBuilder toString(StringBuilder builder, PackageInfo packageInfo) {
+    private static StringBuilder toString(StringBuilder builder, PackageInfo packageInfo) {
         if (packageInfo == null) {
             return builder.append("Null package info\n");
         }
@@ -466,26 +748,22 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return builder;
     }
 
-    private boolean equals(List<PackageInfo> lhs, List<PackageInfo> rhs) {
-        if (lhs.size() != rhs.size()) {
-            return false;
-        }
-        for (int i = 0; i < lhs.size(); ++i) {
-            if (!equals(lhs.get(i), rhs.get(i))) {
-                return false;
-            }
-        }
-        return true;
+    private static void assertPackageInfoEquals(List<PackageInfo> actual,
+            List<PackageInfo> expected) throws Exception {
+        assertWithMessage("Package infos for UIDs:\nExpected: %s\nActual: %s",
+                toString(expected), toString(actual)).that(actual).comparingElementsUsing(
+                Correspondence.from(CarWatchdogServiceUnitTest::isPackageInfoEquals,
+                        "is package info equal to")).containsExactlyElementsIn(expected);
     }
 
-    private boolean equals(PackageInfo lhs, PackageInfo rhs) {
-        return equals(lhs.packageIdentifier, rhs.packageIdentifier)
+    private static boolean isPackageInfoEquals(PackageInfo lhs, PackageInfo rhs) {
+        return isEquals(lhs.packageIdentifier, rhs.packageIdentifier)
                 && lhs.sharedUidPackages.equals(rhs.sharedUidPackages)
                 && lhs.componentType == rhs.componentType
                 && lhs.appCategoryType == rhs.appCategoryType;
     }
 
-    private boolean equals(PackageIdentifier lhs, PackageIdentifier rhs) {
+    private static boolean isEquals(PackageIdentifier lhs, PackageIdentifier rhs) {
         return lhs.name.equals(rhs.name) && lhs.uid == rhs.uid;
     }
 }
