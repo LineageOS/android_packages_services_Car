@@ -605,9 +605,17 @@ void PolicyManager::initRegularPowerPolicy() {
     mRegisteredPowerPolicies.emplace(kSystemPolicyIdAllOn,
                                      createPolicy(kSystemPolicyIdAllOn, kAllComponents,
                                                   kNoComponents));
+
+    std::vector<PowerComponent> initialOnDisabledComponents;
+    for (const auto component : enum_range<PowerComponent>()) {
+        if (std::find(kInitialOnComponents.begin(), kInitialOnComponents.end(), component) ==
+            kInitialOnComponents.end()) {
+            initialOnDisabledComponents.push_back(component);
+        }
+    }
     mRegisteredPowerPolicies.emplace(kSystemPolicyIdInitialOn,
                                      createPolicy(kSystemPolicyIdInitialOn, kInitialOnComponents,
-                                                  kAllComponents));
+                                                  initialOnDisabledComponents));
 }
 
 void PolicyManager::initPreemptivePowerPolicy() {
