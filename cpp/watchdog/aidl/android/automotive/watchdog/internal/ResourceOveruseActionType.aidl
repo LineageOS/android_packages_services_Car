@@ -22,7 +22,8 @@ package android.automotive.watchdog.internal;
 @Backing(type="int")
 enum ResourceOveruseActionType {
   /**
-   * The package is not killed as it is not killable.
+   * The package is not killed because either it is not killable, internal error occurred, or
+   * already disabled.
    */
   NOT_KILLED,
 
