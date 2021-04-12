@@ -233,6 +233,10 @@ public final class CarAudioContext {
         return CONTEXT_TO_USAGES.get(carAudioContext);
     }
 
+    static @AudioContext int getContextForAttributes(AudioAttributes attributes) {
+        return getContextForUsage(attributes.getSystemUsage());
+    }
+
     /**
      * @return Context number for a given audio usage, {@code INVALID} if the given usage is
      * unrecognized.

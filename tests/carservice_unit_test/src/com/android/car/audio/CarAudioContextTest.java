@@ -21,8 +21,10 @@ import static android.media.AudioAttributes.USAGE_EMERGENCY;
 import static android.media.AudioAttributes.USAGE_GAME;
 import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioAttributes.USAGE_UNKNOWN;
+import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 
 import static com.android.car.audio.CarAudioContext.EMERGENCY;
+import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
 
@@ -30,6 +32,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.testng.Assert.assertThrows;
 
+import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
@@ -58,7 +61,22 @@ public class CarAudioContextTest {
     @Test
     public void getContextForUsage_withInvalidUsage_returnsInvalidContext() {
         assertThat(CarAudioContext.getContextForUsage(INVALID_USAGE)).isEqualTo(
-                CarAudioContext.INVALID);
+                INVALID);
+    }
+
+    @Test
+    public void getContextForAudioAttributes_forAttributeWithValidUsage_returnsContext() {
+        AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_MEDIA).build();
+
+        assertThat(CarAudioContext.getContextForAttributes(attributes)).isEqualTo(MUSIC);
+    }
+
+    @Test
+    public void getContextForAudioAttributes_forAttributesWithInvalidUsage_returnsInvalidContext() {
+        AudioAttributes attributes = new AudioAttributes.Builder().setUsage(USAGE_VIRTUAL_SOURCE)
+                .build();
+
+        assertThat(CarAudioContext.getContextForAttributes(attributes)).isEqualTo(INVALID);
     }
 
     @Test
