@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Stebėti atmintuko naudojimą."</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"klausyti vairavimo būsenos"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Klausyti vairavimo būsenos pakeitimų."</string>
+    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
+    <skip />
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Naudoti automobilio EVS paslaugą"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Prenumeruoti EVS vaizdo transliacijas"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Stebėti automobilio EVS paslaugos būseną"</string>

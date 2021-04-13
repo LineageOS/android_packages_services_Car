@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ़्लैश डिवाइस की मेमोरी के इस्तेमाल की निगरानी कर सकता है"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"गाड़ी चलाते समय होने वाले बदलावों की स्थिति को सुन सकता है"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"गाड़ी चलाते समय होने वाले बदलावों को सुन सकता है."</string>
+    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
+    <skip />
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार की ईवीएस सेवा का इस्तेमाल करें"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ईवीएस वीडियो स्ट्रीम की सदस्यता लें"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"कार की ईवीएस सेवा की स्थिति को मॉनिटर करें"</string>

@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ्लॅश स्टोरेज वापराचे परीक्षण करा"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ड्रायव्हिंगची स्थिती ऐका"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ड्रायव्हिंगच्या स्थितीतील बदल ऐका."</string>
+    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
+    <skip />
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार EVS सेवा वापरा"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS व्हिडिओ स्ट्रीमचे सदस्य व्हा"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"कार EVS सेवेच्या स्थितीचे परीक्षण करा"</string>
