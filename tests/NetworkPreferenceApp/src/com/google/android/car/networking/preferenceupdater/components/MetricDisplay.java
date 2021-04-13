@@ -195,7 +195,6 @@ public final class MetricDisplay {
 
     @WorkerThread
     private void updateStats() {
-        Log.d("METRIC_DISPLAY", "Timer tick... checking OEM traffic");
         sendMessage(NetworkIdentity.OEM_PAID, combinedTrafficFor(NetworkIdentity.OEM_PAID));
         sendMessage(NetworkIdentity.OEM_PRIVATE, combinedTrafficFor(NetworkIdentity.OEM_PRIVATE));
         sendMessage(

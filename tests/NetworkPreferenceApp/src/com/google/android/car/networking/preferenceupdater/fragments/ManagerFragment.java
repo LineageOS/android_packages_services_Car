@@ -23,6 +23,9 @@ import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVA
 import android.content.Context;
 import android.net.NetworkIdentity;
 import android.net.NetworkTemplate;
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiManager;
+import android.net.wifi.WifiNetworkSuggestion;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
@@ -33,8 +36,9 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
 import android.widget.EditText;
+import android.widget.Switch;
 import android.widget.TextView;
-import android.widget.ToggleButton;
+import android.widget.Toast;
 
 import androidx.fragment.app.Fragment;
 
@@ -45,6 +49,7 @@ import com.google.android.car.networking.preferenceupdater.components.OemNetwork
 import com.google.android.car.networking.preferenceupdater.components.PersonalStorage;
 import com.google.android.car.networking.preferenceupdater.utils.Utils;
 
+import java.util.ArrayList;
 import java.util.Set;
 
 public final class ManagerFragment extends Fragment {
@@ -57,6 +62,7 @@ public final class ManagerFragment extends Fragment {
     private PersonalStorage mPersonalStorage;
     private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
     private CarDriverDistractionManagerAdapter mCarDriverDistractionManagerAdapter;
+    private WifiManager mWifiManager;
 
     // Metric Display components
     private MetricDisplay mMetricDisplay;
@@ -84,9 +90,14 @@ public final class ManagerFragment extends Fragment {
     private EditText mOEMPaidOnlyAppsEditText;
     private EditText mOEMPrivateOnlyAppsEditText;
     private TextView mCurrentPANSStatusTextView;
-    private ToggleButton mReapplyPANSOnBootToggleButton;
+    private Switch mReapplyPANSOnBootSwitch;
     private Button mApplyConfigurationBtn;
     private Button mResetNetworkPreferencesBtn;
+    private Button mApplyWifiCapabilitiesBtn;
+
+    // Wifi SSIDs
+    private EditText mOEMPaidWifiSSIDsEditText;
+    private EditText mOEMPrivateWifiSSIDsEditText;
 
     @Override
     public View onCreateView(
@@ -110,6 +121,8 @@ public final class ManagerFragment extends Fragment {
         // Let's start watching OEM traffic and updating indicators
         mMetricDisplay.startWatching();
 
+        mWifiManager = context.getSystemService(WifiManager.class);
+
         return v;
     }
 
@@ -126,10 +139,13 @@ public final class ManagerFragment extends Fragment {
         mOEMPaidNoFallbackAppsEditText = v.findViewById(R.id.OEMPaidNoFallbackAppsEditText);
         mOEMPaidOnlyAppsEditText = v.findViewById(R.id.OEMPaidOnlyAppsEditText);
         mOEMPrivateOnlyAppsEditText = v.findViewById(R.id.OEMPrivateOnlyAppsEditText);
+        mOEMPaidWifiSSIDsEditText = v.findViewById(R.id.OEMPaidWifiSSIDsEditText);
+        mOEMPrivateWifiSSIDsEditText = v.findViewById(R.id.OEMPrivateWifiSSIDsEditText);
         mCurrentPANSStatusTextView = v.findViewById(R.id.currentPANSStatusTextView);
-        mReapplyPANSOnBootToggleButton = v.findViewById(R.id.reapplyPANSOnBootToggleButton);
+        mReapplyPANSOnBootSwitch = v.findViewById(R.id.reapplyPANSOnBootSwitch);
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
         mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
+        mApplyWifiCapabilitiesBtn = v.findViewById(R.id.applyWifiCapabilitiesButton);
         // Since our Metric Display is going to be alive, we want to pass our TextView components
         // into MetricDisplay instance to simplify refresh logic.
         mOemPaidRxBytesTextView = v.findViewById(R.id.oemPaidRxBytesTextView);
@@ -144,16 +160,16 @@ public final class ManagerFragment extends Fragment {
     private void updateMetricIndicatorByType(int type, long tx, long rx) {
         switch (type) {
             case NetworkIdentity.OEM_PAID:
-                mOemPaidTxBytesTextView.setText("" + tx);
-                mOemPaidRxBytesTextView.setText("" + rx);
+                mOemPaidTxBytesTextView.setText(String.valueOf(tx));
+                mOemPaidRxBytesTextView.setText(String.valueOf(rx));
                 break;
             case NetworkIdentity.OEM_PRIVATE:
-                mOemPrivateTxBytesTextView.setText("" + tx);
-                mOemPrivateRxBytesTextView.setText("" + rx);
+                mOemPrivateTxBytesTextView.setText(String.valueOf(tx));
+                mOemPrivateRxBytesTextView.setText(String.valueOf(rx));
                 break;
             case NetworkTemplate.OEM_MANAGED_YES:
-                mOemTotalTxBytesTextView.setText("" + tx);
-                mOemTotalRxBytesTextView.setText("" + rx);
+                mOemTotalTxBytesTextView.setText(String.valueOf(tx));
+                mOemTotalRxBytesTextView.setText(String.valueOf(rx));
                 break;
             default:
                 Log.e(TAG, "Unknown NetworkIdentity " + type);
@@ -163,7 +179,8 @@ public final class ManagerFragment extends Fragment {
     /** Defines actions of the buttons on the page */
     private void defineButtonActions() {
         mApplyConfigurationBtn.setOnClickListener(view -> onApplyConfigurationBtnClick());
-        mReapplyPANSOnBootToggleButton.setOnCheckedChangeListener(
+        mApplyWifiCapabilitiesBtn.setOnClickListener(view -> onApplyWifiCapabilitiesBtnClick());
+        mReapplyPANSOnBootSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) ->
                         mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
         mResetNetworkPreferencesBtn.setOnClickListener(view -> resetNetworkPreferences());
@@ -183,8 +200,10 @@ public final class ManagerFragment extends Fragment {
         mOEMPaidOnlyAppsEditText.setText(getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY));
         mOEMPrivateOnlyAppsEditText.setText(
                 getFromStorage(OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY));
-        mReapplyPANSOnBootToggleButton.setChecked(
-                mPersonalStorage.getReapplyPansOnBootCompleteState());
+        mReapplyPANSOnBootSwitch.setChecked(mPersonalStorage.getReapplyPansOnBootCompleteState());
+        mOEMPaidWifiSSIDsEditText.setText(Utils.toString(mPersonalStorage.getOemPaidWifiSsids()));
+        mOEMPrivateWifiSSIDsEditText.setText(
+                Utils.toString(mPersonalStorage.getOemPrivateWifiSsids()));
     }
 
     private String getFromStorage(int type) {
@@ -198,8 +217,43 @@ public final class ManagerFragment extends Fragment {
         mCurrentPANSStatusTextView.setText(status ? "Yes" : "No");
     }
 
+    private void onApplyWifiCapabilitiesBtnClick() {
+        Log.d(TAG, "Applying WiFi settings");
+        Set<String> ssidsWithOemPaid = Utils.toSet(mOEMPaidWifiSSIDsEditText.getText().toString());
+        Set<String> ssidsWithOemPrivate =
+                Utils.toSet(mOEMPrivateWifiSSIDsEditText.getText().toString());
+
+        try {
+            ArrayList<WifiNetworkSuggestion> list = new ArrayList<>();
+            for (String ssid : ssidsWithOemPaid) {
+                list.add(
+                        new WifiNetworkSuggestion.Builder()
+                                .setSsid(WifiInfo.sanitizeSsid(ssid))
+                                .setOemPaid(true)
+                                .build());
+            }
+
+            for (String ssid : ssidsWithOemPrivate) {
+                list.add(
+                        new WifiNetworkSuggestion.Builder()
+                                .setSsid(WifiInfo.sanitizeSsid(ssid))
+                                .setOemPrivate(true)
+                                .build());
+            }
+
+            mWifiManager.removeNetworkSuggestions(new ArrayList<>());
+            mWifiManager.addNetworkSuggestions(list);
+        } catch (Exception e) {
+            // Could not set Wifi capabilities, pop the toast and do nothing
+            Log.e(TAG, "Failed to set Wifi capabilities", e);
+            Toast.makeText(getActivity(), e.toString(), Toast.LENGTH_SHORT).show();
+            return;
+        }
+        mPersonalStorage.storeWifi(ssidsWithOemPaid, ssidsWithOemPrivate);
+    }
+
     private void onApplyConfigurationBtnClick() {
-        Log.i(TAG, "[NetworkPreferenceApp] PANS Policy was applied!");
+        Log.d(TAG, "Applying PANS");
         // First we want to make sure that we are allowed to change
         if (!mCarDriverDistractionManagerAdapter.allowedToBeDistracted()) {
             // We are not allowed to apply PANS changes. Do nothing.
