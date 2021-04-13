@@ -32,7 +32,6 @@ import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
-import static org.testng.Assert.assertThrows;
 
 import android.car.media.CarAudioManager;
 import android.content.ContentResolver;
@@ -45,22 +44,18 @@ import android.os.Build;
 import android.os.Bundle;
 import android.util.SparseArray;
 
-import androidx.test.ext.junit.runners.AndroidJUnit4;
-
 import com.android.car.audio.CarZonesAudioFocus.CarFocusCallback;
 
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.List;
 
-@RunWith(AndroidJUnit4.class)
+@RunWith(MockitoJUnitRunner.class)
 public class CarZonesAudioFocusTest {
     private static final String MEDIA_CLIENT_ID = "media-client-id";
     private static final String NAVIGATION_CLIENT_ID = "nav-client-id";
@@ -75,8 +70,6 @@ public class CarZonesAudioFocusTest {
     private static final int TEST_USER_ID = 10;
     private static final int CALL_CLIENT_UID = 1086753;
 
-    @Rule
-    public MockitoRule rule = MockitoJUnit.rule();
     @Mock
     private AudioManager mMockAudioManager;
     @Mock
@@ -98,48 +91,6 @@ public class CarZonesAudioFocusTest {
     public void setUp() {
         mCarAudioZones = generateAudioZones();
         when(mCarAudioService.getZoneIdForUid(MEDIA_CLIENT_UID_1)).thenReturn(PRIMARY_ZONE_ID);
-    }
-
-    @Test
-    public void constructor_withNullAudioManager_throws() {
-        assertThrows(NullPointerException.class, () -> new CarZonesAudioFocus(null,
-                mMockPackageManager, mCarAudioZones, mCarAudioSettings, true, mMockCarFocusCallback)
-        );
-    }
-
-    @Test
-    public void constructor_withNullPackageManager_throws() {
-        assertThrows(NullPointerException.class, () -> new CarZonesAudioFocus(mMockAudioManager,
-                null, mCarAudioZones, mCarAudioSettings, true, mMockCarFocusCallback)
-        );
-    }
-
-    @Test
-    public void constructor_withNullCarAudioZones_throws() {
-        assertThrows(NullPointerException.class, () -> new CarZonesAudioFocus(mMockAudioManager,
-                mMockPackageManager, null, mCarAudioSettings, true, mMockCarFocusCallback)
-        );
-    }
-
-    @Test
-    public void constructor_withEmptyCarAudioZones_throws() {
-        assertThrows(IllegalArgumentException.class, () -> new CarZonesAudioFocus(mMockAudioManager,
-                mMockPackageManager, new SparseArray<>(), mCarAudioSettings, true,
-                mMockCarFocusCallback)
-        );
-    }
-
-    @Test
-    public void constructor_withNullCarAudioSettings_throws() {
-        assertThrows(NullPointerException.class, () -> new CarZonesAudioFocus(mMockAudioManager,
-                mMockPackageManager, mCarAudioZones, null, true, mMockCarFocusCallback)
-        );
-    }
-
-    @Test
-    public void constructor_withNullCarFocusCallback_succeeds() {
-        new CarZonesAudioFocus(mMockAudioManager, mMockPackageManager, mCarAudioZones,
-                mCarAudioSettings, true, null);
     }
 
     @Test
@@ -383,7 +334,8 @@ public class CarZonesAudioFocusTest {
 
     private CarZonesAudioFocus getCarZonesAudioFocus(boolean enableDelayedFocus) {
         CarZonesAudioFocus carZonesAudioFocus =
-                new CarZonesAudioFocus(mMockAudioManager, mMockPackageManager, mCarAudioZones,
+                CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager, mMockPackageManager,
+                        mCarAudioZones,
                         mCarAudioSettings, enableDelayedFocus, mMockCarFocusCallback);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
