@@ -93,6 +93,10 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"সঞ্চয়াগাৰ ব্যৱহাৰৰ তথ্য নিৰীক্ষণ কৰিব"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"গাড়ী চালনাৰ স্থিতি সলনি হ’লে সেইয়া জানিব।"</string>
+    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
+    <skip />
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"গাড়ীৰ EVS ছাৰ্ভিচ ব্যৱহাৰ কৰক"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ভিডিঅ’ ষ্ট্ৰীম ছাবস্ক্ৰাইব কৰক"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"গাড়ীৰ EVS ছাৰ্ভিচৰ স্থিতি নিৰীক্ষণ কৰক"</string>
