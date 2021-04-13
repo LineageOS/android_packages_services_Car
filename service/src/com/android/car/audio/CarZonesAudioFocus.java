@@ -26,17 +26,15 @@ import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.os.Bundle;
 import android.util.IndentingPrintWriter;
-import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
-import java.util.HashMap;
 import java.util.List;
-import java.util.Map;
 import java.util.Objects;
 
 /**
@@ -44,45 +42,51 @@ import java.util.Objects;
  *
  * <p><b>Note:</b> Manages audio focus on a per zone basis.
  */
-class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
+final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
+    private static final String TAG = CarLog.tagFor(CarZonesAudioFocus.class);
 
     private final CarFocusCallback mCarFocusCallback;
     private final boolean mDelayedFocusEnabled;
     private CarAudioService mCarAudioService; // Dynamically assigned just after construction
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
-    private final Map<Integer, CarAudioFocus> mFocusZones = new HashMap<>();
+    private final SparseArray<CarAudioFocus> mFocusZones;
 
-    CarZonesAudioFocus(@NonNull AudioManager audioManager,
+    public static CarZonesAudioFocus createCarZonesAudioFocus(@NonNull AudioManager audioManager,
             @NonNull PackageManager packageManager,
             @NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull CarAudioSettings carAudioSettings,
             boolean enableDelayedAudioFocus,
             CarFocusCallback carFocusCallback) {
-        //Create the zones here, the policy will be set setOwningPolicy,
-        // which is called right after this constructor.
         Objects.requireNonNull(audioManager, "AudioManager cannot be null");
         Objects.requireNonNull(packageManager, "PackageManager cannot be null");
         Objects.requireNonNull(carAudioZones, "CarAudioZones cannot be null");
         Preconditions.checkArgument(carAudioZones.size() != 0,
                 "There must be a minimum of one audio zone");
         Objects.requireNonNull(carAudioSettings, "CarAudioSettings cannot be null");
-        mCarFocusCallback = carFocusCallback;
+
+        SparseArray<CarAudioFocus> audioFocusPerZone = new SparseArray<>();
 
         //Create focus for all the zones
         for (int i = 0; i < carAudioZones.size(); i++) {
             CarAudioZone audioZone = carAudioZones.valueAt(i);
             int audioZoneId = audioZone.getId();
-            if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                Slog.d(CarLog.TAG_AUDIO,
-                        "CarZonesAudioFocus adding new zone " + audioZoneId);
-            }
+            Slogf.d(TAG, "Adding new zone %d", audioZoneId);
             CarAudioFocus zoneFocusListener =
                     new CarAudioFocus(audioManager, packageManager,
                             new FocusInteraction(carAudioSettings), enableDelayedAudioFocus);
-            mFocusZones.put(audioZoneId, zoneFocusListener);
+            audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
+        return new CarZonesAudioFocus(audioFocusPerZone, enableDelayedAudioFocus, carFocusCallback);
+    }
+
+    @VisibleForTesting
+    CarZonesAudioFocus(SparseArray<CarAudioFocus> focusZones,
+            boolean enableDelayedAudioFocus,
+            CarFocusCallback carFocusCallback) {
+        mFocusZones = focusZones;
         mDelayedFocusEnabled = enableDelayedAudioFocus;
+        mCarFocusCallback = carFocusCallback;
     }
 
     /**
@@ -112,8 +116,7 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
      * @param afiList list of audio focus entries
      * @param zoneId zone id where focus should should be lost
      */
-    void transientlyLoseInFocusInZone(@NonNull ArrayList<AudioFocusInfo> afiList,
-            int zoneId) {
+    void transientlyLoseInFocusInZone(@NonNull ArrayList<AudioFocusInfo> afiList, int zoneId) {
         CarAudioFocus focus = mFocusZones.get(zoneId);
 
         for (AudioFocusInfo info : afiList) {
@@ -139,8 +142,8 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         mAudioPolicy = parentPolicy;
         mCarAudioService = carAudioService;
 
-        for (int zoneId : mFocusZones.keySet()) {
-            mFocusZones.get(zoneId).setOwningPolicy(mAudioPolicy);
+        for (int i = 0; i < mFocusZones.size(); i++) {
+            mFocusZones.valueAt(i).setOwningPolicy(mAudioPolicy);
         }
     }
 
@@ -181,17 +184,13 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                             -1);
             // check if the zone id is within current zones bounds
             if (mCarAudioService.isAudioZoneIdValid(bundleZoneId)) {
-                if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                    Slog.d(CarLog.TAG_AUDIO,
-                            "getFocusForAudioFocusInfo valid zoneId " + bundleZoneId
-                                    + " with bundle request for client " + afi.getClientId());
-                }
+                Slogf.d(TAG, "getFocusForAudioFocusInfo valid zoneId %d with bundle request for"
+                        + " client %s", bundleZoneId, afi.getClientId());
                 zoneId = bundleZoneId;
             } else {
-                Slog.w(CarLog.TAG_AUDIO,
-                        "getFocusForAudioFocusInfo invalid zoneId " + bundleZoneId
-                                + " with bundle request for client " + afi.getClientId()
-                                + ", dispatching focus request to zoneId " + zoneId);
+                Slogf.w(TAG, "getFocusForAudioFocusInfo invalid zoneId %d with bundle request for "
+                                + "client %s, dispatching focus request to zoneId %d", bundleZoneId,
+                        afi.getClientId(), zoneId);
             }
         }
 
@@ -214,11 +213,10 @@ class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         writer.printf("Has Focus Callback: %b\n", mCarFocusCallback != null);
         writer.println("Car Zones Audio Focus Listeners:");
         writer.increaseIndent();
-        Integer[] keys = mFocusZones.keySet().stream().sorted().toArray(Integer[]::new);
-        for (Integer zoneId : keys) {
-            writer.printf("Zone Id: %s\n", zoneId.toString());
+        for (int i = 0; i < mFocusZones.size(); i++) {
+            writer.printf("Zone Id: %d\n", mFocusZones.keyAt(i));
             writer.increaseIndent();
-            mFocusZones.get(zoneId).dump(writer);
+            mFocusZones.valueAt(i).dump(writer);
             writer.decreaseIndent();
         }
         writer.decreaseIndent();
