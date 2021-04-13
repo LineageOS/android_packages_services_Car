@@ -20,10 +20,10 @@
   <string name="quit_app" translatable="false">Quit App</string>
 
   <!-- Network Preferences Manager Fragment elements -->
-  <string name="oem_paid_apps_text" translatable="false">OEM_PAID packages</string>
-  <string name="oem_paid_no_fallback_apps_text" translatable="false">OEM_PAID_NO_FALLBACK packages</string>
-  <string name="oem_paid_only_apps_text" translatable="false">OEM_PAID_ONLY packages</string>
-  <string name="oem_private_only_apps_text" translatable="false">OEM_PRIVATE_ONLY packages</string>
+  <string name="oem_paid_apps_text" translatable="false">OEM_PAID packages (comma separated)</string>
+  <string name="oem_paid_no_fallback_apps_text" translatable="false">OEM_PAID_NO_FALLBACK packages (comma separated)</string>
+  <string name="oem_paid_only_apps_text" translatable="false">OEM_PAID_ONLY packages (comma separated)</string>
+  <string name="oem_private_only_apps_text" translatable="false">OEM_PRIVATE_ONLY packages (comma separated)</string>
   <string name="button_apply_configuration" translatable="false">Apply Configuration</string>
   <string name="button_reset_network_preference" translatable="false">Reset Network Preference</string>
   <string name="label_is_pans_overridden" translatable="false">Is PANS overridden?</string>
@@ -34,6 +34,10 @@
   <string name="label_metric_oem_private" translatable="false">OEM Private</string>
   <string name="label_metric_total_oem_managed" translatable="false">Total OEM Managed</string>
 
+  <!-- Wifi PANS SSID control labels -->
+  <string name="oem_paid_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PAID capability (comma separated)</string>
+  <string name="oem_private_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PRIVATE capability (comma separated)</string>
+  <string name="button_apply_wifi_configuration" translatable="false">Apply WiFi changes</string>
 
   <string name="no" translatable="false">No</string>
   <string name="on" translatable="false">On</string>

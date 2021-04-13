@@ -27,6 +27,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.SparseArray;
 
+import java.util.HashSet;
 import java.util.Set;
 
 /** This class will abstragate storage where OEM network policies are persisted */
@@ -35,6 +36,8 @@ public final class PersonalStorage {
 
     private static final String KEY_REAPPLY_PANS_ON_BOOT_COMPLETE =
             "key_reapply_pans_on_boot_complete";
+    private static final String KEY_OEM_PAID_WIFI_SSIDS = "key_oem_paid_wifi_ssids";
+    private static final String KEY_OEM_PRIVATE_WIFI_SSIDS = "key_oem_private_wifi_ssids";
 
     private final SharedPreferences mSharedPrefs;
     private final Context mContext;
@@ -59,6 +62,21 @@ public final class PersonalStorage {
             }
         }
         editor.apply();
+    }
+
+    public void storeWifi(Set<String> paidSsids, Set<String> privateSsids) {
+        SharedPreferences.Editor editor = mSharedPrefs.edit();
+        editor.putStringSet(KEY_OEM_PAID_WIFI_SSIDS, paidSsids);
+        editor.putStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, privateSsids);
+        editor.apply();
+    }
+
+    public Set<String> getOemPaidWifiSsids() {
+        return mSharedPrefs.getStringSet(KEY_OEM_PAID_WIFI_SSIDS, new HashSet<String>());
+    }
+
+    public Set<String> getOemPrivateWifiSsids() {
+        return mSharedPrefs.getStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, new HashSet<String>());
     }
 
     public void saveReapplyPansOnBootCompleteState(boolean checked) {
