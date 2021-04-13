@@ -48,7 +48,6 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.PowerManager;
 
-import androidx.test.filters.FlakyTest;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.CarLocalServices;
@@ -65,7 +64,7 @@ import org.mockito.Mock;
 
 public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceTestCase {
 
-    private static final long TIMEOUT_MS = 5_000;
+    private static final long TIMEOUT_MS = 15_000;
     private static final int USER_ID = 101;
 
     @Mock
@@ -193,7 +192,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
-    @FlakyTest(bugId = 179514944)
     public void uiShownWhenPowerOn() throws Exception {
         setUser();
         // UI shown when user switched
@@ -207,7 +205,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     }
 
     @Test
-    @FlakyTest(bugId = 179514944)
     public void uiNotShownIfKeyDisabled() throws Exception {
         setUser();
         // UI shown when user switched
