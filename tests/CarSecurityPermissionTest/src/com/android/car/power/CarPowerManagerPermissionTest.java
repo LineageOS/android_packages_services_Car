@@ -118,7 +118,7 @@ public final class CarPowerManagerPermissionTest {
     public void testAddPowerPolicyChangeListener() throws Exception {
         Executor executor = mContext.getMainExecutor();
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{ PowerComponent.AUDIO }).build();
+                .setComponents(PowerComponent.AUDIO).build();
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarPowerManager.addPowerPolicyListener(executor, filter, (p) -> { }));
 

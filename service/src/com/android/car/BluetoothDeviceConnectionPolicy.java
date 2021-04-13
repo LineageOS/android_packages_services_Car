@@ -320,7 +320,7 @@ public class BluetoothDeviceConnectionPolicy {
                 CarPowerManagementService.class);
         if (cpms != null) {
             CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
-                    .setComponents(new int[]{PowerComponent.BLUETOOTH}).build();
+                    .setComponents(PowerComponent.BLUETOOTH).build();
             cpms.addPowerPolicyListener(filter, mPowerPolicyListener);
         } else {
             Slog.w(TAG, "Cannot find CarPowerManagementService");

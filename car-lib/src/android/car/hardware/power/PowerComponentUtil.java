@@ -110,7 +110,7 @@ public final class PowerComponentUtil {
     public static boolean hasComponents(@NonNull CarPowerPolicy policy,
             @NonNull CarPowerPolicyFilter filter) {
         SparseBooleanArray filterSet = new SparseBooleanArray();
-        int[] components = filter.components;
+        int[] components = filter.getComponents();
         for (int i = 0; i < components.length; i++) {
             filterSet.put(components[i], true);
         }
