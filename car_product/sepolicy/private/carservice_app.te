@@ -80,9 +80,14 @@ allow carservice_app sysfs_power:file rw_file_perms;
 # Allow reading system property sys.boot.reason
 allow carservice_app system_boot_reason_prop:file { getattr open read map };
 
+## CarBugreportManagerService rules
 set_prop(carservice_app, ctl_start_prop)
 set_prop(carservice_app, ctl_stop_prop)
 unix_socket_connect(carservice_app, dumpstate, dumpstate)
+# Allow setting "dumpstate.dry_run"
+userdebug_or_eng(`
+  set_prop(carservice_app, exported_dumpstate_prop)
+')
 
 # Allow reading vehicle-specific configuration
 get_prop(carservice_app, vehicle_hal_prop)
