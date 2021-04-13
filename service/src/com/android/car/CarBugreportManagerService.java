@@ -92,6 +92,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             getClass().getSimpleName());
     private final Handler mHandler = new Handler(mHandlerThread.getLooper());
     private final AtomicBoolean mIsServiceRunning = new AtomicBoolean(false);
+    private boolean mIsDumpstateDryRun = false;
 
     /**
      * Create a CarBugreportManagerService instance.
@@ -115,7 +116,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     @Override
     @RequiresPermission(android.Manifest.permission.DUMP)
     public void requestBugreport(ParcelFileDescriptor output, ParcelFileDescriptor extraOutput,
-            ICarBugreportCallback callback) {
+            ICarBugreportCallback callback, boolean dumpstateDryRun) {
         mContext.enforceCallingOrSelfPermission(
                 android.Manifest.permission.DUMP, "requestBugreport");
         ensureTheCallerIsSignedWithPlatformKeys();
@@ -126,7 +127,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
                 reportError(callback, CarBugreportManagerCallback.CAR_BUGREPORT_IN_PROGRESS);
                 return;
             }
-            requestBugReportLocked(output, extraOutput, callback);
+            requestBugReportLocked(output, extraOutput, callback, dumpstateDryRun);
         }
     }
 
@@ -159,6 +160,18 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             } catch (RuntimeException e) {
                 Slog.e(TAG, "Failed to stop " + DUMPSTATEZ_SERVICE, e);
             }
+            if (mIsDumpstateDryRun) {
+                setDumpstateDryRun(false);
+            }
+        }
+    }
+
+    /** See {@code dumpstate} docs to learn about dry_run. */
+    private void setDumpstateDryRun(boolean dryRun) {
+        try {
+            SystemProperties.set("dumpstate.dry_run", dryRun ? "true" : null);
+        } catch (RuntimeException e) {
+            Slog.e(TAG, "Failed to set dumpstate.dry_run", e);
         }
     }
 
@@ -193,9 +206,16 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     }
 
     @GuardedBy("mLock")
-    private void requestBugReportLocked(ParcelFileDescriptor output,
-            ParcelFileDescriptor extraOutput, ICarBugreportCallback callback) {
+    private void requestBugReportLocked(
+            ParcelFileDescriptor output,
+            ParcelFileDescriptor extraOutput,
+            ICarBugreportCallback callback,
+            boolean dumpstateDryRun) {
         Slog.i(TAG, "Starting " + BUGREPORTD_SERVICE);
+        mIsDumpstateDryRun = dumpstateDryRun;
+        if (mIsDumpstateDryRun) {
+            setDumpstateDryRun(true);
+        }
         try {
             // This tells init to start the service. Note that this is achieved through
             // setting a system property which is not thread-safe. So the lock here offers
@@ -211,6 +231,9 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             try {
                 processBugreportSockets(output, extraOutput, callback);
             } finally {
+                if (mIsDumpstateDryRun) {
+                    setDumpstateDryRun(false);
+                }
                 mIsServiceRunning.set(false);
             }
         });
