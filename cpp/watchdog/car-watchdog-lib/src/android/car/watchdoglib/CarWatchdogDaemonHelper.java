@@ -24,6 +24,7 @@ import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
+import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -34,6 +35,7 @@ import android.util.Log;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CopyOnWriteArrayList;
@@ -46,9 +48,11 @@ import java.util.concurrent.CopyOnWriteArrayList;
 public final class CarWatchdogDaemonHelper {
 
     private static final String TAG = CarWatchdogDaemonHelper.class.getSimpleName();
-    // Carwatchdog daemon polls for the service manager status once every 250 milliseconds.
-    // CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS value should be at least twice the poll interval
-    // used by the daemon.
+    /*
+     * Car watchdog daemon polls for the service manager status once every 250 milliseconds.
+     * CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS value should be at least twice the poll interval
+     * used by the daemon.
+     */
     private static final long CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS = 500;
     private static final long CAR_WATCHDOG_DAEMON_FIND_MARGINAL_TIME_MS = 300;
     private static final int CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY = 3;
@@ -250,10 +254,37 @@ public final class CarWatchdogDaemonHelper {
     }
 
     /**
+     * Sets the given resource overuse configurations.
+     *
+     * @param configurations Resource overuse configuration per component type.
+     * @throws IllegalArgumentException If the configurations are invalid.
+     * @throws RemoteException
+     */
+    public void updateResourceOveruseConfigurations(
+            List<ResourceOveruseConfiguration> configurations) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.updateResourceOveruseConfigurations(configurations));
+    }
+
+    /**
+     * Returns the available resource overuse configurations.
+     *
+     * @throws RemoteException
+     */
+    public List<ResourceOveruseConfiguration> getResourceOveruseConfigurations()
+            throws RemoteException {
+        List<ResourceOveruseConfiguration> configurations = new ArrayList<>();
+        invokeDaemonMethod((daemon) -> {
+            configurations.addAll(daemon.getResourceOveruseConfigurations());
+        });
+        return configurations;
+    }
+
+    /**
      * Notifies car watchdog daemon with the actions taken on resource overuse.
      *
      * @param actions List of actions taken on resource overuse. One action taken per resource
      *                overusing user package.
+     * @throws RemoteException
      */
     public void actionTakenOnResourceOveruse(List<PackageResourceOveruseAction> actions)
             throws RemoteException {

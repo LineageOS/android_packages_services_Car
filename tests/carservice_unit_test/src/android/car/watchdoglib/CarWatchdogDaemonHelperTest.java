@@ -20,11 +20,15 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
+import static com.google.common.truth.Truth.assertThat;
+
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
+import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
@@ -32,6 +36,7 @@ import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PowerCycle;
+import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.os.Binder;
 import android.os.IBinder;
@@ -47,6 +52,7 @@ import org.mockito.Spy;
 import org.mockito.quality.Strictness;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 /**
@@ -151,6 +157,31 @@ public class CarWatchdogDaemonHelperTest {
 
         verify(mFakeCarWatchdog).notifySystemStateChange(StateType.POWER_CYCLE,
                 PowerCycle.POWER_CYCLE_SUSPEND, -1);
+    }
+
+    @Test
+    public void testIndirectCall_updateResourceOveruseConfigurations() throws Exception {
+        ResourceOveruseConfiguration config = new ResourceOveruseConfiguration();
+        config.componentType = ComponentType.SYSTEM;
+        List<ResourceOveruseConfiguration> configs = new ArrayList<>(Collections.singleton(config));
+
+        mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(configs);
+
+        verify(mFakeCarWatchdog).updateResourceOveruseConfigurations(eq(configs));
+    }
+
+    @Test
+    public void testIndirectCall_getResourceOveruseConfigurations() throws Exception {
+        ResourceOveruseConfiguration config = new ResourceOveruseConfiguration();
+        config.componentType = ComponentType.SYSTEM;
+        List<ResourceOveruseConfiguration> expected =
+                new ArrayList<>(Collections.singleton(config));
+        when(mFakeCarWatchdog.getResourceOveruseConfigurations()).thenReturn(expected);
+
+        List<ResourceOveruseConfiguration> actual =
+                mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
+
+        assertThat(actual).isEqualTo(expected);
     }
 
     @Test
