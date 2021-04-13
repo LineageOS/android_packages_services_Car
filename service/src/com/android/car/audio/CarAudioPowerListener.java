@@ -83,7 +83,7 @@ class CarAudioPowerListener {
         }
 
         CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{AUDIO}).build();
+                .setComponents(AUDIO).build();
         mCarPowerManagementService.addPowerPolicyListener(filter, mChangeListener);
         initializePowerState();
     }

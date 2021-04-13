@@ -439,11 +439,11 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
         MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.AUDIO}).build();
+                .setComponents(PowerComponent.AUDIO).build();
         CarPowerPolicyFilter filterWifi = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.WIFI}).build();
+                .setComponents(PowerComponent.WIFI).build();
         CarPowerPolicyFilter filterLocation = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.LOCATION}).build();
+                .setComponents(PowerComponent.LOCATION).build();
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
         mService.addPowerPolicyListener(filterWifi, listenerWifi);
@@ -461,7 +461,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
         CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
-                .setComponents(new int[]{PowerComponent.AUDIO}).build();
+                .setComponents(PowerComponent.AUDIO).build();
 
         mService.addPowerPolicyListener(filterAudio, listenerAudio);
         mService.removePowerPolicyListener(listenerAudio);
