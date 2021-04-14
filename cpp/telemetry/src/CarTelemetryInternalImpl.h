@@ -18,12 +18,11 @@
 #define CPP_TELEMETRY_SRC_CARTELEMETRYINTERNALIMPL_H_
 
 #include "RingBuffer.h"
-#include "binderutils/BinderDeathRecipient.h"
 
-#include <android/automotive/telemetry/internal/BnCarTelemetryInternal.h>
-#include <android/automotive/telemetry/internal/CarDataInternal.h>
-#include <android/automotive/telemetry/internal/ICarDataListener.h>
-#include <binder/IBinder.h>
+#include <aidl/android/automotive/telemetry/internal/BnCarTelemetryInternal.h>
+#include <aidl/android/automotive/telemetry/internal/CarDataInternal.h>
+#include <aidl/android/automotive/telemetry/internal/ICarDataListener.h>
+#include <android/binder_status.h>
 #include <utils/Mutex.h>
 #include <utils/String16.h>
 #include <utils/Vector.h>
@@ -34,28 +33,32 @@ namespace telemetry {
 
 // Implementation of android.automotive.telemetry.ICarTelemetryInternal.
 class CarTelemetryInternalImpl :
-      public android::automotive::telemetry::internal::BnCarTelemetryInternal {
+      public aidl::android::automotive::telemetry::internal::BnCarTelemetryInternal {
 public:
     // Doesn't own `buffer`.
     explicit CarTelemetryInternalImpl(RingBuffer* buffer);
 
-    android::binder::Status setListener(
-            const android::sp<android::automotive::telemetry::internal::ICarDataListener>& listener)
-            override;
+    ndk::ScopedAStatus setListener(
+            const std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>&
+                    listener) override;
 
-    android::binder::Status clearListener() override;
+    ndk::ScopedAStatus clearListener() override;
 
-    status_t dump(int fd, const android::Vector<android::String16>& args) override;
+    binder_status_t dump(int fd, const char** args, uint32_t numArgs) override;
 
 private:
-    void listenerBinderDied(const wp<android::IBinder>& what);
+    // Death recipient callback that is called when ICarDataListener dies.
+    // The cookie is a pointer to a CarTelemetryInternalImpl object.
+    static void listenerBinderDied(void* cookie);
+
+    void listenerBinderDiedImpl();
 
     RingBuffer* mRingBuffer;  // not owned
-    android::sp<BinderDeathRecipient> mBinderDeathRecipient;
+    ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
     std::mutex mMutex;  // a mutex for the whole instance
 
-    android::sp<android::automotive::telemetry::internal::ICarDataListener> mCarDataListener
-            GUARDED_BY(mMutex);
+    std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>
+            mCarDataListener GUARDED_BY(mMutex);
 };
 
 }  // namespace telemetry
