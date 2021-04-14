@@ -45,6 +45,8 @@ public final class PackageInfoHandler {
     /* Cache of uid to package name mapping. */
     @GuardedBy("mLock")
     private final SparseArray<String> mPackageNamesByUid = new SparseArray<>();
+    @GuardedBy("mLock")
+    private List<String> mVendorPackagePrefixes = new ArrayList<>();
 
     public PackageInfoHandler(PackageManager packageManager) {
         mPackageManager = packageManager;
@@ -93,25 +95,31 @@ public final class PackageInfoHandler {
      */
     public List<PackageInfo> getPackageInfosForUids(int[] uids,
             List<String> vendorPackagePrefixes) {
+        synchronized (mLock) {
+            /*
+             * Vendor package prefixes don't change frequently because it changes only when the
+             * vendor configuration is updated. Thus caching this locally during this call should
+             * keep the cache up-to-date because the daemon issues this call frequently.
+             */
+            mVendorPackagePrefixes = vendorPackagePrefixes;
+        }
         SparseArray<String> packageNamesByUid = getPackageNamesForUids(uids);
         ArrayList<PackageInfo> packageInfos = new ArrayList<>(packageNamesByUid.size());
         for (int i = 0; i < packageNamesByUid.size(); ++i) {
             packageInfos.add(getPackageInfo(packageNamesByUid.keyAt(i),
-                    packageNamesByUid.valueAt(i), vendorPackagePrefixes));
+                    packageNamesByUid.valueAt(i)));
         }
         return packageInfos;
     }
 
-    private PackageInfo getPackageInfo(
-            int uid, String packageName, List<String> vendorPackagePrefixes) {
+    private PackageInfo getPackageInfo(int uid, String packageName) {
         PackageInfo packageInfo = new PackageInfo();
         packageInfo.packageIdentifier = new PackageIdentifier();
         packageInfo.packageIdentifier.uid = uid;
         packageInfo.packageIdentifier.name = packageName;
         packageInfo.sharedUidPackages = new ArrayList<>();
         packageInfo.componentType = ComponentType.UNKNOWN;
-        // TODO(b/170741935): Identify application category type using the package names. Vendor
-        //  should define the mappings from package name to the application category type.
+        /* Application category type mapping is handled on the daemon side. */
         packageInfo.appCategoryType = ApplicationCategoryType.OTHERS;
         int userId = UserHandle.getUserId(uid);
         int appId = UserHandle.getAppId(uid);
@@ -126,14 +134,13 @@ public final class PackageInfoHandler {
             boolean seenVendor = false;
             boolean seenSystem = false;
             boolean seenThirdParty = false;
-            /**
+            /*
              * A shared UID has multiple packages associated with it and these packages may be
              * mapped to different component types. Thus map the shared UID to the most restrictive
              * component type.
              */
             for (int i = 0; i < sharedUidPackages.length; ++i) {
-                int componentType = getPackageComponentType(userId, sharedUidPackages[i],
-                        vendorPackagePrefixes);
+                int componentType = getPackageComponentType(userId, sharedUidPackages[i]);
                 switch(componentType) {
                     case ComponentType.VENDOR:
                         seenVendor = true;
@@ -159,35 +166,41 @@ public final class PackageInfoHandler {
             }
         } else {
             packageInfo.componentType = getPackageComponentType(
-                    userId, packageName, vendorPackagePrefixes);
+                    userId, packageName);
         }
         return packageInfo;
     }
 
-    private int getPackageComponentType(
-            int userId, String packageName, List<String> vendorPackagePrefixes) {
+    private int getPackageComponentType(int userId, String packageName) {
         try {
             ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
                     /* flags= */ 0, userId);
-            if ((info.privateFlags & ApplicationInfo.PRIVATE_FLAG_OEM) != 0
-                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_VENDOR) != 0
-                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_ODM) != 0) {
-                return ComponentType.VENDOR;
-            }
-            if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
-                    || (info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
-                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
-                    || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0) {
-                for (String prefix : vendorPackagePrefixes) {
+            return getComponentType(packageName, info);
+        } catch (PackageManager.NameNotFoundException e) {
+            Slogf.e(TAG, "Package '%s' not found for user %d: %s", packageName, userId, e);
+        }
+        return ComponentType.UNKNOWN;
+    }
+
+    /** Returns the component type for the given package and its application info. */
+    public int getComponentType(String packageName, ApplicationInfo info) {
+        if ((info.privateFlags & ApplicationInfo.PRIVATE_FLAG_OEM) != 0
+                || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_VENDOR) != 0
+                || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_ODM) != 0) {
+            return ComponentType.VENDOR;
+        }
+        if ((info.flags & ApplicationInfo.FLAG_SYSTEM) != 0
+                || (info.flags & ApplicationInfo.FLAG_UPDATED_SYSTEM_APP) != 0
+                || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
+                || (info.privateFlags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0) {
+            synchronized (mLock) {
+                for (String prefix : mVendorPackagePrefixes) {
                     if (packageName.startsWith(prefix)) {
                         return ComponentType.VENDOR;
                     }
                 }
-                return ComponentType.SYSTEM;
             }
-        } catch (PackageManager.NameNotFoundException e) {
-            Slogf.e(TAG, "Package '%s' not found for user %d: %s", packageName, userId, e);
-            return ComponentType.UNKNOWN;
+            return ComponentType.SYSTEM;
         }
         return ComponentType.THIRD_PARTY;
     }
