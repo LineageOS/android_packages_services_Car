@@ -81,6 +81,7 @@ import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
+import com.android.server.utils.Slogf;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -1241,17 +1242,21 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     void disableAudio() {
-        // Todo (b/176258537) abandon focus and mute everything
-        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-            Slog.d(CarLog.TAG_AUDIO, "Disabling audio");
+        // TODO(b/176258537) mute everything
+        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slogf.d(CarLog.TAG_AUDIO, "Disabling audio");
         }
+
+        mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ true);
     }
 
     void enableAudio() {
-        // Todo (b/176258537) resume focus and unmute appropriate things
-        if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-            Slog.d(CarLog.TAG_AUDIO, "Enabling audio");
+        // TODO(b/176258537) unmute appropriate things
+        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
+            Slogf.d(CarLog.TAG_AUDIO, "Enabling audio");
         }
+
+        mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ false);
     }
 
     private void enforcePermission(String permissionName) {
