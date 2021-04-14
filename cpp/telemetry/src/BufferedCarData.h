@@ -17,7 +17,10 @@
 #ifndef CPP_TELEMETRY_SRC_BUFFEREDCARDATA_H_
 #define CPP_TELEMETRY_SRC_BUFFEREDCARDATA_H_
 
-#include <android/frameworks/automotive/telemetry/CarData.h>
+#include <stdint.h>
+
+#include <tuple>
+#include <vector>
 
 namespace android {
 namespace automotive {

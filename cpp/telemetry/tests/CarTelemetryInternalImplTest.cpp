@@ -17,9 +17,9 @@
 #include "CarTelemetryInternalImpl.h"
 #include "RingBuffer.h"
 
-#include <android/automotive/telemetry/internal/CarDataInternal.h>
-#include <android/automotive/telemetry/internal/ICarDataListener.h>
-#include <android/automotive/telemetry/internal/ICarTelemetryInternal.h>
+#include <aidl/android/automotive/telemetry/internal/BnCarDataListener.h>
+#include <aidl/android/automotive/telemetry/internal/CarDataInternal.h>
+#include <aidl/android/automotive/telemetry/internal/ICarTelemetryInternal.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 
@@ -31,107 +31,53 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::android::automotive::telemetry::internal::CarDataInternal;
-using ::android::automotive::telemetry::internal::ICarDataListener;
-using ::android::automotive::telemetry::internal::ICarTelemetryInternal;
-using ::android::binder::Status;
+using ::aidl::android::automotive::telemetry::internal::BnCarDataListener;
+using ::aidl::android::automotive::telemetry::internal::CarDataInternal;
+using ::aidl::android::automotive::telemetry::internal::ICarTelemetryInternal;
+using ::ndk::ScopedAStatus;
 
-const size_t kMaxBufferSize = 100;
+const size_t kMaxBufferSize = 5;
 
-class FakeBinder : public BBinder {
+class MockCarDataListener : public BnCarDataListener {
 public:
-    status_t linkToDeath(const sp<DeathRecipient>& recipient, void* cookie,
-                         uint32_t flags) override {
-        mDeathRecipient = recipient;
-        return mLinkToDeathStatus;
-    }
-
-    status_t unlinkToDeath(const wp<DeathRecipient>& recipient, void* cookie, uint32_t flags,
-                           wp<DeathRecipient>* outRecipient) override {
-        return android::OK;
-    }
-
-    sp<DeathRecipient> mDeathRecipient;
-    status_t mLinkToDeathStatus = android::OK;  // Result of linkToDeath() method.
+    MOCK_METHOD(ScopedAStatus, onCarDataReceived, (const std::vector<CarDataInternal>& dataList),
+                (override));
 };
 
-// General flow for ICarDataListener is:
-//   1. Internal client calls ICarTelemetryInternal.setListener(client_listener)
-//   2. Binder constructs instance of ICarDataListener with its own Binder instance
-//       * in this test's case, these are FakeCarDataListener and FakeBinder
-class FakeCarDataListener : public ICarDataListener {
-public:
-    explicit FakeCarDataListener(android::sp<FakeBinder> binder) : mFakeBinder(binder) {}
-
-    IBinder* onAsBinder() override { return mFakeBinder.get(); }
-
-    android::binder::Status onCarDataReceived(
-            const std::vector<CarDataInternal>& dataList) override {
-        return Status::ok();
-    }
-
-private:
-    sp<FakeBinder> mFakeBinder;
-};
-
-// Main test class.
+// The main test class.
 class CarTelemetryInternalImplTest : public ::testing::Test {
 protected:
     CarTelemetryInternalImplTest() :
           mBuffer(RingBuffer(kMaxBufferSize)),
-          mTelemetryInternal(std::make_unique<CarTelemetryInternalImpl>(&mBuffer)),
-          mFakeCarDataListenerBinder(new FakeBinder()),
-          mFakeCarDataListener(new FakeCarDataListener(mFakeCarDataListenerBinder)) {}
+          mTelemetryInternal(ndk::SharedRefBase::make<CarTelemetryInternalImpl>(&mBuffer)),
+          mMockCarDataListener(ndk::SharedRefBase::make<MockCarDataListener>()) {}
 
     RingBuffer mBuffer;
-    std::unique_ptr<ICarTelemetryInternal> mTelemetryInternal;
-    android::sp<FakeBinder> mFakeCarDataListenerBinder;  // For mFakeCarDataListener
-    android::sp<FakeCarDataListener> mFakeCarDataListener;
+    std::shared_ptr<ICarTelemetryInternal> mTelemetryInternal;
+    std::shared_ptr<MockCarDataListener> mMockCarDataListener;
 };
 
-TEST_F(CarTelemetryInternalImplTest, TestSetListenerReturnsOk) {
-    auto status = mTelemetryInternal->setListener(mFakeCarDataListener);
+TEST_F(CarTelemetryInternalImplTest, SetListenerReturnsOk) {
+    auto status = mTelemetryInternal->setListener(mMockCarDataListener);
 
-    EXPECT_TRUE(status.isOk()) << status;
+    EXPECT_TRUE(status.isOk()) << status.getMessage();
 }
 
-TEST_F(CarTelemetryInternalImplTest, TestSetListenerFailsWhenAlreadySubscribed) {
-    mTelemetryInternal->setListener(mFakeCarDataListener);
+TEST_F(CarTelemetryInternalImplTest, SetListenerFailsWhenAlreadySubscribed) {
+    mTelemetryInternal->setListener(mMockCarDataListener);
 
-    auto status = mTelemetryInternal->setListener(new FakeCarDataListener(new FakeBinder()));
+    auto status = mTelemetryInternal->setListener(ndk::SharedRefBase::make<MockCarDataListener>());
 
-    EXPECT_EQ(status.exceptionCode(), Status::EX_ILLEGAL_STATE);
+    EXPECT_EQ(status.getExceptionCode(), ::EX_ILLEGAL_STATE) << status.getMessage();
 }
 
-TEST_F(CarTelemetryInternalImplTest, TestSetListenerFailsIfListenedIsDead) {
-    // The next call to linkToDeath() returns dead object, meaning the listener is not valid.
-    mFakeCarDataListenerBinder->mLinkToDeathStatus = android::DEAD_OBJECT;
-
-    auto status = mTelemetryInternal->setListener(mFakeCarDataListener);
-
-    EXPECT_EQ(status.exceptionCode(), Status::EX_ILLEGAL_STATE);
-}
-
-TEST_F(CarTelemetryInternalImplTest, TestClearListenerWorks) {
-    mTelemetryInternal->setListener(mFakeCarDataListener);
+TEST_F(CarTelemetryInternalImplTest, ClearListenerWorks) {
+    mTelemetryInternal->setListener(mMockCarDataListener);
 
     mTelemetryInternal->clearListener();
-    auto status = mTelemetryInternal->setListener(mFakeCarDataListener);
+    auto status = mTelemetryInternal->setListener(mMockCarDataListener);
 
-    EXPECT_TRUE(status.isOk()) << status;
-}
-
-TEST_F(CarTelemetryInternalImplTest, TestListenerBinderDied) {
-    mTelemetryInternal->setListener(mFakeCarDataListener);  // old listener
-    EXPECT_NE(mFakeCarDataListenerBinder->mDeathRecipient, nullptr);
-
-    // the old listener died
-    mFakeCarDataListenerBinder->mDeathRecipient->binderDied(mFakeCarDataListenerBinder);
-
-    // new listener
-    auto status = mTelemetryInternal->setListener(new FakeCarDataListener(new FakeBinder()));
-
-    EXPECT_TRUE(status.isOk()) << status;
+    EXPECT_TRUE(status.isOk()) << status.getMessage();
 }
 
 }  // namespace telemetry

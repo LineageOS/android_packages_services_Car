@@ -18,9 +18,8 @@
 
 #include "BufferedCarData.h"
 
-#include <android-base/logging.h>
-#include <android/frameworks/automotive/telemetry/CarData.h>
-#include <binder/IPCThreadState.h>
+#include <aidl/android/frameworks/automotive/telemetry/CarData.h>
+#include <android/binder_ibinder.h>
 
 #include <stdio.h>
 
@@ -30,25 +29,21 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::android::binder::Status;
-using ::android::frameworks::automotive::telemetry::CarData;
+using ::aidl::android::frameworks::automotive::telemetry::CarData;
 
 CarTelemetryImpl::CarTelemetryImpl(RingBuffer* buffer) : mRingBuffer(buffer) {}
 
 // TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
-Status CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
-    uid_t publisherUid = IPCThreadState::self()->getCallingUid();
+ndk::ScopedAStatus CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
+    uid_t publisherUid = ::AIBinder_getCallingUid();
     for (auto&& data : dataList) {
         mRingBuffer->push({.mId = data.id,
                            .mContent = std::move(data.content),
                            .mPublisherUid = publisherUid});
     }
-    return Status::ok();
+    return ndk::ScopedAStatus::ok();
 }
 
-status_t CarTelemetryImpl::dump(int fd, const android::Vector<android::String16>& args) {
-    return android::OK;
-}
 }  // namespace telemetry
 }  // namespace automotive
 }  // namespace android
