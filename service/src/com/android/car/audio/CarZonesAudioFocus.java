@@ -147,6 +147,12 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         }
     }
 
+    void setRestrictFocus(boolean isFocusRestricted) {
+        for (int i = 0; i < mFocusZones.size(); i++) {
+            mFocusZones.valueAt(i).setRestrictFocus(isFocusRestricted);
+        }
+    }
+
     @Override
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
         int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
