@@ -256,7 +256,7 @@ final class PolicyReader {
             writer.decreaseIndent();
         }
         writer.decreaseIndent();
-        writer.println("Preemptive power policy:\n");
+        writer.println("Preemptive power policy:");
         writer.increaseIndent();
         for (int i = 0; i < mPreemptivePowerPolicies.size(); i++) {
             writer.println(toString(mPreemptivePowerPolicies.valueAt(i)));
