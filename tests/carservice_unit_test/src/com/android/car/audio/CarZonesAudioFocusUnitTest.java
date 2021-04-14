@@ -20,6 +20,7 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -179,6 +180,30 @@ public final class CarZonesAudioFocusUnitTest {
         mCarZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
         verify(mMockCarFocusCallback).onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+    }
+
+    @Test
+    public void setRestrictFocus_withTrue_restrictsFocusForAllZones() {
+        mCarZonesAudioFocus.setRestrictFocus(true);
+
+        verify(mFocusMocks.get(PRIMARY_ZONE_ID),
+                description("Primary zone's CarAudioFocus#setRestrictFocus wasn't passed true"))
+                .setRestrictFocus(true);
+        verify(mFocusMocks.get(SECONDARY_ZONE_ID),
+                description("Secondary zone's CarAudioFocus#setRestrictFocus wasn't passed true"))
+                .setRestrictFocus(true);
+    }
+
+    @Test
+    public void setRestrictFocus_withFalse_unrestrictsFocusForAllZones() {
+        mCarZonesAudioFocus.setRestrictFocus(false);
+
+        verify(mFocusMocks.get(PRIMARY_ZONE_ID),
+                description("Primary zone's CarAudioFocus#setRestrictFocus wasn't passed false"))
+                .setRestrictFocus(false);
+        verify(mFocusMocks.get(SECONDARY_ZONE_ID),
+                description("Secondary zone's CarAudioFocus#setRestrictFocus wasn't passed false"))
+                .setRestrictFocus(false);
     }
 
     private static SparseArray<CarAudioZone> generateAudioZones() {
