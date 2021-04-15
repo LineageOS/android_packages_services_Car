@@ -294,9 +294,13 @@
         <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0</item>
         <item>displayPort=2,displayType=MAIN,occupantZoneId=1</item>
         <item>displayPort=3,displayType=MAIN,occupantZoneId=2</item>
-        <item>displayPort=4,displayType=MAIN,occupantZoneId=3</item>
+        <item>displayUniqueId=virtual:com.example:MainD,displayType=MAIN,occupantZoneId=3</item>
 
-        displayPort: Unique port id for the display.
+        NOTE: each item should have displayPort or displayUniqueId, if it has both, displayPort
+          will be used.
+        displayPort: Unique Port id for the physical display.
+        displayUniqueId: Unique Id for the display.
+            The unique id of the virtual display will be the form of 'virtual:<PACKAGE>:<ID>'.
         displayType: Display type for the display. Use * part from
                        CarOccupantZoneManager.DISPLAY_TYPE_* like MAIN, INSTRUMENT_CLUSTER and
                        etc.
