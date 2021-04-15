@@ -59,6 +59,7 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -119,7 +120,11 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     /** key: display port address */
     @GuardedBy("mLock")
-    private final SparseArray<DisplayConfig> mDisplayConfigs = new SparseArray<>();
+    private final SparseArray<DisplayConfig> mDisplayPortConfigs = new SparseArray<>();
+
+    /** key: displayUniqueId */
+    @GuardedBy("mLock")
+    private final ArrayMap<String, DisplayConfig> mDisplayUniqueIdConfigs = new ArrayMap<>();
 
     /** key: audio zone id */
     @GuardedBy("mLock")
@@ -346,7 +351,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         userService.removePassengerCallback(mPassengerCallback);
         synchronized (mLock) {
             mOccupantsConfig.clear();
-            mDisplayConfigs.clear();
+            mDisplayPortConfigs.clear();
+            mDisplayUniqueIdConfigs.clear();
             mAudioZoneIdToOccupantZoneIdMapping.clear();
             mActiveOccupantConfigs.clear();
         }
@@ -361,12 +367,21 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
-    /** Return cloned mDisplayConfigs for testing */
+    /** Return cloned mDisplayPortConfigs for testing */
     @VisibleForTesting
     @NonNull
-    public SparseArray<DisplayConfig> getDisplayConfigs() {
+    public SparseArray<DisplayConfig> getDisplayPortConfigs() {
         synchronized (mLock) {
-            return mDisplayConfigs.clone();
+            return mDisplayPortConfigs.clone();
+        }
+    }
+
+    /** Return cloned mDisplayUniqueIdConfigs for testing */
+    @VisibleForTesting
+    @NonNull
+    ArrayMap<String, DisplayConfig> getDisplayUniqueIdConfigs() {
+        synchronized (mLock) {
+            return new ArrayMap<>(mDisplayUniqueIdConfigs);
         }
     }
 
@@ -398,9 +413,13 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         + " info=" + mOccupantsConfig.valueAt(i));
             }
             writer.println("**mDisplayConfigs**");
-            for (int i = 0; i < mDisplayConfigs.size(); ++i) {
-                writer.println(" port=" + mDisplayConfigs.keyAt(i)
-                        + " config=" + mDisplayConfigs.valueAt(i));
+            for (int i = 0; i < mDisplayPortConfigs.size(); ++i) {
+                writer.println(" port=" + mDisplayPortConfigs.keyAt(i)
+                        + " config=" + mDisplayPortConfigs.valueAt(i));
+            }
+            for (int i = 0; i < mDisplayUniqueIdConfigs.size(); ++i) {
+                writer.println(" uniqueId=" + mDisplayUniqueIdConfigs.keyAt(i)
+                        + " config=" + mDisplayUniqueIdConfigs.valueAt(i));
             }
             writer.println("**mAudioZoneIdToOccupantZoneIdMapping**");
             for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
@@ -550,23 +569,30 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     }
 
     @Nullable
-    private DisplayConfig findDisplayConfigForDisplayLocked(int displayId) {
+    private DisplayConfig findDisplayConfigForDisplayIdLocked(int displayId) {
         Display display = mDisplayManager.getDisplay(displayId);
         if (display == null) {
             return null;
         }
+        return findDisplayConfigForDisplayLocked(display);
+    }
+
+    @Nullable
+    private DisplayConfig findDisplayConfigForDisplayLocked(Display display) {
         int portAddress = getPortAddress(display);
-        if (portAddress == INVALID_PORT) {
-            return null;
+        if (portAddress != INVALID_PORT) {
+            DisplayConfig config = mDisplayPortConfigs.get(portAddress);
+            if (config != null) {
+                return config;
+            }
         }
-        DisplayConfig config = mDisplayConfigs.get(portAddress);
-        return config;
+        return mDisplayUniqueIdConfigs.get(display.getUniqueId());
     }
 
     @Override
     public int getDisplayType(int displayId) {
         synchronized (mLock) {
-            DisplayConfig config = findDisplayConfigForDisplayLocked(displayId);
+            DisplayConfig config = findDisplayConfigForDisplayIdLocked(displayId);
             if (config != null) {
                 return config.displayType;
             }
@@ -968,6 +994,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         // <item>displayPort=1,displayType=INSTRUMENT_CLUSTER,occupantZoneId=0</item>
         for (String config : res.getStringArray(R.array.config_occupant_display_mapping)) {
             int port = INVALID_PORT;
+            String uniqueId = null;
             int type = CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN;
             int zoneId = OccupantZoneInfo.INVALID_ZONE_ID;
             String[] entries = config.split(",");
@@ -979,6 +1006,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 switch (keyValuePair[0]) {
                     case "displayPort":
                         port = Integer.parseInt(keyValuePair[1]);
+                        break;
+                    case "displayUniqueId":
+                        uniqueId = keyValuePair[1];
                         break;
                     case "displayType":
                         switch (keyValuePair[1]) {
@@ -1013,8 +1043,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 }
             }
             // Now check validity
-            if (port == INVALID_PORT) {
-                throwFormatErrorInDisplayMapping("Missing or invalid displayPort:" + config);
+            if (port == INVALID_PORT && uniqueId == null) {
+                throwFormatErrorInDisplayMapping(
+                        "Missing or invalid displayPort and displayUniqueId:" + config);
             }
 
             if (type == CarOccupantZoneManager.DISPLAY_TYPE_UNKNOWN) {
@@ -1027,10 +1058,18 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 throwFormatErrorInDisplayMapping(
                         "Missing or invalid occupantZoneId:" + config);
             }
-            if (mDisplayConfigs.contains(port)) {
-                throwFormatErrorInDisplayMapping("Duplicate displayPort:" + config);
+            DisplayConfig displayConfig = new DisplayConfig(type, zoneId);
+            if (port != INVALID_PORT) {
+                if (mDisplayPortConfigs.contains(port)) {
+                    throwFormatErrorInDisplayMapping("Duplicate displayPort:" + config);
+                }
+                mDisplayPortConfigs.put(port, displayConfig);
+            } else {
+                if (mDisplayUniqueIdConfigs.containsKey(uniqueId)) {
+                    throwFormatErrorInDisplayMapping("Duplicate displayUniqueId:" + config);
+                }
+                mDisplayUniqueIdConfigs.put(uniqueId, displayConfig);
             }
-            mDisplayConfigs.put(port, new DisplayConfig(type, zoneId));
         }
     }
 
@@ -1058,16 +1097,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         mActiveOccupantConfigs.clear();
         boolean hasDefaultDisplayConfig = false;
         for (Display display : mDisplayManager.getDisplays()) {
-            int rawPortAddress = getPortAddress(display);
-            if (rawPortAddress == INVALID_PORT) {
-                continue;
-            }
-
-            DisplayConfig displayConfig = mDisplayConfigs.get(rawPortAddress);
+            DisplayConfig displayConfig = findDisplayConfigForDisplayLocked(display);
             if (displayConfig == null) {
-                Slog.w(TAG,
-                        "Display id:" + display.getDisplayId() + " port:" + rawPortAddress
-                                + " does not have configurations");
+                Slogf.w(TAG, "Display id: %d does not have configurations",
+                        display.getDisplayId());
                 continue;
             }
             if (display.getDisplayId() == Display.DEFAULT_DISPLAY) {
