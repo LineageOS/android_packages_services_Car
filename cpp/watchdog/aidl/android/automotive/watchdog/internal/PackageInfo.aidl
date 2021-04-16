@@ -38,7 +38,7 @@ parcelable PackageInfo {
   /**
    * List of packages owned by the package. This list is empty when the UID is not a shared UID.
    */
-  List<String> sharedUidPackages;
+  @utf8InCpp List<String> sharedUidPackages;
 
   /**
    * Component type of the package and the owned packages.

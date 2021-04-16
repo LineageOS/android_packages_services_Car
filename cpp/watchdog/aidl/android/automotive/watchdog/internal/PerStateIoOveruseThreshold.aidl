@@ -29,7 +29,7 @@ parcelable PerStateIoOveruseThreshold {
    * 2. package name for package specific thresholds.
    * 3. string equivalent of ApplicationCategoryType enum for category specific thresholds.
    */
-  String name;
+  @utf8InCpp String name;
 
   /**
    * Defines the I/O overuse thresholds for a package. The thresholds are defined in terms of

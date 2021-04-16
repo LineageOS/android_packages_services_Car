@@ -52,7 +52,8 @@ interface ICarWatchdogServiceForSystem {
    * @param uids                        List of UIDs to resolve the package infos.
    * @param vendorPackagePrefixes       List of vendor package prefixes.
    */
-  List<PackageInfo> getPackageInfosForUids(in int[] uids, in List<String> vendorPackagePrefixes);
+  List<PackageInfo> getPackageInfosForUids(
+            in int[] uids, in @utf8InCpp List<String> vendorPackagePrefixes);
 
   /**
    * Pushes the latest I/O overuse stats to the watchdog server.
