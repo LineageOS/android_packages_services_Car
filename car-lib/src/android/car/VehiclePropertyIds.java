@@ -265,6 +265,17 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_TIRES)
     public static final int TIRE_PRESSURE = 392168201;
     /**
+     * Critically low tire pressure
+     *
+     * <p>This property indicates the critically low pressure threshold for each tire. It
+     * indicates when it is time for tires to be replaced or fixed. The value
+     * must be less than or equal to minFloatValue in {@link VehiclePropertyIds#TIRE_PRESSURE}.
+     * <p>Minimum and maximum property values
+     * (that is, {@code minFloatValue}, {@code maxFloatValue}) are not applicable to this property.
+     */
+    @RequiresPermission(Car.PERMISSION_TIRES)
+    public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202;
+    /**
      * Currently selected gear
      *
      * This is the gear selected by the user.
@@ -355,11 +366,78 @@ public final class VehiclePropertyIds {
     public static final int HVAC_TEMPERATURE_CURRENT = 358614274;
     /**
      * HVAC, target temperature set.
-     * The property is protected by the signature permission:
-     * android.car.permission.CONTROL_CAR_CLIMATE.
+     *
+     * <p>The {@code configArray} is used to indicate the valid values for HVAC in Fahrenheit and
+     * Celsius. Android might use it in the HVAC app UI.
+     * <p>The {@code configArray} is set as follows:
+     * <ul>
+     *      <li>{@code configArray[0]} is [the lower bound of the supported temperature in Celsius]
+     *      * 10.
+     *      <li>{@code configArray[1]} is [the upper bound of the supported temperature in Celsius]
+     *      * 10.
+     *      <li>{@code configArray[2]} is [the increment in Celsius] * 10.
+     *      <li>{@code configArray[3]} is
+     *      [the lower bound of the supported temperature in Fahrenheit] * 10.
+     *      <li>{@code configArray[4]} is
+     *      [the upper bound of the supported temperature in Fahrenheit] * 10.
+     *      <li>{@code configArray[5]} is [the increment in Fahrenheit] * 10.
+     * </ul>
+     * <p>For example, if the vehicle supports temperature values as:
+     * <pre>
+     * [16.0, 16.5, 17.0 ,..., 28.0] in Celsius
+     * [60.5, 61.5, 62.5 ,..., 85.5] in Fahrenheit
+     * </pre>
+     * <p>The {@code configArray} should be:
+     * <pre>
+     * configArray = {160, 280, 5, 605, 855, 10}.
+     * </pre>
+     * <p>If the vehicle supports {@link VehiclePropertyIds#HVAC_TEMPERATURE_VALUE_SUGGESTION},
+     * the application can use that property to get the suggested value before setting
+     * {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET}. Otherwise, the application may choose the
+     * value in {@code configArray} of {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET} by itself.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_TEMPERATURE_SET = 358614275;
+    /**
+     * Suggested values for setting HVAC temperature.
+     *
+     * <p>Implement the property to help applications understand the closest supported temperature
+     * value in Celsius or Fahrenheit.
+     * <ul>
+     *      <li>{@code floatValues[0]} is the requested value that an application wants to set a
+     *      temperature to.
+     *      <li>{@code floatValues[1]} is the unit for {@code floatValues[0]}. It should be one of
+     *      ({@code VehicleUnit:CELSIUS}, {@code VehicleUnit:FAHRENHEIT}).
+     *      <li>{@code floatValues[2]} is the value OEMs suggested in CELSIUS. This value is not
+     *      included in the request.
+     *      <li>{@code floatValues[3]} is the value OEMs suggested in FAHRENHEIT. This value is not
+     *      included in the request.
+     * </ul>
+     * <p>An application calls
+     * {@link android.car.hardware.property.CarPropertyManager#setProperty(Class, int, int, Object)}
+     * with the requested value and unit for the value. OEMs need to return the suggested values
+     * in {@code floatValues[2]} and {@code floatValues[3]} by
+     * {@link android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback}.
+     *
+     * <p>For example, when a user uses the voice assistant to set HVAC temperature to 66.2 in
+     * Fahrenheit.
+     * <p>First, an application will set this property with the value
+     * [66.2, {@code (float)VehicleUnit:FAHRENHEIT}, 0, 0]. If OEMs suggest to set 19.0 in Celsius
+     * or 66.5 in Fahrenheit for user's request, then car must generate a callback with property
+     * value [66.2, {@code (float)VehicleUnit:FAHRENHEIT}, 19.0, 66.5]. After the voice assistant
+     * gets the callback, it will inform the user and set HVAC temperature to the suggested value.
+     *
+     * <p>Another example, an application receives 21 Celsius as the current temperature value by
+     * querying {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET}. But the application wants to know
+     * what value is displayed on the car's UI in Fahrenheit.
+     * <p>For this, the application sets the property to
+     * [21, {@code (float)VehicleUnit:CELSIUS}, 0, 0]. If the suggested value by the OEM for 21
+     * Celsius is 70 Fahrenheit, then car must generate a callback with property value
+     * [21, {@code (float)VehicleUnit:CELSIUS}, 21.0, 70.0]. In this case, the application can know
+     * that the value is 70.0 Fahrenheit in the car’s UI.
+     */
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
+    public static final int HVAC_TEMPERATURE_VALUE_SUGGESTION = 291570965;
     /**
      * On/off defrost for designated window
      * The property is protected by the signature permission:
@@ -1281,6 +1359,8 @@ public final class VehiclePropertyIds {
                 return "RANGE_REMAINING";
             case TIRE_PRESSURE:
                 return "TIRE_PRESSURE";
+            case CRITICALLY_LOW_TIRE_PRESSURE:
+                return "CRITICALLY_LOW_TIRE_PRESSURE";
             case GEAR_SELECTION:
                 return "GEAR_SELECTION";
             case CURRENT_GEAR:
@@ -1309,6 +1389,8 @@ public final class VehiclePropertyIds {
                 return "HVAC_TEMPERATURE_CURRENT";
             case HVAC_TEMPERATURE_SET:
                 return "HVAC_TEMPERATURE_SET";
+            case HVAC_TEMPERATURE_VALUE_SUGGESTION:
+                return "HVAC_TEMPERATURE_VALUE_SUGGESTION";
             case HVAC_DEFROSTER:
                 return "HVAC_DEFROSTER";
             case HVAC_AC_ON:
