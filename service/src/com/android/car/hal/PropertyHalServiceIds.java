@@ -298,6 +298,9 @@ public class PropertyHalServiceIds {
         mProps.put(VehicleProperty.HVAC_TEMPERATURE_SET, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
+        mProps.put(VehicleProperty.HVAC_TEMPERATURE_VALUE_SUGGESTION, new Pair<>(
+                    Car.PERMISSION_CONTROL_CAR_CLIMATE,
+                    Car.PERMISSION_CONTROL_CAR_CLIMATE));
         mProps.put(VehicleProperty.HVAC_DEFROSTER, new Pair<>(
                     Car.PERMISSION_CONTROL_CAR_CLIMATE,
                     Car.PERMISSION_CONTROL_CAR_CLIMATE));
@@ -438,6 +441,9 @@ public class PropertyHalServiceIds {
                 Car.PERMISSION_ENERGY,
                 Car.PERMISSION_ADJUST_RANGE_REMAINING));
         mProps.put(VehicleProperty.TIRE_PRESSURE, new Pair<>(
+                Car.PERMISSION_TIRES,
+                null));
+        mProps.put(VehicleProperty.CRITICALLY_LOW_TIRE_PRESSURE, new Pair<>(
                 Car.PERMISSION_TIRES,
                 null));
         mProps.put(VehicleProperty.PERF_STEERING_ANGLE, new Pair<>(
