@@ -98,6 +98,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
+import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -132,6 +133,7 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
+    private static final String COMMAND_SET_GROUP_VOLUME = "set-group-volume";
     private static final String COMMAND_START_FIXED_ACTIVITY_MODE = "start-fixed-activity-mode";
     private static final String COMMAND_STOP_FIXED_ACTIVITY_MODE = "stop-fixed-activity-mode";
     private static final String COMMAND_ENABLE_FEATURE = "enable-feature";
@@ -231,6 +233,8 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESET_VOLUME_CONTEXT,
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_MUTE_CAR_VOLUME_GROUP,
+                PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_GROUP_VOLUME,
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
     }
 
@@ -434,6 +438,9 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s [zoneId] [groupId] [%s\\%s]\n", COMMAND_SET_MUTE_CAR_VOLUME_GROUP,
                 PARAM_MUTE, PARAM_UNMUTE);
         pw.printf("\t  %s\\%s groupId in zoneId\n", PARAM_MUTE, PARAM_UNMUTE);
+        pw.printf("\t%s [zoneId] [groupId] [volume]\n", COMMAND_SET_GROUP_VOLUME);
+        pw.println("\t  sets the group volume for [groupId] in [zoneId] to %volume,");
+        pw.println("\t  [volume] must be an integer between 0 to 100");
         pw.println("\tstart-fixed-activity displayId packageName activityName");
         pw.println("\t  Start an Activity the specified display as fixed mode");
         pw.println("\tstop-fixed-mode displayId");
@@ -572,6 +579,20 @@ final class CarShellCommand extends ShellCommand {
         }
         boolean muteState = PARAM_MUTE.equalsIgnoreCase(muteString);
         mCarAudioService.setVolumeGroupMute(zoneId, groupId, muteState, FLAG_SHOW_UI);
+    }
+
+
+    private void runSetGroupVolume(String zoneIdString, String groupIdString, String volumeString) {
+        int groupId = Integer.parseInt(groupIdString);
+        int zoneId = Integer.parseInt(zoneIdString);
+        int percentVolume = Integer.parseInt(volumeString);
+        Preconditions.checkArgumentInRange(percentVolume, 0, 100,
+                "%volume for group " + groupIdString + " in zone " + zoneIdString);
+        int minIndex = mCarAudioService.getGroupMinVolume(zoneId, groupId);
+        int maxIndex = mCarAudioService.getGroupMaxVolume(zoneId, groupId);
+        int index = minIndex
+                + (int) ((float) (maxIndex - minIndex) * ((float) percentVolume / 100.0f));
+        mCarAudioService.setGroupVolume(zoneId, groupId, index, FLAG_SHOW_UI);
     }
 
     private void runResetSelectedVolumeContext() {
@@ -749,6 +770,12 @@ final class CarShellCommand extends ShellCommand {
                     return showInvalidArguments(writer);
                 }
                 runSetMuteCarVolumeGroup(args[1], args[2], args[3]);
+                break;
+            case COMMAND_SET_GROUP_VOLUME:
+                if (args.length != 4) {
+                    return showInvalidArguments(writer);
+                }
+                runSetGroupVolume(args[1], args[2], args[3]);
                 break;
             case COMMAND_SET_USER_ID_TO_OCCUPANT_ZONE:
                 if (args.length != 3) {
