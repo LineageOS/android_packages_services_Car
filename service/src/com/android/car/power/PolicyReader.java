@@ -61,7 +61,10 @@ import java.util.stream.Collectors;
  * <p>{@code CarPowerManagementService} manages power policies through {@code PolicyReader}. This
  * class is not thread-safe, and must be used in the main thread or with additional serialization.
  */
-final class PolicyReader {
+public final class PolicyReader {
+    public static final String POWER_STATE_WAIT_FOR_VHAL = "WaitForVHAL";
+    public static final String POWER_STATE_ON = "On";
+
     static final String SYSTEM_POWER_POLICY_PREFIX = "system_power_policy_";
     // Preemptive system power policy used for disabling user interaction in Silent Mode or Garage
     // Mode.
@@ -74,6 +77,8 @@ final class PolicyReader {
     static final String POWER_POLICY_ID_ALL_ON = SYSTEM_POWER_POLICY_PREFIX + "all_on";
     // Non-preemptive system power policy used to represent minimally on state.
     static final String POWER_POLICY_ID_INITIAL_ON = SYSTEM_POWER_POLICY_PREFIX + "initial_on";
+
+    static final int INVALID_POWER_STATE = -1;
 
     private static final String TAG = CarLog.tagFor(PolicyReader.class);
     private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
@@ -97,12 +102,6 @@ final class PolicyReader {
     private static final String POWER_ONOFF_ON = "on";
     private static final String POWER_ONOFF_OFF = "off";
     private static final String POWER_ONOFF_UNTOUCHED = "untouched";
-
-    private static final int INVALID_POWER_STATE = -1;
-    private static final String POWER_STATE_WAIT_FOR_VHAL = "WaitForVHAL";
-    private static final String POWER_STATE_ON = "On";
-    private static final String POWER_STATE_DEEP_SLEEP_ENTRY = "DeepSleepEntry";
-    private static final String POWER_STATE_SHUTDOWN_START = "ShutdownStart";
 
     private static final int[] ALL_COMPONENTS;
     private static final int[] NO_COMPONENTS = new int[0];
@@ -232,6 +231,30 @@ final class PolicyReader {
         CarPowerPolicy policy = new CarPowerPolicy(policyId, toIntArray(components, true),
                 toIntArray(components, false));
         mRegisteredPowerPolicies.put(policyId, policy);
+        return null;
+    }
+
+    /**
+     * Defines and registers a new power policy group.
+     *
+     * @return {@code null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    String definePowerPolicyGroup(String policyGroupId, SparseArray<String> defaultPolicyPerState) {
+        if (policyGroupId == null) {
+            return "policyGroupId cannot be null";
+        }
+        if (mPolicyGroups.containsKey(policyGroupId)) {
+            return policyGroupId + " is already registered";
+        }
+        for (int i = 0; i < defaultPolicyPerState.size(); i++) {
+            int state = defaultPolicyPerState.keyAt(i);
+            String policyId = defaultPolicyPerState.valueAt(i);
+            if (!mRegisteredPowerPolicies.containsKey(policyId)) {
+                return policyId + " for " + powerStateToString(state) + " is not registered";
+            }
+        }
+        mPolicyGroups.put(policyGroupId, defaultPolicyPerState);
         return null;
     }
 
@@ -638,20 +661,6 @@ final class PolicyReader {
         return SYSTEM_POLICY_CONFIGURABLE_COMPONENTS.contains(component);
     }
 
-    private int toPowerState(String state) {
-        if (state == null) {
-            return INVALID_POWER_STATE;
-        }
-        switch (state) {
-            case POWER_STATE_WAIT_FOR_VHAL:
-                return VehicleApPowerStateReport.WAIT_FOR_VHAL;
-            case POWER_STATE_ON:
-                return VehicleApPowerStateReport.ON;
-            default:
-                return INVALID_POWER_STATE;
-        }
-    }
-
     private String toString(CarPowerPolicy policy) {
         return policy.getPolicyId() + "(enabledComponents: "
                 + componentsToString(policy.getEnabledComponents()) + " | disabledComponents: "
@@ -681,6 +690,20 @@ final class PolicyReader {
             components.put(component, enabled);
         }
         return null;
+    }
+
+    static int toPowerState(String state) {
+        if (state == null) {
+            return INVALID_POWER_STATE;
+        }
+        switch (state) {
+            case POWER_STATE_WAIT_FOR_VHAL:
+                return VehicleApPowerStateReport.WAIT_FOR_VHAL;
+            case POWER_STATE_ON:
+                return VehicleApPowerStateReport.ON;
+            default:
+                return INVALID_POWER_STATE;
+        }
     }
 
     static String powerStateToString(int state) {
