@@ -55,6 +55,7 @@ import android.os.UserManager;
 import android.util.AtomicFile;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
+import android.util.SparseArray;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -82,7 +83,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.io.OutputStreamWriter;
-import java.io.PrintWriter;
 import java.lang.ref.WeakReference;
 import java.nio.charset.StandardCharsets;
 import java.util.HashSet;
@@ -1759,10 +1759,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      *
      * <p>If the given ID already exists or specified power components are invalid, it fails.
      *
-     * @return {@node null}, if successful. Otherwise, error message.
+     * @return {@code null}, if successful. Otherwise, error message.
      */
     @Nullable
-    public String definePowerPolicyFromCommand(String[] args, PrintWriter writer) {
+    public String definePowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
             return "Too few arguments";
         }
@@ -1831,7 +1831,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * @return {@code null}, if successful. Otherwise, error message.
      */
     @Nullable
-    public String applyPowerPolicyFromCommand(String[] args, PrintWriter writer) {
+    public String applyPowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
             return "Power policy ID should be given";
         }
@@ -1847,6 +1847,62 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         writer.printf("Power policy(%s) is successfully applied.\n", powerPolicyId);
         return null;
+    }
+
+    /**
+     * Manually defines a power policy group.
+     *
+     * <p>If the given ID already exists, a wrong power state is given, or specified power policy ID
+     * doesn't exist, it fails.
+     *
+     * @return {@code null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    public String definePowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 3 || args.length > 4) {
+            return "Invalid syntax";
+        }
+        String policyGroupId = args[1];
+        int index = 2;
+        SparseArray<String> defaultPolicyPerState = new SparseArray<>();
+        while (index < args.length) {
+            String[] tokens = args[index].split(":");
+            if (tokens.length != 2) {
+                return "Invalid syntax";
+            }
+            int state = PolicyReader.toPowerState(tokens[0]);
+            if (state == PolicyReader.INVALID_POWER_STATE) {
+                return "Invalid power state: " + tokens[0];
+            }
+            defaultPolicyPerState.put(state, tokens[1]);
+            index++;
+        }
+        String errorMsg = mPolicyReader.definePowerPolicyGroup(policyGroupId,
+                defaultPolicyPerState);
+        if (errorMsg == null) {
+            writer.printf("Power policy group(%s) is successfully defined.\n", policyGroupId);
+        }
+        return errorMsg;
+    }
+
+    /**
+     * Manually sets a power policy group.
+     *
+     * <p>If the given ID is not defined, it fails.
+     *
+     * @return {@code null}, if successful. Otherwise, error message.
+     */
+    @Nullable
+    public String setPowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            return "Power policy group ID should be given";
+        }
+        String policyGroupId = args[1];
+        String errorMsg = setCurrentPowerPolicyGroup(policyGroupId);
+        if (errorMsg == null) {
+            writer.printf("Setting power policy group(%s) is successful.\n", policyGroupId);
+        }
+        return errorMsg;
     }
 
     /**
