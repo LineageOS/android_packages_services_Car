@@ -234,6 +234,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int AP_POWER_STATE_REQ = 289475072; // 0x11410a00
     field @RequiresPermission(android.car.Car.PERMISSION_READ_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_STATE = 289410817; // 0x11400f01
     field @RequiresPermission(android.car.Car.PERMISSION_CONTROL_INTERIOR_LIGHTS) public static final int CABIN_LIGHTS_SWITCH = 289410818; // 0x11400f02
+    field @RequiresPermission("android.car.permission.CAR_TIRES") public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202; // 0x1760030a
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int CURRENT_GEAR = 289408001; // 0x11400401
     field @RequiresPermission("android.car.permission.CAR_POWER") public static final int DISPLAY_BRIGHTNESS = 289409539; // 0x11400a03
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int DISTANCE_DISPLAY_UNITS = 289408512; // 0x11400600
@@ -286,6 +287,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_CURRENT = 358614274; // 0x15600502
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_DISPLAY_UNITS = 289408270; // 0x1140050e
     field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_SET = 358614275; // 0x15600503
+    field @RequiresPermission("android.car.permission.CONTROL_CAR_CLIMATE") public static final int HVAC_TEMPERATURE_VALUE_SUGGESTION = 291570965; // 0x11610515
     field public static final int HW_KEY_INPUT = 289475088; // 0x11410a10
     field @RequiresPermission(android.car.Car.PERMISSION_POWERTRAIN) public static final int IGNITION_STATE = 289408009; // 0x11400409
     field @RequiresPermission(android.car.Car.PERMISSION_CAR_INFO) public static final int INFO_DRIVER_SEAT = 356516106; // 0x1540010a
