@@ -50,6 +50,7 @@ import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
+import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -81,6 +82,7 @@ import org.mockito.Spy;
 
 import java.io.File;
 import java.io.IOException;
+import java.io.StringWriter;
 import java.time.Duration;
 import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Semaphore;
@@ -428,6 +430,59 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         String policyId = "system_power_policy_no_user_interaction";
 
         assertThrows(IllegalArgumentException.class, () -> mService.applyPowerPolicy(policyId));
+    }
+
+    @Test
+    public void testDefinePowerPolicyGroupFromCommand() throws Exception {
+        String policyIdOne = "policy_id_valid1";
+        String policyIdTwo = "policy_id_valid2";
+        mService.definePowerPolicy(policyIdOne, new String[0], new String[0]);
+        mService.definePowerPolicy(policyIdTwo, new String[0], new String[0]);
+        String policyGroupId = "policy_group_id_valid";
+        String[] args = new String[]{"define-power-policy-group", policyGroupId,
+                "WaitForVHAL:policy_id_valid1", "On:policy_id_valid2"};
+        StringWriter stringWriter = new StringWriter();
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
+            String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+
+            assertThat(errMsg).isNull();
+
+            args = new String[]{"set-power-policy-group", policyGroupId};
+            errMsg = mService.setPowerPolicyGroupFromCommand(args, writer);
+
+            assertThat(errMsg).isNull();
+        }
+    }
+
+    @Test
+    public void testDefinePowerPolicyGroupFromCommand_noPolicyDefined() throws Exception {
+        String policyGroupId = "policy_group_id_invalid";
+        String[] args = new String[]{"define-power-policy-group", policyGroupId,
+                "On:policy_id_not_exist"};
+        StringWriter stringWriter = new StringWriter();
+
+        try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
+            String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+
+            assertThat(errMsg).isNotNull();
+        }
+    }
+
+    @Test
+    public void testDefinePowerPolicyGroupFromCommand_invalidStateName() throws Exception {
+        String policyId = "policy_id_valid";
+        mService.definePowerPolicy(policyId, new String[0], new String[0]);
+        String policyGroupId = "policy_group_id_invalid";
+        String[] args = new String[]{"define-power-policy-group", policyGroupId,
+                "InvalidStateName:policy_id_valid"};
+        StringWriter stringWriter = new StringWriter();
+        IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ");
+
+        String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+
+        assertThat(errMsg).isNotNull();
+        writer.close();
     }
 
     @Test

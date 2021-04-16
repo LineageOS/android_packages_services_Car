@@ -26,6 +26,9 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType.KEY_FOB;
 import static android.media.AudioManager.FLAG_SHOW_UI;
 
+import static com.android.car.power.PolicyReader.POWER_STATE_ON;
+import static com.android.car.power.PolicyReader.POWER_STATE_WAIT_FOR_VHAL;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -151,6 +154,8 @@ final class CarShellCommand extends ShellCommand {
             "set-user-auth-association";
     private static final String COMMAND_DEFINE_POWER_POLICY = "define-power-policy";
     private static final String COMMAND_APPLY_POWER_POLICY = "apply-power-policy";
+    private static final String COMMAND_DEFINE_POWER_POLICY_GROUP = "define-power-policy-group";
+    private static final String COMMAND_SET_POWER_POLICY_GROUP = "set-power-policy-group";
     private static final String COMMAND_POWER_OFF = "power-off";
     private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String POWER_OFF_SHUTDOWN = "--shutdown";
@@ -214,6 +219,10 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_POWER_POLICY,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY_GROUP,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_POWER_POLICY_GROUP,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_GET_INITIAL_USER,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
@@ -526,6 +535,14 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Applies power policy which is defined in /vendor/etc/power_policy.xml or");
         pw.printf("\t  by %s command\n", COMMAND_DEFINE_POWER_POLICY);
 
+        pw.printf("\t%s <POLICY_GROUP_ID> [%s:<POLICY_ID>] [%s:<POLICY_ID>]\n",
+                COMMAND_DEFINE_POWER_POLICY_GROUP, POWER_STATE_WAIT_FOR_VHAL, POWER_STATE_ON);
+        pw.println("\t  Defines a power policy group. The policy ID must be defined in advance.");
+
+        pw.printf("\t%s <POLICY_GROUP_ID>\n", COMMAND_SET_POWER_POLICY_GROUP);
+        pw.println("\t  Sets power policy group which is defined in /vendor/etc/power_policy.xml ");
+        pw.printf("\t  or by %s command\n", COMMAND_DEFINE_POWER_POLICY_GROUP);
+
         pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
                 POWER_OFF_SHUTDOWN);
         pw.println("\t  Powers off the car.");
@@ -811,28 +828,14 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_EMULATE_DRIVING_STATE:
                 emulateDrivingState(args, writer);
                 break;
-            case COMMAND_DEFINE_POWER_POLICY: {
-                String errorMsg =
-                        mCarPowerManagementService.definePowerPolicyFromCommand(args, writer);
-                if (errorMsg != null) {
-                    writer.println(errorMsg);
-                    writer.printf("\nUsage: cmd car_service %s <POLICY_ID> "
-                            + "[--enable COMP1,COMP2,...] [--disable COMP1,COMP2,...]\n",
-                            COMMAND_DEFINE_POWER_POLICY);
-                    return RESULT_ERROR;
-                }
-                break;
-            }
+            case COMMAND_DEFINE_POWER_POLICY:
+                return definePowerPolicy(args, writer);
             case COMMAND_APPLY_POWER_POLICY:
-                String errorMsg =
-                        mCarPowerManagementService.applyPowerPolicyFromCommand(args, writer);
-                if (errorMsg != null) {
-                    writer.println(errorMsg);
-                    writer.printf("\nUsage: cmd car_service %s <POLICY_ID>\n",
-                            COMMAND_APPLY_POWER_POLICY);
-                    return RESULT_ERROR;
-                }
-                break;
+                return applyPowerPolicy(args, writer);
+            case COMMAND_DEFINE_POWER_POLICY_GROUP:
+                return definePowerPolicyGroup(args, writer);
+            case COMMAND_SET_POWER_POLICY_GROUP:
+                return setPowerPolicyGroup(args, writer);
             case COMMAND_POWER_OFF:
                 powerOff(args, writer);
                 break;
@@ -1829,6 +1832,43 @@ final class CarShellCommand extends ShellCommand {
                 /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
                 /* zone= */ 0, Integer.toString(VehicleGear.GEAR_PARK), /* delayTime= */ 0);
+    }
+
+    private int definePowerPolicy(String[] args, IndentingPrintWriter writer) {
+        String errorMsg = mCarPowerManagementService.definePowerPolicyFromCommand(args, writer);
+        if (errorMsg == null) return RESULT_OK;
+        writer.println(errorMsg);
+        writer.printf("\nUsage: cmd car_service %s <POLICY_ID> [--enable COMP1,COMP2,...] "
+                + "[--disable COMP1,COMP2,...]\n", COMMAND_DEFINE_POWER_POLICY);
+        return RESULT_ERROR;
+    }
+
+    private int applyPowerPolicy(String[] args, IndentingPrintWriter writer) {
+        String errorMsg = mCarPowerManagementService.applyPowerPolicyFromCommand(args, writer);
+        if (errorMsg == null) return RESULT_OK;
+        writer.println(errorMsg);
+        writer.printf("\nUsage: cmd car_service %s <POLICY_ID>\n", COMMAND_APPLY_POWER_POLICY);
+        return RESULT_ERROR;
+    }
+
+    private int definePowerPolicyGroup(String[] args, IndentingPrintWriter writer) {
+        String errorMsg = mCarPowerManagementService.definePowerPolicyGroupFromCommand(args,
+                writer);
+        if (errorMsg == null) return RESULT_OK;
+        writer.println(errorMsg);
+        writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID> [%s:<POLICY_ID>] "
+                + "[%s:<POLICY_ID>]\n", COMMAND_DEFINE_POWER_POLICY_GROUP,
+                POWER_STATE_WAIT_FOR_VHAL, POWER_STATE_ON);
+        return RESULT_ERROR;
+    }
+
+    private int setPowerPolicyGroup(String[] args, IndentingPrintWriter writer) {
+        String errorMsg = mCarPowerManagementService.setPowerPolicyGroupFromCommand(args, writer);
+        if (errorMsg == null) return RESULT_OK;
+        writer.println(errorMsg);
+        writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID>\n",
+                COMMAND_SET_POWER_POLICY_GROUP);
+        return RESULT_ERROR;
     }
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {

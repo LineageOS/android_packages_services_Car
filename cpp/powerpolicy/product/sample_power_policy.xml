@@ -17,14 +17,10 @@
         <policyGroup id="no_default_policy">
             <noDefaultPolicy state="WaitForVHAL"/>
             <noDefaultPolicy state="On"/>
-            <noDefaultPolicy state="DeepSleepEntry"/>
-            <noDefaultPolicy state="ShutdownStart"/>
         </policyGroup>
         <policyGroup id="mixed_default_policy">
-            <defaultPolicy state="WaitForVHAL" id="sample_policy_01"/>
+            <noDefaultPolicy state="WaitForVHAL"/>
             <defaultPolicy state="On" id="sample_policy_02"/>
-            <noDefaultPolicy state="DeepSleepEntry"/>
-            <noDefaultPolicy state="ShutdownStart"/>
         </policyGroup>
     </policyGroups>
 
