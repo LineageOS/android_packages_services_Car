@@ -17,7 +17,7 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="car_permission_label" msgid="2215078736675564541">"کار کی معلومات"</string>
-    <string name="car_permission_desc" msgid="3584369074931334964">"اپنی کار کی معلومات تک رسائی حاصل کریں"</string>
+    <string name="car_permission_desc" msgid="3584369074931334964">"آپ کی کار کی معلومات تک رسائی حاصل کر سکتی ہیں"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"کار کے کیمرے تک رسائی حاصل کریں"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"اپنی کار کے کیمرے (کیمروں) تک رسائی حاصل کریں۔"</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"کار کی انرجی کی معلومات تک رسائی حاصل کریں"</string>
