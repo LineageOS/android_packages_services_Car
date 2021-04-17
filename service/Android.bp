@@ -82,6 +82,8 @@ android_app {
         "com.android.car.internal.system",
     ],
 
+    jni_libs: ["libcarservicejni"],
+
     required: ["allowed_privapp_com.android.car"],
 
     // Disable build in PDK, missing aidl import breaks build
@@ -151,8 +153,6 @@ android_library {
         "android.car",
         "car-frameworks-service",
     ],
-
-    min_sdk_version: "25",
 
     product_variables: {
         pdk: {

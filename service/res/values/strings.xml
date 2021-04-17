@@ -185,10 +185,25 @@
     <!-- Permission text: apps can control EVS stream state. [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_use_evs_service">Subscribe to EVS video streams</string>
 
+    <!-- Permission text: apps can request EVS preview activity. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_request_evs_activity">Request the EVS preview activity</string>
+    <!-- Permission text: apps can request EVS preview activity. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_request_evs_activity">Request the system to launch the EVS preview activity</string>
+
+    <!-- Permission text: apps can control EVS preview activity. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_evs_activity">Control the EVS preview activity</string>
+    <!-- Permission text: apps can control EVS preview activity. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_evs_activity">Control the EVS preview activity of the sytsem</string>
+
+    <!-- Permission text: apps can use EVS camera streams. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_use_evs_camera">Use the EVS camera</string>
+    <!-- Permission text: apps can use EVS camera streams. [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_use_evs_camera">Subscribe to EVS camera streams</string>
+
     <!-- Permission text: apps can monitor status changes of EVS service. [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_monitor_evs_status">Monitor Car EVS Service status</string>
+    <string name="car_permission_label_monitor_evs_status">Monitor the status of the EVS service</string>
     <!-- Permission text: apps can monitor status changes of EVS service. [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_monitor_evs_status">Monitor a status of CarEvsService</string>
+    <string name="car_permission_desc_monitor_evs_status">Listen to the status changes of the EVS service</string>
 
     <!-- Permission text: apps read Engine Detailed [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_car_engine_detailed">access car\u2019s engine detailed</string>
