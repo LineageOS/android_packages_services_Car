@@ -77,10 +77,10 @@
     <string name="exit_button" msgid="5829638404777671253">"Հետ"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Փակել հավելվածը"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"Հետ"</string>
-    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"կարդալ ախտորոշման մասին տվյալները"</string>
-    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Կարդալ մեքենայի ախտորոշման տվյալները։"</string>
-    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"մաքրել ախտորոշման տվյալները"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Ջնջել մեքենայի ախտորոշման տվյալները։"</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"կարդալ դիագնոստիկ տվյալները"</string>
+    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Կարդալ մեքենայի դիագնոստիկ տվյալները։"</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"մաքրել դիագնոստիկ տվյալները"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Ջնջել մեքենայի դիագնոստիկ տվյալները։"</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS հաղորդագրությունների հրապարակում"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Հրապարակել VMS հաղորդագրություններ"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Բաժանորդագրում VMS հաղորդագրություններին"</string>
