@@ -2112,7 +2112,7 @@
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Сохранять масштаб при переходе между приложениями"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Кн. питания завершает вызов"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Крупный указатель мыши"</string>
-    <string name="accessibility_disable_animations" msgid="8378441317115710009">"Удалить анимации"</string>
+    <string name="accessibility_disable_animations" msgid="8378441317115710009">"Убрать анимации"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Монофонический звук"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Объединять каналы при воспроизведении аудио"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"Баланс звука"</string>
@@ -2891,7 +2891,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"Сертификатов ЦС: %d"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Учетные данные"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Удаленные учетные данные: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"Нет установленных учетных данных пользователя"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"Нет установленных учетных данных пользователя."</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Проверка правописания"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"Настройки проверки правописания для работы"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Введите текущий пароль"</string>
@@ -4573,7 +4573,7 @@
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Нельзя использовать несколько скачанных SIM-карт одновременно.\n\nВы можете переключиться на SIM-карту \"<xliff:g id="CARRIER1">%1$s</xliff:g>\". Это действие не повлияет на ваш тарифный план у оператора \"<xliff:g id="CARRIER2">%2$s</xliff:g>\"."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Выбрать оператора \"<xliff:g id="CARRIER">%1$s</xliff:g>\""</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Стереть данные SIM-карты"</string>
-    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Стереть данные скачанной SIM-карты?"</string>
+    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Стереть эту скачанную SIM-карту?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Если вы сотрете данные SIM-карты, обслуживание этого устройства оператором \"<xliff:g id="CARRIER_0">%1$s</xliff:g>\" будет остановлено.\n\nЭто не повлияет на сервисы оператора \"<xliff:g id="CARRIER_1">%2$s</xliff:g>\"."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Стереть данные"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Удаление данных SIM-карты…"</string>

@@ -2036,14 +2036,14 @@
     <string name="usage_time_label" msgid="5615725415876461039">"使用时间"</string>
     <string name="accessibility_settings" msgid="9140621093888234485">"无障碍"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"无障碍设置"</string>
-    <string name="accessibility_settings_summary" msgid="5742379519336396561">"屏幕阅读器、显示、互动控件"</string>
+    <string name="accessibility_settings_summary" msgid="5742379519336396561">"屏幕阅读器、显示、互动控制"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"阅读辅助设置"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"您可以根据自己的需求对此设备进行自定义。以后，您可以在“设置”中更改这些辅助功能设置。"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"更改字体大小"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"屏幕阅读器"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"音频和屏幕上的文字"</string>
     <string name="display_category_title" msgid="545168481672250195">"显示"</string>
-    <string name="interaction_control_category_title" msgid="8775039211811947683">"互动控件"</string>
+    <string name="interaction_control_category_title" msgid="8775039211811947683">"互动控制"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"已下载的服务"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"实验性功能"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"功能标记"</string>
@@ -2922,7 +2922,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"使用默认应用"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"始终"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"但其他付款应用开启时除外"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"其他付款应用开启时除外"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"通过触碰付款终端进行付款时使用以下应用："</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"通过支付终端付款"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"设置付款应用，然后只需将手机背面靠近任何带有感应式标志的终端即可。"</string>
@@ -4134,7 +4134,7 @@
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"点按手机即显示"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"点按即可查看平板电脑相关信息"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"点按即可查看设备相关信息"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"要查看时间、通知和其他信息，请点按您的屏幕。"</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"点按屏幕即可查看时间、通知和其他信息。"</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"滑动指纹即可查看通知"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"滑动指纹"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"要查看通知，请在手机背面的指纹传感器上向下滑动手指。"</string>
@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"延长手机的电池续航时间"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"阻止响铃"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"同时按电源和音量调高按钮即可"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"同时按电源和音量调高按钮即可设置为"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"阻止响铃的快捷方式"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"振动"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"静音"</string>

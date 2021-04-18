@@ -330,7 +330,7 @@
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Hora"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"Formato de hora"</string>
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"Fuso horário"</string>
-    <string name="date_time_set_timezone" msgid="2763491683136582165">"Selec. fuso horário"</string>
+    <string name="date_time_set_timezone" msgid="2763491683136582165">"Selecionar fuso horário"</string>
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Data"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"Pesquisar região"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Região"</string>
@@ -1045,7 +1045,7 @@
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Memorizar esta ligação"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"Pesquisar aparelhos"</string>
     <string name="wifi_p2p_menu_searching" msgid="7443249001543208106">"A pesquisar..."</string>
-    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Mudar o nome do aparelho"</string>
+    <string name="wifi_p2p_menu_rename" msgid="2129974878377065488">"Mudar o nome do dispositivo"</string>
     <string name="wifi_p2p_peer_devices" msgid="8232126067045093382">"Aparelhos P2P"</string>
     <string name="wifi_p2p_remembered_groups" msgid="1356458238836730346">"Grupos memorizados"</string>
     <string name="wifi_p2p_failed_connect_message" msgid="6103436959132424093">"Não foi possível ligar."</string>
@@ -1615,8 +1615,8 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Ligação Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Ligação ponto a ponto"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Ponto de acesso e tethering"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Zona Wi-Fi ativada, ligação à Internet via telemóvel"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Zona Wi-Fi ativada"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Ponto de acesso ativado, ligação à Internet via telemóvel"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Ponto de acesso ativado"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Ligação à Internet via telemóvel"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Não é possível ligar via telemóvel ou utilizar zonas Wi-Fi portáteis com a Poupança de dados ativada"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
@@ -1843,7 +1843,7 @@
     <string name="show_background_processes" msgid="88012264528093617">"Mostrar proc. em cache"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Aplicação de emergência"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Repor preferências de aplicações"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"Repor preferências de aplicações?"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"Repor preferências de apps?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Procede à reposição de todas as preferências de:\n\n "<li>"Apps desativadas"</li>\n" "<li>"Notificações de apps desativadas"</li>\n" "<li>"Apps predefinidas para ações"</li>\n" "<li>"Restrições de dados em segundo plano para apps"</li>\n" "<li>"Todas as restrições de permissão"</li>\n\n" Não irá perder quaisquer dados das apps."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Repor aplicações"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Gerir espaço"</string>
@@ -2862,7 +2862,7 @@
     <string name="user_summary_managed_profile_not_set_up" msgid="3032986082684011281">"Não configurado – Perfil de trabalho"</string>
     <string name="user_admin" msgid="805802526361071709">"Administrador"</string>
     <string name="user_you" msgid="8212549708652717106">"O utilizador (<xliff:g id="NAME">%s</xliff:g>)"</string>
-    <string name="user_nickname" msgid="1088216221559125529">"Pseudónimo"</string>
+    <string name="user_nickname" msgid="1088216221559125529">"Alcunha"</string>
     <string name="user_add_user_type_title" msgid="8672326434351387845">"Adicionar"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"É possível adicionar até <xliff:g id="USER_COUNT">%1$d</xliff:g> utilizadores"</string>
     <string name="user_add_user_item_summary" msgid="6114355152711455716">"Os utilizadores têm as suas próprias aplicações e conteúdos"</string>
@@ -4338,8 +4338,8 @@
     <string name="homepage_all_settings" msgid="3201220879559136116">"Todas as definições"</string>
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Sugestões"</string>
     <string name="choose_network_title" msgid="3213314359630522396">"Escolher rede"</string>
-    <string name="network_disconnected" msgid="8677203031237141594">"Desligada."</string>
-    <string name="network_connected" msgid="8197627827976712053">"Ligada."</string>
+    <string name="network_disconnected" msgid="8677203031237141594">"Desligada"</string>
+    <string name="network_connected" msgid="8197627827976712053">"Ligada"</string>
     <string name="network_connecting" msgid="8798611458457547110">"A ligar…"</string>
     <string name="network_could_not_connect" msgid="552874922030763713">"Não foi possível estabelecer ligação."</string>
     <string name="empty_networks_list" msgid="5170020017144403884">"Nenhuma rede encontrada."</string>

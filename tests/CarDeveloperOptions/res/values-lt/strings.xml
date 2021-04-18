@@ -939,7 +939,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Įveskite SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Sauga"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Paslėptas tinklas"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą maršruto parinktuvo nustatymai nebus pakeisti."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą, maršruto parinktuvo nustatymai nebus pakeisti."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signalo stiprumas"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Būsena"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Perdavimo nuorodos sparta"</string>

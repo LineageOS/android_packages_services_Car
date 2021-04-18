@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s vol accedir als teus missatges. Vols donar-li accés a %2$s?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Sol·licitud d\'accés a la SIM"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> vol accedir a la targeta SIM. Si hi concedeixes accés, es desactivarà la connectivitat de dades al dispositiu mentre duri la connexió. Dona accés a <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible com a <xliff:g id="DEVICE_NAME">^1</xliff:g> per a altres dispositius"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Visible com a \"<xliff:g id="DEVICE_NAME">^1</xliff:g>\" per a altres dispositius"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Activa el Bluetooth per connectar-te a altres dispositius."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Els teus dispositius"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Vincula un dispositiu nou"</string>
@@ -729,15 +729,15 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"Bluetooth"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Gestiona les connexions, defineix el nom i la visibilitat del dispositiu"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Vincular amb <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Vols vincular-lo amb <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Codi de vinculació per Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Escriu el codi de vinculació i, a continuació, prem la tecla de retorn."</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"El PIN conté lletres o símbols"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"En general, 0000 o 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Ha de tenir 16 dígits"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Pot ser que també hagis d\'introduir aquest PIN a l\'altre dispositiu."</string>
-    <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Pot ser que també hagis d\'introduir aquesta contrasenya a l\'altre dispositiu."</string>
-    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Per vincular amb:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Assegura\'t que apareix aquesta contrasenya:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
+    <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Pot ser que també hagis d\'introduir aquesta clau d\'accés a l\'altre dispositiu."</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Per vincular amb:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Assegura\'t que apareix aquesta clau d\'accés:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
     <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"De:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Vols vincular-lo amb aquest dispositiu?"</string>
     <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Per vincular amb:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escriu <xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> en el dispositiu i, a continuació, prem la tecla de retorn."</string>
     <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Permet l\'accés als contactes i a l\'historial de trucades"</string>
@@ -3217,7 +3217,7 @@
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"No mostris notificacions en pantalla"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Amaga les icones de la barra d\'estat a la part superior de la pantalla"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Amaga punts de notificació en icones d\'aplicacions"</string>
-    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"No activis per a notificacions"</string>
+    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"No l\'activis amb notificacions"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Amaga de la llista de notificacions"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"Mai"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"Quan la pantalla estigui desactivada"</string>
@@ -3245,7 +3245,7 @@
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Desactivat"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Activat"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Pregunta cada vegada (tret que s\'activi automàticament)"</string>
-    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Fins que no ho desactivi (tret que s\'activi automàticament)"</string>
+    <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Fins que no el desactivis (tret que s\'activi automàticament)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
       <item quantity="other"><xliff:g id="NUM_HOURS">%d</xliff:g> hores (tret que s\'activi automàticament)</item>
       <item quantity="one">1 hora (tret que s\'activi automàticament)</item>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(configuració actual)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vols canviar la configuració de notificacions del mode No molestis?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Sons del perfil de treball"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utilitza sons del perfil pers."</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utilitza sons del perfil personal"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Els sons del perfil de treball i personal són els mateixos"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"So de trucada de la feina"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"So de notificació de la feina predeterminat"</string>
@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"Aquest informe d\'errors s\'està compartint amb l\'administrador de TI. Contacta-hi per obtenir-ne més informació."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"Comparteix"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Rebutja"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"Sense transferència de dades"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"Cap transferència de dades"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Carrega només aquest dispositiu"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"Carrega el dispositiu connectat"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Transferència de fitxers"</string>
@@ -3746,7 +3746,7 @@
     <string name="usb_control_device" msgid="9154790265254725254">"Aquest dispositiu"</string>
     <string name="usb_switching" msgid="1230386065163529904">"S\'està canviant..."</string>
     <string name="usb_switching_failed" msgid="6857722544186145439">"No s\'ha pogut canviar"</string>
-    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Càrregant el dispositiu"</string>
+    <string name="usb_summary_charging_only" msgid="4118449308708872339">"Carregant el dispositiu"</string>
     <string name="usb_summary_power_only" msgid="3552240122641051107">"Càrrega de dispositius connectats"</string>
     <string name="usb_summary_file_transfers" msgid="7805342797099821502">"Transferència de fitxers"</string>
     <string name="usb_summary_tether" msgid="778845069037366883">"Compartició de xarxa per USB"</string>

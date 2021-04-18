@@ -968,7 +968,7 @@
     <string name="wifi_ip_settings" msgid="4636102290236116946">"Ustawienia IP"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Prywatność"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Randomizowany adres MAC"</string>
-    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Dodawanie urządzenia"</string>
+    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Dodaj urządzenie"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Wyśrodkuj kod QR poniżej, by podłączyć urządzenie do sieci „<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Zeskanuj kod QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Wyśrodkuj kod QR poniżej, by połączyć się z siecią „<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -3002,7 +3002,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Użyj domyślnej"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Zawsze"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy jest otwarta inna aplikacja płatnicza"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy otwarta jest inna aplikacja płatnicza"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Na terminalu „Zbliż i zapłać” płać przy użyciu:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Płacenie na terminalu"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Skonfiguruj aplikację płatniczą, a później przyłóż tylną część telefonu do terminala z symbolem płatności zbliżeniowej."</string>
@@ -3846,7 +3846,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Odrzuć"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Tylko ładowanie"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Tylko ładowanie tego urządzenia"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ładowanie podłączonego urządzenia"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Ładuj połączone urządzenie"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Przesyłanie plików"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Przesyłaj pliki do innego urządzenia"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -4059,7 +4059,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Automatyczne aktualizacje systemu"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Zastosuj aktualizacje po ponownym uruchomieniu urządzenia"</string>
     <string name="usage" msgid="9172908720164431622">"Wykorzystanie danych"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Zużycie danych"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Użycie danych"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Użycie danych przez aplikację"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Użycie danych (Wi-Fi)"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Użycie danych w sieci Ethernet"</string>

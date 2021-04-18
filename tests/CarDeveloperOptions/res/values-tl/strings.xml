@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Maliban kung may nakabukas na isa pang app sa pagbabayad"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Sa isang Tap &amp; pay terminal, magbayad gamit ang:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagbabayad sa terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolong walang pakikipag-ugnayan."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolo ng contactless."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Nakuha ko"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Higit pa..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Itakda bilang iyong kagustuhan?"</string>

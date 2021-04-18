@@ -3756,7 +3756,7 @@
     <string name="usb_summary_tether_power" msgid="5684170912136320002">"การเชื่อมต่ออินเทอร์เน็ตผ่าน USB และจ่ายไฟ"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP และจ่ายไฟ"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI และจ่ายไฟ"</string>
-    <string name="background_check_pref" msgid="664081406854758392">"การตรวจสอบพื้นหลัง"</string>
+    <string name="background_check_pref" msgid="664081406854758392">"การตรวจสอบเบื้องหลัง"</string>
     <string name="background_check_title" msgid="4136736684290307970">"การเข้าถึงพื้นหลังอย่างเต็มรูปแบบ"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"ใช้ข้อความจากหน้าจอ"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"อนุญาตให้แอปผู้ช่วยสามารถเข้าถึงเนื้อหาบนหน้าจอเป็นข้อความ"</string>

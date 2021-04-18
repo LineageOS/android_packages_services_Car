@@ -316,7 +316,7 @@
     <string name="roaming_warning" msgid="5488050911277592868">"আপুনি যথেষ্ট পৰিমাণৰ খৰচ বহন কৰিবলগীয়া হ’ব পাৰে।"</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"আপুনি ৰ’মিঙৰ অনুমতি দিলে যথেষ্ট ৰ’মিং মাচুল ভৰিবলগীয়া হ’ব পাৰে!\n\nএই ছেটিঙটোৱে এই টেবলেটোৰ সকলো ব্যৱহাৰকাৰীকে প্ৰভাৱান্বিত কৰিব।"</string>
     <string name="roaming_warning_multiuser" product="default" msgid="6999819541078827556">"আপুনি ৰ\'মিঙৰ অনুমতি দিলে যথেষ্ট ৰ\'মিং মাচুল ভৰিবলগীয়া হ\' পাৰে!\n\nএই ছেটিঙটোৱে এই ফ\'নটোৰ সকলো ব্যৱহাৰকাৰীকে প্ৰভাৱান্বিত কৰিব।"</string>
-    <string name="roaming_reenable_title" msgid="6985082191178297921">"ডেটা ৰ\'মিঙৰ অনুমতি দিয়েনে?"</string>
+    <string name="roaming_reenable_title" msgid="6985082191178297921">"ডেটা ৰ\'মিঙৰ অনুমতি দিবনে?"</string>
     <string name="networks" msgid="3073876464102136771">"অপাৰেটৰ বাছনি"</string>
     <string name="sum_carrier_select" msgid="8964744180598499121">"এটা নেটৱৰ্ক অপাৰেটৰ বাছক"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"তাৰিখ আৰু সময়"</string>
@@ -1527,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"বেটাৰিৰ স্থিতি"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"বেটাৰিৰ পৰিমাণ"</string>
     <string name="apn_settings" msgid="8130776653826271664">"এপিএনসমূহ"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"একচেছ পইণ্ট সম্পাদনা কৰক"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"এক্সেছ পইণ্ট সম্পাদনা কৰক"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"ছেট কৰা হোৱা নাই"</string>
     <string name="apn_name" msgid="8431432886706852226">"নাম"</string>
     <string name="apn_apn" msgid="190519449579357696">"এপিএন"</string>
@@ -2749,7 +2749,7 @@
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec ব্যৱহাৰকাৰী প্ৰমাণপত্ৰ"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec চিএ প্ৰমাণপত্ৰ"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec ছাৰ্ভাৰ প্ৰমাণপত্ৰ"</string>
-    <string name="vpn_show_options" msgid="7672984921872882859">"উচ্চখাপৰ বিকল্পবোৰ দেখাওক"</string>
+    <string name="vpn_show_options" msgid="7672984921872882859">"উচ্চখাপৰ বিকল্পবোৰ দেখুৱাওক"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS অনুসন্ধান ড\'মেইনসমূহ"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"ডিএনএছ ছাৰ্ভাৰ (যেনে: ৮.৮.৮.৮)"</string>
     <string name="vpn_routes" msgid="3393989650778663742">"ফৰৱাৰ্ড কৰাৰ ঠিকনাসমূহ (যেনে, ১০.০.০.০/৮)"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"ৰিং কৰিবলৈ নিদিব"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"পাৱাৰ আৰু ভলিউম বৃদ্ধি কৰা কী একেলগে হেঁচক"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ৰিংৰ ধ্বনি বাজিবলৈ নিদিয়াৰ বাবে শ্বৰ্টকাট"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ৰিঙৰ ধ্বনি বাজিবলৈ নিদিয়াৰ শ্বৰ্টকাট"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"কম্পন কৰক"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"মিউট কৰক"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"একো নকৰিব"</string>
