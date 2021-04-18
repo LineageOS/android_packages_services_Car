@@ -818,8 +818,8 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mb/s"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> haluaa ottaa Wi-Fin käyttöön."</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> haluaa poistaa Wi-Fin käytöstä."</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Vahvista korjattavien sovell. tavukoodi"</string>
-    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Salli ART vahvistaaksesi korjattavien sovellusten tavukoodi."</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Vahvista korjattavien sovellusten tavukoodi"</string>
+    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Salli ART vahvistaaksesi korjattavien sovellusten tavukoodi"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Salli tiedonsiirto, kun tabletti koskettaa toista laitetta"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Salli tiedonsiirto, kun puhelin koskettaa toista laitetta."</string>
@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Fyysisen näppäimistön asetukset"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Lisää \".\" painamalla välilyöntiä kahdesti"</string>
     <string name="show_password" msgid="620964020348073739">"Näytä salasanat"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Näytä kirjaimet hetkellisesti, kun kirjoitat."</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Näytä kirjaimet hetkellisesti, kun kirjoitat"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Tämä oikoluku voi ehkä kerätä kaiken kirjoittamasi tekstin, mukaan lukien henkilötiedot, kuten salasanat ja luottokorttien numerot. Se on lähtöisin sovelluksesta <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Käytetäänkö tätä oikolukua?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Asetukset"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Kieli"</string>
@@ -2525,14 +2525,14 @@
     <string name="credentials_title" msgid="7119207354982673965">"Käyttöoikeustietojen tallennus"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"Asenna tallennustilasta"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"Asenna SD-kortilta"</string>
-    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Asenna varmenteet tallennustilasta."</string>
+    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Asenna varmenteet tallennustilasta"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Asenna varmenteet SD-kortilta."</string>
     <string name="credentials_reset" msgid="355080737664731678">"Tyhjennä käyttöoikeustiedot"</string>
-    <string name="credentials_reset_summary" msgid="7622528359699428555">"Poista kaikki varmenteet."</string>
+    <string name="credentials_reset_summary" msgid="7622528359699428555">"Poista kaikki varmenteet"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Luotetut todennustiedot"</string>
-    <string name="trusted_credentials_summary" msgid="7411781319056251582">"Näytä luotetut CA-varmenteet."</string>
+    <string name="trusted_credentials_summary" msgid="7411781319056251582">"Näytä luotetut CA-varmenteet"</string>
     <string name="user_credentials" msgid="8365731467650306757">"Käyttäjän kirjautumistiedot"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"Tarkastele ja muokkaa tallennettuja kirjautumistietoja."</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"Tarkastele ja muokkaa tallennettuja kirjautumistietoja"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Lisäasetukset"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Tallennustilan tyyppi"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Laitteiston tukema"</string>
@@ -2550,7 +2550,7 @@
     <string name="backup_summary_state_on" msgid="1725597360282574647">"Käytössä"</string>
     <string name="backup_summary_state_off" msgid="7138020503288730492">"Ei päällä"</string>
     <string name="backup_section_title" msgid="8177209731777904656">"Varmuuskopiointi &amp; palautus"</string>
-    <string name="personal_data_section_title" msgid="9161854418510071558">"Henkilötiedot"</string>
+    <string name="personal_data_section_title" msgid="9161854418510071558">"Henkilökohtaiset tiedot"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Tietojen varmuuskopiointi"</string>
     <string name="backup_data_summary" msgid="555459891017933746">"Varmuuskopioi sovelluksen tiedot, Wi-Fi-salasanat ja muut asetukset Googlen palvelimille"</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Varmuuskopiointitili"</string>
@@ -3423,7 +3423,7 @@
     <string name="notification_badge_title" msgid="8989086619255666442">"Salli pistemerkki"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Näytä pistemerkki"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Ohita Älä häiritse -asetus"</string>
-    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Salli näiden ilmoitusten näyttö myös Älä häiritse ‑tilassa."</string>
+    <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Salli näiden ilmoitusten näyttö myös Älä häiritse ‑tilassa"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Lukitusnäytöllä"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Estetty"</string>
     <string name="app_notification_row_priority" msgid="432299064888787236">"Tärkeät"</string>
@@ -3931,7 +3931,7 @@
     <string name="color_temperature_toast" msgid="7113013528732046104">"Ota värin muutos käyttöön sammuttamalla näyttö."</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"Kameran laseranturi"</string>
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Automaattiset järjestelmäpäivitykset"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Päivitä, kun laite käynnistyy uudelleen."</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Päivitä, kun laite käynnistyy uudelleen"</string>
     <string name="usage" msgid="9172908720164431622">"Käyttö"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Mobiilidatan käyttö"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Sovelluksen datan käyttö"</string>
@@ -4143,7 +4143,7 @@
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Katso ilmoitukset nopeasti"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Käytössä"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"Ei päällä"</string>
-    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"Käynnistysohjelman lukitus on jo avattu."</string>
+    <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"Käynnistysohjelman lukitus on jo avattu"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"Muodosta ensin internetyhteys"</string>
     <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"Muodosta internetyhteys tai ota yhteyttä operaattoriin"</string>
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"Ei käytettävissä operaattorin lukitsemissa laitteissa"</string>
@@ -4284,7 +4284,7 @@
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Taustatoiminnan salliminen alkaa"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Kaiken taustatoiminnan salliminen alkaa."</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"Näytä aina kaatumisikkuna"</string>
-    <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Näytä valintaikkuna aina, kun sovellus kaatuu."</string>
+    <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Näytä valintaikkuna aina, kun sovellus kaatuu"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"Valitse ANGLE-yhteensopiva sovellus"</string>
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"Ei määritettyä ANGLE-yhteensopivaa sovellusta"</string>
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"ANGLE-yhteensopiva sovellus: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
@@ -4467,7 +4467,7 @@
     <string name="volume_connectivity_panel_title" msgid="4998755371496690971">"Äänenvoimakkuus"</string>
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Ei käytettävissä lentokonetilassa"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"Pakota työpöytätila"</string>
-    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Pakota kokeellinen työpöytätila toissijaisille näytöille."</string>
+    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Pakota kokeellinen työpöytätila toissijaisille näytöille"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Ohita SmartDarkin pakottaminen päälle"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Ohittaa toiminnon, joka pakottaa SmartDark-ominaisuuden aina päälle"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Tietosuoja"</string>

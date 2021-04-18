@@ -2710,7 +2710,7 @@
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Dette vil sænke data- og batteriforbruget, men du skal til gengæld synkronisere hver konto manuelt for at hente de seneste oplysninger, og du vil ikke modtage notifikationer, når der kommer nye opdateringer."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Dato for nulstilling af forbrugsperiode"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Dato i hver måned:"</string>
-    <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Gem"</string>
+    <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Angiv"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Konfigurer en advarsel om dataforbrug"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Angiv en grænse for dataforbrug"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Grænse for dataforbrug"</string>

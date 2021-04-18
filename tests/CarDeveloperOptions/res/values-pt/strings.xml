@@ -1629,7 +1629,7 @@
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Compartilhando conexão com a Internet deste <xliff:g id="DEVICE_NAME">%1$d</xliff:g> via Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Não é possível vincular a mais de <xliff:g id="MAXCONNECTION">%1$d</xliff:g> dispositivos."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> será vinculado."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Use o ponto de acesso e tethering para fornecer Internet a outros dispositivos por meio da sua conexão de dados móveis. Os apps também podem criar um ponto de acesso para compartilhar conteúdo com dispositivos por perto."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Use as opções de ponto de acesso e tethering para compartilhar a Internet com outros dispositivos usando sua conexão de dados móveis. Os apps também podem criar um ponto de acesso para compartilhar conteúdo com dispositivos por perto."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Ajuda"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Rede móvel"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Plano para dispositivos móveis"</string>
@@ -4117,16 +4117,16 @@
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Virar câmera"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Tirar selfies com mais rapidez"</string>
-    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Para alternar entre apps, deslize o botão home para cima. Deslize para cima mais uma vez para ver todos os apps. Isso funciona em qualquer tela. O botão Visão geral não estará mais disponível na parte inferior direita da tela."</string>
+    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Para mudar de app, deslize o botão home para cima. Deslize para cima mais uma vez para ver todos os apps. Isso funciona em qualquer tela. O botão Visão geral não estará mais disponível na parte inferior direita da tela."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Testar o novo botão home"</string>
-    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Ative o novo gesto para alternar entre apps"</string>
+    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Ative o novo gesto para mudar de app"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Tocar duas vezes na tela para verificar o smartphone"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tocar duas vezes na tela para verificar o tablet"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tocar duas vezes na tela para verificar o dispositivo"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Para verificar a hora, as notificações e outras informações, toque duas vezes na tela."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar o smartphone para verificá-lo"</string>
-    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Levantar o tablet para verificá-lo"</string>
-    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Levantar o dispositivo para verificá-lo"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar para verificar o smartphone"</string>
+    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Levantar para verificar o tablet"</string>
+    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Levantar para verificar o dispositivo"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Ativar a tela"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Para verificar a hora, as notificações e outras informações, pegue o smartphone."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Para verificar a hora, as notificações e outras informações, pegue o tablet."</string>

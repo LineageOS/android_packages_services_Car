@@ -938,7 +938,7 @@
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Sentreer die QR-kode hieronder om die toestel by “<xliff:g id="SSID">%1$s</xliff:g>” te voeg"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skandeer QR-kode"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Sentreer die QR-kode hieronder om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Skandeer \'n QR-kode om by W-Fi aan te sluit"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Skandeer \'n QR-kode om by Wi-Fi aan te sluit"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Deel Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Skandeer hierdie QR-kode om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel en die wagwoord te deel"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Skandeer hierdie QR-kode om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel"</string>

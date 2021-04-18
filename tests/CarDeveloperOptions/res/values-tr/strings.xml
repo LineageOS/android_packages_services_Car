@@ -4411,7 +4411,7 @@
     <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Etkin Değil / İndirilen SIM"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"SIM adı"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Yeniden adlandır"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM kullan"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM\'i kullan"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Kapalı"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> adlı cihaza geçilsin mi?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Aynı anda yalnızca bir indirilmiş SIM etkin olabilir.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> operatörüne geçtiğinizde <xliff:g id="CARRIER2">%2$s</xliff:g> hizmetiniz iptal edilmez."</string>

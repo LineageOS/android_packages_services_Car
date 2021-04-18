@@ -308,7 +308,7 @@
     <string name="sms_messages_title" msgid="934188835214592753">"የኤስኤምኤስ መልዕክቶች"</string>
     <string name="cellular_data_summary" msgid="8817717603450318646">"በተንቀሳቃሽ ስልክ አውታረ መረብ ላይ ውሂብ መጠቀም ፍቀድ"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"በሌላ የስልክ አውታረ መረብ መንቀሳቀስ ላይ ሳሉ የውሂብ መጠቀም ይፈቀድ"</string>
-    <string name="roaming" msgid="8860308342135146004">"ማንዣበብ"</string>
+    <string name="roaming" msgid="8860308342135146004">"በማዛወር ላይ"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"በእንቅስቃሴ ላይ ሲሆን ወደ ውሂብ አገልግሎቶች ተያያዝ"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"በእንቅስቃሴ ላይ ሲሆን ወደ ውሂብ አገልግሎቶች ተያያዝ"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"የውሂብዎ ተያያዥነት ጠፍቷል ምክንያቱም የቤትዎን አውታረመረብ በእንቅስቃሴ ላይ አጥፋተው በመተዎ ነው።"</string>

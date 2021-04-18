@@ -324,7 +324,7 @@
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"日付、時刻、タイムゾーン、フォーマットを設定する"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"ネットワークの時刻を使用する"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"ネットワークから提供されたタイムゾーンを使用する"</string>
-    <string name="date_time_24hour_auto" msgid="7499659679134962547">"言語 / 地域のデフォルトを使用する"</string>
+    <string name="date_time_24hour_auto" msgid="7499659679134962547">"言語 / 地域で一般的な形式を使用する"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"24時間表示"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"24時間表示"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"時刻"</string>
@@ -819,7 +819,7 @@
     <string name="wifi_ask_enable" msgid="925862998663619616">"「<xliff:g id="REQUESTER">%s</xliff:g>」が Wi-Fi を ON にしようとしています"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"「<xliff:g id="REQUESTER">%s</xliff:g>」が Wi-Fi を OFF にしようとしています"</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"デバッグ可能なアプリのバイトコードを確認"</string>
-    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ART にデバッグ可能なアプリのバイトコードの確認を許可する"</string>
+    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"デバッグ可能なアプリのバイトコードの確認を ART に許可する"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"タブレットが他のデバイスと接触したときのデータ交換を許可する"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"他のデバイスと接触したときのデータ交換を許可します"</string>
@@ -1201,7 +1201,7 @@
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"非常に高い"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"優先する明るさのレベル"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"周囲に合わせて調整しない"</string>
-    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"電池使用量が増えます"</string>
+    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"バッテリー使用量が増えます"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"周囲に合わせて明るさを最適化します。この機能が ON の場合でも、一時的に明るさを調整できます。"</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"画面の明るさは環境やアクティビティに応じて自動的に調整されます。スライダーを手動で動かして、明るさの自動調節機能に設定を学習させることもできます。"</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"ディスプレイのホワイト バランス"</string>
@@ -2058,8 +2058,8 @@
     <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"画面を拡大します"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"ズームするには 3 回タップします"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"ボタンをタップしてズームします"</string>
-    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"ズーム"</b>"するには、画面をすばやく 3 回タップします。\n"<ul><li>"2 本以上の指をドラッグしてスクロール"</li>\n<li>"2 本以上の指でピンチ操作してズームを調整"</li></ul>\n\n<b>"一時的にズーム"</b>"するには、画面をすばやく 3 回タップし、3 回目のタップで指を押し続けます。\n"<ul><li>"ドラッグで画面上を移動"</li>\n<li>"指を放してズームアウト"</li></ul>\n\n"キーボードやナビゲーション バーでは拡大できません。"</string>
-    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"[拡大] を ON にすると、画面下部の [ユーザー補助機能] ボタンを使ってすぐに拡大できます。\n\n"<b>"ズーム"</b>"するには、[ユーザー補助機能] ボタンをタップして画面をタップします。\n"<ul><li>"2 本以上の指をドラッグしてスクロール"</li>\n<li>"2 本以上の指でピンチ操作してズームを調整"</li></ul>\n\n<b>"一時的にズーム"</b>"するには、[ユーザー補助機能] ボタンをタップして画面をタップします。\n"<ul><li>"ドラッグで画面上を移動"</li>\n<li>"指を放してズームアウト"</li></ul>\n\n"キーボードやナビゲーション バーでは拡大できません。"</string>
+    <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"ズーム"</b>"するには、画面をすばやく 3 回タップします。\n"<ul><li>"2 本以上の指をドラッグしてスクロール"</li>\n<li>"2 本以上の指でピンチ操作して拡大率を調節"</li></ul>\n\n<b>"一時的にズーム"</b>"するには、画面をすばやく 3 回タップし、3 回目のタップで指を押し続けます。\n"<ul><li>"ドラッグで画面上を移動"</li>\n<li>"指を放してズームアウト"</li></ul>\n\n"キーボードやナビゲーション バーでは拡大できません。"</string>
+    <string name="accessibility_screen_magnification_navbar_summary" msgid="4726360285256503132">"[拡大] を ON にすると、画面下部の [ユーザー補助機能] ボタンを使ってすぐに拡大できます。\n\n"<b>"ズーム"</b>"するには、[ユーザー補助機能] ボタンをタップして画面をタップします。\n"<ul><li>"2 本以上の指をドラッグしてスクロール"</li>\n<li>"2 本以上の指でピンチ操作して拡大率を調節"</li></ul>\n\n<b>"一時的にズーム"</b>"するには、[ユーザー補助機能] ボタンをタップして画面をタップします。\n"<ul><li>"ドラッグで画面上を移動"</li>\n<li>"指を放してズームアウト"</li></ul>\n\n"キーボードやナビゲーション バーでは拡大できません。"</string>
     <string name="accessibility_screen_magnification_navbar_configuration_warning" msgid="6477234309484795550">"[ユーザー補助機能] ボタンが [<xliff:g id="SERVICE">%1$s</xliff:g>] に設定されています。拡大を使用するには、[ユーザー補助機能] ボタンを押し続けて [拡大] を選択してください。"</string>
     <string name="accessibility_global_gesture_preference_title" msgid="3842279082831426816">"音量キーのショートカット"</string>
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ショートカット サービス"</string>
@@ -2082,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1分"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2分"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"表示しておく時間"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作を行う時間"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"操作要求の表示時間"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"表示可能な時間が限られているメッセージの表示時間を指定してください。\n\nこの設定に対応していないアプリもあります。"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"短い時間しか表示されない操作要求メッセージについて、表示時間を指定してください。\n\nこの設定に対応していないアプリもあります。"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"長押しする時間"</string>
@@ -2096,11 +2096,11 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"着信時のバイブレーション"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"タップ操作時のバイブ"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"サービスの使用"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"色補正の使用"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"色補正を使用"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"字幕を使用する"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"続行"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"補聴器"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"接続されている補聴器なし"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"接続されている補聴器はありません"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"補聴器を追加する"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"補聴器とペア設定するには、次の画面でデバイスを探してタップしてください。"</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"補聴器がペア設定モードであることをご確認ください。"</string>
@@ -4129,12 +4129,12 @@
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"デバイスを持ち上げて通知をチェック"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"ディスプレイの復帰"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"スマートフォンを持ち上げることで、時刻、通知などの情報を確認できます。"</string>
-    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"時刻、通知などの情報を確認するには、タブレットを持ち上げます。"</string>
-    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"時刻、通知などの情報を確認するには、デバイスを持ち上げます。"</string>
+    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"タブレットを持ち上げることで、時刻、通知などの情報を確認できます。"</string>
+    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"デバイスを持ち上げることで、時刻、通知などの情報を確認できます。"</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"デバイスをタップして通知を確認"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"タブレットをタップしてチェックする"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"デバイスをタップしてチェックする"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"時刻、通知などの情報を確認するには、画面をタップします。"</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"画面をタップすることで、時刻、通知などの情報を確認できます。"</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"指紋センサーをスワイプして通知を表示"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"指紋センサーのスワイプ"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"スマートフォンの背面にある指紋認証センサーを下にスワイプして、通知を確認できます。"</string>
@@ -4277,7 +4277,7 @@
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"この機能は、お使いのデバイスではご利用いただけません"</string>
     <string name="disabled_feature" msgid="3747549387387702365">"この機能はご利用いただけません"</string>
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"このスマートフォンの動作が遅くなります"</string>
-    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"GNSS 計測の完全な実行"</string>
+    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"GNSS 計測の完全実行を強制"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"デューティ サイクリングを無効にした状態で、すべての GNSS コンステレーションと頻度をトラッキングします"</string>
     <string name="enable_user_switch_message" msgid="8613014373053051092">"ユーザー切り替え時のデバッグ情報"</string>
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"ユーザー切り替え中の詳細情報の表示"</string>
@@ -4418,7 +4418,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> に切り替え"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM を消去"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"このダウンロードされた eSIM を消去しますか？"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"この SIM を消去すると、このデバイスから <xliff:g id="CARRIER_0">%1$s</xliff:g> サービスが削除されます。\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> のサービスが解約されることはありません。"</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"この SIM を消去すると、デバイスから <xliff:g id="CARRIER_0">%1$s</xliff:g> サービスが削除されます。\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> のサービスが解約されることはありません。"</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"消去"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM を消去しています…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"SIM を消去できません"</string>

@@ -848,7 +848,7 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"Dalam mode Pesawat"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Notifikasi jaringan terbuka"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Beri tahu ketika jaringan publik verkualitas tinggi tersedia"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"Aktifkan Wi‑Fi secara otomatis"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"Otomatis aktifkan Wi‑Fi"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi akan aktif kembali di dekat jaringan berkualitas tinggi yang tersimpan, seperti jaringan rumah Anda"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Tidak tersedia karena lokasi dinonaktifkan. Aktifkan "<annotation id="link">"lokasi"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Tidak tersedia karena pemindaian Wi-Fi dinonaktifkan"</string>
@@ -2538,7 +2538,7 @@
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Menggunakan hardware"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Khusus software"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"Kredensial tidak tersedia untuk pengguna ini"</string>
-    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Dipasang untuk VPN dan aplikasi"</string>
+    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Diinstal untuk VPN dan aplikasi"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Dipasang untuk Wi-Fi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Hapus semua konten?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Penyimpanan kredensial dihapus."</string>
@@ -2708,7 +2708,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Perubahan apa pun yang dilakukan pada akun Anda di web akan disalin ke ponsel secara otomatis.\n\nBeberapa akun juga dapat otomatis menyalin setiap perubahan yang dilakukan di ponsel ke web. Akun Google mengikuti cara kerja tersebut."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Nonaktifkan sinkronisasi data otomatis?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Ini akan menghemat penggunaan baterai dan data, tapi Anda perlu menyinkronkan setiap akun secara manual untuk mengumpulkan informasi terkini. Anda juga tidak akan menerima pemberitahuan ketika ada update."</string>
-    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Tanggal peresetan siklus penggunaan"</string>
+    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Tanggal reset siklus penggunaan"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Tanggal setiap bulannya:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Setel"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Setel peringatan penggunaan kuota"</string>
@@ -2759,7 +2759,7 @@
     <string name="vpn_not_used" msgid="2889520789132261454">"(tidak digunakan)"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(jangan verifikasi server)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(diterima dari server)"</string>
-    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"Jenis VPN ini tidak dapat selalu tersambung"</string>
+    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"Jenis VPN ini tidak dapat selalu terhubung"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"VPN selalu aktif hanya mendukung alamat server numerik"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Server DNS untuk VPN selalu aktif harus ditentukan"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Alamat server DNS untuk VPN selalu aktif harus numerik"</string>
@@ -3933,7 +3933,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Update sistem otomatis"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Terapkan update saat perangkat dinyalakan ulang"</string>
     <string name="usage" msgid="9172908720164431622">"Penggunaan"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Penggunaan kuota seluler"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Penggunaan data seluler"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Penggunaan kuota aplikasi"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Penggunaan data Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Penggunaan data ethernet"</string>
