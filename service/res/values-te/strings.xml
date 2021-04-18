@@ -93,14 +93,26 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ఫ్లాష్ నిల్వ వినియోగాన్ని పర్యవేక్షించండి"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"డ్రైవింగ్ స్థితి మార్పులను వినగలవు"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"డ్రైవింగ్ స్థితి మార్పులను వినగలవు."</string>
-    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
-    <skip />
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"కార్ టెలిమెట్రీ సర్వీస్‌ను ఉపయోగించండి"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"కార్ సిస్టమ్ ఆరోగ్య డేటాను సేకరించండి."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"కార్ EVS సర్వీస్‌ను ఉపయోగించండి"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS వీడియో ప్రసారాలకు సబ్‌స్క్రయిబ్ చేయండి"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"కార్ EVS సర్వీస్ స్టేటస్‌ను పర్యవేక్షించండి"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService స్టేటస్‌ను పర్యవేక్షించండి"</string>
+    <!-- no translation found for car_permission_label_request_evs_activity (3906551972883482883) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_request_evs_activity (4582768053649138488) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_evs_activity (2030069860204405679) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_evs_activity (691646545916976346) -->
+    <skip />
+    <!-- no translation found for car_permission_label_use_evs_camera (3607720208623955067) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_evs_camera (1625845902221003985) -->
+    <skip />
+    <!-- no translation found for car_permission_label_monitor_evs_status (2091521314159379622) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_evs_status (2764278897143573535) -->
+    <skip />
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"కారు ఇంజిన్ వివరాలను యాక్సెస్ చేయగలవు"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"మీ కారు యొక్క సమగ్ర ఇంజిన్ సమాచారాన్ని యాక్సెస్ చేయగలవు."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"కారు ఇంధన డోర్ మరియు ఛార్జ్ పోర్ట్‌ను యాక్సెస్ చేయగలవు"</string>
