@@ -71,7 +71,7 @@
     <item msgid="5597394826455877834">"A ligar..."</item>
     <item msgid="5848277343965362748">"A autenticar..."</item>
     <item msgid="3391238031431440676">"A obter endereço IP..."</item>
-    <item msgid="5257597310494000224">"Ligada."</item>
+    <item msgid="5257597310494000224">"Ligada"</item>
     <item msgid="8472497592913050396">"Suspenso"</item>
     <item msgid="1228072488815999109">"A desligar..."</item>
     <item msgid="7253087004422991731">"Desligado"</item>
@@ -101,7 +101,7 @@
     <item msgid="4526848028011846710">"PIN deste aparelho"</item>
   </string-array>
   <string-array name="wifi_p2p_status">
-    <item msgid="8741947238021758201">"Ligada."</item>
+    <item msgid="8741947238021758201">"Ligada"</item>
     <item msgid="983792611851499732">"Convidado"</item>
     <item msgid="5438273405428201793">"Sem sucesso"</item>
     <item msgid="4646663015449312554">"Disponível"</item>
@@ -414,7 +414,7 @@
     <item msgid="5408915841694583740">"Desligado"</item>
     <item msgid="8754480102834556765">"A inicializar..."</item>
     <item msgid="3351334355574270250">"A ligar..."</item>
-    <item msgid="8303882153995748352">"Ligada."</item>
+    <item msgid="8303882153995748352">"Ligada"</item>
     <item msgid="9135049670787351881">"Tempo limite"</item>
     <item msgid="2124868417182583926">"Sem sucesso"</item>
   </string-array>
