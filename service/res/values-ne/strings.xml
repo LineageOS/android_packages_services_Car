@@ -93,14 +93,26 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"फ्ल्यास भण्डारणको प्रयोगको अनुगमन गर्ने"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ड्राइभिङको स्थिति सुन्ने"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ड्राइभिङको स्थितिमा हुने परिवर्तनहरू सुन्ने।"</string>
-    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
-    <skip />
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"कारको टेलिमेट्री सेवा प्रयोग गर्न दिइयोस्"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"कारको प्रणालीको अवस्थासम्बन्धी डेटा सङ्कलन गर्न दिइयोस्।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"कार EVS सेवा प्रयोग गर्नुहोस्"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS भिडियो स्ट्रिमको सदस्यता लिनुहोस्"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"कार EVS सेवाको स्थिति निगरानी गर्नुहोस्"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService को स्थिति निगरानी गर्नुहोस्"</string>
+    <!-- no translation found for car_permission_label_request_evs_activity (3906551972883482883) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_request_evs_activity (4582768053649138488) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_evs_activity (2030069860204405679) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_evs_activity (691646545916976346) -->
+    <skip />
+    <!-- no translation found for car_permission_label_use_evs_camera (3607720208623955067) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_evs_camera (1625845902221003985) -->
+    <skip />
+    <!-- no translation found for car_permission_label_monitor_evs_status (2091521314159379622) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_evs_status (2764278897143573535) -->
+    <skip />
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"कारको इन्जिनको विस्तृत जानकारीमाथि पहुँच राख्ने"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"तपाईंको कारको इन्जिनको विस्तृत जानकारीमाथि पहुँच राख्ने।"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कारको इन्धन हाल्ने ट्याङ्कीको बिर्को तथा चार्ज गर्ने पोर्टमाथि पहुँच राख्ने"</string>
@@ -167,7 +179,7 @@
     <string name="car_permission_desc_template_renderer" msgid="6047233999260920122">"टेम्प्लेटहरू रेन्डर गर्ने।"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरो डिभाइस"</string>
     <string name="default_guest_name" msgid="2912812799433131476">"अतिथि"</string>
-    <string name="importance_default" msgid="8587741629268312938">"पूर्वनिर्धारित महत्त्व"</string>
+    <string name="importance_default" msgid="8587741629268312938">"डिफल्ट महत्त्व"</string>
     <string name="importance_high" msgid="3141530792377745041">"उच्च महत्त्वको सूचना"</string>
     <string name="factory_reset_notification_title" msgid="2530056626309489398">"फ्याक्ट्री रिसेट गरिनु पर्छ"</string>
     <string name="factory_reset_notification_text" msgid="6517642677900094724">"इन्फोटेनमेन्ट प्रणालीमा भएका सबै डेटा मेटाइने छ। सो प्रणाली रिसेट गरेपछि तपाईं नयाँ प्रोफाइल बनाउन सक्नुहुन्छ।"</string>

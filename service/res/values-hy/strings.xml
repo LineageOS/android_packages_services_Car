@@ -79,10 +79,10 @@
     <string name="exit_button" msgid="5829638404777671253">"Հետ"</string>
     <string name="exit_button_close_application" msgid="8824289547809332460">"Փակել հավելվածը"</string>
     <string name="exit_button_go_back" msgid="3469083862100560326">"Հետ"</string>
-    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"կարդալ ախտորոշման մասին տվյալները"</string>
-    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Կարդալ մեքենայի ախտորոշման տվյալները։"</string>
-    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"մաքրել ախտորոշման տվյալները"</string>
-    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Ջնջել մեքենայի ախտորոշման տվյալները։"</string>
+    <string name="car_permission_label_diag_read" msgid="7248894224877702604">"կարդալ դիագնոստիկ տվյալները"</string>
+    <string name="car_permission_desc_diag_read" msgid="1121426363040966178">"Կարդալ մեքենայի դիագնոստիկ տվյալները։"</string>
+    <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"մաքրել դիագնոստիկ տվյալները"</string>
+    <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"Ջնջել մեքենայի դիագնոստիկ տվյալները։"</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS հաղորդագրությունների հրապարակում"</string>
     <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"Հրապարակել VMS հաղորդագրություններ"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"Բաժանորդագրում VMS հաղորդագրություններին"</string>
@@ -93,14 +93,26 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Հետագծել ֆլեշ պահեստի օգտագործումը"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"հետագծել վարելու ռեժիմը"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Հետագծել վարելու ռեժիմի փոփոխությունները։"</string>
-    <!-- no translation found for car_permission_label_use_telemetry_service (948005838683758846) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_use_telemetry_service (3633214312435700766) -->
-    <skip />
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Օգտագործել մեքենայի հեռաչափության ծառայությունը"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Հավաքել մեքենայի համակարգի վիճակի մասին տվյալները"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Օգտագործել ավտոմեքենայի EVS ծառայությունը"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Բաժանորդագրվել EVS տեսահոսքին"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Վերահսկել ավտոմեքենայի EVS ծառայության կարգավիճակը"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Վերահսկել CarEvsService-ի կարգավիճակը"</string>
+    <!-- no translation found for car_permission_label_request_evs_activity (3906551972883482883) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_request_evs_activity (4582768053649138488) -->
+    <skip />
+    <!-- no translation found for car_permission_label_control_evs_activity (2030069860204405679) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_control_evs_activity (691646545916976346) -->
+    <skip />
+    <!-- no translation found for car_permission_label_use_evs_camera (3607720208623955067) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_use_evs_camera (1625845902221003985) -->
+    <skip />
+    <!-- no translation found for car_permission_label_monitor_evs_status (2091521314159379622) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_monitor_evs_status (2764278897143573535) -->
+    <skip />
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"օգտագործել մեքենայի շարժիչի մանրամասն տվյալները"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Օգտագործել շարժիչի մանրամասն տվյալները։"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"օգտագործել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները"</string>
