@@ -16,6 +16,8 @@
 #ifndef ANDROID_CARSERVICE_EVS_DEATH_RECIPIENT_H
 #define ANDROID_CARSERVICE_EVS_DEATH_RECIPIENT_H
 
+#include "EvsServiceCallback.h"
+
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hidl/base/1.0/IBase.h>
 #include <binder/Binder.h>
@@ -29,14 +31,13 @@ class EvsDeathRecipient : public android::hardware::hidl_death_recipient {
 public:
     explicit EvsDeathRecipient(
             const android::sp<android::hardware::automotive::evs::V1_1::IEvsEnumerator>& svc,
-            const std::function<void(const android::wp<android::hidl::base::V1_0::IBase>&)>&
-                    handler);
+            EvsServiceCallback* callback);
     void serviceDied(uint64_t cookie,
                      const android::wp<android::hidl::base::V1_0::IBase>& who) override;
 
 private:
     android::sp<android::hardware::automotive::evs::V1_1::IEvsEnumerator> mService;
-    std::function<void(const android::wp<android::hidl::base::V1_0::IBase>&)> mHandler;
+    EvsServiceCallback* mCallback;
 };
 
 }  // namespace evs

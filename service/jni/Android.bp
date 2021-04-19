@@ -19,8 +19,9 @@ cc_library_shared {
     srcs: [
         "JniLoader.cpp",
         "evs/CarEvsService.cpp",
-        "evs/EvsServiceWrapper.cpp",
+        "evs/EvsCallbackThread.cpp",
         "evs/EvsDeathRecipient.cpp",
+        "evs/EvsServiceContext.cpp",
         "evs/StreamHandler.cpp",
     ],
 

@@ -16,6 +16,8 @@
 #ifndef ANDROID_CARSERVICE_STREAMHANDLER_H
 #define ANDROID_CARSERVICE_STREAMHANDLER_H
 
+#include "EvsServiceCallback.h"
+
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
@@ -37,11 +39,7 @@ namespace evs {
 class StreamHandler : public android::hardware::automotive::evs::V1_1::IEvsCameraStream {
 public:
     StreamHandler(android::sp<android::hardware::automotive::evs::V1_1::IEvsCamera>& pCamera,
-                  std::function<void(const android::hardware::automotive::evs::V1_1::BufferDesc&)>
-                          frameCb,
-                  std::function<void(const android::hardware::automotive::evs::V1_1::EvsEventDesc&)>
-                          eventCb,
-                  int maxNumFramesInFlight);
+                  EvsServiceCallback* callback, int maxNumFramesInFlight);
     virtual ~StreamHandler();
     void shutdown();
     bool startStream();
@@ -69,12 +67,11 @@ private:
     // we need to protect all member variables that may be modified while we're streaming
     // (ie: those below)
     std::mutex mLock;
-    std::condition_variable mSignal;
+    std::condition_variable mCondition;
     bool mRunning = false;
 
     // Callbacks to forward EVS events and frames
-    std::function<void(const android::hardware::automotive::evs::V1_1::BufferDesc&)> mFrameCb;
-    std::function<void(const android::hardware::automotive::evs::V1_1::EvsEventDesc&)> mEventCb;
+    EvsServiceCallback* mCallback;
 
     std::list<android::hardware::automotive::evs::V1_1::BufferDesc> mReceivedBuffers
             GUARDED_BY(mLock);

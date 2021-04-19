@@ -16,14 +16,19 @@
 #ifndef ANDROID_CARSERVICE_EVS_SERVICE_WRAPPER_H
 #define ANDROID_CARSERVICE_EVS_SERVICE_WRAPPER_H
 
+#include "EvsCallbackThread.h"
 #include "EvsDeathRecipient.h"
+#include "EvsServiceCallback.h"
 #include "StreamHandler.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/evs/1.1/types.h>
 #include <hidl/HidlTransportSupport.h>
+#include <utils/Mutex.h>
 #include <utils/StrongPointer.h>
+
+#include <jni.h>
 
 #include <mutex>
 
@@ -31,33 +36,36 @@ namespace android {
 namespace automotive {
 namespace evs {
 
-using DeathCb = std::function<void(const wp<hidl::base::V1_0::IBase>&)>;
-using FrameCb = std::function<void(::android::hardware::automotive::evs::V1_1::BufferDesc)>;
-using EventCb = std::function<void(::android::hardware::automotive::evs::V1_1::EvsEventDesc)>;
-
 /*
  * This class wraps around HIDL transactions to the Extended View System service
  * and the video stream managements.
  */
-class EvsServiceWrapper : public RefBase {
+class EvsServiceContext : public EvsServiceCallback {
 public:
-    virtual ~EvsServiceWrapper();
+    EvsServiceContext(JavaVM* vm, jclass clazz);
+    virtual ~EvsServiceContext();
 
-    bool initialize(const DeathCb& serviceDeathListener) ACQUIRE(mLock);
+    /*
+     * Initializes the service context and connects to the native Extended View
+     * System service.
+     *
+     * @param env A pointer to the JNI environment
+     * @param env A reference to CarEvsService object
+     * @return false if it fails to connect to the native Extended View System
+     *         service or to register a death recipient.
+     *         true otherwise.
+     */
+    bool initialize(JNIEnv* env, jobject thiz) ACQUIRE(mLock);
 
     /*
      * Requests to open a target camera device.
      *
      * @param id a string camera device identifier
-     * @param frameCallback a callback function to get EVS frames
-     * @param eventCallback a callback function to listen EVS stream events
-     *
      * @return bool false if it has not connected to EVS service, fails to open
      *              a camera device, or fails to initialize a stream handler;
      *              true otherwise.
      */
-    bool openCamera(const char* id, const FrameCb& frameCallback, const EventCb& eventCallback)
-            ACQUIRE(mLock);
+    bool openCamera(const char* id) ACQUIRE(mLock);
 
     /*
      * Requests to close an active camera device.
@@ -79,12 +87,12 @@ public:
      *
      * @param frame a consumed frame buffer
      */
-    void doneWithFrame(const hardware::automotive::evs::V1_1::BufferDesc& frame);
+    void doneWithFrame(int bufferId);
 
     /*
      * Tells whether or not we're connected to the Extended View System service
      */
-    bool isServiceAvailable() const ACQUIRE(mLock) {
+    bool isAvailable() ACQUIRE(mLock) {
         std::lock_guard<std::mutex> lock(mLock);
         return mService != nullptr;
     }
@@ -92,7 +100,7 @@ public:
     /*
      * Tells whether or not a target camera device is opened
      */
-    bool isCameraOpened() const ACQUIRE(mLock) {
+    bool isCameraOpened() ACQUIRE(mLock) {
         std::lock_guard<std::mutex> lock(mLock);
         return mCamera != nullptr;
     }
@@ -100,10 +108,17 @@ public:
     /*
      * Compares the binder interface
      */
-    bool isEqual(const wp<hidl::base::V1_0::IBase>& who) const ACQUIRE(mLock) {
+    bool isEqual(const wp<hidl::base::V1_0::IBase>& who) ACQUIRE(mLock) {
         std::lock_guard<std::mutex> lock(mLock);
         return hardware::interfacesEqual(mService, who.promote());
     }
+
+    /*
+     * Implements EvsServiceCallback methods
+     */
+    void onNewEvent(hardware::automotive::evs::V1_1::EvsEventDesc) override;
+    void onNewFrame(hardware::automotive::evs::V1_1::BufferDesc) override;
+    void onServiceDied(const wp<hidl::base::V1_0::IBase>&) override;
 
 private:
     // Acquires the camera and the display exclusive ownerships.
@@ -130,6 +145,29 @@ private:
 
     // A death recipient of Extended View System service
     sp<EvsDeathRecipient> mDeathRecipient GUARDED_BY(mLock);
+
+    // Java VM
+    JavaVM* mVm;
+
+    // Background thread to handle callbacks from the native Extended View
+    // System service
+    EvsCallbackThread mCallbackThread;
+
+    // Reference to CarEvsService object
+    jobject mCarEvsServiceObj;
+
+    // CarEvsService object's method to handle the accidental death of the
+    // native Extended View System service
+    jmethodID mDeathHandlerMethodId;
+
+    // CarEvsService object's method to handle a new frame buffer
+    jmethodID mFrameHandlerMethodId;
+
+    // CarEvsService object's method to handle a new stream event
+    jmethodID mEventHandlerMethodId;
+
+    // Bookkeeps descriptors of received frame buffers.
+    std::map<int, hardware::automotive::evs::V1_1::BufferDesc> mBufferRecords GUARDED_BY(mLock);
 
     // Service name for EVS enumerator
     static const char* kServiceName;
