@@ -16,6 +16,7 @@
 
 package android.car.evs;
 
+import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
 import android.os.IBinder;
@@ -36,12 +37,12 @@ interface ICarEvsService {
     void unregisterStatusListener(in ICarEvsStatusListener listener);
 
     /**
-     * Requests to start a given service type.
+     * Requests to start a video stream.
      */
     int startVideoStream(int serviceType, in IBinder token, in ICarEvsStreamCallback callback);
 
     /**
-     * Requests to stop a currently active service.
+     * Requests to stop an active video stream.
      */
     void stopVideoStream(in ICarEvsStreamCallback callback);
 
@@ -53,10 +54,25 @@ interface ICarEvsService {
     /**
      * Returns a current status of CarEvsService.
      */
-    int getCurrentStatus();
+    CarEvsStatus getCurrentStatus();
 
     /**
      * Returns a generated session token.
      */
     IBinder generateSessionToken();
+
+    /**
+     * Requests to start a camera previewing activity for a given service type.
+     */
+    int startActivity(int type);
+
+    /**
+     * Requests to stop a camera previewing activity, which was launched via startActivity().
+     */
+    void stopActivity();
+
+    /**
+     * Returns whether or not a given service type is supported.
+     */
+    boolean isSupported(int type);
 }
