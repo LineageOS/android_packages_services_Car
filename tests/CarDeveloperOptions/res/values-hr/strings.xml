@@ -2980,7 +2980,7 @@
     <string name="user_account_title" msgid="2108666882630552859">"Račun za sadržaj"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"ID fotografije"</string>
     <string name="extreme_threats_title" msgid="1405820547540456436">"Ekstremne prijetnje"</string>
-    <string name="extreme_threats_summary" msgid="4967919167246852181">"Primanje upozorenja za ekstremne prijetnje po život/imovinu"</string>
+    <string name="extreme_threats_summary" msgid="4967919167246852181">"Primanje upozorenja za ekstremne prijetnje po život i imovinu"</string>
     <string name="severe_threats_title" msgid="1987698359027211862">"Ozbiljne prijetnje"</string>
     <string name="severe_threats_summary" msgid="1148147804181873835">"Primanje upozorenja za ozbiljne prijetnje po život i imovinu"</string>
     <string name="amber_alerts_title" msgid="8274651933750533271">"AMBER upozorenja"</string>

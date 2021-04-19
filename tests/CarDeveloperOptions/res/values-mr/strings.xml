@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"नैसर्गिक"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"बूस्ट केलेला"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"सॅच्युरेटेड"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"ॲडॅप्टिव्ह"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"अडॅप्टिव्ह"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"फक्त अचूक रंग वापरा"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"उठावदार आणि अचूक रंगामध्ये ॲडजस्‍ट करा"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"टॅब्लेट फिरवताना ओरिएंटेशन आपोआप स्विच करा"</string>
@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"उपलब्ध प्रकाशासाठी समायोजित करू नका"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"वाढलेला बॅटरी वापर"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"उपलब्ध प्रकाशासाठी उज्ज्वलता स्तर अनुकूल करा. हे वैशिष्ट्य सुरू असताना, तुम्ही तरीही उज्ज्वलता तात्पुरती समायोजित करू शकता."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"तुमच्या स्क्रीनचा ब्राइटनेस तुमच्या वातावरण आणि ॲक्टिव्हिटीशी आपोआप अ‍ॅडजस्ट होईल. अ‍ॅडॅप्टिव्ह ब्राइटनेसला तुमची प्राधान्ये जाणून घेण्यात मदत करण्यासाठी तुम्ही स्लाइडर मॅन्युअली हलवू शकता."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"तुमच्या स्क्रीनचा ब्राइटनेस तुमच्या वातावरण आणि ॲक्टिव्हिटीशी आपोआप अ‍ॅडजस्ट होईल. अडॅप्टिव्ह ब्राइटनेसला तुमची प्राधान्ये जाणून घेण्यात मदत करण्यासाठी तुम्ही स्लाइडर मॅन्युअली हलवू शकता."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"व्हाइट बॅलन्स डिस्प्ले करा"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"स्क्रीन अवेअर"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"सुरू करा / तुम्ही स्क्रीनकडे पाहत असल्यास स्क्रीन बंद होणार नाही"</string>

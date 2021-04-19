@@ -3893,7 +3893,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"Veličina prikaza"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Povećajte ili smanjite stavke na ekranu"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"gustoća prikaza, uvećanje ekrana, promijeni veličinu, mijenjanje veličine"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"Smanjite ili povećajte stavke na ekranu. Neke aplikacije s vašeg ekrana mogu promijeniti svoj položaj."</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"Smanjite ili povećajte stavke na ekranu. Neke aplikacije mogu promijeniti položaj na ekranu."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Pregled"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"Smanji"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"Povećaj"</string>

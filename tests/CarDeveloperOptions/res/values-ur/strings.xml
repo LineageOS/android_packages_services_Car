@@ -4136,7 +4136,7 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"آلہ چیک کرنے کے لیے تھپتھپائیں"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"وقت، اطلاعات، اور دیگر معلومات چیک کرنے کے لیے اپنی اسکرین کو دو بار تھپتھپائیں۔"</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"اطلاعات کیلئے فنگر پرنٹ سوائپ"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"فنگر پرنٹ سوائپ کریں"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"سوائپ فنگر پرنٹ"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"اپنی اطلاعات چیک کرنے کیلئے اپنے فون کی پشت پر فنگر پرنٹ سینسر پر نیچے سوائپ کریں۔"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"اپنی اطلاعات چیک کرنے کیلئے اپنے ٹیبلیٹ کی پشت پر فنگر پرنٹ سینسر پر نیچے سوائپ کریں۔"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"اپنی اطلاعات چیک کرنے کیلئے اپنے آلہ کی پشت پر فنگر پرنٹ سینسر پر نیچے سوائپ کریں۔"</string>
@@ -4414,7 +4414,7 @@
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM کا استعمال کریں"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"آف"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> پر سوئچ کریں؟"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"ایک وقت میں صرف ایک ڈاؤن لوڈ کردہ SIM فعال ہو سکتا ہے۔\n\n <xliff:g id="CARRIER1">%1$s</xliff:g> پر سوئچ کرنے سے آپ کی <xliff:g id="CARRIER2">%2$s</xliff:g> سروس منسوخ نہیں ہوگی۔"</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"ایک وقت میں صرف ایک ڈاؤن لوڈ کردہ SIM فعال ہو سکتی ہے۔\n\n‫<xliff:g id="CARRIER1">%1$s</xliff:g> پر سوئچ کرنے سے آپ کی <xliff:g id="CARRIER2">%2$s</xliff:g> سروس منسوخ نہیں ہوگی۔"</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> پر سوئچ کریں"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM مٹائیں"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"ڈاؤن لوڈ کردہ اس SIM کو مٹائیں؟"</string>

@@ -852,7 +852,7 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Мбіт/с"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"Додаток <xliff:g id="REQUESTER">%s</xliff:g> хоче ввімкнути Wi-Fi"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"Додаток <xliff:g id="REQUESTER">%s</xliff:g> хоче вимкнути Wi-Fi"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Підтвердьте байт-код налагоджуваних додатків"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Підтверджувати байт-код налагоджуваних додатків"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Дозволити ART підтверджувати байт-код налагоджуваних додатків"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Дозволити обмін даними, коли планшетний ПК торкнеться іншого пристрою"</string>
@@ -2001,7 +2001,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Налашт. фізичної клавіатури"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Натис. пробіл двічі, щоб встав. \".\""</string>
     <string name="show_password" msgid="620964020348073739">"Показувати паролі"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Ненадовго показувати паролі під час введення"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Ненадовго показувати символи під час введення"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Цей засіб перевірки правопису може збирати весь введений вами текст, зокрема такі особисті дані, як паролі та номери кредитних карток. Він походить від програми <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Використати цей засіб перевірки правопису?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Налаштування"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Мова"</string>
@@ -3088,7 +3088,7 @@
     <string name="sim_editor_color" msgid="373059962306191123">"Колір SIM-карти"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"Вибрати SIM-карту"</string>
     <string name="color_orange" msgid="3159707916066563431">"Оранжевий"</string>
-    <string name="color_purple" msgid="4391440966734810713">"Пурпуровий"</string>
+    <string name="color_purple" msgid="4391440966734810713">"Фіолетовий"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"SIM-карту не вставлено"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"Статус SIM-карти"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"Статус SIM-карти (гніздо %1$d для SIM-карти)"</string>
@@ -4411,7 +4411,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"Автоматично заповнити"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Рівень реєстрації"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Максимальна кількість запитів на сеанс"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Максимальні видимі набори даних"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Максимальна кількість видимих наборів даних"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Відновити значення за умовчанням"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Скинуто параметри автозаповнення, які вказав розробник"</string>
     <string name="device_theme" msgid="8992291311481135893">"Тема пристрою"</string>

@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"ປະຕິເສດ"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"ບໍ່ມີການໂອນຍ້າຍຂໍ້ມູນ"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ຫາ​ກໍ່​ສາກ​ອຸ​ປະ​ກອນ​ນີ້"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາດອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາກອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ການໂອນໄຟລ໌"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ໂອນຍ້າຍໄຟລ໌ໄປໃສ່ອຸປະກອນອື່ນ"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3964,7 +3964,7 @@
     <string name="configure" msgid="8232696842838580549">"ກຳນົດຄ່າ"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"ແອັບອື່ນໆແມ່ນຮວມໃນການນຳໃຊ້"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດຂໍ້ມູນເປີດຢູ່</item>
+      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
       <item quantity="one">ອະນຸຍາດໃຫ້ 1 ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນແບບບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"ຂໍ້ມູນຫຼັກ"</string>

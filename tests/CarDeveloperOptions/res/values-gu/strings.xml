@@ -2314,7 +2314,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"બૅટરી બચાવવા માટે, આ ઍપને બૅકગ્રાઉન્ડમાં બૅટરીનો ઉપયોગ કરવાથી અટકાવો. પ્રતિબંધિત ઍપ યોગ્ય રીતે કાર્ય નહીં કરી શકે અને નોટિફિકેશન વિલંબિત થઈ શકે છે.\n\nઍપ:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"પ્રતિબંધિત કરો"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"પ્રતિબંધ કાઢી નાખીએ?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"આ ઍપ બૅકગ્રાઉન્ડમાં બૅટરીનો વપરાશ કરી શકશે. તમારા ઉપકરણની બૅટરી અપેક્ષા કરતાં વહેલા સમાપ્ત થઈ શકે છે."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"આ ઍપ બૅકગ્રાઉન્ડમાં બૅટરીનો વપરાશ કરી શકશે. તમારા ડિવાઇસની બૅટરી અપેક્ષા કરતાં વહેલા સમાપ્ત થઈ શકે છે."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"કાઢી નાખો"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"રદ કરો"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"તમારી બધી ઍપ બૅટરીનો વપરાશ સામાન્ય પ્રમાણમાં કરી રહી છે. જો તે બૅટરીનો ઘણો વધુ વપરાશ કરવા માંડશે, તો તમારો ફોન તમે શું ઍક્શન લઈ શકો તે સૂચવશે.\n\nજો તમારી પાસે બૅટરીમાં ચાર્જ ઓછો રહ્યો હોય, તો તમે કોઈપણ સમયે બૅટરી સેવર ચાલુ કરી શકો છો."</string>
@@ -2525,7 +2525,7 @@
     <string name="credentials_title" msgid="7119207354982673965">"ઓળખપત્ર સ્ટોરેજ"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"સંગ્રહમાંથી ઇન્સ્ટોલ કરો"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD કાર્ડથી ઇન્સ્ટોલ કરો"</string>
-    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"સંગ્રહમાંથી પ્રમાણપત્રો ઇન્સ્ટોલ કરો"</string>
+    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"સ્ટોરેજમાંથી પ્રમાણપત્રો ઇન્સ્ટૉલ કરો"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD કાર્ડથી પ્રમાણપત્રો ઇન્સ્ટોલ કરો"</string>
     <string name="credentials_reset" msgid="355080737664731678">"ઓળખપત્રો સાફ કરો"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"બધા પ્રમાણપત્રોને દૂર કરો"</string>

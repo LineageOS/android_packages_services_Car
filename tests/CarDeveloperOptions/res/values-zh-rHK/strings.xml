@@ -2175,7 +2175,7 @@
     <string name="color_red" msgid="7426040122729897596">"紅色"</string>
     <string name="color_green" msgid="3432648781089648971">"綠色"</string>
     <string name="color_blue" msgid="4055855996393833996">"藍色"</string>
-    <string name="color_cyan" msgid="7669317410901991453">"洋青色"</string>
+    <string name="color_cyan" msgid="7669317410901991453">"藍綠色"</string>
     <string name="color_yellow" msgid="8847327436896180799">"黃色"</string>
     <string name="color_magenta" msgid="721976999611563071">"洋紅色"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"使用「<xliff:g id="SERVICE">%1$s</xliff:g>」？"</string>
@@ -2848,7 +2848,7 @@
       <item quantity="other">檢查憑證</item>
       <item quantity="one">檢查憑證</item>
     </plurals>
-    <string name="user_settings_title" msgid="7917598650933179545">"複數使用者"</string>
+    <string name="user_settings_title" msgid="7917598650933179545">"多位使用者"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"新增使用者即可分享您的裝置。每位使用者在您的裝置上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"新增使用者即可分享您的平板電腦。每位使用者在您的平板電腦上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"您可以新增使用者來分享這部手機。每位使用者在您的手機上都有個人空間，可以自訂主畫面、帳戶、應用程式、設定等等。"</string>

@@ -2070,7 +2070,7 @@
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"အက်ပ် အပြောင်းတွင်မျက်နှာပြင်ချဲ့မှုအပ်ဒိတ်လုပ်ရန်"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"ဖွင့်ပိတ်ခလုတ်ဖြင့် ဖုန်းချရန်"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"မောက်စ်သင်္ကေတအကြီးစား"</string>
-    <string name="accessibility_disable_animations" msgid="8378441317115710009">"လှုပ်ရှားမှုများ ဖယ်ရှားရန်"</string>
+    <string name="accessibility_disable_animations" msgid="8378441317115710009">"လှုပ်ရှားသက်ဝင်ပုံ ဖယ်ရှားရန်"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"မိုနိုအသံ"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"အသံဖွင့်နေစဉ် ချန်နယ်များကိုပေါင်းပါ"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"အသံ ချိန်ညှိခြင်း"</string>
@@ -2891,9 +2891,9 @@
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"အလုပ်ပရိုဖိုင် ဖယ်ရှားမလား။"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"ဤ တက်ဘလက်ပေါ်မှ သင့်နေရာနှင့် အချက်အလက်များသည် ပျောက်သွားလိမ့်မည်။ ဤလုပ်ဆောင်ချက်ကို သင် နောက်ပြန်သွား၍ မရနိုင်ပါ။"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"ဤဖုန်းပေါ်မှ သင့်နေရာနှင့် အချက်အလက်များသည် ပျောက်သွားလိမ့်မည်။ ဤလုပ်ဆောင်ချက်ကို သင် နောက်ပြန်သွား၍ မရနိုင်ပါ။"</string>
-    <string name="user_confirm_remove_message" msgid="5202150470271756013">"အက်ပ်များ အားလုံး နှင့် ဒေတာကို ဖျက်သွားမည်။"</string>
+    <string name="user_confirm_remove_message" msgid="5202150470271756013">"အက်ပ်အားလုံးနှင့် ဒေတာကို ဖျက်ပါမည်။"</string>
     <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"သင် ရှေ့ဆက်သွားပါက ဤပရိုဖိုင်ရှိ အက်ပ်များနှင့် ဒေတာ အားလုံးကို ဖျက်ပစ်မည်။"</string>
-    <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"အက်ပ်များ အားလုံး နှင့် ဒေတာကို ဖျက်သွားမည်။"</string>
+    <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"အက်ပ်အားလုံးနှင့် ဒေတာကို ဖျက်ပါမည်။"</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"သုံးစွဲသူအသစ်ထည့်နေပါသည် …"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"သုံးစွဲသူကိုဖျက်ရန်"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"ဖျက်ရန်"</string>
@@ -2902,7 +2902,7 @@
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"ဧည့်သည်ကို ဖယ်ထုတ်လိုက်ရမလား?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"ဒီချိတ်ဆက်မှု ထဲက အက်ပ်များ အားလုံး နှင့် ဒေတာကို ဖျက်ပစ်မည်။"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"ဖယ်ထုတ်ပါ"</string>
-    <string name="user_enable_calling" msgid="864760054792249503">"ဖုန်းခေါ်ဆိုမှုများ ဖွင့်မည်"</string>
+    <string name="user_enable_calling" msgid="864760054792249503">"ဖုန်းခေါ်ဆိုမှုများ ဖွင့်ရန်"</string>
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"ဖုန်းခေါ်ဆိုမှုနှင့် SMS ဖွင့်မည်"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"အသုံးပြုသူကို ဖျက်ပါ"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"ဖုန်းခေါ်ဆိုမှုများ ဖွင့်မလား။"</string>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"အပြင်အဆင် ရွေးချယ်ရန်"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"ဤဆက်တင်သည် အက်ပ်များအတွက်လည်း အကျုံးဝင်ပါသည်"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"ပံ့ပိုးထားသော အက်ပ်များကိုလည်း မှောင်သည့် အပြင်အဆင်သို့ ပြောင်းပါမည်"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ဆော့ဖ်ဝဲအင်ဂျင်နီယာ အကွက်များကို အမြန်သတ်မှတ်ခြင်း"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"ဆော့ဖ်ဝဲရေးသူ အကွက်များ အမြန်သတ်မှတ်ခြင်း"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope မှတ်တမ်းပြုခြင်း"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"အာရုံခံစနစ်များ ပိတ်ပါ"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"အလုပ်ပရိုဖိုင်ဆက်တင်များ"</string>
