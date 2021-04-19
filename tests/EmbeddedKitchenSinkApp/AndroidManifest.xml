@@ -135,6 +135,12 @@
     <!-- Used on DEVICE POLICY screen to wipe data -->
     <uses-permission android:name="android.permission.MASTER_CLEAR"/>
 
+    <!-- Allows to use the CarEvsService -->
+    <uses-permission android:name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY"/>
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY"/>
+    <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA"/>
+    <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS"/>
+
     <application android:label="@string/app_title"
          android:icon="@drawable/ic_launcher">
         <uses-library android:name="android.test.runner"/>
