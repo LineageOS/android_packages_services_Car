@@ -1820,13 +1820,13 @@
     <string name="data_size_label" msgid="7790201846922671662">"प्रयोगकर्ताको डेटा"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB भण्डारण डेटा"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD कार्ड"</string>
-    <string name="uninstall_text" msgid="4859715815689705801">"अस्थापना गर्नुहोस्"</string>
-    <string name="uninstall_all_users_text" msgid="2620518509352561416">"सम्पूर्ण प्रयोगकर्ताका लागि अस्थापना गर्नुहोस्"</string>
+    <string name="uninstall_text" msgid="4859715815689705801">"अनइन्स्टल गर्नुहोस्"</string>
+    <string name="uninstall_all_users_text" msgid="2620518509352561416">"सम्पूर्ण प्रयोगकर्ताका लागि अनइन्स्टल गर्नुहोस्"</string>
     <string name="install_text" msgid="2798092278891807849">"स्थापना गर्नुहोस्"</string>
     <string name="disable_text" msgid="5065834603951474397">"असक्षम पार्नुहोस्"</string>
     <string name="enable_text" msgid="7179141636849225884">"सक्रिय गर्नुहोस्"</string>
     <string name="clear_user_data_text" msgid="8894073247302821764">"भण्डारण खाली गर्नुहोस्"</string>
-    <string name="app_factory_reset" msgid="8718986000278776272">"अद्यावधिकहरू अस्थापना गर्नुहोस्"</string>
+    <string name="app_factory_reset" msgid="8718986000278776272">"अद्यावधिकहरू अनइन्स्टल गर्नुहोस्"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"केही कारवाहीका लागि पूर्वनिर्धारतिबाट यो एप सुरु गर्न तपाईँले छान्नु भयो।"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"तपाईंले यो एपलाई विजेटहरू सिर्जना गर्न र तिनीहरूको डेटा पहुँच गर्न अनुमतिको लागि छान्नुभयो।"</string>
     <string name="auto_launch_disable_text" msgid="8560921288036801416">"कुनै डिफल्ट सेट गरिएको छैन।"</string>

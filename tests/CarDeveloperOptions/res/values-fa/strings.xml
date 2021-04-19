@@ -3075,7 +3075,7 @@
     <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"رده‌بندی، زبان، پیش‌فرض، بلند صحبت کردن، گفتن، صحبت کردن، صحبت، tts، دسترس‌پذیری، صفحه‌خوان، نابینا"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"ساعت، نظامی"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"بازنشانی، بازیابی، کارخانه"</string>
-    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو کردن، حذف، بازیابی، پاک کردن، برداشتن، بازنشانی کارخانه‌ای"</string>
+    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو کردن داده، حذف کردن، بازیابی، پاک کردن، برداشتن، بازنشانی کارخانه‌ای"</string>
     <string name="keywords_printing" msgid="8499167841024606451">"چاپگر"</string>
     <string name="keywords_sounds" msgid="9155626618185269312">"بیپ بلندگو، بلندگو، میزان صدا، صامت کردن، سکوت، صدا، موسیقی"</string>
     <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"مزاحم نشوید، قطع، وقفه، توقف"</string>
@@ -4058,8 +4058,8 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"مشاهده محتوای بیشتر"</string>
-    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"واقعاً داده‌های کاربر پاک شود و به رمزگذاری فایل تبدیل شود؟"</string>
-    <string name="button_confirm_convert_fbe" msgid="419832223125147297">"پاک کردن و تبدیل کردن"</string>
+    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"واقعاً داده‌های کاربر محو شود و به رمزگذاری فایل تبدیل شود؟"</string>
+    <string name="button_confirm_convert_fbe" msgid="419832223125147297">"محو کردن داده و تبدیل"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"بازنشانی محدودکننده سرعت ShortcutManager"</string>
     <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"محدودکننده سرعت ShortcutManager بازنشانی شد"</string>
     <string name="notification_suggestion_title" msgid="3292107671498148560">"کنترل اطلاعات روی صفحه قفل"</string>

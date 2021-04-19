@@ -1211,7 +1211,7 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Empêche l\'écran de s\'éteindre pendant que vous le regardez."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"La fonctionnalité Écran attentif utilise la caméra frontale pour détecter si quelqu\'un regarde l\'écran. Elle fonctionne sur l\'appareil uniquement, et les images ne sont jamais enregistrées ni envoyées à Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Éclairage nocturne"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"La fonction Éclairage nocturne colore votre écran en rouge ambré afin de vous permettre de le regarder ou de lire plus facilement lorsque l\'éclairage est faible. Elle peut également vous aider à vous endormir."</string>
+    <string name="night_display_text" msgid="5330502493684652527">"Avec le mode Éclairage nocturne, votre écran prend une teinte ambrée. Il vous est ainsi plus facile de le regarder ou de lire lorsque l\'éclairage est faible, et vous pourrez vous endormir plus facilement."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programmer"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Non programmé"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actif à une heure définie"</string>

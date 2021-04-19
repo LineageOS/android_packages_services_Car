@@ -916,7 +916,7 @@
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> тіркелгі деректері"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP әдісі"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Аутентификацияның 2-сатысы"</string>
-    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Растама мекемесінің сертификаты"</string>
+    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA сертификаты"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Пайдаланушы сертификаты"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Бірлік"</string>
@@ -1820,7 +1820,7 @@
     <string name="data_size_label" msgid="7790201846922671662">"Пайдаланушы деректері"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB жады дерекқоры"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD картасы"</string>
-    <string name="uninstall_text" msgid="4859715815689705801">"Алмау"</string>
+    <string name="uninstall_text" msgid="4859715815689705801">"Жою"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"Барлық пайдаланушылар үшін алып тастаңыз"</string>
     <string name="install_text" msgid="2798092278891807849">"Орнату"</string>
     <string name="disable_text" msgid="5065834603951474397">"Өшіру"</string>

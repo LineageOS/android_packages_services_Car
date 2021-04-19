@@ -406,7 +406,7 @@
     <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"Telefonu kiliddən çıxarmaq, satınalmaları doğrulamaq və ya tətbiqlərə daxil olmaq üçün üzünüzdən istifadə edin"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"Üzünüzü dairənin mərkəzində saxlayın"</string>
-    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Daha sonra edin"</string>
+    <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"Sonraya saxlayın"</string>
     <string name="face_add_max" msgid="8870899421165189413">"Maksimum <xliff:g id="COUNT">%d</xliff:g> üz əlavə edə bilərsiniz"</string>
     <string name="face_intro_error_max" msgid="4024147799079828937">"Maksimum sayda barmaq izi əlavə etmisiniz"</string>
     <string name="face_intro_error_unknown" msgid="3241592604198351134">"Daha çox üz əlavə etmək mümkün deyil"</string>
@@ -466,12 +466,12 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Silin"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Sensora toxunun"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Barmağı sensora qoyun və vibrasiyə hiss edənə qədər saxlayın"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Barmağı sensora qoyub titrəmə hiss edənə qədər saxlayın"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Qaldırın və təkrar toxunun"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Barmaq izini tam əlavə etmək üçün barmağınızı qaldırmağa davam edin"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Barmaq izi əlavə edildi"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Bu ikonu görəndə kimlik və ya alışları təsdiqləmək üçün barmaq izini istifadə edin"</string>
-    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Daha sonra edin"</string>
+    <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Sonraya saxlayın"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Barmaq izi ayarları ötürülsün?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Telefon kilidini açmaq üçün barmaq izindən istifadə etməyi seçmisiniz. Bunu indi ötürsəniz, bu funksiyanı daha sonra ayarlamalı olacaqsınız. Ayarlamaq bir-iki dəqiqə vaxtınızı aparacaq."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Planşetiniz itərsə və ya oğurlanarsa, başqasının istifadə edə bilməməsi üçün onu ekran kilidi ilə qoruyun. Barmaq izini quraşdırmaq üçün də ekran kilidi tələb edilir. \"Ləğv edin\" seçiminə klikləyin, sonra isə PIN ayarlayın, yaxud başqa ekran kilidi seçin."</string>
@@ -492,17 +492,17 @@
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Barmaq izi qeydiyyatı işləmədi. Yenidən cəhd edin və ya başqa barmaq istifadə edin."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Başqasını əlavə edin"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Növbəti"</string>
-    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Telefonun kiliddən çıxarılmasından əlavə, alışları doğrulamaq və tətbiqlərə giriş üçün barmaq izinizi də istifadə edə bilərsiniz. "<annotation id="url">"Ətraflı məlumat"</annotation></string>
+    <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Kilidi açmaqdan əlavə olaraq, alışları təsdiqləmək və tətbiqlərə daxil olmaq üçün Pixel Imprint istifadə edə bilərsiniz. "<annotation id="url">"Ətraflı məlumat"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Ekran kilid seçimi deaktivdir. Ətraflı məlumat üçün təşkilatın admini ilə əlaqə saxlayın. "<annotation id="admin_details">"Daha ətraflı"</annotation>\n\n"Hələ də alışları və tətbiq girişlərini təsdiq etmək üçün barmaq izi istifadə edə bilərsiniz. "<annotation id="url">"Daha ətraflı"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Barmağınızı qaldırın, sonra yenidən sensora toxunun"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Barmağınızı qaldırın, sonra sensora təkrar toxunun"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"<xliff:g id="COUNT">%d</xliff:g> ədədə qədər barmaq izi əlavə edə bilərsiniz"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Maksimum sayda barmaq izi əlavə etmisiniz"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Daha artıq barmaq izi əlavə edilə bilməz"</string>
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Bütün barmaq izləri silinsin?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"\"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\" barmaq izini silin"</string>
-    <string name="fingerprint_delete_message" msgid="5895802741486967970">"Bu barmaq izini silmək istəyirsiniz?"</string>
+    <string name="fingerprint_delete_message" msgid="5895802741486967970">"Bu barmaq izi silinsin?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Kilidi açmaq, alışları təsdiqləmək və ya tətbiqlərə giriş üçün barmaq izini istifadə edə bilməyəcəksiniz"</string>
-    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"İş profilini açmaq, alışları təsdiq etmək və ya iş tətbiqlərinə daxil olmaq üçün barmaq izindən istifadə edə bilməyəcəksiniz"</string>
+    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Kilidi açmaq, alışları təsdiqləmək və ya tətbiqlərə giriş üçün barmaq izini istifadə edə bilməyəcəksiniz"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Bəli, silin"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Şifrələmə"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Planşeti şifrələyin"</string>
@@ -2576,7 +2576,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS və zəng siyahısına girişin məhdudlaşdırılması"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Yalnız defolt telefon və mesajlaşma tətbiqlərinin SMS və zəng siyahısına giriş icazələri var"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Əlçatımlı əmanət agenti yoxdur"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Cihaz admin tətbiqi aktiv edilsin?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Cihaz administratoru tətbiqi"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Bu cihazın admin tətbiqini aktiv edin"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Cihaz admini"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Bu admin tətbiqini aktiv etməklə <xliff:g id="APP_NAME">%1$s</xliff:g> tətbiqinə aşağı əməliyyatları etmək icazəsi verilir:"</string>

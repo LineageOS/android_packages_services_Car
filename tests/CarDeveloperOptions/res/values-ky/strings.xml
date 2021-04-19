@@ -4068,8 +4068,8 @@
     <string name="page_tab_title_support" msgid="5569262185010367870">"Кеңештер жана колдоо"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Эң кууш"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"Орнотулган колдонмолор акы алынуучу SMS пайдаланууга уруксат сураган жок"</string>
-    <string name="premium_sms_warning" msgid="7604011651486294515">"Артыкчылыктуу SMS үчүн сизден акы алынып, ал операторуңуздун эсептерине кошулушу мүмкүн. Эгер кайсы бир колдонмого уруксат берсеңиз, ошол колдонмо аркылуу артыкчылыктуу SMS жөнөтө аласыз."</string>
-    <string name="premium_sms_access" msgid="4550027460595822851">"Артыкчылыктуу SMS жөнөтүүгө уруксат"</string>
+    <string name="premium_sms_warning" msgid="7604011651486294515">"Акы алынуучу SMS үчүн сизден акы алынып, ал операторуңуздун эсептерине кошулушу мүмкүн. Эгер кайсы бир колдонмого уруксат берсеңиз, ошол колдонмо аркылуу акы алынуучу SMS жөнөтө аласыз."</string>
+    <string name="premium_sms_access" msgid="4550027460595822851">"Акы алынуучу SMS жөнөтүүгө уруксат"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Өчүк"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> менен туташты"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Бир нече түзмөккө туташты"</string>
