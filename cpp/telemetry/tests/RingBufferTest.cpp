@@ -33,7 +33,7 @@ BufferedCarData buildBufferedCarData(int32_t id, const std::vector<uint8_t>& con
     return {.mId = id, .mContent = content, .mPublisherUid = 0};
 }
 
-TEST(RingBufferTest, TestPopFrontReturnsCorrectResults) {
+TEST(RingBufferTest, PopFrontReturnsCorrectResults) {
     RingBuffer buffer(/* sizeLimit= */ 10);
     buffer.push(buildBufferedCarData(101, {7}));
     buffer.push(buildBufferedCarData(102, {7}));
@@ -43,14 +43,14 @@ TEST(RingBufferTest, TestPopFrontReturnsCorrectResults) {
     EXPECT_EQ(result, buildBufferedCarData(101, {7}));
 }
 
-TEST(RingBufferTest, TestPopFrontRemovesFromBuffer) {
+TEST(RingBufferTest, PopFrontRemovesFromBuffer) {
     RingBuffer buffer(/* sizeLimit= */ 10);
     buffer.push(buildBufferedCarData(101, {7}));
     buffer.push(buildBufferedCarData(102, {7, 8}));
 
     buffer.popFront();
 
-    EXPECT_EQ(buffer.size(), 2);  // only ID=102 left
+    EXPECT_EQ(buffer.size(), 1);  // only ID=102 left
 }
 
 }  // namespace telemetry

@@ -22,9 +22,9 @@
 #include <android-base/chrono_utils.h>
 #include <android-base/logging.h>
 #include <android-base/properties.h>
-#include <binder/IPCThreadState.h>
-#include <binder/IServiceManager.h>
-#include <binder/ProcessState.h>
+#include <android/binder_interface_utils.h>
+#include <android/binder_manager.h>
+#include <android/binder_process.h>
 
 #include <inttypes.h>  // for PRIu64 and friends
 
@@ -35,8 +35,6 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::android::String16;
-using ::android::automotive::telemetry::CarTelemetryImpl;
 using ::android::automotive::telemetry::RingBuffer;
 
 constexpr const char kCarTelemetryServiceName[] =
@@ -52,9 +50,10 @@ const int kMaxBufferSize = 100;
 TelemetryServer::TelemetryServer() : mRingBuffer(kMaxBufferSize) {}
 
 void TelemetryServer::registerServices() {
-    android::sp<CarTelemetryImpl> telemetry = new CarTelemetryImpl(&mRingBuffer);
-    android::sp<CarTelemetryInternalImpl> telemetryInternal =
-            new CarTelemetryInternalImpl(&mRingBuffer);
+    std::shared_ptr<CarTelemetryImpl> telemetry =
+            ndk::SharedRefBase::make<CarTelemetryImpl>(&mRingBuffer);
+    std::shared_ptr<CarTelemetryInternalImpl> telemetryInternal =
+            ndk::SharedRefBase::make<CarTelemetryInternalImpl>(&mRingBuffer);
 
     // Wait for the service manager before starting ICarTelemetry service.
     while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
@@ -63,25 +62,25 @@ void TelemetryServer::registerServices() {
     }
 
     LOG(VERBOSE) << "Registering " << kCarTelemetryServiceName;
-    auto status = android::defaultServiceManager()->addService(String16(kCarTelemetryServiceName),
-                                                               telemetry);
-    if (status != android::OK) {
-        LOG(FATAL) << "Unable to register " << kCarTelemetryServiceName << ", status=" << status;
+    binder_exception_t exception =
+            ::AServiceManager_addService(telemetry->asBinder().get(), kCarTelemetryServiceName);
+    if (exception != ::EX_NONE) {
+        LOG(FATAL) << "Unable to register " << kCarTelemetryServiceName
+                   << ", exception=" << exception;
     }
 
     LOG(VERBOSE) << "Registering " << kCarTelemetryInternalServiceName;
-    status =
-            android::defaultServiceManager()->addService(String16(kCarTelemetryInternalServiceName),
-                                                         telemetryInternal);
-    if (status != android::OK) {
+    exception = ::AServiceManager_addService(telemetryInternal->asBinder().get(),
+                                             kCarTelemetryInternalServiceName);
+    if (exception != ::EX_NONE) {
         LOG(FATAL) << "Unable to register " << kCarTelemetryInternalServiceName
-                   << ", status=" << status;
+                   << ", exception=" << exception;
     }
 }
 
 void TelemetryServer::startAndJoinThreadPool() {
-    android::ProcessState::self()->startThreadPool();  // Starts default 15 binder threads.
-    android::IPCThreadState::self()->joinThreadPool();
+    ::ABinderProcess_startThreadPool();  // Starts the default 15 binder threads.
+    ::ABinderProcess_joinThreadPool();
 }
 
 }  // namespace telemetry

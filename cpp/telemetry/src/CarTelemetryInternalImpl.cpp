@@ -16,81 +16,86 @@
 
 #include "CarTelemetryInternalImpl.h"
 
+#include <aidl/android/automotive/telemetry/internal/BnCarDataListener.h>
+#include <aidl/android/automotive/telemetry/internal/CarDataInternal.h>
+#include <aidl/android/automotive/telemetry/internal/ICarDataListener.h>
 #include <android-base/logging.h>
 #include <android-base/stringprintf.h>
 #include <android-base/strings.h>
-#include <android/automotive/telemetry/internal/BnCarDataListener.h>
-#include <android/automotive/telemetry/internal/CarDataInternal.h>
-#include <android/automotive/telemetry/internal/ICarDataListener.h>
-#include <binder/IPCThreadState.h>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::android::sp;
-using ::android::automotive::telemetry::internal::BnCarDataListener;
-using ::android::automotive::telemetry::internal::CarDataInternal;
-using ::android::automotive::telemetry::internal::ICarDataListener;
+using ::aidl::android::automotive::telemetry::internal::BnCarDataListener;
+using ::aidl::android::automotive::telemetry::internal::CarDataInternal;
+using ::aidl::android::automotive::telemetry::internal::ICarDataListener;
 using ::android::base::StringPrintf;
-using ::android::binder::Status;
 
-CarTelemetryInternalImpl::CarTelemetryInternalImpl(RingBuffer* buffer) : mRingBuffer(buffer) {
-    mBinderDeathRecipient = new BinderDeathRecipient(
-            [this](const wp<android::IBinder>& binder) { listenerBinderDied(binder); });
-}
+CarTelemetryInternalImpl::CarTelemetryInternalImpl(RingBuffer* buffer) :
+      mRingBuffer(buffer),
+      mBinderDeathRecipient(
+              ::AIBinder_DeathRecipient_new(CarTelemetryInternalImpl::listenerBinderDied)) {}
 
-Status CarTelemetryInternalImpl::setListener(const sp<ICarDataListener>& listener) {
+ndk::ScopedAStatus CarTelemetryInternalImpl::setListener(
+        const std::shared_ptr<ICarDataListener>& listener) {
     const std::scoped_lock<std::mutex> lock(mMutex);
 
     if (mCarDataListener != nullptr) {
-        return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE,
-                                         "CarDataListener is already set.");
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(::EX_ILLEGAL_STATE,
+                                                                "ICarDataListener is already set.");
     }
 
-    sp<IBinder> binder = BnCarDataListener::asBinder(listener);
-    status_t status = binder->linkToDeath(mBinderDeathRecipient);
-    if (status != android::OK) {
-        pid_t callingPid = IPCThreadState::self()->getCallingPid();
-        uid_t callingUid = IPCThreadState::self()->getCallingUid();
-        std::string errorStr = StringPrintf("The given callback(pid: %d, uid: %d) is dead",
-                                            callingPid, callingUid);
-        return Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, errorStr.c_str());
+    // If passed a local binder, AIBinder_linkToDeath will do nothing and return
+    // STATUS_INVALID_OPERATION. We ignore this case because we only use local binders in tests
+    // where this is not an error.
+    if (listener->isRemote()) {
+        auto status = ndk::ScopedAStatus::fromStatus(
+                ::AIBinder_linkToDeath(listener->asBinder().get(), mBinderDeathRecipient.get(),
+                                       this));
+        if (!status.isOk()) {
+            return ndk::ScopedAStatus::fromExceptionCodeWithMessage(::EX_ILLEGAL_STATE,
+                                                                    status.getMessage());
+        }
     }
 
     mCarDataListener = listener;
-    return Status::ok();
+    return ndk::ScopedAStatus::ok();
 }
 
-Status CarTelemetryInternalImpl::clearListener() {
+ndk::ScopedAStatus CarTelemetryInternalImpl::clearListener() {
     const std::scoped_lock<std::mutex> lock(mMutex);
     if (mCarDataListener == nullptr) {
-        return Status::ok();
+        LOG(INFO) << __func__ << ": No ICarDataListener, ignoring the call";
+        return ndk::ScopedAStatus::ok();
     }
-    sp<IBinder> binder = BnCarDataListener::asBinder(mCarDataListener);
-    auto status = binder->unlinkToDeath(mBinderDeathRecipient);
-    if (status != android::OK) {
-        LOG(WARNING) << "unlinkToDeath for CarDataListener failed, continuing anyway";
+    auto status = ndk::ScopedAStatus::fromStatus(
+            ::AIBinder_unlinkToDeath(mCarDataListener->asBinder().get(),
+                                     mBinderDeathRecipient.get(), this));
+    if (!status.isOk()) {
+        LOG(WARNING) << __func__
+                     << ": unlinkToDeath failed, continuing anyway: " << status.getMessage();
     }
     mCarDataListener = nullptr;
-    return Status::ok();
+    return ndk::ScopedAStatus::ok();
 }
 
-status_t CarTelemetryInternalImpl::dump(int fd, const android::Vector<android::String16>& args) {
+binder_status_t CarTelemetryInternalImpl::dump(int fd, const char** args, uint32_t numArgs) {
     dprintf(fd, "ICarTelemetryInternal:\n");
     mRingBuffer->dump(fd);
-    return android::OK;
+    return ::STATUS_OK;
 }
 
 // Removes the listener if its binder dies.
-void CarTelemetryInternalImpl::listenerBinderDied(const wp<android::IBinder>& what) {
+void CarTelemetryInternalImpl::listenerBinderDiedImpl() {
+    LOG(WARNING) << "A ICarDataListener died, removing the listener.";
     const std::scoped_lock<std::mutex> lock(mMutex);
-    if (BnCarDataListener::asBinder(mCarDataListener) == what.unsafe_get()) {
-        LOG(WARNING) << "A CarDataListener died, removing the listener.";
-        mCarDataListener = nullptr;
-    } else {
-        LOG(ERROR) << "An unknown CarDataListener died, ignoring";
-    }
+    mCarDataListener = nullptr;
+}
+
+void CarTelemetryInternalImpl::listenerBinderDied(void* cookie) {
+    auto thiz = static_cast<CarTelemetryInternalImpl*>(cookie);
+    thiz->listenerBinderDiedImpl();
 }
 
 }  // namespace telemetry
