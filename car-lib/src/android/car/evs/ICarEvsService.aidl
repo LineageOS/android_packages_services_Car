@@ -16,6 +16,7 @@
 
 package android.car.evs;
 
+import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
 import android.os.IBinder;
@@ -53,7 +54,7 @@ interface ICarEvsService {
     /**
      * Returns a current status of CarEvsService.
      */
-    int getCurrentStatus();
+    CarEvsStatus getCurrentStatus();
 
     /**
      * Returns a generated session token.
