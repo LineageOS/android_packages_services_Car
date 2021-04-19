@@ -20,6 +20,7 @@ import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTIN
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioManager.FLAG_PLAY_SOUND;
 
 import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
@@ -404,23 +405,24 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      */
     @Override
     public void setGroupVolume(int zoneId, int groupId, int index, int flags) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        callbackGroupVolumeChange(zoneId, groupId, flags);
+        // For legacy stream type based volume control
+        if (!mUseDynamicRouting) {
+            mAudioManager.setStreamVolume(
+                    CarAudioDynamicRouting.STREAM_TYPES[groupId], index, flags);
+            return;
+        }
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
-
-            callbackGroupVolumeChange(zoneId, groupId, flags);
-            // For legacy stream type based volume control
-            if (!mUseDynamicRouting) {
-                mAudioManager.setStreamVolume(
-                        CarAudioDynamicRouting.STREAM_TYPES[groupId], index, flags);
-                return;
-            }
-
             CarVolumeGroup group = getCarVolumeGroupLocked(zoneId, groupId);
             group.setCurrentGainIndex(index);
         }
     }
 
     private void callbackGroupVolumeChange(int zoneId, int groupId, int flags) {
+        if (mUseDynamicRouting && !isPlaybackOnVolumeGroupActive(zoneId, groupId)) {
+            flags |= FLAG_PLAY_SOUND;
+        }
         mCarVolumeCallbackHandler.onVolumeGroupChange(zoneId, groupId, flags);
     }
 
