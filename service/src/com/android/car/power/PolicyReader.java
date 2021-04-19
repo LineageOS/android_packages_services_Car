@@ -81,7 +81,7 @@ public final class PolicyReader {
     static final int INVALID_POWER_STATE = -1;
 
     private static final String TAG = CarLog.tagFor(PolicyReader.class);
-    private static final String VENDOR_POLICY_PATH = "/vendor/etc/power_policy.xml";
+    private static final String VENDOR_POLICY_PATH = "/vendor/etc/car/power_policy.xml";
 
     private static final String NAMESPACE = null;
     private static final Set<String> VALID_VERSIONS = new ArraySet<>(Arrays.asList("1.0"));
