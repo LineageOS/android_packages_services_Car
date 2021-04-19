@@ -20,14 +20,13 @@
 #include "BufferedCarData.h"
 
 #include <list>
-#include <mutex>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
 // A ring buffer that holds BufferedCarData. It drops old data if it's full.
-// Thread-safe.
+// Not thread-safe.
 class RingBuffer {
 public:
     // RingBuffer limits the number of elements in the buffer to the given param `sizeLimit`.
@@ -44,8 +43,8 @@ public:
     // Supports moving the data to the RingBuffer.
     void push(BufferedCarData&& data);
 
-    // Returns the oldest element from the ring buffer and removes it from the buffer.
-    BufferedCarData popFront();
+    // Returns the newest element from the ring buffer and removes it from the buffer.
+    BufferedCarData popBack();
 
     // Dumps the current state for dumpsys.
     void dump(int fd) const;
@@ -54,8 +53,6 @@ public:
     int32_t size() const;
 
 private:
-    mutable std::mutex mMutex;  // a mutex for the whole instance
-
     const int32_t mSizeLimit;
 
     // TODO(b/174608802): Improve dropped CarData handling, see ag/13818937 for details.
