@@ -26,6 +26,7 @@ import android.annotation.SystemApi;
 import android.car.annotation.RequiredFeature;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -470,7 +471,7 @@ public final class CarEvsManager extends CarManagerBase {
      * @param buffer {@link android.car.evs.CarEvsBufferDescriptor} to be returned to
      * the EVS service.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public void returnFrameBuffer(@NonNull CarEvsBufferDescriptor buffer) {
         Objects.requireNonNull(buffer);
         try {
@@ -480,60 +481,62 @@ public final class CarEvsManager extends CarManagerBase {
         }
     }
 
-    // TODO(b/180451643): Adds APIs that allows the launchers to request to start EVS service.
     /**
-     * Requests to start {@link #CarEvsServiceType}.
+     * Requests the system to start an activity for {@link #CarEvsServiceType}.
      *
      * @param type A type of EVS service to start.
      * @return {@link #CarEvsError} to tell the result of the request.
+     *         {@link #ERROR_UNAVAILABLE} will be returned if the CarEvsService is not connected to
+     *         the native EVS service or the binder transaction fails.
+     *         {@link #ERROR_BUSY} will be returned if the CarEvsService is in the
+     *         {@link #SERVICE_STATE_REQUESTED} for a different service type.
+     *         If the same service type is running, this will return {@link #ERROR_NONE}.
+     *         {@link #ERROR_NONE} will be returned for all other cases.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @CarEvsError int requestToStartService(@CarEvsServiceType int type) {
+    @RequiresPermission(Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY)
+    public @CarEvsError int startActivity(@CarEvsServiceType int type) {
         try {
-            return mService.requestToStartService(type);
+            return mService.startActivity(type);
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         }
 
-        return CarEvsManager.SERVICE_STATE_UNAVAILABLE;
+        return ERROR_UNAVAILABLE;
     }
 
     /**
-     * Requests to stop {@link #CarEvsServiceType}.
-     *
-     * @return {@link #CarEvsError} to tell the result of the request.
+     * Requests the system to stop a current activity launched via {@link #startActivity}.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @CarEvsError int requestToStopService() {
+    @RequiresPermission(Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY)
+    public void stopActivity() {
         try {
-            return mService.requestToStopService();
+            mService.stopActivity();
         } catch (RemoteException err) {
             handleRemoteExceptionFromCarService(err);
         }
-
-        return CarEvsManager.SERVICE_STATE_UNAVAILABLE;
     }
 
     /**
      * Requests to start a video stream from {@link #CarEvsServiceType}.
      *
      * @param type A type of EVS service.
-     * @param token A session token that is issued to privileged clients.  SystemUI clients must
-     *        obtain this via {@link #generateSessionToken} and pass to prioritize their service
-     *        requests.
+     * @param token A session token that is issued to privileged clients.  SystemUI must obtain this
+     *        token obtain this via {@link #generateSessionToken} and pass it to the activity, to
+     *        prioritize its service requests.
      *        TODO(b/179517136): Defines an Intent extra
-     * @param output {@link android.view.Surface} that should be made available for captured
-     *        image data.  If this is null, then the client is responsible for rendering the view.
-     *        TODO(b/179517132): Renders the preview on this Surface when this is not null.
-     * @param callback {@link #CarEvsStreamCallback} to listen a stream
-     * @param executor {@link java.util.concurrent.Executor} to run a callback
+     * @param callback {@link #CarEvsStreamCallback} to listen to the stream.
+     * @param executor {@link java.util.concurrent.Executor} to run a callback.
      * @return {@link #CarEvsError} to tell the result of the request.
+     *         {@link #ERROR_UNAVAILABLE} will be returned if the CarEvsService is not connected to
+     *         the native EVS service or the binder transaction fails.
+     *         {@link #ERROR_BUSY} will be returned if the CarEvsService is handling a service
+     *         request with a valid session token.
+     *         {@link #ERROR_NONE} for all other cases.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public @CarEvsError int startVideoStream(
             @CarEvsServiceType int type,
             @Nullable IBinder token,
-            @Nullable SurfaceHolder output,
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarEvsStreamCallback callback) {
         if (DBG) {
@@ -562,7 +565,7 @@ public final class CarEvsManager extends CarManagerBase {
     /**
      * Requests to stop a current {@link #CarEvsServiceType}.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
+    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_CAMERA)
     public void stopVideoStream() {
         synchronized (mStreamLock) {
             if (mStreamCallback == null) {
@@ -605,13 +608,37 @@ public final class CarEvsManager extends CarManagerBase {
      *
      * @return {@link IBinder} object as a service session token.
      */
-    @RequiresPermission(Car.PERMISSION_USE_CAR_EVS_SERVICE)
-    public @Nullable IBinder generateSessionToken() {
+    @RequiresPermission(Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY)
+    @NonNull
+    public IBinder generateSessionToken() {
+        IBinder token = null;
         try {
-            return mService.generateSessionToken();
+            token =  mService.generateSessionToken();
+            if (token == null) {
+                token = new Binder();
+            }
         } catch (RemoteException err) {
             Slog.e(TAG, "Failed to generate a session token.");
-            return null;
+            token = new Binder();
+        } finally {
+            return token;
+        }
+
+    }
+
+    /**
+     * Returns whether or not a given service type is supported.
+     *
+     * @param type {@link CarEvsServiceType} to query
+     * @return true if a given service type is available on the system.
+     */
+    @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
+    public boolean isSupported(@CarEvsServiceType int type) {
+        try {
+            return mService.isSupported(type);
+        } catch (RemoteException err) {
+            Slog.e(TAG, "Failed to query a service availability");
+            return false;
         }
     }
 }

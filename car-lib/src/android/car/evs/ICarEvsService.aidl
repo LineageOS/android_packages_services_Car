@@ -62,12 +62,17 @@ interface ICarEvsService {
     IBinder generateSessionToken();
 
     /**
-     * Requests to start a given service type.
+     * Requests to start a camera previewing activity for a given service type.
      */
-    int requestToStartService(int type);
+    int startActivity(int type);
 
     /**
-     * Requests to stop a service currently active.
+     * Requests to stop a camera previewing activity, which was launched via startActivity().
      */
-    int requestToStopService();
+    void stopActivity();
+
+    /**
+     * Returns whether or not a given service type is supported.
+     */
+    boolean isSupported(int type);
 }
