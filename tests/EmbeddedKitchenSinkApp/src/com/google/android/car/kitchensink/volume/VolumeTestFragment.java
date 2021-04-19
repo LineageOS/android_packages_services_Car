@@ -75,16 +75,15 @@ public final class VolumeTestFragment extends Fragment {
                 Log.d(TAG, "onGroupVolumeChanged volume changed for zone "
                         + zoneId);
             }
-            sendFragmentChangedMessage(zoneId);
+            sendFragmentChangedMessage(zoneId, groupId, flags);
         }
 
         @Override
         public void onGroupMuteChanged(int zoneId, int groupId, int flags) {
             if (DEBUG) {
-                Log.d(TAG, "onGroupMuteChanged mute changed for zone "
-                        + zoneId);
+                Log.d(TAG, "onGroupMuteChanged mute changed for zone " + zoneId);
             }
-            sendFragmentChangedMessage(zoneId);
+            sendFragmentChangedMessage(zoneId, groupId, flags);
         }
 
         @Override
@@ -95,13 +94,15 @@ public final class VolumeTestFragment extends Fragment {
             }
         }
 
-        private void sendFragmentChangedMessage(int zoneId) {
+        private void sendFragmentChangedMessage(int zoneId, int groupId, int flags) {
             CarAudioZoneVolumeFragment fragment;
+
             synchronized (mLock) {
                 fragment = mZoneVolumeFragments.get(zoneId);
             }
+
             if (fragment != null) {
-                fragment.sendChangeMessage();
+                fragment.sendVolumeChangedMessage(groupId, flags);
             }
         }
     }
