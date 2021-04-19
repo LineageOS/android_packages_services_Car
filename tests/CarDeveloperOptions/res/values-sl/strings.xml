@@ -3535,10 +3535,10 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Vnesite ime razporeda"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Ime razporeda je že v uporabi"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Dodajte več"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Dodajanje razporeda za dogodek"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Dodajanje časovnega razporeda"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Dodajte razpored za dogodek"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Dodajte časovni razpored"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Izbriši razpored"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Izbira vrste razporeda"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Izberite vrsto razporeda"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Želite izbrisati pravilo »<xliff:g id="RULE">%1$s</xliff:g>«?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Izbriši"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Neznano"</string>

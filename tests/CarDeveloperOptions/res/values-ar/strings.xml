@@ -886,7 +886,7 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> ميغابت في الثانية"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"يريد <xliff:g id="REQUESTER">%s</xliff:g> تفعيل Wi-Fi"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"يريد <xliff:g id="REQUESTER">%s</xliff:g> إيقاف Wi-Fi"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"تحقُّق من رمز بايت لتطبيقات يمكن تصحيحها"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"التحقق من رمز بايت لتطبيقات يمكن تصحيحها"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"تمكين ART من التحقُّق من رمز البايت للتطبيقات القابلة للتصحيح"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"الاتصالات قصيرة المدى (NFC)"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"السماح بتبادل البيانات عندما يلمس الجهاز اللوحي جهازًا آخر"</string>
@@ -1534,7 +1534,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"النظام"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"استكشاف <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"تشمل الملفات الأخرى الملفات المشتركة التي تم حفظها بواسطة التطبيقات والملفات التي تم تنزيلها من مواقع الإنترنت أو عبر البلوتوث وملفات Android وما إلى ذلك. \n\nللاطلاع على المحتوى المرئي على بطاقة <xliff:g id="NAME">^1</xliff:g> هذه، انقر على \"استكشاف\"."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"يتضمّن النظام الملفات المستخدمة لتشغيل إصدار Android <xliff:g id="VERSION">%s</xliff:g>"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"يتضمّن النظام الملفات المستخدمة لتشغيل إصدار Android <xliff:g id="VERSION">%s</xliff:g>."</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"ربما يكون لدى <xliff:g id="USER_0">^1</xliff:g> صور أو موسيقى أو تطبيقات أو بيانات أخرى محفوظة، ويتم استخدام <xliff:g id="SIZE">^2</xliff:g> من مساحة التخزين. \n\nللاطلاع على التفاصيل، يمكنك التبديل إلى <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"إعداد <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"الاستخدام كوحدة تخزين محمولة"</string>
@@ -2184,7 +2184,7 @@
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"استخدام الترجمة"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"متابعة"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"سماعات الأذن الطبية"</string>
-    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"لم يتم توصيل سماعات أذن طبية"</string>
+    <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"لم يتم توصيل سماعات أذن طبية."</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"إضافة سمّاعات الأذن الطبية"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"لإقران سماعات الأذن الطبية، ابحث عن جهازك ثم انقر عليه في الشاشة التالية."</string>
     <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"تأكد من أن سماعات الأذن الطبية في وضع الإقران."</string>
@@ -2682,7 +2682,7 @@
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"وحدة تخزين صلبة"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"وحدة تخزين برمجية فقط"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"لا تتوفر بيانات الاعتماد لهذا المستخدم"</string>
-    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"تم التثبيت للاستخدام بواسطة الشبكة الافتراضية الخاصة (VPN) والتطبيقات"</string>
+    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"تم التثبيت للاستخدام بواسطة الشبكة الافتراضية الخاصة (VPN) والتطبيقات."</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"تم التثبيت للاستخدام بواسطة Wi-Fi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"هل تريد إزالة جميع المحتوى؟"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"تم مسح تخزين بيانات الاعتماد."</string>
@@ -2903,7 +2903,7 @@
     <string name="vpn_not_used" msgid="2889520789132261454">"(غير مستخدم)"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(عدم التحقق من ملكية الخادم)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(الواردة من الخادم)"</string>
-    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"لا يمكن أن يظل هذا النوع من الشبكات الافتراضية الخاصة (VPN) متصلاً في جميع الأوقات"</string>
+    <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"لا يمكن أن يظل هذا النوع من الشبكات الافتراضية الخاصة (VPN) متصلاً في جميع الأوقات."</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"لا تتوافق الشبكة الافتراضية الخاصة (VPN) التي يتم تشغيلها دائمًا إلا مع عناوين الخادم الرقمية"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"يجب تحديد خادم نظام أسماء نطاقات (DNS) للشبكة الافتراضية الخاصة (VPN) التي يتم تشغيلها دائمًا"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"يجب أن تكون عناوين خادم نظام أسماء النطاقات (DNS) رقمية للشبكة الافتراضية الخاصة التي يتم تشغيلها دائمًا"</string>
@@ -2934,7 +2934,7 @@
     <string name="vpn_menu_edit" msgid="8061437799373333593">"تعديل الملف الشخصي"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"حذف الملف الشخصي"</string>
     <string name="vpn_menu_lockdown" msgid="6951452279924808089">"شبكة افتراضية خاصة (VPN) دائمة التفعيل"</string>
-    <string name="vpn_no_vpns_added" msgid="6616183541896197147">"لم تتم إضافة أي شبكات افتراضية خاصة (VPN)"</string>
+    <string name="vpn_no_vpns_added" msgid="6616183541896197147">"لم تتم إضافة أي شبكات افتراضية خاصة (VPN)."</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"متابعة الاتصال بشبكة VPN في جميع الأوقات"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"عدم التوافق مع هذا التطبيق"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"تفعيل التشغيل دائمًا"</string>
@@ -2963,7 +2963,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d شهادات CA"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"تفاصيل بيانات الاعتماد"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"تمت إزالة بيانات الاعتماد: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"لم يتم تثبيت بيانات اعتماد المستخدم"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"لم يتم تثبيت بيانات اعتماد المستخدم."</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"المدقق الإملائي"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"المدقق الإملائي للعمل"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"اكتب كلمة المرور الحالية للنسخة الاحتياطية الكاملة هنا"</string>
@@ -3551,10 +3551,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"بدون مساعِد"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"لم تطلب أي تطبيقات مثبّتة حق الوصول إلى الإشعارات."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"هل تسمح بوصول خدمة <xliff:g id="SERVICE">%1$s</xliff:g> إلى الإشعارات؟"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"سيكون بإمكان \"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g>\" قراءة جميع الإشعارات، بما في ذلك المعلومات الشخصية مثل أسماء جهات الاتصال ونصوص الرسائل التي تتلقّاها. وسيتمكّن كذلك من تعديل الإشعارات أو تجاهلها أو تشغيل أزرار الإجراءات التي تحتوي عليها. \n\nوستتيح هذه الميزة أيضًا للتطبيق إمكانية تفعيل خاصية \"عدم الإزعاج\" أو إيقافها وتغيير الإعدادات ذات الصلة."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"سيكون بإمكان <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> قراءة جميع الإشعارات، بما في ذلك المعلومات الشخصية مثل أسماء جهات الاتصال ونصوص الرسائل التي تتلقّاها. وسيتمكّن كذلك من تعديل الإشعارات أو تجاهلها أو تشغيل أزرار الإجراءات التي تحتوي عليها. \n\nوستتيح هذه الميزة أيضًا للتطبيق إمكانية تفعيل خاصية \"عدم الإزعاج\" أو إيقافها وتغيير الإعدادات ذات الصلة."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"هل تسمح بوصول خدمة <xliff:g id="SERVICE">%1$s</xliff:g> إلى الإشعارات؟"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"سيكون بإمكان \"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>\" قراءة جميع الإشعارات، بما في ذلك المعلومات الشخصية مثل أسماء جهات الاتصال ونصوص الرسائل التي تتلقّاها. وسيتمكّن كذلك من تجاهل الإشعارات أو تشغيل أزرار الإجراءات التي تحتوي عليها. \n\nوتتيح هذه الميزة أيضًا للتطبيق إمكانية تفعيل خاصية \"عدم الإزعاج\" أو إيقافها وتغيير الإعدادات ذات الصلة."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"عند إيقاف الوصول إلى الإشعار لـ <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>، قد يتم إيقاف الوصول إلى \"عدم الإزعاج\" أيضًا."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"سيكون بإمكان <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> قراءة جميع الإشعارات، بما في ذلك المعلومات الشخصية مثل أسماء جهات الاتصال ونصوص الرسائل التي تتلقّاها. وسيتمكّن كذلك من تجاهل الإشعارات أو تشغيل أزرار الإجراءات التي تحتوي عليها.\n\nوتتيح هذه الميزة أيضًا للتطبيق إمكانية تفعيل ميزة \"عدم الإزعاج\" أو إيقافها وتغيير الإعدادات ذات الصلة."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"عند إيقاف الوصول إلى الإشعارات لخدمة <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>، قد يتم إيقاف الوصول إلى ميزة \"عدم الإزعاج\" أيضًا."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"إيقاف"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"إلغاء"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"خدمات مساعد الواقع الافتراضي"</string>
@@ -3587,7 +3587,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> فئة</item>
       <item quantity="one">فئة واحدة (<xliff:g id="COUNT_0">%d</xliff:g>)</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"لم ينشر هذا التطبيق أي إشعارات"</string>
+    <string name="no_channels" msgid="8884254729302501652">"لم ينشر هذا التطبيق أي إشعارات."</string>
     <string name="app_settings_link" msgid="8465287765715790984">"الإعدادات الإضافية في التطبيق"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"مفعّلة لجميع التطبيقات"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">

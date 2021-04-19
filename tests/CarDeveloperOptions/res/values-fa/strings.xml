@@ -231,7 +231,7 @@
     <string name="radio_info_band_mode_label" msgid="9181607879920091762">"انتخاب باند رادیو"</string>
     <string name="radio_info_voice_network_type_label" msgid="3686471589514241007">"نوع شبکه صوتی:"</string>
     <string name="radio_info_data_network_type_label" msgid="5108279335070879015">"نوع شبکه داده:"</string>
-    <string name="radio_info_set_perferred_label" msgid="1447353131819041587">"تنظیم نوع شبکه برگزیده:"</string>
+    <string name="radio_info_set_perferred_label" msgid="1447353131819041587">"تنظیم نوع شبکه ترجیحی:"</string>
     <string name="radio_info_ping_hostname_v4" msgid="4377067049156466290">"پینگ کردن نام میزبان (www.google.com)‏ IPv4:"</string>
     <string name="radio_info_ping_hostname_v6" msgid="3541896405771734445">"پینگ کردن نام میزبان (www.google.com)‏ IPv6:"</string>
     <string name="radio_info_http_client_test" msgid="781411599778629953">"آزمایش کارخواه HTTP:"</string>
@@ -1528,7 +1528,7 @@
     <string name="battery_level_title" msgid="5207775387973771646">"مقدار شارژ باتری"</string>
     <string name="apn_settings" msgid="8130776653826271664">"نام‌های نقاط دستیابی"</string>
     <string name="apn_edit" msgid="4350571070853305357">"ویرایش نقطه دستیابی"</string>
-    <string name="apn_not_set" msgid="5344235604466825691">"تنظیم نشده است"</string>
+    <string name="apn_not_set" msgid="5344235604466825691">"تنظیم نشده"</string>
     <string name="apn_name" msgid="8431432886706852226">"نام"</string>
     <string name="apn_apn" msgid="190519449579357696">"نام نقطه دستیابی"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"پروکسی"</string>
@@ -2708,7 +2708,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"هر تغییری که در حساب‌هایتان در وب بدهید به‌صورت خودکار در تلفنتان کپی می‌شود.\n\nبعضی از حساب‌ها هم ممکن است به‌صورت خودکار هر تغییری را که در تلفنتان می‌دهید در وب کپی کنند. حساب Google به‌این‌صورت کار می‌کند."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"همگام‌سازی خودکار داده غیرفعال شود؟"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"با این کار، در مصرف باتری و استفاده از داده‌ها صرفه‌جویی می‌شود؛ اما برای جمع‌آوری اطلاعات اخیر باید هر حساب را به صورت دستی همگام‌سازی کنید. به‌علاوه در حین به‌روزرسانی‌ها هم اعلان دریافت نمی‌کنید."</string>
-    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"تاریخ تنظیم مجدد چرخهٔ استفاده"</string>
+    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"تاریخ بازنشانی چرخه مصرف داده"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"تاریخ هر ماه:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"تنظیم"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"تنظیم هشدار استفاده داده"</string>
@@ -2742,7 +2742,7 @@
     <string name="vpn_name" msgid="3538818658670774080">"نام"</string>
     <string name="vpn_type" msgid="6389116710008658550">"نوع"</string>
     <string name="vpn_server" msgid="5216559017318406820">"آدرس سرور"</string>
-    <string name="vpn_mppe" msgid="4027660356538086985">"رمزگذاری PPP (MPPE)"</string>
+    <string name="vpn_mppe" msgid="4027660356538086985">"رمزگذاری PPP‏ (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"مورد محرمانه L2TP"</string>
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"شناسه IPSec"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"کلید IPSec از پیش مشترک شده"</string>
@@ -2858,7 +2858,7 @@
     <string name="user_need_lock_message" msgid="3421243467724322311">"قبل از ایجاد یک نمایه محدود، باید یک قفل صفحه را برای محافظت از برنامه‌ها و داده‌های شخصی خود تنظیم کنید."</string>
     <string name="user_set_lock_button" msgid="4660971133148866612">"تنظیم قفل"</string>
     <string name="user_summary_not_set_up" msgid="6436691939044332679">"تنظیم نشده"</string>
-    <string name="user_summary_restricted_not_set_up" msgid="896552290436689508">"تنظیم نشده است - نمایهٔ محدودشده"</string>
+    <string name="user_summary_restricted_not_set_up" msgid="896552290436689508">"تنظیم نشده - نمایهٔ محدودشده"</string>
     <string name="user_summary_managed_profile_not_set_up" msgid="3032986082684011281">"تنظیم نشده - نمایه کاری"</string>
     <string name="user_admin" msgid="805802526361071709">"سرپرست"</string>
     <string name="user_you" msgid="8212549708652717106">"شما (<xliff:g id="NAME">%s</xliff:g>)"</string>
@@ -3075,7 +3075,7 @@
     <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"رده‌بندی، زبان، پیش‌فرض، بلند صحبت کردن، گفتن، صحبت کردن، صحبت، tts، دسترس‌پذیری، صفحه‌خوان، نابینا"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"ساعت، نظامی"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"بازنشانی، بازیابی، کارخانه"</string>
-    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو کردن، حذف، بازیابی، پاک کردن، برداشتن، بازنشانی کارخانه‌ای"</string>
+    <string name="keywords_factory_data_reset" msgid="5865739790670615499">"محو کردن داده، حذف کردن، بازیابی، پاک کردن، برداشتن، بازنشانی کارخانه‌ای"</string>
     <string name="keywords_printing" msgid="8499167841024606451">"چاپگر"</string>
     <string name="keywords_sounds" msgid="9155626618185269312">"بیپ بلندگو، بلندگو، میزان صدا، صامت کردن، سکوت، صدا، موسیقی"</string>
     <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"مزاحم نشوید، قطع، وقفه، توقف"</string>
@@ -3298,7 +3298,7 @@
     <string name="recent_notifications" msgid="8125865995065032049">"اخیراً ارسال‌شده"</string>
     <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"مشاهده همه موارد از ۷ روز پیش"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"پیشرفته"</string>
-    <string name="profile_section_header" msgid="5471479005472037417">"اعلان‌های کار"</string>
+    <string name="profile_section_header" msgid="5471479005472037417">"اعلان‌های کاری"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"اولویت‌دهنده خودکار به اعلان‌‌ها"</string>
     <string name="asst_capability_prioritizer_summary" msgid="3525640645743790796">"بی‌صدا کردن خودکار و تنزل اعلان‌های کمتر مهم"</string>
     <string name="asst_capabilities_actions_replies_title" msgid="3929395108744251338">"کنش‌ها و پاسخ‌های هوشمند"</string>
@@ -4058,8 +4058,8 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> برنامه می‌تواند از داده نامحدود استفاده کند</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"مشاهده محتوای بیشتر"</string>
-    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"واقعاً داده‌های کاربر پاک شود و به رمزگذاری فایل تبدیل شود؟"</string>
-    <string name="button_confirm_convert_fbe" msgid="419832223125147297">"پاک کردن و تبدیل کردن"</string>
+    <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"واقعاً داده‌های کاربر محو شود و به رمزگذاری فایل تبدیل شود؟"</string>
+    <string name="button_confirm_convert_fbe" msgid="419832223125147297">"محو کردن داده و تبدیل"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"بازنشانی محدودکننده سرعت ShortcutManager"</string>
     <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"محدودکننده سرعت ShortcutManager بازنشانی شد"</string>
     <string name="notification_suggestion_title" msgid="3292107671498148560">"کنترل اطلاعات روی صفحه قفل"</string>
@@ -4084,7 +4084,7 @@
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"تنظیمات نمایه کاری"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"جستجوی مخاطب"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"جستجوهای مخاطب توسط سازمانتان برای شناسایی تماس‌گیرندگان و مخاطبین مجاز است"</string>
-    <string name="cross_profile_calendar_title" msgid="2351605904015067145">"تقویم در همه نمایه‌ها"</string>
+    <string name="cross_profile_calendar_title" msgid="2351605904015067145">"تقویم بین‌‌نمایه‌ای"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"نمایش رویدادهای کاری در تقویم شخصی"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"سازمانتان اجازه نمی‌دهد برنامه‌های شخصی به تقویم کاری‌تان دسترسی یابند"</string>
     <plurals name="hours" formatted="false" msgid="135936773984899873">
@@ -4346,32 +4346,32 @@
     <string name="network_query_error" msgid="525635151099480463">"شبکه‌ها پیدا نشدند. دوباره امتحان کنید."</string>
     <string name="forbidden_network" msgid="8493827960968261182">"(ممنوع است)"</string>
     <string name="no_sim_card" msgid="3708682108324275635">"سیم‌کارت موجود نیست"</string>
-    <string name="preferred_network_mode_wcdma_perf_summary" msgid="6899270534608086704">"حالت شبکه برگزیده: WCDMA برگزیده"</string>
-    <string name="preferred_network_mode_gsm_only_summary" msgid="3688217977701592962">"حالت شبکه برگزیده: فقط GSM"</string>
-    <string name="preferred_network_mode_wcdma_only_summary" msgid="745707973728245943">"حالت شبکه برگزیده: فقط WCDMA"</string>
-    <string name="preferred_network_mode_gsm_wcdma_summary" msgid="2806269270679037207">"حالت شبکه برگزیده: GSM / WCDMA"</string>
-    <string name="preferred_network_mode_cdma_summary" msgid="8700743807256101609">"حالت شبکه برگزیده: CDMA"</string>
-    <string name="preferred_network_mode_cdma_evdo_summary" msgid="1372502271750378234">"حالت شبکه برگزیده: CDMA / EvDo"</string>
-    <string name="preferred_network_mode_cdma_only_summary" msgid="8393851880010526170">"حالت شبکه برگزیده: فقط CDMA"</string>
-    <string name="preferred_network_mode_evdo_only_summary" msgid="8148632203339185299">"حالت شبکه برگزیده: فقط EvDo"</string>
-    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary" msgid="3810364557603437209">"حالت شبکه برگزیده: CDMA/EvDo/GSM/WCDMA"</string>
-    <string name="preferred_network_mode_lte_summary" msgid="4281029367896990461">"حالت شبکه برگزیده: LTE"</string>
-    <string name="preferred_network_mode_lte_gsm_wcdma_summary" msgid="149627151786465701">"حالت شبکه برگزیده: GSM/WCDMA/LTE"</string>
-    <string name="preferred_network_mode_lte_cdma_evdo_summary" msgid="2892417308574212352">"حالت شبکه برگزیده: CDMA+LTE/EVDO"</string>
-    <string name="preferred_network_mode_global_summary" msgid="487001671043476488">"حالت شبکه برگزیده: سراسری"</string>
-    <string name="preferred_network_mode_lte_wcdma_summary" msgid="9029884385644299102">"حالت شبکه برگزیده: LTE / WCDMA"</string>
-    <string name="preferred_network_mode_lte_gsm_umts_summary" msgid="6583001637967763033">"حالت شبکه برگزیده: LTE / GSM / UMTS"</string>
-    <string name="preferred_network_mode_lte_cdma_summary" msgid="344294371859765484">"حالت شبکه برگزیده: LTE / CDMA"</string>
-    <string name="preferred_network_mode_tdscdma_summary" msgid="621070193408655408">"حالت شبکه برگزیده: TDSCDMA"</string>
-    <string name="preferred_network_mode_tdscdma_wcdma_summary" msgid="5967498256205109566">"حالت شبکه برگزیده: TDSCDMA / WCDMA"</string>
-    <string name="preferred_network_mode_lte_tdscdma_summary" msgid="218300483814835829">"حالت شبکه برگزیده: LTE / TDSCDMA"</string>
-    <string name="preferred_network_mode_tdscdma_gsm_summary" msgid="318381056810686364">"حالت شبکه برگزیده: TDSCDMA / GSM"</string>
-    <string name="preferred_network_mode_lte_tdscdma_gsm_summary" msgid="4477885365810861079">"حالت شبکه برگزیده: LTE/GSM/TDSCDMA"</string>
-    <string name="preferred_network_mode_tdscdma_gsm_wcdma_summary" msgid="1508391245597120784">"حالت شبکه برگزیده: TDSCDMA/GSM/WCDMA"</string>
-    <string name="preferred_network_mode_lte_tdscdma_wcdma_summary" msgid="5805702212787217683">"حالت شبکه برگزیده: LTE/TDSCDMA/WCDMA"</string>
-    <string name="preferred_network_mode_lte_tdscdma_gsm_wcdma_summary" msgid="2082837743469275809">"حالت شبکه برگزیده: LTE/TDSCDMA/GSM/WCDMA"</string>
-    <string name="preferred_network_mode_tdscdma_cdma_evdo_gsm_wcdma_summary" msgid="4696176070100797082">"حالت شبکه برگزیده: TDSCDMA/CDMA/EvDo/GSM/WCDMA"</string>
-    <string name="preferred_network_mode_lte_tdscdma_cdma_evdo_gsm_wcdma_summary" msgid="4772519343414575091">"حالت شبکه برگزیده: LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA"</string>
+    <string name="preferred_network_mode_wcdma_perf_summary" msgid="6899270534608086704">"حالت شبکه ترجیحی: WCDMA برگزیده"</string>
+    <string name="preferred_network_mode_gsm_only_summary" msgid="3688217977701592962">"حالت شبکه ترجیحی: فقط GSM"</string>
+    <string name="preferred_network_mode_wcdma_only_summary" msgid="745707973728245943">"حالت شبکه ترجیحی: فقط WCDMA"</string>
+    <string name="preferred_network_mode_gsm_wcdma_summary" msgid="2806269270679037207">"حالت شبکه ترجیحی: GSM / WCDMA"</string>
+    <string name="preferred_network_mode_cdma_summary" msgid="8700743807256101609">"حالت شبکه ترجیحی: CDMA"</string>
+    <string name="preferred_network_mode_cdma_evdo_summary" msgid="1372502271750378234">"حالت شبکه ترجیحی: CDMA / EvDo"</string>
+    <string name="preferred_network_mode_cdma_only_summary" msgid="8393851880010526170">"حالت شبکه ترجیحی: فقط CDMA"</string>
+    <string name="preferred_network_mode_evdo_only_summary" msgid="8148632203339185299">"حالت شبکه ترجیحی: فقط EvDo"</string>
+    <string name="preferred_network_mode_cdma_evdo_gsm_wcdma_summary" msgid="3810364557603437209">"حالت شبکه ترجیحی: CDMA/EvDo/GSM/WCDMA"</string>
+    <string name="preferred_network_mode_lte_summary" msgid="4281029367896990461">"حالت شبکه ترجیحی: LTE"</string>
+    <string name="preferred_network_mode_lte_gsm_wcdma_summary" msgid="149627151786465701">"حالت شبکه ترجیحی: GSM/WCDMA/LTE"</string>
+    <string name="preferred_network_mode_lte_cdma_evdo_summary" msgid="2892417308574212352">"حالت شبکه ترجیحی: CDMA+LTE/EVDO"</string>
+    <string name="preferred_network_mode_global_summary" msgid="487001671043476488">"حالت شبکه ترجیحی: سراسری"</string>
+    <string name="preferred_network_mode_lte_wcdma_summary" msgid="9029884385644299102">"حالت شبکه ترجیحی: LTE / WCDMA"</string>
+    <string name="preferred_network_mode_lte_gsm_umts_summary" msgid="6583001637967763033">"حالت شبکه ترجیحی: LTE / GSM / UMTS"</string>
+    <string name="preferred_network_mode_lte_cdma_summary" msgid="344294371859765484">"حالت شبکه ترجیحی: LTE / CDMA"</string>
+    <string name="preferred_network_mode_tdscdma_summary" msgid="621070193408655408">"حالت شبکه ترجیحی: TDSCDMA"</string>
+    <string name="preferred_network_mode_tdscdma_wcdma_summary" msgid="5967498256205109566">"حالت شبکه ترجیحی: TDSCDMA / WCDMA"</string>
+    <string name="preferred_network_mode_lte_tdscdma_summary" msgid="218300483814835829">"حالت شبکه ترجیحی: LTE / TDSCDMA"</string>
+    <string name="preferred_network_mode_tdscdma_gsm_summary" msgid="318381056810686364">"حالت شبکه ترجیحی: TDSCDMA / GSM"</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_summary" msgid="4477885365810861079">"حالت شبکه ترجیحی: LTE/GSM/TDSCDMA"</string>
+    <string name="preferred_network_mode_tdscdma_gsm_wcdma_summary" msgid="1508391245597120784">"حالت شبکه ترجیحی: TDSCDMA/GSM/WCDMA"</string>
+    <string name="preferred_network_mode_lte_tdscdma_wcdma_summary" msgid="5805702212787217683">"حالت شبکه ترجیحی: LTE/TDSCDMA/WCDMA"</string>
+    <string name="preferred_network_mode_lte_tdscdma_gsm_wcdma_summary" msgid="2082837743469275809">"حالت شبکه ترجیحی: LTE/TDSCDMA/GSM/WCDMA"</string>
+    <string name="preferred_network_mode_tdscdma_cdma_evdo_gsm_wcdma_summary" msgid="4696176070100797082">"حالت شبکه ترجیحی: TDSCDMA/CDMA/EvDo/GSM/WCDMA"</string>
+    <string name="preferred_network_mode_lte_tdscdma_cdma_evdo_gsm_wcdma_summary" msgid="4772519343414575091">"حالت شبکه ترجیحی: LTE/TDSCDMA/CDMA/EvDo/GSM/WCDMA"</string>
     <string name="network_lte" msgid="7625153311926730667">"LTE (توصیه می‌شود)"</string>
     <string name="network_4G" msgid="8031294930350019608">"4G (توصیه شده)"</string>
     <string name="network_global" msgid="2208957917962600214">"جهانی"</string>
@@ -4423,9 +4423,9 @@
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"درحال پاک‌سازی سیم‌کارت…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"سیم‌کارت پاک‌سازی نشد"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"به‌دلیل بروز خطا، این سیم‌کارت پاک‌سازی نشد.\n\nدستگاه را بازراه‌اندازی کنید و دوباره امتحان کنید."</string>
-    <string name="preferred_network_mode_title" msgid="8324526359482124770">"نوع شبکه برگزیده"</string>
+    <string name="preferred_network_mode_title" msgid="8324526359482124770">"نوع شبکه ترجیحی"</string>
     <string name="preferred_network_mode_summary" msgid="388957154320426335">"تغییر حالت عملکرد شبکه"</string>
-    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"نوع شبکه برگزیده"</string>
+    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"نوع شبکه ترجیحی"</string>
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"شرکت مخابراتی"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"نسخه تنظیمات"</string>
     <string name="call_category" msgid="3418535202893644015">"درحال تماس"</string>

@@ -4060,13 +4060,13 @@
     <string name="special_access_more" msgid="7086690625048471400">"ਹੋਰ ਦੇਖੋ"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"ਕੀ ਸੱਚਮੁੱਚ ਵਰਤੋਂਕਾਰ  ਡਾਟੇ  ਨੂੰ ਮਿਟਾਉਣਾ ਅਤੇ ਫ਼ਾਈਲ ਇਨਕ੍ਰਿਪਸ਼ਨ ਵਿੱਚ ਤਬਦੀਲ ਕਰਨਾ ਹੈ?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"ਮਿਟਾਓ ਅਤੇ ਰੁਪਾਂਤਰਣ ਕਰੋ"</string>
-    <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"ShortcutManager ਰੇਟ-ਲਿਮਟਿੰਗ ਰੀਸੈੱਟ ਕਰੋ"</string>
+    <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"ShortcutManager ਰੇਟ-ਲਿਮਿਟਿੰਗ ਰੀਸੈੱਟ ਕਰੋ"</string>
     <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"ShortcutManager ਰੇਟ-ਲਿਮਟਿੰਗ ਰੀਸੈੱਟ ਕੀਤੀ ਜਾ ਚੁੱਕੀ ਹੈ"</string>
     <string name="notification_suggestion_title" msgid="3292107671498148560">" ਲਾਕ  ਸਕ੍ਰੀਨ \'ਤੇ ਜਾਣਕਾਰੀ ਨੂੰ ਕੰਟਰੋਲ ਕਰੋ"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"ਸੂਚਨਾ ਸਮੱਗਰੀ ਨੂੰ ਦਿਖਾਓ ਜਾਂ ਲੁਕਾਓ"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"ਸਭ"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"ਨੁਕਤੇ ਅਤੇ ਸਹਾਇਤਾ"</string>
-    <string name="developer_smallest_width" msgid="2603134476228805075">"ਸਭ ਤੋਂ ਘੱਟ ਚੁੜਾਈ"</string>
+    <string name="developer_smallest_width" msgid="2603134476228805075">"ਸਭ ਤੋਂ ਘੱਟ ਚੌੜਾਈ"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"ਕਿਸੇ ਵੀ ਸਥਾਪਤ ਐਪ ਨੇ ਪ੍ਰੀਮੀਅਮ SMS ਪਹੁੰਚ ਦੀ ਬੇਨਤੀ ਨਹੀਂ ਕੀਤੀ"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"ਪ੍ਰੀਮੀਅਮ SMS ਦਾ ਤੁਹਾਡੇ ਤੋਂ ਖਰਚਾ ਲਿਆ ਜਾ ਸਕਦਾ ਹੈ ਅਤੇ ਤੁਹਾਡੇ ਕੈਰੀਅਰ ਬਿੱਲਾਂ ਵਿੱਚ ਵਾਧਾ ਹੋ ਜਾਵੇਗਾ। ਜੇਕਰ ਤੁਸੀਂ ਕਿਸੇ ਐਪ ਲਈ ਇਜਾਜ਼ਤ ਨੂੰ ਯੋਗ ਬਣਾਉਂਦੇ ਹੋ, ਤਾਂ ਤੁਸੀਂ ਉਸ ਐਪ ਦੀ ਵਰਤੋਂ ਨਾਲ ਪ੍ਰੀਮੀਅਮ SMS ਭੇਜਣ ਦੇ ਯੋਗ ਹੋ ਜਾਵੋਗੇ।"</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"ਪ੍ਰੀਮੀਅਮ SMS ਤੱਕ ਪਹੁੰਚ"</string>
@@ -4258,7 +4258,7 @@
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"ਲੌਗ ਕੀਤੀ ਜਾਣਕਾਰੀ ਦਾ ਪੱਧਰ"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"ਹਰ ਸੈਸ਼ਨ ਮੁਤਾਬਕ ਵੱਧ ਤੋਂ ਵੱਧ ਬੇਨਤੀਆਂ"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"ਵੱਧ-ਤੋਂ-ਵੱਧ ਦਿਖਣਯੋਗ ਡਾਟਾਸੈੱਟ"</string>
-    <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ਪੂਰਵ-ਨਿਰਧਾਰਤ ਮੁੱਲਾਂ \'ਤੇ ਰੀਸੈੱਟ ਕਰੋ"</string>
+    <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ਪੂਰਵ-ਨਿਰਧਾਰਿਤ ਮੁੱਲਾਂ \'ਤੇ ਰੀਸੈੱਟ ਕਰੋ"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"ਆਟੋਫਿਲ ਵਿਕਾਸਕਾਰ ਵਿਕਲਪਾਂ ਨੂੰ ਰੀਸੈੱਟ ਕਰ ਦਿੱਤਾ ਹੈ"</string>
     <string name="device_theme" msgid="8992291311481135893">"ਡੀਵਾਈਸ ਥੀਮ"</string>
     <string name="default_theme" msgid="5986996377385956138">"ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
@@ -4466,8 +4466,8 @@
     <string name="internet_connectivity_panel_title" msgid="341712994620215750">"ਇੰਟਰਨੈੱਟ ਕਨੈਕਟੀਵਿਟੀ"</string>
     <string name="volume_connectivity_panel_title" msgid="4998755371496690971">"ਅਵਾਜ਼"</string>
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"ਹਵਾਈ-ਜਹਾਜ਼ ਮੋਡ ਚਾਲੂ ਹੋਣ ਵੇਲੇ ਉਪਲਬਧ ਨਹੀਂ ਹੈ"</string>
-    <string name="force_desktop_mode" msgid="6973100177551040740">"ਜ਼ਬਰਦਸਤੀ ਡੈਸਕਟਾਪ ਮੋਡ ਵਿੱਚ ਲਿਆਓ"</string>
-    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"ਸੈਕੰਡਰੀ ਡਿਸਪਲੇਆਂ \'ਤੇ ਜ਼ਬਰਦਸਤੀ ਪ੍ਰਯੋਗਮਈ ਡੈਸਕਟਾਪ ਮੋਡ"</string>
+    <string name="force_desktop_mode" msgid="6973100177551040740">"ਡੈਸਕਟਾਪ ਮੋਡ ਵਿੱਚ ਜ਼ਬਰਦਸਤੀ ਲਾਗੂ ਕਰੋ"</string>
+    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"ਸੈਕੰਡਰੀ ਡਿਸਪਲੇ \'ਤੇ ਪ੍ਰਯੋਗਮਈ ਡੈਸਕਟਾਪ ਮੋਡ ਜ਼ਬਰਦਸਤੀ ਲਾਗੂ ਕਰੋ"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"ਜ਼ਬਰਦਸਤੀ ਗੂੜ੍ਹਾ ਮੋਡ ਓਵਰਰਾਈਡ ਕਰੋ"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"ਜ਼ਬਰਦਸਤੀ ਨਾਲ ਗੂੜ੍ਹਾ ਮੋਡ ਲਾਗੂ ਕਰਨ ਵਾਲੀ ਵਿਸ਼ੇਸ਼ਤਾ ਨੂੰ ਹਮੇਸ਼ਾਂ-ਚਾਲੂ ਰੱਖਣ ਲਈ ਓਵਰਰਾਈਡ ਕਰਦੀ ਹੈ"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"ਪਰਦੇਦਾਰੀ"</string>

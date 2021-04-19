@@ -180,7 +180,7 @@
     <string name="connected_device_saved_title" msgid="8270136893488475163">"ସେଭ୍‌ ହୋଇଥିବା ଡିଭାଇସ୍‌ଗୁଡିକ"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"ପେୟାର୍ କରିବା ପାଇଁ ବ୍ଲୁଟୂଥ୍‍ ଚାଲୁ ହେବ"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"ସଂଯୋଗ ପସନ୍ଦଗୁଡ଼ିକ"</string>
-    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"ପୂର୍ବରୁ ଯୋଡ଼ିହୋ‌ଇଥିବା ଡିଭାଇସ୍"</string>
+    <string name="connected_device_previously_connected_title" msgid="225918223397410428">"ପୂର୍ବରୁ ସଂଯୁକ୍ତ ହୋ‌ଇଥିବା ଡିଭାଇସଗୁଡ଼ିକ"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"ପୂର୍ବରୁ କନେକ୍ଟ ହୋ‍ଇଛି"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ବ୍ଲୁ-ଟୁଥ୍‍ ଅନ୍‌ କରାଗଲା"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"ସବୁ ଦେଖନ୍ତୁ"</string>
@@ -330,7 +330,7 @@
     <string name="date_time_set_time_title" msgid="7116850506333406367">"ସମୟ"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"ସମୟ ଫର୍ମାଟ୍"</string>
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"ଟାଇମ୍‌ ଜୋନ୍‌"</string>
-    <string name="date_time_set_timezone" msgid="2763491683136582165">"ସମୟ କ୍ଷେତ୍ର ବାଛନ୍ତୁ"</string>
+    <string name="date_time_set_timezone" msgid="2763491683136582165">"ଟାଇମ୍ ଜୋନ୍ ଚୟନ କରନ୍ତୁ"</string>
     <string name="date_time_set_date_title" msgid="8250501639251422132">"ତାରିଖ"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"ଅଞ୍ଚଳ ସର୍ଚ୍ଚ କରନ୍ତୁ"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"ଅଞ୍ଚଳ:"</string>
@@ -1527,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"ବ୍ୟାଟେରୀ ସ୍ଥିତି"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"ବ୍ୟାଟେରୀ ସ୍ତର"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"ଆକ୍ସେସ ପଏଣ୍ଟ ଏଡିଟ"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"ଆକ୍ସେସ୍‌ ପଏଣ୍ଟକୁ ଏଡିଟ୍ କରନ୍ତୁ"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"ସେଟ୍ ହୋଇନାହିଁ"</string>
     <string name="apn_name" msgid="8431432886706852226">"ନାମ"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
@@ -2532,13 +2532,13 @@
     <string name="trusted_credentials" msgid="6989242522455395200">"ବିଶ୍ୱସନୀୟ କ୍ରେଡେନସିଆଲ୍‌"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"ବିଶ୍ୱସନୀୟ CA ସର୍ଟିଫିକେଟ୍‌ ଦେଖାନ୍ତୁ"</string>
     <string name="user_credentials" msgid="8365731467650306757">"ୟୁଜର୍ କ୍ରେଡେନସିଆଲ୍"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"ସେଭ୍‌ ହୋଇଥିବା ତଥ୍ୟ ଦେଖନ୍ତୁ ଓ ବଦଳାନ୍ତୁ"</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"ଷ୍ଟୋର୍ କରାଯାଇଥିବା କ୍ରେଡେନ୍ସିଆଲକୁ ଦେଖି ଏହାକୁ ବଦଳାନ୍ତୁ"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"ଉନ୍ନତ"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"ଷ୍ଟୋରେଜ୍‌ ପ୍ରକାର"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"ହାର୍ଡୱେର୍‌-ସମର୍ଥିତ"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"ସଫ୍ଟୱେୟାର କେବଳ"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"ଏହି ଉପଯୋଗକର୍ତ୍ତାଙ୍କର ତଥ୍ୟ ଉପଲବ୍ଧ ନାହିଁ"</string>
-    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN ଏବଂ ଆପସ୍‌ ପାଇଁ ସଂସ୍ଥାପିତ"</string>
+    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN ଏବଂ ଆପଗୁଡ଼ିକ‌ ପାଇଁ ଇନଷ୍ଟଲ୍ କରାଯାଇଛି"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"ୱାଇ-ଫାଇ ପାଇଁ ଇନ୍‌ଷ୍ଟଲ୍‌ ହୋଇଛି"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"ସବୁକିଛି ହଟାଇଦେବେ?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"ତଥ୍ୟ ଷ୍ଟୋରେଜ୍‌କୁ ଲିଭାଇଦିଆଗଲା।"</string>
@@ -2819,7 +2819,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d CA ସର୍ଟିଫିକେଟ୍‌"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"ତଥ୍ୟ ବିବରଣୀ"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"ଅପସାରଣ ହୋଇଥିବା କ୍ରେଡେନ୍‌ଶିଆଲ୍‌: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"ୟୁଜର୍‌ଙ୍କର କୌଣସି ତଥ୍ୟ ଇନଷ୍ଟଲ୍‌ ହୋଇନାହିଁ"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"କୌଣସି ଉପଯୋଗକର୍ତ୍ତା କ୍ରେଡେନ୍ସିଆଲ୍ ଇନଷ୍ଟଲ୍‌ କରାଯାଇନାହିଁ"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"ବନାନ ଯାଞ୍ଚକାରୀ"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"କାର୍ଯ୍ୟ ପାଇଁ ବନାନ ଯାଞ୍ଚକାରୀ"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"ନିଜର ବର୍ତ୍ତମାନର ସମ୍ପୂର୍ଣ୍ଣ ବ୍ୟାକ୍‌ଅପ୍‌ ପାସ୍‌ୱର୍ଡକୁ ଏଠାରେ ଲେଖନ୍ତୁ"</string>
@@ -2886,7 +2886,7 @@
     <string name="user_new_user_name" msgid="3880395219777884838">"ନୂଆ ୟୁଜର୍"</string>
     <string name="user_new_profile_name" msgid="3074939718101489937">"ନୂଆ ପ୍ରୋଫାଇଲ୍‌"</string>
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"ନିଜକୁ ଡିଲିଟ୍‌ କରିବେ?"</string>
-    <string name="user_confirm_remove_title" msgid="1034498514019462084">"ଏହି ୟୁଜରଙ୍କୁ ଡିଲିଟ୍‍ କରିବେ?"</string>
+    <string name="user_confirm_remove_title" msgid="1034498514019462084">"ଏଇ ୟୁଜରଙ୍କୁ ଡିଲିଟ୍ କରିବେ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"ଏହି ପ୍ରୋଫାଇଲ୍‌କୁ କାଢ଼ିଦେବେ?"</string>
     <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"ପ୍ରୋଫାଇଲ୍‌କୁ କାଢ଼ିଦେବେ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"ଏହି ଟାବ୍‌ଲେଟ୍‌ରେ ଥିବା ଆପଣଙ୍କର ସ୍ଥାନ ଓ ଡାଟା ହରାଇବେ। ଆପଣ ଏହିଗୁଡ଼ିକୁ ପୁଣି ଫେରି ପାଇବେ ନାହିଁ।"</string>
@@ -2898,7 +2898,7 @@
     <string name="user_delete_user_description" msgid="3627684990761268859">"ଉପଯୋଗକର୍ତ୍ତାଙ୍କୁ ଡିଲିଟ୍‌ କରନ୍ତୁ"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"ଡିଲିଟ୍‌ କରନ୍ତୁ"</string>
     <string name="user_guest" msgid="6226240869459683235">"ଅତିଥି"</string>
-    <string name="user_exit_guest_title" msgid="7279886200373071797">"ଅତିଥି ଅପସାରଣ କରନ୍ତୁ"</string>
+    <string name="user_exit_guest_title" msgid="7279886200373071797">"ଅତିଥିଙ୍କୁ କାଢ଼ି ଦିଅନ୍ତୁ"</string>
     <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"ଅତିଥିଙ୍କୁ କାଢ଼ିଦେବେ?"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"ଏହି ସେସନ୍‌ର ସମସ୍ତ ଆପ୍‌ ଏବଂ ଡାଟା ଡିଲିଟ୍‍ ହୋଇଯିବ।"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"କାଢିଦିଅନ୍ତୁ"</string>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ଛାୟା କିମ୍ବା ପେରିଫେରିଆଲ୍‌ ଡିଭାଇସ୍‌ରେ କଦାପି ବିଜ୍ଞପ୍ତି ଦେଖାନ୍ତୁ ନାହିଁ"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ର ଅନୁମତି ଦିଅନ୍ତୁ"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"ବିଜ୍ଞପ୍ତି ଡଟ୍‌ ଦେଖାନ୍ତୁ"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"ବିରକ୍ତ କରନାହିଁ ଓଭରରାଇଡ"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\"କୁ ଓଭରରାଇଡ୍ କରନ୍ତୁ"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"\'ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\' ଚାଲୁଥିବା ବେଳେ ଏହି ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକର ବାଧା ଦେବା ପ୍ରକ୍ରିୟାକୁ ଜାରି ରଖନ୍ତୁ"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"ଲକ୍ ସ୍କ୍ରୀନ୍ ଉପରେ"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"ଅବରୋଧିତ"</string>
@@ -3459,7 +3459,7 @@
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"ଯେଉଁଠାରେ ଉତ୍ତର ହେଉଛି <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"ଯେକୌଣସି କ୍ୟାଲେଣ୍ଡର୍‌"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"ଯେଉଁଠାରେ ଉତ୍ତର ହେଉଛି"</string>
-    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"ହଁ, ବୋଧହୁଏ କିମ୍ୱା ଉତ୍ତର ଦିଆଯାଇନାହିଁ"</string>
+    <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"ହଁ, ହୋଇପାରେ କିମ୍ୱା ଉତ୍ତର ଦିଆଯାଇନାହିଁ"</string>
     <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"ହଁ କିମ୍ୱା ହୋଇପାରେ"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"ହଁ"</string>
     <string name="zen_mode_rule_not_found_text" msgid="6553855397424553685">"ନିୟମ ମିଳିଲା ନାହିଁ"</string>
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"ଅପ୍ଟିମାଇଜିଂ ବ୍ୟାଟେରୀ ବ୍ୟବହାର"</string>
     <string name="high_power_system" msgid="739584574711292753">"ବ୍ୟାଟେରୀ ଅପ୍ଟିମାଇଜେସନ୍ ଉପଲବ୍ଧ ନାହିଁ"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ବ୍ୟାଟେରୀ ଅପ୍ଟିମାଇଜେସନ୍ ଲାଗୁ କରନ୍ତୁ ନାହିଁ। ଏହା ଆପଣଙ୍କ ବ୍ୟାଟେରୀକୁ ଖୁବ ଶୀଘ୍ର ସାରିଦେଇପାରେ।"</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"ଆପ୍‌ଟି ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡରେ ସର୍ବଦା ଚାଲୁଥିବ କି?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"ଆପ‌ଟିକୁ ପୃଷ୍ଠପଟରେ ସର୍ବଦା ଚାଲୁ ରହିବାକୁ ଦେବେ କି?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> କୁ ପୃଷ୍ଠପଟରେ ଚାଲିବାକୁ ଦେବା ଦ୍ୱାରା ବ୍ୟାଟେରୀ ଜୀବନ ହ୍ରାସ‌ ହୋଇପାରେ। \n\nଆପଣ ଏହାକୁ ପରେ ସେଟିଂସ୍ &gt; ଆପ୍‌ଗୁଡ଼ିକ ଓ ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକରେ ବଦଳାଇପାରିବେ।"</string>
     <string name="battery_summary" msgid="4345690800899981339">"ଗତଥର ସମ୍ପୂର୍ଣ୍ଣ ଚାର୍ଜ ହେବା ପରଠାରୁ <xliff:g id="PERCENTAGE">%1$s</xliff:g> ବ୍ୟବହୃତ"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"ପାୱର ପରିଚାଳନା"</string>
