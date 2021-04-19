@@ -25,7 +25,8 @@
 
     <application android:label="@string/app_name"
             android:icon="@drawable/rearview"
-            android:hardwareAccelerated="true">
+            android:hardwareAccelerated="true"
+            android:extractNativeLibs="false">
 
         <activity android:name=".CarEvsCameraPreviewActivity"
                 android:exported="true"
