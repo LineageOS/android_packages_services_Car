@@ -830,8 +830,19 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public boolean isSupported(@CarEvsServiceType int type) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
 
-        // TODO(b/183141701): Please implement this method.
-        return false;
+        switch (type) {
+            case CarEvsManager.SERVICE_TYPE_REARVIEW:
+                // We store a handle to the native EVS service in mNativeEvsServiceObj variable.
+                return mNativeEvsServiceObj != 0;
+
+            case CarEvsManager.SERVICE_TYPE_SURROUNDVIEW:
+                // TODO(b/179029031): Implements necessary logic when Surround View service is
+                // integrated.
+                return false;
+
+            default:
+                throw new IllegalArgumentException("Unknown service type = " + type);
+        }
     }
 
     /** Handles client disconnections; may request to stop a video stream. */
