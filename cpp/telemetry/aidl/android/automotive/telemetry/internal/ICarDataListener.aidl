@@ -21,15 +21,17 @@ import android.automotive.telemetry.internal.CarDataInternal;
 /**
  * Listener for {@code ICarTelemetryInternal#registerListener}.
  */
-oneway interface ICarDataListener {
+interface ICarDataListener {
   /**
-   * Called by ICarTelemetry when the data are available to be consumed. ICarTelemetry removes
-   * the delivered data when the callback succeeds.
+   * Called by native cartelemetryd when the data are available to be consumed. The service removes
+   * the delivered data from its buffer when the callback succeeds. If the callback fails, it
+   * immediately gives up and drops the data too and sends the next chunk of the available data.
    *
    * <p>If the collected data is too large, it will send only chunk of the data, and the callback
    * will be fired again.
    *
    * @param dataList the pushed data.
+   * @throws IllegalStateException if data cannot be received.
    */
   void onCarDataReceived(in CarDataInternal[] dataList);
 }
