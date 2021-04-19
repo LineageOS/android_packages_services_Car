@@ -61,7 +61,7 @@
   </string-array>
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"सानो"</item>
-    <item msgid="591935967183159581">"पूर्वनिर्धारित"</item>
+    <item msgid="591935967183159581">"डिफल्ट"</item>
     <item msgid="1714184661981538355">"ठुलो"</item>
     <item msgid="6195563047686707484">"सबैभन्दा ठुलो"</item>
   </string-array>
@@ -85,7 +85,7 @@
     <item msgid="8058143476674427024">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>सँग जडान हुँदै..."</item>
     <item msgid="7547609081339573756">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>का साथ प्रमाणीकरण गर्दै..."</item>
     <item msgid="5145158315060185414">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट IP एड्रेस प्राप्त गर्दै..."</item>
-    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> मा जोडिएको छ"</item>
+    <item msgid="3283243151651124831">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g> मा कनेक्ट भएको छ छ"</item>
     <item msgid="6600156231416890902">"निलम्बित"</item>
     <item msgid="4133290864821295785">"<xliff:g id="NETWORK_NAME">%1$s</xliff:g>बाट विच्छेदन गर्दै..."</item>
     <item msgid="3980154971187953257">"जडान विच्छेद भयो"</item>
@@ -114,7 +114,7 @@
     <item msgid="5985477119043628504">"कहिल्यै समय सकिँदैन"</item>
   </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
-    <item msgid="3800257971619063588">"प्रणालीको पूर्वनिर्धारित सेटिङ प्रयोग गर्नुहोस्: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
+    <item msgid="3800257971619063588">"प्रणालीको डिफल्ट सेटिङ प्रयोग गर्नुहोस्: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
     <item msgid="8572230405241423895">"1"</item>
     <item msgid="5318020123964299318">"२"</item>
     <item msgid="6429260054182662738">"३"</item>
@@ -359,7 +359,7 @@
     <item msgid="8305084671259331134">"लामो"</item>
   </string-array>
   <string-array name="captioning_typeface_selector_titles">
-    <item msgid="6928465258504250174">"पूर्वनिर्धारित"</item>
+    <item msgid="6928465258504250174">"डिफल्ट"</item>
     <item msgid="4147246073737933622">"Sans-serif"</item>
     <item msgid="3117680749167407907">"Sans-serif condensed"</item>
     <item msgid="6529379119163117545">"सन्स-सेरिफ मोनोस्पेस"</item>
@@ -377,7 +377,7 @@
     <item msgid="218913203203160606">"ज्यादै ठुलो"</item>
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
-    <item msgid="3865198759294188069">"पूर्वनिर्धारित"</item>
+    <item msgid="3865198759294188069">"डिफल्ट"</item>
     <item msgid="6488643537808152001">"कुनै पनि होइन"</item>
     <item msgid="552332815156010137">"रूपरेखा"</item>
     <item msgid="7187891159463789272">"छाँया राख्नुस्"</item>
@@ -414,7 +414,7 @@
     <item msgid="5408915841694583740">"जडान विच्छेद भयो"</item>
     <item msgid="8754480102834556765">"सुरुवात भैरहेको छ..."</item>
     <item msgid="3351334355574270250">"जडान हुँदै..."</item>
-    <item msgid="8303882153995748352">"कनेक्ट गरियो"</item>
+    <item msgid="8303882153995748352">"कनेक्ट गरिएको छ"</item>
     <item msgid="9135049670787351881">"समय सकियो"</item>
     <item msgid="2124868417182583926">"असफल"</item>
   </string-array>
