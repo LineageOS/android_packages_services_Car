@@ -24,71 +24,35 @@ import android.car.Car.CarServiceLifecycleListener;
 import android.car.CarNotConnectedException;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
-import android.content.ComponentName;
 import android.content.Context;
-import android.content.Intent;
-import android.content.ServiceConnection;
 import android.hardware.display.DisplayManager;
 import android.hardware.HardwareBuffer;
-import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.Color;
-import android.graphics.ColorMatrix;
-import android.graphics.ColorMatrixColorFilter;
-import android.graphics.Matrix;
-import android.graphics.Paint;
-import android.graphics.Point;
-import android.graphics.SurfaceTexture;
-import android.os.IBinder;
 import android.os.Bundle;
-import android.os.Handler;
-import android.os.HandlerThread;
 import android.util.Log;
 import android.view.Display;
-import android.view.Surface;
-import android.view.TextureView;
 import android.view.View;
-import android.view.Window;
-import android.view.WindowInsets;
-import android.view.WindowInsetsController;
-import android.widget.SeekBar;
 
 import java.util.ArrayList;
-import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
-import java.util.concurrent.TimeUnit;
 
 public class CarEvsCameraPreviewActivity extends Activity {
     private static final String TAG = CarEvsCameraPreviewActivity.class.getSimpleName();
-    private static final int WAIT_FOR_SURFACE_READY_IN_MS = 100;
-    private static final int INITIAL_COLOR_SATURATION_LEVEL = 50;
 
-    /** Callback executor */
-    private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
-
-    /** Target surface ready signal */
-    private final CountDownLatch mSurfaceReadySignal = new CountDownLatch(1);
-
-    /** Queue containing received frame buffers */
+    /** Buffer queue to store references of received frames */
     private final ArrayList<CarEvsBufferDescriptor> mBufferQueue = new ArrayList<>();
 
     private final Object mLock = new Object();
 
+    /** Callback executors */
+    private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
+    private final ExecutorService mListenerExecutor = Executors.newFixedThreadPool(1);
+
+    /** GL backed surface view to render the camera preview */
+    private CarEvsCameraGLSurfaceView mView;
+
     /** Display manager to monitor the display's state */
     private DisplayManager mDisplayManager;
-
-    /** Surface the camera to be drawn */
-    private Surface mPreviewSurface;
-
-    /** The background thread that draws the camera preview */
-    private HandlerThread mBackgroundThread;
-
-    /** The handler for the above background thread. */
-    private Handler mBackgroundHandler;
-
-    /** Color saturation adjustment */
-    private int mSaturation;
 
     /** Current display state */
     private int mDisplayState = Display.STATE_OFF;
@@ -101,36 +65,86 @@ public class CarEvsCameraPreviewActivity extends Activity {
 
     private Car mCar;
     private CarEvsManager mEvsManager;
-    private TextureView mTextureView;
 
-    private final TextureView.SurfaceTextureListener mTextureListener =
-            new TextureView.SurfaceTextureListener() {
+    /** Callback to listen to EVS stream */
+    private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
+            new CarEvsManager.CarEvsStreamCallback() {
 
-                @Override
-                public void onSurfaceTextureAvailable(
-                        SurfaceTexture surfaceTexture, int width, int height) {
+        @Override
+        public void onStreamEvent(int event) {
+            // This reference implementation only monitors a stream event without any action.
+            Log.i(TAG, "Received: " + event);
+        }
 
-                    mPreviewSurface = new Surface(surfaceTexture);
-                    mSurfaceReadySignal.countDown();
+        @Override
+        public void onNewFrame(CarEvsBufferDescriptor buffer) {
+            // Enqueues a new frame and posts a rendering job
+            synchronized (mBufferQueue) {
+                mBufferQueue.add(buffer);
+            }
+        }
+    };
+
+    /** CarEvsService status change listener */
+    private final CarEvsManager.CarEvsStatusListener mStatusListener = (status) -> {
+        if (status.getServiceType() != CarEvsManager.SERVICE_TYPE_REARVIEW) {
+            Log.e(TAG, "Unexpected service type: " + status.getServiceType());
+            return;
+        }
+
+        switch (status.getState()) {
+            case CarEvsManager.SERVICE_STATE_REQUESTED:
+                // Upon this state transition, we request to start a video stream
+                // from the rearview service.
+                // TODO(b/179517136): Acquires a token from Intent and passes it with below request.
+                synchronized (mLock) {
+                    handleVideoStreamLocked();
+                }
+                break;
+
+            case CarEvsManager.SERVICE_STATE_ACTIVE:
+                Log.d(TAG, "Video stream started, type = " + status.getServiceType());
+                break;
+
+            case CarEvsManager.SERVICE_STATE_UNAVAILABLE:
+                // CarEvsManager lost a native EVS service.
+                Log.d(TAG, "We've lost a connection to the EVS service.");
+
+                // Drop all buffer references safely
+                synchronized (mBufferQueue) {
+                    mBufferQueue.clear();
                 }
 
-                @Override
-                public void onSurfaceTextureSizeChanged(
-                        SurfaceTexture surface, int width, int height) {}
-
-                @Override
-                public boolean onSurfaceTextureDestroyed(SurfaceTexture surface) {
-                    // If returns false, the client needs to call SurfaceTexture.release().
-                    // Most applications should return true.
-                    return true;
+                synchronized (mLock) {
+                    if (!mStreamRunning) {
+                        // Exits if the preview is not running.
+                        finish();
+                    }
                 }
+                break;
 
-                @Override
-                public void onSurfaceTextureUpdated(SurfaceTexture surface) {}
-            };
+            case CarEvsManager.SERVICE_STATE_INACTIVE:
+                synchronized (mLock) {
+                    if (mStreamRunning) {
+                        // We lost the service while the preview was running so start a video stream
+                        // upon the service restore.
+                        mStreamRunning = false;
+                        handleVideoStreamLocked();
+                    }
+                }
+                break;
 
-    // The Activity with showWhenLocked doesn't go to sleep even if the display sleeps.
-    // So we'd like to monitor the display state and react on it manually.
+            default:
+                Log.d(TAG, "No actions on a status changed event, type = " +
+                        status.getServiceType() + " state = " + status.getState());
+                break;
+        }
+    };
+
+    /**
+     * The Activity with showWhenLocked doesn't go to sleep even if the display sleeps.
+     * So we'd like to monitor the display state and react on it manually.
+     */
     private final DisplayListener mDisplayListener = new DisplayListener() {
         @Override
         public void onDisplayAdded(int displayId) {}
@@ -151,23 +165,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
         }
     };
 
-    /** Callback to listen to EVS stream */
-    private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
-            new CarEvsManager.CarEvsStreamCallback() {
-
-        @Override
-        public void onStreamEvent(int event) {
-            Log.i(TAG, "Received: " + event);
-        }
-
-        @Override
-        public void onNewFrame(CarEvsBufferDescriptor buffer) {
-            // Enqueues a new frame and posts a rendering job
-            mBufferQueue.add(buffer);
-            mBackgroundHandler.post(() -> { renderPreview(); });
-        }
-    };
-
+    /** CarService status listener  */
     private final CarServiceLifecycleListener mCarServiceLifecycleListener = (car, ready) -> {
         if (!ready) {
             Log.d(TAG, "Disconnected from the Car Service");
@@ -204,64 +202,17 @@ public class CarEvsCameraPreviewActivity extends Activity {
             mDisplayState = state;
         }
 
-        requestWindowFeature(Window.FEATURE_NO_TITLE);
-        setContentView(R.layout.evs_preview_activity);
-        getWindow().setDecorFitsSystemWindows(false);
-        final WindowInsetsController controller = getWindow().getInsetsController();
-        if (controller != null) {
-            controller.hide(WindowInsets.Type.statusBars() | WindowInsets.Type.navigationBars());
-            controller.setSystemBarsBehavior(
-                    WindowInsetsController.BEHAVIOR_SHOW_TRANSIENT_BARS_BY_SWIPE);
-        }
-
-        mSaturation = INITIAL_COLOR_SATURATION_LEVEL;
-        SeekBar saturationBar = findViewById(R.id.saturationAdjustBar);
-        saturationBar.setOnSeekBarChangeListener(
-                new SeekBar.OnSeekBarChangeListener() {
-                    @Override
-                    public void onProgressChanged(
-                            SeekBar saturationBar, int progresValue, boolean fromUser) {
-                        mSaturation = progresValue;
-                    }
-
-                    @Override
-                    public void onStartTrackingTouch(SeekBar saturationBar) {}
-
-                    @Override
-                    public void onStopTrackingTouch(SeekBar saturationBar) {}
-                });
-
-        mTextureView = findViewById(R.id.texture);
-        mTextureView.setSurfaceTextureListener(mTextureListener);
-
         mCar = Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
-    }
 
-    /** Starts a background thread and its {@link Handler} */
-    private void startBackgroundThread() {
-        mBackgroundThread = new HandlerThread(CarEvsCameraPreviewActivity.class.getSimpleName());
-        mBackgroundThread.start();
-        mBackgroundHandler = new Handler(mBackgroundThread.getLooper());
-    }
-
-    /** Stops a background thread and its {@link Handler} */
-    private void stopBackgroundThread() {
-        mBackgroundThread.quitSafely();
-        try {
-            mBackgroundThread.join();
-            mBackgroundThread = null;
-            mBackgroundHandler = null;
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        }
+        mView = new CarEvsCameraGLSurfaceView(getApplication(), this);
+        setContentView(mView);
     }
 
     @Override
     protected void onStart() {
         Log.d(TAG, "onStart");
         super.onStart();
-        startBackgroundThread();
     }
 
     @Override
@@ -271,8 +222,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
 
         synchronized (mLock) {
             mActivityResumed = true;
-            handleVideoStreamLocked();
         }
+        setListenerAndStartActivity();
     }
 
     @Override
@@ -284,13 +235,20 @@ public class CarEvsCameraPreviewActivity extends Activity {
             mActivityResumed = false;
             handleVideoStreamLocked();
         }
+
+        synchronized (mBufferQueue) {
+            mBufferQueue.clear();
+        }
     }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
-        stopBackgroundThread();
+
+        // Request to stop current service and unregister a status listener
+        mEvsManager.stopActivity();
+        mEvsManager.clearStatusListener();
     }
 
     @Override
@@ -317,6 +275,13 @@ public class CarEvsCameraPreviewActivity extends Activity {
         }
     }
 
+    // Request to start a rearview service and wait for a transition to REQUESTED state
+    private void setListenerAndStartActivity() {
+        mEvsManager.setStatusListener(mListenerExecutor, mStatusListener);
+        int result = mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
+        Log.e(TAG, "startActivity(): " + result);
+    }
+
     // Hides the view when the display is off to save the system resource, since this has
     // 'showWhenLocked' attribute, this will not go to PAUSED state even if the display turns off.
     private int decideViewVisibility() {
@@ -332,52 +297,32 @@ public class CarEvsCameraPreviewActivity extends Activity {
         return state;
     }
 
-    /** Draws a camera preview on the surface in BackgroundThread. */
-    private void renderPreview() {
-        if (mBufferQueue.isEmpty()) {
-            Log.i(TAG, "No new frame to draw");
-            return;
+    /** Tell we have any new frame to be processed */
+    public boolean isNewFrameAvailable() {
+        synchronized (mBufferQueue) {
+            return !mBufferQueue.isEmpty();
         }
+    }
 
-        // Retrieves the oldest frame in the queue
-        CarEvsBufferDescriptor newFrame = mBufferQueue.get(0);
-        HardwareBuffer bufferToRender = newFrame.getHardwareBuffer();
-        mBufferQueue.remove(0);
-
-        // Ensures a target surface is ready
-        try {
-            if (!mSurfaceReadySignal.await(WAIT_FOR_SURFACE_READY_IN_MS, TimeUnit.MILLISECONDS)) {
-                Log.w(TAG, "Target Surface is not ready yet.");
-                return;
+    /** Get a new frame */
+    public CarEvsBufferDescriptor getNewFrame() {
+        synchronized (mBufferQueue) {
+            if (mBufferQueue.isEmpty()) {
+                throw new AssertionError(
+                        "The client must call isNewFrameAvailable() before calling this method");
             }
 
-            ColorMatrix cm = new ColorMatrix();
-            cm.setSaturation(((float)mSaturation / 100));
-            Paint greyscalePaint = new Paint();
-            greyscalePaint.setColorFilter(new ColorMatrixColorFilter(cm));
+            // The renderer refreshes faster than 30fps so it's okay to fetch the frame from the
+            // front of the buffer queue always.
+            CarEvsBufferDescriptor newFrame = mBufferQueue.get(0);
+            mBufferQueue.remove(0);
 
-            // Enlarges the preview frame to fill the entire screen
-            Point displayBottomRight = new Point();
-            getWindowManager().getDefaultDisplay().getRealSize(displayBottomRight);
-            Matrix matrix = new Matrix();
-            matrix.setScale((float)displayBottomRight.x / bufferToRender.getWidth(),
-                            (float)displayBottomRight.y / bufferToRender.getHeight());
-
-            // As we're going to render the preview with a sofrware Canvas, a software bitmap
-            // is being generated by copying data from a new frame to be drawn.  This explicit
-            // data copy may decimate the performance and therefore prefer to be replaced with
-            // another way to render a hardwarebuffer's contents directly.
-            Bitmap previewBitmap = Bitmap.wrapHardwareBuffer(bufferToRender, null)
-                    .copy(Bitmap.Config.ARGB_8888, false);
-
-            Canvas canvas = mPreviewSurface.lockCanvas(null);
-            canvas.drawBitmap(previewBitmap, matrix, greyscalePaint);
-            mPreviewSurface.unlockCanvasAndPost(canvas);
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-        } finally {
-            // Returns the buffer
-            mEvsManager.returnFrameBuffer(newFrame);
+            return newFrame;
         }
+    }
+
+    /** Request to return a buffer we're done with */
+    public void returnBuffer(CarEvsBufferDescriptor buffer) {
+        mEvsManager.returnFrameBuffer(buffer);
     }
 }
