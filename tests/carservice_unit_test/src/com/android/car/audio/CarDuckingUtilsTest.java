@@ -41,7 +41,9 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 @RunWith(AndroidJUnit4.class)
@@ -51,28 +53,33 @@ public class CarDuckingUtilsTest {
     private static final String CALL_ADDRESS = "call";
     private static final String NAVIGATION_ADDRESS = "navigation";
 
-    // To ensure a consistent ducking experience, if context A ducks context B, then context B
-    // should in turn only duck a subset of contexts ducked by context A. In this way, we won't have
-    // a situation where context A would normally not duck context C, but because context B was also
-    // holding focus, context C ends up being ducked despite B being ducked.
     @Test
-    public void sContextsToDuck_verifyAllDuckedContextsDuckSubsets() {
+    public void sContextsToDuck_verifyNoCycles() {
         for (int i = 0; i < CarDuckingUtils.sContextsToDuck.size(); i++) {
-            int context = CarDuckingUtils.sContextsToDuck.keyAt(i);
-            int[] contextsToDuck = CarDuckingUtils.sContextsToDuck.valueAt(i);
+            int startingContext = CarDuckingUtils.sContextsToDuck.keyAt(i);
+            int[] duckedContexts = CarDuckingUtils.sContextsToDuck.valueAt(i);
+            List<Integer> contextsToVisit = Arrays.stream(duckedContexts).boxed()
+                    .collect(Collectors.toList());
+            Set<Integer> visitedContexts = new HashSet<>(startingContext);
 
-            for (int duckedContext : contextsToDuck) {
-                List<Integer> subcontextsToDuck = Arrays
-                        .stream(CarDuckingUtils.sContextsToDuck.get(duckedContext))
-                        .boxed()
-                        .collect(Collectors.toList());
+            while (contextsToVisit.size() > 0) {
+                int contextToVisit = contextsToVisit.remove(0);
+                if (visitedContexts.contains(contextToVisit)) {
+                    continue;
+                }
+                visitedContexts.add(contextToVisit);
 
-                assertWithMessage("Context "
-                        + CarAudioContext.toString(duckedContext) + " ducks contexts not ducked by "
-                        + CarAudioContext.toString(context))
-                        .that(contextsToDuck)
-                        .asList()
-                        .containsAtLeastElementsIn(subcontextsToDuck);
+                int[] duckedContextsToVisit = CarDuckingUtils.sContextsToDuck.get(contextToVisit);
+                for (int duckedContext : duckedContextsToVisit) {
+                    assertWithMessage("A cycle exists where %s can duck itself via %s",
+                            CarAudioContext.toString(startingContext),
+                            CarAudioContext.toString(contextToVisit)
+                    ).that(duckedContext).isNotEqualTo(startingContext);
+
+                    if (!visitedContexts.contains(duckedContext)) {
+                        contextsToVisit.add(duckedContext);
+                    }
+                }
             }
         }
     }
@@ -146,7 +153,7 @@ public class CarDuckingUtilsTest {
     public void getAddressesToDuck_onlyReturnsDevicesForUsagesHoldingFocus() {
         CarAudioZone mockZone = generateAudioZoneMock();
         int[] usages =
-                new int[]{USAGE_MEDIA, USAGE_EMERGENCY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE};
+                new int[]{USAGE_MEDIA, USAGE_SAFETY, USAGE_ASSISTANCE_NAVIGATION_GUIDANCE};
 
         List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
@@ -168,7 +175,7 @@ public class CarDuckingUtilsTest {
     public void getAddressesToDuck_withDuckedContextsSharingADevice_includesAddressOnce() {
         CarAudioZone mockZone = generateAudioZoneMock();
         when(mockZone.getAddressForContext(CarAudioContext.ALARM)).thenReturn(MEDIA_ADDRESS);
-        int[] usages = new int[]{USAGE_MEDIA, USAGE_EMERGENCY, USAGE_ALARM};
+        int[] usages = new int[]{USAGE_MEDIA, USAGE_SAFETY, USAGE_ALARM};
 
         List<String> addresses = CarDuckingUtils.getAddressesToDuck(usages, mockZone);
 
