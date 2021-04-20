@@ -19,15 +19,8 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_binary {
-    name: "sv_app",
-
-    srcs: [
-        "SurroundViewAppCommon.cpp",
-        "SurroundViewServiceCallback.cpp",
-        "shader.cpp",
-        "sv_app.cpp",
-    ],
+cc_defaults {
+    name: "sv_app_defaults",
 
     shared_libs: [
         "android.hardware.automotive.evs@1.1",
@@ -52,8 +45,6 @@ cc_binary {
         keep_symbols: true,
     },
 
-    init_rc: ["sv_app.rc"],
-
     cflags: [
         "-DLOG_TAG=\"SvApp\"",
         "-DGL_GLEXT_PROTOTYPES",
@@ -63,4 +54,60 @@ cc_binary {
         "-Wunused",
         "-Wunreachable-code",
     ],
+}
+
+// Reference application for Surround View used as as Service.
+cc_binary {
+    name: "sv_service_app",
+
+    defaults: ["sv_app_defaults"],
+
+    srcs: [
+        "SurroundViewAppCommon.cpp",
+        "SurroundViewServiceCallback.cpp",
+        "shader.cpp",
+        "sv_service_app.cpp",
+    ],
+
+    init_rc: ["sv_service_app.rc"],
+}
+
+// Reference application for Surround View used as as Library.
+cc_binary {
+    name: "sv_library_app",
+
+    defaults: ["sv_app_defaults"],
+
+    include_dirs: [
+        "packages/services/Car/cpp/surround_view/service-impl",
+    ],
+
+    vendor:true,
+
+    srcs: [
+        "SurroundViewAppCommon.cpp",
+        "SurroundViewServiceCallback.cpp",
+        "shader.cpp",
+        "sv_library_app.cpp",
+    ],
+
+    shared_libs: [
+        "android.hardware.automotive.sv@1.0",
+        "android.hardware.automotive.vehicle@2.0",
+        "libsurround_view",
+    ],
+
+    // Disable builds except for arm64 and emulator devices
+    enabled : false,
+    arch : {
+        arm64 : {
+            enabled : true,
+        },
+        x86 : {
+            enabled : true,
+        },
+        x86_64 : {
+            enabled : true,
+        },
+    },
 }
