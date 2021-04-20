@@ -23,6 +23,7 @@ cc_binary {
     name: "sv_app",
 
     srcs: [
+        "SurroundViewAppCommon.cpp",
         "SurroundViewServiceCallback.cpp",
         "shader.cpp",
         "sv_app.cpp",
