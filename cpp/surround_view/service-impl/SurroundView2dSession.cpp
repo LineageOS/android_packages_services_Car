@@ -53,6 +53,9 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
+// Macro for obtaining a uint64_t memory_id from the camera index and buffer_id.
+#define GET_MEMORY_ID(cam_index, buffer_id) ((static_cast<uint64_t>(cam_index) << 32) | buffer_id)
+
 // TODO(b/158479099): There are a lot of redundant code between 2d and 3d.
 // Decrease the degree of redundancy.
 typedef struct {
@@ -153,6 +156,10 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
                 }
 
                 mSession->mInputPointers[i].gpu_data_pointer = static_cast<void*>(hardwareBuffer);
+                // Set memory_id to enable buffer caching.
+                // higher 32 bits are for camera index, lower 32 bits for bufferId.
+                mSession->mInputPointers[i].memory_id
+                        = GET_MEMORY_ID(indices[i], buffers[indices[i]].bufferId);
 
                 // Keep a reference to the EVS graphic buffers, so we can
                 // release them after Surround View stitching is done.
@@ -747,6 +754,9 @@ bool SurroundView2dSession::initialize() {
             return false;
         }
         mOutputPointer.gpu_data_pointer = static_cast<void*>(mOutputHolder->toAHardwareBuffer());
+        // Set output memory id one time to a one time unique value.
+        // 0 to (kNumFrames - 1) are used for inputs, using kNumFrames as higher 32 bits.
+        mOutputPointer.memory_id = GET_MEMORY_ID(kNumFrames, 0x00);
     } else {
         mSvTexture = new GraphicBuffer(mOutputWidth, mOutputHeight, HAL_PIXEL_FORMAT_RGB_888, 1,
                                        GRALLOC_USAGE_HW_TEXTURE, "SvTexture");
