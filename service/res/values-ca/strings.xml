@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Escolta els canvis en l\'estat de conducció."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilitza el servei EVS del cotxe"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscriu-me a les reproduccions en continu de vídeo d\'EVS"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Monitora l\'estat del servei EVS del cotxe"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Monitora un estat de CarEvsService"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Sol·licitar l\'activitat de previsualització d\'EVS"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Sol·licitar al sistema que iniciï l\'activitat de previsualització d\'EVS"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"Controlar l\'activitat de previsualització d\'EVS"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"Controlar l\'activitat de previsualització d\'EVS del sistema"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"Utilitzar la càmera EVS"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Subscriure\'s a les reproduccions en continu de la càmera EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Monitorar l\'estat del servei d\'EVS"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Escoltar els canvis d\'estat del servei EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"accedeix a la informació detallada sobre el motor del cotxe"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Accedeix a la informació detallada sobre el motor del cotxe."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"accedeix a la porta del combustible i al port de càrrega del cotxe"</string>

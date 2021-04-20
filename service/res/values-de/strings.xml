@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Informationen zu Fahrzustandsänderungen entgegennehmen."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Car EVS Service verwenden"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS-Videostreams abonnieren"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Car EVS Service-Status überwachen"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Einen Status von CarEvsService überwachen"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS-Vorschauaktivität anfordern"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Das System auffordern, die EVS-Vorschauaktivität zu starten"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"EVS-Vorschauaktivität steuern"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"EVS-Vorschauaktivität des Systems steuern"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"EVS-Kamera verwenden"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS-Kamerastreams abonnieren"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Status des EVS-Diensts prüfen"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Statusänderungen des EVS-Diensts prüfen"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"auf detaillierte Motorinformationen zuzugreifen"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Auf detaillierte Motorinformationen zugreifen."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"auf die Tankklappe und die Ladebuchse zuzugreifen"</string>

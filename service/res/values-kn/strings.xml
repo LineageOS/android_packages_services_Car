@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ಚಾಲನೆಯ ಸ್ಥಿತಿಯ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ಕಾರ್ EVS ಸೇವೆಯನ್ನು ಬಳಸಿ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ವೀಡಿಯೋ ಸ್ಟ್ರೀಮ್‌ಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಮಾಡಿ"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"ಕಾರ್ EVS ಸೇವೆಯ ಸ್ಥಿತಿಯ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService ನ ಸ್ಥಿತಿಯ ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS ಪೂರ್ವವೀಕ್ಷಣೆ ಚಟುವಟಿಕೆಯನ್ನು ವಿನಂತಿಸಿ"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"EVS ಪೂರ್ವವೀಕ್ಷಣೆ ಚಟುವಟಿಕೆಯನ್ನು ಪ್ರಾರಂಭಿಸಲು ಸಿಸ್ಟಂ ಅನ್ನು ವಿನಂತಿಸಿ"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"EVS ಪೂರ್ವವೀಕ್ಷಣೆ ಚಟುವಟಿಕೆಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"ಸಿಸ್ಟಂನ EVS ಪೂರ್ವವೀಕ್ಷಣೆ ಚಟುವಟಿಕೆಯನ್ನು ನಿಯಂತ್ರಿಸಿ"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"EVS ಕ್ಯಾಮರಾ ಬಳಸಿ"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS ಕ್ಯಾಮರಾ ಸ್ಟ್ರೀಮ್‌ಗಳಿಗೆ ಸಬ್‌ಸ್ಕ್ರೈಬ್ ಮಾಡಿ"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS ಸೇವೆಯ ಸ್ಥಿತಿಯನ್ನು ಮೇಲ್ವಿಚಾರಣೆ ಮಾಡಿ"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS ಸೇವೆಯ ಸ್ಥಿತಿ ಬದಲಾವಣೆಗಳನ್ನು ಆಲಿಸಿ"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ಕಾರಿನ ಇಂಜಿನ್‌ನ ಕುರಿತು ವಿವರಣೆಗಳನ್ನು ಓದಿ"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ಕಾರಿನ ಇಂಜಿನ್‌ನ ವಿವರಣೆಯ ಮಾಹಿತಿಯನ್ನು ಪ್ರವೇಶಿಸಿ."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ಕಾರಿನ ಇಂಧನ ಪಂಪ್‌ನ ಮುಚ್ಚಳ ಮತ್ತು ಚಾರ್ಜ್ ಪೋರ್ಟ್ ಮಾಹಿತಿ ಪಡೆಯಿರಿ"</string>
