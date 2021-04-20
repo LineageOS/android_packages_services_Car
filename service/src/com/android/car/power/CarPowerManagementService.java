@@ -350,7 +350,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mHandler.cancelAll();
             mListenersWeAreWaitingFor.clear();
         }
-        mPowerComponentHandler.release();
         mSystemInterface.stopDisplayStateMonitoring();
         mPowerManagerListeners.kill();
         mPowerPolicyListeners.kill();
