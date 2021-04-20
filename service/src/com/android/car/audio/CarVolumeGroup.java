@@ -19,7 +19,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.media.CarAudioManager;
-import android.content.Context;
 import android.media.AudioDevicePort;
 import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
@@ -27,6 +26,8 @@ import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
@@ -45,7 +46,7 @@ import java.util.Map;
 /* package */ final class CarVolumeGroup {
 
     private final boolean mUseCarVolumeGroupMute;
-    private CarAudioSettings mSettingsManager;
+    private final CarAudioSettings mSettingsManager;
     private final int mZoneId;
     private final int mId;
     private final SparseArray<String> mContextToAddress = new SparseArray<>();
@@ -62,13 +63,6 @@ import java.util.Map;
     private boolean mIsMuted;
     private @UserIdInt int mUserId = UserHandle.USER_CURRENT;
 
-    /**
-     * Constructs a {@link CarVolumeGroup} instance
-     * @param Settings {@link CarAudioSettings} instance
-     * @param zoneId Audio zone this volume group belongs to
-     * @param id ID of this volume group
-     * @param useCarVolumeGroupMute flag to indicate whether to use car volume group mute or not
-     */
     CarVolumeGroup(int zoneId, int id, CarAudioSettings settings, boolean useCarVolumeGroupMute) {
         mSettingsManager = settings;
         mZoneId = zoneId;
@@ -78,12 +72,8 @@ import java.util.Map;
     }
 
     /**
-     * Constructs a {@link CarVolumeGroup} instance
-     * @param context {@link Context} instance
-     * @param zoneId Audio zone this volume group belongs to
-     * @param id ID of this volume group
-     * @param contexts Pre-populated array of car contexts, for legacy car_volume_groups.xml only
-     * @deprecated In favor of {@link #CarVolumeGroup(Context, int, int)}
+     * @deprecated In favor of {@link #CarVolumeGroup(int, int, CarAudioSettings, boolean)}
+     * Only used for legacy configuration via IAudioControl@1.0
      */
     @Deprecated
     CarVolumeGroup(CarAudioSettings settings, int zoneId, int id, @NonNull int[] contexts) {
@@ -94,18 +84,12 @@ import java.util.Map;
         }
     }
 
-    /**
-     * @param address Physical address for the audio device
-     * @return {@link CarAudioDeviceInfo} associated with a given address
-     */
+    @Nullable
     CarAudioDeviceInfo getCarAudioDeviceInfoForAddress(String address) {
         return mAddressToCarAudioDeviceInfo.get(address);
     }
 
-    /**
-     * @return Array of car audio contexts {@link CarAudioContext} in this {@link CarVolumeGroup}
-     */
-    int[] getContexts() {
+    @AudioContext int[] getContexts() {
         final int[] carAudioContexts = new int[mContextToAddress.size()];
         for (int i = 0; i < carAudioContexts.length; i++) {
             carAudioContexts[i] = mContextToAddress.keyAt(i);
@@ -122,12 +106,7 @@ import java.util.Map;
         return mContextToAddress.get(audioContext);
     }
 
-    /**
-     * @param address Physical address for the audio device
-     * @return List of car audio contexts {@link AudioContext} assigned to a given address
-     */
-    @CarAudioContext.AudioContext
-     List<Integer> getContextsForAddress(@NonNull String address) {
+    @AudioContext List<Integer> getContextsForAddress(@NonNull String address) {
         List<Integer> carAudioContexts = new ArrayList<>();
         for (int i = 0; i < mContextToAddress.size(); i++) {
             String value = mContextToAddress.valueAt(i);
@@ -138,9 +117,6 @@ import java.util.Map;
         return carAudioContexts;
     }
 
-    /**
-     * @return Array of addresses in this {@link CarVolumeGroup}
-     */
     List<String> getAddresses() {
         return new ArrayList<>(mAddressToCarAudioDeviceInfo.keySet());
     }
@@ -184,49 +160,6 @@ import java.util.Map;
                 mMinGain = info.getMinGain();
             }
             updateCurrentGainIndexLocked();
-        }
-    }
-
-    /**
-     * Update the user with the a new user
-     * @param userId new user
-     * @note also reloads the store gain index for the user
-     */
-    private void updateUserIdLocked(@UserIdInt int userId) {
-        mUserId = userId;
-        mStoredGainIndex = getCurrentGainIndexForUserLocked();
-    }
-
-    private int getCurrentGainIndexForUserLocked() {
-        int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
-                mId);
-        Slog.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
-                + " gainIndexForUser " + gainIndexForUser);
-        return gainIndexForUser;
-    }
-
-    /**
-     * Update the current gain index based on the stored gain index
-     */
-    private void updateCurrentGainIndexLocked() {
-        synchronized (mLock) {
-            if (mStoredGainIndex < getIndexForGainLocked(mMinGain)
-                    || mStoredGainIndex > getIndexForGainLocked(mMaxGain)) {
-                // We expected to load a value from last boot, but if we didn't (perhaps this is the
-                // first boot ever?), then use the highest "default" we've seen to initialize
-                // ourselves.
-                mCurrentGainIndex = getIndexForGainLocked(mDefaultGain);
-            } else {
-                // Just use the gain index we stored last time the gain was
-                // set (presumably during our last boot cycle).
-                mCurrentGainIndex = mStoredGainIndex;
-            }
-        }
-    }
-
-    private int getDefaultGainIndex() {
-        synchronized (mLock) {
-            return getIndexForGainLocked(mDefaultGain);
         }
     }
 
@@ -274,28 +207,6 @@ import java.util.Map;
         }
     }
 
-    private void storeGainIndexForUserLocked(int gainIndex, @UserIdInt int userId) {
-        mSettingsManager.storeVolumeGainIndexForUser(userId,
-                mZoneId, mId, gainIndex);
-    }
-
-    // Given a group level gain index, return the computed gain in millibells
-    // TODO (randolphs) If we ever want to add index to gain curves other than lock-stepped
-    // linear, this would be the place to do it.
-    private int getGainForIndexLocked(int gainIndex) {
-        return mMinGain + gainIndex * mStepSize;
-    }
-
-    // TODO (randolphs) if we ever went to a non-linear index to gain curve mapping, we'd need to
-    // revisit this as it assumes (at the least) that getGainForIndex is reversible.  Luckily,
-    // this is an internal implementation details we could factor out if/when necessary.
-    private int getIndexForGainLocked(int gainInMillibel) {
-        return (gainInMillibel - mMinGain) / mStepSize;
-    }
-
-    /**
-     * Gets {@link AudioDevicePort} from a context number
-     */
     @Nullable
     AudioDevicePort getAudioDevicePortForContext(int carAudioContext) {
         final String address = mContextToAddress.get(carAudioContext);
@@ -314,7 +225,6 @@ import java.util.Map;
                 + " addresses: " + String.join(", ", getAddresses());
     }
 
-    /** Writes to dumpsys output */
     void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.printf("CarVolumeGroup(%d)\n", mId);
@@ -342,10 +252,6 @@ import java.util.Map;
         }
     }
 
-    /**
-     * Load volumes settings for new user
-     * @param userId new user to load
-     */
     void loadVolumesSettingsForUser(@UserIdInt int userId) {
         synchronized (mLock) {
             //Update the volume for the new user
@@ -358,6 +264,75 @@ import java.util.Map;
         setCurrentGainIndex(getCurrentGainIndex());
     }
 
+    void setMute(boolean mute) {
+        synchronized (mLock) {
+            mIsMuted = mute;
+            if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
+                mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mId, mute);
+            }
+        }
+    }
+
+    boolean isMuted() {
+        synchronized (mLock) {
+            return mIsMuted;
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void updateUserIdLocked(@UserIdInt int userId) {
+        mUserId = userId;
+        mStoredGainIndex = getCurrentGainIndexForUserLocked();
+    }
+
+    @GuardedBy("mLock")
+    private int getCurrentGainIndexForUserLocked() {
+        int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
+                mId);
+        Slog.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
+                + " gainIndexForUser " + gainIndexForUser);
+        return gainIndexForUser;
+    }
+
+    /**
+     * Update the current gain index based on the stored gain index
+     */
+    @GuardedBy("mLock")
+    private void updateCurrentGainIndexLocked() {
+        if (isValidGainLocked(mStoredGainIndex)) {
+            mCurrentGainIndex = mStoredGainIndex;
+        } else {
+            mCurrentGainIndex = getIndexForGainLocked(mDefaultGain);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private boolean isValidGainLocked(int gain) {
+        return gain >= getIndexForGainLocked(mMinGain) && gain <= getIndexForGainLocked(mMaxGain);
+    }
+
+    private int getDefaultGainIndex() {
+        synchronized (mLock) {
+            return getIndexForGainLocked(mDefaultGain);
+        }
+    }
+
+    @GuardedBy("mLock")
+    private void storeGainIndexForUserLocked(int gainIndex, @UserIdInt int userId) {
+        mSettingsManager.storeVolumeGainIndexForUser(userId,
+                mZoneId, mId, gainIndex);
+    }
+
+    private int getGainForIndexLocked(int gainIndex) {
+        return mMinGain + gainIndex * mStepSize;
+    }
+
+    @GuardedBy("mLock")
+    private int getIndexForGainLocked(int gainInMillibel) {
+        return (gainInMillibel - mMinGain) / mStepSize;
+    }
+
+    @GuardedBy("mLock")
     private void updateGroupMuteLocked() {
         if (!mUseCarVolumeGroupMute) {
             return;
@@ -367,20 +342,5 @@ import java.util.Map;
             return;
         }
         mIsMuted = mSettingsManager.getVolumeGroupMuteForUser(mUserId, mZoneId, mId);
-    }
-
-    public void setMute(boolean mute) {
-        synchronized (mLock) {
-            mIsMuted = mute;
-            if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
-                mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mId, mute);
-            }
-        }
-    }
-
-    public boolean isMuted() {
-        synchronized (mLock) {
-            return mIsMuted;
-        }
     }
 }
