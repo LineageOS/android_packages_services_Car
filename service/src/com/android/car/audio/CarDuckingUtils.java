@@ -51,7 +51,6 @@ final class CarDuckingUtils {
         sContextsToDuck.append(MUSIC, new int[0]);
         sContextsToDuck.append(NAVIGATION, new int[]{
                 MUSIC,
-                VOICE_COMMAND,
                 CALL_RING,
                 CALL,
                 ALARM,
@@ -61,27 +60,17 @@ final class CarDuckingUtils {
                 ANNOUNCEMENT
         });
         sContextsToDuck.append(VOICE_COMMAND, new int[]{
-                MUSIC,
-                CALL_RING,
-                ANNOUNCEMENT
+                CALL_RING
         });
-        sContextsToDuck.append(CALL_RING, new int[]{
-                MUSIC,
-                ANNOUNCEMENT
-        });
+        sContextsToDuck.append(CALL_RING, new int[0]);
         sContextsToDuck.append(CALL, new int[]{
-                MUSIC,
-                VOICE_COMMAND,
                 CALL_RING,
                 ALARM,
                 NOTIFICATION,
-                SYSTEM_SOUND,
-                VEHICLE_STATUS,
-                ANNOUNCEMENT
+                VEHICLE_STATUS
         });
         sContextsToDuck.append(ALARM, new int[]{
-                MUSIC,
-                ANNOUNCEMENT
+                MUSIC
         });
         sContextsToDuck.append(NOTIFICATION, new int[]{
                 MUSIC,
@@ -94,16 +83,7 @@ final class CarDuckingUtils {
                 ANNOUNCEMENT
         });
         sContextsToDuck.append(EMERGENCY, new int[]{
-                MUSIC,
-                NAVIGATION,
-                VOICE_COMMAND,
-                CALL_RING,
-                CALL,
-                ALARM,
-                NOTIFICATION,
-                SYSTEM_SOUND,
-                VEHICLE_STATUS,
-                ANNOUNCEMENT
+                CALL
         });
         sContextsToDuck.append(SAFETY, new int[]{
                 MUSIC,
