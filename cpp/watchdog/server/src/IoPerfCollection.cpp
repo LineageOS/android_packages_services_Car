@@ -421,9 +421,6 @@ void IoPerfCollection::processUidIoPerfData(const std::unordered_set<std::string
 
     for (const auto& uIt : usages) {
         const UidIoUsage& curUsage = uIt.second;
-        if (curUsage.ios.isZero()) {
-            continue;
-        }
         uids.push_back(curUsage.uid);
         uidIoPerfData->total[READ_BYTES][FOREGROUND] +=
                 curUsage.ios.metrics[READ_BYTES][FOREGROUND];
