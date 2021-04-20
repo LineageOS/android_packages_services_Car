@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Слушање промене статуса вожње."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Коришћење услуге EVS за аутомобил"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Праћење видео стримове EVS-а"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Праћење статуса услуге EVS за аутомобил"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Праћење статуса који се односи на CarEvsService"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Захтев за EVS активности приказа"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Захтев да систем покрене EVS активности приказа"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"Контрола EVS активности приказа"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"Контрола EVS активности приказа за систем"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"Коришћење EVS камере"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Коришћење EVS стримова камера"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Праћење статуса EVS услуге"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Праћење промена статуса услуге EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"приступ детаљним подацима о мотору аутомобила"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Приступ детаљним подацима о мотору аутомобила."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"приступ поклопцу резервоара за гориво и порту за пуњење"</string>

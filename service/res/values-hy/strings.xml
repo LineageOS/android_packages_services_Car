@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Հետագծել վարելու ռեժիմի փոփոխությունները։"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Օգտագործել ավտոմեքենայի EVS ծառայությունը"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Բաժանորդագրվել EVS տեսահոսքին"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Վերահսկել ավտոմեքենայի EVS ծառայության կարգավիճակը"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"Վերահսկել CarEvsService-ի կարգավիճակը"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS նախադիտման գործողություններ գործարկելու հարցում ուղարկել"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Համակարգին EVS նախադիտման գործողությունները գործարկելու հարցում ուղարկել"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"Վերահսկել EVS նախադիտման գործողությունները"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"Վերահսկել համակարգի EVS նախադիտման գործողությունները"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"Օգտագործել EVS տեսախցիկը"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"Բաժանորդագրվել EVS տեսահոսքին"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"Վերահսկել EVS ծառայության կարգավիճակը"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"Լսել EVS ծառայության կարգավիճակի փոփոխությունները"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"օգտագործել մեքենայի շարժիչի մանրամասն տվյալները"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Օգտագործել շարժիչի մանրամասն տվյալները։"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"օգտագործել մեքենայի վառելիքի բաքի կափարիչի և լիցքավորման վարդակի տվյալները"</string>

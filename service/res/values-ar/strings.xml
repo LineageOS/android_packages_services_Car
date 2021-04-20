@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"يمكنك الاستماع إلى التغيُّرات في حالة \"القيادة\"."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"الاستفادة من خدمة EVS للسيارة"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"الاشتراك في فيديوهات EVS المضمّنة"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"مراقبة حالة خدمة EVS للسيارة"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"مراقبة إحدى حالات CarEvsService"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"طلب نشاط معاينة خدمة EVS"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"إرسال طلب إلى النظام لإطلاق نشاط معاينة EVS"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"التحكم بنشاط معاينة EVS"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"التحكم بنشاط معاينة خدمة EVS الخاصة بالنظام"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"استخدام كاميرا EVS"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"الاشتراك في خدمة بث كاميرا EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"مراقبة حالة خدمة EVS"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"الاستماع إلى تغييرات الحالة لخدمة EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"الحصول على معلومات عن تفاصيل المحرّك"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"يمكنك الحصول على معلومات تفصيلية عن محرّك السيارة."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"الحصول على معلومات عن .باب خزان الوقود ومنفذ الشحن"</string>

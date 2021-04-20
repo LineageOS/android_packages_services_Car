@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Жолоодлогын төлөвийн өөрчлөлтийг сонсох."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Car EVS Service-г ашиглах"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS видео дамжуулалтыг захиалах"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"Car EVS Service-н төлөвийг хянах"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"CarEvsService-н төлөвийг хянах"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS урьдчилан үзэх үйл ажиллагааны хүсэлт тавих"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"Системд EVS урьдчилан үзэх үйл ажиллагааг эхлүүлэх хүсэлт тавих"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"EVS урьдчилан үзэх үйл ажиллагааг хянах"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"Системийн EVS урьдчилан үзэх үйл ажиллагааг хянах"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"EVS камерыг ашиглах"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS камер дамжуулалтыг захиалах"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS үйлчилгээний төлөвийг хянах"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS үйлчилгээний төлөвийн өөрчлөлтийг сонсох"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"машины хөдөлгүүрийн дэлгэрэнгүй мэдээлэлд хандах"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"Таны машины хөдөлгүүрийн дэлгэрэнгүй мэдээлэлд хандах."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"машины шатахууны савны таг болон цэнэглэх оролтод хандах"</string>

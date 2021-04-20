@@ -95,8 +95,14 @@
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ຟັງການປ່ຽນແປງສະພາບການຂັບຂີ່."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ໃຊ້ການບໍລິການ EVS ຂອງລົດ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ຕິດຕາມວິດີໂອສະຕຣີມ EVS"</string>
-    <string name="car_permission_label_monitor_evs_status" msgid="8586151402220417700">"ຕິດຕາມສະຖານະການບໍລິການ EVS ຂອງລົດ"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="9211849809250999081">"ຕິດຕາມສະຖານະຂອງ CarEvsService"</string>
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"ຮ້ອງຂໍການເຄື່ອນໄຫວສະແດງຕົວຢ່າງ EVS"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"ຮ້ອງຂໍໃຫ້ລະບົບເປີດນຳໃຊ້ການເຄື່ອນໄຫວສະແດງຕົວຢ່າງ EVS"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"ຄວບຄຸມການເຄື່ອນໄຫວສະແດງຕົວຢ່າງ EVS"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"ຄວບຄຸມການເຄື່ອນໄຫວສະແດງຕົວຢ່າງ EVS ຂອງລະບົບ"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"ໃຊ້ກ້ອງ EVS"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"ຕິດຕາມການສະຕຣີມກ້ອງ EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"ຕິດຕາມສະຖານະບໍລິການ EVS"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ຟັງການປ່ຽນສະຖານະຂອງບໍລິການ EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ເຂົ້າເຖິງລາຍລະອຽດເຄື່ອງຈັກຂອງລົດ"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ເຂົ້າເຖິງຂໍ້ມູນເຄື່ອງຈັກລະອຽດຂອງລົດທ່ານ."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ເຂົ້າເຖິງຂໍ້ມູນຝານໍ້າມັນ ແລະ ຮູສາກໄຟຂອງລົດ"</string>
