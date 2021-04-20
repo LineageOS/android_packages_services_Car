@@ -28,7 +28,7 @@ namespace watchdog {
 class MockDataProcessor : virtual public IDataProcessorInterface {
 public:
     MockDataProcessor() {
-        ON_CALL(*this, name()).WillByDefault(::testing::Return("MockedDataProcessor"));
+        EXPECT_CALL(*this, name()).WillRepeatedly(::testing::Return("MockedDataProcessor"));
     }
     MOCK_METHOD(std::string, name, (), (override));
     MOCK_METHOD(android::base::Result<void>, init, (), (override));

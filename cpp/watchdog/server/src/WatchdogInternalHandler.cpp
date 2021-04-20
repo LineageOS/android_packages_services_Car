@@ -66,6 +66,18 @@ status_t WatchdogInternalHandler::dump(int fd, const Vector<String16>& args) {
     return mBinderMediator->dump(fd, args);
 }
 
+void WatchdogInternalHandler::checkAndRegisterIoOveruseMonitor() {
+    if (mIoOveruseMonitor->isInitialized()) {
+        return;
+    }
+    if (const auto result = mWatchdogPerfService->registerDataProcessor(mIoOveruseMonitor);
+        !result.ok()) {
+        ALOGE("Failed to register I/O overuse monitor to watchdog performance service: %s",
+              result.error().message().c_str());
+    }
+    return;
+}
+
 Status WatchdogInternalHandler::registerCarWatchdogService(
         const sp<ICarWatchdogServiceForSystem>& service) {
     Status status = checkSystemUser();
@@ -75,6 +87,12 @@ Status WatchdogInternalHandler::registerCarWatchdogService(
     if (service == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, kNullCarWatchdogServiceError);
     }
+    /*
+     * I/O overuse monitor reads from system, vendor, and data partitions during initialization.
+     * When CarService is running these partitions are available to read, thus register the I/O
+     * overuse monitor on processing the request to register CarService.
+     */
+    checkAndRegisterIoOveruseMonitor();
     return mWatchdogServiceHelper->registerService(service);
 }
 
@@ -168,19 +186,6 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
                 if (const auto result = mWatchdogPerfService->onBootFinished(); !result.ok()) {
                     return fromExceptionCode(result.error().code(), result.error().message());
                 }
-                /*
-                 * I/O overuse monitor reads from data partition on init so register the I/O
-                 * overuse monitor only on boot-complete.
-                 *
-                 * TODO(b/167240592): Uncomment the below code block after the I/O overuse monitor
-                 *  is completely implemented.
-                 * if (const auto result
-                 *          = mWatchdogPerfService->registerDataProcessor(mIoOveruseMonitor);
-                 *     !result.ok()) {
-                 *    ALOGW("Failed to register I/O overuse monitor to watchdog performance "
-                 *          "service: %s", result.error().message().c_str());
-                 * }
-                 */
             }
             return Status::ok();
         }
@@ -195,6 +200,8 @@ Status WatchdogInternalHandler::updateResourceOveruseConfigurations(
     if (!status.isOk()) {
         return status;
     }
+    // Maybe retry registring I/O overuse monitor if failed to initialize previously.
+    checkAndRegisterIoOveruseMonitor();
     if (const auto result = mIoOveruseMonitor->updateResourceOveruseConfigurations(configs);
         !result.ok()) {
         return fromExceptionCode(result.error().code(), result.error().message());
@@ -208,6 +215,8 @@ Status WatchdogInternalHandler::getResourceOveruseConfigurations(
     if (!status.isOk()) {
         return status;
     }
+    // Maybe retry registring I/O overuse monitor if failed to initialize previously.
+    checkAndRegisterIoOveruseMonitor();
     if (const auto result = mIoOveruseMonitor->getResourceOveruseConfigurations(configs);
         !result.ok()) {
         return fromExceptionCode(result.error().code(), result.error().message());
