@@ -37,6 +37,7 @@ import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.graphics.Insets;
 import android.graphics.Point;
+import android.graphics.Rect;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.RemoteCallbackList;
@@ -79,8 +80,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private int mClusterDisplayId = Display.INVALID_DISPLAY;
 
     private int mOnOff = DISPLAY_OFF;
-    private int mWidth;
-    private int mHeight;
+    private Rect mBounds = new Rect();
     private Insets mInsets = Insets.NONE;
     private int mUiType = ClusterHomeManager.UI_TYPE_CLUSTER_HOME;
     private Intent mLastIntent;
@@ -137,17 +137,16 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             return;
         }
 
-        // Initialize mWidth/mHeight only once.
-        if (mWidth == 0 && mHeight == 0) {
+        // Initialize mBounds only once.
+        if (mBounds.right == 0 && mBounds.bottom == 0 && mBounds.left == 0 && mBounds.top == 0) {
             DisplayManager displayManager = mContext.getSystemService(DisplayManager.class);
             Display clusterDisplay = displayManager.getDisplay(clusterDisplayId);
             Point size = new Point();
             clusterDisplay.getRealSize(size);
-            mWidth = size.x;
-            mHeight = size.y;
+            mBounds.right = size.x;
+            mBounds.bottom = size.y;
             if (DBG) {
-                Slog.d(TAG, "Found cluster displayId=" + clusterDisplayId
-                        + ", width=" + mWidth + ", height=" + mHeight);
+                Slog.d(TAG, "Found cluster displayId=" + clusterDisplayId + ", bounds=" + mBounds);
             }
         }
 
@@ -204,20 +203,18 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     @Override
-    public void onDisplayState(int onOff, int width, int height, Insets insets) {
+    public void onDisplayState(int onOff, Rect bounds, Insets insets) {
         if (DBG) {
-            Slog.d(TAG, "onDisplayState: onOff=" + onOff + ", width=" + width
-                    + ", height=" + height + ", insets=" + insets);
+            Slog.d(TAG, "onDisplayState: onOff=" + onOff + ", bonuds=" + bounds
+                    + ", insets=" + insets);
         }
         int changes = 0;
         if (onOff != DONT_CARE && mOnOff != onOff) {
             mOnOff = onOff;
             changes |= ClusterHomeManager.CONFIG_DISPLAY_ON_OFF;
         }
-        if (width != DONT_CARE && height != DONT_CARE
-                && (mWidth != width || mHeight != height)) {
-            mWidth = width;
-            mHeight = height;
+        if (bounds != null && !mBounds.equals(bounds)) {
+            mBounds = bounds;
             changes |= ClusterHomeManager.CONFIG_DISPLAY_SIZE;
         }
         if (insets != null && !mInsets.equals(insets)) {
@@ -281,7 +278,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
 
-        mClusterHalService.reportState(mOnOff, mWidth, mHeight, mInsets,
+        mClusterHalService.reportState(mOnOff, mBounds, mInsets,
                 uiTypeMain, uiTypeSub, uiAvailability);
     }
 
@@ -358,8 +355,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private ClusterState createClusterState() {
         ClusterState state = new ClusterState();
         state.on = mOnOff == DISPLAY_ON;
-        state.width = mWidth;
-        state.height = mHeight;
+        state.bounds = mBounds;
         state.insets = mInsets;
         state.uiType = mUiType;
         return state;

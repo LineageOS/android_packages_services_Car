@@ -68,8 +68,10 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     private static final int UI_TYPE_2 = 2;
     private static final byte[] UI_AVAILABILITY = new byte[] {(byte) 1, (byte) 0, (byte) 1};
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static final int BOUNDS_LEFT = 0;
+    private static final int BOUNDS_TOP = 1;
+    private static final int BOUNDS_RIGHT = 800;
+    private static final int BOUNDS_BOTTOM = 601;
     private static final int INSET_LEFT = 20;
     private static final int INSET_TOP = 10;
     private static final int INSET_RIGHT = 780;
@@ -189,13 +191,16 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     @Test
     public void testClusterState() throws InterruptedException {
         getMockedVehicleHal().injectEvent(createDisplayStateEvent(
-                DISPLAY_ON, WIDTH, HEIGHT, INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM));
+                DISPLAY_ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
+                INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM));
         mCallbackReceived.await(TEST_TIMEOUT_MS, TimeUnit.MILLISECONDS);
 
         assertThat(mState).isNotNull();
         assertThat(mState.on).isEqualTo(true);
-        assertThat(mState.width).isEqualTo(WIDTH);
-        assertThat(mState.height).isEqualTo(HEIGHT);
+        assertThat(mState.bounds.left).isEqualTo(BOUNDS_LEFT);
+        assertThat(mState.bounds.top).isEqualTo(BOUNDS_TOP);
+        assertThat(mState.bounds.right).isEqualTo(BOUNDS_RIGHT);
+        assertThat(mState.bounds.bottom).isEqualTo(BOUNDS_BOTTOM);
         assertThat(mState.insets.left).isEqualTo(INSET_LEFT);
         assertThat(mState.insets.top).isEqualTo(INSET_TOP);
         assertThat(mState.insets.right).isEqualTo(INSET_RIGHT);
@@ -208,8 +213,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         assertThat(state2).isNotNull();
         // The class generated from aidl doesn't have the proper equals() method yet.
         assertThat(state2.on).isEqualTo(mState.on);
-        assertThat(state2.width).isEqualTo(mState.width);
-        assertThat(state2.height).isEqualTo(mState.height);
+        assertThat(state2.bounds).isEqualTo(mState.bounds);
         assertThat(state2.insets).isEqualTo(mState.insets);
     }
 
@@ -220,7 +224,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
 
         VehiclePropValue value = mPropertyHandler.peek(VehicleProperty.CLUSTER_REPORT_STATE);
         assertThat(value.prop).isEqualTo(VehicleProperty.CLUSTER_REPORT_STATE);
-        assertThat(value.value.int32Values.subList(7, 9)).containsExactly(UI_TYPE_1, UI_TYPE_2);
+        assertThat(value.value.int32Values.subList(9, 11)).containsExactly(UI_TYPE_1, UI_TYPE_2);
         assertThat(value.value.bytes).containsExactly(
                 (Byte) UI_AVAILABILITY[0], (Byte) UI_AVAILABILITY[1], (Byte) UI_AVAILABILITY[2]);
     }
@@ -334,17 +338,20 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         return event;
     }
 
-    private static VehiclePropValue createDisplayStateEvent(int onOff, int width, int height,
-            int left, int top, int right, int bottom) {
+    private static VehiclePropValue createDisplayStateEvent(int onOff,
+            int boundsLeft, int boundsTop, int boundsRight, int boundsBottom,
+            int insetsLeft, int insetsTop, int insetSRight, int insetSBottom) {
         VehiclePropValue event = new VehiclePropValue();
         event.prop = CLUSTER_DISPLAY_STATE;
         event.value.int32Values.add(onOff);
-        event.value.int32Values.add(width);
-        event.value.int32Values.add(height);
-        event.value.int32Values.add(left);
-        event.value.int32Values.add(top);
-        event.value.int32Values.add(right);
-        event.value.int32Values.add(bottom);
+        event.value.int32Values.add(boundsLeft);
+        event.value.int32Values.add(boundsTop);
+        event.value.int32Values.add(boundsRight);
+        event.value.int32Values.add(boundsBottom);
+        event.value.int32Values.add(insetsLeft);
+        event.value.int32Values.add(insetsTop);
+        event.value.int32Values.add(insetSRight);
+        event.value.int32Values.add(insetSBottom);
         return event;
     }
 }
