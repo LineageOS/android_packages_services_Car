@@ -97,22 +97,14 @@
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"গাড়ীৰ ছিষ্টেমৰ অৱস্থা সম্পৰ্কীয় ডেটা সংগ্ৰহ কৰক।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"গাড়ীৰ EVS ছাৰ্ভিচ ব্যৱহাৰ কৰক"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ভিডিঅ’ ষ্ট্ৰীম ছাবস্ক্ৰাইব কৰক"</string>
-    <!-- no translation found for car_permission_label_request_evs_activity (3906551972883482883) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_request_evs_activity (4582768053649138488) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_evs_activity (2030069860204405679) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_evs_activity (691646545916976346) -->
-    <skip />
-    <!-- no translation found for car_permission_label_use_evs_camera (3607720208623955067) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_use_evs_camera (1625845902221003985) -->
-    <skip />
-    <!-- no translation found for car_permission_label_monitor_evs_status (2091521314159379622) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_monitor_evs_status (2764278897143573535) -->
-    <skip />
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS পূৰ্বদৰ্শন কাৰ্যটোৰ অনুৰোধ জনাওক"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"ছিষ্টেমটোক EVS পূৰ্বদৰ্শন কাৰ্যটো লঞ্চ কৰিবলৈ অনুৰোধ জনাওক"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"EVS পূৰ্বদৰ্শন কাৰ্যটো নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"ছিষ্টেমটোৰ EVS পূৰ্বদৰ্শন কাৰ্যটো নিয়ন্ত্ৰণ কৰক"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"EVS কেমেৰাটো ব্যৱহাৰ কৰক"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"EVS কেমেৰা ষ্ট্ৰীম ছাবস্ক্ৰাইব কৰক"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"EVS সেৱাটোৰ স্থিতি নিৰীক্ষণ কৰক"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"EVS সেৱাটোৰ স্থিতি সালসলনিসমূহ শুনক"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"আপোনাৰ গাড়ীৰ ইঞ্জিনৰ সবিশেষ তথ্য এক্সেছ কৰিব।"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"গাড়ীৰ ইন্ধনৰ দৰ্জা আৰু চাৰ্জ প’ৰ্ট এক্সেছ কৰিব"</string>

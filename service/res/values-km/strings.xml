@@ -97,22 +97,14 @@
     <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ប្រមូល​ទិន្នន័យអំពី​ស្ថានភាព​ប្រព័ន្ធ​រថយន្ត​។"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ប្រើ Car EVS Service"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ជាវ​ការស្ទ្រីមវីដេអូ EVS"</string>
-    <!-- no translation found for car_permission_label_request_evs_activity (3906551972883482883) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_request_evs_activity (4582768053649138488) -->
-    <skip />
-    <!-- no translation found for car_permission_label_control_evs_activity (2030069860204405679) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_control_evs_activity (691646545916976346) -->
-    <skip />
-    <!-- no translation found for car_permission_label_use_evs_camera (3607720208623955067) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_use_evs_camera (1625845902221003985) -->
-    <skip />
-    <!-- no translation found for car_permission_label_monitor_evs_status (2091521314159379622) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_monitor_evs_status (2764278897143573535) -->
-    <skip />
+    <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"ស្នើសុំ​សកម្មភាព​មើល EVS សាកល្បង"</string>
+    <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"ស្នើឱ្យ​ប្រព័ន្ធ​ចាប់ផ្ដើម​សកម្មភាព​មើល EVS សាកល្បង"</string>
+    <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"គ្រប់គ្រង​សកម្មភាព​មើល EVS សាកល្បង"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"គ្រប់គ្រង​សកម្មភាព​មើល EVS សាកល្បង​នៃប្រព័ន្ធ"</string>
+    <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"ប្រើ​កាមេរ៉ា EVS"</string>
+    <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"ជាវ​ការស្ទ្រីម​តាមកាមេរ៉ា EVS"</string>
+    <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"តាមដាន​ស្ថានភាព​នៃ​សេវាកម្ម EVS"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ស្ដាប់​ការផ្លាស់ប្ដូរ​ស្ថានភាព​នៃសេវាកម្ម EVS"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"ចូលប្រើព័ត៌មាន​លម្អិត​អំពីម៉ាស៊ីន​រថយន្ត"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"ចូលប្រើ​ព័ត៌មាន​លម្អិត​អំពីម៉ាស៊ីនរថយន្តរបស់អ្នក។"</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"ចូលប្រើ​គម្របសាំង និងរន្ធសាក​អាគុយរថយន្ត។"</string>
