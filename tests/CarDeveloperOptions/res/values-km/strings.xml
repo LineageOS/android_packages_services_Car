@@ -975,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"កុំបញ្ជាក់សុពលភាព"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"មិនមានវិញ្ញាបនបត្រដែលបានបញ្ជាក់ទេ។ ការតភ្ជាប់របស់អ្នកនឹងមិនមានលក្ខណៈឯកជនទេ។"</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"ឈ្មោះ​បណ្តាញ​វែងពេក​ហើយ។"</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"ត្រូវតែបញ្ជាក់ដែន"</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"ត្រូវតែបញ្ជាក់ដែន។"</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS អាច​ប្រើ​បាន"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (មាន WPS)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"បណ្ដាញ Wi‑Fi នៃក្រុមហ៊ុន​បម្រើសេវាទូរសព្ទ"</string>
@@ -1804,9 +1804,9 @@
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"លំនាំដើម"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"ភាព​ត្រូវ​គ្នា​នៃ​អេក្រង់"</string>
     <string name="permissions_label" msgid="7341733648403464213">"ការអនុញ្ញាត"</string>
-    <string name="cache_header_label" msgid="3202284481380361966">"ឃ្លាំង​សម្ងាត់"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"សម្អាត​ឃ្លាំងផ្ទុកទិន្នន័យ"</string>
-    <string name="cache_size_label" msgid="6205173678102220499">"ឃ្លាំងផ្ទុកទិន្នន័យ"</string>
+    <string name="cache_header_label" msgid="3202284481380361966">"ឃ្លាំងបម្រុង"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"សម្អាត​ឃ្លាំងបម្រុង"</string>
+    <string name="cache_size_label" msgid="6205173678102220499">"ឃ្លាំងបម្រុង"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="other">ធាតុ %d</item>
       <item quantity="one">ធាតុ 1</item>
@@ -3372,9 +3372,9 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"គ្មានកម្មវិធីបានដំឡើងណាមួយបានស្នើចូលដំណើរការការជូនដំណឹងទេ។"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"អនុញ្ញាតឱ្យចូល​ប្រើការជូនដំណឹង​សម្រាប់ <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> នឹងអាចអាន​ការជូនដំណឹង​ទាំងអស់ រួមទាំងព័ត៌មាន​ផ្ទាល់ខ្លួនដូចជា ឈ្មោះទំនាក់ទំនង និងសារជាអក្សរ​ដែលអ្នក​ទទួលបានជាដើម។ ជំនួយការជូនដំណឹងក៏អាចកែប្រែ ឬច្រានចោល​ការជូនដំណឹង ឬចាប់ផ្ដើមប៊ូតុង​សកម្មភាព​ដែលវាមានផងដែរ។ \n\nសកម្មភាព​នេះក៏នឹងផ្តល់​លទ្ធភាព​ឱ្យកម្មវិធីបើក ឬបិទមុខងារកុំ​រំខាន និងប្ដូរការកំណត់​ដែលពាក់ព័ន្ធផងដែរ។"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"អនុញ្ញាតឲ្យចូលដំណើរការជូនដំណឹងសម្រាប់ <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"អនុញ្ញាតឲ្យចូលប្រើការជូនដំណឹងសម្រាប់ <xliff:g id="SERVICE">%1$s</xliff:g> ឬ?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> នឹងអាចអានការជូនដំណឹងបានទាំងអស់ ដោយរាប់បញ្ចូលទាំងព័ត៌មានផ្ទាល់ខ្លួន ដូចជាឈ្មោះទំនាក់ទំនង និងសារជាអក្សរដែលអ្នកបានទទួល។ វាក៏អាចបដិសេធការជូនដំណឹង ឬចាប់ផ្តើមប៊ូតុងសកម្មភាពពួកវាផ្ទុកផងដែរ។ \n\nវានឹងផ្តល់លទ្ធភាពឲ្យកម្មវិធីបើក ឬបិទរបៀបកុំរំខាន និងផ្លាស់ប្តូរការកំណត់ដែលពាក់ព័ន្ធ។"</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"ប្រសិនបើអ្នកបិទការចូលដំណើរការការជូនដំណឹង <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> នោះការចូលដំណើរការរបៀបកុំរំខានក៏អាចនឹងត្រូវបានបិទដែរ។"</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"ប្រសិនបើអ្នកបិទការចូលប្រើការជូនដំណឹង​សម្រាប់ <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> នោះការចូលប្រើមុខងារ​កុំរំខានក៏អាចនឹងត្រូវបានបិទដែរ។"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"បិទ"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"បោះបង់"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"សេវាកម្មជំនួយ VR"</string>

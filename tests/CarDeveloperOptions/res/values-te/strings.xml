@@ -902,7 +902,7 @@
     <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"అధునాతన ఎంపికల డ్రాప్ డౌన్ జాబితా. కుదించడానికి రెండుసార్లు నొక్కండి."</string>
     <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"అధునాతన ఎంపికల డ్రాప్ డౌన్ జాబితా. విస్తరింపజేయడానికి రెండుసార్లు నొక్కండి."</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"నెట్‌వర్క్ పేరు"</string>
-    <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSIDని నమోదు చేయండి"</string>
+    <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSIDని ఎంటర్ చేయండి"</string>
     <string name="wifi_security" msgid="9136702039496152831">"భద్రత"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"దాచబడిన నెట్‌వర్క్"</string>
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"మీ రూటర్ నెట్‌వర్క్ IDని ప్రసారం చేయకపోయినా, భవిష్యత్తులో దానితో కనెక్ట్ కావాలనుకున్నట్లయితే, నెట్‌వర్క్ దాచబడిందిగా సెచ్ చేయవచ్చు.\n\nమీ ఫోన్ నెట్‌వర్క్‌ను కనుగొనడానికి దాని సంకేతాన్ని క్రమం తప్పకుండా ప్రసారం చేస్తుంది కాబట్టి ఇది భద్రతా ప్రమాదాన్ని సృష్టించవచ్చు.\n\nనెట్‌వర్క్ దాచబడిందిగా సెట్ చేయడం ద్వారా మీ రూటర్ సెట్టింగ్‌లలో మార్చదు."</string>
@@ -920,7 +920,7 @@
     <string name="wifi_eap_domain" msgid="3298302320003640130">"డొమైన్"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"యూజర్ సర్టిఫికెట్"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"గుర్తింపు"</string>
-    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"అనామక గుర్తింపు"</string>
+    <string name="wifi_eap_anonymous" msgid="6352344972490839958">"అనామక ఐడెంటిటీ"</string>
     <string name="wifi_password" msgid="6942983531275177771">"పాస్‌వర్డ్"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"పాస్‌వర్డ్‌ను చూపు"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"AP బ్యాండ్ ఎంచుకోండి"</string>
@@ -1025,7 +1025,7 @@
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
     <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 చిరునామాలు"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"సేవ్ చేసిన నెట్‌వర్క్‌లు"</string>
-    <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"సభ్యత్వాలు"</string>
+    <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"సబ్‌స్క్రిప్షన్‌లు"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
     <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IP సెట్టింగ్‌లు"</string>
@@ -1325,7 +1325,7 @@
     <string name="device_status" msgid="395318738663800026">"స్థితి"</string>
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"బ్యాటరీ, నెట్‌వర్క్ యొక్క స్థితి మరియు ఇతర సమాచారం"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"ఫోన్ నంబర్, సిగ్నల్ మొ."</string>
-    <string name="storage_settings" msgid="7009733301485139652">"నిల్వ"</string>
+    <string name="storage_settings" msgid="7009733301485139652">"స్టోరేజ్"</string>
     <string name="storage_settings_for_app" msgid="3028887232073069965">"నిల్వ &amp; కాష్"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"నిల్వ"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"నిల్వ సెట్టింగ్‌లు"</string>
@@ -1614,7 +1614,7 @@
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"పోర్టబుల్ హాట్‌స్పాట్"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"బ్లూటూత్ టీథరింగ్"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"టీథరింగ్"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"హాట్‌స్పాట్ &amp; టెథెరింగ్"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"హాట్‌స్పాట్ &amp; టెథరింగ్"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"హాట్‌స్పాట్ ఆన్, టెథెరింగ్"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"హాట్‌స్పాట్ ఆన్"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"టెథెరింగ్"</string>
@@ -1799,7 +1799,7 @@
     <string name="advanced_settings" msgid="6282069364060968122">"అధునాతన సెట్టింగ్‌లు"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"మరిన్ని సెట్టింగ్‌ల ఎంపికలను ప్రారంభించు"</string>
     <string name="application_info_label" msgid="3886253474964599105">"యాప్ సమాచారం"</string>
-    <string name="storage_label" msgid="1109537840103290384">"నిల్వ"</string>
+    <string name="storage_label" msgid="1109537840103290384">"స్టోరేజ్"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"ఆటోమేటిక్‌గా తెరువు"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"డిఫాల్ట్‌లు"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"స్క్రీన్ అనుకూలత"</string>
@@ -1817,7 +1817,7 @@
     <string name="total_size_label" msgid="3929917501176594692">"మొత్తం"</string>
     <string name="application_size_label" msgid="175357855490253032">"యాప్ పరిమాణం"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB నిల్వ యాప్"</string>
-    <string name="data_size_label" msgid="7790201846922671662">"వినియోగదారు డేటా"</string>
+    <string name="data_size_label" msgid="7790201846922671662">"యూజర్ డేటా"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB నిల్వ డేటా"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD కార్డు"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"అన్ఇన్‌స్టాల్ చేయి"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"ఇన్‌స్టాల్ చేయి"</string>
     <string name="disable_text" msgid="5065834603951474397">"డిజేబుల్ చేయి"</string>
     <string name="enable_text" msgid="7179141636849225884">"ప్రారంభించు"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"నిల్వను తీసివేయండి"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"స్టోరేజ్‌ను క్లియర్ చేయండి"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"అప్‌డేట్‌లను అన్‌ఇన్‌స్టాల్ చేయండి"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"మీరు కొన్ని చర్యల కోసం ఈ యాప్‌ను డిఫాల్ట్‌గా ప్రారంభించడానికి ఎంచుకున్నారు."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"మీరు విడ్జెట్‌లను సృష్టించడానికి మరియు వాటి డేటాను యాక్సెస్ చేయడానికి ఈ యాప్‌ను ఎంచుకున్నారు."</string>
@@ -3372,7 +3372,7 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"ఇన్‌స్టాల్ చేసిన అనువర్తనాలేవీ నోటిఫికేషన్ ప్రాప్యతను అభ్యర్థించలేదు."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> కోసం నోటిఫికేషన్ యాక్సెస్ అనుమతించాలా?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> ప‌రిచ‌యాల పేర్లు, మీరు స్వీకరించిన సందేశాల వంటి వ్యక్తిగత సమాచారంతో సహా అన్ని నోటిఫికేషన్‌లను చదవగలదు. అంతే కాదు ఇది నోటిఫికేషన్‌లను సవరించగలదు లేదా తీసివేయగలదు లేదా అవి కలిగి ఉండే చర్య బటన్‌లను యాక్టివేట్ చేయగలదు. \n\nఇది, అంతరాయం కలిగించవద్దు ఎంపికను ఆన్ చేయగల లేదా ఆఫ్ చేయగల సామర్థ్యాన్ని కూడా యాప్‌న‌కు ఇస్తుంది. సంబంధిత సెట్టింగ్‌లను కూడా మారుస్తుంది."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> కోసం నోటిఫికేషన్ ప్రాప్యతను అనుమతించాలా?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> కోసం నోటిఫికేషన్ యాక్సెస్‌ను అనుమతించాలా?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ప‌రిచ‌యాల పేర్లు, మీరు స్వీకరించిన సందేశాల వంటి వ్యక్తిగత సమాచారంతో సహా అన్ని నోటిఫికేషన్‌లను చదవగలదు. అంతే కాదు ఇది నోటిఫికేషన్‌లను సవరించగలదు లేదా తీసివేయగలదు లేదా అవి కలిగి ఉండే చర్య బటన్‌లను యాక్టివేట్ చేయగలదు. \n\nఇది, అంతరాయం కలిగించవద్దు ఎంపికను ఆన్ చేయగల లేదా ఆఫ్ చేయగల సామర్థ్యాన్ని కూడా యాప్‌న‌కు ఇస్తుంది. సంబంధిత సెట్టింగ్‌లను కూడా మారుస్తుంది."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"మీరు <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> కోసం నోటిఫికేషన్ యాక్సెస్‌ను ఆఫ్ చేస్తే, అంతరాయం కలిగించవద్దు ఎంపిక యాక్సెస్ కూడా ఆఫ్ చేయబడవచ్చు."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"ఆఫ్ చేయండి"</string>
@@ -3397,7 +3397,7 @@
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"మీ అభ్యర్ధన మేరకు Android, ఈ పరికరంలో ఈ యాప్ యొక్క నోటిఫికేషన్‌లను కనిపించకుండా బ్లాక్ చేస్తోంది"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"మీ అభ్యర్ధన మేరకు Android, ఈ పరికరంలో ఈ వర్గం యొక్క నోటిఫికేషన్‌లను కనిపించకుండా బ్లాక్ చేస్తోంది"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"మీ అభ్యర్ధన మేరకు Android, ఈ పరికరంలో ఈ సమూహం యొక్క నోటిఫికేషన్‌లను కనిపించకుండా బ్లాక్ చేస్తోంది"</string>
-    <string name="notification_channels" msgid="956764228116145956">"వర్గాలు"</string>
+    <string name="notification_channels" msgid="956764228116145956">"కేటగిరీలు"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"ఇతరం"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> వర్గాలు</item>
@@ -4447,7 +4447,7 @@
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"చెల్లని నెట్‌వర్క్ మోడ్<xliff:g id="NETWORKMODEID">%1$d</xliff:g>. విస్మరించు."</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"యాక్సెస్ స్థానం పేర్లు"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"<xliff:g id="CARRIER">%1$s</xliff:g>కి కనెక్ట్ చేసినప్పుడు అందుబాటులో ఉండదు"</string>
-    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"వైద్య సమాచారం, అత్యవసర పరిచయాలు"</string>
+    <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"వైద్య సమాచారం, ఎమర్జెన్సీ కాంటాక్ట్‌లు"</string>
     <string name="see_more" msgid="7463940160389802632">"మరిన్నింటిని చూడండి"</string>
     <string name="see_less" msgid="3718892257002813387">"తక్కువ చూడండి"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"<xliff:g id="APPNAME">%1$s</xliff:g>తో ఉపయోగించుకునే పరికరం"</string>

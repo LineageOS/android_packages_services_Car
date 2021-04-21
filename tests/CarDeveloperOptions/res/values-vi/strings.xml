@@ -922,7 +922,7 @@
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Danh tính"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Danh tính ẩn danh"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Mật khẩu"</string>
-    <string name="wifi_show_password" msgid="7878398590772942202">"Hiển thị mật khẩu"</string>
+    <string name="wifi_show_password" msgid="7878398590772942202">"Hiện mật khẩu"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Chọn băng tần AP"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Tự động"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"Băng tần 2,4 GHz"</string>
@@ -3370,11 +3370,11 @@
     <string name="notification_assistant_title" msgid="8216604031352764011">"Trợ lý thông báo"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Không có Trợ lý"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Không có ứng dụng đã cài đặt nào yêu cầu quyền truy cập thông báo."</string>
-    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Bạn muốn cấp quyền truy cập thông báo cho <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Cho phép <xliff:g id="SERVICE">%1$s</xliff:g> truy cập thông báo?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên liên hệ và nội dung của thông báo bạn nhận được. Tính năng này cũng có thể sửa đổi, bỏ qua thông báo hay kích hoạt các nút thao tác trong những thông báo đó. \n\nNgoài ra, tính năng này có thể bật hoặc tắt chế độ Không làm phiền và thay đổi các tùy chọn cài đặt liên quan."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Cho phép truy cập thông báo cho <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Cho phép <xliff:g id="SERVICE">%1$s</xliff:g> truy cập thông báo?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên liên hệ và nội dung của thông báo mà bạn nhận được. Tính năng này cũng có thể loại bỏ thông báo hoặc kích hoạt các nút thao tác trong các thông báo đó. \n\nTính năng cũng có thể bật hoặc tắt chế độ Không làm phiền và thay đổi các tùy chọn cài đặt có liên quan."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Nếu bạn tắt quyền truy cập thông báo của <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, quyền truy cập Không làm phiền cũng có thể bị tắt."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Nếu bạn tắt quyền truy cập thông báo của <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, quyền truy cập chế độ Không làm phiền cũng có thể bị tắt."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Tắt"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Hủy"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Dịch vụ trình trợ giúp thực tế ảo"</string>
@@ -3390,9 +3390,9 @@
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Hình trong hình"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Cho phép ảnh trong ảnh"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Cho phép ứng dụng này tạo một cửa sổ hình trong hình khi ứng dụng đang mở hoặc sau khi bạn rời khỏi ứng dụng đó (chẳng hạn như để tiếp tục xem video). Cửa sổ này sẽ xuất hiện trên các ứng dụng khác mà bạn đang sử dụng."</string>
-    <string name="manage_zen_access_title" msgid="3058206309728524196">"Truy cập Không làm phiền"</string>
+    <string name="manage_zen_access_title" msgid="3058206309728524196">"Quyền truy cập chế độ Không làm phiền"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Cho phép tính năng Không làm phiền"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Không có ứng dụng được cài đặt nào yêu cầu quyền truy cập Không làm phiền"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Không có ứng dụng đã cài đặt nào yêu cầu quyền truy cập vào chế độ Không làm phiền"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Đang tải ứng dụng..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Theo yêu cầu của bạn, Android đang chặn không cho thông báo của ứng dụng này xuất hiện trên thiết bị này"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Theo yêu cầu của bạn, Android đang chặn không cho danh mục thông báo này xuất hiện trên thiết bị này"</string>
