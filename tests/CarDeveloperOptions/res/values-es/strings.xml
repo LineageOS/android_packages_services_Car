@@ -834,7 +834,7 @@
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Si esta función está activada, puedes compartir contenido de las aplicaciones con otro dispositivo mediante NFC. Para ello, mantén los dispositivos cerca. Por ejemplo, puedes compartir páginas web, vídeos de YouTube, contactos y mucho más.\n\nSolo tienes que juntar los dispositivos (normalmente, por la parte de atrás) y tocar la pantalla. La aplicación determina el contenido que se comparte."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
-    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Activar conexión Wi-Fi"</string>
+    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Activar Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
     <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Usar Wi‑Fi"</string>
     <string name="wifi_settings_category" msgid="9094716747565527901">"Ajustes de Wi-Fi"</string>
@@ -1211,7 +1211,7 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Evita que la pantalla se apague si estás mirándola."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Esta opción usa la cámara frontal para detectar si hay alguien mirando la pantalla. Funciona en el dispositivo, y las imágenes no se almacenan ni se envían a Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Luz nocturna"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"La luz nocturna da un tono ámbar a la pantalla. De esta forma, es más fácil ver la pantalla con poca luz y conciliar el sueño."</string>
+    <string name="night_display_text" msgid="5330502493684652527">"Luz nocturna da un tono ámbar a la pantalla. De esta forma, es más fácil ver la pantalla o leer con poca luz, y puede ayudarte a dormirte con mayor facilidad."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programación"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Desactivada"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Activar a una hora personalizada"</string>
@@ -1246,7 +1246,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personaliza la pantalla"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Seleccionar fondo de..."</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Salvapantallas"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Durante la carga o si el dispositivo está conectado a una base"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Durante la carga o en una base"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Ambos casos"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Durante la carga"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Con el dispositivo en una base"</string>
@@ -3374,7 +3374,7 @@
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> podrá leer todas las notificaciones, incluidas aquellas relacionadas con información personal, como nombres de contactos y texto de mensajes que hayas recibido. También podrá ignorar las notificaciones o utilizar los botones de acción que incluyan. \n\nAdemás, concede a la aplicación la capacidad de activar o desactivar el modo No molestar y de cambiar las opciones de configuración relacionadas."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"¿Permitir que <xliff:g id="SERVICE">%1$s</xliff:g> acceda a las notificaciones?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> podrá leer todas las notificaciones, incluidas las relativas a información personal, como nombres de contactos y texto de mensajes que hayas recibido. También podrá ignorar las notificaciones o utilizar los botones de acción que incluyan. \n\nTambién concede a la aplicación la capacidad de activar o desactivar el modo No molestar y de cambiar las opciones de configuración relacionadas."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Si desactivas el acceso a las notificaciones de <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, también puede desactivarse el acceso al modo No molestar."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Si desactivas el acceso a las notificaciones de <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, es posible que también se desactive el modo No molestar."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desactivar"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Cancelar"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Servicios de ayuda de RV"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Predeterminada)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Sistema)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Predeterminados del sistema)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Almacenamiento de apps"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Almacenamiento de aplicaciones"</string>
     <string name="usage_access" msgid="2023443456361489516">"Acceso al uso"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Permitir acceso al uso"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Preferencias de uso de aplicaciones"</string>

@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM पहुँच अनुरोध"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> ले तपाईँको SIM कार्ड पहुँच गर्न चाहन्छ। डिभाइसमा SIM कार्ड पहुँच प्रदान गर्दा जडान अवधिको समयमा तपाईँको डेटा जडान निष्क्रिय हुनेछ। <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> लाई पहुँच प्रदान गर्नुहोस्"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"अन्य डिभाइसमा <xliff:g id="DEVICE_NAME">^1</xliff:g> को रूपमा देखिन्छ"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"अन्य डिभाइसमा जडान गर्न ब्लुटुथ सक्रिय गर्नुहोस्‌।"</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"अन्य डिभाइसमा जडान गर्न ब्लुटुथ अन गर्नुहोस्‌।"</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"तपाईंका यन्त्रहरू"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"नयाँ डिभाइससँग कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"आफ्नो ट्याब्लेटलाई वरपरका ब्लुटुथ यन्त्रहरूसँग सञ्चार गर्न दिनुहोस्"</string>
@@ -848,7 +848,7 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"हवाइजहाज मोडमा"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"खुला नेटवर्क सम्बन्धी  सूचना"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"उच्च गुणस्तरको सार्वजनिक नेटवर्क उपलब्ध हुँदा सूचित गराउनुहोस्"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fi स्वत: सक्रिय गर्नुहोस्"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fi स्वत: अन गरियोस्"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"तपाईंको घरको नेटवर्क जस्ता सेभ गरिएका उच्च गुणस्तरका नेटवर्कहरू नजिक हुँदा Wi‑Fi अन हुने छ"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"स्थान निष्क्रिय पारिएको हुनाले उपलब्ध छैन। "<annotation id="link">"स्थान"</annotation>" सक्रिय गर्नुहोस्।"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Wi‑Fi स्क्यान गर्ने सेवालाई निष्क्रिय पारिएको हुनाले Wi-Fi वेकअप विकल्प उपलब्ध छैन"</string>
@@ -912,13 +912,13 @@
     <string name="rx_wifi_speed" msgid="7392873246110937187">"लिंक प्राप्त गर्ने गति"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"आवृत्ति"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"IP एड्रेस"</string>
-    <string name="passpoint_label" msgid="7429247462404128615">"मार्फत सुरक्षित गरियो"</string>
+    <string name="passpoint_label" msgid="7429247462404128615">"मार्फत सेभ गरियो"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> प्रमाणहरू"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP विधि"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"चरण २ प्रमाणीकरण"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"दोस्रो चरणको प्रमाणीकरण"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA सर्टिफिकेट"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"डोमेन"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"प्रयोगकर्ता प्रमाणपत्र"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"प्रयोगकर्ता सर्टिफिकेट"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"पहिचान"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"अज्ञात पहिचान"</string>
     <string name="wifi_password" msgid="6942983531275177771">"पासवर्ड:"</string>
@@ -970,7 +970,7 @@
     <string name="wifi_unchanged" msgid="6804964646942333992">"(अपरिवर्तित)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"कृपया चयन गर्नुहोस्"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(बहु प्रमाणपत्रहरू थपिए)"</string>
-    <string name="wifi_use_system_certs" msgid="4794489370929885022">"प्रणालीका प्रमाणपत्रहरू प्रयोग गर्नुहोस्"</string>
+    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम सर्टिफिकेटहरू प्रयोग गर्नुहोस्"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"प्रदान नगर्नुहोस्"</string>
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"प्रमाणित नगर्नुहोस्"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"कुनै प्रमाणपत्र निर्दिष्ट गरिएको छैन। तपाईंको जडान निजी हुने छैन।"</string>
@@ -1211,10 +1211,10 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"स्क्रिनमा हेरिरहेका बेला स्क्रिन अफ हँदैन"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"कुनै व्यक्तिले स्क्रिनमा हेरिरहेको छ या छैन भन्ने कुरा पत्ता लगाउन स्क्रिनसम्बन्धी ज्ञान नामक सुविधाले अगाडिको क्यामेरा प्रयोग गर्दछ। यसले यो डिभाइसभित्रै मात्र काम गर्छ र छविहरू कहिल्यै पनि भण्डारण गरिँदैन वा Google मा पठाइँदैन।"</string>
     <string name="night_display_title" msgid="1305002424893349814">"Night Light"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"रात्रिको प्रकाशले तपाईँको यन्त्रको स्क्रिनलाई हल्का एम्बर रङको बनाउँछ। यसले मधुरो प्रकाशमा यन्त्रको स्क्रिन हेर्न र पढ्न सजिलो बनाउँछ र तपाईँलाई अझ सजिलैसँग निदाउन मद्दत गर्न सक्छ।"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"Night Light ले डिभाइसको स्क्रिन हल्का एम्बर रङको बनाउँछ। यसले मधुरो प्रकाशमा डिभाइसको स्क्रिन हेर्न र पढ्न सजिलो बनाउँछ तथा तपाईंलाई अझ सजिलैसँग निदाउन मद्दत गर्न सक्छ।"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"समय निर्धारण गर्नुहोस्"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"कुनै पनि होइन"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"आफू अनुकूल समयमा सक्रिय गर्छ"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"आफू अनुकूल समयमा अन हुन्छ"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"सूर्यास्तदेखि सूर्योदयसम्म अन हुन्छ"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"सुरु हुने समय"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"समाप्त हुने समय"</string>
@@ -1248,7 +1248,7 @@
     <string name="screensaver_settings_title" msgid="7720091234133721021">"स्क्रिन सेभर"</string>
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"चार्ज वा डक गरिरहँदा"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"कुनै"</string>
-    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"चार्ज हुँदा"</string>
+    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"चार्ज गरिरहेका बेला"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"डक गरिएको बेला"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"कहिल्यै पनि होइन"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"बन्द"</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"प्रणाली"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> अन्वेषण गर्नुहोस्"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"अन्यमा एपहरूले सुरक्षित गेरका साझा फाइल, इन्टरनेट वा ब्लुटुथबाट डाउनलोड गरिएका फाइल, Android का फाइलहरू र यस्तै थप कुराहरू पर्छन्। \n\nयो <xliff:g id="NAME">^1</xliff:g> का देख्न सकिने सामग्रीहरू हेर्न अन्वेषण गर्नुहोस् नामक विकल्पमा ट्याप गर्नुहोस्।"</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"प्रणालीमा Android संस्करण <xliff:g id="VERSION">%s</xliff:g> चलाउनका लागि प्रयोग भएका फाइलहरू समावेश छन्"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"सिस्टममा Android संस्करण <xliff:g id="VERSION">%s</xliff:g> चलाउनका लागि प्रयोग भएका फाइलहरू समावेश छन्"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> ले फोटो, सङ्गीत, एप वा अन्य डेटा सुरक्षित गर्नुभएको हुनसक्छ, जसले <xliff:g id="SIZE">^2</xliff:g> भण्डारण ओगटिरहेको छ। \n\nविवरणहरू हेर्न <xliff:g id="USER_1">^1</xliff:g> मा स्विच गर्नुहोस्।"</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"तपाईँको <xliff:g id="NAME">^1</xliff:g> सेट गर्नुहोस्"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"पोर्टेबल भण्डारणको रूपमा प्रयोग गर्नुहोस्"</string>
@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"कुनै एपहरू छैनन्"</string>
     <string name="internal_storage" msgid="7392373600013294853">"आन्तरिक भण्डारण"</string>
     <string name="recompute_size" msgid="4290692197892743928">"आकार पुनःगणना गर्दै ..."</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"एप डेटा मेटाउन चाहनुहुन्छ?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"एपको डेटा मेटाउन चाहनुहुन्छ?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"यस एपका सम्पूर्ण डेटाहरू स्थायी रूपमा मेटाइने छ। यसमा सम्पूर्ण फाइल, सेटिङ, खाताहरू, डेटाबेस आदि पर्दछन्।"</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ठिक छ"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"रद्द गर्नुहोस्"</string>
@@ -2746,7 +2746,7 @@
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP गोप्य"</string>
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec पहिचानकर्ता"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec पहिले नै साझेदारी गरिएको कि"</string>
-    <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec प्रयोगकर्ता प्रमाणपत्र"</string>
+    <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec प्रयोगकर्ता सर्टिफिकेट"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA सर्टिफिकेट"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec सर्भर प्रमाणपत्र"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"उन्नत विकल्पहरू देखाइयोस्"</string>
@@ -2814,7 +2814,7 @@
     <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"प्रयोगकर्ता CA सर्टिफिकेट स्थायी रूपमा हटाउने हो?"</string>
     <string name="credential_contains" msgid="483346955378412119">"यस प्रविष्टिमा निम्न समावेश छ:"</string>
     <string name="one_userkey" msgid="5349738921509013845">"एउटा प्रयोगकर्ता कुञ्जी"</string>
-    <string name="one_usercrt" msgid="856282310586987313">"एउटा प्रयोगकर्ता प्रमाणपत्र"</string>
+    <string name="one_usercrt" msgid="856282310586987313">"एउटा प्रयोगकर्ता सर्टिफिकेट"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"एउटा CA सर्टिफिकेट"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"%d CA सर्टिफिकेटहरू"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"प्रमाणका विवरणहरू"</string>
@@ -3371,10 +3371,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"सहायकसम्बन्धी कुनै सेवा छैन"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"कुनै स्थापित एपहरूले सूचना पहुँच अनुरोध गरेका छैनन्।"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> लाई सूचनामाथि पहुँच राख्ने अनुमति दिने हो?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> ले सम्पर्कको नाम र तपाईंले प्राप्त गर्नुभएका टेक्स्ट म्यासेजहरू जस्ता व्यक्तिगत जानकारीलगायत सबै सूचनाहरू पढ्न सक्ने छ। यसले सूचनाहरू परिमार्जन गर्न वा खारेज गर्न वा तिनमा रहेका कारबाहीमूलक बटनहरू ट्रिगर गर्न पनि सक्ने छ। \n\nयसले उक्त एपलाई बाधा नपुऱ्याउनुहोस् नामक मोड सक्रिय गर्ने वा निष्क्रिय पार्ने र सम्बन्धित सेटिङहरू परिवर्तन गर्ने क्षमता पनि प्रदान गर्ने छ।"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> का लागि सूचना पहुँच अनुमति दिने हो?"</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> ले सम्पर्कको नाम र तपाईंले प्राप्त गर्नुभएका टेक्स्ट म्यासेजहरू जस्ता व्यक्तिगत जानकारीलगायत सबै सूचनाहरू पढ्न सक्ने छ। यसले सूचनाहरू परिमार्जन गर्न वा खारेज गर्न वा तिनमा रहेका कारबाहीमूलक बटनहरू ट्रिगर गर्न पनि सक्ने छ। \n\nयसले उक्त एपलाई बाधा नपुऱ्याउनुहोस् मोड अन र अफ गर्ने र सम्बन्धित सेटिङहरू परिवर्तन गर्ने क्षमता पनि प्रदान गर्ने छ।"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> लाई सूचना पठाउने तथा हेर्ने अनुमति दिने हो?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> तपाईँले पाउनुहुने सन्देशहरूका सम्पर्कका नाम र पाठ जस्ता व्यक्तिगत जानकारी लगायत सबै सूचनाहरूलाई पढ्न सक्षम हुनेछ। यसले सूचनाहरूलाई खारेज गर्न वा तिनीहरूमा रहेका कारबाही सम्बन्धी बटनहरूलाई ट्रिगर गर्न पनि सक्नेछ। \n\nयसले एपलाई बाधा नपुर्याउनुहोस् मोडलाई सक्रिय वा निष्क्रिय पार्ने र सम्बन्धित सेटिङहरूलाई परिवर्तन गर्ने क्षमता पनि दिनेछ।"</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"यदि तपाईं <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> का लागि सूचना सम्बन्धी पहुँचलाई निष्क्रिय पार्नुहुन्छ भने बाधा नपुर्याउनुहोस् सम्बन्धी पहुँच पनि निष्क्रिय हुन सक्छ।"</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"तपाईंले <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> लाई दिइएको सूचना पठाउने अनुमति खारेज गर्नुभयो भने बाधा नपुर्याउनुहोस् नामक सेवालाई दिइएको अनुमति पनि खारेज हुन सक्छ।"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"निष्क्रिय पार्नुहोस्"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"रद्द गर्नुहोस्"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR का सहायक सेवाहरू"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(डिफल्ट)"</string>
     <string name="system_app" msgid="4111402206594443265">"(प्रणाली)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(प्रणालीको डिफल्ट)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"एप भण्डारण"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"एपले प्रयोग गरेको भण्डारण"</string>
     <string name="usage_access" msgid="2023443456361489516">"प्रयोग गर्ने अनुमति"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"प्रयोग गर्ने अनुमति दिनुहोस्"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"एप प्रयोग प्राथमिकताहरू"</string>

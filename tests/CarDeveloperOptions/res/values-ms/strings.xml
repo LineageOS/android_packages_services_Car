@@ -1211,7 +1211,7 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Menghalang skrin daripada dimatikan jika anda melihat pada skrin."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Kesedaran skrin menggunakan kamera depan untuk melihat jika seseorang sedang memandang skrin. Ciri ini berfungsi pada peranti dan imej tidak sekali-kali disimpan atau dihantar kepada Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Cahaya Malam"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"Cahaya Malam memberi seri warna kuning jingga pada skrin anda. Ini memudahkan lagi anda melihat skrin atau membaca dalam cahaya malap dan mungkin dapat membantu anda tidur dengan lebih mudah."</string>
+    <string name="night_display_text" msgid="5330502493684652527">"Cahaya Malam memberikan seri warna kuning jingga pada skrin anda. Ini memudahkan lagi anda melihat skrin atau membaca dalam cahaya malap dan mungkin dapat membantu anda tidur dengan lebih mudah."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Jadual"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Tiada"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Dihidupkan pada waktu tersuai"</string>

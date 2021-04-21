@@ -3373,7 +3373,7 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"沒有已安裝的應用程式要求通知存取權。"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"要允許<xliff:g id="SERVICE">%1$s</xliff:g>存取通知嗎？"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g>將能夠讀取所有通知 (包括個人資料，例如聯絡人姓名和訊息內容)，亦能修改或關閉通知，或者觸發通知內的操作按鈕。\n\n此外，該應用程式還能開啟或關閉「請勿騷擾」模式及變更相關設定。"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"授權 <xliff:g id="SERVICE">%1$s</xliff:g> 存取通知 ？"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"要允許<xliff:g id="SERVICE">%1$s</xliff:g>存取通知嗎？"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」將可讀取所有通知，包括聯絡人姓名和訊息內容等個人資料。它亦可以關閉通知，或觸發通知內的動作按鈕。\n\n這亦允許應用程式開啟或關閉「請勿騷擾」，以及變更相關設定。"</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"如果您關閉「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」的通知存取權，「請勿騷擾」的存取權亦可能會關閉。"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"關閉"</string>

@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Виджеттерди жандыруу"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Администратор өчүрүп койгон"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Кулпулоо опциясын көрсөтүү"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Күйгүзүү/өчүрүү баскычынын менюсуна Smart Lock\'ту, кулпуну манжа изи менен ачуу параметрин жана кулпуланган экрандагы билдирмелерди өчүрө турган функция кошулат"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Кубат баскычынын менюсуна Smart Lock\'ту, кулпуну манжа изи менен ачуу параметрин жана кулпуланган экрандагы билдирмелерди өчүрө турган функция кошулат"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Ишенимдүү агенттиктерге гана кулпу ачуу"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Эгер иштетилсе, ишенимдүү агенттиктер түзмөгүңүздү узагыраак убакытка кулпулабай сактап турат, бирок кулпуланган түзмөктү ача албайт."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Ишеним жоготулганда экранды кулпулоо"</string>
@@ -1390,8 +1390,8 @@
     <string name="sd_format" product="default" msgid="1346245995138883960">"SD картаны тазалоо"</string>
     <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"Ички USB сактагычтагы музыка жана сүрөттөр сыяктуу бардык дайындарды тазалайт"</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"SD картадагы музыка жана сүрөттөр сыяктуу бардык дайындарды тазалайт"</string>
-    <string name="memory_clear_cache_title" msgid="4306793268129306684">"Кэш берилиштери тазалансынбы?"</string>
-    <string name="memory_clear_cache_message" msgid="6723120398411410031">"Бул бардык колдонмолордун кэштелген берилиштерин тазалайт."</string>
+    <string name="memory_clear_cache_title" msgid="4306793268129306684">"Кеш берилиштери тазалансынбы?"</string>
+    <string name="memory_clear_cache_message" msgid="6723120398411410031">"Бул бардык колдонмолордун кештелген берилиштерин тазалайт."</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP же PTP функциясы жандырылган"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"USB сактагыч ажыратылсынбы?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"SD-карта ажыратылсынбы?"</string>
@@ -1804,9 +1804,9 @@
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Демейки"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Экрандын шайкештиги"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Уруксаттар"</string>
-    <string name="cache_header_label" msgid="3202284481380361966">"Кэш"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"Кэшти тазалоо"</string>
-    <string name="cache_size_label" msgid="6205173678102220499">"Кэш"</string>
+    <string name="cache_header_label" msgid="3202284481380361966">"Кеш"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"Кешти тазалоо"</string>
+    <string name="cache_size_label" msgid="6205173678102220499">"Кеш"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="other">%d нерсе</item>
       <item quantity="one">1 нерсе</item>
@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Бир дагы колдонмо жок."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Ички эстутум"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Өлчөмү кайра эсептелүүдө…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Колдонмонун дайындарын өчүрөсүзбү?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Колдонмодогу нерселерди өчүрөсүзбү?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Бул колдонмодогу файлдар, жөндөөлөр, аккаунттар жана маалымат базасы сыяктуу бардык нерселер биротоло өчүрүлөт."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"Жарайт"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Жок"</string>
@@ -3308,7 +3308,7 @@
     <string name="notification_badging_title" msgid="6311699476970264712">"Билдирмелердин белгилери көрүнсүн"</string>
     <string name="notification_bubbles_title" msgid="9196562435741861317">"Калкып чыкма билдирмелер"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Калкыма кыска жолдор аркылуу колдонмодогу мазмунга каалаган жерден тез өтүңүз"</string>
-    <string name="bubbles_feature_education" msgid="8979109826818881018">"Айрым билдирмелер экранга калкып чыкма кеңештер түрүндө көрүнөт. Аны ачуу үчүн басып коюңуз. Ал эми жашыруу үчүн, экрандын төмөн жагына сүйрөп барыңыз."</string>
+    <string name="bubbles_feature_education" msgid="8979109826818881018">"Айрым билдирмелер экранга калкып чыкма кеңештер түрүндө көрүнөт. Аны ачуу үчүн басып коюңуз. Ал эми жашыруу үчүн экрандын төмөн жагына сүйрөп барыңыз."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Калкып чыкма билдирмелер"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"<xliff:g id="APP_NAME">%1$s</xliff:g> колдонмосуна айрым билдирмелерди калкып чыкма кеңеш катары көрсөтүүгө уруксат берүү"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Көбүктөрдү күйгүзүү"</string>
@@ -3322,7 +3322,7 @@
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"Кулпуланган экранда"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Жумуш профили кулпуланганда"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Билдирме толугу менен көрүнөт"</string>
-    <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Купуя мазмун жашырылсын"</string>
+    <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Купуя нерселер жашырылсын"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Билдирмелер такыр көрүнбөйт"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Түзмөгүңүз кулпуланып турганда, билдирмелер кандай болуп көрүнсүн?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"Билдирмелер"</string>
@@ -3374,7 +3374,7 @@
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> колдонмосу билдирмелердин баарын, ошону менен катар байланыштардын аты-жөнү жана алынган билдирүүлөр сыяктуу жеке маалыматты окуй алат. Мындан тышкары, ал бул билдирмелерди өзгөртүп, жок кылып же алар сунуштаган аракеттерди аткара алат. \n\nУшуну менен колдонмо \"Тынчымды алба\" режимин иштетип же өчүрүү, ошондой эле анын жөндөөлөрүн өзгөртүү мүмкүнчүлүгүнө ээ болот."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> колдонмосу үчүн билдирмелерди иштетесизби?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> колдонмосу билдирмелердин баарын, ошону менен катар байланыштардын аты-жөнү жана алынган билдирүүлөр сыяктуу жеке маалыматты окуй алат. Мындан тышкары, ал бул билдирмелерди жок кылып же алардагы баскычтарды баса алат. \n\nУшуну менен колдонмо \"Тынчымды алба\" режимин иштетип же өчүрүү, ошондой эле анын жөндөөлөрүн өзгөртүү мүмкүнчүлүгүнө ээ болот."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Эгер <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> үчүн эскертмеге мүмкүнчүлүктү өчүрсөңүз, \"Тынчымды алба\" режимине мүмкүнчүлүк да өчүрүлүшү мүмкүн."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Эгер <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> колдонмосунун билдирмелерин алуудан баш тартсаңыз, \"Тынчымды алба\" режиминин жөндөөлөрүн өзгөртө албай каласыз."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Өчүрүү"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Жок"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR көмөкчү кызматтары"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Демейки)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Тутум)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Демейки тутум)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Колдонмолор кампасы"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Колдонмолор сакталган жер"</string>
     <string name="usage_access" msgid="2023443456361489516">"Колдонуу таржымалын көрүү"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Таржымалды көрүүгө уруксат берүү"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Колдонмону пайдалануунун жөндөөлөрү"</string>

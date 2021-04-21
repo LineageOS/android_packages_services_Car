@@ -796,7 +796,7 @@
     <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Als luidspreker"</string>
     <string name="bluetooth_dock_settings_a2dp" msgid="6618893632901282661">"Voor muziek en media"</string>
     <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"Instellingen onthouden"</string>
-    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maximum aantal verbonden Bluetooth-audioapparaten"</string>
+    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maximum aantal verbonden bluetooth-audioapparaten"</string>
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Selecteer het maximum aantal verbonden Bluetooth-audioapparaten"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Casten"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Draadloze weergave inschakelen"</string>

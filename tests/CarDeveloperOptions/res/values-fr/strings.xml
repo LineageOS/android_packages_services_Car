@@ -3144,7 +3144,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Son de notification par défaut"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Son fourni par l\'application"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Son de notification par défaut"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Sonnerie du réveil"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"Sonnerie par défaut du réveil"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibreur pour les appels"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Autres sons"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Sons du clavier numérique"</string>
@@ -3285,7 +3285,7 @@
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Les sons des profils professionnel et personnel sont identiques"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone pro"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son des notifications pro"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonnerie du réveil pro"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonnerie par défaut du réveil pro"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Mêmes sons que pour le profil professionnel"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Remplacer des sons ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Remplacer"</string>
