@@ -45,12 +45,13 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
-using aawi::IoOveruseConfiguration;
 using aawi::PackageResourceOveruseAction;
+using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
 using ::android::base::Result;
 using ::android::binder::Status;
 using ::testing::_;
+using ::testing::Pointer;
 using ::testing::Return;
 
 namespace {
@@ -369,22 +370,37 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifySystemStateChangeWithNonSys
     ASSERT_FALSE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogInternalHandlerTest, TestUpdateIoOveruseConfiguration) {
+TEST_F(WatchdogInternalHandlerTest, TestUpdateResourceOveruseConfigurations) {
     setSystemCallingUid();
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(ComponentType::SYSTEM, _))
+    EXPECT_CALL(*mMockIoOveruseMonitor, updateResourceOveruseConfigurations(_))
             .WillOnce(Return(Result<void>()));
-    Status status =
-            mWatchdogInternalHandler->updateIoOveruseConfiguration(ComponentType::SYSTEM,
-                                                                   IoOveruseConfiguration{});
+    Status status = mWatchdogInternalHandler->updateResourceOveruseConfigurations(
+            std::vector<ResourceOveruseConfiguration>{});
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest,
-       TestErrorOnUpdateIoOveruseConfigurationWithNonSystemCallingUid) {
-    EXPECT_CALL(*mMockIoOveruseMonitor, updateIoOveruseConfiguration(_, _)).Times(0);
-    Status status =
-            mWatchdogInternalHandler->updateIoOveruseConfiguration(ComponentType::SYSTEM,
-                                                                   IoOveruseConfiguration{});
+       TestErrorOnUpdateResourceOveruseConfigurationsWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, updateResourceOveruseConfigurations(_)).Times(0);
+    Status status = mWatchdogInternalHandler->updateResourceOveruseConfigurations(
+            std::vector<ResourceOveruseConfiguration>{});
+    ASSERT_FALSE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestGetResourceOveruseConfigurations) {
+    setSystemCallingUid();
+    std::vector<ResourceOveruseConfiguration> configs;
+    EXPECT_CALL(*mMockIoOveruseMonitor, getResourceOveruseConfigurations(Pointer(&configs)))
+            .WillOnce(Return(Result<void>()));
+    Status status = mWatchdogInternalHandler->getResourceOveruseConfigurations(&configs);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest,
+       TestErrorOnGetResourceOveruseConfigurationsWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, getResourceOveruseConfigurations(_)).Times(0);
+    std::vector<ResourceOveruseConfiguration> configs;
+    Status status = mWatchdogInternalHandler->getResourceOveruseConfigurations(&configs);
     ASSERT_FALSE(status.isOk()) << status;
 }
 
