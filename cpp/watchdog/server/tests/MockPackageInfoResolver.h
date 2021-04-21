@@ -29,7 +29,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockPackageInfoResolver : public IPackageInfoResolverInterface {
+class MockPackageInfoResolver : public IPackageInfoResolver {
 public:
     MockPackageInfoResolver() {}
     MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelper,
@@ -39,7 +39,11 @@ public:
                 (const std::vector<uid_t>& uids), (override));
     MOCK_METHOD((std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>),
                 getPackageInfosForUids, (const std::vector<uid_t>& uids), (override));
-    MOCK_METHOD(void, setVendorPackagePrefixes, (const std::unordered_set<std::string>& prefixes),
+    MOCK_METHOD(void, setPackageConfigurations,
+                ((const std::unordered_set<std::string>&),
+                 (const std::unordered_map<
+                         std::string,
+                         android::automotive::watchdog::internal::ApplicationCategoryType>&)),
                 (override));
 };
 

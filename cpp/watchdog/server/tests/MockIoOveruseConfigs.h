@@ -21,9 +21,10 @@
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/PerStateBytes.h>
+#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
-#include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
+#include <android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <gmock/gmock.h>
 
 namespace android {
@@ -45,6 +46,11 @@ public:
             (override));
 
     MOCK_METHOD((const std::unordered_set<std::string>&), vendorPackagePrefixes, (), (override));
+
+    MOCK_METHOD((const std::unordered_map<
+                        std::string,
+                        android::automotive::watchdog::internal::ApplicationCategoryType>&),
+                packagesToAppCategories, (), (override));
 
     MOCK_METHOD(PerStateBytes, fetchThreshold,
                 (const android::automotive::watchdog::internal::PackageInfo&), (const, override));
