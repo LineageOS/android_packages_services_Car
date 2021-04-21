@@ -23,9 +23,9 @@
 #include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/IoOveruseAlertThreshold.h>
-#include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <android/automotive/watchdog/internal/PerStateIoOveruseThreshold.h>
+#include <android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <utils/String16.h>
 
 #include <optional>
@@ -37,11 +37,12 @@
 namespace android {
 namespace automotive {
 namespace watchdog {
+constexpr const char* kDefaultThresholdName = "default";
 
 inline const android::automotive::watchdog::internal::PerStateIoOveruseThreshold
 defaultThreshold() {
     android::automotive::watchdog::internal::PerStateIoOveruseThreshold threshold;
-    threshold.name = android::String16("default");
+    threshold.name = android::String16(kDefaultThresholdName);
     threshold.perStateWriteBytes.foregroundBytes = std::numeric_limits<uint64_t>::max();
     threshold.perStateWriteBytes.backgroundBytes = std::numeric_limits<uint64_t>::max();
     threshold.perStateWriteBytes.garageModeBytes = std::numeric_limits<uint64_t>::max();
@@ -53,10 +54,14 @@ defaultThreshold() {
  */
 class IIoOveruseConfigs : public android::RefBase {
 public:
-    // Overwrites the existing configuration for the given |componentType|.
-    virtual android::base::Result<void> update(
-            const android::automotive::watchdog::internal::ComponentType componentType,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config) = 0;
+    // Overwrites the existing configurations.
+    virtual android::base::Result<void>
+    update(const std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
+                   configs) = 0;
+    // Returns the existing configurations.
+    virtual void get(
+            std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
+                    resourceOveruseConfigs) = 0;
 
     /*
      * Returns the list of vendor package prefixes. Any pre-installed package matching one of these
@@ -155,10 +160,12 @@ public:
         mAlertThresholds.clear();
     }
 
-    // Overwrites the existing configuration for the given |componentType|.
-    android::base::Result<void> update(
-            const android::automotive::watchdog::internal::ComponentType componentType,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config);
+    android::base::Result<void>
+    update(const std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
+                   configs);
+
+    void get(std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
+                     resourceOveruseConfigs);
 
     PerStateBytes fetchThreshold(
             const android::automotive::watchdog::internal::PackageInfo& packageInfo) const;
@@ -173,6 +180,16 @@ public:
     }
 
 private:
+    android::base::Result<void> update(
+            const android::automotive::watchdog::internal::ResourceOveruseConfiguration&
+                    resourceOveruseConfiguration,
+            const android::automotive::watchdog::internal::IoOveruseConfiguration&
+                    ioOveruseConfiguration,
+            int32_t updatableConfigsFilter, ComponentSpecificConfig* targetComponentConfig);
+
+    std::optional<android::automotive::watchdog::internal::ResourceOveruseConfiguration> get(
+            const ComponentSpecificConfig& componentSpecificConfig, const int32_t componentFilter);
+
     // System component specific configuration.
     ComponentSpecificConfig mSystemConfig;
     // Vendor component specific configuration.
