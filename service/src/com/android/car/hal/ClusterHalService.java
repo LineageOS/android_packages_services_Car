@@ -30,10 +30,9 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.IntArray;
-import android.util.Log;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -110,7 +109,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void init() {
-        if (DBG) Log.d(TAG, "initClusterHalService");
+        Slogf.d(TAG, "initClusterHalService");
         if (!isCoreSupported()) return;
 
         for (int property : SUBSCRIBABLE_PROPERTIES) {
@@ -120,7 +119,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void release() {
-        if (DBG) Log.d(TAG, "releaseClusterHalService");
+        Slogf.d(TAG, "releaseClusterHalService");
         synchronized (mLock) {
             mCallback = null;
         }
@@ -156,10 +155,8 @@ public final class ClusterHalService extends HalServiceBase {
             }
         }
         mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE) >= 0;
-        if (DBG) {
-            Log.d(TAG, "takeProperties: coreSupported=" + mIsCoreSupported
-                    + ", navigationStateSupported=" + mIsNavigationStateSupported);
-        }
+        Slogf.d(TAG, "takeProperties: coreSupported=%s, navigationStateSupported=%s",
+                mIsCoreSupported, mIsNavigationStateSupported);
     }
 
     public boolean isCoreSupported() {
@@ -172,7 +169,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void onHalEvents(List<VehiclePropValue> values) {
-        if (DBG) Log.d(TAG, "handleHalEvents(): " + values);
+        Slogf.d(TAG, "handleHalEvents(): %s", values);
         ClusterHalEventCallback callback;
         synchronized (mLock) {
             callback = mCallback;
@@ -202,7 +199,7 @@ public final class ClusterHalService extends HalServiceBase {
                     callback.onDisplayState(onOff, bounds, insets);
                     break;
                 default:
-                    Slog.w(TAG, "received unsupported event from HAL: " + value);
+                    Slogf.w(TAG, "received unsupported event from HAL: %s", value);
             }
         }
     }
@@ -215,7 +212,7 @@ public final class ClusterHalService extends HalServiceBase {
         }
         if (count == 0) return true;
         if (count != length) {
-            Slog.w(TAG, "Don't care should be set in the whole " + fieldName);
+            Slogf.w(TAG, "Don't care should be set in the whole %s.", fieldName);
         }
         return false;
     }
@@ -278,7 +275,7 @@ public final class ClusterHalService extends HalServiceBase {
         try {
             mHal.set(request);
         } catch (ServiceSpecificException e) {
-            Slog.e(TAG, "Failed to send request: " + request, e);
+            Slogf.e(TAG, "Failed to send request: " + request, e);
         }
     }
 
