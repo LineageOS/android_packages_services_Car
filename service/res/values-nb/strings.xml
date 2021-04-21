@@ -100,7 +100,7 @@
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"be om EVS-forhåndsvisningsaktiviteten"</string>
     <string name="car_permission_desc_request_evs_activity" msgid="4582768053649138488">"be systemet om å starte EVS-forhåndsvisningsaktiviteten"</string>
     <string name="car_permission_label_control_evs_activity" msgid="2030069860204405679">"kontrollere EVS-forhåndsvisningsaktiviteten"</string>
-    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"kontrollere systemets forhåndsvisningsaktivitet"</string>
+    <string name="car_permission_desc_control_evs_activity" msgid="691646545916976346">"kontrollere systemets EVS-forhåndsvisningsaktivitet"</string>
     <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"bruke EVS-kameraet"</string>
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"abonnere på EVS-kamerastrømmer"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"holde øye med EVS-tjenestens status"</string>
