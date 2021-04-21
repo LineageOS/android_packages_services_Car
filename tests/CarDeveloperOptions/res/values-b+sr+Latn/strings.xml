@@ -1319,13 +1319,13 @@
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Koristi <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"Ažurirati željeni SIM?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> je jedina SIM kartica u uređaju. Želite li da koristite ovu SIM karticu za mobilne podatke, pozive i SMS poruke?"</string>
-    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Netačan PIN za SIM kôd. Sada morate da kontaktirate mobilnog operatera da biste otključali uređaj."</string>
+    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Netačan PIN kôd za SIM. Sada morate da kontaktirate mobilnog operatera da biste otključali uređaj."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="one">Netačan PIN za SIM kôd. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaj.</item>
-      <item quantity="few">Netačan PIN za SIM kôd. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaja.</item>
-      <item quantity="other">Netačan PIN za SIM kôd. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaja.</item>
+      <item quantity="one">Netačan PIN kôd za SIM. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaj.</item>
+      <item quantity="few">Netačan PIN kôd za SIM. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaja.</item>
+      <item quantity="other">Netačan PIN kôd za SIM. Imate još <xliff:g id="NUMBER_1">%d</xliff:g> pokušaja.</item>
     </plurals>
-    <string name="pin_failed" msgid="4877356137480446727">"Radnja sa PIN za SIM kodom nije uspela!"</string>
+    <string name="pin_failed" msgid="4877356137480446727">"Radnja sa PIN kodom za SIM nije uspela!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"Ažuriranja sistema"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android verzija"</string>
@@ -3419,7 +3419,7 @@
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> će moći da čita sva obaveštenja, uključujući lične podatke, poput imena kontakata i teksta poruka koje primate. Moći će i da menja ili odbacuje obaveštenja ili da koristi dugmad za radnje koja sadrže. \n\nOvo će aplikaciji omogućiti i da uključuje ili isključuje režim Ne uznemiravaj i menja srodna podešavanja."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Želite li da omogućite pristup obaveštenjima za <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> će moći da čita sva obaveštenja, uključujući lične podatke, poput imena kontakata i teksta poruka koje primate. Moći će i da odbacuje obaveštenja ili da koristi dugmad za radnje koja sadrže. \n\nOvo će aplikaciji omogućiti i da uključuje ili isključuje režim Ne uznemiravaj i menja srodna podešavanja."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Ako isključite pristup obaveštenjima za korisnika <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, isključićete i pristup režimu Ne uznemiravaj."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Ako isključite pristup obaveštenjima za <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, isključićete i pristup režimu Ne uznemiravaj."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Isključi"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Otkaži"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Usluge pomagača za virtuelnu realnost"</string>
@@ -3734,7 +3734,7 @@
     <string name="default_app" msgid="8861276008866619872">"(podrazumevano)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Sistemska)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Podrazumevana sistemska)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Memorija za aplikacije"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Memorija aplikacija"</string>
     <string name="usage_access" msgid="2023443456361489516">"Pristup korišćenju"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Dozvoli pristup korišćenju"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Podešavanja korišćenja aplikacija"</string>

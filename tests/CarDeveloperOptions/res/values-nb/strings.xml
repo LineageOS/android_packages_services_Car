@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"Fase 2-autentisering"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA-sertifikat"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domene"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Klientsertifikat"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Brukersertifikat"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Identitet"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Anonym identitet"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Passord"</string>
@@ -1214,8 +1214,8 @@
     <string name="night_display_text" msgid="5330502493684652527">"Nattlys gir skjermen en ravgul nyanse. Dette gjør det mer komfortabelt å se eller lese på skjermen i svakt lys, og det kan gjøre det enklere å sovne."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Tidsplan"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ingen"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Slås på på et egendefinert tidspunkt"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Slås på fra solnedgang til soloppgang"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Egendefinerte tidspunkt"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Fra solnedgang til soloppgang"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Starttid"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Sluttid"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>
@@ -1246,7 +1246,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Gi skjermen et personlig preg"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Velg bakgrunnsbilde fra"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Skjermsparer"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Når enheten lades eller er i dokken"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Når enheten lades / er i dokken"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Begge"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Når enheten lades"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Når enheten er i dokken"</string>
@@ -1254,7 +1254,7 @@
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Av"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"For å kontrollere hva som skjer når telefonen er plassert i dokken og/eller i hvilemodus, slå på skjermspareren."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Starttidspunkt"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"Nåværende skjermsparer"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"Aktiv skjermsparer"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Start nå"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Innstillinger"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Automatisk lysstyrke"</string>

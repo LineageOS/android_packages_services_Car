@@ -1239,14 +1239,14 @@
     <string name="screen_timeout_title" msgid="150117777762864112">"O ecrã desliga-se"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"Depois de <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> de inatividade"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"Imagem de fundo"</string>
-    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Estilos e imagens de fundo"</string>
+    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"Estilos e fundo"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"Predefinida"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"Personalizada"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Alterar imagem de fundo"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personalizar o ecrã"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Escolher imagem de fundo de"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Proteção de ecrã"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar ou na estação de ancoragem"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar/ancorado"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Ambos os casos"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Ao carregar"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Ancorado"</string>
@@ -1786,7 +1786,7 @@
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"O mesmo que o bloqueio de ecrã do dispositivo"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"Gerir aplicações"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"Gerir e remover aplicações instaladas"</string>
-    <string name="applications_settings" msgid="368331725658793179">"Info. da aplicação"</string>
+    <string name="applications_settings" msgid="368331725658793179">"Info da app"</string>
     <string name="applications_settings_summary" msgid="8888258399577123906">"Gerir aplicações, configurar atalhos de início rápido"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"Definições da aplicação"</string>
     <string name="install_applications" msgid="7745902974984889179">"Fontes desconhecidas"</string>
@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O dispositivo e os dados pessoais são mais vulneráveis a ataques de aplicações desconhecidas. Ao instalar aplicações desta fonte, aceita ser responsável por quaisquer danos no dispositivo ou perdas de dados que possam resultar da utilização do mesmo."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Definições avançadas"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Ativar mais opções de definições"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Info. da aplicação"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Info da app"</string>
     <string name="storage_label" msgid="1109537840103290384">"Armazenamento"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Abrir por predefinição"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Predefinições"</string>
@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Sem apps."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Armaz. interno"</string>
     <string name="recompute_size" msgid="4290692197892743928">"A recalcular tamanho..."</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Eliminar dados da aplicação?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Eliminar dados da app?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Todos os dados desta aplicação serão eliminados permanentemente. Isto inclui todos os ficheiros, definições, contas, bases de dados, etc."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Cancelar"</string>
@@ -2393,7 +2393,7 @@
     <string name="usage_type_computed_power" msgid="2594890316149868151">"Utilização de energia calculada"</string>
     <string name="usage_type_actual_power" msgid="8067253427718526111">"Utilização de energia observada"</string>
     <string name="battery_action_stop" msgid="1866624019460630143">"Forçar paragem"</string>
-    <string name="battery_action_app_details" msgid="1077011181969550402">"Info. da aplicação"</string>
+    <string name="battery_action_app_details" msgid="1077011181969550402">"Info da app"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"Definições da aplicação"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Definições do ecrã"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"Definições de Wi-Fi"</string>

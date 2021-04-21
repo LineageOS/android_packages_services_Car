@@ -1804,9 +1804,9 @@
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"ડિફૉલ્ટ્સ"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"સ્ક્રીન સુસંગતતા"</string>
     <string name="permissions_label" msgid="7341733648403464213">"પરવાનગીઓ"</string>
-    <string name="cache_header_label" msgid="3202284481380361966">"કેશ"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"કેશ સાફ કરો"</string>
-    <string name="cache_size_label" msgid="6205173678102220499">"કેશ"</string>
+    <string name="cache_header_label" msgid="3202284481380361966">"કૅશ"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"કૅશ મેમરી સાફ કરો"</string>
+    <string name="cache_size_label" msgid="6205173678102220499">"કૅશ"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="one">%d આઇટમ</item>
       <item quantity="other">%d આઇટમ</item>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"નિયંત્રણો"</string>
     <string name="force_stop" msgid="9213858124674772386">"ફરજિયાત બંધ કરો"</string>
     <string name="total_size_label" msgid="3929917501176594692">"કુલ"</string>
-    <string name="application_size_label" msgid="175357855490253032">"ઍપ્લિકેશનનું કદ"</string>
+    <string name="application_size_label" msgid="175357855490253032">"ઍપનું કદ"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB સ્ટોરેજ ઍપ્લિકેશન"</string>
     <string name="data_size_label" msgid="7790201846922671662">"વપરાશકર્તા ડેટા"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB સ્ટોરેજ ડેટા"</string>
@@ -1860,8 +1860,8 @@
     <string name="no_applications" msgid="6811396016303576024">"કોઈ ઍપ્લિકેશનો નથી."</string>
     <string name="internal_storage" msgid="7392373600013294853">"આંતરિક સ્ટોરેજ"</string>
     <string name="recompute_size" msgid="4290692197892743928">"કદની ફરીથી ગણના કરી રહ્યું છે…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ઍપ્લિકેશન ડેટા કાઢી નાખીએ?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"આ તમામ એપ્લિકેશનનો ડેટા કાયમી રીતે કાઢી નાંખવામાં આવશે. આમાં તમામ ફાઇલો, સેટિંગ્સ, એકાઉન્ટ્સ, ડેટાબેસેસ વગેરે શામેલ છે."</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ઍપનો ડેટા ડિલીટ કરીએ?"</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"આ તમામ ઍપનો ડેટા કાયમી રીતે ડિલીટ કરવામાં આવશે. આમાં તમામ ફાઇલો, સેટિંગ, એકાઉન્ટ, ડેટાબેઝ વગેરે શામેલ છે."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ઓકે"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"રદ કરો"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>

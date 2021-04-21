@@ -1246,7 +1246,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personalizar sua tela"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Selecionar de..."</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Protetor de tela"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar ou quando encaixado na base"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar/encaixado na base"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Ambos"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Ao carregar"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Na base"</string>

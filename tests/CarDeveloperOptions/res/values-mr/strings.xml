@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"सिस्टम"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> एक्सप्लोर करा"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"इतर गोष्टींमध्ये अ‍ॅप्सवरून सेव्ह करून शेअर केलेल्या फाइल, इंटरनेट किंवा ब्लूटूथ वरून डाउनलोड केलेल्या फाइल, Android फाइल आणि इत्यादीचा समावेश असतो. \n\n<xliff:g id="NAME">^1</xliff:g> चा दिसणाराा आशय पाहण्यासाठी, एक्सप्लोर करा वर टॅप करा."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"सिस्टममध्ये Android व्हर्जन <xliff:g id="VERSION">%s</xliff:g> रन करण्यासाठी वापरल्या जाणाऱ्या फायलींचा समावेश आहे"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"सिस्टममध्ये Android व्हर्जन <xliff:g id="VERSION">%s</xliff:g> रन करण्यासाठी वापरल्या जाणाऱ्या फाइलचा समावेश आहे"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> कडे <xliff:g id="SIZE">^2</xliff:g> स्टोरेज वापरणारे, सेव्ह केलेले फोटो, संगीत, अ‍ॅप्स किंवा इतर डेटा असू शकतो. \n\nतपशील पाहण्यासाठी, <xliff:g id="USER_1">^1</xliff:g> वर स्विच करा."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"तुमचे <xliff:g id="NAME">^1</xliff:g> सेट करा"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"पोर्टेबल संचयन म्हणून वापरा"</string>
@@ -3375,7 +3375,7 @@
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"संपर्क नावे आणि तुम्हाला येणारे एसएमएस यासारख्या वैयक्तिक माहितीच्या समावेशासह <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> सर्व सूचना पाहू शकेल. ते त्यांच्यामधील सूचनांमध्ये बदल करू शकेल किंवा त्यांना डिसमिस करू शकेल अथवा त्यामध्ये असलेली अ‍ॅक्शन बटणे ट्रिगर करू शकेल. \n\nयामुळे ॲपला व्यत्यय आणू नका सुरू किंवा बंद करता येईल आणि संबंधित सेटिंग्ज बदलता येतील."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> साठी सूचना प्रवेशास अनुमती द्यायची?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> तुम्ही प्राप्त करता ती संपर्क नावे आणि मजकूर मेसेज यासारख्या वैयक्तिक माहितीसह सर्व सूचना वाचण्यात सक्षम असेल. तो सूचना डिसमिस करण्यात किंवा त्यामध्ये असलेली क्रिया बटणे ट्रिगर करण्यात देखील सक्षम असेल. \n\nहे ॲपला व्यत्यय आणू नका सुरू किंवा बंद करण्याची आणि सबंधित सेटिंग्ज बदलण्याची क्षमता देखील देईल."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"तुम्ही <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> साठी सूचनांमधील प्रवेश बंद केल्यास, व्यत्यय आणू नका मधील प्रवेश देखील बंद केला जाऊ शकतो."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"तुम्ही <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> साठी सूचनांमधील प्रवेश बंद केल्यास, व्यत्यय आणू नका मधील प्रवेशदेखील बंद केला जाऊ शकतो."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"बंद करा"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"रद्द करा"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR मदतकर्ता सेवा"</string>

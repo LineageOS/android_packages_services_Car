@@ -220,7 +220,7 @@
     <string name="radio_info_imei_label" msgid="7300156592358133405">"IMEI zk.:"</string>
     <string name="radio_info_call_redirect_label" msgid="2679891718182753061">"Dei-desbideratzea:"</string>
     <string name="radio_info_ppp_resets_label" msgid="2785162965440312941">"PPP berrezarpen kopurua abiarazi ezkero:"</string>
-    <string name="radio_info_current_network_label" msgid="5785805819312999094">"Uneko sarea:"</string>
+    <string name="radio_info_current_network_label" msgid="5785805819312999094">"Oraingo sarea:"</string>
     <string name="radio_info_ppp_received_label" msgid="5217391494757374330">"Jasotako datuak:"</string>
     <string name="radio_info_gsm_service_label" msgid="7488842563230281026">"Ahots-deien zerbitzua:"</string>
     <string name="radio_info_signal_strength_label" msgid="7773514616083573394">"Seinalearen indarra:"</string>
@@ -1254,7 +1254,7 @@
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Desaktibatuta"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Telefonoa oinarrian edo inaktibo dagoenean zer gertatzen den kontrolatzeko, aktibatu pantaila-babeslea."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Noiz abiarazi"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"Uneko pantaila-babeslea"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"Oraingo pantaila-babeslea"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Abiarazi"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Ezarpenak"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Distira automatikoa"</string>
@@ -1931,7 +1931,7 @@
     <string name="service_stop" msgid="8812777462903125191">"Gelditu"</string>
     <string name="service_manage" msgid="7045214643721276662">"Ezarpenak"</string>
     <string name="service_stop_description" msgid="4184180745938573707">"Zerbitzua bere aplikazioak hasi du. Gelditzen baduzu, agian aplikazioak huts egingo du."</string>
-    <string name="heavy_weight_stop_description" msgid="7444148811046611463">"Ezin da aplikazioa modu seguruan gelditu. Geldituz gero, uneko lan batzuk gal ditzakezu."</string>
+    <string name="heavy_weight_stop_description" msgid="7444148811046611463">"Ezin da aplikazioa modu seguruan gelditu. Geldituz gero, oraingo lan batzuk gal ditzakezu."</string>
     <string name="background_process_stop_description" msgid="8971810208873038109">"Aplikazio-prozesu hau zaharra da, baina abian da oraindik ere, badaezpada berriro behar bada. Normalean ez dago hura gelditzeko arrazoirik."</string>
     <string name="service_manage_description" msgid="8058123524402833082">"<xliff:g id="CLIENT_NAME">%1$s</xliff:g>: beste norbait ari da erabiltzen. Zuk kontrolatzeko, saka ezazu Ezarpenak."</string>
     <string name="main_running_process_description" msgid="7733268956566861797">"Abian den prozesu nagusia."</string>
@@ -2010,7 +2010,7 @@
     <string name="testing_phone_info" product="default" msgid="1954062952628179016">"Telefonoari buruzko informazioa"</string>
     <string name="input_methods_settings_title" msgid="880477541100103388">"Testu-idazketa"</string>
     <string name="input_method" msgid="2426639635860376775">"Idazketa-metodoa"</string>
-    <string name="current_input_method" msgid="4831870685505762355">"Uneko teklatua"</string>
+    <string name="current_input_method" msgid="4831870685505762355">"Oraingo teklatua"</string>
     <string name="input_method_selector" msgid="2053594139601607047">"Idazketa-metodoaren hautatzailea"</string>
     <string name="input_method_selector_show_automatically_title" msgid="6641287899537973903">"Automatikoa"</string>
     <string name="input_method_selector_always_show_title" msgid="214003059953067317">"Erakutsi beti"</string>
@@ -2822,7 +2822,7 @@
     <string name="user_credential_none_installed" msgid="4129252817676332368">"Ez da instalatu erabiltzaile-kredentzialik"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Ortografia-zuzentzailea"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"Ortografia-zuzentzailea lanerako"</string>
-    <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Idatzi babeskopia osoa egiteko uneko pasahitza"</string>
+    <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Idatzi babeskopia osoa egiteko oraingo pasahitza"</string>
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"Idatzi babeskopietarako pasahitz berria"</string>
     <string name="confirm_new_backup_pw_prompt" msgid="3357847425183550770">"Idatzi berriro babeskopia osoa egiteko pasahitz berria"</string>
     <string name="backup_pw_set_button_text" msgid="1331989759872017022">"Ezarri babeskopien pasahitza"</string>
@@ -3278,7 +3278,7 @@
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ez egin soinurik eta ez erakutsi ezer jakinarazpenak jasotzean"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ez egin soinurik jakinarazpenak jasotzean"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ez duzu ikusi edo entzungo jakinarazpenik. Kontaktu izardunek eta berriro deitu dutenen deiak onartu egingo dira."</string>
-    <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Uneko ezarpena)"</string>
+    <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Oraingo ezarpena)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Ez molestatzeko moduaren jakinarazpen-ezarpenak aldatu nahi dituzu?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Laneko profilaren soinuak"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Erabili profil pertsonalaren soinuak"</string>
@@ -4302,7 +4302,7 @@
     <string name="unsupported_setting_summary" product="default" msgid="8125039107722103915">"Telefono honek ez du ezarpena onartzen"</string>
     <string name="unsupported_setting_summary" product="tablet" msgid="5218851782882347599">"Tableta honek ez du ezarpena onartzen"</string>
     <string name="unsupported_setting_summary" product="device" msgid="1239391112218784768">"Gailu honek ez du ezarpena onartzen"</string>
-    <string name="disabled_for_user_setting_summary" msgid="552110989778725955">"Uneko erabiltzaileak ezin du aldatu ezarpena"</string>
+    <string name="disabled_for_user_setting_summary" msgid="552110989778725955">"Oraingo erabiltzaileak ezin du aldatu ezarpena"</string>
     <string name="disabled_dependent_setting_summary" msgid="7668590009599010842">"Beste ezarpen baten araberakoa da"</string>
     <string name="unknown_unavailability_setting_summary" msgid="5785931810977403534">"Ezarpena ez dago erabilgarri"</string>
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Kontua"</string>

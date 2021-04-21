@@ -818,8 +818,8 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Мб/сек"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> Wi-Fi желісінің қосылуын сұрайды"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> Wi-Fi желісінің өшірілуін сұрайды"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Жөнделетін қолданбалардың байт-кодын растау"</string>
-    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ART растау құралына жөнделетін қолданбалардың байт-кодын растауға рұқсат беру"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Түзетілетін қолданбалардың байт-кодын растау"</string>
+    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ART растау құралына түзетілетін қолданбалардың байт-кодын растауға рұқсат беру"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Планшет басқа құрылғымен қатынасқанда дерек алмастыруға рұқсат беру"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Телефонды басқа құрылғыға жақындатқанда, дерек алмасуға рұқсат беру"</string>
@@ -919,7 +919,7 @@
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA сертификаты"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Пайдаланушы сертификаты"</string>
-    <string name="wifi_eap_identity" msgid="5280457017705738773">"Бірлік"</string>
+    <string name="wifi_eap_identity" msgid="5280457017705738773">"Пайдаланушы"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Белгісіз"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Құпия сөз"</string>
     <string name="wifi_show_password" msgid="7878398590772942202">"Құпия сөзді көрсету"</string>
@@ -1133,7 +1133,7 @@
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Бастапқы хабар дыбысы"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"Meдиа"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"Музыка және видео дыбысын реттеу"</string>
-    <string name="alarm_volume_title" msgid="8902277801531496243">"Дабыл"</string>
+    <string name="alarm_volume_title" msgid="8902277801531496243">"Оятқыш"</string>
     <string name="dock_settings_summary" msgid="3023630224867503210">"Жалғанған қондырғының аудио параметрлері"</string>
     <string name="dtmf_tone_enable_title" msgid="3797301105270314782">"Теру тақтасының сенсор әуендері"</string>
     <string name="sound_effects_enable_title" msgid="3693756476729696246">"Түрту дыбыстары"</string>
@@ -1219,7 +1219,7 @@
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Басталу уақыты"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Аяқталу уақыты"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Күйі"</string>
-    <string name="night_display_temperature_title" msgid="8375126629902616296">"Қарқын"</string>
+    <string name="night_display_temperature_title" msgid="8375126629902616296">"Қанықтығы"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"Өшірулі / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Автоматты қосылмайды"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"Автоматты қосылады: <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -1245,16 +1245,16 @@
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"Тұсқағазды өзгерту"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Экранды жекелендіру"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Тұсқағазды таңдау"</string>
-    <string name="screensaver_settings_title" msgid="7720091234133721021">"Экранды сақтау режимі"</string>
+    <string name="screensaver_settings_title" msgid="7720091234133721021">"Скринсейвер"</string>
     <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Зарядтау кезінде немесе қондыру станциясына қойғанда"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Екеуі де"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Зарядтау кезінде"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Қондыру станциясына қойғанда"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Ешқашан"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Өшірулі"</string>
-    <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Телефон қондырылған және/немесе ұйықтаған кездегі процесті бақылау үшін экранды сақтау режимін қосыңыз."</string>
+    <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Телефон қондырылған және/немесе ұйықтаған кездегі процесті бақылау үшін скринсейверді қосыңыз."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Іске қосылатын кезі"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"Ағымдағы экран сақтау режимі"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"Қазіргі скринсейвер"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Қазір бастау"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Параметрлер"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Aвтоматтық жарықтық"</string>
@@ -2446,7 +2446,7 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Meдиасервері"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Қолданбаны оңтайландыру"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Батареяны үнемдеу режимі"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Батареяны үнемдеу"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Автоматты түрде қосу"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Кесте жоқ"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Әрекеттеріңіз негізінде"</string>
@@ -3762,7 +3762,7 @@
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Көмекші қолданбаға мәтін сияқты экран мазмұнына кіруге рұқсат ету"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Скриншотты пайдалану"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Қолданбаға экран кескінін пайдалануға рұқсат ету"</string>
-    <string name="assist_flash_title" msgid="8852484250748551092">"Экранды жарықтандыру"</string>
+    <string name="assist_flash_title" msgid="8852484250748551092">"Экранды жыпылықтату"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Көмекші қолданба экрандағы мәтінге не скриншотқа кірген кезде, экранның шеттері жанады"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Көмекші қолданбалар ашық тұрған экрандағы ақпарат бойынша көмек бере алады. Кейбір қолданбалар қосымша көмек ретінде іске қосу құралын да, дауыспен енгізу қызметтерін де пайдаланады."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Жадты орташа пайдалануы"</string>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Тақырып таңдау"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Бұл параметр қолданбаларға да қолданылады."</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Қолдауға ие қолданбалар да қараңғы тақырыпқа ауысады."</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Жылдам реттеудің бөлшектері"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Жылдам параметрлердің әзірлеушілерге арналған бөлшектері"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope трассасы"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Датчиктер өшірулі"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Жұмыс профилінің параметрлері"</string>
@@ -4466,8 +4466,8 @@
     <string name="internet_connectivity_panel_title" msgid="341712994620215750">"Интернет байланысы"</string>
     <string name="volume_connectivity_panel_title" msgid="4998755371496690971">"Дыбыс деңгейі"</string>
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Ұшақ режимінде қолжетімді емес."</string>
-    <string name="force_desktop_mode" msgid="6973100177551040740">"Жұмыс үстелінің режимін мәжбүрлі қосу"</string>
-    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Қосымша дисплейлерде эксперименттік жұмыс үстелі режимін мәжбүрлі қосу"</string>
+    <string name="force_desktop_mode" msgid="6973100177551040740">"Жұмыс үстелінің режимін мәжбүрлеп қосу"</string>
+    <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Қосымша дисплейлерде эксперименттік жұмыс үстелі режимін мәжбүрлеп қосу"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Қараңғылауға жол бермеу"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Қараңғы тақырыпты мәжбүрлеп қойғанда, \"Әрдайым қосулы\" мәніне өзгертеді"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Құпиялылық"</string>
