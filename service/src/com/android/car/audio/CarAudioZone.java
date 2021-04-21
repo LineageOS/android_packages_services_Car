@@ -115,7 +115,8 @@ import java.util.Set;
      *
      * Note that it is fine that there are devices which do not appear in any group. Those devices
      * may be reserved for other purposes.
-     * Step value validation is done in {@link CarVolumeGroup#bind(int, CarAudioDeviceInfo)}
+     * Step value validation is done in
+     * {@link CarVolumeGroup.Builder#setDeviceInfoForContext(int, CarAudioDeviceInfo)}
      */
     boolean validateVolumeGroups() {
         Set<Integer> contexts = new HashSet<>();
