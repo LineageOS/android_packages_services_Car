@@ -27,6 +27,7 @@
 
 #include <inttypes.h>
 
+#include <iterator>
 #include <string_view>
 
 namespace android {
@@ -46,6 +47,9 @@ using ::android::base::StartsWith;
 using ::android::binder::Status;
 
 using GetpwuidFunction = std::function<struct passwd*(uid_t)>;
+using PackageToAppCategoryMap =
+        std::unordered_map<std::string,
+                           android::automotive::watchdog::internal::ApplicationCategoryType>;
 
 namespace {
 
@@ -84,10 +88,6 @@ Result<PackageInfo> getPackageInfoForNativeUid(
     packageInfo.uidType = UidType::NATIVE;
     packageInfo.componentType =
             getComponentTypeForNativeUid(uid, packageName, vendorPackagePrefixes);
-    /**
-     * TODO(b/167240592): Identify application category type using the package names. Vendor
-     *  should define the mappings from package name to the application category type.
-     */
     packageInfo.appCategoryType = ApplicationCategoryType::OTHERS;
     packageInfo.sharedUidPackages = {};
 
@@ -99,7 +99,7 @@ Result<PackageInfo> getPackageInfoForNativeUid(
 sp<PackageInfoResolver> PackageInfoResolver::sInstance = nullptr;
 GetpwuidFunction PackageInfoResolver::sGetpwuidHandler = &getpwuid;
 
-sp<IPackageInfoResolverInterface> PackageInfoResolver::getInstance() {
+sp<IPackageInfoResolver> PackageInfoResolver::getInstance() {
     if (sInstance == nullptr) {
         sInstance = new PackageInfoResolver();
     }
@@ -123,13 +123,15 @@ Result<void> PackageInfoResolver::initWatchdogServiceHelper(
     return {};
 }
 
-void PackageInfoResolver::setVendorPackagePrefixes(
-        const std::unordered_set<std::string>& prefixes) {
+void PackageInfoResolver::setPackageConfigurations(
+        const std::unordered_set<std::string>& vendorPackagePrefixes,
+        const PackageToAppCategoryMap& packagesToAppCategories) {
     std::unique_lock writeLock(mRWMutex);
     mVendorPackagePrefixes.clear();
-    for (const auto& prefix : prefixes) {
-        mVendorPackagePrefixes.push_back(prefix);
-    }
+    std::copy(vendorPackagePrefixes.begin(), vendorPackagePrefixes.end(),
+              std::back_inserter(mVendorPackagePrefixes));
+    mPackagesToAppCategories = packagesToAppCategories;
+    // Clear the package info cache as the package configurations have changed.
     mUidToPackageInfoMapping.clear();
 }
 
@@ -174,11 +176,16 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
               status.exceptionMessage().c_str());
         return;
     }
-    for (const auto& packageInfo : packageInfos) {
-        if (packageInfo.packageIdentifier.name.size() == 0) {
+    for (auto& packageInfo : packageInfos) {
+        const auto& id = packageInfo.packageIdentifier;
+        if (id.name.size() == 0) {
             continue;
         }
-        mUidToPackageInfoMapping[packageInfo.packageIdentifier.uid] = packageInfo;
+        if (const auto it = mPackagesToAppCategories.find(String8(id.name).c_str());
+            packageInfo.uidType == UidType::APPLICATION && it != mPackagesToAppCategories.end()) {
+            packageInfo.appCategoryType = it->second;
+        }
+        mUidToPackageInfoMapping[id.uid] = packageInfo;
     }
 }
 

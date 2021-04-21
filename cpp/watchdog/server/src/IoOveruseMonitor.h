@@ -217,8 +217,8 @@ private:
     using Processor = std::function<void(ListenersByUidMap&, ListenersByUidMap::const_iterator)>;
     bool findListenerAndProcessLocked(const sp<IBinder>& binder, const Processor& processor);
 
-    // Local IPackageInfoResolverInterface instance. Useful to mock in tests.
-    sp<IPackageInfoResolverInterface> mPackageInfoResolver;
+    // Local IPackageInfoResolver instance. Useful to mock in tests.
+    sp<IPackageInfoResolver> mPackageInfoResolver;
 
     // Makes sure only one collection is running at any given time.
     mutable std::shared_mutex mRwMutex;

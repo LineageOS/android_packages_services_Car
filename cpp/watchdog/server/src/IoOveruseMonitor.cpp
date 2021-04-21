@@ -111,7 +111,8 @@ Result<void> IoOveruseMonitor::init() {
     mIoOveruseConfigs = new IoOveruseConfigs();
     // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
     mPackageInfoResolver = PackageInfoResolver::getInstance();
-    mPackageInfoResolver->setVendorPackagePrefixes(mIoOveruseConfigs->vendorPackagePrefixes());
+    mPackageInfoResolver->setPackageConfigurations(mIoOveruseConfigs->vendorPackagePrefixes(),
+                                                   mIoOveruseConfigs->packagesToAppCategories());
     return {};
 }
 
@@ -278,6 +279,8 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
     if (procDiskStats == nullptr) {
         return Error() << "Proc disk stats collector must not be null";
     }
+
+    std::unique_lock writeLock(mRwMutex);
     if (mLastSystemWideIoMonitorTime == 0) {
         /*
          * Do not record the first disk stats as it reflects the aggregated disks stats since the

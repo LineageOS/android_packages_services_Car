@@ -17,36 +17,20 @@
 package android.automotive.watchdog.internal;
 
 import android.automotive.watchdog.internal.ApplicationCategoryType;
-import android.automotive.watchdog.internal.ComponentType;
-import android.automotive.watchdog.internal.PackageIdentifier;
-import android.automotive.watchdog.internal.UidType;
 
 /**
- * Describes package information.
+ * Structure that describes the package metadata.
  */
-parcelable PackageInfo {
+parcelable PackageMetadata {
   /**
-   * Identifier for the package whose information is stored in the below fields.
+   * Name of the package.
    */
-  PackageIdentifier packageIdentifier;
+  @utf8InCpp String packageName;
 
   /**
-   * UID type.
-   */
-  UidType uidType;
-
-  /**
-   * List of packages owned by the package. This list is empty when the UID is not a shared UID.
-   */
-  List<String> sharedUidPackages;
-
-  /**
-   * Component type of the package and the owned packages.
-   */
-  ComponentType componentType;
-
-  /**
-   * Application category type of the package and the owned packages.
+   * Application category type of the package.
+   *
+   * This must be defined only by the system and vendor component configurations.
    */
   ApplicationCategoryType appCategoryType = ApplicationCategoryType.OTHERS;
 }
