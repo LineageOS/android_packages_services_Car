@@ -39,6 +39,7 @@ using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
+using ::android::automotive::watchdog::internal::PackageMetadata;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::ResourceSpecificConfiguration;
@@ -54,20 +55,22 @@ namespace {
 
 // Enum to filter the updatable overuse configs by each component.
 enum OveruseConfigEnum {
-    COMPONENT_SPECIFIC_GENERIC_THRESHOLDS = 1 << 0,
-    COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS = 1 << 1,
-    COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES = 1 << 2,
-    PER_CATEGORY_THRESHOLDS = 1 << 3,
-    VENDOR_PACKAGE_PREFIXES = 1 << 4,
-    SYSTEM_WIDE_ALERT_THRESHOLDS = 1 << 5,
+    COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES = 1 << 0,
+    VENDOR_PACKAGE_PREFIXES = 1 << 1,
+    PACKAGE_APP_CATEGORY_MAPPINGS = 1 << 2,
+    COMPONENT_SPECIFIC_GENERIC_THRESHOLDS = 1 << 3,
+    COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS = 1 << 4,
+    PER_CATEGORY_THRESHOLDS = 1 << 5,
+    SYSTEM_WIDE_ALERT_THRESHOLDS = 1 << 6,
 };
 
-const int32_t kSystemComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRESHOLDS |
-        COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS | COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES |
-        SYSTEM_WIDE_ALERT_THRESHOLDS;
-const int32_t kVendorComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRESHOLDS |
-        COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS | COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES |
-        PER_CATEGORY_THRESHOLDS | VENDOR_PACKAGE_PREFIXES;
+const int32_t kSystemComponentUpdatableConfigs = COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES |
+        PACKAGE_APP_CATEGORY_MAPPINGS | COMPONENT_SPECIFIC_GENERIC_THRESHOLDS |
+        COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS | SYSTEM_WIDE_ALERT_THRESHOLDS;
+const int32_t kVendorComponentUpdatableConfigs = COMPONENT_SPECIFIC_SAFE_TO_KILL_PACKAGES |
+        VENDOR_PACKAGE_PREFIXES | PACKAGE_APP_CATEGORY_MAPPINGS |
+        COMPONENT_SPECIFIC_GENERIC_THRESHOLDS | COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS |
+        PER_CATEGORY_THRESHOLDS;
 const int32_t kThirdPartyComponentUpdatableConfigs = COMPONENT_SPECIFIC_GENERIC_THRESHOLDS;
 
 const std::vector<String16> toString16Vector(const std::unordered_set<std::string>& values) {
@@ -400,6 +403,18 @@ Result<void> IoOveruseConfigs::update(
                       !nonUpdatableConfigMsgs.empty() ? ", " : "");
     }
 
+    if (updatableConfigsFilter & OveruseConfigEnum::PACKAGE_APP_CATEGORY_MAPPINGS) {
+        mPackagesToAppCategories.clear();
+        for (const auto& meta : resourceOveruseConfiguration.packageMetadata) {
+            if (!meta.packageName.empty()) {
+                mPackagesToAppCategories[meta.packageName] = meta.appCategoryType;
+            }
+        }
+    } else if (!resourceOveruseConfiguration.packageMetadata.empty()) {
+        StringAppendF(&nonUpdatableConfigMsgs, "%spackage to application category mappings",
+                      !nonUpdatableConfigMsgs.empty() ? ", " : "");
+    }
+
     std::string errorMsgs;
     const auto maybeAppendVendorPackagePrefixes =
             [&componentType = std::as_const(resourceOveruseConfiguration.componentType),
@@ -505,6 +520,14 @@ std::optional<ResourceOveruseConfiguration> IoOveruseConfigs::get(
     if (componentFilter & OveruseConfigEnum::VENDOR_PACKAGE_PREFIXES) {
         resourceOveruseConfiguration.vendorPackagePrefixes =
                 toString16Vector(mVendorPackagePrefixes);
+    }
+    if (componentFilter & OveruseConfigEnum::PACKAGE_APP_CATEGORY_MAPPINGS) {
+        for (const auto& [packageName, appCategoryType] : mPackagesToAppCategories) {
+            PackageMetadata meta;
+            meta.packageName = packageName;
+            meta.appCategoryType = appCategoryType;
+            resourceOveruseConfiguration.packageMetadata.push_back(meta);
+        }
     }
     if (componentFilter & OveruseConfigEnum::COMPONENT_SPECIFIC_PER_PACKAGE_THRESHOLDS) {
         for (const auto& [packageName, threshold] : componentSpecificConfig.mPerPackageThresholds) {

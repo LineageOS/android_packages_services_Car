@@ -69,6 +69,13 @@ public:
      */
     virtual const std::unordered_set<std::string>& vendorPackagePrefixes() = 0;
 
+    /*
+     * Returns the package names to application category mappings.
+     */
+    virtual const std::unordered_map<
+            std::string, android::automotive::watchdog::internal::ApplicationCategoryType>&
+    packagesToAppCategories() = 0;
+
     // Fetches the I/O overuse thresholds for the given package.
     virtual PerStateBytes fetchThreshold(
             const android::automotive::watchdog::internal::PackageInfo& packageInfo) const = 0;
@@ -179,6 +186,12 @@ public:
         return mVendorPackagePrefixes;
     }
 
+    const std::unordered_map<std::string,
+                             android::automotive::watchdog::internal::ApplicationCategoryType>&
+    packagesToAppCategories() {
+        return mPackagesToAppCategories;
+    }
+
 private:
     android::base::Result<void> update(
             const android::automotive::watchdog::internal::ResourceOveruseConfiguration&
@@ -196,6 +209,10 @@ private:
     ComponentSpecificConfig mVendorConfig;
     // Third-party component specific configuration.
     ComponentSpecificConfig mThirdPartyConfig;
+    // Package name to application category mappings.
+    std::unordered_map<std::string,
+                       android::automotive::watchdog::internal::ApplicationCategoryType>
+            mPackagesToAppCategories;
     // I/O overuse thresholds per category.
     std::unordered_map<android::automotive::watchdog::internal::ApplicationCategoryType,
                        android::automotive::watchdog::internal::PerStateIoOveruseThreshold>

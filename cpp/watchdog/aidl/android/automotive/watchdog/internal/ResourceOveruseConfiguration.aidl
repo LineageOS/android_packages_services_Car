@@ -17,6 +17,7 @@
 package android.automotive.watchdog.internal;
 
 import android.automotive.watchdog.internal.ComponentType;
+import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 
 /**
@@ -40,6 +41,11 @@ parcelable ResourceOveruseConfiguration {
    * vendor partition. This must be defined only by the vendor component.
    */
   List<String> vendorPackagePrefixes;
+
+  /**
+   * Defines the package metadata.
+   */
+  List<PackageMetadata> packageMetadata;
 
   /**
    * Defines resource specific overuse configurations for the current component.

@@ -20,6 +20,7 @@
 #include "WatchdogServiceHelper.h"
 
 #include <android-base/result.h>
+#include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <binder/IBinder.h>
 #include <gtest/gtest_prod.h>
@@ -49,7 +50,7 @@ class PackageInfoResolverPeer;
 
 }  // namespace internal
 
-class IPackageInfoResolverInterface : public android::RefBase {
+class IPackageInfoResolver : public android::RefBase {
 public:
     virtual std::unordered_map<uid_t, std::string> getPackageNamesForUids(
             const std::vector<uid_t>& uids) = 0;
@@ -59,7 +60,11 @@ public:
 protected:
     virtual android::base::Result<void> initWatchdogServiceHelper(
             const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) = 0;
-    virtual void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes) = 0;
+    virtual void setPackageConfigurations(
+            const std::unordered_set<std::string>& vendorPackagePrefixes,
+            const std::unordered_map<
+                    std::string, android::automotive::watchdog::internal::ApplicationCategoryType>&
+                    packagesToAppCategories) = 0;
 
 private:
     friend class ServiceManager;
@@ -75,13 +80,13 @@ private:
  * TODO(b/158131194): Extend IUidObserver in WatchdogBinderMediator and use the onUidGone API to
  *  keep the local mapping cache up-to-date.
  */
-class PackageInfoResolver : public IPackageInfoResolverInterface {
+class PackageInfoResolver : public IPackageInfoResolver {
 public:
     /*
      * Initializes the PackageInfoResolver's singleton instance only on the first call. Main thread
      * should make the first call as this method doesn't offer multi-threading protection.
      */
-    static sp<IPackageInfoResolverInterface> getInstance();
+    static sp<IPackageInfoResolver> getInstance();
 
     /*
      * Resolves the given |uids| and returns a mapping of uids to package names. If the mapping
@@ -109,7 +114,11 @@ protected:
     android::base::Result<void> initWatchdogServiceHelper(
             const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper);
 
-    void setVendorPackagePrefixes(const std::unordered_set<std::string>& prefixes);
+    virtual void setPackageConfigurations(
+            const std::unordered_set<std::string>& vendorPackagePrefixes,
+            const std::unordered_map<
+                    std::string, android::automotive::watchdog::internal::ApplicationCategoryType>&
+                    packagesToAppCategories);
 
 private:
     // PackageInfoResolver instance can only be obtained via |getInstance|.
@@ -136,6 +145,9 @@ private:
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
             mUidToPackageInfoMapping GUARDED_BY(mRWMutex);
     std::vector<std::string> mVendorPackagePrefixes GUARDED_BY(mRWMutex);
+    std::unordered_map<std::string,
+                       android::automotive::watchdog::internal::ApplicationCategoryType>
+            mPackagesToAppCategories GUARDED_BY(mRWMutex);
 
     friend class ServiceManager;
     friend class IoOveruseMonitor;

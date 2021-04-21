@@ -195,8 +195,8 @@ private:
     // Top N per-process stats per subcategory.
     int mTopNStatsPerSubcategory;
 
-    // Local IPackageInfoResolverInterface instance. Useful to mock in tests.
-    sp<IPackageInfoResolverInterface> mPackageInfoResolver;
+    // Local IPackageInfoResolver instance. Useful to mock in tests.
+    sp<IPackageInfoResolver> mPackageInfoResolver;
 
     // Makes sure only one collection is running at any given time.
     Mutex mMutex;
