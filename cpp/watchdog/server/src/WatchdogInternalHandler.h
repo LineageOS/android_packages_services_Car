@@ -26,8 +26,8 @@
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogMonitor.h>
 #include <android/automotive/watchdog/internal/ICarWatchdogServiceForSystem.h>
-#include <android/automotive/watchdog/internal/IoOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/PackageResourceOveruseAction.h>
+#include <android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
 #include <android/automotive/watchdog/internal/StateType.h>
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
@@ -81,9 +81,13 @@ public:
     android::binder::Status notifySystemStateChange(
             android::automotive::watchdog::internal::StateType type, int32_t arg1,
             int32_t arg2) override;
-    android::binder::Status updateIoOveruseConfiguration(
-            android::automotive::watchdog::internal::ComponentType type,
-            const android::automotive::watchdog::internal::IoOveruseConfiguration& config) override;
+    android::binder::Status updateResourceOveruseConfigurations(
+            const std::vector<
+                    android::automotive::watchdog::internal::ResourceOveruseConfiguration>& configs)
+            override;
+    android::binder::Status getResourceOveruseConfigurations(
+            std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
+                    configs) override;
     android::binder::Status actionTakenOnResourceOveruse(
             const std::vector<
                     android::automotive::watchdog::internal::PackageResourceOveruseAction>&

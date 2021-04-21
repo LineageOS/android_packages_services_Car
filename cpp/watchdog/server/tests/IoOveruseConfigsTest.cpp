@@ -26,6 +26,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::String16;
 using ::android::String8;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
@@ -34,32 +35,30 @@ using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
+using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
+using ::android::automotive::watchdog::internal::ResourceSpecificConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
+using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
+using ::testing::AllOf;
 using ::testing::AnyOf;
+using ::testing::ExplainMatchResult;
+using ::testing::Field;
 using ::testing::IsEmpty;
+using ::testing::Matcher;
 using ::testing::UnorderedElementsAre;
+using ::testing::UnorderedElementsAreArray;
 using ::testing::Value;
 
 namespace {
 
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
-                                                        const int64_t fgBytes,
-                                                        const int64_t bgBytes,
-                                                        const int64_t garageModeBytes) {
-    PerStateIoOveruseThreshold threshold;
-    threshold.name = String16(String8(name.c_str()));
-    threshold.perStateWriteBytes.foregroundBytes = fgBytes;
-    threshold.perStateWriteBytes.backgroundBytes = bgBytes;
-    threshold.perStateWriteBytes.garageModeBytes = garageModeBytes;
-    return threshold;
-}
-
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type,
-                                                        const int64_t fgBytes,
-                                                        const int64_t bgBytes,
-                                                        const int64_t garageModeBytes) {
-    return toPerStateIoOveruseThreshold(toString(type), fgBytes, bgBytes, garageModeBytes);
+PerStateBytes toPerStateBytes(const int64_t fgBytes, const int64_t bgBytes,
+                              const int64_t garageModeBytes) {
+    PerStateBytes perStateBytes;
+    perStateBytes.foregroundBytes = fgBytes;
+    perStateBytes.backgroundBytes = bgBytes;
+    perStateBytes.garageModeBytes = garageModeBytes;
+    return perStateBytes;
 }
 
 IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSeconds,
@@ -70,12 +69,47 @@ IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSecond
     return threshold;
 }
 
-std::vector<String16> toString16Vector(const std::vector<std::string>& values) {
-    std::vector<String16> output;
-    for (const auto v : values) {
-        output.emplace_back(String16(String8(v.c_str())));
-    }
-    return output;
+const PerStateBytes SYSTEM_COMPONENT_LEVEL_THRESHOLDS = toPerStateBytes(200, 100, 500);
+const PerStateBytes SYSTEM_PACKAGE_A_THRESHOLDS = toPerStateBytes(600, 400, 1000);
+const PerStateBytes SYSTEM_PACKAGE_B_THRESHOLDS = toPerStateBytes(1200, 800, 1500);
+const PerStateBytes VENDOR_COMPONENT_LEVEL_THRESHOLDS = toPerStateBytes(100, 50, 900);
+const PerStateBytes VENDOR_PACKAGE_A_THRESHOLDS = toPerStateBytes(800, 300, 500);
+const PerStateBytes VENDOR_PKG_B_THRESHOLDS = toPerStateBytes(1600, 600, 1000);
+const PerStateBytes MAPS_THRESHOLDS = toPerStateBytes(700, 900, 1300);
+const PerStateBytes MEDIA_THRESHOLDS = toPerStateBytes(1800, 1900, 2100);
+const PerStateBytes THIRD_PARTY_COMPONENT_LEVEL_THRESHOLDS = toPerStateBytes(300, 150, 1900);
+const std::vector<IoOveruseAlertThreshold> ALERT_THRESHOLDS = {toIoOveruseAlertThreshold(5, 200),
+                                                               toIoOveruseAlertThreshold(30,
+                                                                                         40000)};
+
+PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
+                                                        const PerStateBytes& perStateBytes) {
+    PerStateIoOveruseThreshold threshold;
+    threshold.name = String16(String8(name.c_str()));
+    threshold.perStateWriteBytes = perStateBytes;
+    return threshold;
+}
+
+PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type,
+                                                        const PerStateBytes& perStateBytes) {
+    return toPerStateIoOveruseThreshold(toString(type), perStateBytes);
+}
+
+PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
+                                                        const int64_t fgBytes,
+                                                        const int64_t bgBytes,
+                                                        const int64_t garageModeBytes) {
+    PerStateIoOveruseThreshold threshold;
+    threshold.name = String16(String8(name.c_str()));
+    threshold.perStateWriteBytes = toPerStateBytes(fgBytes, bgBytes, garageModeBytes);
+    return threshold;
+}
+
+PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type,
+                                                        const int64_t fgBytes,
+                                                        const int64_t bgBytes,
+                                                        const int64_t garageModeBytes) {
+    return toPerStateIoOveruseThreshold(toString(type), fgBytes, bgBytes, garageModeBytes);
 }
 
 PackageInfo constructPackageInfo(
@@ -89,411 +123,624 @@ PackageInfo constructPackageInfo(
     return packageInfo;
 }
 
-struct PackageConfigTest {
-    PackageInfo packageInfo;
-    PerStateBytes expectedThreshold;
-    bool expectedIsSafeToKill;
-};
+std::vector<String16> toString16Vector(const std::vector<std::string>& values) {
+    std::vector<String16> output;
+    for (const auto& v : values) {
+        if (!v.empty()) {
+            output.emplace_back(String16(String8(v.c_str())));
+        }
+    }
+    return output;
+}
+
+ResourceOveruseConfiguration constructResourceOveruseConfig(
+        const ComponentType type, const std::vector<std::string>&& safeToKill,
+        const std::vector<std::string>&& vendorPrefixes,
+        const IoOveruseConfiguration& ioOveruseConfiguration) {
+    ResourceOveruseConfiguration resourceOveruseConfig;
+    resourceOveruseConfig.componentType = type;
+    resourceOveruseConfig.safeToKillPackages = toString16Vector(safeToKill);
+    resourceOveruseConfig.vendorPackagePrefixes = toString16Vector(vendorPrefixes);
+    ResourceSpecificConfiguration config;
+    config.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(ioOveruseConfiguration);
+    resourceOveruseConfig.resourceSpecificConfigurations.push_back(config);
+    return resourceOveruseConfig;
+}
+
+IoOveruseConfiguration constructIoOveruseConfig(
+        PerStateIoOveruseThreshold componentLevel,
+        const std::vector<PerStateIoOveruseThreshold>& packageSpecific,
+        const std::vector<PerStateIoOveruseThreshold>& categorySpecific,
+        const std::vector<IoOveruseAlertThreshold>& systemWide) {
+    IoOveruseConfiguration config;
+    config.componentLevelThresholds = componentLevel;
+    config.packageSpecificThresholds = packageSpecific;
+    config.categorySpecificThresholds = categorySpecific;
+    config.systemWideThresholds = systemWide;
+    return config;
+}
+
+std::string toString(std::vector<ResourceOveruseConfiguration> configs) {
+    std::string buffer;
+    StringAppendF(&buffer, "[");
+    for (const auto& config : configs) {
+        if (buffer.size() > 1) {
+            StringAppendF(&buffer, ",\n");
+        }
+        StringAppendF(&buffer, "%s", config.toString().c_str());
+    }
+    StringAppendF(&buffer, "]\n");
+    return buffer;
+}
+
+MATCHER_P(IsIoOveruseConfiguration, config, "") {
+    return arg.componentLevelThresholds == config.componentLevelThresholds &&
+            ExplainMatchResult(UnorderedElementsAreArray(config.packageSpecificThresholds),
+                               arg.packageSpecificThresholds, result_listener) &&
+            ExplainMatchResult(UnorderedElementsAreArray(config.categorySpecificThresholds),
+                               arg.categorySpecificThresholds, result_listener) &&
+            ExplainMatchResult(UnorderedElementsAreArray(config.systemWideThresholds),
+                               arg.systemWideThresholds, result_listener);
+}
+
+MATCHER_P(IsResourceSpecificConfiguration, config, "") {
+    if (arg.getTag() != config.getTag()) {
+        return false;
+    }
+    // Reference with the actual datatype so the templated get method can be called.
+    const ResourceSpecificConfiguration& expected = config;
+    const ResourceSpecificConfiguration& actual = arg;
+    switch (arg.getTag()) {
+        case ResourceSpecificConfiguration::ioOveruseConfiguration: {
+            const auto& expectedIoConfig =
+                    expected.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+            const auto& actualIoConfig =
+                    actual.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+            return ExplainMatchResult(IsIoOveruseConfiguration(expectedIoConfig), actualIoConfig,
+                                      result_listener);
+        }
+        default:
+            return true;
+    }
+}
+
+Matcher<const ResourceOveruseConfiguration> IsResourceOveruseConfiguration(
+        const ResourceOveruseConfiguration& config) {
+    std::vector<Matcher<const ResourceSpecificConfiguration>> matchers;
+    for (const auto& resourceSpecificConfig : config.resourceSpecificConfigurations) {
+        matchers.push_back(IsResourceSpecificConfiguration(resourceSpecificConfig));
+    }
+
+    return AllOf(Field(&ResourceOveruseConfiguration::componentType, config.componentType),
+                 Field(&ResourceOveruseConfiguration::safeToKillPackages,
+                       UnorderedElementsAreArray(config.safeToKillPackages)),
+                 Field(&ResourceOveruseConfiguration::vendorPackagePrefixes,
+                       UnorderedElementsAreArray(config.vendorPackagePrefixes)),
+                 Field(&ResourceOveruseConfiguration::resourceSpecificConfigurations,
+                       UnorderedElementsAreArray(matchers)));
+}
+
+std::vector<Matcher<const ResourceOveruseConfiguration>> IsResourceOveruseConfigurations(
+        const std::vector<ResourceOveruseConfiguration>& configs) {
+    std::vector<Matcher<const ResourceOveruseConfiguration>> matchers;
+    for (const auto config : configs) {
+        matchers.push_back(IsResourceOveruseConfiguration(config));
+    }
+    return matchers;
+}
+
+ResourceOveruseConfiguration sampleSystemConfig() {
+    auto systemIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM,
+                                                            SYSTEM_COMPONENT_LEVEL_THRESHOLDS),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("systemPackageA", SYSTEM_PACKAGE_A_THRESHOLDS),
+             toPerStateIoOveruseThreshold("systemPackageB", SYSTEM_PACKAGE_B_THRESHOLDS)},
+            /*categorySpecific=*/{},
+            /*systemWide=*/ALERT_THRESHOLDS);
+    return constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
+                                          /*vendorPrefixes=*/{}, systemIoConfig);
+}
+
+ResourceOveruseConfiguration sampleVendorConfig() {
+    auto vendorIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR,
+                                                            VENDOR_COMPONENT_LEVEL_THRESHOLDS),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("vendorPackageA", VENDOR_PACKAGE_A_THRESHOLDS),
+             toPerStateIoOveruseThreshold("vendorPkgB", VENDOR_PKG_B_THRESHOLDS)},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", MAPS_THRESHOLDS),
+             toPerStateIoOveruseThreshold("MEDIA", MEDIA_THRESHOLDS)},
+            /*systemWide=*/{});
+    return constructResourceOveruseConfig(ComponentType::VENDOR,
+                                          /*safeToKill=*/{"vendorPackageA"},
+                                          /*vendorPrefixes=*/{"vendorPackage"}, vendorIoConfig);
+}
+
+ResourceOveruseConfiguration sampleThirdPartyConfig() {
+    auto thirdPartyIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/
+            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY,
+                                         THIRD_PARTY_COMPONENT_LEVEL_THRESHOLDS),
+            /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{});
+    return constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
+                                          /*vendorPrefixes=*/{}, thirdPartyIoConfig);
+}
+
+sp<IoOveruseConfigs> sampleIoOveruseConfigs() {
+    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+    EXPECT_RESULT_OK(ioOveruseConfigs->update(
+            {sampleSystemConfig(), sampleVendorConfig(), sampleThirdPartyConfig()}));
+    return ioOveruseConfigs;
+}
 
 }  // namespace
 
 TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
-    IoOveruseConfiguration systemComponentConfig;
-    systemComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 200, 100, 500);
-    systemComponentConfig.packageSpecificThresholds =
-            {toPerStateIoOveruseThreshold("systemPackageA", 600, 400, 1000),
-             toPerStateIoOveruseThreshold("systemPackageB", 1200, 800, 1500)};
-    systemComponentConfig.safeToKillPackages = toString16Vector({"systemPackageA"});
-    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
-                                                  toIoOveruseAlertThreshold(30, 40000)};
-
-    IoOveruseConfiguration vendorComponentConfig;
-    vendorComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::VENDOR, 100, 50, 900);
-    vendorComponentConfig.packageSpecificThresholds =
-            {toPerStateIoOveruseThreshold("vendorPackageA", 800, 300, 500),
-             toPerStateIoOveruseThreshold("vendorPkgB", 1600, 600, 1000)};
-    vendorComponentConfig.safeToKillPackages =
-            toString16Vector({"vendorPackageGeneric", "vendorPackageA"});
-    vendorComponentConfig.vendorPackagePrefixes = toString16Vector({"vendorPackage", "vendorPkg"});
-    vendorComponentConfig.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600,
-                                                                                     400, 1000),
-                                                        toPerStateIoOveruseThreshold("MEDIA", 1200,
-                                                                                     800, 1500)};
-
-    IoOveruseConfiguration thirdPartyComponentConfig;
-    thirdPartyComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 300, 150, 1900);
+    auto systemResourceConfig = sampleSystemConfig();
+    auto vendorResourceConfig = sampleVendorConfig();
+    auto thirdPartyResourceConfig = sampleThirdPartyConfig();
 
     IoOveruseConfigs ioOveruseConfigs;
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::SYSTEM, systemComponentConfig));
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::VENDOR, vendorComponentConfig));
-    ASSERT_RESULT_OK(
-            ioOveruseConfigs.update(ComponentType::THIRD_PARTY, thirdPartyComponentConfig));
+    ASSERT_RESULT_OK(ioOveruseConfigs.update(
+            {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig}));
 
-    std::vector<PackageConfigTest> packageConfigTests = {
-            {.packageInfo = constructPackageInfo("systemPackageGeneric", ComponentType::SYSTEM),
-             .expectedThreshold = systemComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("systemPackageA", ComponentType::SYSTEM),
-             .expectedThreshold =
-                     systemComponentConfig.packageSpecificThresholds[0].perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("systemPackageB", ComponentType::SYSTEM,
-                                                 ApplicationCategoryType::MEDIA),
-             .expectedThreshold =
-                     systemComponentConfig.packageSpecificThresholds[1].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("systemPackageC", ComponentType::SYSTEM,
-                                                 ApplicationCategoryType::MAPS),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[0].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("vendorPackageGeneric", ComponentType::VENDOR),
-             .expectedThreshold = vendorComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("vendorPackageA", ComponentType::VENDOR),
-             .expectedThreshold =
-                     vendorComponentConfig.packageSpecificThresholds[0].perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("vendorPkgB", ComponentType::VENDOR,
-                                                 ApplicationCategoryType::MAPS),
-             .expectedThreshold =
-                     vendorComponentConfig.packageSpecificThresholds[1].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("vendorPackageC", ComponentType::VENDOR,
-                                                 ApplicationCategoryType::MEDIA),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[1].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("vendorPkgB", ComponentType::THIRD_PARTY),
-             .expectedThreshold =
-                     thirdPartyComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("3pMapsPackage", ComponentType::THIRD_PARTY,
-                                                 ApplicationCategoryType::MAPS),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[0].perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("3pMediaPackage", ComponentType::THIRD_PARTY,
-                                                 ApplicationCategoryType::MEDIA),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[1].perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-    };
+    vendorResourceConfig.vendorPackagePrefixes.push_back(String16(String8("vendorPkgB")));
+    std::vector<ResourceOveruseConfiguration> expected = {systemResourceConfig,
+                                                          vendorResourceConfig,
+                                                          thirdPartyResourceConfig};
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(),
-                UnorderedElementsAre(systemComponentConfig.systemWideThresholds[0],
-                                     systemComponentConfig.systemWideThresholds[1]));
-
-    EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(),
-                UnorderedElementsAre(std::string(String8(
-                                             vendorComponentConfig.vendorPackagePrefixes[0])),
-                                     std::string(String8(
-                                             vendorComponentConfig.vendorPackagePrefixes[1]))));
+    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 
     // Check whether previous configs are overwritten.
-    systemComponentConfig = {};
-    systemComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 300, 400, 600);
-    systemComponentConfig.packageSpecificThresholds =
+    auto systemIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 300, 400, 600),
+            /*packageSpecific=*/
             {toPerStateIoOveruseThreshold("systemPackageC", 700, 100, 200),
-             toPerStateIoOveruseThreshold("systemPackageC", 300, 200, 300)};
-    systemComponentConfig.safeToKillPackages = toString16Vector({"systemPackageC"});
-    systemComponentConfig.systemWideThresholds = {toIoOveruseAlertThreshold(6, 4),
-                                                  toIoOveruseAlertThreshold(6, 10)};
+             toPerStateIoOveruseThreshold("systemPackageC", 300, 200, 300)},
+            /*categorySpecific=*/{},
+            /*systemWide=*/
+            {toIoOveruseAlertThreshold(6, 4), toIoOveruseAlertThreshold(6, 10)});
+    systemResourceConfig =
+            constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageC"},
+                                           /*vendorPrefixes=*/{}, systemIoConfig);
 
-    vendorComponentConfig = {};
-    vendorComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::VENDOR, 10, 90, 300);
     /*
      * Not adding any safe to kill packages list or package specific thresholds should clear
      * previous entries after update.
      */
-    vendorComponentConfig.vendorPackagePrefixes = toString16Vector({"vendorPackage", "vendorPkg"});
-    vendorComponentConfig
-            .categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 800, 900, 2000),
-                                           toPerStateIoOveruseThreshold("MEDIA", 1200, 800, 1500),
-                                           toPerStateIoOveruseThreshold("MEDIA", 1400, 1600, 2000)};
+    auto vendorIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR, 10, 90, 300),
+            /*packageSpecific=*/{},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", 800, 900, 2000),
+             toPerStateIoOveruseThreshold("MEDIA", 1800, 1900, 2100),
+             toPerStateIoOveruseThreshold("MEDIA", 1400, 1600, 2000)},
+            /*systemWide=*/{});
+    vendorResourceConfig =
+            constructResourceOveruseConfig(ComponentType::VENDOR, /*safeToKill=*/{},
+                                           /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
+                                           vendorIoConfig);
 
-    thirdPartyComponentConfig = {};
-    thirdPartyComponentConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 600, 300, 2300);
+    auto thirdPartyIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/
+            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 600, 300, 2300),
+            /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{});
+    thirdPartyResourceConfig =
+            constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
+                                           /*vendorPrefixes=*/{}, thirdPartyIoConfig);
 
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::SYSTEM, systemComponentConfig));
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::VENDOR, vendorComponentConfig));
-    ASSERT_RESULT_OK(
-            ioOveruseConfigs.update(ComponentType::THIRD_PARTY, thirdPartyComponentConfig));
+    ASSERT_RESULT_OK(ioOveruseConfigs.update(
+            {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig}));
 
-    packageConfigTests = {
-            {.packageInfo = constructPackageInfo("systemPackageA", ComponentType::SYSTEM),
-             .expectedThreshold = systemComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("systemPackageC", ComponentType::SYSTEM),
-             .expectedThreshold =
-                     systemComponentConfig.packageSpecificThresholds[1].perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-            {.packageInfo = constructPackageInfo("systemMapsPackage", ComponentType::SYSTEM,
-                                                 ApplicationCategoryType::MAPS),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[0].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("vendorPackageA", ComponentType::VENDOR),
-             .expectedThreshold = vendorComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("vendorMediaPackage", ComponentType::VENDOR,
-                                                 ApplicationCategoryType::MEDIA),
-             .expectedThreshold =
-                     vendorComponentConfig.categorySpecificThresholds[2].perStateWriteBytes,
-             .expectedIsSafeToKill = false},
-            {.packageInfo = constructPackageInfo("3pPackage", ComponentType::THIRD_PARTY),
-             .expectedThreshold =
-                     thirdPartyComponentConfig.componentLevelThresholds.perStateWriteBytes,
-             .expectedIsSafeToKill = true},
-    };
+    systemIoConfig.packageSpecificThresholds.erase(
+            systemIoConfig.packageSpecificThresholds.begin());
+    systemIoConfig.systemWideThresholds.erase(systemIoConfig.systemWideThresholds.begin() + 1);
+    systemResourceConfig =
+            constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageC"},
+                                           /*vendorPrefixes=*/{}, systemIoConfig);
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    vendorIoConfig.categorySpecificThresholds.erase(
+            vendorIoConfig.categorySpecificThresholds.begin() + 1);
+    vendorResourceConfig =
+            constructResourceOveruseConfig(ComponentType::VENDOR, /*safeToKill=*/{},
+                                           /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
+                                           vendorIoConfig);
 
-    EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(),
-                UnorderedElementsAre(AnyOf(systemComponentConfig.systemWideThresholds[0],
-                                           systemComponentConfig.systemWideThresholds[1])));
+    expected = {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig};
 
-    EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(),
-                UnorderedElementsAre(std::string(String8(
-                                             vendorComponentConfig.vendorPackagePrefixes[0])),
-                                     std::string(String8(
-                                             vendorComponentConfig.vendorPackagePrefixes[1]))));
+    actual.clear();
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
 TEST(IoOveruseConfigsTest, TestDefaultConfigWithoutUpdate) {
-    std::vector<PackageConfigTest> packageConfigTests =
-            {{.packageInfo = constructPackageInfo("systemPackage", ComponentType::SYSTEM),
-              .expectedThreshold = defaultThreshold().perStateWriteBytes,
-              .expectedIsSafeToKill = false},
-             {.packageInfo = constructPackageInfo("vendorPackage", ComponentType::VENDOR,
-                                                  ApplicationCategoryType::MEDIA),
-              .expectedThreshold = defaultThreshold().perStateWriteBytes,
-              .expectedIsSafeToKill = false},
-             {.packageInfo = constructPackageInfo("3pPackage", ComponentType::THIRD_PARTY,
-                                                  ApplicationCategoryType::MAPS),
-              .expectedThreshold = defaultThreshold().perStateWriteBytes,
-              .expectedIsSafeToKill = true}};
+    PerStateBytes defaultPerStateBytes = defaultThreshold().perStateWriteBytes;
     IoOveruseConfigs ioOveruseConfigs;
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    auto packageInfo = constructPackageInfo("systemPackage", ComponentType::SYSTEM);
+    EXPECT_THAT(ioOveruseConfigs.fetchThreshold(packageInfo), defaultPerStateBytes)
+            << "System package should have default threshold";
+    EXPECT_FALSE(ioOveruseConfigs.isSafeToKill(packageInfo))
+            << "System package shouldn't be killed by default";
+
+    packageInfo = constructPackageInfo("vendorPackage", ComponentType::VENDOR,
+                                       ApplicationCategoryType::MEDIA);
+    EXPECT_THAT(ioOveruseConfigs.fetchThreshold(packageInfo), defaultPerStateBytes)
+            << "Vendor package should have default threshold";
+    EXPECT_FALSE(ioOveruseConfigs.isSafeToKill(packageInfo))
+            << "Vendor package shouldn't be killed by default";
+
+    packageInfo = constructPackageInfo("3pPackage", ComponentType::THIRD_PARTY,
+                                       ApplicationCategoryType::MAPS);
+    EXPECT_THAT(ioOveruseConfigs.fetchThreshold(packageInfo), defaultPerStateBytes)
+            << "Third-party package should have default threshold";
+    EXPECT_TRUE(ioOveruseConfigs.isSafeToKill(packageInfo))
+            << "Third-party package should be killed by default";
 
     EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(), IsEmpty());
     EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(), IsEmpty());
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
 }
 
 TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentName) {
-    IoOveruseConfiguration updateConfig;
-    updateConfig.componentLevelThresholds =
+    IoOveruseConfiguration randomIoConfig;
+    randomIoConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold("random name", 200, 100, 500);
 
     IoOveruseConfigs ioOveruseConfigs;
-    EXPECT_FALSE(ioOveruseConfigs.update(ComponentType::SYSTEM, updateConfig).ok());
+    EXPECT_FALSE(ioOveruseConfigs
+                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {},
+                                                                 randomIoConfig)})
+                         .ok());
 
-    EXPECT_FALSE(ioOveruseConfigs.update(ComponentType::VENDOR, updateConfig).ok());
+    EXPECT_FALSE(ioOveruseConfigs
+                         .update({constructResourceOveruseConfig(ComponentType::VENDOR, {}, {},
+                                                                 randomIoConfig)})
+                         .ok());
 
-    EXPECT_FALSE(ioOveruseConfigs.update(ComponentType::THIRD_PARTY, updateConfig).ok());
+    EXPECT_FALSE(ioOveruseConfigs
+                         .update({constructResourceOveruseConfig(ComponentType::THIRD_PARTY, {}, {},
+                                                                 randomIoConfig)})
+                         .ok());
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidConfigs) {
-    IoOveruseConfiguration updateConfig;
-    updateConfig.componentLevelThresholds =
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentLevelThresholds) {
+    IoOveruseConfiguration ioConfig;
+    ioConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 0, 0, 0);
-    const IoOveruseConfigs expected = {};
 
     IoOveruseConfigs ioOveruseConfigs;
-
-    EXPECT_FALSE(ioOveruseConfigs.update(ComponentType::THIRD_PARTY, updateConfig).ok())
+    EXPECT_FALSE(ioOveruseConfigs
+                         .update({constructResourceOveruseConfig(ComponentType::THIRD_PARTY, {}, {},
+                                                                 ioConfig)})
+                         .ok())
             << "Should error on invalid component level thresholds";
 
-    updateConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 100, 200, 300);
-    updateConfig.systemWideThresholds = {toIoOveruseAlertThreshold(0, 0)};
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
 
-    EXPECT_FALSE(ioOveruseConfigs.update(ComponentType::SYSTEM, updateConfig).ok())
+    EXPECT_THAT(actual, IsEmpty());
+}
+
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidSystemWideAlertThresholds) {
+    IoOveruseConfiguration ioConfig;
+    ioConfig.componentLevelThresholds =
+            toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 100, 200, 300);
+    ioConfig.systemWideThresholds = {toIoOveruseAlertThreshold(0, 0)};
+
+    IoOveruseConfigs ioOveruseConfigs;
+    EXPECT_FALSE(ioOveruseConfigs
+                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {},
+                                                                 ioConfig)})
+                         .ok())
             << "Should error on invalid system-wide thresholds";
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
+}
+
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnDuplicateConfigsForSameComponent) {
+    IoOveruseConfigs ioOveruseConfigs;
+    EXPECT_FALSE(ioOveruseConfigs.update({sampleThirdPartyConfig(), sampleThirdPartyConfig()}).ok())
+            << "Should error on duplicate configs for the same component";
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
+}
+
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnNoIoOveruseConfiguration) {
+    ResourceOveruseConfiguration resConfig;
+    resConfig.componentType = ComponentType::THIRD_PARTY;
+
+    IoOveruseConfigs ioOveruseConfigs;
+    EXPECT_FALSE(ioOveruseConfigs.update({resConfig}).ok())
+            << "Should error on no I/O overuse configuration";
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
+}
+
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnMultipleIoOveruseConfigurations) {
+    IoOveruseConfiguration ioConfig;
+    ioConfig.componentLevelThresholds =
+            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 100, 200, 300);
+
+    ResourceOveruseConfiguration resConfig;
+    resConfig.componentType = ComponentType::THIRD_PARTY;
+    ResourceSpecificConfiguration resourceSpecificConfig;
+    resourceSpecificConfig.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(ioConfig);
+    resConfig.resourceSpecificConfigurations.push_back(resourceSpecificConfig);
+    resConfig.resourceSpecificConfigurations.push_back(resourceSpecificConfig);
+
+    IoOveruseConfigs ioOveruseConfigs;
+    EXPECT_FALSE(ioOveruseConfigs.update({resConfig}).ok())
+            << "Should error on multiple I/O overuse configuration";
+
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, IsEmpty());
 }
 
 TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
-    IoOveruseConfiguration updateConfig;
-    updateConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 200, 100, 500);
-    updateConfig.packageSpecificThresholds = {toPerStateIoOveruseThreshold("systemPackageA", 600,
-                                                                           400, 1000),
-                                              toPerStateIoOveruseThreshold("systemPackageB", 1200,
-                                                                           800, 1500)};
-    updateConfig.safeToKillPackages = toString16Vector({"systemPackageA"});
-    updateConfig.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
-    updateConfig.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
-                                               toPerStateIoOveruseThreshold("MEDIA", 1200, 800,
-                                                                            1500)};
-    updateConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
-                                         toIoOveruseAlertThreshold(30, 40000)};
+    auto systemIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 200, 100, 500),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("systemPackageA", 600, 400, 1000),
+             toPerStateIoOveruseThreshold("systemPackageB", 1200, 800, 1500)},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", 700, 900, 1300),
+             toPerStateIoOveruseThreshold("MEDIA", 1800, 1900, 2100)},
+            /*systemWide=*/
+            {toIoOveruseAlertThreshold(5, 200), toIoOveruseAlertThreshold(30, 40000)});
+    auto systemResourceConfig =
+            constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
+                                           /*vendorPrefixes=*/{"vendorPackage"}, systemIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::SYSTEM, updateConfig));
+    ASSERT_RESULT_OK(ioOveruseConfigs.update({systemResourceConfig}));
 
-    std::vector<PackageConfigTest> packageConfigTests =
-            {{.packageInfo = constructPackageInfo("systemMapsPackage", ComponentType::SYSTEM,
-                                                  ApplicationCategoryType::MAPS),
-              .expectedThreshold = updateConfig.componentLevelThresholds.perStateWriteBytes,
-              .expectedIsSafeToKill = false},
-             {.packageInfo = constructPackageInfo("systemPackageA", ComponentType::SYSTEM),
-              .expectedThreshold = updateConfig.packageSpecificThresholds[0].perStateWriteBytes,
-              .expectedIsSafeToKill = true},
-             {.packageInfo = constructPackageInfo("systemPackageB", ComponentType::SYSTEM,
-                                                  ApplicationCategoryType::MEDIA),
-              .expectedThreshold = updateConfig.packageSpecificThresholds[1].perStateWriteBytes,
-              .expectedIsSafeToKill = false}};
+    // Drop fields that aren't updatable by system component.
+    systemIoConfig.categorySpecificThresholds.clear();
+    systemResourceConfig =
+            constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
+                                           /*vendorPrefixes=*/{}, systemIoConfig);
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    std::vector<ResourceOveruseConfiguration> expected = {systemResourceConfig};
 
-    EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(),
-                UnorderedElementsAre(updateConfig.systemWideThresholds[0],
-                                     updateConfig.systemWideThresholds[1]));
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(), IsEmpty())
-            << "System component config shouldn't update vendor package prefixes. Only vendor "
-            << "component config should update this";
+    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
 TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
-    IoOveruseConfiguration updateConfig;
-    updateConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::VENDOR, 100, 50, 900);
-    updateConfig.packageSpecificThresholds = {toPerStateIoOveruseThreshold("vendorPackageA", 800,
-                                                                           300, 500),
-                                              toPerStateIoOveruseThreshold("systemPackageB", 1600,
-                                                                           600, 1000)};
-    updateConfig.safeToKillPackages = toString16Vector({"vendorPackageA"});
-    updateConfig.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
-    updateConfig.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
-                                               toPerStateIoOveruseThreshold("MEDIA", 1200, 800,
-                                                                            1500)};
-    updateConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
-                                         toIoOveruseAlertThreshold(30, 40000)};
+    auto vendorIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR, 100, 50, 900),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("vendorPackageA", 800, 300, 500),
+             toPerStateIoOveruseThreshold("vendorPkgB", 1600, 600, 1000)},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", 700, 900, 1300),
+             toPerStateIoOveruseThreshold("MEDIA", 1800, 1900, 2100)},
+            /*systemWide=*/
+            {toIoOveruseAlertThreshold(5, 200), toIoOveruseAlertThreshold(30, 40000)});
+    auto vendorResourceConfig =
+            constructResourceOveruseConfig(ComponentType::VENDOR,
+                                           /*safeToKill=*/
+                                           {"vendorPackageA"},
+                                           /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
+                                           vendorIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::VENDOR, updateConfig));
+    ASSERT_RESULT_OK(ioOveruseConfigs.update({vendorResourceConfig}));
 
-    std::vector<PackageConfigTest> packageConfigTests =
-            {{.packageInfo = constructPackageInfo("vendorPackageGeneric", ComponentType::VENDOR),
-              .expectedThreshold = updateConfig.componentLevelThresholds.perStateWriteBytes,
-              .expectedIsSafeToKill = false},
-             {.packageInfo = constructPackageInfo("vendorPackageA", ComponentType::VENDOR),
-              .expectedThreshold = updateConfig.packageSpecificThresholds[0].perStateWriteBytes,
-              .expectedIsSafeToKill = true},
-             {.packageInfo = constructPackageInfo("systemPackageB", ComponentType::VENDOR,
-                                                  ApplicationCategoryType::MEDIA),
-              .expectedThreshold = updateConfig.packageSpecificThresholds[1].perStateWriteBytes,
-              .expectedIsSafeToKill = false},
-             {.packageInfo = constructPackageInfo("vendorMapsPackage", ComponentType::VENDOR,
-                                                  ApplicationCategoryType::MAPS),
-              .expectedThreshold = updateConfig.categorySpecificThresholds[0].perStateWriteBytes,
-              .expectedIsSafeToKill = false}};
+    // Drop fields that aren't updatable by vendor component.
+    vendorIoConfig.systemWideThresholds.clear();
+    vendorResourceConfig =
+            constructResourceOveruseConfig(ComponentType::VENDOR,
+                                           /*safeToKill=*/
+                                           {"vendorPackageA"},
+                                           /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
+                                           vendorIoConfig);
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    std::vector<ResourceOveruseConfiguration> expected = {vendorResourceConfig};
 
-    EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(), IsEmpty())
-            << "Vendor component config shouldn't update system wide alert thresholds. Only system "
-            << "component config should update this";
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(),
-                UnorderedElementsAre("vendorPackage", "systemPackageB"));
+    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
 TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) {
-    IoOveruseConfiguration updateConfig;
-    updateConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 300, 150, 1900);
-    updateConfig.packageSpecificThresholds = {toPerStateIoOveruseThreshold("vendorPackageA", 800,
-                                                                           300, 500),
-                                              toPerStateIoOveruseThreshold("systemPackageB", 1600,
-                                                                           600, 1000)};
-    updateConfig.safeToKillPackages = toString16Vector({"vendorPackageA", "systemPackageB"});
-    updateConfig.vendorPackagePrefixes = toString16Vector({"vendorPackage"});
-    updateConfig.categorySpecificThresholds = {toPerStateIoOveruseThreshold("MAPS", 600, 400, 1000),
-                                               toPerStateIoOveruseThreshold("MEDIA", 1200, 800,
-                                                                            1500)};
-    updateConfig.systemWideThresholds = {toIoOveruseAlertThreshold(5, 200),
-                                         toIoOveruseAlertThreshold(30, 40000)};
+    auto thirdPartyIoConfig = constructIoOveruseConfig(
+            /*componentLevel=*/
+            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 300, 150, 1900),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("vendorPackageA", 800, 300, 500),
+             toPerStateIoOveruseThreshold("systemPackageB", 1600, 600, 1000)},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", 700, 900, 1300),
+             toPerStateIoOveruseThreshold("MEDIA", 1800, 1900, 2100)},
+            /*systemWide=*/
+            {toIoOveruseAlertThreshold(5, 200), toIoOveruseAlertThreshold(30, 40000)});
+    auto thirdPartyResourceConfig =
+            constructResourceOveruseConfig(ComponentType::THIRD_PARTY,
+                                           /*safeToKill=*/{"vendorPackageA", "systemPackageB"},
+                                           /*vendorPrefixes=*/{"vendorPackage"},
+                                           thirdPartyIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
-    ASSERT_RESULT_OK(ioOveruseConfigs.update(ComponentType::THIRD_PARTY, updateConfig));
+    ASSERT_RESULT_OK(ioOveruseConfigs.update({thirdPartyResourceConfig}));
 
-    std::vector<PackageConfigTest> packageConfigTests =
-            {{.packageInfo = constructPackageInfo("vendorPackageA", ComponentType::THIRD_PARTY,
-                                                  ApplicationCategoryType::MAPS),
-              .expectedThreshold = updateConfig.componentLevelThresholds.perStateWriteBytes,
-              .expectedIsSafeToKill = true},
-             {.packageInfo = constructPackageInfo("systemPackageB", ComponentType::SYSTEM,
-                                                  ApplicationCategoryType::MAPS),
-              .expectedThreshold = defaultThreshold().perStateWriteBytes,
-              .expectedIsSafeToKill = false}};
+    // Drop fields that aren't updatable by third-party component.
+    thirdPartyIoConfig.packageSpecificThresholds.clear();
+    thirdPartyIoConfig.categorySpecificThresholds.clear();
+    thirdPartyIoConfig.systemWideThresholds.clear();
+    thirdPartyResourceConfig =
+            constructResourceOveruseConfig(ComponentType::THIRD_PARTY,
+                                           /*safeToKill=*/{}, /*vendorPrefixes=*/{},
+                                           thirdPartyIoConfig);
 
-    for (const auto& test : packageConfigTests) {
-        const auto actualThreshold = ioOveruseConfigs.fetchThreshold(test.packageInfo);
-        EXPECT_THAT(actualThreshold, test.expectedThreshold)
-                << test.packageInfo.toString()
-                << ": \nExpected threshold: " << test.expectedThreshold.toString()
-                << "\nActual threshold: " << actualThreshold.toString();
-        EXPECT_THAT(ioOveruseConfigs.isSafeToKill(test.packageInfo), test.expectedIsSafeToKill)
-                << test.packageInfo.toString() << ": doesn't match expected safe-to-kill value";
-    }
+    std::vector<ResourceOveruseConfiguration> expected = {thirdPartyResourceConfig};
 
-    EXPECT_THAT(ioOveruseConfigs.systemWideAlertThresholds(), IsEmpty())
-            << "Third-party component config shouldn't update system wide alert thresholds. "
-            << "Only system component config should update this";
-    EXPECT_THAT(ioOveruseConfigs.vendorPackagePrefixes(), IsEmpty())
-            << "Third-party component config shouldn't update vendor package prefixes. Only vendor "
-            << "component config should update this";
+    std::vector<ResourceOveruseConfiguration> actual;
+    ioOveruseConfigs.get(&actual);
+
+    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
+}
+
+TEST(IoOveruseConfigsTest, TestFetchThresholdForSystemPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    auto actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("systemPackageGeneric", ComponentType::SYSTEM));
+
+    EXPECT_THAT(actual, SYSTEM_COMPONENT_LEVEL_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("systemPackageA", ComponentType::SYSTEM));
+
+    EXPECT_THAT(actual, SYSTEM_PACKAGE_A_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(constructPackageInfo("systemPackageB",
+                                                                   ComponentType::SYSTEM,
+                                                                   ApplicationCategoryType::MEDIA));
+
+    // Package specific thresholds get priority over media category thresholds.
+    EXPECT_THAT(actual, SYSTEM_PACKAGE_B_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(constructPackageInfo("systemPackageC",
+                                                                   ComponentType::SYSTEM,
+                                                                   ApplicationCategoryType::MEDIA));
+
+    // Media category thresholds as there is no package specific thresholds.
+    EXPECT_THAT(actual, MEDIA_THRESHOLDS);
+}
+
+TEST(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    auto actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("vendorPackageGeneric", ComponentType::VENDOR));
+
+    EXPECT_THAT(actual, VENDOR_COMPONENT_LEVEL_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("vendorPkgB", ComponentType::VENDOR));
+
+    EXPECT_THAT(actual, VENDOR_PKG_B_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(constructPackageInfo("vendorPackageC",
+                                                                   ComponentType::VENDOR,
+                                                                   ApplicationCategoryType::MAPS));
+
+    // Maps category thresholds as there is no package specific thresholds.
+    EXPECT_THAT(actual, MAPS_THRESHOLDS);
+}
+
+TEST(IoOveruseConfigsTest, TestFetchThresholdForThirdPartyPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    auto actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("vendorPackageGenericImpostor", ComponentType::THIRD_PARTY));
+
+    EXPECT_THAT(actual, THIRD_PARTY_COMPONENT_LEVEL_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(constructPackageInfo("3pMapsPackage",
+                                                                   ComponentType::THIRD_PARTY,
+                                                                   ApplicationCategoryType::MAPS));
+
+    EXPECT_THAT(actual, MAPS_THRESHOLDS);
+
+    actual = ioOveruseConfigs->fetchThreshold(constructPackageInfo("3pMediaPackage",
+                                                                   ComponentType::THIRD_PARTY,
+                                                                   ApplicationCategoryType::MEDIA));
+
+    EXPECT_THAT(actual, MEDIA_THRESHOLDS);
+}
+
+TEST(IoOveruseConfigsTest, TestIsSafeToKillSystemPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("systemPackageGeneric", ComponentType::SYSTEM)));
+
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("systemPackageA", ComponentType::SYSTEM)));
+}
+
+TEST(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("vendorPackageGeneric", ComponentType::VENDOR)));
+
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("vendorPackageA", ComponentType::VENDOR)));
+}
+
+TEST(IoOveruseConfigsTest, TestIsSafeToKillThirdPartyPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("vendorPackageGenericImpostor", ComponentType::THIRD_PARTY)));
+
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
+            constructPackageInfo("3pMapsPackage", ComponentType::THIRD_PARTY,
+                                 ApplicationCategoryType::MAPS)));
+}
+
+TEST(IoOveruseConfigsTest, TestIsSafeToKillNativePackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    PackageInfo packageInfo;
+    packageInfo.packageIdentifier.name = String16("native package");
+    packageInfo.uidType = UidType::NATIVE;
+    packageInfo.componentType = ComponentType::SYSTEM;
+
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(packageInfo));
+
+    packageInfo.componentType = ComponentType::VENDOR;
+
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(packageInfo));
+}
+
+TEST(IoOveruseConfigsTest, TestSystemWideAlertThresholds) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    EXPECT_THAT(ioOveruseConfigs->systemWideAlertThresholds(),
+                UnorderedElementsAreArray(ALERT_THRESHOLDS));
+}
+
+TEST(IoOveruseConfigsTest, TestVendorPackagePrefixes) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+
+    EXPECT_THAT(ioOveruseConfigs->vendorPackagePrefixes(),
+                UnorderedElementsAre("vendorPackage", "vendorPkgB"));
 }
 
 }  // namespace watchdog
