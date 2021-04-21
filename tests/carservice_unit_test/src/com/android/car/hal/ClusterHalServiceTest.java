@@ -31,6 +31,7 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.graphics.Insets;
+import android.graphics.Rect;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
 import com.android.car.hal.ClusterHalService.ClusterHalEventCallback;
@@ -55,8 +56,10 @@ public class ClusterHalServiceTest {
     private static final int UI_TYPE_2 = 2;
     private static final byte[] UI_AVAILABILITY = new byte[] {(byte) 1, (byte) 1, (byte) 0};
 
-    private static final int WIDTH = 800;
-    private static final int HEIGHT = 600;
+    private static final int BOUNDS_LEFT = 0;
+    private static final int BOUNDS_TOP = 1;
+    private static final int BOUNDS_RIGHT = 800;
+    private static final int BOUNDS_BOTTOM = 601;
     private static final int INSET_LEFT = 20;
     private static final int INSET_TOP = 10;
     private static final int INSET_RIGHT = 780;
@@ -71,8 +74,7 @@ public class ClusterHalServiceTest {
 
     int mUiType = NOT_ASSIGNED;
     int mOnOff = NOT_ASSIGNED;
-    int mWidth = NOT_ASSIGNED;
-    int mHeight = NOT_ASSIGNED;
+    Rect mBounds = null;
     Insets mInsets = null;
 
     private final ClusterHalEventCallback mHalEventListener = new ClusterHalEventCallback() {
@@ -80,10 +82,9 @@ public class ClusterHalServiceTest {
             mUiType = uiType;
         }
 
-        public void onDisplayState(int onOff, int width, int height, Insets insets) {
+        public void onDisplayState(int onOff, Rect bounds, Insets insets) {
             mOnOff = onOff;
-            mWidth = width;
-            mHeight = height;
+            mBounds = bounds;
             mInsets = insets;
         }
     };
@@ -162,17 +163,20 @@ public class ClusterHalServiceTest {
         return event;
     }
 
-    private static VehiclePropValue createDisplayStateEvent(int onOff, int width, int height,
-            int left, int top, int right, int bottom) {
+    private static VehiclePropValue createDisplayStateEvent(int onOff,
+            int boundsLeft, int boundsTop, int boundsRight, int boundsBottom,
+            int insetsLeft, int insetsTop, int insetSRight, int insetSBottom) {
         VehiclePropValue event = new VehiclePropValue();
         event.prop = CLUSTER_DISPLAY_STATE;
         event.value.int32Values.add(onOff);
-        event.value.int32Values.add(width);
-        event.value.int32Values.add(height);
-        event.value.int32Values.add(left);
-        event.value.int32Values.add(top);
-        event.value.int32Values.add(right);
-        event.value.int32Values.add(bottom);
+        event.value.int32Values.add(boundsLeft);
+        event.value.int32Values.add(boundsTop);
+        event.value.int32Values.add(boundsRight);
+        event.value.int32Values.add(boundsBottom);
+        event.value.int32Values.add(insetsLeft);
+        event.value.int32Values.add(insetsTop);
+        event.value.int32Values.add(insetSRight);
+        event.value.int32Values.add(insetSBottom);
         return event;
     }
 
@@ -207,12 +211,14 @@ public class ClusterHalServiceTest {
     @Test
     public void testOnDisplayState() {
         mClusterHalService.onHalEvents(Arrays.asList(
-                createDisplayStateEvent(ON, WIDTH, HEIGHT,
+                createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(ON);
-        assertThat(mWidth).isEqualTo(WIDTH);
-        assertThat(mHeight).isEqualTo(HEIGHT);
+        assertThat(mBounds.left).isEqualTo(BOUNDS_LEFT);
+        assertThat(mBounds.top).isEqualTo(BOUNDS_TOP);
+        assertThat(mBounds.right).isEqualTo(BOUNDS_RIGHT);
+        assertThat(mBounds.bottom).isEqualTo(BOUNDS_BOTTOM);
         assertThat(mInsets.left).isEqualTo(INSET_LEFT);
         assertThat(mInsets.top).isEqualTo(INSET_TOP);
         assertThat(mInsets.right).isEqualTo(INSET_RIGHT);
@@ -220,14 +226,13 @@ public class ClusterHalServiceTest {
     }
 
     @Test
-    public void testOnDisplayState_DontAcceptPartialDontCare_Height() {
+    public void testOnDisplayState_DontAcceptPartialDontCare_Bounds() {
         mClusterHalService.onHalEvents(Arrays.asList(
-                createDisplayStateEvent(ON, WIDTH, DONT_CARE,
+                createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, DONT_CARE,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(ON);
-        assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
-        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
+        assertThat(mBounds).isNull();
         assertThat(mInsets.left).isEqualTo(INSET_LEFT);
         assertThat(mInsets.top).isEqualTo(INSET_TOP);
         assertThat(mInsets.right).isEqualTo(INSET_RIGHT);
@@ -237,12 +242,14 @@ public class ClusterHalServiceTest {
     @Test
     public void testOnDisplayState_DontAcceptPartialDontCare_Inset() {
         mClusterHalService.onHalEvents(Arrays.asList(
-                createDisplayStateEvent(ON, WIDTH, HEIGHT,
+                createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, DONT_CARE)));
 
         assertThat(mOnOff).isEqualTo(ON);
-        assertThat(mWidth).isEqualTo(WIDTH);
-        assertThat(mHeight).isEqualTo(HEIGHT);
+        assertThat(mBounds.left).isEqualTo(BOUNDS_LEFT);
+        assertThat(mBounds.top).isEqualTo(BOUNDS_TOP);
+        assertThat(mBounds.right).isEqualTo(BOUNDS_RIGHT);
+        assertThat(mBounds.bottom).isEqualTo(BOUNDS_BOTTOM);
         assertThat(mInsets).isNull();
     }
 
@@ -251,12 +258,11 @@ public class ClusterHalServiceTest {
         mClusterHalService.setCallback(null);
 
         mClusterHalService.onHalEvents(Arrays.asList(
-                createDisplayStateEvent(ON, WIDTH, HEIGHT,
+                createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(NOT_ASSIGNED);
-        assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
-        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
+        assertThat(mBounds).isNull();
         assertThat(mInsets).isNull();
     }
 
@@ -265,25 +271,26 @@ public class ClusterHalServiceTest {
         mClusterHalService.takeProperties(Arrays.asList());
 
         mClusterHalService.onHalEvents(Arrays.asList(
-                createDisplayStateEvent(ON, WIDTH, HEIGHT,
+                createDisplayStateEvent(ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                         INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM)));
 
         assertThat(mOnOff).isEqualTo(NOT_ASSIGNED);
-        assertThat(mWidth).isEqualTo(NOT_ASSIGNED);
-        assertThat(mHeight).isEqualTo(NOT_ASSIGNED);
+        assertThat(mBounds).isNull();
         assertThat(mInsets).isNull();
     }
 
     @Test
     public void testReportState() {
-        mClusterHalService.reportState(ON, WIDTH, HEIGHT,
+        mClusterHalService.reportState(
+                ON, new Rect(BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM),
                 Insets.of(INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM),
                 UI_TYPE_1, UI_TYPE_2, UI_AVAILABILITY);
 
         verify(mVehicleHal).set(mPropCaptor.capture());
         VehiclePropValue prop = mPropCaptor.getValue();
         assertThat(prop.prop).isEqualTo(CLUSTER_REPORT_STATE);
-        assertThat(prop.value.int32Values).containsExactly(ON, WIDTH, HEIGHT,
+        assertThat(prop.value.int32Values).containsExactly(
+                ON, BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM,
                 INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM, UI_TYPE_1, UI_TYPE_2);
         assertThat(prop.value.bytes).containsExactly(
                 (Byte) UI_AVAILABILITY[0], (Byte) UI_AVAILABILITY[1], (Byte) UI_AVAILABILITY[2]);
@@ -293,7 +300,8 @@ public class ClusterHalServiceTest {
     public void testReportState_noProperties() {
         mClusterHalService.takeProperties(Arrays.asList());
 
-        mClusterHalService.reportState(ON, WIDTH, HEIGHT,
+        mClusterHalService.reportState(
+                ON, new Rect(BOUNDS_LEFT, BOUNDS_TOP, BOUNDS_RIGHT, BOUNDS_BOTTOM),
                 Insets.of(INSET_LEFT, INSET_TOP, INSET_RIGHT, INSET_BOTTOM),
                 UI_TYPE_1, UI_TYPE_2, UI_AVAILABILITY);
 

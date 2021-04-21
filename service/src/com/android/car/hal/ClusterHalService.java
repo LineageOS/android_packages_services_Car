@@ -24,15 +24,15 @@ import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 
 import android.annotation.NonNull;
 import android.graphics.Insets;
+import android.graphics.Rect;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.IntArray;
-import android.util.Log;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
@@ -56,19 +56,22 @@ public final class ClusterHalService extends HalServiceBase {
     public interface ClusterHalEventCallback {
         /**
          * Called when CLUSTER_SWITCH_UI message is received.
+         *
          * @param uiType uiType ClusterOS wants to switch to
          */
         void onSwitchUi(int uiType);
 
         /**
          * Called when CLUSTER_DISPLAY_STATE message is received.
-         * @param onOff 0 - off, 1 - on
-         * @param width width in pixel
-         * @param height height in pixel
+         *
+         * @param onOff  0 - off, 1 - on
+         * @param bounds the area to render the cluster Activity in pixel
          * @param insets Insets of the cluster display
          */
-        void onDisplayState(int onOff, int width, int height, Insets insets);
-    };
+        void onDisplayState(int onOff, Rect bounds, Insets insets);
+    }
+
+    ;
 
     private static final int[] SUPPORTED_PROPERTIES = new int[]{
             CLUSTER_SWITCH_UI,
@@ -106,17 +109,17 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void init() {
-        if (DBG) Log.d(TAG, "initClusterHalService");
+        Slogf.d(TAG, "initClusterHalService");
         if (!isCoreSupported()) return;
 
-        for (int property: SUBSCRIBABLE_PROPERTIES) {
+        for (int property : SUBSCRIBABLE_PROPERTIES) {
             mHal.subscribeProperty(this, property);
         }
     }
 
     @Override
     public void release() {
-        if (DBG) Log.d(TAG, "releaseClusterHalService");
+        Slogf.d(TAG, "releaseClusterHalService");
         synchronized (mLock) {
             mCallback = null;
         }
@@ -152,10 +155,8 @@ public final class ClusterHalService extends HalServiceBase {
             }
         }
         mIsNavigationStateSupported = supportedProperties.indexOf(CLUSTER_NAVIGATION_STATE) >= 0;
-        if (DBG) {
-            Log.d(TAG, "takeProperties: coreSupported=" + mIsCoreSupported
-                    + ", navigationStateSupported=" + mIsNavigationStateSupported);
-        }
+        Slogf.d(TAG, "takeProperties: coreSupported=%s, navigationStateSupported=%s",
+                mIsCoreSupported, mIsNavigationStateSupported);
     }
 
     public boolean isCoreSupported() {
@@ -168,7 +169,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     @Override
     public void onHalEvents(List<VehiclePropValue> values) {
-        if (DBG) Log.d(TAG, "handleHalEvents(): " + values);
+        Slogf.d(TAG, "handleHalEvents(): %s", values);
         ClusterHalEventCallback callback;
         synchronized (mLock) {
             callback = mCallback;
@@ -183,22 +184,22 @@ public final class ClusterHalService extends HalServiceBase {
                     break;
                 case CLUSTER_DISPLAY_STATE:
                     int onOff = value.value.int32Values.get(0);
-                    int width = DONT_CARE;
-                    int height = DONT_CARE;
-                    if (hasNoDontCare(value.value.int32Values, 1, 2, "width/height")) {
-                        width = value.value.int32Values.get(1);
-                        height = value.value.int32Values.get(2);
+                    Rect bounds = null;
+                    if (hasNoDontCare(value.value.int32Values, 1, 4, "bounds")) {
+                        bounds = new Rect(
+                                value.value.int32Values.get(1), value.value.int32Values.get(2),
+                                value.value.int32Values.get(3), value.value.int32Values.get(4));
                     }
                     Insets insets = null;
-                    if (hasNoDontCare(value.value.int32Values, 3, 4, "insets")) {
+                    if (hasNoDontCare(value.value.int32Values, 5, 4, "insets")) {
                         insets = Insets.of(
-                                value.value.int32Values.get(3), value.value.int32Values.get(4),
-                                value.value.int32Values.get(5), value.value.int32Values.get(6));
+                                value.value.int32Values.get(5), value.value.int32Values.get(6),
+                                value.value.int32Values.get(7), value.value.int32Values.get(8));
                     }
-                    callback.onDisplayState(onOff, width, height, insets);
+                    callback.onDisplayState(onOff, bounds, insets);
                     break;
                 default:
-                    Slog.w(TAG, "received unsupported event from HAL: " + value);
+                    Slogf.w(TAG, "received unsupported event from HAL: %s", value);
             }
         }
     }
@@ -211,28 +212,30 @@ public final class ClusterHalService extends HalServiceBase {
         }
         if (count == 0) return true;
         if (count != length) {
-            Slog.w(TAG, "Don't care should be set in the whole " + fieldName);
+            Slogf.w(TAG, "Don't care should be set in the whole %s.", fieldName);
         }
         return false;
     }
 
     /**
      * Reports the current display state and ClusterUI state.
-     * @param onOff 0 - off, 1 - on
-     * @param width width in pixel
-     * @param height height in pixel
-     * @param insets Insets of the cluster display
-     * @param uiTypeMain uiType that ClusterHome tries to show in main area
-     * @param uiTypeSub uiType that ClusterHome tries to show in sub area
+     *
+     * @param onOff          0 - off, 1 - on
+     * @param bounds         the area to render the cluster Activity in pixel
+     * @param insets         Insets of the cluster display
+     * @param uiTypeMain     uiType that ClusterHome tries to show in main area
+     * @param uiTypeSub      uiType that ClusterHome tries to show in sub area
      * @param uiAvailability the byte array to represent the availability of ClusterUI.
      */
-    public void reportState(int onOff, int width, int height, Insets insets,
+    public void reportState(int onOff, Rect bounds, Insets insets,
             int uiTypeMain, int uiTypeSub, byte[] uiAvailability) {
         if (!isCoreSupported()) return;
         VehiclePropValue request = createVehiclePropValue(CLUSTER_REPORT_STATE);
         request.value.int32Values.add(onOff);
-        request.value.int32Values.add(width);
-        request.value.int32Values.add(height);
+        request.value.int32Values.add(bounds.left);
+        request.value.int32Values.add(bounds.top);
+        request.value.int32Values.add(bounds.right);
+        request.value.int32Values.add(bounds.bottom);
         request.value.int32Values.add(insets.left);
         request.value.int32Values.add(insets.top);
         request.value.int32Values.add(insets.right);
@@ -245,6 +248,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     /**
      * Requests to turn the cluster display on to show some ClusterUI.
+     *
      * @param uiType uiType that ClusterHome tries to show in main area
      */
     public void requestDisplay(int uiType) {
@@ -257,6 +261,7 @@ public final class ClusterHalService extends HalServiceBase {
 
     /**
      * Informs the current navigation state.
+     *
      * @param navigateState the serialized message of {@code NavigationStateProto}
      */
     public void sendNavigationState(byte[] navigateState) {
@@ -270,13 +275,13 @@ public final class ClusterHalService extends HalServiceBase {
         try {
             mHal.set(request);
         } catch (ServiceSpecificException e) {
-            Slog.e(TAG, "Failed to send request: " + request, e);
+            Slogf.e(TAG, "Failed to send request: " + request, e);
         }
     }
 
     private static void fillByteList(ArrayList<Byte> byteList, byte[] bytesArray) {
         byteList.ensureCapacity(bytesArray.length);
-        for (byte b: bytesArray) {
+        for (byte b : bytesArray) {
             byteList.add(b);
         }
     }

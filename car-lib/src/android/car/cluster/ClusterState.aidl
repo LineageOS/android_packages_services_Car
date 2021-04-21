@@ -17,12 +17,12 @@
 package android.car.cluster;
 
 import android.graphics.Insets;
+import android.graphics.Rect;
 
 /** @hide */
 parcelable ClusterState {
     boolean on;
-    int width;
-    int height;
+    Rect bounds;
     Insets insets;
     int uiType;
 }
