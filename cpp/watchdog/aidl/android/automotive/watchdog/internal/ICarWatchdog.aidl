@@ -19,8 +19,8 @@ package android.automotive.watchdog.internal;
 import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
-import android.automotive.watchdog.internal.IoOveruseConfiguration;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
+import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
 import android.automotive.watchdog.internal.StateType;
 
 /**
@@ -106,15 +106,20 @@ interface ICarWatchdog {
   void notifySystemStateChange(in StateType type, in int arg1, in int arg2);
 
   /**
-   * CarWatchdogService uses this API to forward the I/O overuse configuration update received from
-   * the system or OEM applications.
+   * Update the given resource overuse configurations.
    * The caller should have system UID. Otherwise, returns security exception binder error.
    *
-   * @param type                 Component type for which the I/O overuse configuration update was
-   *                             received.
-   * @param config               I/O overuse configuration.
+   * @param configs              List of resource overuse configurations.
    */
-  void updateIoOveruseConfiguration(in ComponentType type, in IoOveruseConfiguration config);
+  void updateResourceOveruseConfigurations(in List<ResourceOveruseConfiguration> configs);
+
+  /**
+   * Return the latest list of resource overuse configuration per component.
+   * The caller should have system UID. Otherwise, returns security exception binder error.
+   *
+   * @return configs             List of resource overuse configurations.
+   */
+  List<ResourceOveruseConfiguration> getResourceOveruseConfigurations();
 
   /**
    * CarWatchdogService notifies the native service with the actions taken on the resource overusing
