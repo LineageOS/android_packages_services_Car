@@ -34,6 +34,7 @@ using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
+using ::android::automotive::watchdog::internal::PackageMetadata;
 using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::ResourceSpecificConfiguration;
@@ -112,6 +113,22 @@ PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type
     return toPerStateIoOveruseThreshold(toString(type), fgBytes, bgBytes, garageModeBytes);
 }
 
+PackageMetadata toPackageMetadata(std::string packageName, ApplicationCategoryType type) {
+    PackageMetadata meta;
+    meta.packageName = packageName;
+    meta.appCategoryType = type;
+    return meta;
+}
+
+std::unordered_map<std::string, ApplicationCategoryType> toPackageToAppCategoryMappings(
+        const std::vector<PackageMetadata>& metas) {
+    std::unordered_map<std::string, ApplicationCategoryType> mappings;
+    for (const auto& meta : metas) {
+        mappings[meta.packageName] = meta.appCategoryType;
+    }
+    return mappings;
+}
+
 PackageInfo constructPackageInfo(
         const char* packageName, const ComponentType componentType,
         const ApplicationCategoryType appCategoryType = ApplicationCategoryType::OTHERS) {
@@ -136,11 +153,13 @@ std::vector<String16> toString16Vector(const std::vector<std::string>& values) {
 ResourceOveruseConfiguration constructResourceOveruseConfig(
         const ComponentType type, const std::vector<std::string>&& safeToKill,
         const std::vector<std::string>&& vendorPrefixes,
+        const std::vector<PackageMetadata> packageMetadata,
         const IoOveruseConfiguration& ioOveruseConfiguration) {
     ResourceOveruseConfiguration resourceOveruseConfig;
     resourceOveruseConfig.componentType = type;
     resourceOveruseConfig.safeToKillPackages = toString16Vector(safeToKill);
     resourceOveruseConfig.vendorPackagePrefixes = toString16Vector(vendorPrefixes);
+    resourceOveruseConfig.packageMetadata = packageMetadata;
     ResourceSpecificConfiguration config;
     config.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(ioOveruseConfiguration);
     resourceOveruseConfig.resourceSpecificConfigurations.push_back(config);
@@ -239,7 +258,13 @@ ResourceOveruseConfiguration sampleSystemConfig() {
             /*categorySpecific=*/{},
             /*systemWide=*/ALERT_THRESHOLDS);
     return constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
-                                          /*vendorPrefixes=*/{}, systemIoConfig);
+                                          /*vendorPrefixes=*/{},
+                                          /*packageMetadata=*/
+                                          {toPackageMetadata("systemPackageA",
+                                                             ApplicationCategoryType::MEDIA),
+                                           toPackageMetadata("vendorPkgB",
+                                                             ApplicationCategoryType::MAPS)},
+                                          systemIoConfig);
 }
 
 ResourceOveruseConfiguration sampleVendorConfig() {
@@ -255,7 +280,13 @@ ResourceOveruseConfiguration sampleVendorConfig() {
             /*systemWide=*/{});
     return constructResourceOveruseConfig(ComponentType::VENDOR,
                                           /*safeToKill=*/{"vendorPackageA"},
-                                          /*vendorPrefixes=*/{"vendorPackage"}, vendorIoConfig);
+                                          /*vendorPrefixes=*/{"vendorPackage"},
+                                          /*packageMetadata=*/
+                                          {toPackageMetadata("systemPackageA",
+                                                             ApplicationCategoryType::MEDIA),
+                                           toPackageMetadata("vendorPkgB",
+                                                             ApplicationCategoryType::MAPS)},
+                                          vendorIoConfig);
 }
 
 ResourceOveruseConfiguration sampleThirdPartyConfig() {
@@ -265,7 +296,8 @@ ResourceOveruseConfiguration sampleThirdPartyConfig() {
                                          THIRD_PARTY_COMPONENT_LEVEL_THRESHOLDS),
             /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{});
     return constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
-                                          /*vendorPrefixes=*/{}, thirdPartyIoConfig);
+                                          /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
+                                          thirdPartyIoConfig);
 }
 
 sp<IoOveruseConfigs> sampleIoOveruseConfigs() {
@@ -308,7 +340,8 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
             {toIoOveruseAlertThreshold(6, 4), toIoOveruseAlertThreshold(6, 10)});
     systemResourceConfig =
             constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageC"},
-                                           /*vendorPrefixes=*/{}, systemIoConfig);
+                                           /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
+                                           systemIoConfig);
 
     /*
      * Not adding any safe to kill packages list or package specific thresholds should clear
@@ -325,7 +358,7 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
     vendorResourceConfig =
             constructResourceOveruseConfig(ComponentType::VENDOR, /*safeToKill=*/{},
                                            /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
-                                           vendorIoConfig);
+                                           /*packageMetadata=*/{}, vendorIoConfig);
 
     auto thirdPartyIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/
@@ -333,7 +366,8 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
             /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{});
     thirdPartyResourceConfig =
             constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
-                                           /*vendorPrefixes=*/{}, thirdPartyIoConfig);
+                                           /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
+                                           thirdPartyIoConfig);
 
     ASSERT_RESULT_OK(ioOveruseConfigs.update(
             {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig}));
@@ -343,14 +377,15 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
     systemIoConfig.systemWideThresholds.erase(systemIoConfig.systemWideThresholds.begin() + 1);
     systemResourceConfig =
             constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageC"},
-                                           /*vendorPrefixes=*/{}, systemIoConfig);
+                                           /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
+                                           systemIoConfig);
 
     vendorIoConfig.categorySpecificThresholds.erase(
             vendorIoConfig.categorySpecificThresholds.begin() + 1);
     vendorResourceConfig =
             constructResourceOveruseConfig(ComponentType::VENDOR, /*safeToKill=*/{},
                                            /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
-                                           vendorIoConfig);
+                                           /*packageMetadata=*/{}, vendorIoConfig);
 
     expected = {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig};
 
@@ -401,18 +436,18 @@ TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentName) {
 
     IoOveruseConfigs ioOveruseConfigs;
     EXPECT_FALSE(ioOveruseConfigs
-                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {},
+                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {}, {},
                                                                  randomIoConfig)})
                          .ok());
 
     EXPECT_FALSE(ioOveruseConfigs
-                         .update({constructResourceOveruseConfig(ComponentType::VENDOR, {}, {},
+                         .update({constructResourceOveruseConfig(ComponentType::VENDOR, {}, {}, {},
                                                                  randomIoConfig)})
                          .ok());
 
     EXPECT_FALSE(ioOveruseConfigs
                          .update({constructResourceOveruseConfig(ComponentType::THIRD_PARTY, {}, {},
-                                                                 randomIoConfig)})
+                                                                 {}, randomIoConfig)})
                          .ok());
 
     std::vector<ResourceOveruseConfiguration> actual;
@@ -429,7 +464,7 @@ TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentLevelThresholds) {
     IoOveruseConfigs ioOveruseConfigs;
     EXPECT_FALSE(ioOveruseConfigs
                          .update({constructResourceOveruseConfig(ComponentType::THIRD_PARTY, {}, {},
-                                                                 ioConfig)})
+                                                                 {}, ioConfig)})
                          .ok())
             << "Should error on invalid component level thresholds";
 
@@ -447,7 +482,7 @@ TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidSystemWideAlertThresholds) {
 
     IoOveruseConfigs ioOveruseConfigs;
     EXPECT_FALSE(ioOveruseConfigs
-                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {},
+                         .update({constructResourceOveruseConfig(ComponentType::SYSTEM, {}, {}, {},
                                                                  ioConfig)})
                          .ok())
             << "Should error on invalid system-wide thresholds";
@@ -518,7 +553,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
             {toIoOveruseAlertThreshold(5, 200), toIoOveruseAlertThreshold(30, 40000)});
     auto systemResourceConfig =
             constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
-                                           /*vendorPrefixes=*/{"vendorPackage"}, systemIoConfig);
+                                           /*vendorPrefixes=*/{"vendorPackage"},
+                                           /*packageMetadata=*/{}, systemIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
     ASSERT_RESULT_OK(ioOveruseConfigs.update({systemResourceConfig}));
@@ -527,7 +563,8 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
     systemIoConfig.categorySpecificThresholds.clear();
     systemResourceConfig =
             constructResourceOveruseConfig(ComponentType::SYSTEM, /*safeToKill=*/{"systemPackageA"},
-                                           /*vendorPrefixes=*/{}, systemIoConfig);
+                                           /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
+                                           systemIoConfig);
 
     std::vector<ResourceOveruseConfiguration> expected = {systemResourceConfig};
 
@@ -554,7 +591,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
                                            /*safeToKill=*/
                                            {"vendorPackageA"},
                                            /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
-                                           vendorIoConfig);
+                                           /*packageMetadata=*/{}, vendorIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
     ASSERT_RESULT_OK(ioOveruseConfigs.update({vendorResourceConfig}));
@@ -566,7 +603,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
                                            /*safeToKill=*/
                                            {"vendorPackageA"},
                                            /*vendorPrefixes=*/{"vendorPackage", "vendorPkg"},
-                                           vendorIoConfig);
+                                           /*packageMetadata=*/{}, vendorIoConfig);
 
     std::vector<ResourceOveruseConfiguration> expected = {vendorResourceConfig};
 
@@ -593,7 +630,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) 
             constructResourceOveruseConfig(ComponentType::THIRD_PARTY,
                                            /*safeToKill=*/{"vendorPackageA", "systemPackageB"},
                                            /*vendorPrefixes=*/{"vendorPackage"},
-                                           thirdPartyIoConfig);
+                                           /*packageMetadata=*/{}, thirdPartyIoConfig);
 
     IoOveruseConfigs ioOveruseConfigs;
     ASSERT_RESULT_OK(ioOveruseConfigs.update({thirdPartyResourceConfig}));
@@ -605,7 +642,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) 
     thirdPartyResourceConfig =
             constructResourceOveruseConfig(ComponentType::THIRD_PARTY,
                                            /*safeToKill=*/{}, /*vendorPrefixes=*/{},
-                                           thirdPartyIoConfig);
+                                           /*packageMetadata=*/{}, thirdPartyIoConfig);
 
     std::vector<ResourceOveruseConfiguration> expected = {thirdPartyResourceConfig};
 
@@ -741,6 +778,28 @@ TEST(IoOveruseConfigsTest, TestVendorPackagePrefixes) {
 
     EXPECT_THAT(ioOveruseConfigs->vendorPackagePrefixes(),
                 UnorderedElementsAre("vendorPackage", "vendorPkgB"));
+}
+
+TEST(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithSystemConfig) {
+    IoOveruseConfigs ioOveruseConfigs;
+    const auto resourceOveruseConfig = sampleSystemConfig();
+
+    ASSERT_RESULT_OK(ioOveruseConfigs.update({resourceOveruseConfig}));
+
+    EXPECT_THAT(ioOveruseConfigs.packagesToAppCategories(),
+                UnorderedElementsAreArray(
+                        toPackageToAppCategoryMappings(resourceOveruseConfig.packageMetadata)));
+}
+
+TEST(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithVendorConfig) {
+    IoOveruseConfigs ioOveruseConfigs;
+    const auto resourceOveruseConfig = sampleVendorConfig();
+
+    ASSERT_RESULT_OK(ioOveruseConfigs.update({resourceOveruseConfig}));
+
+    EXPECT_THAT(ioOveruseConfigs.packagesToAppCategories(),
+                UnorderedElementsAreArray(
+                        toPackageToAppCategoryMappings(resourceOveruseConfig.packageMetadata)));
 }
 
 }  // namespace watchdog

@@ -171,7 +171,7 @@ public:
           mIoOveruseMonitor(ioOveruseMonitor) {}
 
     Result<void> init(const sp<IIoOveruseConfigs>& ioOveruseConfigs,
-                      const sp<IPackageInfoResolverInterface>& packageInfoResolver) {
+                      const sp<IPackageInfoResolver>& packageInfoResolver) {
         if (const auto result = mIoOveruseMonitor->init(); !result.ok()) {
             return result;
         }
