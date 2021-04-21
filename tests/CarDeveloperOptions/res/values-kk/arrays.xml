@@ -490,7 +490,7 @@
   </string-array>
   <string-array name="autofill_logging_level_entries">
     <item msgid="6882729786516723474">"Өшірулі"</item>
-    <item msgid="4072198137051566919">"Жөндеу"</item>
+    <item msgid="4072198137051566919">"Түзету"</item>
     <item msgid="2473005316958868509">"Толық ақпарат"</item>
   </string-array>
   <string-array name="cdma_system_select_choices">
