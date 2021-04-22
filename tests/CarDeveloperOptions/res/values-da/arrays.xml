@@ -226,8 +226,8 @@
     <item msgid="8931785990160383356">"vibrer"</item>
     <item msgid="8632513128515114092">"læs kontakter"</item>
     <item msgid="3741042113569620272">"rediger kontakter"</item>
-    <item msgid="4204420969709009931">"læse opkaldsliste"</item>
-    <item msgid="2260380357119423209">"rediger opkaldslisten"</item>
+    <item msgid="4204420969709009931">"læse opkaldshistorik"</item>
+    <item msgid="2260380357119423209">"rediger opkaldshistorik"</item>
     <item msgid="6550710385014530934">"læs kalenderen"</item>
     <item msgid="3575906174264853951">"rediger kalenderen"</item>
     <item msgid="4319843242568057174">"Wi-Fi-søgning"</item>
@@ -293,8 +293,8 @@
     <item msgid="7836406246005211990">"Vibrer"</item>
     <item msgid="3951439024549922598">"Læs kontakter"</item>
     <item msgid="8802152411647068">"Rediger kontakter"</item>
-    <item msgid="229544934599698735">"Læs opkaldslisten"</item>
-    <item msgid="7396102294405899613">"Rediger opkaldslisten"</item>
+    <item msgid="229544934599698735">"Læs opkaldshistorik"</item>
+    <item msgid="7396102294405899613">"Rediger opkaldshistorik"</item>
     <item msgid="3597797992398484655">"Læs kalenderen"</item>
     <item msgid="2705975774250907343">"Rediger kalenderen"</item>
     <item msgid="4668747371441932697">"Placering"</item>
@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"Tillad aldrig"</item>
     <item msgid="8184570120217958741">"Tillad altid"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normal"</item>
+    <item msgid="5101233285497327432">"Moderat"</item>
+    <item msgid="1555861583162930714">"Lav"</item>
+    <item msgid="1719683776264798117">"Kritisk"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normal"</item>
+    <item msgid="6107138933849816768">"Moderat"</item>
+    <item msgid="182695359839047859">"Lav"</item>
+    <item msgid="8577246509202964244">"Kritisk"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Vedvarende"</item>
     <item msgid="167418068739176448">"Topaktivitet"</item>

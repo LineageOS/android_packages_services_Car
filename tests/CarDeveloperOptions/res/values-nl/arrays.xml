@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"Nooit toestaan"</item>
     <item msgid="8184570120217958741">"Altijd toestaan"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"Normaal"</item>
+    <item msgid="5101233285497327432">"Gemiddeld"</item>
+    <item msgid="1555861583162930714">"Laag"</item>
+    <item msgid="1719683776264798117">"Kritiek"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"Normaal"</item>
+    <item msgid="6107138933849816768">"Gemiddeld"</item>
+    <item msgid="182695359839047859">"Laag"</item>
+    <item msgid="8577246509202964244">"Kritiek"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"Permanent"</item>
     <item msgid="167418068739176448">"Topactiviteit"</item>
@@ -462,7 +472,7 @@
     <item msgid="3118234477029486741">"0"</item>
   </string-array>
   <string-array name="wifi_metered_entries">
-    <item msgid="4329206416008519163">"Automatisch detecteren"</item>
+    <item msgid="4329206416008519163">"Detecteer automatisch"</item>
     <item msgid="773943026484148895">"Behandelen als wifi met datalimiet"</item>
     <item msgid="1008268820118852416">"Behandelen als wifi zonder datalimiet"</item>
   </string-array>

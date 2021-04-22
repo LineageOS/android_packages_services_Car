@@ -423,9 +423,19 @@
     <item msgid="7718817231348607934">"허용 안함"</item>
     <item msgid="8184570120217958741">"항상 허용"</item>
   </string-array>
-    <!-- no translation found for ram_states:0 (708247372474061274) -->
-    <!-- no translation found for ram_states:4 (1567326459340152525) -->
-    <!-- no translation found for proc_stats_memory_states:3 (8577246509202964244) -->
+  <string-array name="ram_states">
+    <item msgid="708247372474061274">"보통"</item>
+    <item msgid="5101233285497327432">"일반"</item>
+    <item msgid="1555861583162930714">"낮음"</item>
+    <item msgid="1719683776264798117">"중요"</item>
+    <item msgid="1567326459340152525">"?"</item>
+  </string-array>
+  <string-array name="proc_stats_memory_states">
+    <item msgid="3474232046138139454">"보통"</item>
+    <item msgid="6107138933849816768">"중간"</item>
+    <item msgid="182695359839047859">"낮음"</item>
+    <item msgid="8577246509202964244">"심각"</item>
+  </string-array>
   <string-array name="proc_stats_process_states">
     <item msgid="7560955722349181440">"영구"</item>
     <item msgid="167418068739176448">"메모리 사용이 가장 많은 활동"</item>
@@ -467,7 +477,7 @@
     <item msgid="1008268820118852416">"무제한 Wi-Fi로 취급"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"임의의 MAC 사용(기본값)"</item>
+    <item msgid="6545683814310036454">"무작위 MAC 사용(기본값)"</item>
     <item msgid="214234417308375326">"기기 MAC 사용"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
