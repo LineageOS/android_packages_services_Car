@@ -21,17 +21,17 @@
     <string name="car_permission_label_camera" msgid="3725702064841827180">"pristupiti kameri automobila"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Pristupiti kameri(ama) automobila."</string>
     <string name="car_permission_label_energy" msgid="7409144323527821558">"pristupiti informacijama o energiji automobila"</string>
-    <string name="car_permission_desc_energy" msgid="3392963810053235407">"Pristupiti informacijama o energiji automobila."</string>
-    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"podesi preostali domet automobila"</string>
-    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"Podesi vrijednost preostalog dometa automobila."</string>
+    <string name="car_permission_desc_energy" msgid="3392963810053235407">"pristupiti informacijama o energiji automobila"</string>
+    <string name="car_permission_label_adjust_range_remaining" msgid="839033553999920138">"podesiti preostali domet automobila"</string>
+    <string name="car_permission_desc_adjust_range_remaining" msgid="2369321650437370673">"podesiti vrijednost preostalog dometa automobila"</string>
     <string name="car_permission_label_hvac" msgid="1499454192558727843">"pristupiti grijanju, ventilaciji i klimatizaciji automobila"</string>
     <string name="car_permission_desc_hvac" msgid="3754229695589774195">"Pristupiti grijanju, ventilaciji i klimatizaciji automobila."</string>
     <string name="car_permission_label_mileage" msgid="4661317074631150551">"pristupiti informacijama o pređenim kilometrima automobila"</string>
-    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"Pristupiti informacijama o pređenim kilometrima."</string>
+    <string name="car_permission_desc_mileage" msgid="7179735693278681090">"pristupiti informacijama o pređenim kilometrima"</string>
     <string name="car_permission_label_speed" msgid="1149027717860529745">"očitati brzinu automobila"</string>
-    <string name="car_permission_desc_speed" msgid="2047965198165448241">"Pristupiti informacijama o brzini automobila."</string>
+    <string name="car_permission_desc_speed" msgid="2047965198165448241">"pristupiti informacijama o brzini automobila"</string>
     <string name="car_permission_label_vehicle_dynamics_state" msgid="313779267420048367">"pristupiti stanju dinamike automobila"</string>
-    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"Pristupiti stanju dinamike automobila."</string>
+    <string name="car_permission_desc_vehicle_dynamics_state" msgid="8891506193446375660">"pristupiti stanju dinamike automobila"</string>
     <string name="car_permission_label_vendor_extension" msgid="7141601811734127361">"pristupiti kanalu trgovca automobilima"</string>
     <string name="car_permission_desc_vendor_extension" msgid="2970718502334714035">"Pristupiti kanalu trgovca automobilima radi razmjene posebnih informacija o automobilu."</string>
     <string name="car_permission_label_radio" msgid="6009465291685935112">"upravljati radiom automobila"</string>
@@ -47,11 +47,11 @@
     <string name="car_permission_label_mock_vehicle_hal" msgid="7198852512207405935">"emulirati HAL vozila"</string>
     <string name="car_permission_label_receive_ducking" msgid="4884538660766756573">"prijem događaja sa smanjivanjem jačine zvuka tokom govora"</string>
     <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"Dozvoljava aplikaciji da primi obavještenje kada se glasnoća smanji uslijed reproduciranja drugog zvučnog zapisa u automobilu."</string>
-    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"Emulirati HAL vozila u svrhu internog testiranja."</string>
-    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"Kontrolirati jačinu zvuka u automobilu."</string>
+    <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"emulirati HAL vozila u svrhu internog testiranja"</string>
+    <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"kontrolirati jačinu zvuka u automobilu"</string>
     <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"Kontrolirajte postavke zvuka automobila."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"Blokiranje aplikacija"</string>
-    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"Kontrolirati blokiranje aplikacija tokom vožnje."</string>
+    <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"kontrolirati blokiranje aplikacija tokom vožnje"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"Upravitelj navigacije"</string>
     <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"Dostaviti podatke o navigaciji kontrolnoj tabli"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"Direktno iscrtavanje na kontrolnoj ploči"</string>
