@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Rendszer"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> felfedezése"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Az Egyéb kategóriába tartoznak az alkalmazások által mentett megosztott fájlok, az internetről, illetve Bluetooth-kapcsolaton keresztül letöltött fájlok, az androidos fájlok stb. \n\nA(z) <xliff:g id="NAME">^1</xliff:g> látható tartalmainak megtekintéséhez koppintson a Felfedezés lehetőségre."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer az Android <xliff:g id="VERSION">%s</xliff:g>. verziójának futtatásához használt fájlokat tartalmaz"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer az Android <xliff:g id="VERSION">%s</xliff:g> verziójának futtatásához használt fájlokat tartalmaz"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"Lehetséges, hogy <xliff:g id="USER_0">^1</xliff:g> felhasználó fotókat, zenét, alkalmazásokat vagy más adatokat mentett, amihez <xliff:g id="SIZE">^2</xliff:g> tárhelyet használt fel.\n\nA részleteket megtekintheti, ha átvált a következő felhasználóra: <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g> – beállítás"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Használat hordozható tárolóként"</string>

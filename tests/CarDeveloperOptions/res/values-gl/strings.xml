@@ -1246,10 +1246,10 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personaliza a pantalla"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Escoller fondo de pantalla en"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Protector de pantalla"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Durante a carga ou mentres está conectado a unha base"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao estar cargando ou na base"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"As dúas opcións"</string>
-    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Durante a carga"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Mentres está conectado a unha base"</string>
+    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Ao estar cargando"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Ao estar na base"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Nunca"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Desactivado"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Para controlar o que sucederá cando o teléfono estea ancorado ou en modo de suspensión, activa o protector de pantalla."</string>
@@ -1798,7 +1798,7 @@
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"O teu dispositivo e os datos persoais son máis vulnerables aos ataques de aplicacións descoñecidas. Ao instalar aplicacións desta fonte, aceptas que es responsable dos danos que se poidan producir no dispositivo ou da perda de datos que se poida derivar do seu uso."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Configuración avanzada"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activa máis opcións de configuración"</string>
-    <string name="application_info_label" msgid="3886253474964599105">"Información das aplicacións"</string>
+    <string name="application_info_label" msgid="3886253474964599105">"Información de aplicacións"</string>
     <string name="storage_label" msgid="1109537840103290384">"Almacenamento"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predeterminada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valores predeterminados"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Predeterminada)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Sistema)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Opción predeterminada do sistema)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Almacenamento de apps"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Almacenamento de aplicacións"</string>
     <string name="usage_access" msgid="2023443456361489516">"Acceso a datos de uso"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Permitir acceso ao uso"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Preferencias de uso da aplicación"</string>
