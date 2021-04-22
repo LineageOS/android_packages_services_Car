@@ -24,7 +24,6 @@ import android.car.content.pm.ICarPackageManager;
 import android.car.diagnostic.ICarDiagnostic;
 import android.car.drivingstate.ICarDrivingState;
 import android.car.hardware.power.ICarPower;
-import android.car.media.ICarAudio;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.content.Context;
 import android.os.IBinder;
@@ -137,7 +136,6 @@ public class FakeCar {
     }
 
     private static class FakeCarService extends ICar.Stub {
-        @Mock ICarAudio.Stub mCarAudio;
         @Mock ICarPackageManager.Stub mCarPackageManager;
         @Mock ICarDiagnostic.Stub mCarDiagnostic;
         @Mock ICarPower.Stub mCarPower;
@@ -146,6 +144,7 @@ public class FakeCar {
         @Mock ICarStorageMonitoring.Stub mCarStorageMonitoring;
         @Mock ICarDrivingState.Stub mCarDrivingState;
 
+        private final FakeCarAudioService mCarAudio;
         private final FakeAppFocusService mAppFocus;
         private final FakeCarPropertyService mCarProperty;
         private final FakeCarProjectionService mCarProjection;
@@ -155,6 +154,7 @@ public class FakeCar {
 
         FakeCarService(Context context) {
             MockitoAnnotations.initMocks(this);
+            mCarAudio = new FakeCarAudioService();
             mAppFocus = new FakeAppFocusService(context);
             mCarProperty = new FakeCarPropertyService();
             mCarProjection = new FakeCarProjectionService(context);
