@@ -208,7 +208,9 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 // ignore as listener doesn't own focus.
                 return;
             }
-            if (mFocusOwners.contains(appType)) {
+            // Because this code will run as part of unit tests on older platform, we can't use
+            // APIs such as {@link SparseArray#contains} that are added with API 30.
+            if (mFocusOwners.indexOfKey(appType) >= 0) {
                 mFocusOwners.remove(appType);
                 mActiveAppTypes.remove(appType);
                 info.removeOwnedAppType(appType);
@@ -278,7 +280,9 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      */
     public boolean isFocusOwner(int uid, int pid, int appType) {
         synchronized (mLock) {
-            if (mFocusOwners.contains(appType)) {
+            // Because this code will run as part of unit tests on older platform, we can't use
+            // APIs such as {@link SparseArray#contains} that are added with API 30.
+            if (mFocusOwners.indexOfKey(appType) >= 0) {
                 OwnershipClientInfo clientInfo = mFocusOwners.get(appType);
                 return clientInfo.getUid() == uid && clientInfo.getPid() == pid;
             }
