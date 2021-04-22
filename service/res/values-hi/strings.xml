@@ -102,7 +102,7 @@
     <string name="car_permission_label_use_evs_camera" msgid="3607720208623955067">"ईवीएस कैमरा इस्तेमाल करें"</string>
     <string name="car_permission_desc_use_evs_camera" msgid="1625845902221003985">"ईवीएस कैमरा स्ट्रीम की सदस्यता लें"</string>
     <string name="car_permission_label_monitor_evs_status" msgid="2091521314159379622">"ईवीएस सेवा के स्टेटस पर नज़र रखें"</string>
-    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ईवीएस सेवा के स्टेटस में हुए बदलावों को सुनें"</string>
+    <string name="car_permission_desc_monitor_evs_status" msgid="2764278897143573535">"ईवीएस सेवा के स्टेटस में हुए बदलावों पर नज़र रखें"</string>
     <string name="car_permission_label_car_engine_detailed" msgid="8911992719173587337">"कार के इंजन की जानकारी ऐक्सेस कर सकता है"</string>
     <string name="car_permission_desc_car_engine_detailed" msgid="1746863362811347700">"आपकी कार के इंजन की पूरी जानकारी ऐक्सेस कर सकता है."</string>
     <string name="car_permission_label_car_energy_ports" msgid="8548990315169219454">"कार की ईंधन टंकी का ढक्कन और चार्जिंग पोर्ट ऐक्सेस कर सकता है"</string>
