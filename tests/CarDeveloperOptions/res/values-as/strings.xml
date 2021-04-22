@@ -975,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"মান্য় নকৰিব"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"কোনো প্ৰমাণপত্ৰ নিৰ্দিষ্ট কৰা হোৱা নাই। আপোনাৰ সংযোগ ব্যক্তিগত ৰূপত নাথাকিব।"</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"নেটৱৰ্কৰ নাম অতি দীঘল হৈছে৷"</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"এটা ড\'মেইন নিৰ্দিষ্ট কৰিবই লাগিব"</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"এটা ড\'মেইন নিৰ্দিষ্ট কৰিবই লাগিব।"</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS উপলব্ধ"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS উপলব্ধ)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"বাহকৰ ৱাই-ফাই নেটৱৰ্ক"</string>
@@ -1171,7 +1171,7 @@
     <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ডিছপ্লে’"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"স্বয়ং-ঘূৰ্ণন স্ক্ৰীণ"</string>
-    <string name="color_mode_title" msgid="8164858320869449142">"ৰংবোৰ"</string>
+    <string name="color_mode_title" msgid="8164858320869449142">"ৰং"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"প্ৰাকৃতিক"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"বৃদ্ধি কৰা হ’ল"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"সংপৃক্ত"</string>
@@ -1246,15 +1246,15 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"আপোনাৰ স্ক্ৰীণখনক ব্যক্তিগত ৰূপ দিয়ক"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"ৱালপেপাৰ বাছক"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"স্ক্ৰীণ ছেভাৰ"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"চ্চাৰ্জ কৰোঁতে বা ডক কৰি থওঁতে"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"চাৰ্জ কৰোঁতে বা ডক কৰি থওঁতে"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"কোনোবা এটা"</string>
-    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"চ্চাৰ্জ কৰি থকাৰ সময়ত"</string>
+    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"চাৰ্জ কৰি থকাৰ সময়ত"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"ডক হৈ থাকোঁতে"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"কেতিয়াও নহয়"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"অফ হৈ আছে"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"ফ\'নটো ড’ক আৰু/বা সুপ্ত অৱস্থাত থাকিলে যি হয় তাক নিয়ন্ত্ৰণ কৰিবলৈ, স্ক্ৰীণ ছেভাৰ অন কৰক৷"</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ষ্টাৰ্ট কৰাৰ সময়"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"বৰ্তমান ব্যৱহৃতহৈ থকা স্ক্ৰীণছেভাৰ"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"বৰ্তমান ব্যৱহাৰ হৈ থকা স্ক্ৰীণ ছেভাৰ"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"এতিয়াই আৰম্ভ কৰক"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"ছেটিংসমূহ"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"স্বয়ংক্ৰিয় উজ্জ্বলতা"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"ইনষ্টল কৰক"</string>
     <string name="disable_text" msgid="5065834603951474397">"নিষ্ক্ৰিয় কৰক"</string>
     <string name="enable_text" msgid="7179141636849225884">"সক্ষম কৰক"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"সঞ্চয়াগাৰ মচক"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"ষ্ট’ৰেজ মচক"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"আপডেইটবিলাক আঁতৰাওক"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"আপুনি কিছুমান কাৰ্যৰ কাৰণে এই এপক ডিফ\'ল্টভাৱে লঞ্চ কৰাৰ বিকল্প বাছি লৈছে।"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"আপুনি এই এপটোক ৱিজেট সৃষ্টি কৰিবলৈ আৰু সেইবিলাকৰ ডেটা চাবলৈ অনুমতি দিবলৈ বাছনি কৰিছে।"</string>

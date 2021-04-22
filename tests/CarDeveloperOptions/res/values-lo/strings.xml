@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"ການກວດສອບສິດທິໄລຍະທີ 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ໃບ​ຢັ້ງ​ຢືນ​ CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"ໂດເມນ"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ່ໃຊ້"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ້ໃຊ້"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"ການລະບຸໂຕຕົນ"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"ໂຕຕົນທີ່ບໍ່ລະບຸຊື່"</string>
     <string name="wifi_password" msgid="6942983531275177771">"ລະຫັດຜ່ານ"</string>
@@ -1173,7 +1173,7 @@
     <string name="accelerometer_title" msgid="2427487734964971453">"ໝຸນໜ້າຈໍອັດຕະໂນມັດ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ສີ"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"ທຳ​ມະ​ຊາດ"</string>
-    <string name="color_mode_option_boosted" msgid="453557938434778933">"ເລັ່ງແລ້ວ"</string>
+    <string name="color_mode_option_boosted" msgid="453557938434778933">"ສີເຂັ້ມຂຶ້ນ"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"ເພີ່ມສີແລ້ວ"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"ປັບປ່ຽນໄດ້"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"ໃຊ້ສີທີ່ຖືກຕ້ອງເທົ່ານັ້ນ"</string>

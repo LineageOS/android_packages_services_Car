@@ -3324,10 +3324,10 @@
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Wyświetl ustawienia niestandardowe "</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Tylko priorytet"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Wł. / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Wyłączono / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Wyłączono"</string>
-    <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Wł."</string>
+    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Włączone / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Wyłączone / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Wyłączone"</string>
+    <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Włączone"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Pytaj za każdym razem (chyba że został włączony automatycznie)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Dopóki nie wyłączysz (chyba że został włączony automatycznie)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">

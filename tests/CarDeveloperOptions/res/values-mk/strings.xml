@@ -916,7 +916,7 @@
     <string name="passpoint_content" msgid="340527524510304327">"Акредитиви на <xliff:g id="NAME">%1$s</xliff:g>"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP-метод"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Автентикација во фаза 2"</string>
-    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Сертификат CA"</string>
+    <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA-сертификат"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Домен"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Кориснички сертификат"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Идентитет"</string>
@@ -1172,8 +1172,8 @@
     <string name="display_settings" msgid="1045535829232307190">"Приказ"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"Автоматско ротирање на екранот"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"Бои"</string>
-    <string name="color_mode_option_natural" msgid="1292837781836645320">"Природно"</string>
-    <string name="color_mode_option_boosted" msgid="453557938434778933">"Нагласено"</string>
+    <string name="color_mode_option_natural" msgid="1292837781836645320">"Природни"</string>
+    <string name="color_mode_option_boosted" msgid="453557938434778933">"Нагласени"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Заситено"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптивна"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Користи само прецизни бои"</string>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"Контроли"</string>
     <string name="force_stop" msgid="9213858124674772386">"Исклучи присилно"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Вкупно"</string>
-    <string name="application_size_label" msgid="175357855490253032">"Големина на апликација"</string>
+    <string name="application_size_label" msgid="175357855490253032">"Големина на апликацијата"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Апликација за USB меморија"</string>
     <string name="data_size_label" msgid="7790201846922671662">"Кориснички податоци"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"Податоци на USB меморија"</string>
@@ -3371,10 +3371,10 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Нема „Помошник“"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ниедна од инсталираните апликации не побара пристап до известувања."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Да му се дозволи пристап до известувања на <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> ќе може да ги чита сите известувања, вклучувајќи ги личните информации како што се имињата на контактите и текстот од пораките што ги добивате. Ќе може и да изменува или отфрла известувања или да ги активира копчињата за дејство што тие ги содржат. \n\nОва ќе ѝ овозможи на апликацијата да го вклучува и исклучува „Не вознемирувај“ и да ги менува поврзаните поставки."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Дозволи пристап до известувања на <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> ќе може да ги чита сите известувања, вклучувајќи ги личните податоци како што се имињата на контактите и текстот од пораките што ги примате. Ќе може и да изменува или отфрла известувања или да ги активира копчињата за дејство што тие ги содржат. \n\nОва ќе ѝ овозможи на апликацијата да го вклучува и исклучува „Не вознемирувај“ и да ги менува поврзаните поставки."</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Да се дозволи пристап на <xliff:g id="SERVICE">%1$s</xliff:g> до известувањата?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ќе може да ги чита сите известувања, вклучувајќи лични информации како што се имињата на контактите и текстот од пораките што ги добивате. Ќе може и да отфрла известувања или да активира копчиња за дејство што ги содржат. \n\nИсто така, ќе ѝ овозможи на апликацијата да го вклучува и исклучува „Не вознемирувај“ и да ги менува поврзаните поставки."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Ако го исклучите пристапот до известувањата за <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, пристапот до „Не вознемирувај“ може исто така да се исклучи."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Ако го исклучите пристапот на <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> до известувањата, пристапот до „Не вознемирувај“ може исто така да се исклучи."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Исклучи"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Откажи"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR помошни услуги"</string>
@@ -3935,7 +3935,7 @@
     <string name="usage" msgid="9172908720164431622">"Користење"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Потрошен мобилен интернет"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Потрошен интернет од апликации"</string>
-    <string name="wifi_data_usage" msgid="275569900562265895">"Сообраќај преку Wi-Fi"</string>
+    <string name="wifi_data_usage" msgid="275569900562265895">"Интернет преку Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Потрошен етернет сообраќај"</string>
     <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
     <string name="ethernet" msgid="2365753635113154667">"Етернет"</string>
