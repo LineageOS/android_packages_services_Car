@@ -1903,7 +1903,7 @@
     <string name="internal_storage" msgid="7392373600013294853">"Унутраная памяць"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Пераразлік памеру..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Выдаліць даныя праграмы?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Усе даныя гэтай праграмы будуць назаўсёды выдаленыя. Гэта датычыцца ўсiх файлаў, налад, уліковых запісаў, баз даных і г. д."</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Усе даныя гэтай праграмы будуць назаўсёды выдалены. Гэта датычыцца ўсiх файлаў, налад, уліковых запісаў, баз даных і г. д."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ОК"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Скасаваць"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>

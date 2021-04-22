@@ -300,7 +300,7 @@
     <string name="settings_label" msgid="7263237773415875813">"Configuración"</string>
     <string name="settings_label_launcher" msgid="500627679902923496">"Configuración"</string>
     <string name="settings_shortcut" msgid="4503714880251502167">"Configuración"</string>
-    <string name="airplane_mode" msgid="4508870277398231073">"Modo avión"</string>
+    <string name="airplane_mode" msgid="4508870277398231073">"Modo de avión"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Conexiones inalámbricas y redes"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"Administrar Wi-Fi, Bluetooth, modo avión, redes móviles y VPN"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Datos móviles"</string>

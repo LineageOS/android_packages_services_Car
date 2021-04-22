@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Náttúrulegir"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Efldir"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Mettaðir"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegur"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegir"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Nota aðeins nákvæma liti"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Stilla á líflega eða nákvæma liti"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Snúa skjámynd sjálfkrafa þegar spjaldtölvu er snúið"</string>

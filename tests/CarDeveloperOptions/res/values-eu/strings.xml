@@ -962,7 +962,7 @@
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Partekatu wifi-gunea"</string>
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Egiaztatu zeu zarela"</string>
     <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wifi-sareko pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
-    <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Wifi-gunearen pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
+    <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Wifi-guneko pasahitza: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Gehitu gailu bat"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Konektatu sare honetara QR kode baten bidez"</string>
     <string name="retry" msgid="8500839563577344702">"Saiatu berriro"</string>
@@ -1065,7 +1065,7 @@
     <string name="wifi_hotspot_name_title" msgid="6572202165400226127">"Wifi-gunearen izena"</string>
     <string name="wifi_hotspot_name_summary_connecting" msgid="5176787959408511889">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> aktibatzen…"</string>
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"<xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g> sarera konekta daitezke beste gailuak"</string>
-    <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Wifi-gunearen pasahitza"</string>
+    <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Wifi-guneko pasahitza"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Sarbide-puntuaren banda"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Erabili wifi-gunea beste gailuentzako wifi-sare bat sortzeko. Wifi-guneen bidez, Interneteko konexioa ematen da datu-konexioa erabilita. Baliteke zerbait ordaindu behar izatea datuak erabiltzeagatik."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Aplikazioek wifi-guneak sor ditzakete edukia inguruko gailuekin partekatzeko."</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Sistema"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"Arakatu <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Hauek dira \"Beste fitxategi batzuk\" atalean gordetzen diren fitxategiak: aplikazioek gordetako fitxategi partekatuak, Internet edo Bluetooth bidez deskargatutakoak, Android-eko fitxategiak, etab.\n\n<xliff:g id="NAME">^1</xliff:g> honetan ikusgai dagoen edukia ikusteko, sakatu Arakatu."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Android-en <xliff:g id="VERSION">%s</xliff:g>. bertsioa exekutatzeko balio duten fitxategiak daude sisteman"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Android-en <xliff:g id="VERSION">%s</xliff:g> bertsioa exekutatzeko balio duten fitxategiak daude sisteman"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"Baliteke <xliff:g id="USER_0">^1</xliff:g> erabiltzaileak argazkiak, musika, aplikazioak edo bestelako datuak gorde izatea, memorian <xliff:g id="SIZE">^2</xliff:g> hartuta. \n\nXehetasunak ikusteko, aldatu <xliff:g id="USER_1">^1</xliff:g> erabiltzailearen kontura."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"Konfiguratu <xliff:g id="NAME">^1</xliff:g> memoria"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Erabili biltegiratze-gailu eramangarri gisa"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"Instalatu"</string>
     <string name="disable_text" msgid="5065834603951474397">"Desgaitu"</string>
     <string name="enable_text" msgid="7179141636849225884">"Gaitu"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"Garbitu biltegia"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"Garbitu memoria"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"Desinstalatu eguneratzeak"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Ekintza batzuk egiterakoan aplikazioa modu lehenetsian abiaraztea aukeratu duzu."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Aplikazioari widgetak sortzeko eta horien datuak atzitzeko baimena ematea aukeratu duzu."</string>
@@ -1860,13 +1860,13 @@
     <string name="no_applications" msgid="6811396016303576024">"Ez dago aplikaziorik."</string>
     <string name="internal_storage" msgid="7392373600013294853">"Barneko memoria"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Tamaina berriro kalkulatzen…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Aplikazioetako datuak ezabatu?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Aplikazioko datuak ezabatu?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Aplikazio honetako datu guztiak betiko ezabatuko dira; besteak beste, fitxategi, ezarpen, kontu, datu-base eta abar guztiak."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"Ados"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Utzi"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
     <string name="app_not_found_dlg_text" msgid="8807428608938210212">"Ez da aplikazioa aurkitu instalatutako aplikazioen zerrendan."</string>
-    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Ezin izan da garbitu aplikazioaren biltegia."</string>
+    <string name="clear_failed_dlg_text" msgid="8072859778950498232">"Ezin izan da garbitu memoria aplikazio honi dagokionez."</string>
     <string name="join_two_items" msgid="3833831843199356403">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> eta <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="computing_size" msgid="2234106107535318136">"Kalkulatzen…"</string>
@@ -2531,7 +2531,7 @@
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Kendu ziurtagiri guztiak"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Kredentzial fidagarriak"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Bistaratu CA fidagarrien ziurtagiriak"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"Erabiltzaile-kredentzialak"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"Erabiltzaile- kredentzialak"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Ikusi eta aldatu gordetako kredentzialak"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Aurreratuak"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Biltegiratze mota"</string>
@@ -3935,7 +3935,7 @@
     <string name="usage" msgid="9172908720164431622">"Erabilera"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Datu-konexioaren erabilera"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Aplikazioak erabilitako datuak"</string>
-    <string name="wifi_data_usage" msgid="275569900562265895">"Wifi-datuen erabilera"</string>
+    <string name="wifi_data_usage" msgid="275569900562265895">"Wifi-sareko datuen erabilera"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Ethernet datuen erabilera"</string>
     <string name="wifi" msgid="1586738489862966138">"Wifia"</string>
     <string name="ethernet" msgid="2365753635113154667">"Ethernet"</string>

@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Система"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g>: Разглеждане"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Категорията „Други“ включва споделените файлове, запазени от приложенията, файловете, изтеглени от интернет или през Bluetooth, тези на Android и др.\n\nЗа да прегледате видимото съдържание на това хранилище (<xliff:g id="NAME">^1</xliff:g>), докоснете „Разглеждане“."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Категорията „Система Android“ включва файлове, използвани за изпълняването на версия <xliff:g id="VERSION">%s</xliff:g> на Android"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Системата включва файлове, използвани за изпълняването на версия <xliff:g id="VERSION">%s</xliff:g> на Android"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> може да има запазени снимки, музика, приложения или други данни, които заемат <xliff:g id="SIZE">^2</xliff:g> от хранилището.\n\nЗа да прегледате подробностите, превключете към <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"Настройте хранилището (<xliff:g id="NAME">^1</xliff:g>)"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Използване като преносимо хранилище"</string>

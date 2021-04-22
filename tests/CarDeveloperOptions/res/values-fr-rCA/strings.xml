@@ -1614,7 +1614,7 @@
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Point d\'accès Wi-Fi mobile"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Partage connexion Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Partage de connexion"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"Partage de connexion"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"Point d\'accès et partage de connexion"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Point d\'accès activé, partage de connexion"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Point d\'accès activé"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Partage de connexion"</string>

@@ -1239,7 +1239,7 @@
     <string name="screen_timeout_title" msgid="150117777762864112">"స్క్రీన్‌ను ఆఫ్ చేయాల్సిన సమయం"</string>
     <string name="screen_timeout_summary" msgid="8644192861778491060">"ఇన్‌యాక్టివ్‌గా ఉన్న <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> తర్వాత"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"వాల్‌పేపర్"</string>
-    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"శైలులు &amp; వాల్‌పేపర్‌లు"</string>
+    <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"స్టయిల్స్ &amp; వాల్‌పేపర్‌లు"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"డిఫాల్ట్"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"అనుకూలం"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"వాల్‌పేపర్‌ను మార్చండి"</string>
