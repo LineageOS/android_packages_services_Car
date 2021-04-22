@@ -85,8 +85,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Sumažinkite arba padidinkite ekrane rodomą tekstą."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Padaryti mažesnius"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Padaryti didesnius"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Pavyzdinis tekstas"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"Nuostabusis Ozo šalies burtininkas"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"11 skyrius. Nuostabusis Smaragdo miestas"</string>
@@ -384,7 +383,7 @@
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"Įkeliama…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"Paskyros"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"Sauga"</string>
-    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"Šifruotė ir prisijungimo duomenys"</string>
+    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"Šifruotė ir prisi. duom."</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"Telefonas užšifruotas"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"Telefonas nešifruotas"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"Įrenginys šifruotas"</string>
@@ -940,7 +939,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Įveskite SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Sauga"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Paslėptas tinklas"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą maršruto parinktuvo nustatymai nebus pakeisti."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą, maršruto parinktuvo nustatymai nebus pakeisti."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signalo stiprumas"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Būsena"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Perdavimo nuorodos sparta"</string>
@@ -1106,7 +1105,7 @@
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"Prieigos taško juosta"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Naudodami viešosios interneto prieigos tašką, galite sukurti „Wi‑Fi“ tinklą kitiems įrenginiams. Internetas teikiamas per viešosios interneto prieigos tašką naudojant mobiliųjų duomenų ryšį. Gali būti taikomi papildomi mobiliojo ryšio duomenų mokesčiai."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Programos gali sukurti viešosios interneto prieigos tašką ir bendrinti turinį su netoliese esančiais įrenginiais."</string>
-    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Išjungti viešosios interneto prieigos tašką automatiškai"</string>
+    <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Automatiškai išjungti viešosios interneto prieigos tašką"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"„Wi‑Fi“ viešosios interneto prieigos taškas bus išjungtas, jei nebus prijungta jokių įrenginių"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Įjungiamas viešosios interneto prieigos taškas…"</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Išjungiamas viešosios interneto prieigos taškas…"</string>
@@ -1139,7 +1138,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobiliojo ryšio tinklas"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Jei „Wi‑Fi“ nepasiekiamas, naudokite mobiliojo ryšio tinklą"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Jei mobiliojo ryšio tinklas nepasiekiamas, naudoti „Wi‑Fi“"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Skambinimas naudojant „Wi-Fi“. Nutrūkus „Wi‑Fi“ skambutis bus baigtas."</string>
@@ -1604,7 +1606,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Atkuriami numatytieji APN nustatymai."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Nustatyti iš naujo į numatytuosius nust."</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Numatytųjų APN nustatymų nustatymas iš naujo baigtas."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nustat. parinkt. iš naujo"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Nust. parinkt. iš naujo"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Tinklą, programas arba įrenginį galima nustatyti iš naujo"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Iš naujo nustatyti „Wi-Fi“, mobiliųjų duomenų ir „Bluetooth“ nustatymus"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Bus iš naujo nustatyti visi tinklo nustatymai, įskaitant:\n\n"<li>"„Wi‑Fi“;"</li>\n<li>"mobiliojo ryšio duomenis;"</li>\n<li>"„Bluetooth“."</li></string>
@@ -2646,7 +2648,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Apriboti SMS ir skambučių žurnalo prieigą"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Tik numatytosios telefono ir susirašinėjimo programos turi SMS ir skambučių žurnalo leidimus"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Nėra jokių galimų „trust agents“"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Suaktyvinti įrenginio administravimo programą?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Suaktyvinti įren. administravimo progr.?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Suaktyvinti šio įrenginio administravimo programą"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Įrenginio administratorius"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Suaktyvinus šią administravimo programą programai <xliff:g id="APP_NAME">%1$s</xliff:g> bus leidžiama vykdyti toliau nurodytas operacijas."</string>

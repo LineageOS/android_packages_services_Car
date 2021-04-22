@@ -83,8 +83,7 @@
     <string name="font_size_summary" msgid="9120023206321191067">"Gawing mas maliit o mas malaki ang text sa screen."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Paliitin"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Palakihin"</string>
-    <!-- no translation found for font_size_preview_text (360019784926073822) -->
-    <skip />
+    <string name="font_size_preview_text" msgid="360019784926073822">"Servez à ce monsieur une bière et des kiwis."</string>
     <string name="font_size_preview_text_headline" msgid="8038650525913995091">"Sample na text"</string>
     <string name="font_size_preview_text_title" msgid="2593520249400910305">"The Wonderful Wizard of Oz"</string>
     <string name="font_size_preview_text_subtitle" msgid="6106782964143379331">"Kabanata 11: The Wonderful Emerald City of Oz"</string>
@@ -489,7 +488,7 @@
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Naku, hindi iyan ang sensor"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_message" msgid="7192100314788868883">"Pindutin ang sensor sa likod ng iyong telepono. Gamitin ang hintuturo mo."</string>
     <string name="security_settings_fingerprint_enroll_error_dialog_title" msgid="1415709674142168770">"Hindi nakumpleto ang pagpapatala"</string>
-    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pagpapatala ng fingerprint. Subukang muli."</string>
+    <string name="security_settings_fingerprint_enroll_error_timeout_dialog_message" msgid="498951203761192366">"Naabot na ang limitasyon sa oras ng pag-enroll ng fingerprint. Subukan ulit."</string>
     <string name="security_settings_fingerprint_enroll_error_generic_dialog_message" msgid="7896295829530444810">"Hindi gumana ang pagpapatala ng fingerprint. Subukang muli o gumamit ng ibang daliri."</string>
     <string name="fingerprint_enroll_button_add" msgid="6335782936874996629">"Magdagdag ng isa pa"</string>
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Susunod"</string>
@@ -1103,7 +1102,10 @@
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
-    <!-- no translation found for wifi_calling_mode_choices_v2_without_wifi_only:0 (6452246499629557266) -->
+  <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
+    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="2271962426654621656">"Mobile"</item>
+  </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Kung hindi available ang Wi‑Fi, gamitin ang mobile network"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Kung hindi available ang mobile network, gamitin ang Wi‑Fi"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Tumawag gamit ang Wi‑Fi. Kung mawawala ang Wi‑Fi, matatapos ang tawag."</string>
@@ -2094,7 +2096,7 @@
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Pag-vibrate kapag nag-ring"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Pag-vibrate sa pagpindot"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Gamitin ang serbisyo"</string>
-    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Gumamit ng pagwawasto ng kulay"</string>
+    <string name="accessibility_daltonizer_master_switch_title" msgid="4855011639012300777">"Gumamit ng pagtatama ng kulay"</string>
     <string name="accessibility_caption_master_switch_title" msgid="6373335123229234053">"Gumamit ng mga caption"</string>
     <string name="accessibility_hearingaid_instruction_continue_button" msgid="4650111296711466691">"Magpatuloy"</string>
     <string name="accessibility_hearingaid_title" msgid="3700978781235124891">"Mga hearing aid"</string>
@@ -2275,9 +2277,9 @@
     <string name="battery_tip_smart_battery_title" product="tablet" msgid="203494973250969040">"Patagalin ang baterya ng iyong tablet"</string>
     <string name="battery_tip_smart_battery_title" product="device" msgid="7419448992583346364">"Patagalin ang baterya ng iyong device"</string>
     <string name="battery_tip_smart_battery_summary" msgid="5344821856478265778">"I-on ang Battery Manager"</string>
-    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"I-on ang Pangtipid sa Baterya"</string>
+    <string name="battery_tip_early_heads_up_title" msgid="707163785378746813">"I-on ang Pantipid ng Baterya"</string>
     <string name="battery_tip_early_heads_up_summary" msgid="4231489566422395156">"Maaaring maubos ang baterya nang mas maaga kaysa sa inaasahan"</string>
-    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Naka-on ang Pangtipid sa Baterya"</string>
+    <string name="battery_tip_early_heads_up_done_title" msgid="112550885882648429">"Naka-on ang Pantipid ng Baterya"</string>
     <string name="battery_tip_early_heads_up_done_summary" msgid="8692257022962771181">"Maaaring limitado ang ilang feature"</string>
     <string name="battery_tip_high_usage_title" product="default" msgid="4103005178310487352">"Nagamit ang telepono nang higit sa karaniwan"</string>
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Nagamit ang tablet nang higit sa karaniwan"</string>
@@ -2315,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Makakagamit ang app na ito ng baterya sa background. Maaaring maubos ang iyong baterya nang mas maaga kaysa sa inaasahan."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Alisin"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Kanselahin"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong telepono ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pangtipid sa Baterya anumang oras kung paubos na ang baterya mo."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong tablet ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pangtipid sa Baterya anumang oras kung paubos na ang baterya mo."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong device ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pangtipid sa Baterya anumang oras kung paubos na ang baterya mo."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong telepono ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pantipid ng Baterya anumang oras kung paubos na ang baterya mo."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong tablet ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pantipid ng Baterya anumang oras kung paubos na ang baterya mo."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Karaniwan lang ang paggamit ng baterya ng iyong mga app. Kung masyadong malakas gumamit ng baterya ang mga app, magmumungkahi ang iyong device ng mga aksyong puwede mong gawin.\n\nPuwede mong i-on ang Pantipid ng Baterya anumang oras kung paubos na ang baterya mo."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Battery Manager"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Awtomatikong pamahalaan ang mga app"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Limitahan ang baterya para sa mga app na hindi mo madalas gamitin"</string>
@@ -2444,22 +2446,22 @@
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"Mediaserver"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"Pag-optimize ng app"</string>
-    <string name="battery_saver" msgid="3989710213758938398">"Pangtipid sa Baterya"</string>
+    <string name="battery_saver" msgid="3989710213758938398">"Pantipid ng Baterya"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Awtomatikong i-on"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Walang iskedyul"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Batay sa iyong routine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Batay sa porsyento"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Mag-o-on ang Pangtipid sa Baterya kung malamang na mauubos ang iyong baterya bago ang susunod mong karaniwang pag-charge"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Mag-o-on ang Pantipid ng Baterya kung malamang na mauubos ang iyong baterya bago ang susunod mong karaniwang pag-charge"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Mag-o-on sa <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Magtakda ng iskedyul"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"I-off kapag puno na ang baterya"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Mao-off ang Pangtipid sa Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong telepono"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Mao-off ang Pangtipid sa Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong tablet"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Mao-off ang Pangtipid sa Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong device"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Mao-off ang Pantipid ng Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong telepono"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Mao-off ang Pantipid ng Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong tablet"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Mao-off ang Pantipid ng Baterya kapag nasa <xliff:g id="PERCENT">%1$s</xliff:g> na ang iyong device"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"I-on"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Gumamit ng Pangtipid sa Baterya"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Gumamit ng Pantipid ng Baterya"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Awtomatikong i-on"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Hindi Kailanman"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"sa <xliff:g id="PERCENT">%1$s</xliff:g> baterya"</string>
@@ -2923,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Maliban kung may nakabukas na isa pang app sa pagbabayad"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Sa isang Tap &amp; pay terminal, magbayad gamit ang:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagbabayad sa terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolong walang pakikipag-ugnayan."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolo ng contactless."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Nakuha ko"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Higit pa..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Itakda bilang iyong kagustuhan?"</string>
@@ -3125,7 +3127,7 @@
     <string name="keywords_touch_vibration" msgid="2081175517528255224">"haptics, mag-vibrate, screen, pagkasensitibo"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"haptics, pag-vibrate, telepono, tawag, pagkasensitibo, pag-ring"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"haptics, pag-vibrate, pagkasensitibo"</string>
-    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"pangtipid sa baterya, sticky, manatili, pantipid ng baterya, baterya"</string>
+    <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"pantipid ng baterya, sticky, manatili, pantipid ng baterya, baterya"</string>
     <string name="default_sound" msgid="6675629744816442953">"Default na tunog"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"Nasa <xliff:g id="PERCENTAGE">%1$s</xliff:g> ang volume ng pag-ring"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"Volume, pag-vibrate, Huwag Istorbohin"</string>
@@ -3199,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Kapag may dumating na mga notification, hindi tutunog o magva-vibrate ang iyong telepono."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Walang visual o tunog mula sa mga notification"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Wala kang makikita o maririnig na notification"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Ang iyong telepono ay hindi magpapakita ng mga bago o kasalukuyang notification o magva-vibrate o tutunog para sa mga ito. Tandaang lalabas pa rin ang mahahalagang notification para sa aktibidad ng telepono.\n\nKapag na-off mo ang Huwag Istorbohin, hanapin ang mga nalampasang notification sa pamamagitan ng pag-swipe pababa mula sa itaas ng iyong screen."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Ang iyong telepono ay hindi magpapakita ng mga bago o kasalukuyang notification o magva-vibrate o tutunog para sa mga ito. Tandaang lalabas pa rin ang mahahalagang notification para sa aktibidad ng telepono.\n\nKapag ini-off mo ang Huwag Istorbohin, hanapin ang mga nalampasang notification sa pamamagitan ng pag-swipe pababa mula sa itaas ng iyong screen."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Custom"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"I-enable ang custom na setting"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Alisin ang custom na setting"</string>
@@ -3891,7 +3893,7 @@
     <string name="condition_zen_title" msgid="2128184708916052585">"Naka-on ang Huwag Istorbohin"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Naka-mute ang telepono"</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"May mga pagbubukod"</string>
-    <string name="condition_battery_title" msgid="6704870010912986274">"Naka-on ang Pangtipid sa Baterya"</string>
+    <string name="condition_battery_title" msgid="6704870010912986274">"Naka-on ang Pantipid ng Baterya"</string>
     <string name="condition_battery_summary" msgid="1236078243905690620">"Limitado ang mga feature"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"Naka-off ang mobile data"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"Available lang ang Internet sa pamamagitan ng Wi‑Fi"</string>
