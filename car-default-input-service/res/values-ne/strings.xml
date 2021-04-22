@@ -16,5 +16,5 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="app_name" msgid="2732799531977169961">"कारको पूर्वनिर्धारित इनपुट सेवा"</string>
+    <string name="app_name" msgid="2732799531977169961">"कारको डिफल्ट इनपुट सेवा"</string>
 </resources>
