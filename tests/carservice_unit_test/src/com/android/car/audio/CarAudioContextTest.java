@@ -27,8 +27,10 @@ import static com.android.car.audio.CarAudioContext.EMERGENCY;
 import static com.android.car.audio.CarAudioContext.INVALID;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
+import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.testng.Assert.assertThrows;
 
@@ -124,5 +126,39 @@ public class CarAudioContextTest {
         Set<Integer> result = CarAudioContext.getUniqueContextsForUsages(usages);
 
         assertThat(result).containsExactly(MUSIC, NAVIGATION, EMERGENCY);
+    }
+
+    @Test
+    public void isCriticalAudioContext_forNonCritialContexts_returnsFalse() {
+        assertWithMessage("Non-critical context INVALID")
+                .that(isCriticalAudioContext(CarAudioContext.INVALID)).isFalse();
+        assertWithMessage("Non-critical context MUSIC")
+                .that(isCriticalAudioContext(CarAudioContext.MUSIC)).isFalse();
+        assertWithMessage("Non-critical context NAVIGATION")
+                .that(isCriticalAudioContext(CarAudioContext.NAVIGATION)).isFalse();
+        assertWithMessage("Non-critical context VOICE_COMMAND")
+                .that(isCriticalAudioContext(CarAudioContext.VOICE_COMMAND)).isFalse();
+        assertWithMessage("Non-critical context CALL_RING")
+                .that(isCriticalAudioContext(CarAudioContext.CALL_RING)).isFalse();
+        assertWithMessage("Non-critical context CALL")
+                .that(isCriticalAudioContext(CarAudioContext.CALL)).isFalse();
+        assertWithMessage("Non-critical context ALARM")
+                .that(isCriticalAudioContext(CarAudioContext.ALARM)).isFalse();
+        assertWithMessage("Non-critical context NOTIFICATION")
+                .that(isCriticalAudioContext(CarAudioContext.NOTIFICATION)).isFalse();
+        assertWithMessage("Non-critical context SYSTEM_SOUND")
+                .that(isCriticalAudioContext(CarAudioContext.SYSTEM_SOUND)).isFalse();
+        assertWithMessage("Non-critical context VEHICLE_STATUS")
+                .that(isCriticalAudioContext(CarAudioContext.VEHICLE_STATUS)).isFalse();
+        assertWithMessage("Non-critical context ANNOUNCEMENT")
+                .that(isCriticalAudioContext(CarAudioContext.ANNOUNCEMENT)).isFalse();
+    }
+
+    @Test
+    public void isCriticalAudioContext_forCriticalContexts_returnsTrue() {
+        assertWithMessage("Critical context EMERGENCY")
+                .that(isCriticalAudioContext(CarAudioContext.EMERGENCY)).isTrue();
+        assertWithMessage("Critical context SAFETY")
+                .that(isCriticalAudioContext(CarAudioContext.SAFETY)).isTrue();
     }
 }
