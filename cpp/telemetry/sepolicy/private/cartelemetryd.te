@@ -1,0 +1,9 @@
+### See //system/sepolicy/public/te_macros to learn about some SELinux macros.
+
+type cartelemetryd_exec, system_file_type, exec_type, file_type;
+
+binder_use(cartelemetryd)
+
+add_service(cartelemetryd, cartelemetryd_service)
+
+init_daemon_domain(cartelemetryd)
