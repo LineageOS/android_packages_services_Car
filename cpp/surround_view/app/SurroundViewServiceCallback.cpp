@@ -13,7 +13,6 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-
 #include "SurroundViewServiceCallback.h"
 
 #include <android-base/logging.h>
@@ -439,15 +438,6 @@ Return<void> SurroundViewServiceCallback::receiveFrames(
             return {};
         } else {
             LOG(INFO) << "Successfully attached render target";
-        }
-
-        // Call HIDL API "doneWithFrames" to return the ownership
-        // back to SV service
-        if (mSession == nullptr) {
-            LOG(ERROR) << "SurroundViewSession in callback is invalid";
-            return {};
-        } else {
-            mSession->doneWithFrames(svFramesDesc);
         }
 
         // Render frame to EVS display
