@@ -25,6 +25,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.ICarDevicePolicyService;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartResult;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
@@ -99,6 +100,12 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         }
 
         mCarUserService.createUser(name, userType, userInfoFlags, HAL_TIMEOUT_MS, receiver);
+    }
+
+    @Override
+    public void startUserInBackground(@UserIdInt int userId,
+            AndroidFuture<UserStartResult> receiver) {
+        mCarUserService.startUserInBackground(userId, receiver);
     }
 
     @Override
