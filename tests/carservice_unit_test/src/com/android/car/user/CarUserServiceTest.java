@@ -72,6 +72,7 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
@@ -1775,6 +1776,69 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testStartUserInBackground_success() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user1", NO_USER_INFO_FLAGS);
+        mockCurrentUser(mRegularUser);
+        mockUmGetUserInfo(mMockedUserManager, userInfo);
+        mockAmStartUserInBackground(userId, true);
+
+        AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
+        mCarUserService.startUserInBackground(userId, userStartResult);
+
+        assertThat(getResult(userStartResult).getStatus())
+                .isEqualTo(UserStartResult.STATUS_SUCCESSFUL);
+        assertThat(getResult(userStartResult).isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testStartUserInBackground_fail() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user1", NO_USER_INFO_FLAGS);
+        mockCurrentUser(mRegularUser);
+        mockUmGetUserInfo(mMockedUserManager, userInfo);
+        mockAmStartUserInBackground(userId, false);
+
+        AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
+        mCarUserService.startUserInBackground(userId, userStartResult);
+
+        assertThat(getResult(userStartResult).getStatus())
+                .isEqualTo(UserStartResult.STATUS_ANDROID_FAILURE);
+        assertThat(getResult(userStartResult).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStartUserInBackground_currentUser() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user1", NO_USER_INFO_FLAGS);
+        mockGetCurrentUser(userId);
+        mockUmGetUserInfo(mMockedUserManager, userInfo);
+        mockAmStartUserInBackground(userId, true);
+
+        AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
+        mCarUserService.startUserInBackground(userId, userStartResult);
+
+        assertThat(getResult(userStartResult).getStatus())
+                .isEqualTo(UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER);
+        assertThat(getResult(userStartResult).isSuccess()).isTrue();
+    }
+
+    @Test
+    public void testStartUserInBackground_userDoesNotExist() throws Exception {
+        int userId = 101;
+        mockCurrentUser(mRegularUser);
+        when(mMockedUserManager.getUserInfo(userId)).thenReturn(null);
+        mockAmStartUserInBackground(userId, true);
+
+        AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
+        mCarUserService.startUserInBackground(userId, userStartResult);
+
+        assertThat(getResult(userStartResult).getStatus())
+                .isEqualTo(UserStartResult.STATUS_USER_DOES_NOT_EXIST);
+        assertThat(getResult(userStartResult).isSuccess()).isFalse();
+    }
+
+    @Test
     public void testIsHalSupported() throws Exception {
         when(mUserHal.isSupported()).thenReturn(true);
         assertThat(mCarUserService.isUserHalSupported()).isTrue();
@@ -2284,6 +2348,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void mockCurrentUser(@NonNull UserInfo user) throws Exception {
         when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
         mockGetCurrentUser(user.id);
+    }
+
+    private void mockAmStartUserInBackground(@UserIdInt int userId, boolean result)
+            throws Exception {
+        when(mMockedIActivityManager.startUserInBackground(userId)).thenReturn(result);
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
