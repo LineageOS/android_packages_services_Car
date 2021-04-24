@@ -26,6 +26,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartResult;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserManager;
@@ -44,11 +45,11 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private CarDevicePolicyService mService;
 
-    private AndroidFuture<UserRemovalResult> mUserRemovalResult =
-            new AndroidFuture<UserRemovalResult>();
+    private AndroidFuture<UserRemovalResult> mUserRemovalResult = new AndroidFuture<>();
 
-    private AndroidFuture<UserCreationResult> mUserCreationResult =
-            new AndroidFuture<UserCreationResult>();
+    private AndroidFuture<UserCreationResult> mUserCreationResult = new AndroidFuture<>();
+
+    private AndroidFuture<UserStartResult> mUserStartResult = new AndroidFuture<>();
 
     @Before
     public void setFixtures() {
@@ -103,5 +104,12 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
         verify(mCarUserService).createUser(eq("name"), eq(userType), eq(flags),
                 /* timeoutMs= */ anyInt(), eq(mUserCreationResult));
+    }
+
+    @Test
+    public void testStartUserInBackground() {
+        mService.startUserInBackground(42, mUserStartResult);
+
+        verify(mCarUserService).startUserInBackground(42, mUserStartResult);
     }
 }
