@@ -73,6 +73,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
@@ -529,9 +530,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         UserInfo user2Info = new UserInfo(user2, "user2", NO_USER_INFO_FLAGS);
         UserInfo user3Info = new UserInfo(user3, "user3", NO_USER_INFO_FLAGS);
 
-        doReturn(user1Info).when(mMockedUserManager).getUserInfo(user1);
-        doReturn(user2Info).when(mMockedUserManager).getUserInfo(user2);
-        doReturn(user3Info).when(mMockedUserManager).getUserInfo(user3);
+        when(mMockedUserManager.getUserInfo(user1)).thenReturn(user1Info);
+        when(mMockedUserManager.getUserInfo(user2)).thenReturn(user2Info);
+        when(mMockedUserManager.getUserInfo(user3)).thenReturn(user3Info);
 
         mockGetCurrentUser(user1);
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
@@ -541,40 +542,108 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserUnlockedEvent(user1);
         mockGetCurrentUser(user3);
         sendUserUnlockedEvent(user3);
+        mockStopUserWithDelayedLocking(user3, ActivityManager.USER_OP_IS_CURRENT);
 
-        assertEquals(new Integer[]{user3, user2},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
-        doReturn(true).when(mMockedIActivityManager).startUserInBackground(user2);
-        doReturn(true).when(mMockedIActivityManager).unlockUser(user2,
-                null, null, null);
-        assertEquals(new Integer[]{user2},
-                mCarUserService.startAllBackgroundUsers().toArray());
+        when(mMockedIActivityManager.startUserInBackground(user2)).thenReturn(true);
+        when(mMockedIActivityManager.unlockUser(user2, null, null, null)).thenReturn(true);
+        assertThat(mCarUserService.startAllBackgroundUsers()).containsExactly(user2);
         sendUserUnlockedEvent(user2);
-        assertEquals(new Integer[]{user3, user2},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
-        doReturn(ActivityManager.USER_OP_SUCCESS).when(mMockedIActivityManager).stopUser(user2,
-                true, null);
+        when(mMockedIActivityManager.stopUser(user2, true, null))
+                .thenReturn(ActivityManager.USER_OP_SUCCESS);
         // should not stop the current fg user
-        assertFalse(mCarUserService.stopBackgroundUser(user3));
-        assertTrue(mCarUserService.stopBackgroundUser(user2));
-        assertEquals(new Integer[]{user3, user2},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
-        assertEquals(new Integer[]{user3, user2},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.stopBackgroundUser(user3)).isFalse();
+        assertThat(mCarUserService.stopBackgroundUser(user2)).isTrue();
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
     }
 
     @Test
-    public void testStopBackgroundUserForSystemUser() {
-        assertFalse(mCarUserService.stopBackgroundUser(UserHandle.USER_SYSTEM));
+    public void testStopUser_success() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user101", NO_USER_INFO_FLAGS);
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_SUCCESS);
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        mCarUserService.stopUser(userId, userStopResult);
+
+        assertThat(getResult(userStopResult).getStatus())
+                .isEqualTo(UserStopResult.STATUS_SUCCESSFUL);
+        assertThat(getResult(userStopResult).isSuccess()).isTrue();
     }
 
     @Test
-    public void testStopBackgroundUserForFgUser() throws RemoteException {
-        int user1 = 101;
-        mockGetCurrentUser(user1);
-        assertFalse(mCarUserService.stopBackgroundUser(UserHandle.USER_SYSTEM));
+    public void testStopUser_fail() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user101", NO_USER_INFO_FLAGS);
+        mockStopUserWithDelayedLockingThrowsRemoteException(userId);
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        mCarUserService.stopUser(userId, userStopResult);
+
+        assertThat(getResult(userStopResult).getStatus())
+                .isEqualTo(UserStopResult.STATUS_ANDROID_FAILURE);
+        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopUser_userDoesNotExist() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user101", NO_USER_INFO_FLAGS);
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_UNKNOWN_USER);
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        mCarUserService.stopUser(userId, userStopResult);
+
+        assertThat(getResult(userStopResult).getStatus())
+                .isEqualTo(UserStopResult.STATUS_USER_DOES_NOT_EXIST);
+        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopUser_systemUser() throws Exception {
+        mockStopUserWithDelayedLocking(
+                UserHandle.USER_SYSTEM, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        mCarUserService.stopUser(UserHandle.USER_SYSTEM, userStopResult);
+
+        assertThat(getResult(userStopResult).getStatus())
+                .isEqualTo(UserStopResult.STATUS_FAILURE_SYSTEM_USER);
+        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopUser_currentUser() throws Exception {
+        int userId = 101;
+        UserInfo userInfo = new UserInfo(userId, "user101", NO_USER_INFO_FLAGS);
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_IS_CURRENT);
+
+        AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
+        mCarUserService.stopUser(userId, userStopResult);
+
+        assertThat(getResult(userStopResult).getStatus())
+                .isEqualTo(UserStopResult.STATUS_FAILURE_CURRENT_USER);
+        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+    }
+
+    @Test
+    public void testStopBackgroundUserForSystemUser() throws Exception {
+        mockStopUserWithDelayedLocking(
+                UserHandle.USER_SYSTEM, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
+
+        assertThat(mCarUserService.stopBackgroundUser(UserHandle.USER_SYSTEM)).isFalse();
+    }
+
+    @Test
+    public void testStopBackgroundUserForFgUser() throws Exception {
+        int userId = 101;
+        mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_IS_CURRENT);
+
+        assertThat(mCarUserService.stopBackgroundUser(userId)).isFalse();
     }
 
     @Test
@@ -2385,6 +2454,18 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             @RemoveResult int result) {
         mockUmRemoveUserOrSetEphemeral(mMockedUserManager, user, evenWhenDisallowed, result,
                 /* listener= */ null);
+    }
+
+    private void mockStopUserWithDelayedLocking(@UserIdInt int userId, int result)
+            throws Exception {
+        when(mMockedIActivityManager.stopUserWithDelayedLocking(userId, true, null))
+                .thenReturn(result);
+    }
+
+    private void mockStopUserWithDelayedLockingThrowsRemoteException(@UserIdInt int userId)
+            throws Exception {
+        when(mMockedIActivityManager.stopUserWithDelayedLocking(userId, true, null))
+                .thenThrow(new RemoteException());
     }
 
     private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
