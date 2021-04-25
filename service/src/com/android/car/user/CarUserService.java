@@ -45,6 +45,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
@@ -1940,36 +1941,67 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
+     * Stops the specified background user.
+     *
+     * @param userId user to stop
+     * @param receiver to post results
+     */
+    public void stopUser(@UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
+        mHandler.post(() -> handleStopUser(userId, receiver));
+    }
+
+    private void handleStopUser(
+            @UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
+        @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId);
+        sendUserStopResult(userStopStatus, receiver);
+    }
+
+    private void sendUserStopResult(@UserStopResult.Status int result,
+            @NonNull AndroidFuture<UserStopResult> receiver) {
+        // TODO(b/181331178): Add event log calls.
+        receiver.complete(new UserStopResult(result));
+    }
+
+    private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId) {
+        try {
+            int r = mAm.stopUserWithDelayedLocking(userId, true, null);
+            switch(r) {
+                case ActivityManager.USER_OP_SUCCESS:
+                    return UserStopResult.STATUS_SUCCESSFUL;
+                case ActivityManager.USER_OP_ERROR_IS_SYSTEM:
+                    Slogf.w(TAG, "Cannot stop the system user: %d", userId);
+                    return UserStopResult.STATUS_FAILURE_SYSTEM_USER;
+                case ActivityManager.USER_OP_IS_CURRENT:
+                    Slogf.w(TAG, "Cannot stop the current user: %d", userId);
+                    return UserStopResult.STATUS_FAILURE_CURRENT_USER;
+                case ActivityManager.USER_OP_UNKNOWN_USER:
+                    Slogf.w(TAG, "Cannot stop the user that does not exist: %d", userId);
+                    return UserStopResult.STATUS_USER_DOES_NOT_EXIST;
+                default:
+                    Slogf.w(TAG, "stopUser failed, user: %d, err: %d", userId, r);
+            }
+        } catch (RemoteException e) {
+            // ignore the exception
+            Slogf.w(TAG, e, "error while stopping user: %d", userId);
+        }
+        return UserStopResult.STATUS_ANDROID_FAILURE;
+    }
+
+    /**
      * Stops a background user.
      *
      * @return whether stopping succeeds.
      */
     public boolean stopBackgroundUser(@UserIdInt int userId) {
-        if (userId == UserHandle.USER_SYSTEM) {
-            return false;
-        }
-        if (userId == ActivityManager.getCurrentUser()) {
-            Slog.i(TAG, "stopBackgroundUser, already a FG user:" + userId);
-            return false;
-        }
-        try {
-            int r = mAm.stopUserWithDelayedLocking(userId, true, null);
-            if (r == ActivityManager.USER_OP_SUCCESS) {
-                synchronized (mLockUser) {
-                    Integer user = userId;
-                    mBackgroundUsersRestartedHere.remove(user);
-                }
-            } else if (r == ActivityManager.USER_OP_IS_CURRENT) {
-                return false;
-            } else {
-                Slog.i(TAG, "stopBackgroundUser failed, user:" + userId + " err:" + r);
-                return false;
+        @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId);
+        if (UserStopResult.isSuccess(userStopStatus)) {
+            // Remove the stopped user from the mBackgroundUserRestartedHere list.
+            synchronized (mLockUser) {
+                mBackgroundUsersRestartedHere.remove(Integer.valueOf(userId));
             }
-        } catch (RemoteException e) {
-            // ignore
-            Slog.w(TAG, "error while stopping user", e);
+            return true;
         }
-        return true;
+        return false;
     }
 
     /**
