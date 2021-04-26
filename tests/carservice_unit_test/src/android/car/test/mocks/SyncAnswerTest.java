@@ -14,14 +14,12 @@
  * limitations under the License.
  */
 
-package android.car.test.util;
+package android.car.test.mocks;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
-
-import android.car.test.mocks.SyncAnswer;
 
 import org.junit.Before;
 import org.junit.Test;
