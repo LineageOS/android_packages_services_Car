@@ -2212,7 +2212,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"સેવા ઉમેરો"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"પ્રિન્ટર ઉમેરો"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"શોધો"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"પ્રિન્ટર્સ માટે શોધી રહ્યું છે"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"પ્રિન્ટર માટે શોધી રહ્યું છે"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"સેવા અક્ષમ કરેલ છે"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"પ્રિન્ટ જોબ્સ"</string>
     <string name="print_print_job" msgid="6846889971435170443">"છાપ કાર્ય"</string>

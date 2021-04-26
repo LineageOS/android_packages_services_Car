@@ -1634,7 +1634,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Dijeljenje Bluetooth veze"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Povezivanje putem mobitela"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Pristupna tačka i povezivanje putem mobitela"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Pristupna tačka je uključena, veza se dijeli"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Pristupna tačka je uključenapovezivanje putem mobitela"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Pristupna tačka je uključena"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Povezivanje putem mobitela"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Dok je upaljena Ušteda podataka nije moguće povezati uređaj niti koristiti prijenosne pristupne tačke"</string>
@@ -2241,7 +2241,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"Dodajte uslugu"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"Dodaj štampač"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Pretražite"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"Pretraživanje štampača"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"Traženje štampača"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"Usluga je onemogućena"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"Zadaci štampanja"</string>
     <string name="print_print_job" msgid="6846889971435170443">"Zadatak ispisivanja"</string>
