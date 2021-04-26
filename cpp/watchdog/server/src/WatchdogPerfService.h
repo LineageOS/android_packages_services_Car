@@ -171,7 +171,8 @@ public:
     // 1. Starts a custom collection.
     // 2. Or ends the current custom collection and dumps the collected data.
     // Returns any error observed during the dump generation.
-    virtual android::base::Result<void> onCustomCollection(int fd, const Vector<String16>& args);
+    virtual android::base::Result<void> onCustomCollection(int fd,
+                                                           const Vector<android::String16>& args);
 
     // Generates a dump from the boot-time and periodic collection events.
     virtual android::base::Result<void> onDump(int fd);

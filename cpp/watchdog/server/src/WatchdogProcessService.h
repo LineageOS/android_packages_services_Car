@@ -50,7 +50,8 @@ public:
 
     android::base::Result<void> start();
     void terminate();
-    virtual android::base::Result<void> dump(int fd, const android::Vector<String16>& args);
+    virtual android::base::Result<void> dump(int fd,
+                                             const android::Vector<android::String16>& args);
     void doHealthCheck(int what);
 
     virtual android::base::Result<void> registerWatchdogServiceHelper(

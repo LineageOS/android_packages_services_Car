@@ -23,7 +23,6 @@
 #include <android/automotive/watchdog/internal/ComponentType.h>
 #include <android/automotive/watchdog/internal/UidType.h>
 #include <cutils/android_filesystem_config.h>
-#include <utils/String16.h>
 
 #include <inttypes.h>
 
@@ -36,7 +35,6 @@ namespace watchdog {
 
 using ::android::IBinder;
 using ::android::sp;
-using ::android::String16;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::PackageInfo;
@@ -53,7 +51,7 @@ using PackageToAppCategoryMap =
 
 namespace {
 
-constexpr const char16_t* kSharedPackagePrefix = u"shared:";
+constexpr const char* kSharedPackagePrefix = "shared:";
 
 ComponentType getComponentTypeForNativeUid(uid_t uid, std::string_view packageName,
                                            const std::vector<std::string>& vendorPackagePrefixes) {
@@ -83,7 +81,7 @@ Result<PackageInfo> getPackageInfoForNativeUid(
         return Error() << "Failed to fetch package name";
     }
     const char* packageName = usrpwd->pw_name;
-    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.name = packageName;
     packageInfo.packageIdentifier.uid = uid;
     packageInfo.uidType = UidType::NATIVE;
     packageInfo.componentType =
@@ -153,7 +151,7 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
             continue;
         }
         mUidToPackageInfoMapping[uid] = *result;
-        if (result->packageIdentifier.name.startsWith(kSharedPackagePrefix)) {
+        if (StartsWith(result->packageIdentifier.name, kSharedPackagePrefix)) {
             // When the UID is shared, poll car watchdog service to fetch the shared packages info.
             missingUids.emplace_back(static_cast<int32_t>(uid));
         }
@@ -178,10 +176,10 @@ void PackageInfoResolver::updatePackageInfos(const std::vector<uid_t>& uids) {
     }
     for (auto& packageInfo : packageInfos) {
         const auto& id = packageInfo.packageIdentifier;
-        if (id.name.size() == 0) {
+        if (id.name.empty()) {
             continue;
         }
-        if (const auto it = mPackagesToAppCategories.find(String8(id.name).c_str());
+        if (const auto it = mPackagesToAppCategories.find(id.name);
             packageInfo.uidType == UidType::APPLICATION && it != mPackagesToAppCategories.end()) {
             packageInfo.appCategoryType = it->second;
         }
@@ -200,8 +198,8 @@ std::unordered_map<uid_t, std::string> PackageInfoResolver::getPackageNamesForUi
         std::shared_lock readLock(mRWMutex);
         for (const auto& uid : uids) {
             if (mUidToPackageInfoMapping.find(uid) != mUidToPackageInfoMapping.end()) {
-                uidToPackageNameMapping[uid] = std::string(
-                        String8(mUidToPackageInfoMapping.at(uid).packageIdentifier.name));
+                uidToPackageNameMapping[uid] =
+                        mUidToPackageInfoMapping.at(uid).packageIdentifier.name;
             }
         }
     }

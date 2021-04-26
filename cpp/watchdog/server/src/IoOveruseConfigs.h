@@ -26,7 +26,6 @@
 #include <android/automotive/watchdog/internal/PackageInfo.h>
 #include <android/automotive/watchdog/internal/PerStateIoOveruseThreshold.h>
 #include <android/automotive/watchdog/internal/ResourceOveruseConfiguration.h>
-#include <utils/String16.h>
 
 #include <optional>
 #include <string>
@@ -42,7 +41,7 @@ constexpr const char* kDefaultThresholdName = "default";
 inline const android::automotive::watchdog::internal::PerStateIoOveruseThreshold
 defaultThreshold() {
     android::automotive::watchdog::internal::PerStateIoOveruseThreshold threshold;
-    threshold.name = android::String16(kDefaultThresholdName);
+    threshold.name = kDefaultThresholdName;
     threshold.perStateWriteBytes.foregroundBytes = std::numeric_limits<uint64_t>::max();
     threshold.perStateWriteBytes.backgroundBytes = std::numeric_limits<uint64_t>::max();
     threshold.perStateWriteBytes.garageModeBytes = std::numeric_limits<uint64_t>::max();
@@ -130,7 +129,7 @@ protected:
      * Updates |mSafeToKillPackages|.
      */
     android::base::Result<void> updateSafeToKillPackages(
-            const std::vector<android::String16>& packages,
+            const std::vector<std::string>& packages,
             const std::function<void(const std::string&)>& maybeAppendVendorPackagePrefixes);
 
     /*
