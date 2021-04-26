@@ -42,6 +42,7 @@ cc_library {
     ],
     srcs: [
         "src/CarTelemetryImpl.cpp",
+        "src/RingBuffer.cpp",
     ],
     // Allow dependencies to use header files.
     export_include_dirs: [
@@ -57,13 +58,14 @@ cc_test {
     test_suites: ["general-tests"],
     srcs: [
         "tests/CarTelemetryImplTest.cpp",
+        "tests/RingBufferTest.cpp",
     ],
+    // Statically link only in tests, for portability reason.
     static_libs: [
+        "android.automotive.telemetryd@1.0-impl",
+        "android.frameworks.automotive.telemetry-V1-cpp",
         "libgmock",
         "libgtest",
-    ],
-    shared_libs: [
-        "android.automotive.telemetryd@1.0-impl",
     ],
 }
 
