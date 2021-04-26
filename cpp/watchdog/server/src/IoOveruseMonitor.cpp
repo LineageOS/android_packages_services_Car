@@ -27,6 +27,8 @@
 #include <binder/Status.h>
 #include <cutils/multiuser.h>
 
+#include <limits>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -44,7 +46,11 @@ using ::android::base::Error;
 using ::android::base::Result;
 using ::android::binder::Status;
 
+// Minimum written bytes to sync the stats with the Watchdog service.
+constexpr uint64_t kMinSyncWrittenBytes = 100 * 1024;
+// Minimum percentage of threshold to warn killable applications.
 constexpr double kDefaultIoOveruseWarnPercentage = 80;
+// Maximum numer of system-wide stats (from periodic monitoring) to cache.
 constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
 
 namespace {
@@ -76,6 +82,15 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(struct tm currentTm) {
     return std::make_tuple(startTime, currentEpochSeconds - startTime);
 }
 
+uint64_t totalPerStateBytes(PerStateBytes perStateBytes) {
+    const auto sum = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
+        return std::numeric_limits<uint64_t>::max() - l > r ? (l + r)
+                                                            : std::numeric_limits<uint64_t>::max();
+    };
+    return sum(perStateBytes.foregroundBytes,
+               sum(perStateBytes.backgroundBytes, perStateBytes.garageModeBytes));
+}
+
 }  // namespace
 
 std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime) {
@@ -83,6 +98,19 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime
     gmtime_r(&currentTime, &currentGmt);
     return calculateStartAndDuration(currentGmt);
 }
+
+IoOveruseMonitor::IoOveruseMonitor(
+        const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+      mMinSyncWrittenBytes(kMinSyncWrittenBytes),
+      mWatchdogServiceHelper(watchdogServiceHelper),
+      mSystemWideWrittenBytes({}),
+      mPeriodicMonitorBufferSize(0),
+      mLastSystemWideIoMonitorTime(0),
+      mUserPackageDailyIoUsageById({}),
+      mIoOveruseWarnPercentage(0),
+      mLastUserPackageIoMonitorTime(0),
+      mOveruseListenersByUid({}),
+      mBinderDeathRecipient(new BinderDeathRecipient(this)) {}
 
 Result<void> IoOveruseMonitor::init() {
     std::unique_lock writeLock(mRwMutex);
@@ -156,14 +184,26 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     mLastUserPackageIoMonitorTime = time;
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(curGmt);
 
-    const auto perUidIoUsage = uidIoStats.promote()->deltaStats();
+    auto perUidIoUsage = uidIoStats.promote()->deltaStats();
     /*
      * TODO(b/167240592): Maybe move the packageInfo fetching logic into UidIoStats module.
      *  This will also help avoid fetching package names in IoPerfCollection module.
      */
     std::vector<uid_t> seenUids;
-    for (const auto& [uid, uidIoStats] : perUidIoUsage) {
-        seenUids.push_back(uid);
+    for (auto it = perUidIoUsage.begin(); it != perUidIoUsage.end();) {
+        /*
+         * UidIoStats::deltaStats returns entries with zero write bytes because other metrics
+         * in these entries are non-zero.
+         */
+        if (it->second.ios.sumWriteBytes() == 0) {
+            it = perUidIoUsage.erase(it);
+            continue;
+        }
+        seenUids.push_back(it->first);
+        ++it;
+    }
+    if (perUidIoUsage.empty()) {
+        return {};
     }
     const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
     std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
@@ -204,6 +244,16 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
                 mIoOveruseConfigs->isSafeToKill(dailyIoUsage->packageInfo);
 
         const auto& remainingWriteBytes = stats.ioOveruseStats.remainingWriteBytes;
+        const auto exceedsWarnThreshold = [&](double remaining, double threshold) {
+            if (threshold == 0) {
+                return true;
+            }
+            double usedPercent = (100 - (remaining / threshold) * 100);
+            return usedPercent > mIoOveruseWarnPercentage;
+        };
+        bool shouldSyncWatchdogService =
+                (totalPerStateBytes(dailyIoUsage->writtenBytes) -
+                 dailyIoUsage->lastSyncedWrittenBytes) >= mMinSyncWrittenBytes;
         if (remainingWriteBytes.foregroundBytes == 0 || remainingWriteBytes.backgroundBytes == 0 ||
             remainingWriteBytes.garageModeBytes == 0) {
             stats.ioOveruseStats.totalOveruses = ++dailyIoUsage->totalOveruses;
@@ -221,39 +271,35 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
                 overusingNativeStats[uid] = stats.ioOveruseStats;
             }
-            mLatestIoOveruseStats.emplace_back(std::move(stats));
-            continue;
-        }
-        if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE ||
-            !stats.ioOveruseStats.killableOnOveruse || dailyIoUsage->isPackageWarned) {
+            shouldSyncWatchdogService = true;
+        } else if (dailyIoUsage->packageInfo.uidType != UidType::NATIVE &&
+                   stats.ioOveruseStats.killableOnOveruse && !dailyIoUsage->isPackageWarned &&
+                   (exceedsWarnThreshold(remainingWriteBytes.foregroundBytes,
+                                         threshold.foregroundBytes) ||
+                    exceedsWarnThreshold(remainingWriteBytes.backgroundBytes,
+                                         threshold.backgroundBytes) ||
+                    exceedsWarnThreshold(remainingWriteBytes.garageModeBytes,
+                                         threshold.garageModeBytes))) {
             /*
              * No need to warn native services or applications that won't be killed on I/O overuse
              * as they will be sent a notification when they exceed their daily threshold.
              */
-            mLatestIoOveruseStats.emplace_back(std::move(stats));
-            continue;
-        }
-        const auto exceedsWarnThreshold = [&](double remaining, double threshold) {
-            if (threshold == 0) {
-                return true;
-            }
-            double usedPercent = (100 - (remaining / threshold) * 100);
-            return usedPercent > mIoOveruseWarnPercentage;
-        };
-        if (exceedsWarnThreshold(remainingWriteBytes.foregroundBytes, threshold.foregroundBytes) ||
-            exceedsWarnThreshold(remainingWriteBytes.backgroundBytes, threshold.backgroundBytes) ||
-            exceedsWarnThreshold(remainingWriteBytes.garageModeBytes, threshold.garageModeBytes)) {
             stats.shouldNotify = true;
             // Avoid duplicate warning before the daily threshold exceeded notification is sent.
             dailyIoUsage->isPackageWarned = true;
+            shouldSyncWatchdogService = true;
         }
-        mLatestIoOveruseStats.emplace_back(std::move(stats));
+        if (shouldSyncWatchdogService) {
+            dailyIoUsage->lastSyncedWrittenBytes = totalPerStateBytes(dailyIoUsage->writtenBytes);
+            mLatestIoOveruseStats.emplace_back(std::move(stats));
+        }
     }
-
     if (!overusingNativeStats.empty()) {
         notifyNativePackagesLocked(overusingNativeStats);
     }
-
+    if (mLatestIoOveruseStats.empty()) {
+        return {};
+    }
     if (const auto status = mWatchdogServiceHelper->latestIoOveruseStats(mLatestIoOveruseStats);
         !status.isOk()) {
         // Don't clear the cache as it can be pushed again on the next collection.
