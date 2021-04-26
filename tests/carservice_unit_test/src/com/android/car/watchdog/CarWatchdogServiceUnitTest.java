@@ -51,13 +51,20 @@ import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
+import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
+import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
+import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.UidType;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdog.IResourceOveruseListener;
+import android.car.watchdog.IoOveruseAlertThreshold;
+import android.car.watchdog.IoOveruseConfiguration;
 import android.car.watchdog.IoOveruseStats;
+import android.car.watchdog.PerStateBytes;
+import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
@@ -89,6 +96,7 @@ import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
+import java.util.Map;
 
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
@@ -261,6 +269,116 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
 
         verifyNoMoreInteractions(mockListener);
+    }
+
+    @Test
+    public void testSetResourceOveruseConfigurations() throws Exception {
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>(Arrays.asList(
+                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.VENDOR,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.VENDOR).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.THIRD_PARTY,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.THIRD_PARTY).build())
+                        .build()));
+
+        mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
+                actualConfigs = captureOnSetResourceOveruseConfigurations();
+
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
+                expectedConfigs = new ArrayList<>(Arrays.asList(
+                sampleInternalResourceOveruseConfiguration(ComponentType.SYSTEM,
+                        sampleInternalIoOveruseConfiguration(ComponentType.SYSTEM)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.VENDOR,
+                        sampleInternalIoOveruseConfiguration(ComponentType.VENDOR)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.THIRD_PARTY,
+                        sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY))));
+
+        InternalResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                .containsExactlyElementsIn(expectedConfigs);
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
+        assertThrows(NullPointerException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(null,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(new ArrayList<>(),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>(
+                Collections.singletonList(
+                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build())
+                                .build()));
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        0));
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsOnDuplicateComponents() throws Exception {
+        ResourceOveruseConfiguration config =
+                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build();
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>(Arrays.asList(
+                config, config));
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsOnNullIoOveruseConfiguration()
+            throws Exception {
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>(
+                Collections.singletonList(
+                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                                null).build()));
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurations() throws Exception {
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
+                internalResourceOveruseConfigs = new ArrayList<>(Arrays.asList(
+                sampleInternalResourceOveruseConfiguration(ComponentType.SYSTEM,
+                        sampleInternalIoOveruseConfiguration(ComponentType.SYSTEM)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.VENDOR,
+                        sampleInternalIoOveruseConfiguration(ComponentType.VENDOR)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.THIRD_PARTY,
+                        sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY))));
+        doReturn(internalResourceOveruseConfigs).when(mCarWatchdogDaemon)
+                .getResourceOveruseConfigurations();
+
+        List<ResourceOveruseConfiguration> actualConfigs =
+                mCarWatchdogService.getResourceOveruseConfigurations(
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+
+        List<ResourceOveruseConfiguration> expectedConfigs = new ArrayList<>(Arrays.asList(
+                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.VENDOR,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.VENDOR).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.THIRD_PARTY,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.THIRD_PARTY).build())
+                        .build()));
+
+        ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                .containsExactlyElementsIn(expectedConfigs);
+    }
+
+    @Test
+    public void testFailsGetResourceOveruseConfigurationsOnInvalidArgs() throws Exception {
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.getResourceOveruseConfigurations(0));
     }
 
     @Test
@@ -529,6 +647,15 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         assertThat(notRespondingClients.getValue().length).isEqualTo(badClientCount);
     }
 
+    private List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
+            captureOnSetResourceOveruseConfigurations() throws Exception {
+        ArgumentCaptor<List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
+                resourceOveruseConfigurationsCaptor = ArgumentCaptor.forClass(List.class);
+        verify(mCarWatchdogDaemon).updateResourceOveruseConfigurations(
+                resourceOveruseConfigurationsCaptor.capture());
+        return resourceOveruseConfigurationsCaptor.getValue();
+    }
+
     private void injectUidToPackageNameMapping(SparseArray<String> packageNamesByUid) {
         doAnswer(args -> {
             int[] uids = args.getArgument(0);
@@ -586,6 +713,118 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return UserHandle.getUid(UserHandle.myUserId(), appId);
     }
 
+    private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
+            int componentType, IoOveruseConfiguration ioOveruseConfig) {
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType);
+        List<String> safeToKill = new ArrayList<>(Arrays.asList(
+                prefix + "_package.A", prefix + "_pkg.B"));
+        List<String> vendorPrefixes = new ArrayList<>(Arrays.asList(
+                prefix + "_package", prefix + "_pkg"));
+        Map<String, String> pkgToAppCategory = new ArrayMap<>();
+        pkgToAppCategory.put(prefix + "_package.A", "android.car.watchdog.app.category.MEDIA");
+        ResourceOveruseConfiguration.Builder configBuilder =
+                new ResourceOveruseConfiguration.Builder(componentType, safeToKill,
+                        vendorPrefixes, pkgToAppCategory);
+        configBuilder.setIoOveruseConfiguration(ioOveruseConfig);
+        return configBuilder;
+    }
+
+    private static IoOveruseConfiguration.Builder sampleIoOveruseConfigurationBuilder(
+            int componentType) {
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType);
+        PerStateBytes componentLevelThresholds = new PerStateBytes(
+                /* foregroundModeBytes= */10, /* backgroundModeBytes= */20,
+                /* garageModeBytes= */30);
+        Map<String, PerStateBytes> packageSpecificThresholds = new ArrayMap<>();
+        packageSpecificThresholds.put(prefix + "_package.A", new PerStateBytes(
+                /* foregroundModeBytes= */40, /* backgroundModeBytes= */50,
+                /* garageModeBytes= */60));
+
+        Map<String, PerStateBytes> appCategorySpecificThresholds = new ArrayMap<>();
+        appCategorySpecificThresholds.put(
+                ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA,
+                new PerStateBytes(/* foregroundModeBytes= */100, /* backgroundModeBytes= */200,
+                        /* garageModeBytes= */300));
+        appCategorySpecificThresholds.put(
+                ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS,
+                new PerStateBytes(/* foregroundModeBytes= */1100, /* backgroundModeBytes= */2200,
+                        /* garageModeBytes= */3300));
+
+        List<IoOveruseAlertThreshold> systemWideThresholds = new ArrayList<>(
+                Collections.singletonList(new IoOveruseAlertThreshold(/* durationInSeconds= */10,
+                        /* writtenBytesPerSecond= */200)));
+
+        return new IoOveruseConfiguration.Builder(componentLevelThresholds,
+                packageSpecificThresholds, appCategorySpecificThresholds, systemWideThresholds);
+    }
+
+    private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
+            sampleInternalResourceOveruseConfiguration(int componentType,
+            android.automotive.watchdog.internal.IoOveruseConfiguration ioOveruseConfig) {
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType);
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration config =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        config.componentType = componentType;
+        config.safeToKillPackages = new ArrayList<>(Arrays.asList(
+                prefix + "_package.A", prefix + "_pkg.B"));
+        config.vendorPackagePrefixes = new ArrayList<>(Arrays.asList(
+                prefix + "_package", prefix + "_pkg"));
+
+        PackageMetadata metadata = new PackageMetadata();
+        metadata.packageName = prefix + "_package.A";
+        metadata.appCategoryType = ApplicationCategoryType.MEDIA;
+        config.packageMetadata = new ArrayList<>(Collections.singletonList(metadata));
+
+        ResourceSpecificConfiguration resourceSpecificConfig = new ResourceSpecificConfiguration();
+        resourceSpecificConfig.setIoOveruseConfiguration(ioOveruseConfig);
+        config.resourceSpecificConfigurations = new ArrayList<>(
+                Collections.singletonList(resourceSpecificConfig));
+
+        return config;
+    }
+
+    private static android.automotive.watchdog.internal.IoOveruseConfiguration
+            sampleInternalIoOveruseConfiguration(int componentType) {
+        String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType);
+        android.automotive.watchdog.internal.IoOveruseConfiguration config =
+                new android.automotive.watchdog.internal.IoOveruseConfiguration();
+        config.componentLevelThresholds = constructPerStateIoOveruseThreshold(prefix,
+                /* fgBytes= */10, /* bgBytes= */20, /* gmBytes= */30);
+        config.packageSpecificThresholds = new ArrayList<>(Collections.singletonList(
+                constructPerStateIoOveruseThreshold(prefix + "_package.A", /* fgBytes= */40,
+                        /* bgBytes= */50, /* gmBytes= */60)));
+        config.categorySpecificThresholds = new ArrayList<>(Arrays.asList(
+                constructPerStateIoOveruseThreshold(
+                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+                        /* fgBytes= */100, /* bgBytes= */200, /* gmBytes= */300),
+                constructPerStateIoOveruseThreshold(
+                        WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+                        /* fgBytes= */1100, /* bgBytes= */2200, /* gmBytes= */3300)));
+        config.systemWideThresholds = new ArrayList<>(Collections.singletonList(
+                constructInternalIoOveruseAlertThreshold(/* duration= */10, /* writeBPS= */200)));
+        return config;
+    }
+
+    private static PerStateIoOveruseThreshold constructPerStateIoOveruseThreshold(String name,
+            long fgBytes, long bgBytes, long gmBytes) {
+        PerStateIoOveruseThreshold threshold = new PerStateIoOveruseThreshold();
+        threshold.name = name;
+        threshold.perStateWriteBytes = new android.automotive.watchdog.PerStateBytes();
+        threshold.perStateWriteBytes.foregroundBytes = fgBytes;
+        threshold.perStateWriteBytes.backgroundBytes = bgBytes;
+        threshold.perStateWriteBytes.garageModeBytes = gmBytes;
+        return threshold;
+    }
+
+    private static android.automotive.watchdog.internal.IoOveruseAlertThreshold
+            constructInternalIoOveruseAlertThreshold(long duration, long writeBPS) {
+        android.automotive.watchdog.internal.IoOveruseAlertThreshold threshold =
+                new android.automotive.watchdog.internal.IoOveruseAlertThreshold();
+        threshold.durationInSeconds = duration;
+        threshold.writtenBytesPerSecond = writeBPS;
+        return threshold;
+    }
+
     private static PackageIoOveruseStats constructPackageIoOveruseStats(int uid,
             boolean shouldNotify, android.automotive.watchdog.IoOveruseStats ioOveruseStats) {
         PackageIoOveruseStats stats = new PackageIoOveruseStats();
@@ -629,7 +868,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         return perStateBytes;
     }
 
-    public static PackageResourceOveruseAction constructPackageResourceOveruseAction(
+    private static PackageResourceOveruseAction constructPackageResourceOveruseAction(
             String packageName, int uid, int[] resourceTypes, int resourceOveruseActionType) {
         PackageResourceOveruseAction action = new PackageResourceOveruseAction();
         action.packageIdentifier = new PackageIdentifier();

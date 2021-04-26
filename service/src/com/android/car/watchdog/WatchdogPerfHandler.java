@@ -34,11 +34,18 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityThread;
 import android.automotive.watchdog.ResourceType;
+import android.automotive.watchdog.internal.ApplicationCategoryType;
+import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
+import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
+import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
+import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
+import android.car.watchdog.IoOveruseAlertThreshold;
+import android.car.watchdog.IoOveruseConfiguration;
 import android.car.watchdog.IoOveruseStats;
 import android.car.watchdog.PackageKillableState;
 import android.car.watchdog.PackageKillableState.KillableState;
@@ -78,6 +85,10 @@ import java.util.function.BiFunction;
  * Handles system resource performance monitoring module.
  */
 public final class WatchdogPerfHandler {
+    public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
+    public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
+    public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
+
     private static final String TAG = CarLog.tagFor(CarWatchdogService.class);
 
     private final boolean mIsDebugEnabled;
@@ -257,11 +268,18 @@ public final class WatchdogPerfHandler {
             List<ResourceOveruseConfiguration> configurations,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         Objects.requireNonNull(configurations, "Configurations must be non-null");
+        Preconditions.checkArgument((configurations.size() > 0),
+                "Must provide at least one configuration");
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
         Set<Integer> seenComponentTypes = new ArraySet<>();
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
+                new ArrayList<>();
         for (ResourceOveruseConfiguration config : configurations) {
             int componentType = config.getComponentType();
+            if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
+                throw new IllegalArgumentException("Invalid component type in the configuration");
+            }
             if (seenComponentTypes.contains(componentType)) {
                 throw new IllegalArgumentException(
                         "Cannot provide duplicate configurations for the same component type");
@@ -271,8 +289,20 @@ public final class WatchdogPerfHandler {
                 throw new IllegalArgumentException("Must provide I/O overuse configuration");
             }
             seenComponentTypes.add(config.getComponentType());
+            internalConfigs.add(toInternalResourceOveruseConfiguration(config,
+                    resourceOveruseFlag));
         }
-        // TODO(b/170741935): Implement this method.
+
+        // TODO(b/186119640): Add retry logic when daemon is not available.
+        try {
+            mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(internalConfigs);
+        } catch (IllegalArgumentException e) {
+            Slogf.w(TAG, "Failed to set resource overuse configurations: %s", e);
+            throw e;
+        } catch (RemoteException | RuntimeException e) {
+            Slogf.w(TAG, "Failed to set resource overuse configurations: %s", e);
+            throw new IllegalStateException(e);
+        }
     }
 
     /** Returns the available resource overuse configurations. */
@@ -281,8 +311,21 @@ public final class WatchdogPerfHandler {
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
-        // TODO(b/170741935): Implement this method.
-        return new ArrayList<>();
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
+                new ArrayList<>();
+        // TODO(b/186119640): Add retry logic when daemon is not available.
+        try {
+            internalConfigs = mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
+        } catch (RemoteException | RuntimeException e) {
+            Slogf.w(TAG, "Failed to fetch resource overuse configurations: %s", e);
+            throw new IllegalStateException(e);
+        }
+        List<ResourceOveruseConfiguration> configs = new ArrayList<>();
+        for (android.automotive.watchdog.internal.ResourceOveruseConfiguration internalConfig
+                : internalConfigs) {
+            configs.add(toResourceOveruseConfiguration(internalConfig, resourceOveruseFlag));
+        }
+        return configs;
     }
 
     /** Processes the latest I/O overuse stats */
@@ -387,7 +430,7 @@ public final class WatchdogPerfHandler {
         }
         try {
             mCarWatchdogDaemonHelper.actionTakenOnResourceOveruse(actions);
-        } catch (RemoteException e) {
+        } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, "Failed to notify car watchdog daemon of actions taken on "
                     + "resource overuse: %s", e);
         }
@@ -561,9 +604,8 @@ public final class WatchdogPerfHandler {
 
     private static PerStateBytes toPerStateBytes(
             android.automotive.watchdog.PerStateBytes internalPerStateBytes) {
-        PerStateBytes perStateBytes = new PerStateBytes(internalPerStateBytes.foregroundBytes,
+        return new PerStateBytes(internalPerStateBytes.foregroundBytes,
                 internalPerStateBytes.backgroundBytes, internalPerStateBytes.garageModeBytes);
-        return perStateBytes;
     }
 
     private static long totalPerStateBytes(
@@ -573,6 +615,213 @@ public final class WatchdogPerfHandler {
         };
         return sum.apply(sum.apply(internalPerStateBytes.foregroundBytes,
                 internalPerStateBytes.backgroundBytes), internalPerStateBytes.garageModeBytes);
+    }
+
+    private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
+            toInternalResourceOveruseConfiguration(ResourceOveruseConfiguration config,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration internalConfig =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        internalConfig.componentType = config.getComponentType();
+        internalConfig.safeToKillPackages = config.getSafeToKillPackages();
+        internalConfig.vendorPackagePrefixes = config.getVendorPackagePrefixes();
+        internalConfig.packageMetadata = new ArrayList<>();
+        for (Map.Entry<String, String> entry : config.getPackagesToAppCategoryTypes().entrySet()) {
+            if (entry.getKey().isEmpty()) {
+                continue;
+            }
+            PackageMetadata metadata = new PackageMetadata();
+            metadata.packageName = entry.getKey();
+            switch(entry.getValue()) {
+                case ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS:
+                    metadata.appCategoryType = ApplicationCategoryType.MAPS;
+                    break;
+                case ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA:
+                    metadata.appCategoryType = ApplicationCategoryType.MEDIA;
+                    break;
+                default:
+                    continue;
+            }
+            internalConfig.packageMetadata.add(metadata);
+        }
+        internalConfig.resourceSpecificConfigurations = new ArrayList<>();
+        if ((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0
+                && config.getIoOveruseConfiguration() != null) {
+            internalConfig.resourceSpecificConfigurations.add(
+                    toResourceSpecificConfiguration(config.getComponentType(),
+                            config.getIoOveruseConfiguration()));
+        }
+        return internalConfig;
+    }
+
+    private static ResourceSpecificConfiguration
+            toResourceSpecificConfiguration(int componentType, IoOveruseConfiguration config) {
+        android.automotive.watchdog.internal.IoOveruseConfiguration internalConfig =
+                new android.automotive.watchdog.internal.IoOveruseConfiguration();
+        internalConfig.componentLevelThresholds = toPerStateIoOveruseThreshold(
+                toComponentTypeStr(componentType), config.getComponentLevelThresholds());
+        internalConfig.packageSpecificThresholds = toPerStateIoOveruseThresholds(
+                config.getPackageSpecificThresholds());
+        internalConfig.categorySpecificThresholds = toPerStateIoOveruseThresholds(
+                config.getAppCategorySpecificThresholds());
+        for (PerStateIoOveruseThreshold threshold : internalConfig.categorySpecificThresholds) {
+            switch(threshold.name) {
+                case ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS:
+                    threshold.name = INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS;
+                    break;
+                case ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA:
+                    threshold.name = INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA;
+                    break;
+                default:
+                    threshold.name = INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN;
+            }
+        }
+        internalConfig.systemWideThresholds = toInternalIoOveruseAlertThresholds(
+                config.getSystemWideThresholds());
+
+        ResourceSpecificConfiguration resourceSpecificConfig = new ResourceSpecificConfiguration();
+        resourceSpecificConfig.setIoOveruseConfiguration(internalConfig);
+        return resourceSpecificConfig;
+    }
+
+    @VisibleForTesting
+    static String toComponentTypeStr(int componentType) {
+        switch(componentType) {
+            case ComponentType.SYSTEM:
+                return "SYSTEM";
+            case ComponentType.VENDOR:
+                return "VENDOR";
+            case ComponentType.THIRD_PARTY:
+                return "THIRD_PARTY";
+            default:
+                return "UNKNOWN";
+        }
+    }
+
+    private static List<PerStateIoOveruseThreshold> toPerStateIoOveruseThresholds(
+            Map<String, PerStateBytes> thresholds) {
+        List<PerStateIoOveruseThreshold> internalThresholds = new ArrayList<>();
+        for (Map.Entry<String, PerStateBytes> entry : thresholds.entrySet()) {
+            if (!entry.getKey().isEmpty()) {
+                internalThresholds.add(toPerStateIoOveruseThreshold(entry.getKey(),
+                        entry.getValue()));
+            }
+        }
+        return internalThresholds;
+    }
+
+    private static PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(String name,
+            PerStateBytes perStateBytes) {
+        PerStateIoOveruseThreshold threshold = new PerStateIoOveruseThreshold();
+        threshold.name = name;
+        threshold.perStateWriteBytes = new android.automotive.watchdog.PerStateBytes();
+        threshold.perStateWriteBytes.foregroundBytes = perStateBytes.getForegroundModeBytes();
+        threshold.perStateWriteBytes.backgroundBytes = perStateBytes.getBackgroundModeBytes();
+        threshold.perStateWriteBytes.garageModeBytes = perStateBytes.getGarageModeBytes();
+        return threshold;
+    }
+
+    private static List<android.automotive.watchdog.internal.IoOveruseAlertThreshold>
+            toInternalIoOveruseAlertThresholds(List<IoOveruseAlertThreshold> thresholds) {
+        List<android.automotive.watchdog.internal.IoOveruseAlertThreshold> internalThresholds =
+                new ArrayList<>();
+        for (IoOveruseAlertThreshold threshold : thresholds) {
+            if (threshold.getDurationInSeconds() == 0
+                    || threshold.getWrittenBytesPerSecond() == 0) {
+                continue;
+            }
+            android.automotive.watchdog.internal.IoOveruseAlertThreshold internalThreshold =
+                    new android.automotive.watchdog.internal.IoOveruseAlertThreshold();
+            internalThreshold.durationInSeconds = threshold.getDurationInSeconds();
+            internalThreshold.writtenBytesPerSecond = threshold.getWrittenBytesPerSecond();
+            internalThresholds.add(internalThreshold);
+        }
+        return internalThresholds;
+    }
+
+    private static ResourceOveruseConfiguration toResourceOveruseConfiguration(
+            android.automotive.watchdog.internal.ResourceOveruseConfiguration internalConfig,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        Map<String, String> packagesToAppCategoryTypes = new ArrayMap<>();
+        for (PackageMetadata metadata : internalConfig.packageMetadata) {
+            String categoryTypeStr;
+            switch (metadata.appCategoryType) {
+                case ApplicationCategoryType.MAPS:
+                    categoryTypeStr = ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS;
+                    break;
+                case ApplicationCategoryType.MEDIA:
+                    categoryTypeStr = ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA;
+                    break;
+                default:
+                    continue;
+            }
+            packagesToAppCategoryTypes.put(metadata.packageName, categoryTypeStr);
+        }
+        ResourceOveruseConfiguration.Builder configBuilder =
+                new ResourceOveruseConfiguration.Builder(
+                internalConfig.componentType,
+                internalConfig.safeToKillPackages,
+                internalConfig.vendorPackagePrefixes,
+                packagesToAppCategoryTypes);
+        for (ResourceSpecificConfiguration resourceSpecificConfig :
+                internalConfig.resourceSpecificConfigurations) {
+            if (resourceSpecificConfig.getTag()
+                    == ResourceSpecificConfiguration.ioOveruseConfiguration
+                    && (resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0) {
+                configBuilder.setIoOveruseConfiguration(toIoOveruseConfiguration(
+                        resourceSpecificConfig.getIoOveruseConfiguration()));
+            }
+        }
+        return configBuilder.build();
+    }
+
+    private static IoOveruseConfiguration toIoOveruseConfiguration(
+            android.automotive.watchdog.internal.IoOveruseConfiguration internalConfig) {
+        PerStateBytes componentLevelThresholds =
+                toPerStateBytes(internalConfig.componentLevelThresholds.perStateWriteBytes);
+        Map<String, PerStateBytes> packageSpecificThresholds =
+                toPerStateBytesMap(internalConfig.packageSpecificThresholds);
+        Map<String, PerStateBytes> appCategorySpecificThresholds =
+                toPerStateBytesMap(internalConfig.categorySpecificThresholds);
+        replaceKey(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+                ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS);
+        replaceKey(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+                ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA);
+        List<IoOveruseAlertThreshold> systemWideThresholds =
+                toIoOveruseAlertThresholds(internalConfig.systemWideThresholds);
+
+        IoOveruseConfiguration.Builder configBuilder = new IoOveruseConfiguration.Builder(
+                componentLevelThresholds, packageSpecificThresholds, appCategorySpecificThresholds,
+                systemWideThresholds);
+        return configBuilder.build();
+    }
+
+    private static Map<String, PerStateBytes> toPerStateBytesMap(
+            List<PerStateIoOveruseThreshold> thresholds) {
+        Map<String, PerStateBytes> thresholdsMap = new ArrayMap<>();
+        for (PerStateIoOveruseThreshold threshold : thresholds) {
+            thresholdsMap.put(threshold.name, toPerStateBytes(threshold.perStateWriteBytes));
+        }
+        return thresholdsMap;
+    }
+
+    private static List<IoOveruseAlertThreshold> toIoOveruseAlertThresholds(
+            List<android.automotive.watchdog.internal.IoOveruseAlertThreshold> internalThresholds) {
+        List<IoOveruseAlertThreshold> thresholds = new ArrayList<>();
+        for (android.automotive.watchdog.internal.IoOveruseAlertThreshold internalThreshold
+                : internalThresholds) {
+            thresholds.add(new IoOveruseAlertThreshold(internalThreshold.durationInSeconds,
+                    internalThreshold.writtenBytesPerSecond));
+        }
+        return thresholds;
+    }
+
+    private static void replaceKey(Map<String, PerStateBytes> map, String oldKey, String newKey) {
+        PerStateBytes perStateBytes = map.get(oldKey);
+        if (perStateBytes != null) {
+            map.put(newKey, perStateBytes);
+            map.remove(oldKey);
+        }
     }
 
     private static final class PackageResourceUsage {
