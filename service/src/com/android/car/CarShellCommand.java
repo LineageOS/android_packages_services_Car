@@ -236,6 +236,8 @@ final class CarShellCommand extends ShellCommand {
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_GROUP_VOLUME,
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_KEY,
+                android.Manifest.permission.INJECT_EVENTS);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -1030,9 +1032,14 @@ final class CarShellCommand extends ShellCommand {
     private void injectKeyEvent(int action, int keyCode, int display) {
         long currentTime = SystemClock.uptimeMillis();
         if (action == KeyEvent.ACTION_DOWN) mKeyDownTime = currentTime;
-        mCarInputService.onKeyEvent(
-                new KeyEvent(/* downTime= */ mKeyDownTime, /* eventTime= */ currentTime,
-                        action, keyCode, /* repeat= */ 0), display);
+        long token = Binder.clearCallingIdentity();
+        try {
+            mCarInputService.injectKeyEvent(
+                    new KeyEvent(/* downTime= */ mKeyDownTime, /* eventTime= */ currentTime,
+                            action, keyCode, /* repeat= */ 0), display);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private void injectRotary(String[] args, IndentingPrintWriter writer) {
