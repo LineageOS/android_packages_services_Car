@@ -2065,7 +2065,7 @@
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ਸ਼ਾਰਟਕੱਟ ਸੇਵਾ"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">" ਲਾਕ  ਸਕ੍ਰੀਨ ਤੋਂ ਇਜਾਜ਼ਤ ਦਿਓ"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ਜਦੋਂ ਸ਼ਾਰਟਕੱਟ ਚਾਲੂ ਹੋਵੇ, ਤਾਂ ਤੁਸੀਂ ਕਿਸੇ ਪਹੁੰਚਯੋਗਤਾ ਵਿਸ਼ੇਸ਼ਤਾ ਨੂੰ ਸ਼ੁਰੂ ਕਰਨ ਲਈ ਦੋਵੇਂ ਅਵਾਜ਼ ਕੁੰਜੀਆਂ ਨੂੰ 3 ਸਕਿੰਟਾਂ ਲਈ ਦੱਬ ਸਕਦੇ ਹੋ।"</string>
-    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ਉੱਚ ਵਖਰੇਵਾਂ ਲਿਖਤ"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ਉੱਚ ਕੰਟ੍ਰਾਸਟ ਲਿਖਤ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"ਸਕ੍ਰੀਨ ਵਿਸਤਰੀਕਰਨ ਸਵੈ-ਅੱਪਡੇਟ ਕਰੋ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ਐਪ ਟ੍ਰਾਂਜਿਸ਼ਨਾਂ ਤੇ ਸਕ੍ਰੀਨ ਵਿਸਤਰੀਕਰਨ ਅੱਪਡੇਟ ਕਰੋ"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"ਪਾਵਰ ਬਟਨ ਨਾਲ ਕਾਲ ਕੱਟਣਾ"</string>
@@ -2212,7 +2212,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ਸੇਵਾ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ਪ੍ਰਿੰਟਰ ਸ਼ਾਮਲ ਕਰੋ"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"ਖੋਜੋ"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"ਪ੍ਰਿੰਟਰ ਖੋਜ ਰਿਹਾ ਹੈ"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"ਪ੍ਰਿੰਟਰ ਖੋਜਿਆ ਜਾ ਰਿਹਾ ਹੈ"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ਸੇਵਾ ਅਯੋਗ ਬਣਾਈ ਗਈ ਹੈ"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ਪ੍ਰਿੰਟ ਜੌਬਸ"</string>
     <string name="print_print_job" msgid="6846889971435170443">"ਪ੍ਰਿੰਟ ਜੌਬ"</string>

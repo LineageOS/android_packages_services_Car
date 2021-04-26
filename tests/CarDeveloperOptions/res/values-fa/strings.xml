@@ -4073,7 +4073,7 @@
     <string name="bluetooth_disabled" msgid="6588102116819268238">"خاموش"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"متصل به <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"متصل به چند دستگاه"</string>
-    <string name="demo_mode" msgid="3831081808592541104">"حالت نمایشی رابط کاربری سیستم"</string>
+    <string name="demo_mode" msgid="3831081808592541104">"حالت نمایشی میانای کاربر سیستم"</string>
     <string name="dark_ui_mode" msgid="703844190192599217">"طرح‌زمینه"</string>
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"انتخاب طرح زمینه"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"این تنظیم نیز برای برنامه‌ها اعمال می‌شود"</string>

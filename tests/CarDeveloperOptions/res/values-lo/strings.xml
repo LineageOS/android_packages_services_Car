@@ -2065,7 +2065,7 @@
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ບໍລິການປຸ່ມທາງລັດ"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"ອະນຸຍາດຈາກໜ້າຈໍລັອກ"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ເມື່ອເປີດໃຊ້ທາງລັດແລ້ວ, ທ່ານສາມາດກົດປຸ່ມລະດັບສຽງທັງສອງຄ້າງໄວ້ 3 ວິນາທີເພື່ອເລີ່ມຄຸນສົມບັດການຊ່ວຍເຂົ້າເຖິງໄດ້."</string>
-    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"​ໂຕ​ອັກ​ສອນ​ຄອນ​ທຣາສ​ສູງ"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ຕົວອັກສອນຄອນທຣາສສູງ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"ອັບເດດການຂະຫຍາຍໜ້າຈໍອັດຕະໂນມັດ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ອັບເດດການຂະຫຍາຍໜ້າຈໍເມື່ອປ່ຽນແອັບພລິເຄຊັນ"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"ກົດປຸ່ມ ປິດ/ເປີດ ເພື່ອວາງສາຍ"</string>

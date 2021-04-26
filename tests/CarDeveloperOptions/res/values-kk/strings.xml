@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Оқылатын уақытша хабарлардың көрсетілу ұзақтығын таңдаңыз.\n\nБұл параметр барлық қолданбаларда бола бермейді."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Шара қолдануды талап ететін хабарлардың уақытша көрсетілу ұзақтығын таңдаңыз.\n\nБұл параметр барлық қолданбаларда бола бермейді."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Түртіп ұстап тұрғандағы кідіріс"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Түстер инверсиясы"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Түс инверсиясы"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Жұмыс өнімділігіне әсерін тигізуі мүмкін"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Күту уақыты"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Тінтуір пайдаланып жатсаңыз, курсор белгілі уақыт бойы жылжымаған кезде оның автоматты түрде әрекет етуін реттеуіңізге болады."</string>
@@ -3830,7 +3830,7 @@
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Білекті екі рет бұру арқылы камера қолданбасын ашу"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Камера үшін қуат түймес. екі рет басыңыз"</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"Экран құлпын ашпастан камераны жылдам ашу"</string>
-    <string name="screen_zoom_title" msgid="164369086350486104">"Дисплей өлшемі"</string>
+    <string name="screen_zoom_title" msgid="164369086350486104">"Масштаб"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Экрандағы элементтерді үлкейтеді немесе кішірейтеді"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"дисплей тығыздығы, экранды масштабтау, масштаб, масштабтау"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"Экрандағы элементтерді кішірейтеді немесе үлкейтеді. Экрандағы кейбір қолданбалардың орны өзгеруі мүмкін."</string>

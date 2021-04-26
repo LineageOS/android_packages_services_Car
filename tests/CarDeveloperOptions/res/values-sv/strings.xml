@@ -1056,7 +1056,7 @@
     <string name="wifi_p2p_cancel_connect_title" msgid="2465200999145769427">"Avvisa inbjudan?"</string>
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Vill du avvisa inbjudan att ansluta till <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Vill du glömma den här gruppen?"</string>
-    <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wi-Fi-surfzon"</string>
+    <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wifi-surfzon"</string>
     <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Varken internet eller innehåll delas med andra enheter"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Surfplattans internetanslutning delas via en surfzon"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Mobilens internetanslutning delas via en surfzon"</string>
@@ -1070,13 +1070,13 @@
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Använd surfzoner för att skapa ett Wi-Fi-nätverk för andra enheter. Med hjälp av surfzonerna ansluts enheterna till internet via din mobils dataanslutning. Ytterligare dataavgifter kan tillkomma."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Surfzoner kan också skapas i appar för att dela innehåll med enheter i närheten."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Inaktivera surfzon automatiskt"</string>
-    <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wi-Fi-surfzon inaktiveras om inga enheter är anslutna"</string>
+    <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wifi-surfzonen inaktiveras om inga enheter är anslutna"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"Aktiverar surfzon ..."</string>
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Surfzon inaktiveras ..."</string>
     <string name="wifi_tether_enabled_subtext" msgid="7534760116478734006">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> är aktiv"</string>
-    <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"Fel på mobil Wi-Fi-surfzon"</string>
+    <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"Fel på mobil wifi-surfzon"</string>
     <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Konfigurera surfzon via Wi-Fi"</string>
-    <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Installation för Wi-Fi-surfzon"</string>
+    <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Installation för wifi-surfzon"</string>
     <string name="wifi_hotspot_configure_ap_text_summary" msgid="2303120188509955656">"AndroidAP WPA2 PSK-surfzon"</string>
     <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"AndroidHotspot"</string>
     <string name="wifi_calling_settings_title" msgid="626821542308601806">"Wi-Fi-samtal"</string>
@@ -4307,7 +4307,7 @@
     <string name="unknown_unavailability_setting_summary" msgid="5785931810977403534">"Inställningen är inte tillgänglig"</string>
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Konto"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Enhetens namn"</string>
-    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi-styrning"</string>
+    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wifi-styrning"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Tillåt appen att styra Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Ge den här appen behörighet att aktivera och inaktivera Wi-Fi, söka efter och ansluta till Wi-Fi-nätverk, lägga till och ta bort nätverk samt starta en lokal surfzon"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Spela upp media på"</string>
@@ -4333,7 +4333,7 @@
     <string name="prevent_ringing_option_mute_summary" msgid="3509459199090688328">"På (ljud av)"</string>
     <string name="prevent_ringing_option_none_summary" msgid="5152618221093037451">"Av"</string>
     <string name="pref_title_network_details" msgid="3971074015034595956">"Nätverksinformation"</string>
-    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Enhetens namn är synligt för appar i mobilen. Det kan också vara synligt för andra personer när du ansluter till Bluetooth-enheter eller om du skapar en Wi-Fi-surfzon."</string>
+    <string name="about_phone_device_name_warning" msgid="9088572775969880106">"Enhetens namn är synligt för appar i mobilen. Det kan också vara synligt för andra personer när du ansluter till Bluetooth-enheter eller om du skapar en wifi-surfzon."</string>
     <string name="devices_title" msgid="4768432575951993648">"Enheter"</string>
     <string name="homepage_all_settings" msgid="3201220879559136116">"Alla inställningar"</string>
     <string name="homepage_personal_settings" msgid="7472638597249114564">"Förslag"</string>

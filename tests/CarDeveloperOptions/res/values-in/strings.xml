@@ -534,7 +534,7 @@
     <string name="crypt_keeper_data_corrupt_title" msgid="6561535293845985713">"Dekripsi gagal"</string>
     <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"Sandi yang Anda masukkan benar, namun sayangnya data rusak. \n\nUntuk melanjutkan dengan tablet, Anda harus mengembalikannya ke setelan pabrik. Saat menyiapkan tablet setelah direset, akan ada kesempatan untuk memulihkan data apa pun yang telah dicadangkan ke Akun Google Anda."</string>
     <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"Sandi yang Anda masukkan benar, namun sayangnya data rusak. \n\nUntuk melanjutkan dengan ponsel, Anda harus mengembalikannya ke setelan pabrik. Jika Anda menyiapkan ponsel setelah reset, akan ada kesempatan untuk memulihkan data apa pun yang telah dicadangkan ke Akun Google Anda."</string>
-    <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Beralih metode masukan"</string>
+    <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Beralih metode input"</string>
     <string name="suggested_lock_settings_title" msgid="1518155558803371661">"Amankan ponsel Anda"</string>
     <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"Setel kunci layar untuk melindungi tablet"</string>
     <string name="suggested_lock_settings_summary" product="device" msgid="7127114417250029182">"Setel kunci layar untuk melindungi perangkat"</string>
@@ -2069,7 +2069,7 @@
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Perbarui otomatis pembesaran layar"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Perbarui pembesaran layar di transisi aplikasi"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Tombol daya untuk tutup telepon"</string>
-    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Penunjuk mouse besar"</string>
+    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Kursor mouse besar"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Hapus animasi"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Audio mono"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Gabungkan saluran saat memutar audio"</string>

@@ -2065,7 +2065,7 @@
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ショートカット サービス"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"ロック画面から許可"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ショートカットを ON にすると、音量大キーと音量小キーの両方を 3 秒間押し続けてユーザー補助機能を開始できます。"</string>
-    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"高コントラストテキスト"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"高コントラスト テキスト"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"画面の拡大を自動更新"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"アプリの遷移時に画面の拡大を更新"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"電源ボタンで通話を終了"</string>
