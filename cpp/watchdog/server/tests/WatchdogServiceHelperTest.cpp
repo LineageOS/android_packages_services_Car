@@ -22,7 +22,6 @@
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
 #include <utils/RefBase.h>
-#include <utils/String16.h>
 
 namespace android {
 namespace automotive {
@@ -41,7 +40,6 @@ using ::android::BBinder;
 using ::android::IBinder;
 using ::android::RefBase;
 using ::android::sp;
-using ::android::String16;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::binder::Status;
@@ -80,7 +78,7 @@ PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType u
                                  ComponentType componentType,
                                  ApplicationCategoryType appCategoryType) {
     PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.name = packageName;
     packageInfo.packageIdentifier.uid = uid;
     packageInfo.uidType = uidType;
     packageInfo.componentType = componentType;
@@ -329,7 +327,6 @@ TEST_F(WatchdogServiceHelperTest,
 TEST_F(WatchdogServiceHelperTest, TestGetPackageInfosForUids) {
     std::vector<int32_t> uids = {1000};
     std::vector<std::string> prefixesStr = {"vendor.package"};
-    std::vector<String16> prefixesStr16 = {String16("vendor.package")};
     std::vector<PackageInfo> expectedPackageInfo{
             constructPackageInfo("vendor.package.A", 120000, UidType::NATIVE, ComponentType::VENDOR,
                                  ApplicationCategoryType::OTHERS),
@@ -340,7 +337,7 @@ TEST_F(WatchdogServiceHelperTest, TestGetPackageInfosForUids) {
 
     registerCarWatchdogService();
 
-    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(uids, prefixesStr16, _))
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, getPackageInfosForUids(uids, prefixesStr, _))
             .WillOnce(DoAll(SetArgPointee<2>(expectedPackageInfo), Return(Status::ok())));
 
     Status status =

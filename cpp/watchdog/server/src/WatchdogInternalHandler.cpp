@@ -37,6 +37,7 @@ using aawi::ICarWatchdogServiceForSystem;
 using aawi::PackageResourceOveruseAction;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
+using ::android::String16;
 using ::android::binder::Status;
 
 namespace {

@@ -39,6 +39,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::String16;
 using ::android::wp;
 using ::android::automotive::watchdog::testing::LooperStub;
 using ::android::base::Error;

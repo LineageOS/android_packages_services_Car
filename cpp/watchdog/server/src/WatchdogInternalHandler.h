@@ -32,6 +32,7 @@
 #include <binder/Status.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
+#include <utils/String16.h>
 #include <utils/Vector.h>
 
 namespace android {
@@ -55,7 +56,7 @@ public:
           mIoOveruseMonitor(ioOveruseMonitor) {}
     ~WatchdogInternalHandler() { terminate(); }
 
-    status_t dump(int fd, const Vector<String16>& args) override;
+    status_t dump(int fd, const Vector<android::String16>& args) override;
     android::binder::Status registerCarWatchdogService(
             const android::sp<
                     android::automotive::watchdog::internal::ICarWatchdogServiceForSystem>& service)

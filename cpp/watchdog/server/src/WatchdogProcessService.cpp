@@ -48,6 +48,7 @@ using aawi::BnCarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystem;
 using ::android::IBinder;
 using ::android::sp;
+using ::android::String16;
 using ::android::base::Error;
 using ::android::base::GetProperty;
 using ::android::base::ReadFileToString;
