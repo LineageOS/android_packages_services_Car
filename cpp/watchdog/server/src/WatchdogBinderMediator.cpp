@@ -171,7 +171,6 @@ status_t WatchdogBinderMediator::dump(int fd, const Vector<String16>& args) {
         ALOGW("Failed to dump I/O perf collection: %s", ret.error().message().c_str());
         return ret.error().code();
     }
-    // TODO(b/167240592): Add a dump call to I/O overuse monitor and relevant tests.
     return OK;
 }
 
