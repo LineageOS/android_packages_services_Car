@@ -17,7 +17,7 @@
 
 #include <android/binder_interface_utils.h>
 #include <android/binder_manager.h>
-#include <binder/IServiceManager.h>
+#include <log/log.h>
 
 #include "PipeQuery.h"
 #include "PipeRegistration.h"
