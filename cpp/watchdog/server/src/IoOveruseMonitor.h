@@ -66,6 +66,9 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime
  */
 class IIoOveruseMonitor : virtual public IDataProcessorInterface {
 public:
+    // Returns whether or not the monitor is initialized.
+    virtual bool isInitialized() = 0;
+
     // Below API is from internal/ICarWatchdog.aidl. Please refer to the AIDL for description.
     virtual android::base::Result<void> updateResourceOveruseConfigurations(
             const std::vector<
@@ -96,6 +99,11 @@ public:
 
     ~IoOveruseMonitor() { terminate(); }
 
+    bool isInitialized() {
+        std::shared_lock readLock(mRwMutex);
+        return isInitializedLocked();
+    }
+
     // Below methods implement IDataProcessorInterface.
     std::string name() { return "IoOveruseMonitor"; }
     friend std::ostream& operator<<(std::ostream& os, const IoOveruseMonitor& monitor);
@@ -107,7 +115,7 @@ public:
         return {};
     }
 
-    // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
+    // TODO(b/185498771): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogPerfService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
     //  and pass collection flag as a param in this API to indicate garage mode collection.
     android::base::Result<void> onPeriodicCollection(time_t time,
@@ -124,7 +132,7 @@ public:
             time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
             const std::function<void()>& alertHandler);
 
-    // TODO(b/167240592): Forward WatchdogBinderMediator's notifySystemStateChange call to
+    // TODO(b/185498771): Forward WatchdogBinderMediator's notifySystemStateChange call to
     //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE_COMPLETE, call this method via
     //  the IDataProcessorInterface. onShutdownPrepareComplete, IoOveruseMonitor will flush
     //  in-memory stats to disk.
@@ -213,11 +221,10 @@ private:
     sp<IPackageInfoResolver> mPackageInfoResolver;
     // Minimum written bytes to sync the stats with the Watchdog service.
     double mMinSyncWrittenBytes;
+    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper;
 
     // Makes sure only one collection is running at any given time.
     mutable std::shared_mutex mRwMutex;
-
-    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRwMutex);
 
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
     sp<IIoOveruseConfigs> mIoOveruseConfigs GUARDED_BY(mRwMutex);

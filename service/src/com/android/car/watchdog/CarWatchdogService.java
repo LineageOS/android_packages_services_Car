@@ -63,8 +63,8 @@ import java.util.List;
  * Service to implement CarWatchdogManager API.
  */
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
-    private static final boolean DEBUG = false; // STOPSHIP if true
-    private static final String TAG = CarLog.tagFor(CarWatchdogService.class);
+    static final boolean DEBUG = false; // STOPSHIP if true
+    static final String TAG = CarLog.tagFor(CarWatchdogService.class);
 
     private final Context mContext;
     private final ICarWatchdogServiceForSystemImpl mWatchdogServiceForSystem;
@@ -85,9 +85,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
-                mCarWatchdogDaemonHelper, DEBUG);
+                mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
-                mPackageInfoHandler, DEBUG);
+                mPackageInfoHandler);
     }
 
     @Override

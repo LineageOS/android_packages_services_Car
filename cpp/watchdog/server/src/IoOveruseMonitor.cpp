@@ -15,6 +15,7 @@
  */
 
 #define LOG_TAG "carwatchdogd"
+#define DEBUG false  // STOPSHIP if true.
 
 #include "IoOveruseMonitor.h"
 
@@ -128,7 +129,7 @@ Result<void> IoOveruseMonitor::init() {
     mIoOveruseWarnPercentage = static_cast<double>(
             sysprop::ioOveruseWarnPercentage().value_or(kDefaultIoOveruseWarnPercentage));
     /*
-     * TODO(b/167240592): Read the latest I/O overuse config.
+     * TODO(b/185287136): Read the latest I/O overuse config.
      *  The latest I/O overuse config is read in this order:
      *  1. From /data partition as this contains the latest config and any updates received from OEM
      *    and system applications.
@@ -137,10 +138,13 @@ Result<void> IoOveruseMonitor::init() {
      */
 
     mIoOveruseConfigs = new IoOveruseConfigs();
-    // TODO(b/167240592): Read the vendor package prefixes from disk before the below call.
+    // TODO(b/185287136): Read the vendor package prefixes from disk before the below call.
     mPackageInfoResolver = PackageInfoResolver::getInstance();
     mPackageInfoResolver->setPackageConfigurations(mIoOveruseConfigs->vendorPackagePrefixes(),
                                                    mIoOveruseConfigs->packagesToAppCategories());
+    if (DEBUG) {
+        ALOGD("Initialized %s data processor", name().c_str());
+    }
     return {};
 }
 
@@ -157,6 +161,9 @@ void IoOveruseMonitor::terminate() {
     }
     mBinderDeathRecipient.clear();
     mOveruseListenersByUid.clear();
+    if (DEBUG) {
+        ALOGD("Terminated %s data processor", name().c_str());
+    }
     return;
 }
 
@@ -176,7 +183,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         /*
          * Date changed so reset the daily I/O usage cache.
          *
-         * TODO(b/170741935): Ping CarWatchdogService on date change so it can re-enable the daily
+         * TODO(b/185287136): Ping CarWatchdogService on date change so it can re-enable the daily
          *  disabled packages. Also sync prev day's stats with CarWatchdogService.
          */
         mUserPackageDailyIoUsageById.clear();
@@ -186,7 +193,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 
     auto perUidIoUsage = uidIoStats.promote()->deltaStats();
     /*
-     * TODO(b/167240592): Maybe move the packageInfo fetching logic into UidIoStats module.
+     * TODO(b/185849350): Maybe move the packageInfo fetching logic into UidIoStats module.
      *  This will also help avoid fetching package names in IoPerfCollection module.
      */
     std::vector<uid_t> seenUids;
@@ -213,7 +220,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             continue;
         }
         /*
-         * TODO(b/167240592): Derive the garage mode status from the collection flag, which will
+         * TODO(b/185498771): Derive the garage mode status from the collection flag, which will
          *  be added to the |onPeriodicCollection| API.
          */
         UserPackageIoUsage curUsage(packageInfo->second, uidIoStats.ios,
@@ -306,6 +313,9 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         ALOGW("Failed to push the latest I/O overuse stats to watchdog service");
     } else {
         mLatestIoOveruseStats.clear();
+        if (DEBUG) {
+            ALOGD("Pushed latest I/O overuse stats to watchdog service");
+        }
     }
 
     return {};
@@ -374,12 +384,12 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
 }
 
 Result<void> IoOveruseMonitor::onShutdownPrepareComplete() {
-    // TODO(b/167240592): Flush in-memory stats to disk.
+    // TODO(b/185287136): Flush in-memory stats to disk.
     return {};
 }
 
 Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
-    // TODO(b/167240592): Dump the list of killed/disabled packages. Dump the list of packages that
+    // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages that
     //  exceed xx% of their threshold.
     return {};
 }
@@ -397,7 +407,10 @@ void IoOveruseMonitor::notifyNativePackagesLocked(
         stats.set<ResourceOveruseStats::ioOveruseStats>(ioOveruseStats);
         listener->onOveruse(stats);
     }
-    // TODO(b/167240592): Upload I/O overuse metrics for native packages.
+    if (DEBUG) {
+        ALOGD("Notified native packages on I/O overuse");
+    }
+    // TODO(b/184310189): Upload I/O overuse metrics for native packages.
 }
 
 Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
@@ -421,7 +434,10 @@ Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
 
 Result<void> IoOveruseMonitor::actionTakenOnIoOveruse(
         [[maybe_unused]] const std::vector<PackageResourceOveruseAction>& actions) {
-    // TODO(b/167240592): Upload metrics.
+    // TODO(b/184310189): Upload metrics.
+    if (DEBUG) {
+        ALOGD("Recorded action taken on I/O overuse");
+    }
     return {};
 }
 
@@ -441,6 +457,9 @@ Result<void> IoOveruseMonitor::addIoOveruseListener(const sp<IResourceOveruseLis
                 << "(pid " << callingPid << ", uid: " << callingUid << ") is dead";
     }
     mOveruseListenersByUid[callingUid] = listener;
+    if (DEBUG) {
+        ALOGD("Added I/O overuse listener for uid: %d", callingUid);
+    }
     return {};
 }
 
@@ -456,11 +475,14 @@ Result<void> IoOveruseMonitor::removeIoOveruseListener(
         !findListenerAndProcessLocked(binder, processor)) {
         return Error(Status::EX_ILLEGAL_ARGUMENT) << "Listener is not previously registered";
     }
+    if (DEBUG) {
+        ALOGD("Removed I/O overuse listener for uid: %d", IPCThreadState::self()->getCallingUid());
+    }
     return {};
 }
 
 Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats) {
-    if (std::shared_lock readLock(mRwMutex); !isInitializedLocked()) {
+    if (!isInitialized()) {
         return Error(Status::EX_ILLEGAL_STATE) << "I/O overuse monitor is not initialized";
     }
     uid_t callingUid = IPCThreadState::self()->getCallingUid();
@@ -493,6 +515,9 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
             calculateStartAndDuration(mLastUserPackageIoMonitorTime);
     ioOveruseStats->startTime = startTime;
     ioOveruseStats->durationInSeconds = durationInSeconds;
+    if (DEBUG) {
+        ALOGD("Returning I/O overuse listener for uid: %d", callingUid);
+    }
     return {};
 }
 

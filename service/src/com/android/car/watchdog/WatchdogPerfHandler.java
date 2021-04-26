@@ -70,7 +70,6 @@ import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
-import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -93,9 +92,6 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
 
-    private static final String TAG = CarLog.tagFor(CarWatchdogService.class);
-
-    private final boolean mIsDebugEnabled;
     private final Context mContext;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
@@ -125,8 +121,7 @@ public final class WatchdogPerfHandler {
     public final Set<String> mDefaultNotKillablePackages = new ArraySet<>();
 
     public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
-            PackageInfoHandler packageInfoHandler, boolean isDebugEnabled) {
-        mIsDebugEnabled = isDebugEnabled;
+            PackageInfoHandler packageInfoHandler) {
         mContext = context;
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
@@ -148,16 +143,16 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             checkAndHandleDateChangeLocked();
         }
-        if (mIsDebugEnabled) {
-            Slogf.d(TAG, "WatchdogPerfHandler is initialized");
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "WatchdogPerfHandler is initialized");
         }
     }
 
     /** Releases the handler */
     public void release() {
         /* TODO(b/185287136): Write daily usage to SQLite DB storage. */
-        if (mIsDebugEnabled) {
-            Slogf.d(TAG, "WatchdogPerfHandler is released");
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "WatchdogPerfHandler is released");
         }
     }
 
@@ -187,13 +182,18 @@ public final class WatchdogPerfHandler {
                 mPackageInfoHandler.getPackageNamesForUids(new int[]{callingUid})
                         .get(callingUid, null);
         if (callingPackageName == null) {
-            Slogf.w(TAG, "Failed to fetch package info for uid %d", callingUid);
+            Slogf.w(CarWatchdogService.TAG, "Failed to fetch package info for uid %d", callingUid);
             return new ResourceOveruseStats.Builder("", callingUserHandle).build();
         }
         ResourceOveruseStats.Builder statsBuilder =
                 new ResourceOveruseStats.Builder(callingPackageName, callingUserHandle);
         statsBuilder.setIoOveruseStats(getIoOveruseStats(callingUserId, callingPackageName,
                 /* minimumBytesWritten= */ 0, maxStatsPeriod));
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Returning all resource overuse stats for calling uid "
+                            + "%d [user %d and package '%s']", callingUid, callingUserId,
+                    callingPackageName);
+        }
         return statsBuilder.build();
     }
 
@@ -221,6 +221,9 @@ public final class WatchdogPerfHandler {
             }
             allStats.add(statsBuilder.setIoOveruseStats(ioOveruseStats).build());
         }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Returning all resource overuse stats");
+        }
         return allStats;
     }
 
@@ -245,6 +248,11 @@ public final class WatchdogPerfHandler {
                 new ResourceOveruseStats.Builder(packageName, userHandle);
         statsBuilder.setIoOveruseStats(getIoOveruseStats(userHandle.getIdentifier(), packageName,
                 /* minimumBytesWritten= */ 0, maxStatsPeriod));
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG,
+                    "Returning resource overuse stats for user %d, package '%s'",
+                    userHandle.getIdentifier(), packageName);
+        }
         return statsBuilder.build();
     }
 
@@ -302,7 +310,8 @@ public final class WatchdogPerfHandler {
                         continue;
                     }
                     if (!usage.setKillableState(isKillable)) {
-                        Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
+                        Slogf.e(CarWatchdogService.TAG,
+                                "Cannot set killable state for package '%s'", packageName);
                         throw new IllegalArgumentException(
                                 "Package killable state is not updatable");
                     }
@@ -312,6 +321,10 @@ public final class WatchdogPerfHandler {
                 } else {
                     mDefaultNotKillablePackages.remove(packageName);
                 }
+            }
+            if (CarWatchdogService.DEBUG) {
+                Slogf.d(CarWatchdogService.TAG,
+                        "Successfully set killable package state for all users");
             }
             return;
         }
@@ -331,11 +344,16 @@ public final class WatchdogPerfHandler {
             PackageResourceUsage usage = mUsageByUserPackage.getOrDefault(key,
                     new PackageResourceUsage(userId, packageName));
             if (!usage.setKillableState(isKillable)) {
-                Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
+                Slogf.e(CarWatchdogService.TAG,
+                        "User %d cannot set killable state for package '%s'",
                         userHandle.getIdentifier(), packageName);
                 throw new IllegalArgumentException("Package killable state is not updatable");
             }
             mUsageByUserPackage.put(key, usage);
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Successfully set killable package state for user %d",
+                    userId);
         }
     }
 
@@ -345,6 +363,10 @@ public final class WatchdogPerfHandler {
         Objects.requireNonNull(userHandle, "User handle must be non-null");
         PackageManager pm = mContext.getPackageManager();
         if (userHandle != UserHandle.ALL) {
+            if (CarWatchdogService.DEBUG) {
+                Slogf.d(CarWatchdogService.TAG, "Returning all package killable states for user %d",
+                        userHandle.getIdentifier());
+            }
             return getPackageKillableStatesForUserId(userHandle.getIdentifier(), pm);
         }
         List<PackageKillableState> packageKillableStates = new ArrayList<>();
@@ -352,6 +374,9 @@ public final class WatchdogPerfHandler {
         List<UserInfo> userInfos = userManager.getAliveUsers();
         for (UserInfo userInfo : userInfos) {
             packageKillableStates.addAll(getPackageKillableStatesForUserId(userInfo.id, pm));
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Returning all package killable states for all users");
         }
         return packageKillableStates;
     }
@@ -373,6 +398,10 @@ public final class WatchdogPerfHandler {
                 states.add(
                         new PackageKillableState(packageInfo.packageName, userId, killableState));
             }
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG,
+                    "Returning the package killable states for a user package");
         }
         return states;
     }
@@ -411,13 +440,16 @@ public final class WatchdogPerfHandler {
         try {
             mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(internalConfigs);
         } catch (IllegalArgumentException e) {
-            Slogf.w(TAG, "Failed to set resource overuse configurations: %s", e);
+            Slogf.w(CarWatchdogService.TAG, "Failed to set resource overuse configurations: %s", e);
             throw e;
         } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, "Failed to set resource overuse configurations: %s", e);
+            Slogf.w(CarWatchdogService.TAG, "Failed to set resource overuse configurations: %s", e);
             throw new IllegalStateException(e);
         }
         /* TODO(b/185287136): Fetch safe-to-kill list from daemon and update mSafeToKillPackages. */
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Set the resource overuse configuration successfully");
+        }
     }
 
     /** Returns the available resource overuse configurations. */
@@ -432,13 +464,17 @@ public final class WatchdogPerfHandler {
         try {
             internalConfigs = mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
         } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, "Failed to fetch resource overuse configurations: %s", e);
+            Slogf.w(CarWatchdogService.TAG, "Failed to fetch resource overuse configurations: %s",
+                    e);
             throw new IllegalStateException(e);
         }
         List<ResourceOveruseConfiguration> configs = new ArrayList<>();
         for (android.automotive.watchdog.internal.ResourceOveruseConfiguration internalConfig
                 : internalConfigs) {
             configs.add(toResourceOveruseConfiguration(internalConfig, resourceOveruseFlag));
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Returning the resource overuse configuration");
         }
         return configs;
     }
@@ -523,8 +559,8 @@ public final class WatchdogPerfHandler {
                         usage.oldEnabledState = oldEnabledState;
                     }
                 } catch (RemoteException e) {
-                    Slogf.e(TAG, "Failed to disable application enabled setting for user %d, "
-                            + "package '%s'", userId, packageName);
+                    Slogf.e(CarWatchdogService.TAG, "Failed to disable application enabled setting "
+                            + "for user %d, package '%s'", userId, packageName);
                 }
                 mOveruseActionsByUserPackage.add(overuseAction);
             }
@@ -532,6 +568,9 @@ public final class WatchdogPerfHandler {
                 mMainHandler.sendMessage(obtainMessage(
                         WatchdogPerfHandler::notifyActionsTakenOnOveruse, this));
             }
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Processed latest I/O overuse stats");
         }
     }
 
@@ -548,8 +587,12 @@ public final class WatchdogPerfHandler {
         try {
             mCarWatchdogDaemonHelper.actionTakenOnResourceOveruse(actions);
         } catch (RemoteException | RuntimeException e) {
-            Slogf.w(TAG, "Failed to notify car watchdog daemon of actions taken on "
-                    + "resource overuse: %s", e);
+            Slogf.w(CarWatchdogService.TAG, "Failed to notify car watchdog daemon of actions taken "
+                    + "on resource overuse: %s", e);
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG,
+                    "Notified car watchdog daemon of actions taken on resource overuse");
         }
     }
 
@@ -561,7 +604,7 @@ public final class WatchdogPerfHandler {
             try {
                 listenerInfo.listener.onOveruse(resourceOveruseStats);
             } catch (RemoteException e) {
-                Slogf.e(TAG,
+                Slogf.e(CarWatchdogService.TAG,
                         "Failed to notify listener(uid %d, package '%s') on resource overuse: %s",
                         uid, resourceOveruseStats, e);
             }
@@ -575,10 +618,14 @@ public final class WatchdogPerfHandler {
             try {
                 systemListenerInfo.listener.onOveruse(resourceOveruseStats);
             } catch (RemoteException e) {
-                Slogf.e(TAG, "Failed to notify system listener(uid %d, pid: %d) of resource "
-                                + "overuse by package(uid %d, package '%s'): %s",
+                Slogf.e(CarWatchdogService.TAG, "Failed to notify system listener(uid %d, pid: %d) "
+                                + "of resource overuse by package(uid %d, package '%s'): %s",
                         systemListenerInfo.uid, systemListenerInfo.pid, uid, packageName, e);
             }
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG,
+                    "Notified resource overuse stats to listening applications");
         }
     }
 
@@ -603,13 +650,16 @@ public final class WatchdogPerfHandler {
                             usage.oldEnabledState,
                             /* flags= */ 0, usage.userId, mContext.getPackageName());
                 } catch (RemoteException e) {
-                    Slogf.e(TAG,
+                    Slogf.e(CarWatchdogService.TAG,
                             "Failed to reset enabled setting for disabled package '%s', user %d",
                             usage.packageName, usage.userId);
                 }
             }
             /* TODO(b/170741935): Stash the old usage into SQLite DB storage. */
             usage.ioUsage.clear();
+        }
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "Handled date change successfully");
         }
     }
 
@@ -675,20 +725,21 @@ public final class WatchdogPerfHandler {
         try {
             listenerInfo.linkToDeath();
         } catch (RemoteException e) {
-            Slogf.w(TAG, "Cannot add %s: linkToDeath to listener failed", listenerType);
+            Slogf.w(CarWatchdogService.TAG, "Cannot add %s: linkToDeath to listener failed",
+                    listenerType);
             return;
         }
 
         if (existingListenerInfo != null) {
-            Slogf.w(TAG, "Overwriting existing %s: pid %d, uid: %d", listenerType,
-                    existingListenerInfo.pid, existingListenerInfo.uid);
+            Slogf.w(CarWatchdogService.TAG, "Overwriting existing %s: pid %d, uid: %d",
+                    listenerType, existingListenerInfo.pid, existingListenerInfo.uid);
             existingListenerInfo.unlinkToDeath();
         }
 
 
         listenerInfosByUid.put(callingUid, listenerInfo);
-        if (mIsDebugEnabled) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is added", listenerType,
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "The %s (pid: %d, uid: %d) is added", listenerType,
                     callingPid, callingUid);
         }
     }
@@ -702,14 +753,15 @@ public final class WatchdogPerfHandler {
 
         ResourceOveruseListenerInfo listenerInfo = listenerInfosByUid.get(callingUid, null);
         if (listenerInfo == null || listenerInfo.listener != listener) {
-            Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
+            Slogf.w(CarWatchdogService.TAG,
+                    "Cannot remove the %s: it has not been registered before", listenerType);
             return;
         }
         listenerInfo.unlinkToDeath();
         listenerInfosByUid.remove(callingUid);
-        if (mIsDebugEnabled) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is removed", listenerType, listenerInfo.pid,
-                    listenerInfo.uid);
+        if (CarWatchdogService.DEBUG) {
+            Slogf.d(CarWatchdogService.TAG, "The %s (pid: %d, uid: %d) is removed", listenerType,
+                    listenerInfo.pid, listenerInfo.uid);
         }
     }
 
@@ -1128,7 +1180,7 @@ public final class WatchdogPerfHandler {
 
         @Override
         public void binderDied() {
-            Slogf.w(TAG, "Resource overuse listener%s (pid: %d) died",
+            Slogf.w(CarWatchdogService.TAG, "Resource overuse listener%s (pid: %d) died",
                     isListenerForSystem ? " for system" : "", pid);
             onResourceOveruseListenerDeath(uid, isListenerForSystem);
             unlinkToDeath();
