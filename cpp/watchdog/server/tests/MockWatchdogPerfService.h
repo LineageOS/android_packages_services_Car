@@ -36,7 +36,7 @@ public:
     MOCK_METHOD(void, terminate, (), (override));
     MOCK_METHOD(android::base::Result<void>, onBootFinished, (), (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
-                (int fd, const Vector<String16>& args), (override));
+                (int fd, const Vector<android::String16>& args), (override));
     MOCK_METHOD(android::base::Result<void>, onDump, (int fd), (override));
 };
 

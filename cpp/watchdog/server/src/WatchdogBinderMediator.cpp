@@ -32,6 +32,7 @@ namespace watchdog {
 using ::android::defaultServiceManager;
 using ::android::IBinder;
 using ::android::sp;
+using ::android::String16;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;

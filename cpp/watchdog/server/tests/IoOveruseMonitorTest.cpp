@@ -36,7 +36,6 @@ constexpr std::chrono::seconds kTestMonitorInterval = 5s;
 
 using ::android::IPCThreadState;
 using ::android::RefBase;
-using ::android::String16;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
@@ -69,7 +68,7 @@ IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSecond
 
 PackageIdentifier constructPackageIdentifier(const char* packageName, const int32_t uid) {
     PackageIdentifier packageIdentifier;
-    packageIdentifier.name = String16(String8(packageName));
+    packageIdentifier.name = packageName;
     packageIdentifier.uid = uid;
     return packageIdentifier;
 }

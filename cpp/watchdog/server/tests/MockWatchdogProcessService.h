@@ -40,7 +40,7 @@ namespace watchdog {
 class MockWatchdogProcessService : public WatchdogProcessService {
 public:
     MockWatchdogProcessService() : WatchdogProcessService(nullptr) {}
-    MOCK_METHOD(android::base::Result<void>, dump, (int fd, const Vector<String16>& args),
+    MOCK_METHOD(android::base::Result<void>, dump, (int fd, const Vector<android::String16>& args),
                 (override));
     MOCK_METHOD(android::base::Result<void>, registerWatchdogServiceHelper,
                 (const android::sp<IWatchdogServiceHelperInterface>& helper), (override));

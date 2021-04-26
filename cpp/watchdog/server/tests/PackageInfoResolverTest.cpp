@@ -23,13 +23,11 @@
 #include <android/automotive/watchdog/internal/UidType.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <utils/String16.h>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-using ::android::String16;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::PackageInfo;
@@ -53,9 +51,9 @@ using PackageToAppCategoryMap =
 PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType uidType,
                                  ComponentType componentType,
                                  ApplicationCategoryType appCategoryType,
-                                 std::vector<String16> sharedUidPackages = {}) {
+                                 std::vector<std::string> sharedUidPackages = {}) {
     PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.name = packageName;
     packageInfo.packageIdentifier.uid = uid;
     packageInfo.uidType = uidType;
     packageInfo.componentType = componentType;
@@ -209,7 +207,7 @@ TEST(PackageInfoResolverTest, TestGetPackageInfosForUidsViaWatchdogService) {
             {6100,
              constructPackageInfo("shared:system.package.A", 6100, UidType::NATIVE,
                                   ComponentType::SYSTEM, ApplicationCategoryType::OTHERS,
-                                  {String16("system.pkg.1"), String16("system.pkg.2")})},
+                                  {"system.pkg.1", "system.pkg.2"})},
             {7700,
              constructPackageInfo("system.package.B", 7700, UidType::NATIVE, ComponentType::SYSTEM,
                                   ApplicationCategoryType::OTHERS)},

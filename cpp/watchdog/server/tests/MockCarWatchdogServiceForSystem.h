@@ -24,7 +24,6 @@
 #include <binder/Status.h>
 #include <gmock/gmock.h>
 #include <utils/RefBase.h>
-#include <utils/String16.h>
 #include <utils/StrongPointer.h>
 
 namespace android {
@@ -45,7 +44,7 @@ public:
                 (int32_t, android::automotive::watchdog::internal::TimeoutLength), (override));
     MOCK_METHOD(android::binder::Status, prepareProcessTermination, (), (override));
     MOCK_METHOD(android::binder::Status, getPackageInfosForUids,
-                (const std::vector<int32_t>&, const std::vector<android::String16>&,
+                (const std::vector<int32_t>&, const std::vector<std::string>&,
                  std::vector<android::automotive::watchdog::internal::PackageInfo>*),
                 (override));
     MOCK_METHOD(

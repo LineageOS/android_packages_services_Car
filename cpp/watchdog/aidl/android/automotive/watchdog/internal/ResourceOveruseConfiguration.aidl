@@ -33,14 +33,14 @@ parcelable ResourceOveruseConfiguration {
    * List of only non-critical system and vendor packages that are safe to kill on disk I/O
    * overuse. All third-party packages are considered safe to kill.
    */
-  List<String> safeToKillPackages;
+  @utf8InCpp List<String> safeToKillPackages;
 
   /**
    * Defines the list of vendor package prefixes. Any pre-installed package name starting with one
    * of these prefixes will be identified as a vendor package in addition to packages under the
    * vendor partition. This must be defined only by the vendor component.
    */
-  List<String> vendorPackagePrefixes;
+  @utf8InCpp List<String> vendorPackagePrefixes;
 
   /**
    * Defines the package metadata.
