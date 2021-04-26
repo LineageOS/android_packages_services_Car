@@ -89,8 +89,7 @@ public final class JavaMockitoHelper {
      * {@value #ASYNC_TIMEOUT_MS} ms.
      */
     @NonNull
-    public static <T> T getResult(@NonNull Future<T> future)
-            throws InterruptedException, ExecutionException {
+    public static <T> T getResult(@NonNull Future<T> future) {
         return getResult(future, ASYNC_TIMEOUT_MS);
     }
 
