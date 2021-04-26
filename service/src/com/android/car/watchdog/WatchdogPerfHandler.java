@@ -55,12 +55,16 @@ import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
 import android.content.pm.IPackageManager;
+import android.content.pm.PackageInfo;
+import android.content.pm.PackageManager;
+import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
+import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
@@ -113,6 +117,12 @@ public final class WatchdogPerfHandler {
             new SparseArray<>();
     @GuardedBy("mLock")
     private ZonedDateTime mLastStatsReportUTC;
+    /* Set of safe-to-kill system and vendor packages. */
+    @GuardedBy("mLock")
+    public final Set<String> mSafeToKillPackages = new ArraySet<>();
+    /* Default killable state for packages when not updated by the user. */
+    @GuardedBy("mLock")
+    public final Set<String> mDefaultNotKillablePackages = new ArraySet<>();
 
     public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
             PackageInfoHandler packageInfoHandler, boolean isDebugEnabled) {
@@ -130,8 +140,10 @@ public final class WatchdogPerfHandler {
          * TODO(b/183947162): Opt-in to receive package change broadcast and handle package enabled
          *  state changes.
          *
-         * TODO(b/170741935): Read the current day's I/O overuse stats from database and push them
+         * TODO(b/185287136): Persist in-memory data:
+         *  1. Read the current day's I/O overuse stats from database and push them
          *  to the daemon.
+         *  2. Fetch the safe-to-kill from daemon on initialization and update mSafeToKillPackages.
          */
         synchronized (mLock) {
             checkAndHandleDateChangeLocked();
@@ -143,9 +155,7 @@ public final class WatchdogPerfHandler {
 
     /** Releases the handler */
     public void release() {
-        /*
-         * TODO(b/170741935): Write daily usage to SQLite DB storage.
-         */
+        /* TODO(b/185287136): Write daily usage to SQLite DB storage. */
         if (mIsDebugEnabled) {
             Slogf.d(TAG, "WatchdogPerfHandler is released");
         }
@@ -153,8 +163,8 @@ public final class WatchdogPerfHandler {
 
     /** Dumps its state. */
     public void dump(IndentingPrintWriter writer) {
-        /**
-         * TODO(b/170741935): Implement this method.
+        /*
+         * TODO(b/183436216): Implement this method.
          */
     }
 
@@ -249,18 +259,86 @@ public final class WatchdogPerfHandler {
             boolean isKillable) {
         Objects.requireNonNull(packageName, "Package name must be non-null");
         Objects.requireNonNull(userHandle, "User handle must be non-null");
-        /*
-         * TODO(b/170741935): Add/remove the package from the user do-no-kill list.
-         *  If the {@code userHandle == UserHandle.ALL}, update the settings for all users.
-         */
+        if (userHandle == UserHandle.ALL) {
+            synchronized (mLock) {
+                for (PackageResourceUsage usage : mUsageByUserPackage.values()) {
+                    if (!usage.packageName.equals(packageName)) {
+                        continue;
+                    }
+                    if (!usage.setKillableState(isKillable)) {
+                        Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
+                        throw new IllegalArgumentException(
+                                "Package killable state is not updatable");
+                    }
+                }
+                if (!isKillable) {
+                    mDefaultNotKillablePackages.add(packageName);
+                } else {
+                    mDefaultNotKillablePackages.remove(packageName);
+                }
+            }
+            return;
+        }
+        int userId = userHandle.getIdentifier();
+        String key = getUserPackageUniqueId(userId, packageName);
+        synchronized (mLock) {
+            /*
+             * When the queried package is not cached in {@link mUsageByUserPackage}, the set API
+             * will update the killable state even when the package should never be killed.
+             * But the get API will return the correct killable state. This behavior is tolerable
+             * because in production the set API should be called only after the get API.
+             * For instance, when this case happens by mistake and the package overuses resource
+             * between the set and the get API calls, the daemon will provide correct killable
+             * state when pushing the latest stats. Ergo, the invalid killable state doesn't have
+             * any effect.
+             */
+            PackageResourceUsage usage = mUsageByUserPackage.getOrDefault(key,
+                    new PackageResourceUsage(userId, packageName));
+            if (!usage.setKillableState(isKillable)) {
+                Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
+                        userHandle.getIdentifier(), packageName);
+                throw new IllegalArgumentException("Package killable state is not updatable");
+            }
+            mUsageByUserPackage.put(key, usage);
+        }
     }
 
     /** Returns the list of package killable states on resource overuse for the user. */
     @NonNull
     public List<PackageKillableState> getPackageKillableStatesAsUser(UserHandle userHandle) {
         Objects.requireNonNull(userHandle, "User handle must be non-null");
-        // TODO(b/170741935): Implement this method.
-        return new ArrayList<>();
+        PackageManager pm = mContext.getPackageManager();
+        if (userHandle != UserHandle.ALL) {
+            return getPackageKillableStatesForUserId(userHandle.getIdentifier(), pm);
+        }
+        List<PackageKillableState> packageKillableStates = new ArrayList<>();
+        UserManager userManager = UserManager.get(mContext);
+        List<UserInfo> userInfos = userManager.getAliveUsers();
+        for (UserInfo userInfo : userInfos) {
+            packageKillableStates.addAll(getPackageKillableStatesForUserId(userInfo.id, pm));
+        }
+        return packageKillableStates;
+    }
+
+    private List<PackageKillableState> getPackageKillableStatesForUserId(int userId,
+            PackageManager pm) {
+        List<PackageInfo> packageInfos = pm.getInstalledPackagesAsUser(/* flags= */0, userId);
+        List<PackageKillableState> states = new ArrayList<>();
+        synchronized (mLock) {
+            for (int i = 0; i < packageInfos.size(); ++i) {
+                PackageInfo packageInfo = packageInfos.get(i);
+                String key = getUserPackageUniqueId(userId, packageInfo.packageName);
+                PackageResourceUsage usage = mUsageByUserPackage.getOrDefault(key,
+                        new PackageResourceUsage(userId, packageInfo.packageName));
+                int killableState = usage.syncAndFetchKillableStateLocked(
+                        mPackageInfoHandler.getComponentType(packageInfo.packageName,
+                                packageInfo.applicationInfo));
+                mUsageByUserPackage.put(key, usage);
+                states.add(
+                        new PackageKillableState(packageInfo.packageName, userId, killableState));
+            }
+        }
+        return states;
     }
 
     /** Sets the given resource overuse configurations. */
@@ -303,6 +381,7 @@ public final class WatchdogPerfHandler {
             Slogf.w(TAG, "Failed to set resource overuse configurations: %s", e);
             throw new IllegalStateException(e);
         }
+        /* TODO(b/185287136): Fetch safe-to-kill list from daemon and update mSafeToKillPackages. */
     }
 
     /** Returns the available resource overuse configurations. */
@@ -369,7 +448,6 @@ public final class WatchdogPerfHandler {
                  * #2 The package has no recurring overuse behavior and the user opted to not
                  *    kill the package so honor the user's decision.
                  */
-                String userPackageId = getUserPackageUniqueId(userId, packageName);
                 int killableState = usage.getKillableState();
                 if (killableState == KILLABLE_STATE_NEVER) {
                     mOveruseActionsByUserPackage.add(overuseAction);
@@ -501,14 +579,14 @@ public final class WatchdogPerfHandler {
         String key = getUserPackageUniqueId(userId, packageName);
         PackageResourceUsage usage = mUsageByUserPackage.getOrDefault(key,
                 new PackageResourceUsage(userId, packageName));
-        usage.update(internalStats);
+        usage.updateLocked(internalStats);
         mUsageByUserPackage.put(key, usage);
         return usage;
     }
 
     private boolean isRecurringOveruseLocked(PackageResourceUsage ioUsage) {
         /*
-         * TODO(b/170741935): Look up I/O overuse history and determine whether or not the package
+         * TODO(b/185287136): Look up I/O overuse history and determine whether or not the package
          *  has recurring I/O overuse behavior.
          */
         return false;
@@ -824,7 +902,7 @@ public final class WatchdogPerfHandler {
         }
     }
 
-    private static final class PackageResourceUsage {
+    private final class PackageResourceUsage {
         public final String packageName;
         public @UserIdInt final int userId;
         public final PackageIoUsage ioUsage;
@@ -832,15 +910,17 @@ public final class WatchdogPerfHandler {
 
         private @KillableState int mKillableState;
 
+        /** Must be called only after acquiring {@link mLock} */
         PackageResourceUsage(@UserIdInt int userId, String packageName) {
             this.packageName = packageName;
             this.userId = userId;
             this.ioUsage = new PackageIoUsage();
             this.oldEnabledState = -1;
-            this.mKillableState = KILLABLE_STATE_YES;
+            this.mKillableState = mDefaultNotKillablePackages.contains(packageName)
+                    ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
         }
 
-        public void update(android.automotive.watchdog.IoOveruseStats internalStats) {
+        public void updateLocked(android.automotive.watchdog.IoOveruseStats internalStats) {
             if (!internalStats.killableOnOveruse) {
                 /*
                  * Killable value specified in the internal stats is provided by the native daemon.
@@ -849,7 +929,14 @@ public final class WatchdogPerfHandler {
                  * vendor services and doesn't reflect the user choices. Thus if the internal stats
                  * specify the application is not killable, the application is not safe-to-kill.
                  */
-                this.mKillableState = KILLABLE_STATE_NEVER;
+                mKillableState = KILLABLE_STATE_NEVER;
+            } else if (mKillableState == KILLABLE_STATE_NEVER) {
+                /*
+                 * This case happens when a previously unsafe to kill system/vendor package was
+                 * recently marked as safe-to-kill so update the old state to the default value.
+                 */
+                mKillableState = mDefaultNotKillablePackages.contains(packageName)
+                        ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
             }
             ioUsage.update(internalStats);
         }
@@ -858,7 +945,7 @@ public final class WatchdogPerfHandler {
             IoOveruseStats ioOveruseStats = null;
             if (ioUsage.hasUsage()) {
                 ioOveruseStats = ioUsage.getStatsBuilder().setKillableOnOveruse(
-                        mKillableState != PackageKillableState.KILLABLE_STATE_NEVER).build();
+                        mKillableState != KILLABLE_STATE_NEVER).build();
             }
 
             return new ResourceOveruseStats.Builder(packageName, UserHandle.of(userId))
@@ -870,11 +957,29 @@ public final class WatchdogPerfHandler {
         }
 
         public boolean setKillableState(boolean isKillable) {
-            if (mKillableState == PackageKillableState.KILLABLE_STATE_NEVER) {
+            if (mKillableState == KILLABLE_STATE_NEVER) {
                 return false;
             }
             mKillableState = isKillable ? KILLABLE_STATE_YES : KILLABLE_STATE_NO;
             return true;
+        }
+
+        public int syncAndFetchKillableStateLocked(int myComponentType) {
+            /*
+             * The killable state goes out-of-sync:
+             * 1. When the on-device safe-to-kill list is recently updated and the user package
+             * didn't have any resource usage so the native daemon didn't update the killable state.
+             * 2. When a package has no resource usage and is initialized outside of processing the
+             * latest resource usage stats.
+             */
+            if (myComponentType != ComponentType.THIRD_PARTY
+                    && !mSafeToKillPackages.contains(packageName)) {
+                mKillableState = KILLABLE_STATE_NEVER;
+            } else if (mKillableState == KILLABLE_STATE_NEVER) {
+                mKillableState = mDefaultNotKillablePackages.contains(packageName)
+                        ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
+            }
+            return mKillableState;
         }
     }
 
