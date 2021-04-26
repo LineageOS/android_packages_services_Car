@@ -18,6 +18,7 @@
 #define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
 
 #include <android-base/result.h>
+#include <android-base/stringprintf.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
 
@@ -86,6 +87,10 @@ struct UidIoUsage {
     UidIoUsage& operator-=(const UidIoUsage& rhs) {
         ios -= rhs.ios;
         return *this;
+    }
+    bool operator==(const UidIoUsage& rhs) const { return uid == rhs.uid && ios == rhs.ios; }
+    std::string toString() const {
+        return android::base::StringPrintf("Uid: %d, Usage: {%s}", uid, ios.toString().c_str());
     }
 };
 
