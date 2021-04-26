@@ -177,9 +177,24 @@ public final class WatchdogPerfHandler {
                 "Must provide valid resource overuse flag");
         Preconditions.checkArgument((maxStatsPeriod > 0),
                 "Must provide valid maximum stats period");
-        // TODO(b/170741935): Implement this method.
-        return new ResourceOveruseStats.Builder("",
-                UserHandle.getUserHandleForUid(Binder.getCallingUid())).build();
+        // When more resource stats are added, make this as optional.
+        Preconditions.checkArgument((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0,
+                "Must provide resource I/O overuse flag");
+        int callingUid = Binder.getCallingUid();
+        int callingUserId = UserHandle.getUserId(callingUid);
+        UserHandle callingUserHandle = UserHandle.of(callingUserId);
+        String callingPackageName =
+                mPackageInfoHandler.getPackageNamesForUids(new int[]{callingUid})
+                        .get(callingUid, null);
+        if (callingPackageName == null) {
+            Slogf.w(TAG, "Failed to fetch package info for uid %d", callingUid);
+            return new ResourceOveruseStats.Builder("", callingUserHandle).build();
+        }
+        ResourceOveruseStats.Builder statsBuilder =
+                new ResourceOveruseStats.Builder(callingPackageName, callingUserHandle);
+        statsBuilder.setIoOveruseStats(getIoOveruseStats(callingUserId, callingPackageName,
+                /* minimumBytesWritten= */ 0, maxStatsPeriod));
+        return statsBuilder.build();
     }
 
     /** Returns resource overuse stats for all packages. */
@@ -192,8 +207,21 @@ public final class WatchdogPerfHandler {
                 "Must provide valid resource overuse flag");
         Preconditions.checkArgument((maxStatsPeriod > 0),
                 "Must provide valid maximum stats period");
-        // TODO(b/170741935): Implement this method.
-        return new ArrayList<>();
+        // When more resource types are added, make this as optional.
+        Preconditions.checkArgument((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0,
+                "Must provide resource I/O overuse flag");
+        long minimumBytesWritten = getMinimumBytesWritten(minimumStatsFlag);
+        List<ResourceOveruseStats> allStats = new ArrayList<>();
+        for (PackageResourceUsage usage : mUsageByUserPackage.values()) {
+            ResourceOveruseStats.Builder statsBuilder = usage.getResourceOveruseStatsBuilder();
+            IoOveruseStats ioOveruseStats = getIoOveruseStats(usage.userId, usage.packageName,
+                    minimumBytesWritten, maxStatsPeriod);
+            if (ioOveruseStats == null) {
+                continue;
+            }
+            allStats.add(statsBuilder.setIoOveruseStats(ioOveruseStats).build());
+        }
+        return allStats;
     }
 
     /** Returns resource overuse stats for the specified user package. */
@@ -204,12 +232,20 @@ public final class WatchdogPerfHandler {
             @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
         Objects.requireNonNull(packageName, "Package name must be non-null");
         Objects.requireNonNull(userHandle, "User handle must be non-null");
+        Preconditions.checkArgument((userHandle != UserHandle.ALL),
+                "Must provide the user handle for a specific user");
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
         Preconditions.checkArgument((maxStatsPeriod > 0),
                 "Must provide valid maximum stats period");
-        // TODO(b/170741935): Implement this method.
-        return new ResourceOveruseStats.Builder("", userHandle).build();
+        // When more resource types are added, make this as optional.
+        Preconditions.checkArgument((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0,
+                "Must provide resource I/O overuse flag");
+        ResourceOveruseStats.Builder statsBuilder =
+                new ResourceOveruseStats.Builder(packageName, userHandle);
+        statsBuilder.setIoOveruseStats(getIoOveruseStats(userHandle.getIdentifier(), packageName,
+                /* minimumBytesWritten= */ 0, maxStatsPeriod));
+        return statsBuilder.build();
     }
 
     /** Adds the resource overuse listener. */
@@ -430,9 +466,12 @@ public final class WatchdogPerfHandler {
                      * and only the daemon is aware of such packages. Thus the flag is used to
                      * indicate which packages should be notified.
                      */
-                    notifyResourceOveruseStatsLocked(stats.uid,
-                            usage.getResourceOveruseStatsWithIo());
+                    ResourceOveruseStats resourceOveruseStats =
+                            usage.getResourceOveruseStatsBuilder().setIoOveruseStats(
+                                    usage.getIoOveruseStats()).build();
+                    notifyResourceOveruseStatsLocked(stats.uid, resourceOveruseStats);
                 }
+
                 if (!usage.ioUsage.exceedsThreshold()) {
                     continue;
                 }
@@ -592,6 +631,26 @@ public final class WatchdogPerfHandler {
         return false;
     }
 
+    private IoOveruseStats getIoOveruseStats(int userId, String packageName,
+            long minimumBytesWritten, @CarWatchdogManager.StatsPeriod int maxStatsPeriod) {
+        String key = getUserPackageUniqueId(userId, packageName);
+        PackageResourceUsage usage = mUsageByUserPackage.get(key);
+        if (usage == null) {
+            return null;
+        }
+        IoOveruseStats stats = usage.getIoOveruseStats();
+        long totalBytesWritten = stats != null ? stats.getTotalBytesWritten() : 0;
+        /*
+         * TODO(b/185431129): When maxStatsPeriod > current day, populate the historical stats
+         *  from the local database. Also handle the case where the package doesn't have current
+         *  day stats but has historical stats.
+         */
+        if (totalBytesWritten < minimumBytesWritten) {
+            return null;
+        }
+        return stats;
+    }
+
     private void addResourceOveruseListenerLocked(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener,
@@ -693,6 +752,23 @@ public final class WatchdogPerfHandler {
         };
         return sum.apply(sum.apply(internalPerStateBytes.foregroundBytes,
                 internalPerStateBytes.backgroundBytes), internalPerStateBytes.garageModeBytes);
+    }
+
+    private static long getMinimumBytesWritten(
+            @CarWatchdogManager.MinimumStatsFlag int minimumStatsIoFlag) {
+        switch (minimumStatsIoFlag) {
+            case 0:
+                return 0;
+            case CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_MB:
+                return 1024 * 1024;
+            case CarWatchdogManager.FLAG_MINIMUM_STATS_IO_100_MB:
+                return 100 * 1024 * 1024;
+            case CarWatchdogManager.FLAG_MINIMUM_STATS_IO_1_GB:
+                return 1024 * 1024 * 1024;
+            default:
+                throw new IllegalArgumentException(
+                        "Must provide valid minimum stats flag for I/O resource");
+        }
     }
 
     private static android.automotive.watchdog.internal.ResourceOveruseConfiguration
@@ -941,15 +1017,16 @@ public final class WatchdogPerfHandler {
             ioUsage.update(internalStats);
         }
 
-        public ResourceOveruseStats getResourceOveruseStatsWithIo() {
-            IoOveruseStats ioOveruseStats = null;
-            if (ioUsage.hasUsage()) {
-                ioOveruseStats = ioUsage.getStatsBuilder().setKillableOnOveruse(
-                        mKillableState != KILLABLE_STATE_NEVER).build();
-            }
+        public ResourceOveruseStats.Builder getResourceOveruseStatsBuilder() {
+            return new ResourceOveruseStats.Builder(packageName, UserHandle.of(userId));
+        }
 
-            return new ResourceOveruseStats.Builder(packageName, UserHandle.of(userId))
-                    .setIoOveruseStats(ioOveruseStats).build();
+        public IoOveruseStats getIoOveruseStats() {
+            if (!ioUsage.hasUsage()) {
+                return null;
+            }
+            return ioUsage.getStatsBuilder().setKillableOnOveruse(
+                        mKillableState != KILLABLE_STATE_NEVER).build();
         }
 
         public @KillableState int getKillableState() {
