@@ -104,6 +104,8 @@ protected:
     }
 
 private:
+    void checkAndRegisterIoOveruseMonitor();
+
     android::sp<WatchdogBinderMediator> mBinderMediator;
     android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper;
     android::sp<WatchdogProcessService> mWatchdogProcessService;

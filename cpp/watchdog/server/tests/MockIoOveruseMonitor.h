@@ -35,6 +35,7 @@ public:
         ON_CALL(*this, name()).WillByDefault(::testing::Return("MockIoOveruseMonitor"));
     }
     ~MockIoOveruseMonitor() {}
+    MOCK_METHOD(bool, isInitialized, (), (override));
     MOCK_METHOD(android::base::Result<void>, updateResourceOveruseConfigurations,
                 (const std::vector<
                         android::automotive::watchdog::internal::ResourceOveruseConfiguration>&),
