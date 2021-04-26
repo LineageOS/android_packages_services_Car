@@ -48,6 +48,7 @@ using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageResourceOveruseAction;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
+using ::android::String16;
 using ::android::base::Result;
 using ::android::binder::Status;
 using ::testing::_;
@@ -67,7 +68,7 @@ public:
                                          -> Result<void> { return Result<void>{}; }) {}
     ~MockWatchdogBinderMediator() {}
 
-    MOCK_METHOD(status_t, dump, (int fd, const Vector<String16>& args), (override));
+    MOCK_METHOD(status_t, dump, (int fd, const Vector<android::String16>& args), (override));
 };
 
 class ScopedChangeCallingUid : public RefBase {

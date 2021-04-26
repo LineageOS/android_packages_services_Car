@@ -36,6 +36,7 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::String16;
+using ::android::String8;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;

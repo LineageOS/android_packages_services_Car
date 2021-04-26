@@ -50,7 +50,7 @@ constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
 namespace {
 
 std::string uniquePackageIdStr(const PackageIdentifier& id) {
-    return StringPrintf("%s:%" PRId32, String8(id.name).c_str(), multiuser_get_user_id(id.uid));
+    return StringPrintf("%s:%" PRId32, id.name.c_str(), multiuser_get_user_id(id.uid));
 }
 
 PerStateBytes diff(const PerStateBytes& lhs, const PerStateBytes& rhs) {

@@ -23,7 +23,7 @@ parcelable PackageIdentifier {
   /**
    * Name of the package.
    */
-  String name;
+  @utf8InCpp String name;
 
   /**
    * UID of the package.

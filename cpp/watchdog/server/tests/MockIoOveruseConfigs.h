@@ -71,8 +71,7 @@ public:
                 .WillByDefault([perPackageConfig = perPackageConfig](
                                        const android::automotive::watchdog::internal::PackageInfo&
                                                packageInfo) {
-                    const std::string packageName =
-                            std::string(String8(packageInfo.packageIdentifier.name));
+                    const std::string packageName = packageInfo.packageIdentifier.name;
                     if (const auto it = perPackageConfig.find(packageName);
                         it != perPackageConfig.end()) {
                         return it->second.threshold;
@@ -83,8 +82,7 @@ public:
                 .WillByDefault([perPackageConfig = perPackageConfig](
                                        const android::automotive::watchdog::internal::PackageInfo&
                                                packageInfo) {
-                    const std::string packageName =
-                            std::string(String8(packageInfo.packageIdentifier.name));
+                    const std::string packageName = packageInfo.packageIdentifier.name;
                     if (const auto it = perPackageConfig.find(packageName);
                         it != perPackageConfig.end()) {
                         return it->second.isSafeToKill;

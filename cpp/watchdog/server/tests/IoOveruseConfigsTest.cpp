@@ -18,7 +18,6 @@
 
 #include <android-base/strings.h>
 #include <gmock/gmock.h>
-#include <utils/String8.h>
 
 #include <inttypes.h>
 
@@ -27,8 +26,6 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::sp;
-using ::android::String16;
-using ::android::String8;
 using ::android::automotive::watchdog::internal::ApplicationCategoryType;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
@@ -86,7 +83,7 @@ const std::vector<IoOveruseAlertThreshold> ALERT_THRESHOLDS = {toIoOveruseAlertT
 PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
                                                         const PerStateBytes& perStateBytes) {
     PerStateIoOveruseThreshold threshold;
-    threshold.name = String16(String8(name.c_str()));
+    threshold.name = name;
     threshold.perStateWriteBytes = perStateBytes;
     return threshold;
 }
@@ -101,7 +98,7 @@ PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
                                                         const int64_t bgBytes,
                                                         const int64_t garageModeBytes) {
     PerStateIoOveruseThreshold threshold;
-    threshold.name = String16(String8(name.c_str()));
+    threshold.name = name;
     threshold.perStateWriteBytes = toPerStateBytes(fgBytes, bgBytes, garageModeBytes);
     return threshold;
 }
@@ -133,21 +130,11 @@ PackageInfo constructPackageInfo(
         const char* packageName, const ComponentType componentType,
         const ApplicationCategoryType appCategoryType = ApplicationCategoryType::OTHERS) {
     PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = String16(packageName);
+    packageInfo.packageIdentifier.name = packageName;
     packageInfo.uidType = UidType::APPLICATION;
     packageInfo.componentType = componentType;
     packageInfo.appCategoryType = appCategoryType;
     return packageInfo;
-}
-
-std::vector<String16> toString16Vector(const std::vector<std::string>& values) {
-    std::vector<String16> output;
-    for (const auto& v : values) {
-        if (!v.empty()) {
-            output.emplace_back(String16(String8(v.c_str())));
-        }
-    }
-    return output;
 }
 
 ResourceOveruseConfiguration constructResourceOveruseConfig(
@@ -157,8 +144,8 @@ ResourceOveruseConfiguration constructResourceOveruseConfig(
         const IoOveruseConfiguration& ioOveruseConfiguration) {
     ResourceOveruseConfiguration resourceOveruseConfig;
     resourceOveruseConfig.componentType = type;
-    resourceOveruseConfig.safeToKillPackages = toString16Vector(safeToKill);
-    resourceOveruseConfig.vendorPackagePrefixes = toString16Vector(vendorPrefixes);
+    resourceOveruseConfig.safeToKillPackages = safeToKill;
+    resourceOveruseConfig.vendorPackagePrefixes = vendorPrefixes;
     resourceOveruseConfig.packageMetadata = packageMetadata;
     ResourceSpecificConfiguration config;
     config.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(ioOveruseConfiguration);
@@ -318,7 +305,7 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
     ASSERT_RESULT_OK(ioOveruseConfigs.update(
             {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig}));
 
-    vendorResourceConfig.vendorPackagePrefixes.push_back(String16(String8("vendorPkgB")));
+    vendorResourceConfig.vendorPackagePrefixes.push_back("vendorPkgB");
     std::vector<ResourceOveruseConfiguration> expected = {systemResourceConfig,
                                                           vendorResourceConfig,
                                                           thirdPartyResourceConfig};
@@ -755,7 +742,7 @@ TEST(IoOveruseConfigsTest, TestIsSafeToKillNativePackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = String16("native package");
+    packageInfo.packageIdentifier.name = "native package";
     packageInfo.uidType = UidType::NATIVE;
     packageInfo.componentType = ComponentType::SYSTEM;
 

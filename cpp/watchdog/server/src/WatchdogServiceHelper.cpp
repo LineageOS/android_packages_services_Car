@@ -34,7 +34,6 @@ using aawi::PackageInfo;
 using aawi::PackageIoOveruseStats;
 using ::android::IBinder;
 using ::android::sp;
-using ::android::String16;
 using ::android::wp;
 using ::android::base::Error;
 using ::android::base::Result;
@@ -180,21 +179,17 @@ void WatchdogServiceHelper::unregisterServiceLocked() {
 Status WatchdogServiceHelper::getPackageInfosForUids(
         const std::vector<int32_t>& uids, const std::vector<std::string>& vendorPackagePrefixes,
         std::vector<PackageInfo>* packageInfos) {
-    /*
-     * The expected number of vendor package prefixes is in the order of 10s. Thus the overhead of
-     * forwarding these in each get call is very low.
-     */
-    std::vector<String16> prefixes;
-    for (const auto& prefix : vendorPackagePrefixes) {
-        prefixes.push_back(String16(prefix.c_str()));
-    }
     sp<ICarWatchdogServiceForSystem> service;
     if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
         return fromExceptionCode(Status::EX_ILLEGAL_STATE, "Watchdog service is not initialized");
     } else {
         service = mService;
     }
-    return service->getPackageInfosForUids(uids, prefixes, packageInfos);
+    /*
+     * The expected number of vendor package prefixes is in the order of 10s. Thus the overhead of
+     * forwarding these in each get call is very low.
+     */
+    return service->getPackageInfosForUids(uids, vendorPackagePrefixes, packageInfos);
 }
 
 Status WatchdogServiceHelper::latestIoOveruseStats(

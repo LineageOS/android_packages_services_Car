@@ -66,7 +66,7 @@ public:
     ~WatchdogBinderMediator() { terminate(); }
 
     // Implements ICarWatchdog.aidl APIs.
-    status_t dump(int fd, const Vector<String16>& args) override;
+    status_t dump(int fd, const Vector<android::String16>& args) override;
     android::binder::Status registerClient(const android::sp<ICarWatchdogClient>& client,
                                            TimeoutLength timeout) override;
     android::binder::Status unregisterClient(
