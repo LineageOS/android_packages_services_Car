@@ -92,16 +92,7 @@ public:
 class IoOveruseMonitor final : public IIoOveruseMonitor {
 public:
     explicit IoOveruseMonitor(
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
-          mWatchdogServiceHelper(watchdogServiceHelper),
-          mSystemWideWrittenBytes({}),
-          mPeriodicMonitorBufferSize(0),
-          mLastSystemWideIoMonitorTime(0),
-          mUserPackageDailyIoUsageById({}),
-          mIoOveruseWarnPercentage(0),
-          mLastUserPackageIoMonitorTime(0),
-          mOveruseListenersByUid({}),
-          mBinderDeathRecipient(new BinderDeathRecipient(this)) {}
+            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper);
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -187,6 +178,7 @@ private:
         PerStateBytes forgivenWriteBytes = {};
         int totalOveruses = 0;
         bool isPackageWarned = false;
+        uint64_t lastSyncedWrittenBytes = 0;
 
         UserPackageIoUsage& operator+=(const UserPackageIoUsage& r);
 
@@ -219,6 +211,8 @@ private:
 
     // Local IPackageInfoResolver instance. Useful to mock in tests.
     sp<IPackageInfoResolver> mPackageInfoResolver;
+    // Minimum written bytes to sync the stats with the Watchdog service.
+    double mMinSyncWrittenBytes;
 
     // Makes sure only one collection is running at any given time.
     mutable std::shared_mutex mRwMutex;

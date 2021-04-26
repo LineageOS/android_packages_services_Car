@@ -113,11 +113,16 @@ Result<void> UidIoStats::collect() {
 
     mDeltaUidIoUsages.clear();
     for (const auto& it : *uidIoUsages) {
-        const UidIoUsage& curUsage = it.second;
-        mDeltaUidIoUsages[it.first] = curUsage;
-        if (mLatestUidIoUsages.find(it.first) != mLatestUidIoUsages.end()) {
-            mDeltaUidIoUsages[it.first] -= mLatestUidIoUsages[it.first];
+        UidIoUsage curUsage = it.second;
+        if (curUsage.ios.isZero()) {
+            continue;
         }
+        if (mLatestUidIoUsages.find(it.first) != mLatestUidIoUsages.end()) {
+            if (curUsage -= mLatestUidIoUsages[it.first]; curUsage.ios.isZero()) {
+                continue;
+            }
+        }
+        mDeltaUidIoUsages[it.first] = curUsage;
     }
     mLatestUidIoUsages = *uidIoUsages;
     return {};
