@@ -694,6 +694,7 @@ public final class CarWatchdogManager extends CarManagerBase {
      * @param resourceOveruseFlag Flag to indicate the types of resource overuse configurations to
      *                            return.
      *
+     * @throws IllegalStateException if the system is in an invalid state.
      * @hide
      */
     @SystemApi
