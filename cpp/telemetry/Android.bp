@@ -50,6 +50,7 @@ cc_library {
         "src/RingBuffer.cpp",
         "src/TelemetryServer.cpp",
         "src/CarTelemetryInternalImpl.cpp",
+        "src/binderutils/BinderDeathRecipient.cpp",
     ],
     // Allow dependencies to use header files.
     export_include_dirs: [
@@ -65,6 +66,7 @@ cc_test {
     test_suites: ["general-tests"],
     srcs: [
         "tests/CarTelemetryImplTest.cpp",
+        "tests/CarTelemetryInternalImplTest.cpp",
         "tests/RingBufferTest.cpp",
     ],
     // Statically link only in tests, for portability reason.
