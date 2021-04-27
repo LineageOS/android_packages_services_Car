@@ -1243,22 +1243,16 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         return getCarAudioZone(zoneId).getInputAudioDevices();
     }
 
-    void disableAudio() {
-        // TODO(b/176258537) mute everything
+    void setAudioEnabled(boolean isAudioEnabled) {
         if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-            Slogf.d(CarLog.TAG_AUDIO, "Disabling audio");
+            Slogf.d(CarLog.TAG_AUDIO, "Setting isAudioEnabled to %b", isAudioEnabled);
         }
 
-        mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ true);
-    }
-
-    void enableAudio() {
-        // TODO(b/176258537) unmute appropriate things
-        if (Slogf.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-            Slogf.d(CarLog.TAG_AUDIO, "Enabling audio");
+        mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ !isAudioEnabled);
+        if (mUseCarVolumeGroupMuting) {
+            mCarVolumeGroupMuting.setRestrictMuting(/* isMutingRestricted= */ !isAudioEnabled);
         }
-
-        mFocusHandler.setRestrictFocus(/* isFocusRestricted= */ false);
+        // TODO(b/176258537) if not using group volume, then set master mute accordingly
     }
 
     private void enforcePermission(String permissionName) {

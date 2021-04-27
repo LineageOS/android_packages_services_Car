@@ -47,6 +47,7 @@ import java.util.Map;
 /* package */ final class CarVolumeGroup {
 
     private final boolean mUseCarVolumeGroupMute;
+    private final boolean mHasCriticalAudioContexts;
     private final CarAudioSettings mSettingsManager;
     private final int mDefaultGain;
     private final int mId;
@@ -83,6 +84,8 @@ import java.util.Map;
         mContextToAddress = contextToAddress;
         mAddressToCarAudioDeviceInfo = addressToCarAudioDeviceInfo;
         mUseCarVolumeGroupMute = useCarVolumeGroupMute;
+
+        mHasCriticalAudioContexts = containsCriticalAudioContext(contextToAddress);
     }
 
     void init() {
@@ -177,6 +180,10 @@ import java.util.Map;
         return mAddressToCarAudioDeviceInfo.get(address).getAudioDevicePort();
     }
 
+    boolean hasCriticalAudioContexts() {
+        return mHasCriticalAudioContexts;
+    }
+
     @Override
     public String toString() {
         return "CarVolumeGroup id: " + mId
@@ -239,6 +246,16 @@ import java.util.Map;
         synchronized (mLock) {
             return mIsMuted;
         }
+    }
+
+    private static boolean containsCriticalAudioContext(SparseArray<String> contextToAddress) {
+        for (int i = 0; i < contextToAddress.size(); i++) {
+            int audioContext = contextToAddress.keyAt(i);
+            if (CarAudioContext.isCriticalAudioContext(audioContext)) {
+                return true;
+            }
+        }
+        return false;
     }
 
     @GuardedBy("mLock")

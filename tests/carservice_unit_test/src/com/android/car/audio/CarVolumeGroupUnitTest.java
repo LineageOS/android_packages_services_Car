@@ -486,6 +486,22 @@ public class CarVolumeGroupUnitTest {
         assertThat(carVolumeGroup.isMuted()).isFalse();
     }
 
+    @Test
+    public void hasCriticalAudioContexts_withoutCriticalContexts_returnsFalse() {
+        CarVolumeGroup carVolumeGroup = getCarVolumeGroupWithMusicBound();
+
+        assertThat(carVolumeGroup.hasCriticalAudioContexts()).isFalse();
+    }
+
+    @Test
+    public void hasCriticalAudioContexts_withCriticalContexts_returnsTrue() {
+        CarVolumeGroup carVolumeGroup = getBuilder()
+                .setDeviceInfoForContext(CarAudioContext.EMERGENCY, mMediaDeviceInfo)
+                .build();
+
+        assertThat(carVolumeGroup.hasCriticalAudioContexts()).isTrue();
+    }
+
     private CarVolumeGroup getCarVolumeGroupWithMusicBound() {
         return getBuilder()
                 .setDeviceInfoForContext(CarAudioContext.MUSIC, mMediaDeviceInfo)

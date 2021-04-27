@@ -44,6 +44,8 @@ final class CarVolumeGroupMuting {
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private List<MutingInfo> mLastMutingInformation;
+    @GuardedBy("mLock")
+    private boolean mIsMutingRestricted;
 
     CarVolumeGroupMuting(@NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull AudioControlWrapper audioControlWrapper) {
@@ -72,9 +74,24 @@ final class CarVolumeGroupMuting {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slog.d(TAG, "carMuteChanged");
         }
+
         List<MutingInfo> mutingInfo = generateMutingInfo();
         setLastMutingInfo(mutingInfo);
         mAudioControlWrapper.onDevicesToMuteChange(mutingInfo);
+    }
+
+    public void setRestrictMuting(boolean isMutingRestricted) {
+        synchronized (mLock) {
+            mIsMutingRestricted = isMutingRestricted;
+        }
+
+        carMuteChanged();
+    }
+
+    private boolean isMutingRestricted() {
+        synchronized (mLock) {
+            return mIsMutingRestricted;
+        }
     }
 
     private void setLastMutingInfo(List<MutingInfo> mutingInfo) {
@@ -92,8 +109,11 @@ final class CarVolumeGroupMuting {
 
     private List<MutingInfo> generateMutingInfo() {
         List<MutingInfo> mutingInformation = new ArrayList<>(mCarAudioZones.size());
+
+        boolean isMutingRestricted = isMutingRestricted();
         for (int index = 0; index < mCarAudioZones.size(); index++) {
-            mutingInformation.add(generateMutingInfoFromZone(mCarAudioZones.valueAt(index)));
+            mutingInformation.add(generateMutingInfoFromZone(mCarAudioZones.valueAt(index),
+                    isMutingRestricted));
         }
 
         return mutingInformation;
@@ -106,6 +126,7 @@ final class CarVolumeGroupMuting {
         writer.println(TAG);
         writer.increaseIndent();
         synchronized (mLock) {
+            writer.printf("Is muting restricted? %b\n", mIsMutingRestricted);
             for (int index = 0; index < mLastMutingInformation.size(); index++) {
                 dumpCarMutingInfo(writer, mLastMutingInformation.get(index));
             }
@@ -134,7 +155,8 @@ final class CarVolumeGroupMuting {
     }
 
     @VisibleForTesting
-    static MutingInfo generateMutingInfoFromZone(CarAudioZone audioZone) {
+    static MutingInfo generateMutingInfoFromZone(CarAudioZone audioZone,
+            boolean isMutingRestricted) {
         MutingInfo mutingInfo = new MutingInfo();
         mutingInfo.zoneId = audioZone.getId();
 
@@ -144,11 +166,12 @@ final class CarVolumeGroupMuting {
 
         for (int groupIndex = 0; groupIndex < groups.length; groupIndex++) {
             CarVolumeGroup group = groups[groupIndex];
-            if (group.isMuted()) {
+
+            if (group.isMuted() || (isMutingRestricted && !group.hasCriticalAudioContexts())) {
                 mutedDevices.addAll(group.getAddresses());
-                continue;
+            } else {
+                unMutedDevices.addAll(group.getAddresses());
             }
-            unMutedDevices.addAll(group.getAddresses());
         }
 
         mutingInfo.deviceAddressesToMute = mutedDevices.toArray(new String[mutedDevices.size()]);
