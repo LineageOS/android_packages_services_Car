@@ -90,6 +90,8 @@ option java_package com.android.car.internal.common
 150122 car_user_svc_notify_internal_lifecycle_listener (listener_name|3),(event_type|1),(from_user_id|1),(to_user_id|1)
 150123 car_user_svc_pre_creation_requested (number_users|1),(number_guests|1)
 150124 car_user_svc_pre_creation_status (number_existing_users|1),(number_users_to_add|1),(number_users_to_remove|1),(number_existing_guests|1),(number_guests_to_add|1),(number_guests_to_remove|1),(number_invalid_users_to_remove|1)
+150125 car_user_svc_start_user_in_background_req (user_id|1)
+150126 car_user_svc_start_user_in_background_resp (user_id|1),(result|1)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
 150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)
@@ -127,3 +129,5 @@ option java_package com.android.car.internal.common
 150201 car_dp_mgr_remove_user_resp (uid|1),(status|1)
 150202 car_dp_mgr_create_user_req (uid|1),(safe_name|3),(flags|1)
 150203 car_dp_mgr_create_user_resp (uid|1),(status|1)
+150204 car_dp_mgr_start_user_in_background_req (uid|1),(user_id|1)
+150205 car_dp_mgr_start_user_in_background_resp (uid|1),(status|1)

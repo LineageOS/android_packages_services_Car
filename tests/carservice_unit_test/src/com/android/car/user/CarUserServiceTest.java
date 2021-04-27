@@ -1861,6 +1861,17 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testStartUserInBackground_permissionDenied() throws Exception {
+        int userId = 101;
+        mockManageUsersPermission(android.Manifest.permission.MANAGE_USERS, false);
+        mockManageUsersPermission(android.Manifest.permission.CREATE_USERS, false);
+
+        AndroidFuture<UserStartResult> userStartResult = new AndroidFuture<>();
+        assertThrows(SecurityException.class,
+                () -> mCarUserService.startUserInBackground(userId, userStartResult));
+    }
+
+    @Test
     public void testStartUserInBackground_fail() throws Exception {
         int userId = 101;
         UserInfo userInfo = new UserInfo(userId, "user1", NO_USER_INFO_FLAGS);
