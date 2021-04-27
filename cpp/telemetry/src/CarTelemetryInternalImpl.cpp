@@ -14,39 +14,38 @@
  * limitations under the License.
  */
 
-#include "CarTelemetryImpl.h"
+#include "CarTelemetryInternalImpl.h"
 
 #include "BufferedCarData.h"
 
 #include <android-base/logging.h>
-#include <android/frameworks/automotive/telemetry/CarData.h>
-#include <binder/IPCThreadState.h>
-
-#include <stdio.h>
-
-#include <memory>
+#include <android/automotive/telemetry/internal/CarDataInternal.h>
+#include <android/automotive/telemetry/internal/ICarDataListener.h>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
+using ::android::sp;
+using ::android::automotive::telemetry::internal::CarDataInternal;
+using ::android::automotive::telemetry::internal::ICarDataListener;
 using ::android::binder::Status;
-using ::android::frameworks::automotive::telemetry::CarData;
 
-CarTelemetryImpl::CarTelemetryImpl(RingBuffer* buffer) : mRingBuffer(buffer) {}
+CarTelemetryInternalImpl::CarTelemetryInternalImpl(RingBuffer* buffer) : mRingBuffer(buffer) {}
 
-// TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
-Status CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
-    uid_t uid = IPCThreadState::self()->getCallingUid();
-    // NOTE: CarData here will be coped to BufferedCarData, as we don't know what Binder will do
-    //       with the current allocated CarData.
-    for (auto& carData : dataList) {
-        mRingBuffer->push(BufferedCarData(carData, uid));
-    }
+Status CarTelemetryInternalImpl::setListener(const sp<ICarDataListener>& listener) {
+    // TODO(b/182608968): implement
     return Status::ok();
 }
 
-status_t CarTelemetryImpl::dump(int fd, const android::Vector<android::String16>& args) {
+Status CarTelemetryInternalImpl::clearListener() {
+    // TODO(b/182608968): implement
+    return Status::ok();
+}
+
+status_t CarTelemetryInternalImpl::dump(int fd, const android::Vector<android::String16>& args) {
+    dprintf(fd, "ICarTelemetryInternal:\n");
+    mRingBuffer->dump(fd);
     return android::OK;
 }
 }  // namespace telemetry

@@ -14,23 +14,19 @@
  * limitations under the License.
  */
 
-#include "TelemetryServer.h"
+package android.automotive.telemetry.internal;
 
-#include <android-base/logging.h>
+/**
+ * Wrapper for {@code android.frameworks.automotive.telemetry.CarData}.
+ */
+parcelable CarDataInternal {
+  /**
+   * Must be a valid id. Scripts subscribe to data using this id.
+   */
+  int id;
 
-using ::android::automotive::telemetry::TelemetryServer;
-
-// TODO(b/174608802): handle SIGQUIT/SIGTERM
-
-int main(void) {
-    LOG(INFO) << "Starting cartelemetryd";
-
-    TelemetryServer server;
-
-    // Register AIDL services. Aborts the server if fails.
-    server.registerServices();
-
-    LOG(VERBOSE) << "Service is created, joining the threadpool";
-    server.startAndJoinThreadPool();
-    return 1;  // never reaches
+  /**
+   * Content corresponding to the schema defined by the id.
+   */
+  byte[] content;
 }
