@@ -111,14 +111,16 @@ public final class WatchdogPerfHandler {
     @GuardedBy("mLock")
     private final SparseArray<ResourceOveruseListenerInfo> mOveruseSystemListenerInfosByUid =
             new SparseArray<>();
-    @GuardedBy("mLock")
-    private ZonedDateTime mLastStatsReportUTC;
     /* Set of safe-to-kill system and vendor packages. */
     @GuardedBy("mLock")
     public final Set<String> mSafeToKillPackages = new ArraySet<>();
     /* Default killable state for packages when not updated by the user. */
     @GuardedBy("mLock")
     public final Set<String> mDefaultNotKillablePackages = new ArraySet<>();
+    @GuardedBy("mLock")
+    private ZonedDateTime mLastStatsReportUTC;
+    @GuardedBy("mLock")
+    boolean mIsConnectedToDaemon;
 
     public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
             PackageInfoHandler packageInfoHandler) {
@@ -161,6 +163,21 @@ public final class WatchdogPerfHandler {
         /*
          * TODO(b/183436216): Implement this method.
          */
+    }
+
+    /** Retries any pending requests on re-connecting to the daemon */
+    public void onDaemonConnectionChange(boolean isConnected) {
+        synchronized (mLock) {
+            mIsConnectedToDaemon = isConnected;
+        }
+        if (isConnected) {
+            /*
+             * TODO(b/186119640):
+             *  1. Retry the setResourceOveruseConfigurations requests from local cache.
+             *  2. Notify the synchronization object so any waiting
+             *  getResourceOveruseConfigurations requests will be processed.
+             */
+        }
     }
 
     /** Returns resource overuse stats for the calling package. */
@@ -407,7 +424,8 @@ public final class WatchdogPerfHandler {
     }
 
     /** Sets the given resource overuse configurations. */
-    public void setResourceOveruseConfigurations(
+    @CarWatchdogManager.ReturnCode
+    public int setResourceOveruseConfigurations(
             List<ResourceOveruseConfiguration> configurations,
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         Objects.requireNonNull(configurations, "Configurations must be non-null");
@@ -419,6 +437,10 @@ public final class WatchdogPerfHandler {
         List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
                 new ArrayList<>();
         for (ResourceOveruseConfiguration config : configurations) {
+            /*
+             * TODO(b/185287136): Make sure the validation done here matches the validation done in
+             *  the daemon so set requests retried at a later time will complete successfully.
+             */
             int componentType = config.getComponentType();
             if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
                 throw new IllegalArgumentException("Invalid component type in the configuration");
@@ -436,20 +458,30 @@ public final class WatchdogPerfHandler {
                     resourceOveruseFlag));
         }
 
-        // TODO(b/186119640): Add retry logic when daemon is not available.
+        synchronized (mLock) {
+            if (!mIsConnectedToDaemon) {
+                /* TODO(b/186119640): Add the configs to a local cache. */
+                return CarWatchdogManager.RETURN_CODE_SUCCESS;
+            }
+        }
+        /* TODO(b/186119640): Retry the pending set requests before processing new requests. */
         try {
             mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(internalConfigs);
         } catch (IllegalArgumentException e) {
-            Slogf.w(CarWatchdogService.TAG, "Failed to set resource overuse configurations: %s", e);
+            Slogf.w(CarWatchdogService.TAG,
+                    "Illegal argument exception on set resource overuse configurations: %s", e);
             throw e;
-        } catch (RemoteException | RuntimeException e) {
-            Slogf.w(CarWatchdogService.TAG, "Failed to set resource overuse configurations: %s", e);
-            throw new IllegalStateException(e);
+        } catch (RemoteException e) {
+            Slogf.w(CarWatchdogService.TAG,
+                    "Remote exception on set resource overuse configurations: %s", e);
+            /* TODO(b/186119640): Add the configs to a local cache. */
+            return CarWatchdogManager.RETURN_CODE_SUCCESS;
         }
         /* TODO(b/185287136): Fetch safe-to-kill list from daemon and update mSafeToKillPackages. */
         if (CarWatchdogService.DEBUG) {
             Slogf.d(CarWatchdogService.TAG, "Set the resource overuse configuration successfully");
         }
+        return CarWatchdogManager.RETURN_CODE_SUCCESS;
     }
 
     /** Returns the available resource overuse configurations. */
@@ -458,9 +490,12 @@ public final class WatchdogPerfHandler {
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
+        if (!isConenctedToDaemon()) {
+            throw new IllegalStateException("Car watchdog daemon is not connected");
+        }
+        /* TODO(b/186119640): Retry the pending set requests before processing new requests. */
         List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
                 new ArrayList<>();
-        // TODO(b/186119640): Add retry logic when daemon is not available.
         try {
             internalConfigs = mCarWatchdogDaemonHelper.getResourceOveruseConfigurations();
         } catch (RemoteException | RuntimeException e) {
@@ -788,6 +823,19 @@ public final class WatchdogPerfHandler {
                 mOveruseListenerInfosByUid.remove(uid);
             }
         }
+    }
+
+    private boolean isConenctedToDaemon() {
+        synchronized (mLock) {
+            if (mIsConnectedToDaemon) {
+                return true;
+            }
+        }
+        /*
+         * TODO(b/185287136): Wait on a synchronization object until timeout when the daemon is not
+         *  connected. After timeout return the daemon connection status.
+         */
+        return false;
     }
 
     private static String getUserPackageUniqueId(int userId, String packageName) {
