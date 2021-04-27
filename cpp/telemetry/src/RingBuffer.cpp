@@ -27,53 +27,35 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
-// Do now allow buffering more than this amount of data. It's to make sure we won't get
-// 200 thousands of small CarData.
-const int kMaxNumberOfItems = 5000;
-
-RingBuffer::RingBuffer(int32_t limit) : mSizeLimitBytes(limit) {}
+RingBuffer::RingBuffer(int32_t limit) : mSizeLimit(limit) {}
 
 void RingBuffer::push(BufferedCarData&& data) {
-    int32_t dataSizeBytes = data.contentSizeInBytes();
-    if (dataSizeBytes > mSizeLimitBytes) {
-        LOG(WARNING) << "CarData(id=" << data.mId << ") size (" << dataSizeBytes
-                     << "b) is larger than " << mSizeLimitBytes << "b, dropping it.";
-        return;
-    }
-    mCurrentSizeBytes += dataSizeBytes;
+    const std::scoped_lock<std::mutex> lock(mMutex);
     mList.push_back(std::move(data));
-    while (mCurrentSizeBytes > mSizeLimitBytes || mList.size() > kMaxNumberOfItems) {
-        mCurrentSizeBytes -= mList.front().contentSizeInBytes();
+    while (mList.size() > mSizeLimit) {
         mList.pop_front();
         mTotalDroppedDataCount += 1;
     }
 }
 
-std::vector<BufferedCarData> RingBuffer::popAllDataForId(int32_t id) {
-    LOG(VERBOSE) << "popAllDataForId id=" << id;
-    std::vector<BufferedCarData> result;
-    for (auto it = mList.begin(); it != mList.end();) {
-        if (it->mId == id) {
-            mCurrentSizeBytes -= (*it).contentSizeInBytes();
-            result.push_back(std::move(*it));
-            it = mList.erase(it);
-        } else {
-            ++it;
-        }
-    }
+BufferedCarData RingBuffer::popFront() {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    auto result = std::move(mList.front());
+    mList.pop_front();
     return result;
 }
 
 void RingBuffer::dump(int fd) const {
+    const std::scoped_lock<std::mutex> lock(mMutex);
     dprintf(fd, "RingBuffer:\n");
-    dprintf(fd, "  mSizeLimitBytes=%d\n", mSizeLimitBytes);
-    dprintf(fd, "  mCurrentSizeBytes=%d\n", mCurrentSizeBytes);
+    dprintf(fd, "  mSizeLimit=%d\n", mSizeLimit);
     dprintf(fd, "  mList.size=%zu\n", mList.size());
     dprintf(fd, "  mTotalDroppedDataCount=%" PRIu64 "\n", mTotalDroppedDataCount);
 }
 
-int32_t RingBuffer::currentSizeBytes() const {
-    return mCurrentSizeBytes;
+int32_t RingBuffer::size() const {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    return mList.size();
 }
 
 }  // namespace telemetry
