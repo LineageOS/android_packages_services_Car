@@ -2212,7 +2212,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ဝန်ဆောင်မှုထည့်ရန်"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ပုံနှိပ်စက် ထည့်ရန်"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"ရှာဖွေခြင်း"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"ပုံနှိပ်စက်များကို ရှာနေသည်"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"ပရင်တာများကို ရှာနေသည်"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ဝန်ဆောင်မှု ပိတ်ထားသည်"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ပုံနှိပ်ရန်များ"</string>
     <string name="print_print_job" msgid="6846889971435170443">"စာထုတ်အလုပ်"</string>

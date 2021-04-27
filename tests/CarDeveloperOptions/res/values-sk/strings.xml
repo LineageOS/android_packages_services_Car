@@ -1653,7 +1653,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Pripojenie cez Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Zdieľané pripojenie"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspot a tethering"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot je zapnutý, tethering"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot je zapnutý, dátové pripojenie sa zdieľa"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Hotspot je zapnutý"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Zdieľané pripojenie"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Keď je šetrič dát zapnutý, nie je možné zdieľať dátové pripojenie ani používať prenosné hotspoty"</string>

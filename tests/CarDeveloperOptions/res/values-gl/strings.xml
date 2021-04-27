@@ -711,7 +711,7 @@
     <string name="lockpattern_tutorial_cancel_label" msgid="450401426127674369">"Cancelar"</string>
     <string name="lockpattern_tutorial_continue_label" msgid="8474690922559443018">"Seguinte"</string>
     <string name="lock_setup" msgid="8710689848703935088">"Configuración completada"</string>
-    <string name="manage_device_admin" msgid="322047441168191695">"Apps de administración"</string>
+    <string name="manage_device_admin" msgid="322047441168191695">"Aplicacións de administración de dispositivos"</string>
     <string name="number_of_device_admins_none" msgid="8519193548630223132">"Non hai aplicacións activas"</string>
     <plurals name="number_of_device_admins" formatted="false" msgid="6445613288828151224">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> aplicacións activas</item>
@@ -2069,7 +2069,7 @@
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Actualizar aumento automaticamente"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Actualizar aumento pantalla en transicións de apps"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Botón de acendido para colgar"</string>
-    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Punteiro do rato grande"</string>
+    <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Punteiro grande do rato"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Eliminar animacións"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Audio en mono"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"Combina canles ao reproducir audio"</string>
@@ -2569,7 +2569,7 @@
     <string name="remove_device_admin" msgid="4413438593788336400">"Desactivar esta aplicación de administración de dispositivos"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Desinstalar aplicación"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Desactivar e desinstalar"</string>
-    <string name="select_device_admin_msg" msgid="4173769638399075387">"Apps de administración"</string>
+    <string name="select_device_admin_msg" msgid="4173769638399075387">"Aplicacións de administración de dispositivos"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"Non hai ningunha aplicación de administración de dispositivos dispoñible"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Persoal"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Traballo"</string>
