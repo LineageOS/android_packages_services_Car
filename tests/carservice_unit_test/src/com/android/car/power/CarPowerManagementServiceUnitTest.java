@@ -356,6 +356,41 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
     }
 
+    @Test
+    public void testShutdownPostponeAfterSuspend() throws Exception {
+        // Start in the ON state
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP));
+        mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_DEEP_SLEEP_ENTRY);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
+
+        // Send the finished signal
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.setWakeupCausedByTimer(true);
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_EXIT, WAIT_TIMEOUT_MS);
+        mService.scheduleNextWakeupTime(WAKE_UP_DELAY);
+        // Second processing after wakeup
+        assertThat(mDisplayInterface.isDisplayEnabled()).isFalse();
+
+        mService.setStateForWakeUp();
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
+        // Should wait until Handler has finished ON processing
+        CarServiceUtils.runOnLooperSync(mService.getHandlerThread().getLooper(), () -> { });
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.CAN_SLEEP));
+
+        // Should suspend within timeout
+        mPowerSignalListener.waitFor(PowerHalService.SET_DEEP_SLEEP_ENTRY, WAIT_TIMEOUT_MS);
+    }
+
     /**
      * This test case tests the same scenario as {@link #testUserSwitchingOnResume_differentUser()},
      * but indirectly triggering {@code switchUserOnResumeIfNecessary()} through HAL events.
