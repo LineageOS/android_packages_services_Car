@@ -16,8 +16,10 @@
 
 package com.android.car.audio;
 
+import static com.android.car.audio.CarAudioContext.EMERGENCY;
 import static com.android.car.audio.CarAudioContext.MUSIC;
 import static com.android.car.audio.CarAudioContext.NAVIGATION;
+import static com.android.car.audio.CarAudioContext.SAFETY;
 import static com.android.car.audio.CarAudioContext.VOICE_COMMAND;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -48,8 +50,10 @@ public final class CarVolumeGroupMutingTest {
     private static final String PRIMARY_MEDIA_ADDRESS = "media";
     private static final String PRIMARY_NAVIGATION_ADDRESS = "navigation";
     private static final String PRIMARY_VOICE_ADDRESS = "voice";
-    private static final String SECONDARY_ADDRESS = "media";
-    private static final String TERTIARY_ADDRESS = "media";
+    private static final String SECONDARY_ADDRESS = "secondary";
+    private static final String TERTIARY_ADDRESS = "tertiary";
+    private static final String EMERGENCY_ADDRESS = "emergency";
+    private static final String SAFETY_ADDRESS = "safety";
     private static final int PRIMARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE;
     private static final int SECONDARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     private static final int TERTIARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 2;
@@ -70,21 +74,12 @@ public final class CarVolumeGroupMutingTest {
 
     @Before
     public void setUp() {
-        mMusicCarVolumeGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
-                .build();
-        mNavigationCarVolumeGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
-                .build();
-        mVoiceCarVolumeGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
-                .build();
-        mSecondaryZoneVolumeGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(MUSIC, SECONDARY_ADDRESS)
-                .build();
-        mTertiaryZoneVolumeGroup = new VolumeGroupBuilder()
-                .addDeviceAddressAndContexts(MUSIC, TERTIARY_ADDRESS)
-                .build();
+        mMusicCarVolumeGroup = groupWithContextAndAddress(MUSIC, PRIMARY_MEDIA_ADDRESS);
+        mNavigationCarVolumeGroup = groupWithContextAndAddress(NAVIGATION,
+                PRIMARY_NAVIGATION_ADDRESS);
+        mVoiceCarVolumeGroup = groupWithContextAndAddress(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS);
+        mSecondaryZoneVolumeGroup = groupWithContextAndAddress(MUSIC, SECONDARY_ADDRESS);
+        mTertiaryZoneVolumeGroup = groupWithContextAndAddress(MUSIC, TERTIARY_ADDRESS);
 
         mPrimaryAudioZone =
                 new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
@@ -93,20 +88,14 @@ public final class CarVolumeGroupMutingTest {
                         .addVolumeGroup(mVoiceCarVolumeGroup)
                         .build();
 
-        mSingleDevicePrimaryZone =
-                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
-                        .addVolumeGroup(mMusicCarVolumeGroup)
-                        .build();
+        mSingleDevicePrimaryZone = createAudioZone(mMusicCarVolumeGroup, "Primary Zone",
+                PRIMARY_ZONE_ID);
 
-        mSingleDeviceSecondaryZone =
-                new TestCarAudioZoneBuilder("Secondary Zone", SECONDARY_ZONE_ID)
-                        .addVolumeGroup(mSecondaryZoneVolumeGroup)
-                        .build();
+        mSingleDeviceSecondaryZone = createAudioZone(mSecondaryZoneVolumeGroup, "Secondary Zone",
+                SECONDARY_ZONE_ID);
 
-        mSingleDeviceTertiaryZone =
-                new TestCarAudioZoneBuilder("Tertiary Zone", TERTIARY_ZONE_ID)
-                        .addVolumeGroup(mTertiaryZoneVolumeGroup)
-                        .build();
+        mSingleDeviceTertiaryZone = createAudioZone(mTertiaryZoneVolumeGroup, "Tertiary Zone",
+                TERTIARY_ZONE_ID);
 
         when(mMockAudioControlWrapper
                 .supportsFeature(AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_GROUP_MUTING))
@@ -234,7 +223,7 @@ public final class CarVolumeGroupMutingTest {
 
         carGroupMuting.carMuteChanged();
 
-        List<MutingInfo> mutingInfo =  captureMutingInfoList();
+        List<MutingInfo> mutingInfo = captureMutingInfoList();
         MutingInfo info = mutingInfo.get(mutingInfo.size() - 1);
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().containsExactly(
@@ -331,6 +320,49 @@ public final class CarVolumeGroupMutingTest {
         }
     }
 
+    @Test
+    public void setRestrictMuting_isMutingRestrictedTrue_mutesNonCriticalVolumeGroups() {
+        setUpCarVolumeGroupIsMuted(mSecondaryZoneVolumeGroup, false);
+        setUpCarVolumeGroupIsMuted(mMusicCarVolumeGroup, false);
+        setUpCarVolumeGroupIsMuted(mTertiaryZoneVolumeGroup, false);
+        CarVolumeGroupMuting carGroupMuting =
+                new CarVolumeGroupMuting(getAudioZones(mSingleDevicePrimaryZone,
+                        mSingleDeviceSecondaryZone, mSingleDeviceTertiaryZone),
+                        mMockAudioControlWrapper);
+
+        carGroupMuting.setRestrictMuting(true);
+
+        for (MutingInfo info : captureMutingInfoList()) {
+            assertWithMessage("Devices addresses to mute for zone %s", info.zoneId)
+                    .that(info.deviceAddressesToMute).asList().hasSize(1);
+        }
+    }
+
+    @Test
+    public void setRestrictMuting_isMutingRestrictedTrue_leavesCriticalGroupsAsIs() {
+        setUpCarVolumeGroupIsMuted(mMusicCarVolumeGroup, false);
+        setUpCarVolumeGroupHasCriticalAudioContexts(mMusicCarVolumeGroup);
+        setUpCarVolumeGroupIsMuted(mSecondaryZoneVolumeGroup, true);
+        setUpCarVolumeGroupHasCriticalAudioContexts(mSecondaryZoneVolumeGroup);
+        CarVolumeGroupMuting carGroupMuting = new CarVolumeGroupMuting(
+                getAudioZones(mSingleDevicePrimaryZone, mSingleDeviceSecondaryZone),
+                mMockAudioControlWrapper);
+
+        carGroupMuting.setRestrictMuting(true);
+
+        for (MutingInfo info : captureMutingInfoList()) {
+            if (info.zoneId == PRIMARY_ZONE_ID) {
+                assertWithMessage("Devices addresses to unmute for zone %s", info.zoneId)
+                        .that(info.deviceAddressesToUnmute).asList().containsExactly(
+                        PRIMARY_MEDIA_ADDRESS);
+
+            } else if (info.zoneId == SECONDARY_ZONE_ID) {
+                assertWithMessage("Devices addresses to mute for zone %s", info.zoneId)
+                        .that(info.deviceAddressesToMute).asList().containsExactly(
+                                SECONDARY_ADDRESS);
+            }
+        }
+    }
 
     @Test
     public void generateMutingInfoFromZone_withNoGroupsMuted_returnsEmptyMutedList() {
@@ -338,7 +370,8 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
 
-        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone);
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone,
+                /* isMutingRestricted= */ false);
 
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().isEmpty();
@@ -350,7 +383,8 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, false);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, false);
 
-        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone);
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone,
+                /* isMutingRestricted= */ false);
 
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS);
@@ -362,7 +396,8 @@ public final class CarVolumeGroupMutingTest {
         setUpCarVolumeGroupIsMuted(mNavigationCarVolumeGroup, true);
         setUpCarVolumeGroupIsMuted(mVoiceCarVolumeGroup, true);
 
-        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone);
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(mPrimaryAudioZone,
+                /* isMutingRestricted= */ false);
 
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
@@ -371,17 +406,16 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void generateMutingInfoFromZone_withMutedMultiDeviceGroup_returnsAllDevicesMuted() {
-        CarAudioZone primaryZone =
-                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
-                        .addVolumeGroup(new VolumeGroupBuilder()
-                                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
-                                .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
-                                .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
-                                .setIsMuted(true)
-                                .build())
-                        .build();
+        CarAudioZone primaryZone = createAudioZone(
+                new VolumeGroupBuilder()
+                        .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+                        .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                        .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                        .setIsMuted(true)
+                        .build(), "Primary Zone", PRIMARY_ZONE_ID);
 
-        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone);
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone,
+                /* isMutingRestricted= */ false);
 
         assertWithMessage("Device addresses to mute")
                 .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
@@ -390,20 +424,76 @@ public final class CarVolumeGroupMutingTest {
 
     @Test
     public void generateMutingInfoFromZone_withUnMutedMultiDeviceGroup_returnsAllDevicesUnMuted() {
-        CarAudioZone primaryZone =
-                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
-                        .addVolumeGroup(new VolumeGroupBuilder()
-                                .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
-                                .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
-                                .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
-                                .build())
-                        .build();
+        CarAudioZone primaryZone = createAudioZone(
+                new VolumeGroupBuilder()
+                        .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+                        .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                        .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                        .build(), "Primary Zone", PRIMARY_ZONE_ID);
 
-        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone);
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone,
+                /* isMutingRestricted= */ false);
 
         assertWithMessage("Device addresses to un-mute")
                 .that(info.deviceAddressesToUnmute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
                 PRIMARY_NAVIGATION_ADDRESS, PRIMARY_VOICE_ADDRESS);
+    }
+
+    @Test
+    public void generateMutingInfoFromZone_mutingRestricted_mutesAllNonCriticalDevices() {
+        CarAudioZone primaryZone = createAudioZone(
+                new VolumeGroupBuilder()
+                        .addDeviceAddressAndContexts(MUSIC, PRIMARY_MEDIA_ADDRESS)
+                        .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                        .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                        .build(), "Primary Zone", PRIMARY_ZONE_ID);
+
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone,
+                /* isMutingRestricted= */ true);
+
+        assertWithMessage("Device addresses to un-mute")
+                .that(info.deviceAddressesToMute).asList().containsExactly(PRIMARY_MEDIA_ADDRESS,
+                PRIMARY_NAVIGATION_ADDRESS, PRIMARY_VOICE_ADDRESS);
+    }
+
+    @Test
+    public void generateMutingInfoFromZone_mutingRestricted_setsAllCriticalGroupsToTheirState() {
+        CarAudioZone primaryZone =
+                new TestCarAudioZoneBuilder("Primary Zone", PRIMARY_ZONE_ID)
+                        .addVolumeGroup(new VolumeGroupBuilder()
+                                .addDeviceAddressAndContexts(EMERGENCY, EMERGENCY_ADDRESS)
+                                .addDeviceAddressAndContexts(VOICE_COMMAND, PRIMARY_VOICE_ADDRESS)
+                                .build())
+                        .addVolumeGroup(new VolumeGroupBuilder()
+                                .addDeviceAddressAndContexts(SAFETY, SAFETY_ADDRESS)
+                                .addDeviceAddressAndContexts(NAVIGATION, PRIMARY_NAVIGATION_ADDRESS)
+                                .setIsMuted(true)
+                                .build()
+                        )
+                        .build();
+        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getVolumeGroups()[0]);
+        setUpCarVolumeGroupHasCriticalAudioContexts(primaryZone.getVolumeGroups()[1]);
+
+        MutingInfo info = CarVolumeGroupMuting.generateMutingInfoFromZone(primaryZone,
+                /* isMutingRestricted= */ true);
+
+        assertWithMessage("Device addresses to mute")
+                .that(info.deviceAddressesToMute).asList()
+                .containsExactly(SAFETY_ADDRESS, PRIMARY_NAVIGATION_ADDRESS);
+        assertWithMessage("Device addresses to un-mute")
+                .that(info.deviceAddressesToUnmute).asList()
+                .containsExactly(EMERGENCY_ADDRESS, PRIMARY_VOICE_ADDRESS);
+    }
+
+
+    private CarAudioZone createAudioZone(CarVolumeGroup volumeGroup, String name, int zoneId) {
+        return new TestCarAudioZoneBuilder(name, zoneId)
+                .addVolumeGroup(volumeGroup)
+                .build();
+    }
+
+    private CarVolumeGroup groupWithContextAndAddress(int context, String address) {
+        return new VolumeGroupBuilder().addDeviceAddressAndContexts(context, address).build();
     }
 
     private List<MutingInfo> captureMutingInfoList() {
@@ -412,13 +502,17 @@ public final class CarVolumeGroupMutingTest {
         return captor.getValue();
     }
 
-    private void setUpCarVolumeGroupIsMuted(CarVolumeGroup musicCarVolumeGroup, boolean muted) {
-        when(musicCarVolumeGroup.isMuted()).thenReturn(muted);
+    private void setUpCarVolumeGroupIsMuted(CarVolumeGroup carVolumeGroup, boolean muted) {
+        when(carVolumeGroup.isMuted()).thenReturn(muted);
     }
 
-    private SparseArray<CarAudioZone> getAudioZones(CarAudioZone ...zones) {
+    private void setUpCarVolumeGroupHasCriticalAudioContexts(CarVolumeGroup carVolumeGroup) {
+        when(carVolumeGroup.hasCriticalAudioContexts()).thenReturn(true);
+    }
+
+    private SparseArray<CarAudioZone> getAudioZones(CarAudioZone... zones) {
         SparseArray<CarAudioZone> audioZones = new SparseArray<>();
-        for (CarAudioZone zone: zones) {
+        for (CarAudioZone zone : zones) {
             audioZones.put(zone.getId(), zone);
         }
         return audioZones;
