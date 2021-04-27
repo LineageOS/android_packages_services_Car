@@ -119,9 +119,10 @@ import java.util.stream.Collectors;
         }
     }
 
-    static void bindNonLegacyContexts(CarVolumeGroup group, CarAudioDeviceInfo info) {
+    static void setNonLegacyContexts(CarVolumeGroup.Builder groupBuilder,
+            CarAudioDeviceInfo info) {
         for (@AudioContext int audioContext : NON_LEGACY_CONTEXTS) {
-            group.bind(audioContext, info);
+            groupBuilder.setDeviceInfoForContext(audioContext, info);
         }
     }
 
@@ -401,19 +402,20 @@ import java.util.stream.Collectors;
 
     private CarVolumeGroup parseVolumeGroup(XmlPullParser parser, int zoneId, int groupId)
             throws XmlPullParserException, IOException {
-        CarVolumeGroup group =
-                new CarVolumeGroup(zoneId, groupId, mCarAudioSettings, mUseCarVolumeGroupMute);
+        CarVolumeGroup.Builder groupBuilder =
+                new CarVolumeGroup.Builder(zoneId, groupId, mCarAudioSettings,
+                        mUseCarVolumeGroupMute);
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
             if (TAG_AUDIO_DEVICE.equals(parser.getName())) {
                 String address = parser.getAttributeValue(NAMESPACE, ATTR_DEVICE_ADDRESS);
                 validateOutputDeviceExist(address);
-                parseVolumeGroupContexts(parser, group, address);
+                parseVolumeGroupContexts(parser, groupBuilder, address);
             } else {
                 skip(parser);
             }
         }
-        return group;
+        return groupBuilder.build();
     }
 
     private void validateOutputDeviceExist(String address) {
@@ -425,7 +427,7 @@ import java.util.stream.Collectors;
     }
 
     private void parseVolumeGroupContexts(
-            XmlPullParser parser, CarVolumeGroup group, String address)
+            XmlPullParser parser, CarVolumeGroup.Builder groupBuilder, String address)
             throws XmlPullParserException, IOException {
         while (parser.next() != XmlPullParser.END_TAG) {
             if (parser.getEventType() != XmlPullParser.START_TAG) continue;
@@ -434,11 +436,11 @@ import java.util.stream.Collectors;
                         parser.getAttributeValue(NAMESPACE, ATTR_CONTEXT_NAME));
                 validateCarAudioContextSupport(carAudioContext);
                 CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
-                group.bind(carAudioContext, info);
+                groupBuilder.setDeviceInfoForContext(carAudioContext, info);
 
                 // If V1, default new contexts to same device as DEFAULT_AUDIO_USAGE
                 if (isVersionOne() && carAudioContext == CarAudioService.DEFAULT_AUDIO_CONTEXT) {
-                    bindNonLegacyContexts(group, info);
+                    setNonLegacyContexts(groupBuilder, info);
                 }
             }
             // Always skip to upper level since we're at the lowest.
