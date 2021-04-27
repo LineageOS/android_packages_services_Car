@@ -20,6 +20,7 @@
 #include "BufferedCarData.h"
 
 #include <list>
+#include <mutex>
 
 namespace android {
 namespace automotive {

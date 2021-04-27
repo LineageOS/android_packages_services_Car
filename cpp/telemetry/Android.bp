@@ -24,11 +24,11 @@ cc_defaults {
         "-Wno-unused-parameter",
     ],
     shared_libs: [
-        "android.frameworks.automotive.telemetry-V1-cpp",
-        "android.automotive.telemetry.internal-cpp",
+        "android.automotive.telemetry.internal-ndk_platform",
+        "android.frameworks.automotive.telemetry-V1-ndk_platform",
         "libbase",
+        "libbinder_ndk",
         "liblog",
-        "libbinder",
         "libutils",
     ],
     product_variables: {
@@ -47,12 +47,11 @@ cc_library {
     ],
     srcs: [
         "src/CarTelemetryImpl.cpp",
+        "src/CarTelemetryInternalImpl.cpp",
         "src/RingBuffer.cpp",
         "src/TelemetryServer.cpp",
-        "src/CarTelemetryInternalImpl.cpp",
-        "src/binderutils/BinderDeathRecipient.cpp",
     ],
-    // Allow dependencies to use header files.
+    // Allow dependents to use the header files.
     export_include_dirs: [
         "src",
     ],
@@ -72,7 +71,8 @@ cc_test {
     // Statically link only in tests, for portability reason.
     static_libs: [
         "android.automotive.telemetryd@1.0-impl",
-        "android.frameworks.automotive.telemetry-V1-cpp",
+        "android.automotive.telemetry.internal-ndk_platform",
+        "android.frameworks.automotive.telemetry-V1-ndk_platform",
         "libgmock",
         "libgtest",
     ],

@@ -2,11 +2,27 @@
 
 This is a sample vendor service that sends `CarData` to car telemetry service.
 
+## Running
+
+**1. Quick mode - under root**
+
+```
+m -j android.automotive.telemetryd-sampleclient
+
+adb remount  # make sure run "adb disable-verity" before remounting
+adb push $ANDROID_PRODUCT_OUT/vendor/bin/android.automotive.telemetryd-sampleclient /system/bin/
+
+adb shell /system/bin/android.automotive.telemetryd-sampleclient
+
+# Then check logcat and dumpsys to verify the results.
+```
+
+**2. Under vendor**
+
 To include it in the final image, add
 `PRODUCT_PACKAGES += android.automotive.telemetryd-sampleclient` to
 `//packages/services/Car/cpp/telemetry/products/telemetry.mk` (or other suitable mk file).
 
-Example:
 ```
 # this goes to products/telemetry.mk
 

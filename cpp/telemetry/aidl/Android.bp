@@ -24,7 +24,7 @@ aidl_interface {
         "android/automotive/telemetry/internal/*.aidl",
     ],
     backend: {
-        cpp: {
+        ndk: {
             enabled: true,
         },
         java: {
