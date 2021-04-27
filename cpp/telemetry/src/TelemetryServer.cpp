@@ -44,10 +44,12 @@ constexpr const char kCarTelemetryServiceName[] =
 constexpr const char kCarTelemetryInternalServiceName[] =
         "android.automotive.telemetry.internal.ICarTelemetryInternal/default";
 
-// Total CarData content size limit in the RingBuffer. 2MB max memory for buffer is good for now.
-const int kMaxBufferSizeKilobytes = 2048;
+// TODO(b/183444070): make it configurable using sysprop
+// CarData count limit in the RingBuffer. In worst case it will use kMaxBufferSize * 10Kb memory,
+// which is ~ 1MB.
+const int kMaxBufferSize = 100;
 
-TelemetryServer::TelemetryServer() : mRingBuffer(kMaxBufferSizeKilobytes * 1024) {}
+TelemetryServer::TelemetryServer() : mRingBuffer(kMaxBufferSize) {}
 
 void TelemetryServer::registerServices() {
     android::sp<CarTelemetryImpl> telemetry = new CarTelemetryImpl(&mRingBuffer);

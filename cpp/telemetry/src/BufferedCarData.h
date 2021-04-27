@@ -23,20 +23,16 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 
+// Internally stored `CarData` with some extras.
 struct BufferedCarData {
-    BufferedCarData(const android::frameworks::automotive::telemetry::CarData& data, int32_t uid) :
-          mId(data.id),
-          mContent(std::move(data.content)),
-          mLogUid(uid) {}
-
-    // Visible for testing.
-    BufferedCarData(int32_t id, const std::vector<uint8_t>& content, int32_t uid) :
-          mId(id),
-          mContent(std::move(content)),
-          mLogUid(uid) {}
+    BufferedCarData(BufferedCarData&& other) = default;
+    BufferedCarData(const BufferedCarData&) = default;
+    BufferedCarData& operator=(BufferedCarData&& other) = default;
+    BufferedCarData& operator=(const BufferedCarData&) = default;
 
     inline bool operator==(const BufferedCarData& rhs) const {
-        return std::tie(mId, mContent, mLogUid) == std::tie(rhs.mId, rhs.mContent, rhs.mLogUid);
+        return std::tie(mId, mContent, mPublisherUid) ==
+                std::tie(rhs.mId, rhs.mContent, rhs.mPublisherUid);
     }
 
     // Returns the size of the stored data. Note that it's not the exact size of the struct.
@@ -45,8 +41,8 @@ struct BufferedCarData {
     const int32_t mId;
     const std::vector<uint8_t> mContent;
 
-    // The uid of the logging client (defaults to -1).
-    const int32_t mLogUid;
+    // The uid of the logging client.
+    const uid_t mPublisherUid;
 };
 
 }  // namespace telemetry
