@@ -17,7 +17,6 @@
 #include "RingBuffer.h"
 
 #include <android-base/logging.h>
-#include <android/frameworks/automotive/telemetry/CarData.h>
 
 #include <inttypes.h>  // for PRIu64 and friends
 

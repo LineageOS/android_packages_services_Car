@@ -19,8 +19,8 @@
 
 #include "RingBuffer.h"
 
-#include <android/frameworks/automotive/telemetry/BnCarTelemetry.h>
-#include <android/frameworks/automotive/telemetry/CarData.h>
+#include <aidl/android/frameworks/automotive/telemetry/BnCarTelemetry.h>
+#include <aidl/android/frameworks/automotive/telemetry/CarData.h>
 #include <utils/String16.h>
 #include <utils/Vector.h>
 
@@ -31,16 +31,14 @@ namespace automotive {
 namespace telemetry {
 
 // Implementation of android.frameworks.automotive.telemetry.ICarTelemetry.
-class CarTelemetryImpl : public android::frameworks::automotive::telemetry::BnCarTelemetry {
+class CarTelemetryImpl : public aidl::android::frameworks::automotive::telemetry::BnCarTelemetry {
 public:
     // Doesn't own `buffer`.
     explicit CarTelemetryImpl(RingBuffer* buffer);
 
-    android::binder::Status write(
-            const std::vector<android::frameworks::automotive::telemetry::CarData>& dataList)
+    ndk::ScopedAStatus write(
+            const std::vector<aidl::android::frameworks::automotive::telemetry::CarData>& dataList)
             override;
-
-    status_t dump(int fd, const android::Vector<android::String16>& args) override;
 
 private:
     RingBuffer* mRingBuffer;  // not owned
