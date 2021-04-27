@@ -27,7 +27,7 @@ interface ICarTelemetryInternal {
    * start pushing them to the listener. There can be only a single registered listener at a time.
    *
    * @param listener the only listener.
-   * @throws IllegalStateException if someone is already registered.
+   * @throws IllegalStateException if someone is already registered or the listener is dead.
    */
   void setListener(in ICarDataListener listener);
 

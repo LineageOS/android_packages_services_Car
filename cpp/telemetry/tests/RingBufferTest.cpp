@@ -26,7 +26,6 @@
 namespace android {
 namespace automotive {
 namespace telemetry {
-namespace {
 
 using testing::ContainerEq;
 
@@ -62,7 +61,6 @@ TEST(RingBufferTest, TestPopAllDataForIdRemovesFromBuffer) {
     EXPECT_EQ(buffer.currentSizeBytes(), 3);  // bytes, because only ID=103 left.
 }
 
-}  // namespace
 }  // namespace telemetry
 }  // namespace automotive
 }  // namespace android
