@@ -254,6 +254,10 @@ public final class CarAudioContext {
         return uniqueContexts;
     }
 
+    static boolean isCriticalAudioContext(@CarAudioContext.AudioContext int audioContext) {
+        return CarAudioContext.EMERGENCY == audioContext || CarAudioContext.SAFETY == audioContext;
+    }
+
     static String toString(@AudioContext int audioContext) {
         String name = CONTEXT_NAMES.get(audioContext);
         if (name != null) {
