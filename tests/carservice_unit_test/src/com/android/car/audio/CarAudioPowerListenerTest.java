@@ -67,7 +67,7 @@ public class CarAudioPowerListenerTest {
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
     }
 
     @Test
@@ -94,7 +94,7 @@ public class CarAudioPowerListenerTest {
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
     }
 
     @Test
@@ -105,7 +105,7 @@ public class CarAudioPowerListenerTest {
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
     }
 
     @Test
@@ -116,53 +116,53 @@ public class CarAudioPowerListenerTest {
 
         listener.startListeningForPolicyChanges();
 
-        verify(mMockCarAudioService).disableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(false);
     }
 
     @Test
     public void onPolicyChange_withPowerSwitchingToEnabled_enablesAudio() throws Exception {
         withAudioInitiallyDisabled();
         ICarPowerPolicyListener changeListener = registerAndGetChangeListener();
-        verify(mMockCarAudioService, never()).enableAudio();
+        verify(mMockCarAudioService, never()).setAudioEnabled(true);
 
         changeListener.onPolicyChanged(EMPTY_POLICY, ENABLED_POLICY);
 
-        verify(mMockCarAudioService).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
     }
 
     @Test
     public void onPolicyChange_withPowerRemainingEnabled_doesNothing() throws Exception {
         withAudioInitiallyEnabled();
         ICarPowerPolicyListener changeListener = registerAndGetChangeListener();
-        verify(mMockCarAudioService).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
 
         changeListener.onPolicyChanged(EMPTY_POLICY, ENABLED_POLICY);
 
-        verify(mMockCarAudioService).enableAudio();
-        verify(mMockCarAudioService, never()).disableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(true);
+        verify(mMockCarAudioService, never()).setAudioEnabled(false);
     }
 
     @Test
     public void onPolicyChange_withPowerSwitchingToDisabled_disablesAudio() throws Exception {
         withAudioInitiallyEnabled();
         ICarPowerPolicyListener changeListener = registerAndGetChangeListener();
-        verify(mMockCarAudioService, never()).disableAudio();
+        verify(mMockCarAudioService, never()).setAudioEnabled(false);
 
         changeListener.onPolicyChanged(EMPTY_POLICY, DISABLED_POLICY);
 
-        verify(mMockCarAudioService).disableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(false);
     }
 
     @Test
     public void onPolicyChange_withPowerStayingDisabled_doesNothing() throws Exception {
         withAudioInitiallyDisabled();
         ICarPowerPolicyListener changeListener = registerAndGetChangeListener();
-        verify(mMockCarAudioService).disableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(false);
 
         changeListener.onPolicyChanged(EMPTY_POLICY, DISABLED_POLICY);
 
-        verify(mMockCarAudioService).disableAudio();
-        verify(mMockCarAudioService, never()).enableAudio();
+        verify(mMockCarAudioService).setAudioEnabled(false);
+        verify(mMockCarAudioService, never()).setAudioEnabled(true);
     }
 
     private void withAudioInitiallyEnabled() {

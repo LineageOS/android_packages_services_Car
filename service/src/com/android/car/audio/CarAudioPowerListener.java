@@ -78,7 +78,7 @@ class CarAudioPowerListener {
     void startListeningForPolicyChanges() {
         if (mCarPowerManagementService == null) {
             Slog.w(TAG, "Cannot find CarPowerManagementService");
-            mCarAudioService.enableAudio();
+            mCarAudioService.setAudioEnabled(/* isAudioEnabled= */ true);
             return;
         }
 
@@ -100,7 +100,7 @@ class CarAudioPowerListener {
 
         if (policy == null) {
             Slog.w(TAG, "Policy is null. Defaulting to enabled");
-            mCarAudioService.enableAudio();
+            mCarAudioService.setAudioEnabled(/* isAudioEnabled= */ true);
             return;
         }
 
@@ -112,11 +112,6 @@ class CarAudioPowerListener {
     @GuardedBy("mLock")
     private void updateAudioPowerStateLocked(CarPowerPolicy policy) {
         mIsAudioEnabled = policy.isComponentEnabled(AUDIO);
-
-        if (mIsAudioEnabled) {
-            mCarAudioService.enableAudio();
-        } else {
-            mCarAudioService.disableAudio();
-        }
+        mCarAudioService.setAudioEnabled(mIsAudioEnabled);
     }
 }

@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
+
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
@@ -26,7 +28,6 @@ import android.util.LocalLog;
 import android.util.Slog;
 
 import com.android.car.CarLog;
-import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -129,10 +130,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             FocusEntry removedEntry = entries.remove(clientId);
             removeBlockerAndRestoreUnblockedWaitersLocked(removedEntry);
         }
-    }
-
-    private boolean isCriticalAudioContext(@AudioContext int audioContext) {
-        return CarAudioContext.EMERGENCY == audioContext || CarAudioContext.SAFETY == audioContext;
     }
 
     // This sends a focus loss message to the targeted requester.
