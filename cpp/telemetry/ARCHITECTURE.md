@@ -10,9 +10,13 @@
 
 ## Structure
 
-- aidl/            - AIDL declerations
-- products/        - AAOS Telemetry product, it's included in car_base.mk
-- sepolicy         - SELinux policies
-- src/             - Source code
-- *.rc             - rc file to start services
-- *.xml            - VINTF manifest (TODO: needed?)
+```
+aidl/                    - Internal AIDL declerations, for public AIDLs, please see
+                           //frameworks/hardware/interfaces/automotive/telemetry
+products/                - AAOS Telemetry product, it's included in car_base.mk
+sepolicy                 - SELinux policies
+src/                     - Source code
+   TelemetryServer.h     - The main class.
+*.rc                     - rc file to start services
+*.xml                    - VINTF manifest (TODO: needed?)
+```

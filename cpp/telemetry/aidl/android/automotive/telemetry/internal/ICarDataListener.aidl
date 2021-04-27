@@ -14,23 +14,22 @@
  * limitations under the License.
  */
 
-#include "TelemetryServer.h"
+package android.automotive.telemetry.internal;
 
-#include <android-base/logging.h>
+import android.automotive.telemetry.internal.CarDataInternal;
 
-using ::android::automotive::telemetry::TelemetryServer;
-
-// TODO(b/174608802): handle SIGQUIT/SIGTERM
-
-int main(void) {
-    LOG(INFO) << "Starting cartelemetryd";
-
-    TelemetryServer server;
-
-    // Register AIDL services. Aborts the server if fails.
-    server.registerServices();
-
-    LOG(VERBOSE) << "Service is created, joining the threadpool";
-    server.startAndJoinThreadPool();
-    return 1;  // never reaches
+/**
+ * Listener for {@code ICarTelemetryInternal#registerListener}.
+ */
+oneway interface ICarDataListener {
+  /**
+   * Called by ICarTelemetry when the data are available to be consumed. ICarTelemetry removes
+   * the delivered data when the callback succeeds.
+   *
+   * <p>If the collected data is too large, it will send only chunk of the data, and the callback
+   * will be fired again.
+   *
+   * @param dataList the pushed data.
+   */
+  void onCarDataReceived(in CarDataInternal[] dataList);
 }
