@@ -776,6 +776,33 @@ struct SurroundViewResultPointer {
     }
 };
 
+// External renderer configuration for SV3D.
+struct RendererInfo {
+  // Enumeration for the rendering API to be used.
+  enum RenderingApi { OPENGLES, VULKAN };
+
+  // Rendering API used external renderer.
+  // OpenGLES is supported as an external renderer.
+  // Vulkan is currently not supported as an external renderer.
+  RenderingApi api;
+
+  // OpenGLES version >= 3.1 is supported.
+  int version_major;
+  int version_minor;
+};
+
+// Initialization info for external OpenGLES rendering.
+struct OpenGlInitInfo {
+  // Type EGLDisplay
+  void* egl_display;
+
+  // Type EGLSurface
+  void* egl_surface;
+
+  // Type EGLContext
+  void* egl_context;
+};
+
 class SurroundView {
 public:
     virtual ~SurroundView() = default;
@@ -790,6 +817,14 @@ public:
 
     // Starts 3d pipeline. Returns false if error occurs.
     virtual bool Start3dPipeline() = 0;
+
+    // Starts Surround View 3D pipeline to render into an external OpenGLES scene.
+    // `external_renderer_info` - contains data structs specifying the external
+    // renderer initialization information.
+    // `opengl_init_info` - contains the OpenGLES structs required for
+    // initialization. Returns false if error occurs.
+    virtual bool Start3dPipelineExternal(const RendererInfo& external_renderer_info,
+                                         const OpenGlInitInfo& opengl_init_info) = 0;
 
     // Stops 2d pipleline. It releases resource owned by the pipeline.
     // Returns false if error occurs.
@@ -858,6 +893,13 @@ public:
             const std::vector<SurroundViewInputBufferPointers>& input_pointers,
             const std::array<float, 4>& quaternion, const std::array<float, 3>& translation,
             SurroundViewResultPointer* result_pointer) = 0;
+
+    // Updates the Surround View 3D Bowl in an external renderer scene with the
+    // images provided by `input_pointers` and view in `view_matrix`.
+    // Call is only valid if pipeline is started with Start3dPipelineExternal().
+    virtual bool Update3dSurroundViewExternal(
+            const std::vector<SurroundViewInputBufferPointers>& input_pointers,
+            const std::array<std::array<float, 4>, 4>& view_matrix) = 0;
 
     // Sets 3d overlays.
     virtual bool Set3dOverlay(const std::vector<Overlay>& overlays) = 0;
