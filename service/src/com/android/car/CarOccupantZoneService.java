@@ -866,6 +866,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private void parseOccupantZoneConfigsLocked() {
         final Resources res = mContext.getResources();
         // examples:
@@ -983,6 +984,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 "Format error in config_occupant_display_mapping resource:" + msg);
     }
 
+    @GuardedBy("mLock")
     private void parseDisplayConfigsLocked() {
         final Resources res = mContext.getResources();
         // examples:
@@ -1089,6 +1091,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         occupantConfig.displayInfos.add(info);
     }
 
+    @GuardedBy("mLock")
     private void handleActiveDisplaysLocked() {
         mActiveOccupantConfigs.clear();
         boolean hasDefaultDisplayConfig = false;
@@ -1133,6 +1136,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private void handleUserChangesLocked() {
         int driverUserId = getCurrentUser();
 
@@ -1153,6 +1157,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private void handleAudioZoneChangesLocked() {
         for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
             int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
