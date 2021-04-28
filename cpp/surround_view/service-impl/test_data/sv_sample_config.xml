@@ -21,8 +21,8 @@
     <Sv2dEnabled>true</Sv2dEnabled>
     <Sv2dParams>
         <OutputResolution>
-            <Width>768</Width>
-            <Height>1024</Height>
+            <Width>1200</Width>
+            <Height>1600</Height>
         </OutputResolution>
         <GroundMapping>
             <Width>9.0</Width>
@@ -44,7 +44,7 @@
             <HighQuality>multiband</HighQuality>
             <LowQuality>alpha</LowQuality>
         </BlendingType>
-        <GpuAccelerationEnabled>false</GpuAccelerationEnabled>
+        <GpuAccelerationEnabled>true</GpuAccelerationEnabled>
     </Sv2dParams>
 
     <Sv3dEnabled>true</Sv3dEnabled>
