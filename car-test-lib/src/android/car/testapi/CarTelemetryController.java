@@ -16,6 +16,8 @@
 
 package android.car.testapi;
 
+import android.car.telemetry.ManifestKey;
+
 /**
  * Controller to manipulate and verify {@link android.car.telemetry.CarTelemetryManager} in
  * unit tests.
@@ -27,4 +29,20 @@ public interface CarTelemetryController {
      * registered with the manager, otherwise returns {@code false}.
      */
     boolean isListenerSet();
+
+    /**
+     * Returns the number of valid manifests registered with the manager.
+     */
+    int getValidManifestsCount();
+
+    /**
+     * Associate a blob of data with the given key, used for testing the flush reports APIs.
+     */
+    void addDataForKey(ManifestKey key, byte[] data);
+
+    /**
+     * Configure the blob of data to be flushed with the
+     * {@code FakeCarTelemetryService#flushScriptExecutionErrors()} API.
+     */
+    void setErrorData(byte[] error);
 }
