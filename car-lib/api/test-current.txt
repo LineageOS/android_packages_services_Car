@@ -32,6 +32,7 @@ package android.car.admin {
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.CreateUserResult createUser(@Nullable String, int);
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.RemoveUserResult removeUser(@NonNull android.os.UserHandle);
     method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StartUserInBackgroundResult startUserInBackground(@NonNull android.os.UserHandle);
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.StopUserResult stopUser(@NonNull android.os.UserHandle);
     field public static final int USER_TYPE_ADMIN = 1; // 0x1
     field public static final int USER_TYPE_GUEST = 2; // 0x2
     field public static final int USER_TYPE_REGULAR = 0; // 0x0
@@ -65,6 +66,16 @@ package android.car.admin {
     field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 3; // 0x3
     field public static final int STATUS_SUCCESS = 1; // 0x1
     field public static final int STATUS_SUCCESS_CURRENT_USER = 2; // 0x2
+  }
+
+  public final class StopUserResult {
+    method public int getStatus();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_CURRENT_USER = 2; // 0x2
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_SYSTEM_USER = 3; // 0x3
+    field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_SUCCESS = 1; // 0x1
   }
 
 }
