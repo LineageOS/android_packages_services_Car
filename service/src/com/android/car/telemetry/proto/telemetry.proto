@@ -1,0 +1,269 @@
+/*
+ * Copyright (C) 2021 The Android Open Source Project
+ *
+ * Licensed under the Apache License, Version 2.0 (the "License");
+ * you may not use this file except in compliance with the License.
+ * You may obtain a copy of the License at
+ *
+ *      http://www.apache.org/licenses/LICENSE-2.0
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS,
+ * WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+ * See the License for the specific language governing permissions and
+ * limitations under the License.
+ */
+
+syntax = "proto2";
+
+package com.android.car.telemetry;
+
+option java_package = "com.android.car.telemetry";
+option java_outer_classname = "TelemetryProto";
+
+// A Tpk (Telemetry Package) manifest.
+// It contains a script and the rules how the script runs on devices.
+message Manifest {
+  // Required.
+  // Name of the Tpk, used to distinguish TPKs.
+  // Only alphanumeric and _ characters are allowed. Minimum length is 3 chars.
+  optional string name = 1;
+
+  // Required.
+  // A script that is executed in devices. Must contain all the functions
+  // defined in the listeners below.
+  optional string script = 2;
+
+  // Required.
+  // A unique version number of the Tpk, used to distinguish between Tpks of the
+  // same name.
+  optional int32 version = 3;
+
+  // Telemetry service subscribes these listeners to vehicle property change events.
+  // The functions must be present in the script.
+  repeated PropertyChangeListener property_change_listeners = 4;
+
+  // Telemetry service subscribes these listeners to Android log (logcat) events.
+  // The functions must be present in the script.
+  repeated LogListener log_listeners = 5;
+
+  // Telemetry service subscribes these listeners to stats anomalies, such as
+  // Alerts, Alarms, stats out-of-space anomaly and historical data anomaly.
+  // The number of listener is limited to 10 by statsd.
+  // The functions must be present in the script.
+  repeated StatsListener stats_listeners = 6;
+
+  // Dumpsys result listeners can be registered to retrieve dump report for
+  // specified report types.
+  // The functions must be present in the script.
+  repeated DumpsysResultListener dumpsys_result_listeners = 7;
+
+  // This timer executes functions when a specific event happens.
+  // The functions must be present in the script.
+  repeated Timer timers = 8;
+}
+
+// A function that is executed when a vehicle property change events occur.
+message PropertyChangeListener {
+  // Required.
+  // See packages/services/Car/car-lib/src/android/car/VehiclePropertyIds.java
+  optional int32 vehicle_property_id = 1;
+
+  // See
+  // packages/services/Car/car-lib/src/android/car/hardware/property/CarPropertyManager.java
+  // look for constants SENSOR_RATE_*;
+  optional float read_rate = 2;
+
+  // Required.
+  optional string function_name = 3;
+}
+
+// A function that receives Android log (logcat) events. The log event is passed
+// as a string argument to the function.
+//
+// The LogListener will receive log events if the log event matches any of the
+// "types" or "tags".
+//
+// Please see ../README.md for details.
+//
+// Example:
+//   function processException(log_event_line) ... end
+message LogListener {
+  enum Type {
+    // Default value.
+    TYPE_UNSPECIFIED = 0;
+
+    // Matches logged exceptions.
+    EXCEPTIONS = 1;
+  }
+
+  // Required.
+  // Unique name of the logListener within the Tpk. Used to
+  // subscribe/unsubscribe from log events.
+  optional string name = 1;
+
+  // Required.
+  // Name of the function to be executed when the logs the logListener has a
+  // match with its filters
+  optional string function_name = 2;
+
+  // Message types to listen to in LogCat.
+  // At least one "types" or "tags" must be provided.
+  repeated Type types = 3;
+
+  // Tags to listen to in LogCat.
+  // At least one "types" or "tags" must be provided.
+  repeated string tags = 4;
+}
+
+// A function that receives stats reports.
+//
+// LogProcessor App provides limited statsd support. Please see
+// logprocessor/README.md for details.
+//
+// Script function semantics:
+//    -- Param report_list is a table with 1-1 mapping
+//                         to ConfigMetricsReportList.
+//    -- Param extra_stats is a table { config_uid, config_key, ... } coming
+//    --  from PendingIntent described in StatsManager#setBroadcastSubscriber().
+//    function onStatdEvent(report_list, extra_stats) end
+message StatsListener {
+  // Function to be called when the subscriptions below get triggered.
+  optional string function_name = 1;
+
+  // Serialized StatsdConfig defined in
+  // AOSP/frameworks/base/cmds/statsd/src/statsd_config.proto
+  // NOTE: Config ID and other generated IDs must be unique within this
+  //       statsd_config.
+  optional bytes statsd_config = 2;
+
+  // Subscribe the telemetry service to stats broadcast events: Alarms and Alerts.
+  // Subscriptions must be defined in the statsd_config as
+  // BroadcastSubscriberDetails.
+  // NOTE: It must be unique within the statsd_config.
+  optional int64 subscriber_id = 3;
+}
+
+// A function that receives Dumpsys reports.
+//
+// The DumpsysResultListener will receive dumpsys reports of the specified
+// DumpsysReportType
+message DumpsysResultListener {
+  // Names of the system services that's allowed to run dumpsys on.
+  enum SystemServiceName {
+    UNSPECIFIED = 0;
+
+    // Matches car service com.android.car.CarService.
+    CAR_SERVICE = 1;
+
+    // Matches package manager service
+    // com.android.server.pm.PackageManagerService.
+    PACKAGE = 2;  //
+  }
+
+  // Required.
+  // Unique name of the DumpsysResultListener within the Tpk.
+  // Used to register the specific DumpsysResultListener needed.
+  optional string name = 1;
+
+  // Required.
+  // Name of the function to be executed when a dumpsys report of the specified
+  // system services are retrieved.
+  optional string function_name = 2;
+
+  // Required.
+  // System service to run dumpsys for.
+  optional SystemServiceName system_service_name = 3;
+
+  // Extra arguments for dumpsys
+  optional string arguments = 4;
+}
+
+// Runs a script function after some delay when an event happens.
+message Timer {
+  enum TriggerType {
+    TRIGGER_TYPE_UNSPECIFIED = 0;
+
+    // When the device boots up.
+    //
+    // Note that when device wakes up from a deep sleep (suspend to ram), this
+    // trigger doesn't work.
+    //
+    // It doesn't guarantee immediate activation of the timer right after the
+    // boot, only after the system and the script is ready.
+    // "initial_delay_millis" parameter denotes a delay from boot (not from
+    // the script is initialized and ready).
+    TRIGGER_TYPE_BOOT = 1;
+  }
+
+  // Required.
+  // Name of the script function that will be executed.
+  optional string function_name = 1;
+
+  // Required.
+  // An event trigger that activates this timer.
+  optional TriggerType trigger_type = 2;
+
+  // Required.
+  // Delay after the trigger event before initial executing the function.
+  //
+  // Be careful putting long delays (>30 minutes), because the average
+  // driving duration might be shorter than the delay, and the function
+  // will be executed less frequently than desired amount.
+  optional int64 initial_delay_millis = 3;
+
+  // The max number of times the function will be periodically executed.
+  // When this number of execution is reached, the timer will be stopped.
+  // 0 means the timer is disabled.
+  // -1 means the timer never stops.
+  optional int32 max_count = 4;
+
+  // Time between successive function executions if max_count >= 2.
+  optional int64 period_millis = 5;
+}
+
+// A message that encapsulates different types of error or log metadata as
+// for informational and debugging purposes.
+//
+// When the app crashes or the system restarts, the timers will reset.
+message SecularTrendsLog {
+  // Required.
+  optional int64 timestamp = 1;
+
+  enum LogType {
+    // Default enum.
+    UNSPECIFIED = 0;
+
+    // Used when manifest is misconfigurated, such as missing required fields.
+    MANIFEST_MISCONFIGURATION = 1;
+
+    // Used when a Java service throws an exception.
+    JAVA_EXCEPTION = 2;
+
+    // Used when LogProc service failes to bind to sandbox service.
+    SANDBOX_SERVICE_CONNECTION_FAILURE = 3;
+
+    // Used when an error occurs in the native code.
+    NATIVE_RUNTIME_ERROR = 4;
+
+    // Used when an error occurs while executing the Lua script (such as
+    // errors returned by lua_pcall)
+    LUA_RUNTIME_ERROR = 5;
+
+    // Used when a service that telemetry service depends on crashes or fails.
+    DEPENDENT_SERVICE_FAILURE = 6;
+  }
+
+  // Required.
+  // A type that indicates where the log is generated.
+  optional LogType type = 2;
+
+  // Required.
+  // Human readable message explaining what’s wrong or how to fix it.
+  optional string message = 3;
+
+  // Optional.
+  // If there is an exception, there will be stack trace. However this
+  // information is not always available.
+  optional string stack_trace = 4;
+}
