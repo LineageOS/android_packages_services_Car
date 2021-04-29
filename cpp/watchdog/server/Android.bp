@@ -40,8 +40,8 @@ cc_defaults {
         "liblog",
         "libutils",
     ],
-    static_libs: [
-        "libgtest_prod",
+    header_libs: [
+        "libgtest_prod_headers",
     ],
 }
 
