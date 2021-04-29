@@ -31,7 +31,7 @@ namespace automotive {
 namespace watchdog {
 
 constexpr size_t kTestMonitorBufferSize = 3;
-constexpr uint64_t KTestMinSyncWrittenBytes = 5'000;
+constexpr int64_t KTestMinSyncWrittenBytes = 5'000;
 constexpr double kTestIoOveruseWarnPercentage = 80;
 constexpr std::chrono::seconds kTestMonitorInterval = 5s;
 
