@@ -42,8 +42,8 @@ cc_defaults {
         "libcutils",
         "libprocessgroup",
     ],
-    static_libs: [
-        "libgtest_prod",
+    header_libs: [
+        "libgtest_prod_headers",
     ],
 }
 
