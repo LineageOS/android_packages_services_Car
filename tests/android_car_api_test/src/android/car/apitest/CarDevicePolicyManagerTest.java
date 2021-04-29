@@ -27,6 +27,7 @@ import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
+import android.car.admin.StartUserInBackgroundResult;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.PowerManager;
@@ -63,11 +64,10 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
 
         UserInfo user = createUser();
         Log.d(TAG, "removing user " + user.toFullString());
-
         RemoveUserResult result = mCarDpm.removeUser(user.getUserHandle());
         Log.d(TAG, "result: " + result);
 
-        assertWithMessage("Failed to remove user%s: %s", user.toFullString(), result)
+        assertWithMessage("Result of removeUser %s: %s", user.toFullString(), result)
                 .that(result.isSuccess()).isTrue();
     }
 
@@ -122,7 +122,6 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
         String name = "CarDevicePolicyManagerTest.testCreateUser";
         int type = CarDevicePolicyManager.USER_TYPE_REGULAR;
         Log.d(TAG, "creating new user with name " + name + " and type " + type);
-
         CreateUserResult result = mCarDpm.createUser(name, type);
         Log.d(TAG, "result: " + result);
         UserHandle user = result.getUserHandle();
@@ -134,6 +133,25 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
             if (user != null) {
                 removeUser(user.getIdentifier());
             }
+        }
+    }
+
+    @Test
+    public void testStartUserInBackground() throws Exception {
+        assertInitialUserIsAdmin();
+
+        UserInfo user = createUser();
+        Log.d(TAG, "starting user in background " + user.toFullString());
+        StartUserInBackgroundResult result = mCarDpm.startUserInBackground(user.getUserHandle());
+        Log.d(TAG, "result: " + result);
+
+        try {
+            assertWithMessage("Result of startUserInBackground %s: %s", user.toFullString(), result)
+                    .that(result.isSuccess()).isTrue();
+        } finally {
+            // Clean up the created user.
+            removeUser(user.id);
+            waitForUserRemoval(user.id);
         }
     }
 

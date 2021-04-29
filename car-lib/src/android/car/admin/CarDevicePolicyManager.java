@@ -28,6 +28,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartResult;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -200,6 +201,45 @@ public final class CarDevicePolicyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, CreateUserResult.forGenericError());
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_DP_MGR_CREATE_USER_RESP, uid, status);
+        }
+    }
+
+    /**
+     * Starts a user in the background.
+     *
+     * @param user identification of the user to be started.
+     *
+     * @return whether the user was successfully started.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @NonNull
+    public StartUserInBackgroundResult startUserInBackground(@NonNull UserHandle user) {
+        Objects.requireNonNull(user, "user cannot be null");
+
+        int userId = user.getIdentifier();
+        int uid = myUid();
+        EventLog.writeEvent(EventLogTags.CAR_DP_MGR_START_USER_IN_BACKGROUND_REQ, uid, userId);
+        int status = StartUserInBackgroundResult.STATUS_FAILURE_GENERIC;
+        try {
+            AndroidFuture<UserStartResult> future = new AndroidFuture<>();
+            mService.startUserInBackground(userId, future);
+            UserStartResult result = future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS,
+                    TimeUnit.MILLISECONDS);
+            status = result.getStatus();
+            return new StartUserInBackgroundResult(status);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new StartUserInBackgroundResult(status);
+        } catch (ExecutionException | TimeoutException e) {
+            return new StartUserInBackgroundResult(status);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new StartUserInBackgroundResult(status));
+        } finally {
+            EventLog.writeEvent(EventLogTags.CAR_DP_MGR_START_USER_IN_BACKGROUND_RESP, uid, status);
         }
     }
 

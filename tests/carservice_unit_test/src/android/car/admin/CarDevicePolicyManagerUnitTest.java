@@ -32,6 +32,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
+import android.car.user.UserStartResult;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -125,6 +126,34 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
         assertThrows(SecurityException.class, () -> mMgr.createUser("TheDude", 100));
     }
 
+    @Test
+    public void testStartUserInBackground_success() throws Exception {
+        mockStartUserInBackground(100, UserStartResult.STATUS_SUCCESSFUL);
+
+        StartUserInBackgroundResult result = mMgr.startUserInBackground(UserHandle.of(100));
+
+        assertThat(result.isSuccess()).isTrue();
+        assertThat(result.getStatus()).isEqualTo(StartUserInBackgroundResult.STATUS_SUCCESS);
+    }
+
+    @Test
+    public void testStartUserInBackground_remoteException() throws Exception {
+        doThrow(new RemoteException("D'OH!"))
+                .when(mService).startUserInBackground(eq(100), notNull());
+        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
+
+        StartUserInBackgroundResult result = mMgr.startUserInBackground(UserHandle.of(100));
+
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getStatus())
+                .isEqualTo(StartUserInBackgroundResult.STATUS_FAILURE_GENERIC);
+    }
+
+    @Test
+    public void testStartUserInBackground_nullUser() {
+        assertThrows(NullPointerException.class, () -> mMgr.startUserInBackground(null));
+    }
+
     private void mockRemoveUser(@UserIdInt int userId, int status) throws Exception {
         doAnswer((invocation) -> {
             @SuppressWarnings("unchecked")
@@ -143,5 +172,15 @@ public final class CarDevicePolicyManagerUnitTest extends AbstractExtendedMockit
             future.complete(new UserCreationResult(status, user, /* errorMessage= */ null));
             return null;
         }).when(mService).createUser(eq(name), eq(user.id), notNull());
+    }
+
+    private void mockStartUserInBackground(@UserIdInt int userId, int status) throws Exception {
+        doAnswer((invocation) -> {
+            @SuppressWarnings("unchecked")
+            AndroidFuture<UserStartResult> future =
+                    (AndroidFuture<UserStartResult>) invocation.getArguments()[1];
+            future.complete(new UserStartResult(status));
+            return null;
+        }).when(mService).startUserInBackground(eq(userId), notNull());
     }
 }
