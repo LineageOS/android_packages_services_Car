@@ -33,10 +33,12 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.junit.Assert.assertThrows;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
+import static org.mockito.Mockito.anyList;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -84,6 +86,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
 import com.android.internal.util.function.TriConsumer;
 
 import com.google.common.truth.Correspondence;
@@ -103,13 +106,15 @@ import java.util.Collections;
 import java.util.List;
 import java.util.Map;
 import java.util.Set;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.TimeUnit;
 
 /**
  * <p>This class contains unit tests for the {@link CarWatchdogService}.
  */
 @RunWith(MockitoJUnitRunner.class)
 public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase {
-
+    static final String TAG = CarLog.tagFor(CarWatchdogService.class);
     private static final String CAR_WATCHDOG_DAEMON_INTERFACE = "carwatchdogd_system";
     private static final int MAX_WAIT_TIME_MS = 3000;
     private static final int INVALID_SESSION_ID = -1;
@@ -122,6 +127,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
+    private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
@@ -144,6 +150,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         setupUsers();
         mCarWatchdogService.init();
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
+        captureDaemonBinderDeathRecipient();
     }
 
     @Test
@@ -659,33 +666,91 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     @Test
     public void testSetResourceOveruseConfigurations() throws Exception {
-        List<ResourceOveruseConfiguration> resourceOveruseConfigs = Arrays.asList(
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build(),
-                sampleResourceOveruseConfigurationBuilder(ComponentType.VENDOR,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.VENDOR).build()).build(),
-                sampleResourceOveruseConfigurationBuilder(ComponentType.THIRD_PARTY,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.THIRD_PARTY).build())
-                        .build());
-
-        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
+                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
-                actualConfigs = captureOnSetResourceOveruseConfigurations();
+        InternalResourceOveruseConfigurationSubject
+                .assertThat(captureOnSetResourceOveruseConfigurations())
+                .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
+    }
 
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
-                expectedConfigs = Arrays.asList(
-                sampleInternalResourceOveruseConfiguration(ComponentType.SYSTEM,
-                        sampleInternalIoOveruseConfiguration(ComponentType.SYSTEM)),
-                sampleInternalResourceOveruseConfiguration(ComponentType.VENDOR,
-                        sampleInternalIoOveruseConfiguration(ComponentType.VENDOR)),
-                sampleInternalResourceOveruseConfiguration(ComponentType.THIRD_PARTY,
-                        sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY)));
+    @Test
+    public void testSetResourceOveruseConfigurationsRetriedWithDisconnectedDaemon()
+            throws Exception {
+        crashWatchdogDaemon();
 
-        InternalResourceOveruseConfigurationSubject.assertThat(actualConfigs)
-                .containsExactlyElementsIn(expectedConfigs);
+        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
+                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        restartWatchdogDaemonAndAwait();
+
+        InternalResourceOveruseConfigurationSubject
+                .assertThat(captureOnSetResourceOveruseConfigurations())
+                .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
+    }
+
+    @Test
+    public void testSetResourceOveruseConfigurationsRetriedWithRepeatedRemoteException()
+            throws Exception {
+        CountDownLatch crashLatch = new CountDownLatch(2);
+        doAnswer(args -> {
+            crashWatchdogDaemon();
+            crashLatch.countDown();
+            throw new RemoteException();
+        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
+
+        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
+                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        restartWatchdogDaemonAndAwait();
+
+        /*
+         * Wait until the daemon is crashed again during the latest
+         * updateResourceOveruseConfigurations call so the test is deterministic.
+         */
+        crashLatch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
+
+        /* The below final restart should set the resource overuse configurations successfully. */
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> actualConfigs =
+                new ArrayList<>();
+        doAnswer(args -> {
+            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
+                    args.getArgument(0);
+            synchronized (actualConfigs) {
+                actualConfigs.addAll(configs);
+                actualConfigs.notify();
+            }
+            return null;
+        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
+
+        restartWatchdogDaemonAndAwait();
+
+        /* Wait until latest updateResourceOveruseConfigurations call is issued on reconnection. */
+        synchronized (actualConfigs) {
+            actualConfigs.wait(MAX_WAIT_TIME_MS);
+            InternalResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                    .containsExactlyElementsIn(sampleInternalResourceOveruseConfigurations());
+        }
+
+        verify(mMockCarWatchdogDaemon, times(3)).updateResourceOveruseConfigurations(anyList());
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsWithPendingRequest()
+            throws Exception {
+        crashWatchdogDaemon();
+
+        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
+                sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        assertThrows(IllegalStateException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(
+                        sampleResourceOveruseConfigurations(),
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
     }
 
     @Test
@@ -730,32 +795,89 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
-        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
-                internalResourceOveruseConfigs = Arrays.asList(
-                sampleInternalResourceOveruseConfiguration(ComponentType.SYSTEM,
-                        sampleInternalIoOveruseConfiguration(ComponentType.SYSTEM)),
-                sampleInternalResourceOveruseConfiguration(ComponentType.VENDOR,
-                        sampleInternalIoOveruseConfiguration(ComponentType.VENDOR)),
-                sampleInternalResourceOveruseConfiguration(ComponentType.THIRD_PARTY,
-                        sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY)));
-        doReturn(internalResourceOveruseConfigs).when(mMockCarWatchdogDaemon)
-                .getResourceOveruseConfigurations();
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
+                .thenReturn(sampleInternalResourceOveruseConfigurations());
 
         List<ResourceOveruseConfiguration> actualConfigs =
                 mCarWatchdogService.getResourceOveruseConfigurations(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
 
-        List<ResourceOveruseConfiguration> expectedConfigs = Arrays.asList(
-                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build(),
-                sampleResourceOveruseConfigurationBuilder(ComponentType.VENDOR,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.VENDOR).build()).build(),
-                sampleResourceOveruseConfigurationBuilder(ComponentType.THIRD_PARTY,
-                        sampleIoOveruseConfigurationBuilder(ComponentType.THIRD_PARTY).build())
-                        .build());
+        ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
+                .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurationsWithDisconnectedDaemon() throws Exception {
+        crashWatchdogDaemon();
+
+        assertThrows(IllegalStateException.class,
+                () -> mCarWatchdogService.getResourceOveruseConfigurations(
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+
+        verify(mMockCarWatchdogDaemon, never()).getResourceOveruseConfigurations();
+    }
+
+    @Test
+    public void testGetResourceOveruseConfigurationsWithReconnectedDaemon() throws Exception {
+        /*
+         * Emulate daemon crash and restart during the get request. The below get request should be
+         * waiting for daemon connection before the first call to ServiceManager.getService. But to
+         * make sure the test is deterministic emulate daemon restart only on the second call to
+         * ServiceManager.getService.
+         */
+        doReturn(null)
+                .doReturn(mMockBinder)
+                .when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
+
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
+                .thenReturn(sampleInternalResourceOveruseConfigurations());
+
+        List<ResourceOveruseConfiguration> actualConfigs =
+                mCarWatchdogService.getResourceOveruseConfigurations(
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
 
         ResourceOveruseConfigurationSubject.assertThat(actualConfigs)
-                .containsExactlyElementsIn(expectedConfigs);
+                .containsExactlyElementsIn(sampleResourceOveruseConfigurations());
+    }
+
+    @Test
+    public void testConcurrentSetGetResourceOveruseConfigurationsWithReconnectedDaemon()
+            throws Exception {
+        /*
+         * Emulate daemon crash and restart during the get and set requests. The below get request
+         * should be waiting for daemon connection before the first call to
+         * ServiceManager.getService. But to make sure the test is deterministic emulate daemon
+         * restart only on the second call to ServiceManager.getService.
+         */
+        doReturn(null)
+                .doReturn(mMockBinder)
+                .when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
+
+        /* Capture and respond with the configuration received in the set request. */
+        List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
+                new ArrayList<>();
+        doAnswer(args -> {
+            List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> configs =
+                    args.getArgument(0);
+            internalConfigs.addAll(configs);
+            return null;
+        }).when(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(anyList());
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations()).thenReturn(internalConfigs);
+
+        /* Start a set request that will become pending and a blocking get request. */
+        List<ResourceOveruseConfiguration> setConfigs = sampleResourceOveruseConfigurations();
+        assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
+                setConfigs, CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        List<ResourceOveruseConfiguration> getConfigs =
+                mCarWatchdogService.getResourceOveruseConfigurations(
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+
+        ResourceOveruseConfigurationSubject.assertThat(getConfigs)
+                .containsExactlyElementsIn(setConfigs);
     }
 
     @Test
@@ -1029,8 +1151,32 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     private void mockWatchdogDaemon() {
-        doReturn(mMockBinder).when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
         when(mMockBinder.queryLocalInterface(anyString())).thenReturn(mMockCarWatchdogDaemon);
+        when(mMockCarWatchdogDaemon.asBinder()).thenReturn(mMockBinder);
+        doReturn(mMockBinder).when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+    }
+
+    private void captureDaemonBinderDeathRecipient() throws Exception {
+        ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
+                ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
+        verify(mMockBinder, timeout(MAX_WAIT_TIME_MS))
+                .linkToDeath(deathRecipientCaptor.capture(), anyInt());
+        mCarWatchdogDaemonBinderDeathRecipient = deathRecipientCaptor.getValue();
+    }
+
+    public void crashWatchdogDaemon() {
+        doReturn(null).when(() -> ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE));
+        mCarWatchdogDaemonBinderDeathRecipient.binderDied();
+    }
+
+    public void restartWatchdogDaemonAndAwait() throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        doAnswer(args -> {
+            latch.countDown();
+            return null;
+        }).when(mMockBinder).linkToDeath(any(), anyInt());
+        mockWatchdogDaemon();
+        latch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
     }
 
     private void setupUsers() {
@@ -1063,24 +1209,24 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
             captureOnSetResourceOveruseConfigurations() throws Exception {
         ArgumentCaptor<List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>>
                 resourceOveruseConfigurationsCaptor = ArgumentCaptor.forClass(List.class);
-        verify(mMockCarWatchdogDaemon).updateResourceOveruseConfigurations(
-                resourceOveruseConfigurationsCaptor.capture());
+        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS))
+                .updateResourceOveruseConfigurations(resourceOveruseConfigurationsCaptor.capture());
         return resourceOveruseConfigurationsCaptor.getValue();
     }
 
     private void injectUidToPackageNameMapping(SparseArray<String> packageNamesByUid) {
-        doAnswer(args -> {
+        when(mMockPackageManager.getNamesForUids(any())).thenAnswer(args -> {
             int[] uids = args.getArgument(0);
             String[] packageNames = new String[uids.length];
             for (int i = 0; i < uids.length; ++i) {
                 packageNames[i] = packageNamesByUid.get(uids[i], null);
             }
             return packageNames;
-        }).when(mMockPackageManager).getNamesForUids(any());
+        });
     }
 
     private void injectIoOveruseStatsForPackages(SparseArray<String> packageNamesByUid,
-            Set<String> killablePackages) throws RemoteException {
+            Set<String> killablePackages) throws Exception {
         injectUidToPackageNameMapping(packageNamesByUid);
         List<PackageIoOveruseStats> packageIoOveruseStats = new ArrayList<>();
         for (int i = 0; i < packageNamesByUid.size(); ++i) {
@@ -1118,8 +1264,8 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 addPackageInfo.accept(packageName, 0, 0);
             }
         }
-        doReturn(packageInfos).when(mMockPackageManager).getInstalledPackagesAsUser(
-                eq(0), anyInt());
+        when(mMockPackageManager.getInstalledPackagesAsUser(eq(0), anyInt()))
+                .thenReturn(packageInfos);
     }
 
     private void mockApplicationEnabledSettingAccessors(IPackageManager pm) throws Exception {
@@ -1166,6 +1312,28 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     private static int getUid(int appId) {
         return UserHandle.getUid(UserHandle.myUserId(), appId);
+    }
+
+    private static List<ResourceOveruseConfiguration> sampleResourceOveruseConfigurations() {
+        return Arrays.asList(
+                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.VENDOR,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.VENDOR).build()).build(),
+                sampleResourceOveruseConfigurationBuilder(ComponentType.THIRD_PARTY,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.THIRD_PARTY).build())
+                        .build());
+    }
+
+    private static List<android.automotive.watchdog.internal.ResourceOveruseConfiguration>
+            sampleInternalResourceOveruseConfigurations() {
+        return Arrays.asList(
+                sampleInternalResourceOveruseConfiguration(ComponentType.SYSTEM,
+                        sampleInternalIoOveruseConfiguration(ComponentType.SYSTEM)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.VENDOR,
+                        sampleInternalIoOveruseConfiguration(ComponentType.VENDOR)),
+                sampleInternalResourceOveruseConfiguration(ComponentType.THIRD_PARTY,
+                        sampleInternalIoOveruseConfiguration(ComponentType.THIRD_PARTY)));
     }
 
     private static ResourceOveruseConfiguration.Builder sampleResourceOveruseConfigurationBuilder(
@@ -1362,7 +1530,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
     private void mockPackageManager(int[] uids, List<PackageInfo> packageInfos,
             ArrayMap<String, ApplicationInfo> applicationInfos)
-            throws PackageManager.NameNotFoundException {
+            throws Exception {
         String[] packageNames = new String[packageInfos.size()];
         for (int i = 0; i < packageInfos.size(); ++i) {
             PackageInfo packageInfo = packageInfos.get(i);

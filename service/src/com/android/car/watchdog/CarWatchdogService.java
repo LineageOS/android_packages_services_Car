@@ -146,7 +146,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    protected int getClientCount(int timeout) {
+    int getClientCount(int timeout) {
         return mWatchdogProcessHandler.getClientCount(timeout);
     }
 
@@ -255,7 +255,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @CarWatchdogManager.ReturnCode
     public int setResourceOveruseConfigurations(
             List<ResourceOveruseConfiguration> configurations,
-            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag)
+            throws RemoteException {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         return mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations,
                 resourceOveruseFlag);
