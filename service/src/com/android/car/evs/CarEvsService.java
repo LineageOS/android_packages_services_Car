@@ -37,12 +37,10 @@ import android.car.evs.CarEvsManager.CarEvsServiceState;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
-import android.car.evs.ICarEvsService;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
 import android.content.ComponentName;
 import android.content.Context;
-import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.HardwareBuffer;
 import android.os.Binder;
@@ -57,18 +55,15 @@ import android.util.Log;
 import android.util.Slog;
 import android.util.SparseIntArray;
 
-import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.CarServiceUtils;
-import com.android.car.hal.EvsHalService;
 import com.android.car.ICarImpl;
 import com.android.car.R;
+import com.android.car.hal.EvsHalService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
-import java.util.concurrent.CountDownLatch;
-import java.util.concurrent.TimeUnit;
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 /**
  * A service that listens to the Extended View System across a HAL boundary and exposes the data to
@@ -138,6 +133,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     private final Context mContext;
     private final EvsHalService mEvsHalService;
+    // Shouldn't acquire mStateLock holding mLock.
     private final Object mLock = new Object();
 
     // This handler is to monitor the client sends a video stream request within a given time
@@ -339,7 +335,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
                 case SERVICE_STATE_ACTIVE:
                     // Requested to stop a current video stream
-                    stopVideoStreamAndUnregisterCallback(callback);
+                    if (callback != null) {
+                        stopVideoStreamAndUnregisterCallback(callback);
+                    } else {
+                        stopService();
+                    }
                     break;
 
                 default:
@@ -347,6 +347,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
 
             mState = SERVICE_STATE_INACTIVE;
+            setSessionToken(null);
             return ERROR_NONE;
         }
 
@@ -423,7 +424,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
                 case SERVICE_STATE_REQUESTED:
                     // CarEvsService is reserved for higher priority clients.
-                    if (token != mCurrentToken) {
+                    if (!isSessionToken(token)) {
                         // Declines a request with an expired token.
                         return ERROR_BUSY;
                     }
@@ -472,7 +473,20 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private final StateMachine mStateEngine = new StateMachine();
 
     // The latest session token issued to the privileged clients
-    private IBinder mCurrentToken = null;
+    @GuardedBy("mLock")
+    private IBinder mSessionToken = null;
+
+    private void setSessionToken(IBinder token) {
+        synchronized (mLock) {
+            mSessionToken = token;
+        }
+    }
+
+    private boolean isSessionToken(IBinder token) {
+        synchronized (mLock) {
+            return token != null && token == mSessionToken;
+        }
+    }
 
     // Synchronization object for a stream-stopped confirmation
     private CountDownLatch mStreamStoppedEvent = new CountDownLatch(0);
@@ -482,7 +496,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private EvsHalEvent mLastEvsHalEvent;
 
     // Stops a current video stream and unregisters a callback
-    @GuardedBy("mLock")
     private void stopVideoStreamAndUnregisterCallback(ICarEvsStreamCallback callback) {
         synchronized (mLock) {
             mStreamCallbacks.unregister(callback);
@@ -695,7 +708,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
-        if (token != null && token != mCurrentToken) {
+        if (isSessionToken(token)) {
             mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
         }
 
@@ -740,7 +753,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         synchronized (mLock) {
             int record = mBufferRecords.get(bufferId, /* valueIfKeyNotFound = */ BUFFER_NOT_EXIST);
             if (record == BUFFER_NOT_EXIST) {
-                Slog.w(TAG_EVS, "Ignores a request to return a buffer with unknown id = " + bufferId);
+                Slog.w(TAG_EVS,
+                        "Ignores a request to return a buffer with unknown id = " + bufferId);
                 return;
             }
 
@@ -805,14 +819,13 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         String systemUiPackageName = getSystemUiPackageName();
         IBinder token = new Binder();
         try {
-            int systemUiUid = mContext
-                    .createContextAsUser(UserHandle.SYSTEM, /* flags = */ 0).getPackageManager()
-                    .getPackageUid(systemUiPackageName, PackageManager.MATCH_SYSTEM_ONLY);
+            int systemUiUid = mContext.getPackageManager().getPackageUidAsUser(
+                    systemUiPackageName, UserHandle.USER_SYSTEM);
             int callerUid = Binder.getCallingUid();
-            if (systemUiUid != callerUid) {
-                synchronized (mCurrentToken) {
-                    mCurrentToken = token;
-                }
+            if (systemUiUid == callerUid) {
+                setSessionToken(token);
+            } else {
+                throw new SecurityException("SystemUI only can generate SessionToken.");
             }
         } catch (NameNotFoundException err) {
             throw new IllegalStateException(systemUiPackageName + " package not found.");
@@ -891,7 +904,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         if (!nativeOpenCamera(mNativeEvsServiceObj,
-                  mContext.getString(R.string.config_evsRearviewCameraId))) {
+                mContext.getString(R.string.config_evsRearviewCameraId))) {
             Slog.e(TAG_EVS, "Failed to open a target camera device");
             return false;
         }
