@@ -217,6 +217,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private String mCurrentPowerPolicyGroupId;
     @GuardedBy("mLock")
     private boolean mIsPowerPolicyLocked;
+    @GuardedBy("mLock")
+    private boolean mHasControlOverDaemon;
 
     @GuardedBy("mLock")
     @Nullable
@@ -286,6 +288,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         }
         mUserService = carUserService;
         mCarPowerPolicyDaemon = powerPolicyDaemon;
+        if (powerPolicyDaemon != null) {
+            // For testing purpose
+            mHasControlOverDaemon = true;
+        }
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
@@ -1168,34 +1174,45 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void initializePowerPolicy() {
         Slog.i(TAG, "CPMS is taking control from carpowerpolicyd");
         ICarPowerPolicySystemNotification daemon;
-        String currentPowerPolicyId;
         synchronized (mLock) {
             daemon = mCarPowerPolicyDaemon;
-            currentPowerPolicyId = mCurrentPowerPolicyId;
         }
+        PolicyState state;
         if (daemon != null) {
-            PolicyState state;
             try {
                 state = daemon.notifyCarServiceReady();
-                String errMsg = setCurrentPowerPolicyGroup(state.policyGroupId);
-                if (errMsg != null) {
-                    Slog.w(TAG, errMsg);
-                }
             } catch (RemoteException e) {
                 Slog.e(TAG, "Failed to tell car power policy daemon that CarService is ready", e);
                 return;
             }
-            if (currentPowerPolicyId == null || currentPowerPolicyId.isEmpty()) {
-                String errorMsg = applyPowerPolicy(state.policyId, false);
-                if (errorMsg != null) {
-                    Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
-                }
-            } else if (state.policyId.equals(currentPowerPolicyId)) {
-                notifyPowerPolicyChangeToDaemon(currentPowerPolicyId);
-            }
         } else {
             Slog.w(TAG, "Failed to notify car service is ready. car power policy daemon is not "
                     + "available");
+            return;
+        }
+
+        String currentPowerPolicyId;
+        String currentPolicyGroupId;
+        synchronized (mLock) {
+            mHasControlOverDaemon = true;
+            currentPowerPolicyId = mCurrentPowerPolicyId;
+            currentPolicyGroupId = mCurrentPowerPolicyGroupId;
+        }
+        // In case where CPMS received power state change before taking control from the daemon.
+        notifyPowerPolicyChangeToDaemon(currentPowerPolicyId);
+        // If the current power policy or the policy group has been modified by CPMS, we ignore
+        // the power policy or the policy group passed from car power policy daemon.
+        if (currentPowerPolicyId == null || currentPowerPolicyId.isEmpty()) {
+            String errorMsg = applyPowerPolicy(state.policyId, false);
+            if (errorMsg != null) {
+                Slog.w(TAG, "Cannot apply power policy: " + errorMsg);
+            }
+        }
+        if (currentPolicyGroupId == null || currentPolicyGroupId.isEmpty()) {
+            String errMsg = setCurrentPowerPolicyGroup(state.policyGroupId);
+            if (errMsg != null) {
+                Slog.w(TAG, "Cannot set power policy group: " + errMsg);
+            }
         }
         mSilentModeHandler.init();
     }
@@ -1268,16 +1285,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void notifyPowerPolicyChangeToDaemon(String policyId) {
         ICarPowerPolicySystemNotification daemon;
+        boolean hadPendingPolicyNotification;
         synchronized (mLock) {
             daemon = mCarPowerPolicyDaemon;
-        }
-        if (daemon == null) {
-            Slog.e(TAG, "Failed to notify car power policy daemon: the daemon is not ready");
-            return;
+            if (daemon == null) {
+                Slog.e(TAG, "Failed to notify car power policy daemon: the daemon is not ready");
+                return;
+            }
+            if (!mHasControlOverDaemon) {
+                Slog.w(TAG, "Notifying policy change is deferred: CPMS has not yet taken control");
+                return;
+            }
         }
         try {
             daemon.notifyPowerPolicyChange(policyId);
-        } catch (RemoteException e) {
+        } catch (RemoteException | IllegalStateException e) {
             Slog.e(TAG, "Failed to notify car power policy daemon of a new power policy("
                     + policyId + ")", e);
         }
@@ -1397,6 +1419,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             mDaemon = null;
             synchronized (mLock) {
                 mCarPowerPolicyDaemon = null;
+                mHasControlOverDaemon = false;
             }
             mHandler.sendMessageDelayed(PooledLambda.obtainMessage(
                     CarPowerManagementService::connectToDaemonHelper,
