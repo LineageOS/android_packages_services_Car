@@ -495,8 +495,14 @@ Result<void> CarPowerPolicyServer::applyPowerPolicy(const std::string& policyId,
             mPendingPowerPolicyId = policyId;
             return {};
         }
+        bool isPolicyApplied = isPowerPolicyAppliedLocked();
+        if (isPolicyApplied && mCurrentPowerPolicyMeta.powerPolicy->policyId == policyId) {
+            ALOGI("Applying policy skipped: the given policy(ID: %s) is the current policy",
+                  policyId.c_str());
+            return {};
+        }
         if (policyMeta->isPreemptive) {
-            if (isPowerPolicyAppliedLocked() && !mCurrentPowerPolicyMeta.isPreemptive) {
+            if (isPolicyApplied && !mCurrentPowerPolicyMeta.isPreemptive) {
                 mPendingPowerPolicyId = mCurrentPowerPolicyMeta.powerPolicy->policyId;
             }
             mIsPowerPolicyLocked = true;
