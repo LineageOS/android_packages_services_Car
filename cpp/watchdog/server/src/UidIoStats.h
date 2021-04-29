@@ -49,8 +49,8 @@ enum MetricType {
 class IoUsage {
 public:
     IoUsage() : metrics{{0}} {};
-    IoUsage(uint64_t fgRdBytes, uint64_t bgRdBytes, uint64_t fgWrBytes, uint64_t bgWrBytes,
-            uint64_t fgFsync, uint64_t bgFsync) {
+    IoUsage(int64_t fgRdBytes, int64_t bgRdBytes, int64_t fgWrBytes, int64_t bgWrBytes,
+            int64_t fgFsync, int64_t bgFsync) {
         metrics[READ_BYTES][FOREGROUND] = fgRdBytes;
         metrics[READ_BYTES][BACKGROUND] = bgRdBytes;
         metrics[WRITE_BYTES][FOREGROUND] = fgWrBytes;
@@ -62,23 +62,23 @@ public:
     bool operator==(const IoUsage& usage) const {
         return memcmp(&metrics, &usage.metrics, sizeof(metrics)) == 0;
     }
-    uint64_t sumReadBytes() const {
+    int64_t sumReadBytes() const {
         const auto& [fgBytes, bgBytes] =
                 std::tuple(metrics[READ_BYTES][FOREGROUND], metrics[READ_BYTES][BACKGROUND]);
-        return (std::numeric_limits<uint64_t>::max() - fgBytes) > bgBytes
+        return (std::numeric_limits<int64_t>::max() - fgBytes) > bgBytes
                 ? (fgBytes + bgBytes)
-                : std::numeric_limits<uint64_t>::max();
+                : std::numeric_limits<int64_t>::max();
     }
-    uint64_t sumWriteBytes() const {
+    int64_t sumWriteBytes() const {
         const auto& [fgBytes, bgBytes] =
                 std::tuple(metrics[WRITE_BYTES][FOREGROUND], metrics[WRITE_BYTES][BACKGROUND]);
-        return (std::numeric_limits<uint64_t>::max() - fgBytes) > bgBytes
+        return (std::numeric_limits<int64_t>::max() - fgBytes) > bgBytes
                 ? (fgBytes + bgBytes)
-                : std::numeric_limits<uint64_t>::max();
+                : std::numeric_limits<int64_t>::max();
     }
     bool isZero() const;
     std::string toString() const;
-    uint64_t metrics[METRIC_TYPES][UID_STATES];
+    int64_t metrics[METRIC_TYPES][UID_STATES];
 };
 
 struct UidIoUsage {
