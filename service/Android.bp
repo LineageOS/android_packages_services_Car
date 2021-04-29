@@ -55,6 +55,7 @@ common_lib_deps = [
     // to CarSettings
     "car-admin-ui-lib",
     "Slogf",
+    "cartelemetry-protos",
 ]
 
 android_app {
