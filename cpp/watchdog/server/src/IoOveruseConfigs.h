@@ -42,9 +42,9 @@ inline const android::automotive::watchdog::internal::PerStateIoOveruseThreshold
 defaultThreshold() {
     android::automotive::watchdog::internal::PerStateIoOveruseThreshold threshold;
     threshold.name = kDefaultThresholdName;
-    threshold.perStateWriteBytes.foregroundBytes = std::numeric_limits<uint64_t>::max();
-    threshold.perStateWriteBytes.backgroundBytes = std::numeric_limits<uint64_t>::max();
-    threshold.perStateWriteBytes.garageModeBytes = std::numeric_limits<uint64_t>::max();
+    threshold.perStateWriteBytes.foregroundBytes = std::numeric_limits<int64_t>::max();
+    threshold.perStateWriteBytes.backgroundBytes = std::numeric_limits<int64_t>::max();
+    threshold.perStateWriteBytes.garageModeBytes = std::numeric_limits<int64_t>::max();
     return threshold;
 }
 
