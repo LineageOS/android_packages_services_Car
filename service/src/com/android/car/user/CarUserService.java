@@ -1850,6 +1850,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void startUserInBackground(@UserIdInt int userId,
             @NonNull AndroidFuture<UserStartResult> receiver) {
+        checkManageOrCreateUsersPermission("startUserInBackground");
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_START_USER_IN_BACKGROUND_REQ, userId);
+
         mHandler.post(() -> handleStartUserInBackground(userId, receiver));
     }
 
@@ -1857,20 +1860,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @NonNull AndroidFuture<UserStartResult> receiver) {
         // If the requested user is the current user, do nothing and return success.
         if (ActivityManager.getCurrentUser() == userId) {
-            sendUserStartResult(UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER, receiver);
+            sendUserStartResult(
+                    userId, UserStartResult.STATUS_SUCCESSFUL_USER_IS_CURRENT_USER, receiver);
             return;
         }
         // If requested user does not exist, return error.
         if (mUserManager.getUserInfo(userId) == null) {
             Slogf.w(TAG, "User %d does not exist", userId);
-            sendUserStartResult(UserStartResult.STATUS_USER_DOES_NOT_EXIST, receiver);
+            sendUserStartResult(userId, UserStartResult.STATUS_USER_DOES_NOT_EXIST, receiver);
             return;
         }
 
         try {
             if (!mAm.startUserInBackground(userId)) {
                 Slogf.w(TAG, "Failed to start user %d in background", userId);
-                sendUserStartResult(UserStartResult.STATUS_ANDROID_FAILURE, receiver);
+                sendUserStartResult(userId, UserStartResult.STATUS_ANDROID_FAILURE, receiver);
                 return;
             }
         } catch (RemoteException e) {
@@ -1880,12 +1884,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // TODO(b/181331178): We are not updating mBackgroundUsersToRestart or
         // mBackgroundUsersRestartedHere, which were only used for the garage mode. Consider
         // renaming them to make it more clear.
-        sendUserStartResult(UserStartResult.STATUS_SUCCESSFUL, receiver);
+        sendUserStartResult(userId, UserStartResult.STATUS_SUCCESSFUL, receiver);
     }
 
-    private void sendUserStartResult(@UserStartResult.Status int result,
+    private void sendUserStartResult(@UserIdInt int userId, @UserStartResult.Status int result,
             @NonNull AndroidFuture<UserStartResult> receiver) {
-        // TODO(b/181331178): Add event log calls.
+        EventLog.writeEvent(
+                EventLogTags.CAR_USER_SVC_START_USER_IN_BACKGROUND_RESP, userId, result);
         receiver.complete(new UserStartResult(result));
     }
 
