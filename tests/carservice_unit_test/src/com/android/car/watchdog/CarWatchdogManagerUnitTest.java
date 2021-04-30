@@ -208,6 +208,7 @@ public class CarWatchdogManagerUnitTest {
         listenerImpl.onOveruse(stats);
 
         verifyNoMoreInteractions(listener);
+        verifyNoMoreInteractions(mService);
     }
 
     @Test
@@ -248,6 +249,7 @@ public class CarWatchdogManagerUnitTest {
 
         // Should be called only once when removing last listener.
         verify(mService, times(1)).removeResourceOveruseListener(listenerImpl);
+        verifyNoMoreInteractions(mService);
     }
 
     @Test
@@ -272,6 +274,7 @@ public class CarWatchdogManagerUnitTest {
                 any(IResourceOveruseListener.class));
         verify(mService, times(2))
                 .removeResourceOveruseListener(any(IResourceOveruseListener.class));
+        verifyNoMoreInteractions(mService);
     }
 
     @Test
@@ -311,6 +314,7 @@ public class CarWatchdogManagerUnitTest {
         listenerImpl.onOveruse(stats);
 
         verifyNoMoreInteractions(listener);
+        verifyNoMoreInteractions(mService);
     }
 
     @Test
@@ -351,6 +355,32 @@ public class CarWatchdogManagerUnitTest {
 
         // Should be called only once when removing last listener.
         verify(mService, times(1)).removeResourceOveruseListenerForSystem(listenerImpl);
+        verifyNoMoreInteractions(mService);
+    }
+
+    @Test
+    public void testReAddResourceOveruseListenerForSystem() throws Exception {
+        CarWatchdogManager.ResourceOveruseListener firstListener =
+                mock(CarWatchdogManager.ResourceOveruseListener.class);
+        CarWatchdogManager.ResourceOveruseListener secondListener =
+                mock(CarWatchdogManager.ResourceOveruseListener.class);
+
+        mCarWatchdogManager.addResourceOveruseListenerForSystem(
+                mExecutor, FLAG_RESOURCE_OVERUSE_IO, firstListener);
+        mCarWatchdogManager.addResourceOveruseListenerForSystem(
+                mExecutor, FLAG_RESOURCE_OVERUSE_IO, secondListener);
+        mCarWatchdogManager.removeResourceOveruseListenerForSystem(firstListener);
+        mCarWatchdogManager.removeResourceOveruseListenerForSystem(secondListener);
+
+        mCarWatchdogManager.addResourceOveruseListenerForSystem(
+                mExecutor, FLAG_RESOURCE_OVERUSE_IO, firstListener);
+        mCarWatchdogManager.removeResourceOveruseListenerForSystem(firstListener);
+
+        verify(mService, times(2)).addResourceOveruseListenerForSystem(eq(FLAG_RESOURCE_OVERUSE_IO),
+                any(IResourceOveruseListener.class));
+        verify(mService, times(2))
+                .removeResourceOveruseListenerForSystem(any(IResourceOveruseListener.class));
+        verifyNoMoreInteractions(mService);
     }
 
     @Test

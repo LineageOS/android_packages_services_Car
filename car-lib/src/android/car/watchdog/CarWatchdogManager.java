@@ -508,13 +508,9 @@ public final class CarWatchdogManager extends CarManagerBase {
                 return;
             }
             mResourceOveruseListenerInfos.remove(index);
-            if (!mResourceOveruseListenerImpl.hasListeners()) {
-                return;
-            }
-            shouldReAddToService =
+            shouldRemoveFromService =
                     mResourceOveruseListenerImpl.maybeRemoveFlag(resourceOveruseFlag);
-            shouldRemoveFromService = mResourceOveruseListenerInfos.isEmpty()
-                    || shouldReAddToService;
+            shouldReAddToService = mResourceOveruseListenerImpl.hasListeners();
         }
         if (shouldRemoveFromService) {
             removeResourceOveruseListenerImpl();
@@ -599,13 +595,9 @@ public final class CarWatchdogManager extends CarManagerBase {
                 return;
             }
             mResourceOveruseListenerForSystemInfos.remove(index);
-            if (!mResourceOveruseListenerForSystemImpl.hasListeners()) {
-                return;
-            }
-            shouldReAddToService =
+            shouldRemoveFromService =
                     mResourceOveruseListenerForSystemImpl.maybeRemoveFlag(resourceOveruseFlag);
-            shouldRemoveFromService = mResourceOveruseListenerForSystemInfos.isEmpty()
-                    || shouldReAddToService;
+            shouldReAddToService = mResourceOveruseListenerForSystemImpl.hasListeners();
         }
         if (shouldRemoveFromService) {
             removeResourceOveruseListenerForSystemImpl();
