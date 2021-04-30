@@ -34,7 +34,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 import android.util.Xml;
@@ -42,6 +41,7 @@ import android.util.Xml;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;
@@ -307,8 +307,8 @@ public final class PolicyReader {
         try (InputStream inputStream = new FileInputStream(VENDOR_POLICY_PATH)) {
             readPowerPolicyFromXml(inputStream);
         } catch (IOException | XmlPullParserException | PolicyXmlException e) {
-            Slog.w(TAG, "Proceed without registered policies: failed to parse "
-                    + VENDOR_POLICY_PATH + ": " + e);
+            Slogf.w(TAG, "Proceed without registered policies: failed to parse %s: %s",
+                    VENDOR_POLICY_PATH, e);
         }
     }
 
