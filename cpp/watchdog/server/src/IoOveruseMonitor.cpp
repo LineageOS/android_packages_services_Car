@@ -48,7 +48,7 @@ using ::android::base::Result;
 using ::android::binder::Status;
 
 // Minimum written bytes to sync the stats with the Watchdog service.
-constexpr uint64_t kMinSyncWrittenBytes = 100 * 1024;
+constexpr int64_t kMinSyncWrittenBytes = 100 * 1024;
 // Minimum percentage of threshold to warn killable applications.
 constexpr double kDefaultIoOveruseWarnPercentage = 80;
 // Maximum numer of system-wide stats (from periodic monitoring) to cache.
@@ -61,7 +61,7 @@ std::string uniquePackageIdStr(const PackageIdentifier& id) {
 }
 
 PerStateBytes diff(const PerStateBytes& lhs, const PerStateBytes& rhs) {
-    const auto sub = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
+    const auto sub = [](const int64_t& l, const int64_t& r) -> int64_t {
         return l >= r ? (l - r) : 0;
     };
     PerStateBytes result;
@@ -83,10 +83,10 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(struct tm currentTm) {
     return std::make_tuple(startTime, currentEpochSeconds - startTime);
 }
 
-uint64_t totalPerStateBytes(PerStateBytes perStateBytes) {
-    const auto sum = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
-        return std::numeric_limits<uint64_t>::max() - l > r ? (l + r)
-                                                            : std::numeric_limits<uint64_t>::max();
+int64_t totalPerStateBytes(PerStateBytes perStateBytes) {
+    const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
+        return std::numeric_limits<int64_t>::max() - l > r ? (l + r)
+                                                           : std::numeric_limits<int64_t>::max();
     };
     return sum(perStateBytes.foregroundBytes,
                sum(perStateBytes.backgroundBytes, perStateBytes.garageModeBytes));
@@ -351,7 +351,7 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
             {.pollDurationInSecs = difftime(time, mLastSystemWideIoMonitorTime),
              .bytesInKib = diskStats.numKibWritten});
     for (const auto& threshold : mIoOveruseConfigs->systemWideAlertThresholds()) {
-        uint64_t accountedWrittenKib = 0;
+        int64_t accountedWrittenKib = 0;
         double accountedDurationInSecs = 0;
         size_t accountedPolls = 0;
         for (auto rit = mSystemWideWrittenBytes.rbegin(); rit != mSystemWideWrittenBytes.rend();
@@ -564,10 +564,9 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
     if (id() == r.id()) {
         packageInfo = r.packageInfo;
     }
-    const auto sum = [](const uint64_t& l, const uint64_t& r) -> uint64_t {
-        return (std::numeric_limits<uint64_t>::max() - l) > r
-                ? (l + r)
-                : std::numeric_limits<uint64_t>::max();
+    const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
+        return (std::numeric_limits<int64_t>::max() - l) > r ? (l + r)
+                                                             : std::numeric_limits<int64_t>::max();
     };
     writtenBytes.foregroundBytes =
             sum(writtenBytes.foregroundBytes, r.writtenBytes.foregroundBytes);

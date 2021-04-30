@@ -161,7 +161,7 @@ std::string toString(const UidIoPerfData& data) {
     for (const auto& stat : data.topNReads) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
-            StringAppendF(&buffer, ", %" PRIu64 ", %.2f%%, %" PRIu64 ", %.2f%%", stat.bytes[i],
+            StringAppendF(&buffer, ", %" PRIi64 ", %.2f%%, %" PRIi64 ", %.2f%%", stat.bytes[i],
                           percentage(stat.bytes[i], data.total[READ_BYTES][i]), stat.fsync[i],
                           percentage(stat.fsync[i], data.total[FSYNC_COUNT][i]));
         }
@@ -177,7 +177,7 @@ std::string toString(const UidIoPerfData& data) {
     for (const auto& stat : data.topNWrites) {
         StringAppendF(&buffer, "%" PRIu32 ", %s", stat.userId, stat.packageName.c_str());
         for (int i = 0; i < UID_STATES; ++i) {
-            StringAppendF(&buffer, ", %" PRIu64 ", %.2f%%, %" PRIu64 ", %.2f%%", stat.bytes[i],
+            StringAppendF(&buffer, ", %" PRIi64 ", %.2f%%, %" PRIi64 ", %.2f%%", stat.bytes[i],
                           percentage(stat.bytes[i], data.total[WRITE_BYTES][i]), stat.fsync[i],
                           percentage(stat.fsync[i], data.total[FSYNC_COUNT][i]));
         }

@@ -49,12 +49,12 @@ struct UidIoPerfData {
     struct Stats {
         userid_t userId = 0;
         std::string packageName;
-        uint64_t bytes[UID_STATES];
-        uint64_t fsync[UID_STATES];
+        int64_t bytes[UID_STATES];
+        int64_t fsync[UID_STATES];
     };
     std::vector<Stats> topNReads = {};
     std::vector<Stats> topNWrites = {};
-    uint64_t total[METRIC_TYPES][UID_STATES] = {{0}};
+    int64_t total[METRIC_TYPES][UID_STATES] = {{0}};
 };
 
 std::string toString(const UidIoPerfData& perfData);
