@@ -36,6 +36,7 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::base::Error;
+using ::android::base::ParseInt;
 using ::android::base::ParseUint;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
@@ -47,19 +48,19 @@ namespace {
 bool parseUidIoStats(const std::string& data, UidIoUsage* usage) {
     std::vector<std::string> fields = Split(data, " ");
     if (fields.size() < 11 || !ParseUint(fields[0], &usage->uid) ||
-        !ParseUint(fields[3], &usage->ios.metrics[READ_BYTES][FOREGROUND]) ||
-        !ParseUint(fields[4], &usage->ios.metrics[WRITE_BYTES][FOREGROUND]) ||
-        !ParseUint(fields[7], &usage->ios.metrics[READ_BYTES][BACKGROUND]) ||
-        !ParseUint(fields[8], &usage->ios.metrics[WRITE_BYTES][BACKGROUND]) ||
-        !ParseUint(fields[9], &usage->ios.metrics[FSYNC_COUNT][FOREGROUND]) ||
-        !ParseUint(fields[10], &usage->ios.metrics[FSYNC_COUNT][BACKGROUND])) {
+        !ParseInt(fields[3], &usage->ios.metrics[READ_BYTES][FOREGROUND]) ||
+        !ParseInt(fields[4], &usage->ios.metrics[WRITE_BYTES][FOREGROUND]) ||
+        !ParseInt(fields[7], &usage->ios.metrics[READ_BYTES][BACKGROUND]) ||
+        !ParseInt(fields[8], &usage->ios.metrics[WRITE_BYTES][BACKGROUND]) ||
+        !ParseInt(fields[9], &usage->ios.metrics[FSYNC_COUNT][FOREGROUND]) ||
+        !ParseInt(fields[10], &usage->ios.metrics[FSYNC_COUNT][BACKGROUND])) {
         ALOGW("Invalid uid I/O stats: \"%s\"", data.c_str());
         return false;
     }
     return true;
 }
 
-uint64_t maybeDiff(uint64_t lhs, uint64_t rhs) {
+int64_t maybeDiff(int64_t lhs, int64_t rhs) {
     return lhs > rhs ? lhs - rhs : 0;
 }
 
@@ -93,8 +94,8 @@ bool IoUsage::isZero() const {
 }
 
 std::string IoUsage::toString() const {
-    return StringPrintf("FgRdBytes:%" PRIu64 " BgRdBytes:%" PRIu64 " FgWrBytes:%" PRIu64
-                        " BgWrBytes:%" PRIu64 " FgFsync:%" PRIu64 " BgFsync:%" PRIu64,
+    return StringPrintf("FgRdBytes:%" PRIi64 " BgRdBytes:%" PRIi64 " FgWrBytes:%" PRIi64
+                        " BgWrBytes:%" PRIi64 " FgFsync:%" PRIi64 " BgFsync:%" PRIi64,
                         metrics[READ_BYTES][FOREGROUND], metrics[READ_BYTES][BACKGROUND],
                         metrics[WRITE_BYTES][FOREGROUND], metrics[WRITE_BYTES][BACKGROUND],
                         metrics[FSYNC_COUNT][FOREGROUND], metrics[FSYNC_COUNT][BACKGROUND]);
