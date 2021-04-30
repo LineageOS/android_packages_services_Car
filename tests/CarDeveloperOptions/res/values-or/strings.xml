@@ -2361,7 +2361,7 @@
     <string name="dialog_location_message" product="device" msgid="1454451610289205965">"ଆପଣଙ୍କ ଡିଭାଇସ୍‌ ସାମାନ୍ୟ ଭାବେ ବ୍ୟାଟେରୀ ପରିଚାଳନା କରିପାରିବ ନାହିଁ କାରଣ, ଆ‌ପ୍‌ ବ୍ୟବହାର ନହେଉଥିବାବେଳେ <xliff:g id="APP">%1$s</xliff:g> ଏହା ଆପଣଙ୍କର ଲୋକେସନ୍‌ ପାଇଁ ଅନୁରୋଧ କରିଚାଲେ।\n\nସମାଧାନସ୍ୱରୂପ, ଏହି ଆପ୍‌ ପାଇଁ ଆପଣ ଲୋକେସନ୍‌କୁ ବନ୍ଦ କରିଦେଇପାରିବେ।"</string>
     <string name="dialog_location_ok" msgid="1893773880878134342">"ଅଫ୍"</string>
     <string name="power_screen" msgid="8581228752332223154">"ସ୍କ୍ରୀନ୍‌"</string>
-    <string name="power_flashlight" msgid="6939780588882301575">"ଫ୍ଲାଶଲାଇଟ"</string>
+    <string name="power_flashlight" msgid="6939780588882301575">"ଫ୍ଲାସଲାଇଟ୍"</string>
     <string name="power_camera" msgid="8670998854830327437">"କ୍ୟାମେରା"</string>
     <string name="power_wifi" msgid="5017436332655362332">"ୱାଇ-ଫାଇ"</string>
     <string name="power_bluetooth" msgid="7097844828420335867">"ବ୍ଲୁଟୂଥ୍‍‌"</string>
@@ -2386,7 +2386,7 @@
     <string name="usage_type_audio" msgid="510459400845396879">"ଅଡିଓ"</string>
     <string name="usage_type_video" msgid="8161701367674306793">"ଭିଡିଓ"</string>
     <string name="usage_type_camera" msgid="2276450385733155264">"କ୍ୟାମେରା"</string>
-    <string name="usage_type_flashlight" msgid="954750302897154167">"ଫ୍ଲାଶଲାଇଟ"</string>
+    <string name="usage_type_flashlight" msgid="954750302897154167">"ଫ୍ଲାସଲାଇଟ୍"</string>
     <string name="usage_type_on_time" msgid="4622180623970638221">"ସମୟ ଅନ୍‌ କରାଗଲା"</string>
     <string name="usage_type_no_coverage" msgid="6032663899998431817">"କୌଣସି ସଂକେତ ବିନା ସମୟ"</string>
     <string name="usage_type_total_battery_capacity" msgid="1954889791720119945">"ମୋଟ ବ୍ୟାଟେରୀ କ୍ଷମତା"</string>

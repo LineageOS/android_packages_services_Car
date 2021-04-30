@@ -35,7 +35,7 @@
     <string name="radio_info_data_connection_disable" msgid="2430609627397999371">"Inaktivera dataanslutning"</string>
     <string name="volte_provisioned_switch_string" msgid="6326756678226686704">"VoLTE-administrerad"</string>
     <string name="vt_provisioned_switch_string" msgid="7458479879009293613">"Videosamtal tillhandahålls"</string>
-    <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"Wi-Fi-samtal tillhandahålls"</string>
+    <string name="wfc_provisioned_switch_string" msgid="5446697646596639516">"wifi-samtal tillhandahålls"</string>
     <string name="eab_provisioned_switch_string" msgid="3921103790584572430">"EAB/Presence tillhandahålls"</string>
     <string name="cbrs_data_switch_string" msgid="9120919504831536183">"Data via CBRS"</string>
     <string name="dsds_switch_string" msgid="2606482598327613264">"Aktivera DSDS"</string>
@@ -53,7 +53,7 @@
     <string name="radio_info_ims_reg_status_not_registered" msgid="1286050699734226077">"Ej registrerad"</string>
     <string name="radio_info_ims_feature_status_available" msgid="2040629393134756058">"Tillgänglig"</string>
     <string name="radio_info_ims_feature_status_unavailable" msgid="3348223769202693596">"Inte tillgänglig"</string>
-    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS-registrering: <xliff:g id="STATUS">%1$s</xliff:g>\nRöst via LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nRöst via Wi-Fi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nVideosamtal: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT-gränssnitt: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
+    <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS-registrering: <xliff:g id="STATUS">%1$s</xliff:g>\nRöst via LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nRöst via wifi: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nVideosamtal: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT-gränssnitt: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"I tjänst"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"Ur funktion"</string>
     <string name="radioInfo_service_emergency" msgid="7674989004735662599">"Endast nödsamtal"</string>
@@ -302,7 +302,7 @@
     <string name="settings_shortcut" msgid="4503714880251502167">"Genväg för inställningar"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"Flygplansläge"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"Trådlöst och nätverk"</string>
-    <string name="radio_controls_summary" msgid="4596981962167684814">"Hantera Wi-Fi, Bluetooth, flygplansläge, mobilnät och VPN"</string>
+    <string name="radio_controls_summary" msgid="4596981962167684814">"Hantera wifi, Bluetooth, flygplansläge, mobilnät och VPN"</string>
     <string name="cellular_data_title" msgid="7909624119432695022">"Mobildata"</string>
     <string name="calls_title" msgid="875693497825736550">"Tillåt samtal"</string>
     <string name="sms_messages_title" msgid="934188835214592753">"Sms"</string>
@@ -799,7 +799,7 @@
     <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maxantal för ljudenheter anslutna via Bluetooth"</string>
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Välj ett maxantal för ljudenheter anslutna via Bluetooth"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Casta"</string>
-    <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Aktivera Wi-Fi-skärmdelning"</string>
+    <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Aktivera wifi-skärmdelning"</string>
     <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Hittade inga enheter i närheten."</string>
     <string name="wifi_display_status_connecting" msgid="3799827425457383349">"Ansluter"</string>
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Ansluten"</string>
@@ -816,8 +816,8 @@
     <string name="wifi_tap_to_sign_in" msgid="1075925570550560453">"Tryck här om du vill logga in på nätverket"</string>
     <string name="tx_link_speed" msgid="4557508597788146162">"<xliff:g id="TRANSMIT_LINK_SPEED">%1$d</xliff:g> Mbit/s"</string>
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mbit/s"</string>
-    <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> vill aktivera Wi-Fi"</string>
-    <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> vill inaktivera Wi-Fi"</string>
+    <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> vill aktivera wifi"</string>
+    <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> vill inaktivera wifi"</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Verifiera felsökningsbara appars bytekod"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Verifiera bytekod för felsökningsbara appar genom att tillåta ART"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
@@ -833,15 +833,15 @@
     <string name="nfc_disabled_summary" msgid="2181777971122724361">"Funktionen är inte tillgänglig eftersom NFC är inaktiverat"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"När den här funktionen är aktiverad kan du överföra appinnehåll trådlöst till en annan NFC-kompatibel enhet genom att hålla enheterna mot varandra. Du kan till exempel överföra webbsidor, YouTube-videor, kontakter och mycket annat.\n\nHåll bara enheterna mot varandra (oftast baksida mot baksida) och tryck sedan på skärmen. Appen avgör vad som överförs."</string>
-    <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
-    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Aktivera Wi-Fi"</string>
-    <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
-    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Använd Wi-Fi"</string>
-    <string name="wifi_settings_category" msgid="9094716747565527901">"Wi-Fi-inställningar"</string>
-    <string name="wifi_settings_title" msgid="5265554991622344805">"Wi-Fi"</string>
+    <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"wifi"</string>
+    <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Aktivera wifi"</string>
+    <string name="wifi_settings" msgid="7486492317310514109">"wifi"</string>
+    <string name="wifi_settings_master_switch_title" msgid="3917916944694253946">"Använd wifi"</string>
+    <string name="wifi_settings_category" msgid="9094716747565527901">"wifi-inställningar"</string>
+    <string name="wifi_settings_title" msgid="5265554991622344805">"wifi"</string>
     <string name="wifi_settings_summary" msgid="7117267255799892820">"Ställ in och hantera trådlösa åtkomstpunkter"</string>
-    <string name="wifi_select_network" msgid="2541598480767312831">"Välj Wi-Fi"</string>
-    <string name="wifi_starting" msgid="1299466156783469023">"Wi-Fi aktiveras …"</string>
+    <string name="wifi_select_network" msgid="2541598480767312831">"Välj wifi"</string>
+    <string name="wifi_starting" msgid="1299466156783469023">"wifi aktiveras …"</string>
     <string name="wifi_stopping" msgid="413711069039939520">"Wi‑Fi inaktiveras …"</string>
     <string name="wifi_error" msgid="5605801874484465557">"Fel"</string>
     <string name="wifi_sap_no_channel_error" msgid="6881796988574851628">"5 GHz-bandet är inte tillgänligt i det här landet"</string>
@@ -854,33 +854,33 @@
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Detta är inte tillgängligt eftersom Wi‑Fi-sökning har inaktiverats"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Du måste välja en leverantör av nätverksbetyg om du vill använda nätverket"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Undvik dåliga anslutningar"</string>
-    <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Använd inte Wi-Fi-nätverk som inte har en bra internetanslutning"</string>
+    <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Använd inte wifi-nätverk som inte har en bra internetanslutning"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"Använd endast nätverk som har en bra internetanslutning"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"Anslut till öppna nätverk"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Anslut automatiskt till offentliga nätverk av hög kvalitet"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Du måste välja en leverantör av nätverksbetyg om du vill använda nätverket"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Du måste välja en kompatibel leverantör av nätverksbetyg om du vill använda nätverket"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Installera certifikat"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"I syfte att förbättra platsangivelserna kan appar och tjänster fortfarande söka efter Wi-Fi-nätverk när som helst, även om Wi-Fi har inaktiverats. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster. Du kan ändra inställningen i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>genomsökningsinställningarna<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Platsangivelsen kan göras mer exakt om du aktiverar Wi-Fi-sökning i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>genomsökningsinställningarna<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"I syfte att förbättra platsangivelserna kan appar och tjänster fortfarande söka efter wifi-nätverk när som helst, även om wifi har inaktiverats. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster. Du kan ändra inställningen i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>genomsökningsinställningarna<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Platsangivelsen kan göras mer exakt om du aktiverar wifi-sökning i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>genomsökningsinställningarna<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Visa inte igen"</string>
-    <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Behåll Wi-Fi på i viloläge"</string>
-    <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"Wi-Fi på i viloläge"</string>
+    <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Behåll wifi på i viloläge"</string>
+    <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"wifi på i viloläge"</string>
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"Ett problem inträffade när inställningen ändrades"</string>
     <string name="wifi_suspend_efficiency_title" msgid="5292408676086580527">"Öka effektiviteten"</string>
-    <string name="wifi_suspend_optimizations" msgid="8826033336622472222">"Wi-Fi-optimering"</string>
-    <string name="wifi_suspend_optimizations_summary" msgid="2375789014394339008">"Minimera batterianvändningen när Wi-Fi är aktiverat"</string>
-    <string name="wifi_limit_optimizations_summary" msgid="1192849485764156570">"Batterianvänd.gräns för Wi-Fi"</string>
-    <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Växla till mobildata om det inte går att ansluta till internet via Wi-Fi."</string>
+    <string name="wifi_suspend_optimizations" msgid="8826033336622472222">"wifi-optimering"</string>
+    <string name="wifi_suspend_optimizations_summary" msgid="2375789014394339008">"Minimera batterianvändningen när wifi är aktiverat"</string>
+    <string name="wifi_limit_optimizations_summary" msgid="1192849485764156570">"Batterianvänd.gräns för wifi"</string>
+    <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Växla till mobildata om det inte går att ansluta till internet via wifi."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Växla till mobildata automatiskt"</string>
-    <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Använd mobildata när Wi-Fi-nätverket inte är anslutet till internet. Avgifter för dataanvändning kan tillkomma."</string>
+    <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Använd mobildata när wifi-nätverket inte är anslutet till internet. Avgifter för dataanvändning kan tillkomma."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"Lägg till nätverk"</string>
-    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Inställningar för Wi-Fi"</string>
+    <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Inställningar för wifi"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"Wi‑Fi återaktiveras automatiskt"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Wi‑Fi återaktiveras inte automatiskt"</string>
-    <string name="wifi_access_points" msgid="1647976498906871869">"Wi-Fi-nätverk"</string>
+    <string name="wifi_access_points" msgid="1647976498906871869">"wifi-nätverk"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Fler alternativ"</string>
-    <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi Direct"</string>
+    <string name="wifi_menu_p2p" msgid="4945665601551289791">"wifi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Skanna"</string>
     <string name="wifi_menu_advanced" msgid="5984484498045511072">"Avancerat"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Konfigurera"</string>
@@ -888,14 +888,14 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"Kom ihåg nätverket"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Glöm nätverk"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Ändra nätverk"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Aktivera Wi-Fi för att visa tillgängliga nätverk."</string>
-    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Söker efter Wi-Fi-nätverk …"</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Aktivera wifi för att visa tillgängliga nätverk."</string>
+    <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Söker efter wifi-nätverk …"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Du har inte behörighet att ändra Wi‑Fi-nätverket."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Mer"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Automatisk installation (WPS)"</string>
-    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vill du aktivera Wi-Fi-sökning?"</string>
-    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Du måste aktivera Wi-Fi-sökning för att kunna aktivera Wi-Fi automatiskt."</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Med hjälp av Wi-Fi-sökning kan appar och tjänster söka efter Wi‑Fi-nätverk när som helst, även när Wi‑Fi är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
+    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vill du aktivera wifi-sökning?"</string>
+    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Du måste aktivera wifi-sökning för att kunna aktivera wifi automatiskt."</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Med hjälp av wifi-sökning kan appar och tjänster söka efter Wi‑Fi-nätverk när som helst, även när Wi‑Fi är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Aktivera"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi‑Fi-sökning har aktiverats"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Avancerade alternativ"</string>
@@ -938,7 +938,7 @@
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Lägg till enheten i <xliff:g id="SSID">%1$s</xliff:g> genom att centrera QR-koden i fönstret nedan"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skanna QR-kod"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Anslut till <xliff:g id="SSID">%1$s</xliff:g> genom att centrera QR-koden i fönstret nedan"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Anslut till Wi-Fi genom att skanna QR-koden"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Anslut till wifi genom att skanna QR-koden"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Dela Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Anslut till <xliff:g id="SSID">%1$s</xliff:g> och dela lösenordet genom att skanna QR-koden"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Anslut till <xliff:g id="SSID">%1$s</xliff:g> genom att skanna QR-koden"</string>
@@ -952,7 +952,7 @@
     <string name="wifi_dpp_choose_network" msgid="6251424431594491691">"Välj nätverk"</string>
     <string name="wifi_dpp_choose_network_to_connect_device" msgid="6385259857886784285">"Välj ett nätverk om du vill ansluta enheten"</string>
     <string name="wifi_dpp_add_device_to_wifi" msgid="6454198064645462446">"Vill du lägga till enheten på <xliff:g id="SSID">%1$s</xliff:g>?"</string>
-    <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"Wi-Fi har delats med enheten"</string>
+    <string name="wifi_dpp_wifi_shared_with_device" msgid="5713765471758272471">"wifi har delats med enheten"</string>
     <string name="wifi_dpp_add_another_device" msgid="3698441567235301565">"Lägg till ytterligare en enhet"</string>
     <string name="wifi_dpp_choose_different_network" msgid="128515107488187050">"Välj ett annat nätverk"</string>
     <string name="wifi_dpp_could_not_add_device" msgid="4966109556543584813">"Det gick inte att lägga till enheten"</string>
@@ -961,7 +961,7 @@
     <string name="wifi_dpp_connecting" msgid="4229290407210299897">"Ansluter …"</string>
     <string name="wifi_dpp_share_hotspot" msgid="847987212473038179">"Dela surfzon"</string>
     <string name="wifi_dpp_lockscreen_title" msgid="3910665850075275963">"Verifiera din identitet"</string>
-    <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"Wi-Fi-lösenord: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
+    <string name="wifi_dpp_wifi_password" msgid="8007558344032612455">"wifi-lösenord: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_hotspot_password" msgid="6172326289042241924">"Lösenord till surfzon: <xliff:g id="PASSWORD">%1$s</xliff:g>"</string>
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"Lägg till enhet"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"Anslut till nätverket med hjälp av en QR-kod"</string>
@@ -980,7 +980,7 @@
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS tillgängligt)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"Wi‑Fi-nätverk från operatör"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"Anslut via <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"<xliff:g id="APP_NAME">%1$s</xliff:g> vill aktivera nätverkssökning även när Wi-Fi är avstängt för att kunna förbättra positionens exakthet och andra ändamål.\n\nVill du tillåta detta för alla appar som vill söka efter nätverk?"</string>
+    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"<xliff:g id="APP_NAME">%1$s</xliff:g> vill aktivera nätverkssökning även när wifi är avstängt för att kunna förbättra positionens exakthet och andra ändamål.\n\nVill du tillåta detta för alla appar som vill söka efter nätverk?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"Välj Avancerat under fler menyalternativ om du vill inaktivera."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"Tillåt"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"Avvisa"</string>
@@ -990,13 +990,13 @@
     <string name="no_internet_access_text" msgid="7093326244145734504">"Nätverket är inte anslutet till internet. Vill du fortsätta använda nätverket?"</string>
     <string name="partial_connectivity_text" msgid="2142157808079235684">"Anslutningen är begränsad. Vissa appar och tjänster kanske inte fungerar. Vill du använda den ändå?"</string>
     <string name="no_internet_access_remember" msgid="1368137189939004202">"Fråga inte igen för det här nätverket"</string>
-    <string name="lost_internet_access_title" msgid="1061916948695946130">"Ingen internetanslutning med Wi-Fi"</string>
-    <string name="lost_internet_access_text" msgid="8962010031520731813">"Du kan växla till mobilnätverket när Wi-Fi-anslutningen är dålig. Avgifter för dataanvändning kan tillkomma."</string>
+    <string name="lost_internet_access_title" msgid="1061916948695946130">"Ingen internetanslutning med wifi"</string>
+    <string name="lost_internet_access_text" msgid="8962010031520731813">"Du kan växla till mobilnätverket när wifi-anslutningen är dålig. Avgifter för dataanvändning kan tillkomma."</string>
     <string name="lost_internet_access_switch" msgid="9218006455779873700">"Växla till mobilnätverk"</string>
     <string name="lost_internet_access_cancel" msgid="6577871064062518744">"Fortsätt på Wi‑Fi"</string>
     <string name="lost_internet_access_persist" msgid="6368659013482055611">"Visa aldrig igen"</string>
     <string name="wifi_connect" msgid="5653612760223533650">"Anslut"</string>
-    <string name="wifi_turned_on_message" msgid="3377779146238242894">"Wi-Fi har aktiverats"</string>
+    <string name="wifi_turned_on_message" msgid="3377779146238242894">"wifi har aktiverats"</string>
     <!-- no translation found for wifi_connected_to_message (2875589636437599620) -->
     <skip />
     <string name="wifi_connecting" msgid="384192498836395892">"Ansluter …"</string>
@@ -1016,7 +1016,7 @@
       <item quantity="other">%d nätverk</item>
       <item quantity="one">1 nätverk</item>
     </plurals>
-    <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Avancerat för Wi-Fi"</string>
+    <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"Avancerat för wifi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
     <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC-adress"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP-adress"</string>
@@ -1040,7 +1040,7 @@
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"Gateway"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Nätverksprefixets längd"</string>
-    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi-Fi Direct"</string>
+    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"wifi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"Enhetsinformation"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Kom ihåg anslutningen"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"Sök efter enheter"</string>
@@ -1067,7 +1067,7 @@
     <string name="wifi_hotspot_name_summary_connected" msgid="8387768642326756749">"Andra enheter kan ansluta till <xliff:g id="WIFI_HOTSPOT_NAME">%1$s</xliff:g>"</string>
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"Lösenord för surfzon"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP-band"</string>
-    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Använd surfzoner för att skapa ett Wi-Fi-nätverk för andra enheter. Med hjälp av surfzonerna ansluts enheterna till internet via din mobils dataanslutning. Ytterligare dataavgifter kan tillkomma."</string>
+    <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"Använd surfzoner för att skapa ett wifi-nätverk för andra enheter. Med hjälp av surfzonerna ansluts enheterna till internet via din mobils dataanslutning. Ytterligare dataavgifter kan tillkomma."</string>
     <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"Surfzoner kan också skapas i appar för att dela innehåll med enheter i närheten."</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"Inaktivera surfzon automatiskt"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"Wifi-surfzonen inaktiveras om inga enheter är anslutna"</string>
@@ -1075,13 +1075,13 @@
     <string name="wifi_tether_stopping" msgid="7478561853791953349">"Surfzon inaktiveras ..."</string>
     <string name="wifi_tether_enabled_subtext" msgid="7534760116478734006">"<xliff:g id="NETWORK_SSID">%1$s</xliff:g> är aktiv"</string>
     <string name="wifi_tether_failed_subtext" msgid="3501001612207106">"Fel på mobil wifi-surfzon"</string>
-    <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Konfigurera surfzon via Wi-Fi"</string>
+    <string name="wifi_tether_configure_ap_text" msgid="4081852770996455902">"Konfigurera surfzon via wifi"</string>
     <string name="wifi_hotspot_configure_ap_text" msgid="1000003286253019522">"Installation för wifi-surfzon"</string>
     <string name="wifi_hotspot_configure_ap_text_summary" msgid="2303120188509955656">"AndroidAP WPA2 PSK-surfzon"</string>
     <string name="wifi_tether_configure_ssid_default" msgid="1722238925876152663">"AndroidHotspot"</string>
-    <string name="wifi_calling_settings_title" msgid="626821542308601806">"Wi-Fi-samtal"</string>
+    <string name="wifi_calling_settings_title" msgid="626821542308601806">"wifi-samtal"</string>
     <string name="wifi_calling_suggestion_title" msgid="1402265373543523970">"Utöka samtal med Wi‑Fi"</string>
-    <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Utöka täckningen genom att aktivera Wi-Fi-samtal"</string>
+    <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"Utöka täckningen genom att aktivera wifi-samtal"</string>
     <string name="wifi_calling_mode_title" msgid="3350624859819920176">"Samtalsinställningar"</string>
     <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"Samtalsinställningar"</string>
     <string name="wifi_calling_roaming_mode_title" msgid="2059151080231602753">"Inställning för roaming"</string>
@@ -1094,30 +1094,30 @@
     <item msgid="742811521969300868">"@*android:string/wfc_mode_wifi_only_summary"</item>
   </string-array>
   <string-array name="wifi_calling_mode_choices_v2">
-    <item msgid="9149346657812979257">"Wi-Fi"</item>
+    <item msgid="9149346657812979257">"wifi"</item>
     <item msgid="4421333712484542489">"Mobil enhet"</item>
-    <item msgid="6007360612667098926">"Endast Wi-Fi"</item>
+    <item msgid="6007360612667098926">"Endast wifi"</item>
   </string-array>
   <string-array name="wifi_calling_mode_choices_without_wifi_only">
     <item msgid="3658897985297386665">"@*android:string/wfc_mode_wifi_preferred_summary"</item>
     <item msgid="4191802193352447215">"@*android:string/wfc_mode_cellular_preferred_summary"</item>
   </string-array>
   <string-array name="wifi_calling_mode_choices_v2_without_wifi_only">
-    <item msgid="6452246499629557266">"Wi-Fi"</item>
+    <item msgid="6452246499629557266">"wifi"</item>
     <item msgid="2271962426654621656">"Mobil enhet"</item>
   </string-array>
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Använd mobilnätverk om Wi‑Fi inte är tillgängligt"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Använd Wi‑Fi om mobilnätverket inte är tillgängligt"</string>
-    <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Ring via Wi‑Fi. Samtalet avslutas om Wi-Fi-anslutningen Wi-Fi bryts."</string>
-    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"När Wi-Fi-samtal har aktiverats kan mobilen dirigera samtal via Wi-Fi-nätverk eller operatörens nätverk, beroende på dina inställningar och vilken signal som är starkast. Innan du aktiverar funktionen frågar du operatören om eventuella avgifter och annan information.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
+    <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Ring via Wi‑Fi. Samtalet avslutas om wifi-anslutningen wifi bryts."</string>
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"När wifi-samtal har aktiverats kan mobilen dirigera samtal via wifi-nätverk eller operatörens nätverk, beroende på dina inställningar och vilken signal som är starkast. Innan du aktiverar funktionen frågar du operatören om eventuella avgifter och annan information.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Adress för nödfall"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Används som din plats om du ringer nödsamtal via Wi‑Fi"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"Läs mer"</annotation>" om privata DNS-funktioner"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"Inställningen hanteras av operatören"</string>
-    <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Aktivera Wi-Fi-samtal"</string>
-    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Aktivera Wi-Fi-samtal"</string>
-    <string name="wifi_calling_not_supported" msgid="216781767605669775">"%1$s stöder inte för Wi-Fi-samtal"</string>
+    <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Aktivera wifi-samtal"</string>
+    <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Aktivera wifi-samtal"</string>
+    <string name="wifi_calling_not_supported" msgid="216781767605669775">"%1$s stöder inte för wifi-samtal"</string>
     <string name="carrier" msgid="3413463182542176886">"Operatör"</string>
     <string name="display_settings_title" msgid="1243571562133261601">"Skärm"</string>
     <string name="sound_settings" msgid="3306063041029638807">"Ljud"</string>
@@ -1344,7 +1344,7 @@
     <string name="meid_multi_sim" msgid="7449892644113569529">"MEID-kod (SIM-kortsplats %1$d)"</string>
     <string name="scanning_status_text_wifi_on_ble_on" msgid="6370507836346838473">"Både Wi‑Fi-sökning och Bluetooth-sökning har aktiverats"</string>
     <string name="scanning_status_text_wifi_on_ble_off" msgid="8205014713732412608">"Wi‑Fi-sökning har aktiverats. Bluetooth-sökning har inaktiverats"</string>
-    <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth-sökning har aktiverats. Wi-Fi-sökning har inaktiverats"</string>
+    <string name="scanning_status_text_wifi_off_ble_on" msgid="7400522456303307057">"Bluetooth-sökning har aktiverats. wifi-sökning har inaktiverats"</string>
     <string name="scanning_status_text_wifi_off_ble_off" msgid="8575026386237481457">"Både Wi‑Fi-sökning och Bluetooth-sökning har inaktiverats"</string>
     <string name="status_meid_number" msgid="8756271256760479835">"MEID"</string>
     <string name="status_icc_id" msgid="9191847562997702709">"ICCID"</string>
@@ -1357,7 +1357,7 @@
     <string name="status_signal_strength" msgid="4302597886933728789">"Signalstyrka"</string>
     <string name="status_roaming" msgid="5191044997355099561">"Roaming"</string>
     <string name="status_operator" msgid="6017986100643755390">"Nätverk"</string>
-    <string name="status_wifi_mac_address" msgid="3868452167971295995">"Wi-Fi MAC-adress"</string>
+    <string name="status_wifi_mac_address" msgid="3868452167971295995">"wifi MAC-adress"</string>
     <string name="status_bt_address" msgid="460568179311735657">"Bluetooth-adress"</string>
     <string name="status_serial_number" msgid="8257722124627415159">"Serienummer"</string>
     <string name="status_up_time" msgid="77128395333934087">"Tid sedan systemstart"</string>
@@ -1570,7 +1570,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Återställning av standardinställningar för APN har slutförts."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Återställningsval"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Nätverk, appar och enheter kan återställas"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Återställ Wi-Fi, mobildata och Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Återställ wifi, mobildata och Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Alla nätverksinställningar återställs, till exempel \n\n"<li>"Wi‑Fi"</li>\n<li>"Mobildata"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Rensa nedladdade SIM-kort"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Kontakta operatören om du vill ladda ned SIM-kort som ersätter de gamla. Eventuella serviceavtal för mobilen gäller fortfarande."</string>
@@ -1639,7 +1639,7 @@
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Vill du använda <xliff:g id="NEW_APP">%s</xliff:g> som sms-app?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Leverantör av nätverksbetyg"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Inget"</string>
-    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Vill du byta Wi-Fi-assistentapp?"</string>
+    <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Vill du byta wifi-assistentapp?"</string>
     <string name="network_scorer_change_active_dialog_text" msgid="4264089809189760730">"Vill du hantera nätverksanslutningarna med <xliff:g id="NEW_APP">%1$s</xliff:g> i stället för med <xliff:g id="CURRENT_APP">%2$s</xliff:g>?"</string>
     <string name="network_scorer_change_active_no_previous_dialog_text" msgid="6394483538843474495">"Vill du hantera nätverksanslutningarna med <xliff:g id="NEW_APP">%s</xliff:g>?"</string>
     <string name="mobile_unknown_sim_operator" msgid="872589370085135817">"Okänd SIM-operatör"</string>
@@ -1666,9 +1666,9 @@
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-sökning"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Tillåt att appar och tjänster söker efter enheter i närheten när som helst, även när Bluetooth är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Platstjänster för jobbet"</string>
-    <string name="location_network_based" msgid="1535812159327454835">"Plats från Wi-Fi/mobilnätverk"</string>
+    <string name="location_network_based" msgid="1535812159327454835">"Plats från wifi/mobilnätverk"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Ge appar möjlighet att snabbare se var du är med Googles platstjänst. Anonym platsinformation samlas in och skickas till Google."</string>
-    <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Platsen fastställs via Wi-Fi"</string>
+    <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Platsen fastställs via wifi"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS-satelliter"</string>
     <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Ge appar möjlighet att använda surfplattans GPS för att fastställa mer exakt var du befinner dig"</string>
     <string name="location_street_level" product="default" msgid="7407688345675450051">"Ge appar möjlighet att använda mobilens GPS för att fastställa mer exakt var du befinner dig"</string>
@@ -2253,14 +2253,14 @@
     <string name="battery_stats_gps_on_label" msgid="3944533098574423359">"GPS på"</string>
     <string name="battery_stats_camera_on_label" msgid="557892808497848886">"Kameran är på"</string>
     <string name="battery_stats_flashlight_on_label" msgid="162279812156241905">"Ficklampan är på"</string>
-    <string name="battery_stats_wifi_running_label" msgid="3223557320252465826">"Wi-Fi"</string>
+    <string name="battery_stats_wifi_running_label" msgid="3223557320252465826">"wifi"</string>
     <string name="battery_stats_wake_lock_label" msgid="670884103452713535">"Aktiv"</string>
     <string name="battery_stats_phone_signal_label" msgid="2502589944816260503">"Signal i mobilt nätverk"</string>
     <!-- no translation found for battery_stats_last_duration (8190573267292309839) -->
     <skip />
     <string name="awake" msgid="8956720170442161285">"Aktiv tid för enheten"</string>
-    <string name="wifi_on_time" msgid="2487820618265936068">"Wi-Fi i tid"</string>
-    <string name="bluetooth_on_time" msgid="6400569492287292639">"Wi-Fi i tid"</string>
+    <string name="wifi_on_time" msgid="2487820618265936068">"wifi i tid"</string>
+    <string name="bluetooth_on_time" msgid="6400569492287292639">"wifi i tid"</string>
     <string name="advanced_battery_title" msgid="5026866913848464170">"Batteriförbrukning"</string>
     <string name="history_details_title" msgid="8608193822257799936">"Detaljerad historik"</string>
     <string name="battery_details_title" msgid="5358230551490703067">"Batteriförbrukning"</string>
@@ -2363,7 +2363,7 @@
     <string name="power_screen" msgid="8581228752332223154">"Skärm"</string>
     <string name="power_flashlight" msgid="6939780588882301575">"Ficklampa"</string>
     <string name="power_camera" msgid="8670998854830327437">"Kamera"</string>
-    <string name="power_wifi" msgid="5017436332655362332">"Wi-Fi"</string>
+    <string name="power_wifi" msgid="5017436332655362332">"wifi"</string>
     <string name="power_bluetooth" msgid="7097844828420335867">"Bluetooth"</string>
     <string name="power_cell" msgid="8493476823107385547">"Strömsparläge för mobilnätverk"</string>
     <string name="power_phone" msgid="4644276202135343197">"Röstsamtal"</string>
@@ -2375,14 +2375,14 @@
     <string name="usage_type_cpu_foreground" msgid="5496661858574622156">"CPU i förgrunden"</string>
     <string name="usage_type_wake_lock" msgid="6729977238748413476">"Behåll aktiv"</string>
     <string name="usage_type_gps" msgid="5914062195732419196">"GPS"</string>
-    <string name="usage_type_wifi_running" msgid="4192567991891907030">"Wi-Fi körs"</string>
+    <string name="usage_type_wifi_running" msgid="4192567991891907030">"wifi körs"</string>
     <string name="usage_type_phone" product="tablet" msgid="4279605085824633501">"Surfplatta"</string>
     <string name="usage_type_phone" product="default" msgid="3901842461077646153">"Telefon"</string>
     <string name="usage_type_data_send" msgid="6339880867171142725">"Mobildatapaket har skickats"</string>
     <string name="usage_type_data_recv" msgid="2099757621601333453">"Mobildatapaket har mottagits"</string>
     <string name="usage_type_radio_active" msgid="4123481281606636561">"Mobilradio aktiv"</string>
-    <string name="usage_type_data_wifi_send" msgid="4457097885099163617">"Wi-Fi-paket har skickats"</string>
-    <string name="usage_type_data_wifi_recv" msgid="6629526425662663926">"Wi-Fi-paket har mottagits"</string>
+    <string name="usage_type_data_wifi_send" msgid="4457097885099163617">"wifi-paket har skickats"</string>
+    <string name="usage_type_data_wifi_recv" msgid="6629526425662663926">"wifi-paket har mottagits"</string>
     <string name="usage_type_audio" msgid="510459400845396879">"Ljud"</string>
     <string name="usage_type_video" msgid="8161701367674306793">"Video"</string>
     <string name="usage_type_camera" msgid="2276450385733155264">"Kamera"</string>
@@ -2396,7 +2396,7 @@
     <string name="battery_action_app_details" msgid="1077011181969550402">"Info om appen"</string>
     <string name="battery_action_app_settings" msgid="587998773852488539">"Appinställningar"</string>
     <string name="battery_action_display" msgid="4887913003634317465">"Skärminställningar"</string>
-    <string name="battery_action_wifi" msgid="7123520587925323824">"Wi-Fi-inställningar"</string>
+    <string name="battery_action_wifi" msgid="7123520587925323824">"wifi-inställningar"</string>
     <string name="battery_action_bluetooth" msgid="718594420017519807">"Bluetooth-inställningar"</string>
     <string name="battery_desc_voice" msgid="4731966028374974986">"Batteri som förbrukats av röstsamtal"</string>
     <string name="battery_desc_standby" product="tablet" msgid="2941777996429933419">"Batteri som förbrukas när surfplattan är inaktiv"</string>
@@ -2407,8 +2407,8 @@
     <string name="battery_desc_camera" msgid="517966830222999462">"Batteri som förbrukas av kameran"</string>
     <string name="battery_desc_display" msgid="6701005808894183097">"Batteri som förbrukats av skärm och bakgrundsbelysning"</string>
     <string name="battery_sugg_display" msgid="6366790848514389990">"Minska skärmens ljusstyrka och/eller skärmens tidsgräns"</string>
-    <string name="battery_desc_wifi" msgid="3497535902126253386">"Batteri som förbrukats av Wi-Fi"</string>
-    <string name="battery_sugg_wifi" msgid="3796329601134263039">"Inaktivera Wi-Fi när det inte används eller när det inte är tillgängligt"</string>
+    <string name="battery_desc_wifi" msgid="3497535902126253386">"Batteri som förbrukats av wifi"</string>
+    <string name="battery_sugg_wifi" msgid="3796329601134263039">"Inaktivera wifi när det inte används eller när det inte är tillgängligt"</string>
     <string name="battery_desc_bluetooth" msgid="3468061900485447679">"Batteri som förbrukats av Bluetooth"</string>
     <string name="battery_sugg_bluetooth_basic" msgid="6353294067057749310">"Inaktivera Bluetooth när du inte använder funktionen"</string>
     <string name="battery_sugg_bluetooth_headset" msgid="2421931037149315202">"Försök ansluta till en annan Bluetooth-enhet"</string>
@@ -2539,7 +2539,7 @@
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Endast programvara"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"Användaruppgifter är inte tillgängliga för den här användaren"</string>
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Har installerats för VPN och appar"</string>
-    <string name="credential_for_wifi" msgid="2903295786961726388">"Har installerats för Wi-Fi"</string>
+    <string name="credential_for_wifi" msgid="2903295786961726388">"Har installerats för wifi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Vill du ta bort allt innehåll?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Uppgiftslagringen raderades."</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Uppgiftslagringen kunde inte raderas."</string>
@@ -2552,7 +2552,7 @@
     <string name="backup_section_title" msgid="8177209731777904656">"Säkerhetskopiera och återställ"</string>
     <string name="personal_data_section_title" msgid="9161854418510071558">"Personliga data"</string>
     <string name="backup_data_title" msgid="4461508563849583624">"Säkerhetskopiera data"</string>
-    <string name="backup_data_summary" msgid="555459891017933746">"spara en säkerhetskopia av appdata, Wi-Fi-lösenord och andra inställningar på Googles servrar"</string>
+    <string name="backup_data_summary" msgid="555459891017933746">"spara en säkerhetskopia av appdata, wifi-lösenord och andra inställningar på Googles servrar"</string>
     <string name="backup_configure_account_title" msgid="1534734650559070294">"Backupkonto"</string>
     <string name="backup_data_management_title" msgid="6299288795610243508">"Hantera konto för säkerhetskopiering"</string>
     <string name="include_app_data_title" msgid="6117211611131913293">"Inkludera appdata"</string>
@@ -2561,9 +2561,9 @@
     <string name="backup_inactive_title" msgid="5513496915638307750">"Ingen aktiv säkerhetskopieringstjänst"</string>
     <string name="backup_configure_account_default_summary" msgid="5718298066335006412">"Säkerhetskopierade data lagras för tillfället inte på något konto"</string>
     <string name="backup_erase_dialog_title" msgid="8178424339104463014"></string>
-    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Vill du sluta säkerhetskopiera Wi-Fi-lösenord, bokmärken, andra inställningar och appdata samt ta bort alla kopior på Googles servrar?"</string>
-    <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Vill du sluta säkerhetskopiera enhetsdata (t.ex. Wi-Fi-lösenord och samtalshistorik) och appdata (t.ex. inställningar och filer som har sparats i appar), och radera alla kopior på fjärrservrar?"</string>
-    <string name="fullbackup_data_summary" msgid="406274198094268556">"Fjärrsäkerhetskopiera enhetsdata (t.ex. Wi-Fi-lösenord och samtalshistorik) och appdata (t.ex. inställningar och filer som har sparats i appar) automatiskt.\n\nNär du aktiverar automatisk säkerhetskopiering fjärrsparas enhets- och appdata då och då. Appdata kan vara all data som har sparats i en app (beroende på utvecklarinställningarna), inklusive data som kan vara känslig, till exempel kontakter, meddelanden och foton."</string>
+    <string name="backup_erase_dialog_message" msgid="8767843355330070902">"Vill du sluta säkerhetskopiera wifi-lösenord, bokmärken, andra inställningar och appdata samt ta bort alla kopior på Googles servrar?"</string>
+    <string name="fullbackup_erase_dialog_message" msgid="2588536036471144070">"Vill du sluta säkerhetskopiera enhetsdata (t.ex. wifi-lösenord och samtalshistorik) och appdata (t.ex. inställningar och filer som har sparats i appar), och radera alla kopior på fjärrservrar?"</string>
+    <string name="fullbackup_data_summary" msgid="406274198094268556">"Fjärrsäkerhetskopiera enhetsdata (t.ex. wifi-lösenord och samtalshistorik) och appdata (t.ex. inställningar och filer som har sparats i appar) automatiskt.\n\nNär du aktiverar automatisk säkerhetskopiering fjärrsparas enhets- och appdata då och då. Appdata kan vara all data som har sparats i en app (beroende på utvecklarinställningarna), inklusive data som kan vara känslig, till exempel kontakter, meddelanden och foton."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Inställningar för enhetsadministratör"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"App för enhetsadministratör"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Inaktivera den här enhetsadministratörsappen"</string>
@@ -2661,8 +2661,8 @@
     <string name="data_usage_menu_restrict_background" msgid="3539289148113800518">"Begränsa bakgrundsdata"</string>
     <string name="data_usage_menu_allow_background" msgid="2874898501715368528">"Tillåt bakgrundsdata"</string>
     <string name="data_usage_menu_split_4g" msgid="2264683155484246409">"Separat 4G-användning"</string>
-    <string name="data_usage_menu_show_wifi" msgid="8444311679299008486">"Visa Wi-Fi"</string>
-    <string name="data_usage_menu_hide_wifi" msgid="1808008314306824090">"Dölj Wi-Fi"</string>
+    <string name="data_usage_menu_show_wifi" msgid="8444311679299008486">"Visa wifi"</string>
+    <string name="data_usage_menu_hide_wifi" msgid="1808008314306824090">"Dölj wifi"</string>
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"Visa Ethernet-användning"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"Dölj ethernetanvändning"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"Nätverksbegränsningar"</string>
@@ -2682,8 +2682,8 @@
     <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Ange gräns för mobildata"</string>
     <string name="data_usage_disable_4g_limit" msgid="7131367986548147266">"Ange gräns för data via 4G"</string>
     <string name="data_usage_disable_3g_limit" msgid="6746819313032692220">"Ange gräns för data via 2G-3G"</string>
-    <string name="data_usage_disable_wifi_limit" msgid="8214267551888018353">"Gräns för data via Wi-Fi"</string>
-    <string name="data_usage_tab_wifi" msgid="7224124683039634055">"Wi-Fi"</string>
+    <string name="data_usage_disable_wifi_limit" msgid="8214267551888018353">"Gräns för data via wifi"</string>
+    <string name="data_usage_tab_wifi" msgid="7224124683039634055">"wifi"</string>
     <string name="data_usage_tab_ethernet" msgid="5053077378022543867">"Ethernet"</string>
     <string name="data_usage_tab_mobile" msgid="540101181815160147">"Mobilt"</string>
     <string name="data_usage_tab_4g" msgid="6677000649094593958">"4G"</string>
@@ -2717,9 +2717,9 @@
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"När mobildatan når den gräns du har angett inaktiveras den av surfplattan.\n\nVi föreslår att du anger en något lägre gräns eftersom dataanvändningen mäts med din surfplatta och din leverantör kan mäta användningen på ett annat sätt."</string>
     <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"När mobildatan når den gräns du har angett inaktiveras den av telefonen.\n\nVi föreslår att du anger en något lägre gräns eftersom dataanvändningen mäts med din telefon och din leverantör kan mäta användningen på ett annat sätt."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"Vill du begränsa bakgrundsdata?"</string>
-    <string name="data_usage_restrict_background" msgid="995811034744808575">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett Wi-Fi-nätverk."</string>
-    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett Wi-Fi-nätverk.\n\nAlla användare på den här surfplattan påverkas av inställningen."</string>
-    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett Wi-Fi-nätverk.\n\nAlla användare på den här mobilen påverkas av inställningen."</string>
+    <string name="data_usage_restrict_background" msgid="995811034744808575">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett wifi-nätverk."</string>
+    <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett wifi-nätverk.\n\nAlla användare på den här surfplattan påverkas av inställningen."</string>
+    <string name="data_usage_restrict_background_multiuser" product="default" msgid="6846901756455789858">"Om du begränsar mobildatan i bakgrunden fungerar vissa appar och tjänster endast när du är ansluten till ett wifi-nätverk.\n\nAlla användare på den här mobilen påverkas av inställningen."</string>
     <string name="data_usage_sweep_warning" msgid="4646401408698778092"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"varning"</font></string>
     <string name="data_usage_sweep_limit" msgid="6101105504557548269"><font size="18">"<xliff:g id="NUMBER">^1</xliff:g>"</font>" "<font size="9">"<xliff:g id="UNIT">^2</xliff:g>"</font>\n<font size="12">"gräns"</font></string>
     <string name="data_usage_uninstalled_apps" msgid="4152786786140875769">"Borttagna appar"</string>
@@ -2731,8 +2731,8 @@
     <string name="data_usage_metered_title" msgid="6827619643999794429">"Nätverksbegränsningar"</string>
     <string name="data_usage_metered_body" msgid="1342905101297753439">"Nätverk med datapriser behandlas som mobilnätverk om det finns begränsningar för bakgrundsdata. Det kan hända att du får varningar i appar innan du använder dessa nätverk för stora nedladdningar."</string>
     <string name="data_usage_metered_mobile" msgid="3675591449158207593">"Mobila nätverk"</string>
-    <string name="data_usage_metered_wifi" msgid="2955256408132426720">"Wi-Fi-nätverk med datapriser"</string>
-    <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Slå på Wi-Fi om du vill välja nätverk med datapriser."</string>
+    <string name="data_usage_metered_wifi" msgid="2955256408132426720">"wifi-nätverk med datapriser"</string>
+    <string name="data_usage_metered_wifi_disabled" msgid="5771083253782103415">"Slå på wifi om du vill välja nätverk med datapriser."</string>
     <string name="data_usage_metered_auto" msgid="7924116401382629319">"Automatisk"</string>
     <string name="data_usage_metered_yes" msgid="7333744880035386073">"Med datapriser"</string>
     <string name="data_usage_metered_no" msgid="1961524615778610008">"Utan datapriser"</string>
@@ -2968,8 +2968,8 @@
     <string name="user_restrictions_controlled_by" msgid="3442508299902131033">"Styrs av <xliff:g id="APP">%1$s</xliff:g>"</string>
     <string name="app_sees_restricted_accounts" msgid="2210750497683265281">"Den här appen har åtkomst till dina konton"</string>
     <string name="app_sees_restricted_accounts_and_controlled_by" msgid="5028333644657350816">"Den här appen har inte åtkomst till dina konton. Styrs av <xliff:g id="APP">%1$s</xliff:g>"</string>
-    <string name="restriction_wifi_config_title" msgid="1689176998451296068">"Wi-Fi och mobilt"</string>
-    <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Tillåt ändring av inställningar för Wi-Fi-och mobilt"</string>
+    <string name="restriction_wifi_config_title" msgid="1689176998451296068">"wifi och mobilt"</string>
+    <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Tillåt ändring av inställningar för wifi-och mobilt"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"Bluetooth"</string>
     <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Tillåt ändring av Bluetooth-kopplingar och -inställningar"</string>
     <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"NFC"</string>
@@ -3935,12 +3935,12 @@
     <string name="usage" msgid="9172908720164431622">"Användning"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Användning av mobildata"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Appars dataanvändning"</string>
-    <string name="wifi_data_usage" msgid="275569900562265895">"Dataanvändning via Wi-Fi"</string>
+    <string name="wifi_data_usage" msgid="275569900562265895">"Dataanvändning via wifi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Användning av ethernetdata"</string>
-    <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
+    <string name="wifi" msgid="1586738489862966138">"wifi"</string>
     <string name="ethernet" msgid="2365753635113154667">"Ethernet"</string>
     <string name="cell_data_template" msgid="5473177306229738078">"<xliff:g id="AMOUNT">^1</xliff:g> mobildata"</string>
-    <string name="wifi_data_template" msgid="3146090439147042068">"<xliff:g id="AMOUNT">^1</xliff:g> Wi-Fi-data"</string>
+    <string name="wifi_data_template" msgid="3146090439147042068">"<xliff:g id="AMOUNT">^1</xliff:g> wifi-data"</string>
     <string name="ethernet_data_template" msgid="6414118030827090119">"<xliff:g id="AMOUNT">^1</xliff:g> ethernetdata"</string>
     <string name="billing_cycle" msgid="5740717948341713190">"Datavarning och gräns"</string>
     <string name="app_usage_cycle" msgid="213483325132959663">"Cykel för appdataanvändning"</string>
@@ -4308,8 +4308,8 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Konto"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Enhetens namn"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wifi-styrning"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Tillåt appen att styra Wi-Fi"</string>
-    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Ge den här appen behörighet att aktivera och inaktivera Wi-Fi, söka efter och ansluta till Wi-Fi-nätverk, lägga till och ta bort nätverk samt starta en lokal surfzon"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Tillåt appen att styra wifi"</string>
+    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Ge den här appen behörighet att aktivera och inaktivera wifi, söka efter och ansluta till wifi-nätverk, lägga till och ta bort nätverk samt starta en lokal surfzon"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Spela upp media på"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Den här enheten"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Mobil"</string>
@@ -4520,5 +4520,5 @@
     <string name="automatic_system_heap_dump_summary" msgid="4962129546638974661">"Skapa automatiskt en minnesdump av Android-systemet när det använder för mycket minne"</string>
     <string name="wifi_disconnect_button_text" msgid="787688024070426706">"Koppla från"</string>
     <string name="wfc_disclaimer_emergency_limitation_title_text" msgid="26884532087670844">"Nödsamtal"</string>
-    <string name="wfc_disclaimer_emergency_limitation_desc_text" msgid="8726152486964822599">"Nödsamtal via Wi-Fi stöds inte av din operatör.\nEnheten byter automatiskt till ett mobilnätverk vid nödsamtal.\nNödsamtal fungerar endast i områden där mobilnätverket har täckning."</string>
+    <string name="wfc_disclaimer_emergency_limitation_desc_text" msgid="8726152486964822599">"Nödsamtal via wifi stöds inte av din operatör.\nEnheten byter automatiskt till ett mobilnätverk vid nödsamtal.\nNödsamtal fungerar endast i områden där mobilnätverket har täckning."</string>
 </resources>

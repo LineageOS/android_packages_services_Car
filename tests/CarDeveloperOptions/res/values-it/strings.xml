@@ -1573,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Reimposta Wi-Fi, dati mobili e Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Verranno reimpostate tutte le impostazioni di rete, tra cui:\n\n"<li>"Wi‑Fi"</li>\n<li>"Dati mobili"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Resetta SIM scaricate"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Per scaricare le SIM sostitutive, contatta il tuo operatore. Ciò non annullerà alcun piano di servizio mobile."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Per scaricare le SIM sostitutive, contatta il tuo operatore. Gli eventuali piani tariffari non verranno annullati."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Reimposta"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Ripristinare tutte le impostazioni della rete? Questa azione non può essere annullata."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Reimpostare tutte le impostazioni di rete e resettare tutte le SIM scaricate? Questa azione non può essere annullata."</string>
