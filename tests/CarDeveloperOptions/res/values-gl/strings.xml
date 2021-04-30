@@ -4084,7 +4084,7 @@
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Configuración do perfil de traballo"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Busca de contactos"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Permite buscas de contactos por parte da túa organización para identificar os emisores das chamadas e os contactos"</string>
-    <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Calendario con varios perfís"</string>
+    <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Calendario multiperfil"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Mostra eventos do traballo no teu calendario persoal"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"A túa organización non permite que as aplicacións persoais accedan ao teu calendario do traballo"</string>
     <plurals name="hours" formatted="false" msgid="135936773984899873">
