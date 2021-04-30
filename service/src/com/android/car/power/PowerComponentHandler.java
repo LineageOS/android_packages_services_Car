@@ -45,8 +45,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.AtomicFile;
 import android.util.IndentingPrintWriter;
-import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -55,6 +53,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
+import com.android.server.utils.Slogf;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -122,12 +121,12 @@ public final class PowerComponentHandler {
                 PowerComponentMediator mediator = factory.createPowerComponent(component);
                 String componentName = powerComponentToString(component);
                 if (mediator == null) {
-                    Slog.w(TAG, "Power component(" + componentName + ") is not valid or doesn't "
-                            + "need a mediator");
+                    Slogf.w(TAG, "Power component(%s) is not valid or doesn't need a mediator",
+                            componentName);
                     continue;
                 }
                 if (!mediator.isComponentAvailable()) {
-                    Slog.w(TAG, "Power component(" + componentName + ") is not available");
+                    Slogf.w(TAG, "Power component(%s) is not available", componentName);
                     continue;
                 }
                 mediator.init();
@@ -258,7 +257,7 @@ public final class PowerComponentHandler {
         }
         PowerComponentMediator mediator = mPowerComponentMediators.get(component);
         if (mediator == null) {
-            Slog.w(TAG, powerComponentToString(component) + " doesn't have a mediator");
+            Slogf.w(TAG, "%s doesn't have a mediator", powerComponentToString(component));
             return modified;
         }
         if (modified && mediator.isControlledBySystem()) {
@@ -286,7 +285,7 @@ public final class PowerComponentHandler {
             // Behave as if there are no forced-off components.
             return;
         } catch (IOException e) {
-            Slog.w(TAG, "Failed to read " + FORCED_OFF_COMPONENTS_FILENAME + ": " + e);
+            Slogf.w(TAG, "Failed to read %s: %s", FORCED_OFF_COMPONENTS_FILENAME, e);
             return;
         }
         if (invalid) {
@@ -299,7 +298,7 @@ public final class PowerComponentHandler {
         try {
             fos = mOffComponentsByUserFile.startWrite();
         } catch (IOException e) {
-            Slog.e(TAG, "Cannot create " + FORCED_OFF_COMPONENTS_FILENAME, e);
+            Slogf.e(TAG, e, "Cannot create %s", FORCED_OFF_COMPONENTS_FILENAME);
             return;
         }
 
@@ -316,7 +315,7 @@ public final class PowerComponentHandler {
             mOffComponentsByUserFile.finishWrite(fos);
         } catch (IOException e) {
             mOffComponentsByUserFile.failWrite(fos);
-            Slog.e(TAG, "Writing " + FORCED_OFF_COMPONENTS_FILENAME + " failed", e);
+            Slogf.e(TAG, e, "Writing %s failed", FORCED_OFF_COMPONENTS_FILENAME);
         }
     }
 
@@ -337,14 +336,6 @@ public final class PowerComponentHandler {
                 mUserControlledComponents.put(component, /* value= */ false);
                 writeUserOffComponentsLocked();
             }
-        }
-    }
-
-    private void logd(String messageFormat, Object... args) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            // TODO(b/182476140): Replace with formatted Slog.
-            String message = String.format(messageFormat, args);
-            Slog.d(TAG, message);
         }
     }
 
@@ -390,7 +381,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             mSystemInterface.setDisplayState(enabled);
-            logd("Display power component is %s", enabled ? "on" : "off");
+            Slogf.d(TAG, "Display power component is %s", enabled ? "on" : "off");
         }
     }
 
@@ -442,7 +433,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             mWifiManager.setWifiEnabled(enabled);
-            logd("Wifi power component is %s", enabled ? "on" : "off");
+            Slogf.d(TAG, "Wifi power component is %s", enabled ? "on" : "off");
         }
     }
 
@@ -475,10 +466,9 @@ public final class PowerComponentHandler {
             try {
                 mVoiceInteractionManagerService.setDisabled(!enabled);
                 mIsEnabled = enabled;
-                logd("Voice Interaction power component is %s", enabled ? "on" : "off");
+                Slogf.d(TAG, "Voice Interaction power component is %s", enabled ? "on" : "off");
             } catch (RemoteException e) {
-                Slog.w(TAG, "IVoiceInteractionManagerService.setDisabled(" + !enabled + ") failed",
-                        e);
+                Slogf.w(TAG, e, "IVoiceInteractionManagerService.setDisabled(%b) failed", !enabled);
             }
         }
     }
@@ -531,7 +521,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             // No op
-            Slog.w(TAG, "Bluetooth power is controlled by "
+            Slogf.w(TAG, "Bluetooth power is controlled by "
                     + "com.android.car.BluetoothDeviceConnectionPolicy");
         }
     }
@@ -584,7 +574,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             // No op
-            Slog.w(TAG, "NFC power isn't controlled by CPMS");
+            Slogf.w(TAG, "NFC power isn't controlled by CPMS");
         }
     }
 
@@ -636,7 +626,7 @@ public final class PowerComponentHandler {
         @Override
         public void setEnabled(boolean enabled) {
             // No op
-            Slog.w(TAG, "Location power isn controlled by GNSS HAL");
+            Slogf.w(TAG, "Location power isn controlled by GNSS HAL");
         }
     }
 
@@ -689,7 +679,7 @@ public final class PowerComponentHandler {
                 case PowerComponent.CPU:
                     return null;
                 default:
-                    Slog.w(TAG, "Unknown component(" + component + ")");
+                    Slogf.w(TAG, "Unknown component(%d)", component);
                     return null;
             }
         }
