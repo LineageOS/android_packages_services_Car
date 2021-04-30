@@ -49,6 +49,8 @@ namespace watchdog {
 
 // Number of periodically monitored stats to cache in memory.
 constexpr int32_t kDefaultPeriodicMonitorBufferSize = 360;
+// Dumpsys flags.
+constexpr const char* kResetResourceOveruseStatsFlag = "--reset_resource_overuse_stats";
 
 // Forward declaration for testing use only.
 namespace internal {
@@ -68,6 +70,9 @@ class IIoOveruseMonitor : virtual public IDataProcessorInterface {
 public:
     // Returns whether or not the monitor is initialized.
     virtual bool isInitialized() = 0;
+
+    // Dumps the help text.
+    virtual bool dumpHelpText(int fd) = 0;
 
     // Below API is from internal/ICarWatchdog.aidl. Please refer to the AIDL for description.
     virtual android::base::Result<void> updateResourceOveruseConfigurations(
@@ -90,12 +95,14 @@ public:
             const sp<IResourceOveruseListener>& listener) = 0;
 
     virtual android::base::Result<void> getIoOveruseStats(IoOveruseStats* ioOveruseStats) = 0;
+
+    virtual android::base::Result<void> resetIoOveruseStats(
+            const std::vector<std::string>& packageNames) = 0;
 };
 
 class IoOveruseMonitor final : public IIoOveruseMonitor {
 public:
-    explicit IoOveruseMonitor(
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper);
+    explicit IoOveruseMonitor(const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper);
 
     ~IoOveruseMonitor() { terminate(); }
 
@@ -140,6 +147,8 @@ public:
 
     android::base::Result<void> onDump(int fd);
 
+    bool dumpHelpText(int fd);
+
     android::base::Result<void> onCustomCollectionDump(int /*fd*/) {
         // No special processing for custom collection. Thus no custom collection dump.
         return {};
@@ -167,6 +176,8 @@ public:
 
     android::base::Result<void> getIoOveruseStats(IoOveruseStats* ioOveruseStats);
 
+    android::base::Result<void> resetIoOveruseStats(const std::vector<std::string>& packageName);
+
 protected:
     android::base::Result<void> init();
 
@@ -191,6 +202,7 @@ private:
         UserPackageIoUsage& operator+=(const UserPackageIoUsage& r);
 
         const std::string id() const;
+        void resetStats();
     };
 
     class BinderDeathRecipient final : public android::IBinder::DeathRecipient {
@@ -221,7 +233,7 @@ private:
     sp<IPackageInfoResolver> mPackageInfoResolver;
     // Minimum written bytes to sync the stats with the Watchdog service.
     double mMinSyncWrittenBytes;
-    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper;
+    android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper;
 
     // Makes sure only one collection is running at any given time.
     mutable std::shared_mutex mRwMutex;
@@ -237,7 +249,7 @@ private:
     size_t mPeriodicMonitorBufferSize GUARDED_BY(mRwMutex);
     time_t mLastSystemWideIoMonitorTime GUARDED_BY(mRwMutex);
 
-    // Cache of per user package I/O usage.
+    // Cache of per user package I/O usage. Key is a unique ID with the format `packageName:userId`.
     std::unordered_map<std::string, UserPackageIoUsage> mUserPackageDailyIoUsageById
             GUARDED_BY(mRwMutex);
     double mIoOveruseWarnPercentage GUARDED_BY(mRwMutex);

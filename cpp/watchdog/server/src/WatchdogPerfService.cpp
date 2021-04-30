@@ -68,7 +68,7 @@ constexpr const char* kHelpText =
         "\t%s <seconds>: Modifies the maximum collection duration. Default behavior is to collect "
         "until %ld minutes before automatically stopping the custom collection and discarding "
         "the collected data.\n"
-        "\t%s <package name>,<package, name>,...: Comma-separated value containing package names. "
+        "\t%s <package name>,<package name>,...: Comma-separated value containing package names. "
         "When provided, the results are filtered only to the provided package names. Default "
         "behavior is to list the results for the top N packages.\n"
         "%s: Stops custom performance data collection and generates a dump of "

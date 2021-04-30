@@ -32,11 +32,9 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::ApplicationCategoryType;
 using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
-using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageInfo;
 using aawi::PackageIoOveruseStats;
 using aawi::UidType;
-using ::android::BBinder;
 using ::android::IBinder;
 using ::android::RefBase;
 using ::android::sp;
@@ -47,7 +45,6 @@ using ::testing::_;
 using ::testing::DoAll;
 using ::testing::IsEmpty;
 using ::testing::Return;
-using ::testing::SaveArg;
 using ::testing::SetArgPointee;
 using ::testing::UnorderedElementsAreArray;
 
@@ -152,7 +149,7 @@ TEST_F(WatchdogServiceHelperTest, TestErrorOnInitWithErrorFromWatchdogProcessSer
     sp<MockWatchdogProcessService> mockWatchdogProcessService(new MockWatchdogProcessService());
 
     EXPECT_CALL(*mockWatchdogProcessService, registerWatchdogServiceHelper(_))
-            .WillOnce([](const sp<IWatchdogServiceHelperInterface>&) -> Result<void> {
+            .WillOnce([](const sp<IWatchdogServiceHelper>&) -> Result<void> {
                 return Error() << "Failed to register";
             });
 
@@ -388,21 +385,19 @@ TEST_F(WatchdogServiceHelperTest, TestLatestIoOveruseStats) {
     stats.ioOveruseStats.totalOveruses = 10;
     stats.shouldNotify = true;
     std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {stats};
-    std::vector<PackageIoOveruseStats> actualOveruseStats;
 
     registerCarWatchdogService();
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(expectedIoOveruseStats))
-            .WillOnce(DoAll(SaveArg<0>(&actualOveruseStats), Return(Status::ok())));
+            .WillOnce(Return(Status::ok()));
 
     Status status = mWatchdogServiceHelper->latestIoOveruseStats(expectedIoOveruseStats);
 
     ASSERT_TRUE(status.isOk()) << status;
-    EXPECT_THAT(actualOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats));
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatetstIoOveruseStatsWithNoCarWatchdogServiceRegistered) {
+       TestErrorsOnLatestIoOveruseStatsWithNoCarWatchdogServiceRegistered) {
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_)).Times(0);
 
     Status status = mWatchdogServiceHelper->latestIoOveruseStats({});
@@ -412,7 +407,7 @@ TEST_F(WatchdogServiceHelperTest,
 }
 
 TEST_F(WatchdogServiceHelperTest,
-       TestErrorsOnLatetstIoOveruseStatsWithErrorStatusFromCarWatchdogService) {
+       TestErrorsOnLatestIoOveruseStatsWithErrorStatusFromCarWatchdogService) {
     registerCarWatchdogService();
 
     EXPECT_CALL(*mMockCarWatchdogServiceForSystem, latestIoOveruseStats(_))
@@ -421,6 +416,41 @@ TEST_F(WatchdogServiceHelperTest,
     Status status = mWatchdogServiceHelper->latestIoOveruseStats({});
 
     ASSERT_FALSE(status.isOk()) << "latetstIoOveruseStats should fail when car watchdog "
+                                   "service API returns error";
+}
+
+TEST_F(WatchdogServiceHelperTest, TestResetResourceOveruseStats) {
+    registerCarWatchdogService();
+
+    std::vector<std::string> packageNames = {"system.daemon"};
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(packageNames))
+            .WillOnce(Return(Status::ok()));
+
+    Status status = mWatchdogServiceHelper->resetResourceOveruseStats(packageNames);
+
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnResetResourceOveruseStatsWithNoCarWatchdogServiceRegistered) {
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(_)).Times(0);
+
+    Status status = mWatchdogServiceHelper->resetResourceOveruseStats({});
+
+    ASSERT_FALSE(status.isOk()) << "resetResourceOveruseStats should fail when no "
+                                   "car watchdog service registered with the helper";
+}
+
+TEST_F(WatchdogServiceHelperTest,
+       TestErrorsOnResetResourceOveruseStatsWithErrorStatusFromCarWatchdogService) {
+    registerCarWatchdogService();
+
+    EXPECT_CALL(*mMockCarWatchdogServiceForSystem, resetResourceOveruseStats(_))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
+    Status status = mWatchdogServiceHelper->resetResourceOveruseStats({});
+
+    ASSERT_FALSE(status.isOk()) << "resetResourceOveruseStats should fail when car watchdog "
                                    "service API returns error";
 }
 
