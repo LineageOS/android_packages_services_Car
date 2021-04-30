@@ -21,11 +21,11 @@ import android.annotation.Nullable;
 import android.os.FileObserver;
 import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import libcore.io.IoUtils;
 
@@ -89,12 +89,12 @@ final class SilentModeHandler {
         }
         switch (bootReason) {
             case FORCED_SILENT:
-                Slog.i(TAG, "Starting in forced silent mode");
+                Slogf.i(TAG, "Starting in forced silent mode");
                 mForcedMode = true;
                 mSilentModeByHwState = true;
                 break;
             case FORCED_NON_SILENT:
-                Slog.i(TAG, "Starting in forced non-silent mode");
+                Slogf.i(TAG, "Starting in forced non-silent mode");
                 mForcedMode = true;
                 mSilentModeByHwState = false;
                 break;
@@ -110,8 +110,8 @@ final class SilentModeHandler {
         }
         if (forcedMode) {
             updateKernelSilentMode(mSilentModeByHwState);
-            Slog.i(TAG, "Now in forced mode: monitoring " + mHwStateMonitoringFileName
-                    + " is disabled");
+            Slogf.i(TAG, "Now in forced mode: monitoring %s is disabled",
+                    mHwStateMonitoringFileName);
         } else {
             startMonitoringSilentModeHwState();
         }
@@ -153,10 +153,10 @@ final class SilentModeHandler {
             String value = silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE;
             writer.write(value);
             writer.flush();
-            Slog.i(TAG, mKernelSilentModeFileName + " is updated to " + value);
+            Slogf.i(TAG, "%s is updated to %s", mKernelSilentModeFileName, value);
         } catch (IOException e) {
-            Slog.w(TAG, "Failed to update " + mKernelSilentModeFileName + " to "
-                    + (silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE));
+            Slogf.w(TAG, "Failed to update %s to %s", mKernelSilentModeFileName,
+                    silent ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE);
         }
     }
 
@@ -172,7 +172,7 @@ final class SilentModeHandler {
                 switchToNonForcedMode();
                 break;
             default:
-                Slog.w(TAG, "Unsupported silent mode: " + silentMode);
+                Slogf.w(TAG, "Unsupported silent mode: %s", silentMode);
         }
     }
 
@@ -192,16 +192,16 @@ final class SilentModeHandler {
             updateKernelSilentMode(silentMode);
             mService.notifySilentModeChange(silentMode);
         }
-        Slog.i(TAG, "Now in forced " + (silentMode ? "silent" : "non-silent") + " mode: monitoring "
-                + mHwStateMonitoringFileName + " is disabled");
+        Slogf.i(TAG, "Now in forced %s mode: monitoring %s is disabled",
+                silentMode ? "silent" : "non-silent", mHwStateMonitoringFileName);
     }
 
     private void switchToNonForcedMode() {
         boolean updated = false;
         synchronized (mLock) {
             if (mForcedMode) {
-                Slog.i(TAG, "Now in non forced mode: monitoring " + mHwStateMonitoringFileName
-                        + " is started");
+                Slogf.i(TAG, "Now in non forced mode: monitoring %s is started",
+                        mHwStateMonitoringFileName);
                 mForcedMode = false;
                 updated = true;
             }
@@ -214,8 +214,8 @@ final class SilentModeHandler {
     private void startMonitoringSilentModeHwState() {
         File monitorFile = new File(mHwStateMonitoringFileName);
         if (!monitorFile.exists()) {
-            Slog.w(TAG, "Failed to start monitoring Silent Mode HW state: "
-                    + mHwStateMonitoringFileName + " doesn't exist");
+            Slogf.w(TAG, "Failed to start monitoring Silent Mode HW state: %s doesn't exist",
+                    mHwStateMonitoringFileName);
             return;
         }
         FileObserver fileObserver = new FileObserver(monitorFile, FileObserver.MODIFY) {
@@ -234,10 +234,10 @@ final class SilentModeHandler {
                         String contents = IoUtils.readFileAsString(mHwStateMonitoringFileName)
                                 .trim();
                         mSilentModeByHwState = VALUE_SILENT_MODE.equals(contents);
-                        Slog.i(TAG, mHwStateMonitoringFileName + " indicates "
-                                + (mSilentModeByHwState ? "silent" : "non-silent") + " mode");
+                        Slogf.i(TAG, "%s indicates %s mode", mHwStateMonitoringFileName,
+                                mSilentModeByHwState ? "silent" : "non-silent");
                     } catch (Exception e) {
-                        Slog.w(TAG, "Failed to read " + mHwStateMonitoringFileName, e);
+                        Slogf.w(TAG, e, "Failed to read %s: %s", mHwStateMonitoringFileName);
                         return;
                     }
                     newSilentMode = mSilentModeByHwState;
