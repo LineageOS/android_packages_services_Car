@@ -20,3 +20,4 @@ $(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/ca
 PRODUCT_PACKAGES += \
     CarUiPortraitMediaRRO \
     CarUiPortraitSettingsRRO \
+    CarUiPortraitLauncherRRO \
