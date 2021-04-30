@@ -15,13 +15,18 @@
  */
 package com.google.android.car.networking.preferenceupdater.fragments;
 
+import static android.net.NetworkCapabilities.NET_CAPABILITY_OEM_PAID;
+import static android.net.NetworkCapabilities.NET_CAPABILITY_OEM_PRIVATE;
+import static android.net.NetworkCapabilities.TRANSPORT_WIFI;
 import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID;
 import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_NO_FALLBACK;
 import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PAID_ONLY;
 import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVATE_ONLY;
 
 import android.content.Context;
+import android.net.ConnectivityManager;
 import android.net.NetworkIdentity;
+import android.net.NetworkRequest;
 import android.net.NetworkTemplate;
 import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
@@ -63,6 +68,7 @@ public final class ManagerFragment extends Fragment {
     private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
     private CarDriverDistractionManagerAdapter mCarDriverDistractionManagerAdapter;
     private WifiManager mWifiManager;
+    private ConnectivityManager mConnectivityManager;
 
     // Metric Display components
     private MetricDisplay mMetricDisplay;
@@ -94,6 +100,8 @@ public final class ManagerFragment extends Fragment {
     private Button mApplyConfigurationBtn;
     private Button mResetNetworkPreferencesBtn;
     private Button mApplyWifiCapabilitiesBtn;
+    private Button mConnectToOemPaidWifiBtn;
+    private Button mConnectToOemPrivateWifiBtn;
 
     // Wifi SSIDs
     private EditText mOEMPaidWifiSSIDsEditText;
@@ -122,6 +130,7 @@ public final class ManagerFragment extends Fragment {
         mMetricDisplay.startWatching();
 
         mWifiManager = context.getSystemService(WifiManager.class);
+        mConnectivityManager = context.getSystemService(ConnectivityManager.class);
 
         return v;
     }
@@ -146,6 +155,8 @@ public final class ManagerFragment extends Fragment {
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
         mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
         mApplyWifiCapabilitiesBtn = v.findViewById(R.id.applyWifiCapabilitiesButton);
+        mConnectToOemPaidWifiBtn = v.findViewById(R.id.connectToOemPaidWifiButton);
+        mConnectToOemPrivateWifiBtn = v.findViewById(R.id.connectToOemPrivateWifiButton);
         // Since our Metric Display is going to be alive, we want to pass our TextView components
         // into MetricDisplay instance to simplify refresh logic.
         mOemPaidRxBytesTextView = v.findViewById(R.id.oemPaidRxBytesTextView);
@@ -184,6 +195,29 @@ public final class ManagerFragment extends Fragment {
                 (buttonView, isChecked) ->
                         mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
         mResetNetworkPreferencesBtn.setOnClickListener(view -> resetNetworkPreferences());
+        mConnectToOemPaidWifiBtn.setOnClickListener(view -> onConnectWifiBtnClick(true));
+        mConnectToOemPrivateWifiBtn.setOnClickListener(view -> onConnectWifiBtnClick(false));
+    }
+
+    private void onConnectWifiBtnClick(boolean isOemPaid) {
+        try {
+            mConnectivityManager.requestNetwork(
+                    new NetworkRequest.Builder()
+                            .addTransportType(TRANSPORT_WIFI)
+                            .addCapability(
+                                    isOemPaid
+                                            ? NET_CAPABILITY_OEM_PAID
+                                            : NET_CAPABILITY_OEM_PRIVATE)
+                            .build(),
+                    new ConnectivityManager.NetworkCallback());
+        } catch (Exception ex) {
+            Toast.makeText(getActivity(), ex.toString(), Toast.LENGTH_SHORT).show();
+            String msg =
+                    String.format(
+                            "Attempt to connect to wifi with %s cabaility failed!",
+                            isOemPaid ? "OEM_PAID" : "OEM_PRIVATE");
+            Log.e(TAG, msg, ex);
+        }
     }
 
     private void resetNetworkPreferences() {
@@ -217,28 +251,34 @@ public final class ManagerFragment extends Fragment {
         mCurrentPANSStatusTextView.setText(status ? "Yes" : "No");
     }
 
+    private WifiNetworkSuggestion buildWifiSuggestion(String ssid, boolean isOemPaid) {
+        WifiNetworkSuggestion.Builder builder = new WifiNetworkSuggestion.Builder();
+        String[] elements = ssid.split(":");
+        builder.setSsid(WifiInfo.sanitizeSsid(elements[0]));
+        if (elements.length > 1) {
+            builder.setWpa2Passphrase(elements[1]);
+        }
+        if (isOemPaid) {
+            builder.setOemPaid(true);
+        } else {
+            builder.setOemPrivate(true);
+        }
+        return builder.build();
+    }
+
     private void onApplyWifiCapabilitiesBtnClick() {
         Log.d(TAG, "Applying WiFi settings");
         Set<String> ssidsWithOemPaid = Utils.toSet(mOEMPaidWifiSSIDsEditText.getText().toString());
         Set<String> ssidsWithOemPrivate =
                 Utils.toSet(mOEMPrivateWifiSSIDsEditText.getText().toString());
-
         try {
             ArrayList<WifiNetworkSuggestion> list = new ArrayList<>();
             for (String ssid : ssidsWithOemPaid) {
-                list.add(
-                        new WifiNetworkSuggestion.Builder()
-                                .setSsid(WifiInfo.sanitizeSsid(ssid))
-                                .setOemPaid(true)
-                                .build());
+                list.add(buildWifiSuggestion(ssid, true));
             }
 
             for (String ssid : ssidsWithOemPrivate) {
-                list.add(
-                        new WifiNetworkSuggestion.Builder()
-                                .setSsid(WifiInfo.sanitizeSsid(ssid))
-                                .setOemPrivate(true)
-                                .build());
+                list.add(buildWifiSuggestion(ssid, false));
             }
 
             mWifiManager.removeNetworkSuggestions(new ArrayList<>());
