@@ -24,10 +24,10 @@ import android.car.Car.CarServiceLifecycleListener;
 import android.car.CarNotConnectedException;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
-import android.content.Context;
+import android.content.Intent;
 import android.hardware.display.DisplayManager;
-import android.hardware.HardwareBuffer;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
 import android.view.View;
@@ -46,7 +46,6 @@ public class CarEvsCameraPreviewActivity extends Activity {
 
     /** Callback executors */
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
-    private final ExecutorService mListenerExecutor = Executors.newFixedThreadPool(1);
 
     /** GL backed surface view to render the camera preview */
     private CarEvsCameraGLSurfaceView mView;
@@ -65,6 +64,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
 
     private Car mCar;
     private CarEvsManager mEvsManager;
+
+    private IBinder mSessiontoken;
 
     /** Callback to listen to EVS stream */
     private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
@@ -173,6 +174,7 @@ public class CarEvsCameraPreviewActivity extends Activity {
             // CarEvsManager deregisters all listeners and callbacks.  So, we simply release
             // CarEvsManager instance and update the status in handleVideoStreamLocked().
             synchronized (mLock) {
+                mCar = null;
                 mEvsManager = null;
                 handleVideoStreamLocked();
             }
@@ -180,7 +182,9 @@ public class CarEvsCameraPreviewActivity extends Activity {
             Log.d(TAG, "Connected to the Car Service");
             try {
                 synchronized (mLock) {
+                    mCar = car;
                     mEvsManager = (CarEvsManager) car.getCarManager(Car.CAR_EVS_SERVICE);
+                    mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
                     handleVideoStreamLocked();
                 }
             } catch (CarNotConnectedException err) {
@@ -202,11 +206,28 @@ public class CarEvsCameraPreviewActivity extends Activity {
             mDisplayState = state;
         }
 
-        mCar = Car.createCar(getApplicationContext(), /* handler = */ null,
+        Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
 
         mView = new CarEvsCameraGLSurfaceView(getApplication(), this);
         setContentView(mView);
+
+        setSessionToken(getIntent());
+    }
+
+    @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+        setSessionToken(intent);
+    }
+
+    private void setSessionToken(Intent intent) {
+        Bundle extras = intent.getExtras();
+        if (extras == null) {
+            mSessiontoken = null;
+            return;
+        }
+        mSessiontoken = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
     }
 
     @Override
@@ -222,8 +243,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
 
         synchronized (mLock) {
             mActivityResumed = true;
+            handleVideoStreamLocked();
         }
-        setListenerAndStartActivity();
     }
 
     @Override
@@ -247,24 +268,31 @@ public class CarEvsCameraPreviewActivity extends Activity {
         super.onStop();
 
         // Request to stop current service and unregister a status listener
-        mEvsManager.stopActivity();
-        mEvsManager.clearStatusListener();
+        synchronized (mLock) {
+            if (mEvsManager != null) {
+                mEvsManager.stopActivity();
+                mEvsManager.clearStatusListener();
+            }
+        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
-        mCar.disconnect();
+        synchronized (mLock) {
+            if (mCar != null) {
+                mCar.disconnect();
+            }
+        }
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
     }
 
     private void handleVideoStreamLocked() {
         if (mActivityResumed && !mStreamRunning && mEvsManager != null &&
                 mDisplayState == Display.STATE_ON) {
-            // TODO(b/179517136): Acquires a token from Intent and passes it with below request.
             mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                    /* token = */ null, mCallbackExecutor, mStreamHandler);
+                    mSessiontoken, mCallbackExecutor, mStreamHandler);
             mStreamRunning = true;
         } else if (mStreamRunning) {
             // Stops a video stream if it's active.
@@ -273,13 +301,6 @@ public class CarEvsCameraPreviewActivity extends Activity {
             }
             mStreamRunning = false;
         }
-    }
-
-    // Request to start a rearview service and wait for a transition to REQUESTED state
-    private void setListenerAndStartActivity() {
-        mEvsManager.setStatusListener(mListenerExecutor, mStatusListener);
-        int result = mEvsManager.startActivity(CarEvsManager.SERVICE_TYPE_REARVIEW);
-        Log.e(TAG, "startActivity(): " + result);
     }
 
     // Hides the view when the display is off to save the system resource, since this has
@@ -297,19 +318,11 @@ public class CarEvsCameraPreviewActivity extends Activity {
         return state;
     }
 
-    /** Tell we have any new frame to be processed */
-    public boolean isNewFrameAvailable() {
-        synchronized (mBufferQueue) {
-            return !mBufferQueue.isEmpty();
-        }
-    }
-
     /** Get a new frame */
     public CarEvsBufferDescriptor getNewFrame() {
         synchronized (mBufferQueue) {
             if (mBufferQueue.isEmpty()) {
-                throw new AssertionError(
-                        "The client must call isNewFrameAvailable() before calling this method");
+                return null;
             }
 
             // The renderer refreshes faster than 30fps so it's okay to fetch the frame from the
