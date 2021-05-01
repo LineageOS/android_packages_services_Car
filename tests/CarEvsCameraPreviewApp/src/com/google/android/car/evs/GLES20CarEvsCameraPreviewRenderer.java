@@ -30,7 +30,6 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.util.Log;
 
-import java.lang.Math;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -108,18 +107,15 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
     @Override
     public void onDrawFrame(GL10 glUnused) {
         // Use the GLES20 class's static methods instead of a passed GL10 interface.
-        if (mActivity.isNewFrameAvailable()) {
+
+        CarEvsBufferDescriptor newFrame = mActivity.getNewFrame();
+        if (newFrame != null) {
             // If a new frame has not been delivered yet, we're using a previous frame.
             if (mBufferToRender != null) {
                 mActivity.returnBuffer(mBufferToRender);
                 mBufferToRender = null;
             }
-
-            mBufferToRender = mActivity.getNewFrame();
-            if (mBufferToRender == null) {
-                Log.w(TAG, "CarEvsBufferDescriptor is invalid.");
-                return;
-            }
+            mBufferToRender = newFrame;
         }
 
         // Specify a shader program to use
