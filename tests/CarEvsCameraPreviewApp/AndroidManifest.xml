@@ -34,7 +34,17 @@
                 android:launchMode="singleTask"
                 android:resizeableActivity="false"
                 android:screenOrientation="landscape"
-                android:sharedUserId="android.uid.system"
+                android:showForAllUsers="true"
+                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:turnScreenOn="true">
+        </activity>
+
+        <activity android:name=".CarEvsCameraActivity"
+                android:exported="true"
+                android:label="@string/app_name"
+                android:launchMode="singleTask"
+                android:resizeableActivity="false"
+                android:screenOrientation="landscape"
                 android:showForAllUsers="true"
                 android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
                 android:turnScreenOn="true">
