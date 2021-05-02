@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Sledování využití úložiště flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"poslech změn jízdy autem"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Poslech změn stavu jízdy autem."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Využití telemetrické služby auta"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Shromažďování dat o kondici systému auta."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Používání služby EVS pro auto"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Odběr videostreamů EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Žádost o náhled aktivity EVS"</string>

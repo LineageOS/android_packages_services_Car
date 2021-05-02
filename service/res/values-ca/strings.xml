@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Supervisar l\'ús d\'emmagatzematge flaix"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"escolta l\'estat de conducció"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Escolta els canvis en l\'estat de conducció."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Utilitza el servei de telemetria del cotxe"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Recull dades de l\'estat del sistema del cotxe."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilitza el servei EVS del cotxe"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Subscriu-me a les reproduccions en continu de vídeo d\'EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Sol·licitar l\'activitat de previsualització d\'EVS"</string>

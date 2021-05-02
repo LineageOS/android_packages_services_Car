@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Giám sát mức sử dụng bộ nhớ flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"nghe trạng thái lái xe"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Nghe những thay đổi về trạng thái Lái xe."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Dùng dịch vụ Dữ liệu từ xa cho ô tô"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Thu thập dữ liệu về tình trạng của hệ thống trên ô tô."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Sử dụng dịch vụ CarEvsService"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Theo dõi luồng video của EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Yêu cầu hoạt động xem trước qua EVS"</string>

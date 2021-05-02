@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Ngamela ukusetshenziswa kwesitoreji semoto"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"lalela isimo sokushayela"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Lale izinguquko zesimo sokushayela."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Sebenzisa Isevisi ye-Telemetry Yemoto"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Qoqa idatha yezempilo yesistimu yemoto."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Sebenzisa Isevisi Yemoto ye-EVS"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Bhalisa ekudlalweni kwevidiyo kwe-EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Cela umsebenzi wokubuka kuqala kwe-EVS"</string>

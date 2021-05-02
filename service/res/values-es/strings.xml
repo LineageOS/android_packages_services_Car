@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Supervisar uso del almacenamiento flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"detectar el estado de conducción"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Detectar cambios en el estado de conducción."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Usar servicio de telemetría del coche."</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Recoger datos del estado del sistema del coche."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Utilizar servicio EVS del coche"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Suscribirse a streams de vídeo de EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Solicitar la actividad de vista previa de EVS"</string>

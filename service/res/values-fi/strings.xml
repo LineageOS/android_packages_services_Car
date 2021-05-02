@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"valvoa flash-tallennustilan käyttöä"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"kuunnella ajotilaa"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"kuunnella ajotilan muutoksia"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"käyttää auton telemetriapalvelua"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"kerätä dataa auton järjestelmän kunnosta."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"käyttää auton EVS-palvelua"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"tilata EVS-videostriimit"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"pyytää EVS-esikatselutoimintaa"</string>

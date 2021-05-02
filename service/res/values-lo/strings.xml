@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ຕິດຕາມການໃຊ້ພື້ນທີ່ເກັບຂໍ້ມູນແຟລດ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ຟັງສະຖານະການຂັບຂີ່"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ຟັງການປ່ຽນແປງສະພາບການຂັບຂີ່."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ໃຊ້ບໍລິການວັດແທກ ແລະ ສົ່ງຂໍ້ມູນທາງໄກໃນລົດ"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ເກັບກຳຂໍ້ມູນປະສິດທິພາບຂອງລະບົບລົດ."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ໃຊ້ການບໍລິການ EVS ຂອງລົດ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ຕິດຕາມວິດີໂອສະຕຣີມ EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"ຮ້ອງຂໍການເຄື່ອນໄຫວສະແດງຕົວຢ່າງ EVS"</string>

@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"フラッシュ ストレージの使用状況をモニタリングします"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"運転状態へのアクセス"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"運転状態の変更にアクセスします。"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"車のテレメトリー サービスの使用"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"車載システムの状態データの収集。"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Car EVS Service の使用"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS 動画ストリーミングのチャンネル登録"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS プレビュー アクティビティをリクエストします"</string>

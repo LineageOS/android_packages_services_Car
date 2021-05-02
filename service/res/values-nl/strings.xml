@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Gebruik van Flash-geheugen controleren"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"luisteren naar rijstand"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Luisteren naar wijzigingen van rijstand."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Telemetrieservice voor auto gebruiken"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Gegevens over de autosysteemstatus ophalen."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"EVS-autoservice gebruiken"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Abonneren op EVS-videostreams"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"De EVS-voorbeeldactiviteit aanvragen"</string>

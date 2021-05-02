@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Відстеження використання флеш-пам’яті"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"відстеження стану кермування"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Відстеження змін стану кермування."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Використовувати сервіс телеметрії автомобіля"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Збір даних системи про стан автомобіля."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Використовувати сервіс Car EVS"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Підписуватися на відеопотоки сервісу EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Надсилати запити на попередній перегляд EVS"</string>

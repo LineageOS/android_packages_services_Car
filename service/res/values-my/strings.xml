@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"မြန်နှုန်းမြင့်သိုလှောင်မှုအား အသုံးပြုခြင်းကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ယာဉ်မောင်းနှင်မှုအခြေအနေကို စောင့်ကြည့်ပါမည်"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"\'ယာဉ်မောင်းနှင်မှုဆိုင်ရာ\' အခြေအနေ ပြောင်းလဲမှုများကို စောင့်ကြည့်ပါမည်။"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ကား၏ တယ်လီမက်ထရီဝန်ဆောင်မှုကို သုံးနိုင်သည်။"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ကားစနစ်၏ အခြေအနေဒေတာကို စုဆောင်းနိုင်သည်။"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"‘ကား EVS ဝန်ဆောင်မှု’ ကို သုံးရန်"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ဗီဒီယိုတိုက်ရိုက်ထုတ်လွှင့်ခြင်းများရယူရန်အတွက် စာရင်းသွင်းရန်"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS အစမ်းလုပ်ဆောင်ချက်ကို တောင်းဆိုနိုင်သည်"</string>
