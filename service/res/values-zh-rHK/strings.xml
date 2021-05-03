@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"監控快閃儲存空間使用狀態"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"聽取駕駛狀態"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"聽取駕駛狀態變動。"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"使用汽車遙測服務"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"收集汽車系統健康資料。"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"使用 Car EVS Service"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"訂閱電動車影片串流"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"要求 EVS 預覽活動"</string>

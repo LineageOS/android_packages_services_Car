@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Го следи користењето на флеш меморијата"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ја слуша состојбата на возење"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Ги слуша промените во состојбата на возење."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Да користи услуга за телеметрија на автомобилот"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Да собира податоци за добросостојбата на системот на автомобилот."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Користење „EVS-сервис за автомобили“"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Претплата на EVS-видеопреноси"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"да ја побара активноста за преглед на електричните возила"</string>

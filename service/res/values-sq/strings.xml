@@ -95,6 +95,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Monitoro përdorimin e hapësirës ruajtëse të formatit flash"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"dëgjo gjendjen e lëvizjes me makinë"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Dëgjo ndryshimet e gjendjes së lëvizjes me makinë."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Të përdorë shërbimin e telemetrisë të makinës"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Të mbledhë të dhënat e integritetit të sistemit të makinës."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Të përdorin shërbimin EVS të makinës"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Të abonohen në transmetimet me video të sistemit EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Të kërkojnë aktivitetin e pamjes paraprake nëpërmjet shërbimit EVS"</string>

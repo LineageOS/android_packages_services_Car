@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"ਫਲੈਸ਼ ਸਟੋਰੇਜ ਵਰਤੋਂ ਦਾ ਨਿਰੀਖਣ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ ਨੂੰ ਜਾਣਨਾ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ਗੱਡੀ ਚਲਾਉਣ ਦੀ ਸਥਿਤੀ ਵਿੱਚ ਹੋਣ ਵਾਲੀਆਂ ਤਬਦੀਲੀਆਂ ਨੂੰ ਜਾਣਨਾ।"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ਕਾਰ ਟੈਲੀਮੀਟਰੀ ਸੇਵਾ ਵਰਤੋ"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ਕਾਰ ਸਿਸਟਮ ਸਿਹਤ ਡਾਟਾ ਇਕੱਤਰ ਕਰੋ।"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ਕਾਰ ਦੀ EVS ਸੇਵਾ ਵਰਤੋ"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"EVS ਵੀਡੀਓ ਸਟ੍ਰੀਮਾਂ ਦੇ ਗਾਹਕ ਬਣੋ"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"EVS ਪੂਰਵ-ਝਲਕ ਸਰਗਰਮੀ ਲਈ ਬੇਨਤੀ ਕਰੋ"</string>

@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"តាមដាន​ការប្រើប្រាស់​ឧបករណ៍ផ្ទុក​ទិន្នន័យ"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"ស្ដាប់អំពីស្ថានភាព​បើកបរ"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"ស្តាប់អំពី​ការផ្លាស់ប្ដូរ​ស្ថានភាព​បើកបរ។"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"ប្រើ​សេវាកម្ម​ទូរមាត្រវិធី​សម្រាប់រថយន្ត"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"ប្រមូល​ទិន្នន័យអំពី​ស្ថានភាព​ប្រព័ន្ធ​រថយន្ត​។"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"ប្រើ Car EVS Service"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"ជាវ​ការស្ទ្រីមវីដេអូ EVS"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"ស្នើសុំ​សកម្មភាព​មើល EVS សាកល្បង"</string>

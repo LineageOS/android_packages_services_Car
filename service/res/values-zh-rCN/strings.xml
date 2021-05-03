@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"监控闪存使用情况"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"监听驾车状态"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"监听驾车状态变化。"</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"使用汽车遥测服务"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"收集汽车系统运行状况数据。"</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"使用汽车 EVS 服务"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"订阅 EVS 视频串流"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"请求 EVS 预览活动"</string>

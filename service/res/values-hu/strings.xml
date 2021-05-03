@@ -93,6 +93,8 @@
     <string name="car_permission_desc_storage_monitoring" msgid="2075712271139671318">"Figyelheti a Flash-tárhely használatát"</string>
     <string name="car_permission_label_driving_state" msgid="7754624599537393650">"meghallgathatja a vezetési állapotról szóló adatokat"</string>
     <string name="car_permission_desc_driving_state" msgid="2684025262811635737">"Meghallgathatja a vezetési állapot változásait."</string>
+    <string name="car_permission_label_use_telemetry_service" msgid="948005838683758846">"Az autó telemetriás rendszerének használata"</string>
+    <string name="car_permission_desc_use_telemetry_service" msgid="3633214312435700766">"Az autó rendszerének állapotára vonatkozó adatok gyűjtése."</string>
     <string name="car_permission_label_use_evs_service" msgid="1729276125209310607">"Az autó EVS-szolgáltatásának használata"</string>
     <string name="car_permission_desc_use_evs_service" msgid="2374737642186632816">"Feliratkozás az EVS-videóstreamekre"</string>
     <string name="car_permission_label_request_evs_activity" msgid="3906551972883482883">"Az EVS-előnézeti tevékenység kérése"</string>
