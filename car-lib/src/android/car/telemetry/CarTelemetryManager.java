@@ -17,6 +17,7 @@
 package android.car.telemetry;
 
 import android.annotation.CallbackExecutor;
+import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
 import android.car.Car;
@@ -28,6 +29,8 @@ import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.lang.annotation.Retention;
+import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
 import java.util.concurrent.Executor;
 
@@ -41,6 +44,7 @@ public final class CarTelemetryManager extends CarManagerBase {
 
     private static final boolean DEBUG = false;
     private static final String TAG = CarTelemetryManager.class.getSimpleName();
+    private static final int MANIFEST_MAX_SIZE_BYTES = 10 * 1024; // 10 kb
 
     private final CarTelemetryServiceListener mCarTelemetryServiceListener =
             new CarTelemetryServiceListener(this);
@@ -51,6 +55,51 @@ public final class CarTelemetryManager extends CarManagerBase {
     private CarTelemetryResultsListener mResultsListener;
     @GuardedBy("mLock")
     private Executor mExecutor;
+
+    /**
+     * Status to indicate that manifest was added successfully.
+     */
+    public static final int ERROR_NONE = 0;
+
+    /**
+     * Status to indicate that add manifest failed because the same manifest based on the
+     * ManifestKey already exists.
+     */
+    public static final int ERROR_SAME_MANIFEST_EXISTS = 1;
+
+    /**
+     * Status to indicate that add manifest failed because a newer version of the manifest exists.
+     */
+    public static final int ERROR_NEWER_MANIFEST_EXISTS = 2;
+
+    /**
+     * Status to indicate that add manifest failed because CarTelemetryService is unable to parse
+     * the given byte array into a Manifest.
+     */
+    public static final int ERROR_PARSE_MANIFEST_FAILED = 3;
+
+    /**
+     * Status to indicate that add manifest failed because of failure to verify the signature of
+     * the manifest.
+     */
+    public static final int ERROR_SIGNATURE_VERIFICATION_FAILED = 4;
+
+    /**
+     * Status to indicate that add manifest failed because of a general error in cars.
+     */
+    public static final int ERROR_UNKNOWN = 5;
+
+    /** @hide */
+    @IntDef(prefix = {"ERROR_"}, value = {
+            ERROR_NONE,
+            ERROR_SAME_MANIFEST_EXISTS,
+            ERROR_NEWER_MANIFEST_EXISTS,
+            ERROR_PARSE_MANIFEST_FAILED,
+            ERROR_SIGNATURE_VERIFICATION_FAILED,
+            ERROR_UNKNOWN
+    })
+    @Retention(RetentionPolicy.SOURCE)
+    public @interface AddManifestError {}
 
     /**
      * Application registers {@link CarTelemetryResultsListener} object to receive data from
@@ -165,6 +214,117 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
         try {
             mService.clearListener();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * Called by client to send telemetry manifest. The size of the manifest cannot exceed a
+     * predefined size. Otherwise an exception is thrown.
+     * The {@link ManifestKey} is used to uniquely identify a manifest. If a manifest of the same
+     * name already exists in {@link com.android.car.telemetry.CarTelemetryService}, then the
+     * version will be compared. If the version is strictly higher, the existing manifest will be
+     * replaced by the new one.
+     * TODO(b/185420981): Update javadoc after CarTelemetryService has concrete implementation.
+     *
+     * @param key      the unique key to identify the manifest.
+     * @param manifest the serialized bytes of a Manifest object.
+     * @return {@link #AddManifestError} to tell the result of the request.
+     * @throws IllegalArgumentException if the manifest size exceeds limit.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
+        if (manifest.length > MANIFEST_MAX_SIZE_BYTES) {
+            throw new IllegalArgumentException("Manifest size exceeds limit.");
+        }
+        try {
+            return mService.addManifest(key, manifest);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return ERROR_UNKNOWN;
+    }
+
+    /**
+     * Removes a manifest from {@link com.android.car.telemetry.CarTelemetryService}. If the
+     * manifest does not exist, nothing will be removed but the status will be indicated in the
+     * return value.
+     *
+     * @param key the unique key to identify the manifest. Name and version must be exact.
+     * @return true for success, false otherwise.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public boolean removeManifest(@NonNull ManifestKey key) {
+        try {
+            return mService.removeManifest(key);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+        return false;
+    }
+
+    /**
+     * Removes all manifests from {@link com.android.car.telemetry.CarTelemetryService}.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void removeAllManifests() {
+        try {
+            mService.removeAllManifests();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * An asynchronous API for the client to get script execution results of a specific manifest
+     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
+     * This call is destructive. The returned results will be deleted from CarTelemetryService.
+     *
+     * @param key the unique key to identify the manifest.
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void sendFinishedReports(@NonNull ManifestKey key) {
+        try {
+            mService.sendFinishedReports(key);
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * An asynchronous API for the client to get all script execution results
+     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
+     * This call is destructive. The returned results will be deleted from CarTelemetryService.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void sendAllFinishedReports() {
+        try {
+            mService.sendAllFinishedReports();
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e);
+        }
+    }
+
+    /**
+     * An asynchronous API for the client to get all script execution errors
+     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
+     * This call is destructive. The returned results will be deleted from CarTelemetryService.
+     *
+     * @hide
+     */
+    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
+    public void sendScriptExecutionErrors() {
+        try {
+            mService.sendScriptExecutionErrors();
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
