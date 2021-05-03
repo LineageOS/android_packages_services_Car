@@ -15,10 +15,14 @@
  */
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_NONE;
+
 import android.annotation.NonNull;
 import android.car.Car;
+import android.car.telemetry.CarTelemetryManager.AddManifestError;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
+import android.car.telemetry.ManifestKey;
 import android.content.Context;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
@@ -62,7 +66,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public void setListener(@NonNull ICarTelemetryServiceListener listener) {
-        // TODO(b/150978930): verify that only a hardcoded app can set the listener
+        // TODO(b/184890506): verify that only a hardcoded app can set the listener
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         if (DEBUG) {
@@ -82,5 +86,90 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             Slog.d(TAG, "Clearing listener");
         }
         mListener = null;
+    }
+
+    /**
+     * Allows client to send telemetry manifests.
+     *
+     * @param key      the unique key to identify the manifest.
+     * @param manifest the serialized bytes of a Manifest object.
+     * @return {@link AddManifestError} the error code.
+     */
+    @Override
+    public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Adding manifest to car telemetry service");
+        }
+        return ERROR_NONE;
+    }
+
+    /**
+     * Removes a manifest based on the key.
+     */
+    @Override
+    public boolean removeManifest(@NonNull ManifestKey key) {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Removing manifest from car telemetry service");
+        }
+        return true;
+    }
+
+    /**
+     * Removes all manifests.
+     */
+    @Override
+    public void removeAllManifests() {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Removing all manifest from car telemetry service");
+        }
+    }
+
+    /**
+     * Sends script results associated with the given key using the
+     * {@link ICarTelemetryServiceListener}.
+     */
+    @Override
+    public void sendFinishedReports(@NonNull ManifestKey key) {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Flushing reports for a manifest");
+        }
+    }
+
+    /**
+     * Sends all script results associated using the {@link ICarTelemetryServiceListener}.
+     */
+    @Override
+    public void sendAllFinishedReports() {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Flushing all reports");
+        }
+    }
+
+    /**
+     * Sends all errors using the {@link ICarTelemetryServiceListener}.
+     */
+    @Override
+    public void sendScriptExecutionErrors() {
+        // TODO(b/184087869): Implement
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
+        if (DEBUG) {
+            Slog.d(TAG, "Flushing script execution errors");
+        }
     }
 }

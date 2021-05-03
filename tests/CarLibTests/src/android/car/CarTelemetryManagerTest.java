@@ -16,10 +16,17 @@
 
 package android.car;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_NONE;
+import static android.car.telemetry.CarTelemetryManager.ERROR_SAME_MANIFEST_EXISTS;
+
 import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 
 import android.app.Application;
 import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.ManifestKey;
 import android.car.testapi.CarTelemetryController;
 import android.car.testapi.FakeCar;
 
@@ -43,10 +50,16 @@ public class CarTelemetryManagerTest {
     @Rule
     public MockitoRule rule = MockitoJUnit.rule();
 
+    private static final byte[] ERROR_BYTES = "ERROR".getBytes();
+    private static final byte[] MANIFEST_BYTES = "MANIFEST".getBytes();
+    private static final byte[] SCRIPT_RESULT_BYTES = "SCRIPT RESULT".getBytes();
+    private static final ManifestKey DEFAULT_MANIFEST_KEY =
+            new ManifestKey("NAME", 1);
     private static final Executor DIRECT_EXECUTOR = Runnable::run;
 
     private CarTelemetryController mCarTelemetryController;
     private CarTelemetryManager mCarTelemetryManager;
+
     @Mock
     private CarTelemetryManager.CarTelemetryResultsListener mListener;
 
@@ -76,5 +89,86 @@ public class CarTelemetryManagerTest {
         mCarTelemetryManager.clearListener();
 
         assertThat(mCarTelemetryController.isListenerSet()).isFalse();
+    }
+
+    @Test
+    public void addManifest_whenNew_shouldSucceed() {
+        int result = mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+
+        assertThat(result).isEqualTo(ERROR_NONE);
+        assertThat(mCarTelemetryController.getValidManifestsCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void addManifest_whenDuplicate_shouldIgnore() {
+        int firstResult =
+                mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+        int secondResult =
+                mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+
+        assertThat(firstResult).isEqualTo(ERROR_NONE);
+        assertThat(secondResult).isEqualTo(ERROR_SAME_MANIFEST_EXISTS);
+        assertThat(mCarTelemetryController.getValidManifestsCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void removeManifest_whenValid_shouldSucceed() {
+        mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+
+        boolean result = mCarTelemetryManager.removeManifest(DEFAULT_MANIFEST_KEY);
+
+        assertThat(result).isTrue();
+        assertThat(mCarTelemetryController.getValidManifestsCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void removeManifest_whenInvalid_shouldIgnore() {
+        mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+
+        boolean result = mCarTelemetryManager.removeManifest(new ManifestKey("NAME", 100));
+
+        assertThat(result).isFalse();
+        assertThat(mCarTelemetryController.getValidManifestsCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void removeAllManifests_shouldSucceed() {
+        mCarTelemetryManager.addManifest(DEFAULT_MANIFEST_KEY, MANIFEST_BYTES);
+        mCarTelemetryManager.addManifest(new ManifestKey("NAME", 100), MANIFEST_BYTES);
+
+        mCarTelemetryManager.removeAllManifests();
+
+        assertThat(mCarTelemetryController.getValidManifestsCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void sendFinishedReports_shouldSucceed() {
+        mCarTelemetryManager.setListener(DIRECT_EXECUTOR, mListener);
+        mCarTelemetryController.addDataForKey(DEFAULT_MANIFEST_KEY, SCRIPT_RESULT_BYTES);
+
+        mCarTelemetryManager.sendFinishedReports(DEFAULT_MANIFEST_KEY);
+
+        verify(mListener).onDataReceived(SCRIPT_RESULT_BYTES);
+    }
+
+    @Test
+    public void sendAllFinishedReports_shouldSucceed() {
+        mCarTelemetryManager.setListener(DIRECT_EXECUTOR, mListener);
+        mCarTelemetryController.addDataForKey(DEFAULT_MANIFEST_KEY, SCRIPT_RESULT_BYTES);
+        mCarTelemetryController.addDataForKey(new ManifestKey("key name", 1), SCRIPT_RESULT_BYTES);
+
+        mCarTelemetryManager.sendAllFinishedReports();
+
+        verify(mListener, times(2)).onDataReceived(SCRIPT_RESULT_BYTES);
+    }
+
+    @Test
+    public void sendScriptExecutionErrors_shouldSucceed() {
+        mCarTelemetryManager.setListener(DIRECT_EXECUTOR, mListener);
+        mCarTelemetryController.setErrorData(ERROR_BYTES);
+
+        mCarTelemetryManager.sendScriptExecutionErrors();
+
+        verify(mListener).onDataReceived(ERROR_BYTES);
     }
 }
