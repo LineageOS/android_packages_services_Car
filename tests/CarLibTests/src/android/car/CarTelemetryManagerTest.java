@@ -21,7 +21,6 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_SAME_MANIFEST_EXIS
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 
 import android.app.Application;
@@ -148,18 +147,20 @@ public class CarTelemetryManagerTest {
 
         mCarTelemetryManager.sendFinishedReports(DEFAULT_MANIFEST_KEY);
 
-        verify(mListener).onDataReceived(SCRIPT_RESULT_BYTES);
+        verify(mListener).onResult(DEFAULT_MANIFEST_KEY, SCRIPT_RESULT_BYTES);
     }
 
     @Test
     public void sendAllFinishedReports_shouldSucceed() {
         mCarTelemetryManager.setListener(DIRECT_EXECUTOR, mListener);
         mCarTelemetryController.addDataForKey(DEFAULT_MANIFEST_KEY, SCRIPT_RESULT_BYTES);
-        mCarTelemetryController.addDataForKey(new ManifestKey("key name", 1), SCRIPT_RESULT_BYTES);
+        ManifestKey key2 = new ManifestKey("key name", 1);
+        mCarTelemetryController.addDataForKey(key2, SCRIPT_RESULT_BYTES);
 
         mCarTelemetryManager.sendAllFinishedReports();
 
-        verify(mListener, times(2)).onDataReceived(SCRIPT_RESULT_BYTES);
+        verify(mListener).onResult(DEFAULT_MANIFEST_KEY, SCRIPT_RESULT_BYTES);
+        verify(mListener).onResult(key2, SCRIPT_RESULT_BYTES);
     }
 
     @Test
@@ -169,6 +170,6 @@ public class CarTelemetryManagerTest {
 
         mCarTelemetryManager.sendScriptExecutionErrors();
 
-        verify(mListener).onDataReceived(ERROR_BYTES);
+        verify(mListener).onError(ERROR_BYTES);
     }
 }

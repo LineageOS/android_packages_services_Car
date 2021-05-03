@@ -1278,7 +1278,8 @@ package android.car.telemetry {
   }
 
   public static interface CarTelemetryManager.CarTelemetryResultsListener {
-    method public void onDataReceived(@NonNull byte[]);
+    method public void onError(@NonNull byte[]);
+    method public void onResult(@NonNull android.car.telemetry.ManifestKey, @NonNull byte[]);
   }
 
   public final class ManifestKey implements android.os.Parcelable {

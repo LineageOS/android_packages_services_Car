@@ -24,6 +24,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
+import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Slog;
@@ -112,13 +113,22 @@ public final class CarTelemetryManager extends CarManagerBase {
     @SystemApi
     public interface CarTelemetryResultsListener {
         /**
-         * Called by {@link com.android.car.telemetry.CarTelemetryService} to send data to
+         * Called by {@link com.android.car.telemetry.CarTelemetryService} to send script result to
          * the client.
          * TODO(b/184964661): Publish the documentation for the format of the results.
          *
-         * @param data the serialized car telemetry results.
+         * @param key the {@link ManifestKey} that the result is associated with.
+         * @param result the serialized car telemetry result.
          */
-        void onDataReceived(@NonNull byte[] data);
+        void onResult(@NonNull ManifestKey key, @NonNull byte[] result);
+
+        /**
+         * Called by {@link com.android.car.telemetry.CarTelemetryService} to send error message to
+         * the client.
+         *
+         * @param error the serialized car telemetry error.
+         */
+        void onError(@NonNull byte[] error);
     }
 
     /**
@@ -134,19 +144,38 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
 
         @Override
-        public void onDataReceived(@NonNull byte[] data) {
+        public void onResult(@NonNull ManifestKey key, @NonNull byte[] result) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.onDataReceived(data);
+            manager.onResult(key, result);
+        }
+
+        @Override
+        public void onError(@NonNull byte[] error) {
+            CarTelemetryManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            manager.onError(error);
         }
     }
 
-    private void onDataReceived(byte[] data) {
+    private void onResult(ManifestKey key, byte[] result) {
+        long token = Binder.clearCallingIdentity();
         synchronized (mLock) {
-            mExecutor.execute(() -> mResultsListener.onDataReceived(data));
+            mExecutor.execute(() -> mResultsListener.onResult(key, result));
         }
+        Binder.restoreCallingIdentity(token);
+    }
+
+    private void onError(byte[] error) {
+        long token = Binder.clearCallingIdentity();
+        synchronized (mLock) {
+            mExecutor.execute(() -> mResultsListener.onError(error));
+        }
+        Binder.restoreCallingIdentity(token);
     }
 
     /**
