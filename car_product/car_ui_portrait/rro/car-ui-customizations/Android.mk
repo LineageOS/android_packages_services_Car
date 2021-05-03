@@ -14,13 +14,13 @@
 # limitations under the License.
 #
 
-$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-customizations/product.mk)
+LOCAL_PATH := $(call my-dir)
+include $(CLEAR_VARS)
 
-# All RROs to be included in car_ui_portrait builds.
-PRODUCT_PACKAGES += \
-    CarUiPortraitMediaRRO \
-    CarUiPortraitLauncherRRO \
+CAR_UI_RRO_SET_NAME := generatedcaruiportrait
+CAR_UI_RRO_MANIFEST_FILE := $(LOCAL_PATH)/AndroidManifest.xml
+CAR_UI_RESOURCE_DIR := $(LOCAL_PATH)/res
+CAR_UI_RRO_TARGETS := \
+    com.android.car.media
 
-# All apps to be excluded in car_ui_portrait builds should be specified as part of CarUiPortraitHideApps.
-PRODUCT_PACKAGES += \
-    CarUiPortraitHideApps
+include packages/apps/Car/libs/car-ui-lib/generate_rros.mk
