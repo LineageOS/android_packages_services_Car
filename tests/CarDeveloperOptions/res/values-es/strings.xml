@@ -3142,7 +3142,7 @@
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumen de notificaciones"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Tono de llamada del teléfono"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"Sonido de notificación predeterminado"</string>
-    <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Sonido proporcionado de app"</string>
+    <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Sonido proporcionado por aplicación"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Sonido de notificación predeterminado"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Sonido de alarma predeterminado"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibrar en llamadas"</string>

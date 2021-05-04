@@ -238,7 +238,7 @@
     <string name="ping_test_label" msgid="4759194831308897624">"पिङ सम्बन्धी परीक्षण सञ्चालन गर्नुहोस्"</string>
     <string name="radio_info_smsc_label" msgid="4561160340649588034">"SMSC:"</string>
     <string name="radio_info_smsc_update_label" msgid="3992739670219389246">"अपडेट गर्नुहोस्"</string>
-    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"पुनःताजा गर्नुहोस्"</string>
+    <string name="radio_info_smsc_refresh_label" msgid="5343925292858337909">"रिफ्रेस गर्नुहोस्"</string>
     <string name="radio_info_toggle_dns_check_label" msgid="3058615074503857400">"DNS को जाँचलाई टगल गर्नुहोस्"</string>
     <string name="oem_radio_info_label" msgid="8679815523111164378">"OEM-विशिष्ट जानकारी/सेटिङहरू"</string>
     <string name="band_mode_title" msgid="8180320100446559884">"रेडियोको ब्यान्ड सम्बन्धी मोडलाई सेट गर्नुहोस्"</string>
@@ -2442,7 +2442,7 @@
     <string name="menu_stats_unplugged" msgid="774132771877485277">"<xliff:g id="UNPLUGGED">%1$s</xliff:g> अनप्लग भएदेखि"</string>
     <string name="menu_stats_last_unplugged" msgid="197591229866380225">"पछिल्लो पटक <xliff:g id="UNPLUGGED">%1$s</xliff:g>का लागि अनप्लग गरिँदा"</string>
     <string name="menu_stats_total" msgid="2270006562448894071">"उपयोग कूलहरू"</string>
-    <string name="menu_stats_refresh" msgid="9017362786647223203">"पुनःताजा गर्नुहोस्"</string>
+    <string name="menu_stats_refresh" msgid="9017362786647223203">"रिफ्रेस गर्नुहोस्"</string>
     <string name="process_kernel_label" msgid="4175060316414593760">"Android OS"</string>
     <string name="process_mediaserver_label" msgid="8591722404282619153">"मिडिया सर्भर"</string>
     <string name="process_dex2oat_label" msgid="8249082119748556085">"एप आफू अनुकूल"</string>
