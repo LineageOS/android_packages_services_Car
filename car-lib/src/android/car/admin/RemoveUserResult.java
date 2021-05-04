@@ -20,6 +20,7 @@ import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.user.UserRemovalResult;
+import android.util.DebugUtils;
 
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -152,23 +153,6 @@ public final class RemoveUserResult {
 
     /** @hide */
     public static String statusToString(@Status int status) {
-        switch (status) {
-            case STATUS_SUCCESS:
-                return "SUCCESS";
-            case STATUS_SUCCESS_LAST_ADMIN_REMOVED:
-                return "LAST_ADMIN_REMOVED";
-            case STATUS_SUCCESS_SET_EPHEMERAL:
-                return "SET_EPHEMERAL";
-            case STATUS_FAILURE_USER_DOES_NOT_EXIST:
-                return "FAILURE_USER_DOES_NOT_EXIST";
-            case STATUS_FAILURE_INVALID_ARGUMENTS:
-                return "FAILURE_INVALID_ARGUMENTS";
-            case STATUS_FAILURE_GENERIC:
-                return "FAILURE_GENERIC";
-            case STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL:
-                return "LAST_ADMIN_SET_EPHEMERAL";
-            default:
-                return "UNKNOWN-" + status;
-        }
+        return DebugUtils.valueToString(RemoveUserResult.class, "STATUS_", status);
     }
 }

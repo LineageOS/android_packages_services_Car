@@ -28,6 +28,7 @@ import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
 import android.car.admin.StartUserInBackgroundResult;
+import android.car.admin.StopUserResult;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.PowerManager;
@@ -150,6 +151,25 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
                     .that(result.isSuccess()).isTrue();
         } finally {
             // Clean up the created user.
+            removeUser(user.id);
+            waitForUserRemoval(user.id);
+        }
+    }
+
+    @Test
+    public void testStopUser() throws Exception {
+        assertInitialUserIsAdmin();
+
+        UserInfo user = createUser();
+        Log.d(TAG, "stopping user in background " + user.toFullString());
+        StopUserResult result = mCarDpm.stopUser(user.getUserHandle());
+        Log.d(TAG, "result: " + result);
+
+        try {
+            assertWithMessage("Result of stopUser %s: %s", user.toFullString(), result)
+                    .that(result.isSuccess()).isTrue();
+        } finally {
+            // Clean up the user.
             removeUser(user.id);
             waitForUserRemoval(user.id);
         }
