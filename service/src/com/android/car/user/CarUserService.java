@@ -1952,18 +1952,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @param receiver to post results
      */
     public void stopUser(@UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
+        checkManageOrCreateUsersPermission("stopUser");
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_STOP_USER_REQ, userId);
+
         mHandler.post(() -> handleStopUser(userId, receiver));
     }
 
     private void handleStopUser(
             @UserIdInt int userId, @NonNull AndroidFuture<UserStopResult> receiver) {
         @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId);
-        sendUserStopResult(userStopStatus, receiver);
+        sendUserStopResult(userId, userStopStatus, receiver);
     }
 
-    private void sendUserStopResult(@UserStopResult.Status int result,
+    private void sendUserStopResult(@UserIdInt int userId, @UserStopResult.Status int result,
             @NonNull AndroidFuture<UserStopResult> receiver) {
-        // TODO(b/181331178): Add event log calls.
+        EventLog.writeEvent(EventLogTags.CAR_USER_SVC_STOP_USER_RESP, userId, result);
         receiver.complete(new UserStopResult(result));
     }
 

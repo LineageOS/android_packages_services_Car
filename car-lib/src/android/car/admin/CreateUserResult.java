@@ -23,6 +23,7 @@ import android.annotation.TestApi;
 import android.car.user.UserCreationResult;
 import android.content.pm.UserInfo;
 import android.os.UserHandle;
+import android.util.DebugUtils;
 import android.util.Log;
 
 import com.android.internal.annotations.VisibleForTesting;
@@ -115,7 +116,7 @@ public final class CreateUserResult {
     }
 
     /**
-     * Gets the specifif result of the operation.
+     * Gets the specific result of the operation.
      *
      * @return either {@link CreateUserResult#STATUS_SUCCESS} or
      *         {@link CreateUserResult#STATUS_FAILURE_GENERIC}.
@@ -151,15 +152,6 @@ public final class CreateUserResult {
     }
 
     private static String statusToString(int status) {
-        switch (status) {
-            case STATUS_SUCCESS:
-                return "SUCCESS";
-            case STATUS_FAILURE_INVALID_ARGUMENTS:
-                return "FAILURE_INVALID_ARGUMENTS";
-            case STATUS_FAILURE_GENERIC:
-                return "FAILURE_GENERIC";
-            default:
-                return "UNKNOWN-" + status;
-        }
+        return DebugUtils.valueToString(CreateUserResult.class, "STATUS_", status);
     }
 }
