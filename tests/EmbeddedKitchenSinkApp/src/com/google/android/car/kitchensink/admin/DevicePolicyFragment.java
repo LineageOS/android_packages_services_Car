@@ -23,6 +23,8 @@ import android.car.Car;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
+import android.car.admin.StartUserInBackgroundResult;
+import android.car.admin.StopUserResult;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -74,6 +76,8 @@ public final class DevicePolicyFragment extends Fragment {
 
     // Other actions
     private Button mRemoveUserButton;
+    private Button mStartUserInBackgroundButton;
+    private Button mStopUserButton;
     private Button mLockNowButton;
     private EditText mWipeDataFlagsText;
     private Button mWipeDataButton;
@@ -100,6 +104,8 @@ public final class DevicePolicyFragment extends Fragment {
         mCurrentUser = view.findViewById(R.id.current_user);
         mCurrentUsers = view.findViewById(R.id.current_users);
         mRemoveUserButton = view.findViewById(R.id.remove_user);
+        mStartUserInBackgroundButton = view.findViewById(R.id.start_user_in_background);
+        mStopUserButton = view.findViewById(R.id.stop_user);
 
         mNewUserNameText = view.findViewById(R.id.new_user_name);
         mNewUserIsAdminCheckBox = view.findViewById(R.id.new_user_is_admin);
@@ -108,6 +114,8 @@ public final class DevicePolicyFragment extends Fragment {
 
         mRemoveUserButton.setOnClickListener((v) -> removeUser());
         mCreateUserButton.setOnClickListener((v) -> createUser());
+        mStartUserInBackgroundButton.setOnClickListener((v) -> startUserInBackground());
+        mStopUserButton.setOnClickListener((v) -> stopUser());
 
         mPasswordText = view.findViewById(R.id.password);
         mResetPasswordButton = view.findViewById(R.id.reset_password);
@@ -172,10 +180,35 @@ public final class DevicePolicyFragment extends Fragment {
         }
         CreateUserResult result = mCarDevicePolicyManager.createUser(name, type);
         if (result.isSuccess()) {
-            showMessage("User crated: %s", result.getUserHandle().getIdentifier());
+            showMessage("User created: %s", result.getUserHandle().getIdentifier());
             updateState();
         } else {
             showMessage("Failed to create user with type %d: %s", type, result);
+        }
+    }
+
+    private void startUserInBackground() {
+        int userId = mCurrentUsers.getSelectedUserId();
+        Log.i(TAG, "Start user in background: " + userId);
+        StartUserInBackgroundResult result =
+                mCarDevicePolicyManager.startUserInBackground(UserHandle.of(userId));
+        if (result.isSuccess()) {
+            updateState();
+            showMessage("User %d started", userId);
+        } else {
+            showMessage("Failed to start user %d in background: %s", userId, result);
+        }
+    }
+
+    private void stopUser() {
+        int userId = mCurrentUsers.getSelectedUserId();
+        Log.i(TAG, "Stop user: " + userId);
+        StopUserResult result = mCarDevicePolicyManager.stopUser(UserHandle.of(userId));
+        if (result.isSuccess()) {
+            updateState();
+            showMessage("User %d stopped", userId);
+        } else {
+            showMessage("Failed to stop user %d: %s", userId, result);
         }
     }
 
