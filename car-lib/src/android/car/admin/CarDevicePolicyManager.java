@@ -29,6 +29,7 @@ import android.car.CarManagerBase;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
+import android.car.user.UserStopResult;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -240,6 +241,45 @@ public final class CarDevicePolicyManager extends CarManagerBase {
             return handleRemoteExceptionFromCarService(e, new StartUserInBackgroundResult(status));
         } finally {
             EventLog.writeEvent(EventLogTags.CAR_DP_MGR_START_USER_IN_BACKGROUND_RESP, uid, status);
+        }
+    }
+
+    /**
+     * Stops the given user.
+     *
+     * @param user identification of the user to stop.
+     *
+     * @return whether the user was successfully stopped.
+     *
+     * @hide
+     */
+    @TestApi
+    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
+            android.Manifest.permission.CREATE_USERS})
+    @NonNull
+    public StopUserResult stopUser(@NonNull UserHandle user) {
+        Objects.requireNonNull(user, "user cannot be null");
+
+        int userId = user.getIdentifier();
+        int uid = myUid();
+        EventLog.writeEvent(EventLogTags.CAR_DP_MGR_STOP_USER_REQ, uid, userId);
+        int status = StopUserResult.STATUS_FAILURE_GENERIC;
+        try {
+            AndroidFuture<UserStopResult> future = new AndroidFuture<>();
+            mService.stopUser(userId, future);
+            UserStopResult result =
+                    future.get(DEVICE_POLICY_MANAGER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            status = result.getStatus();
+            return new StopUserResult(status);
+        } catch (InterruptedException e) {
+            Thread.currentThread().interrupt();
+            return new StopUserResult(status);
+        } catch (ExecutionException | TimeoutException e) {
+            return new StopUserResult(status);
+        } catch (RemoteException e) {
+            return handleRemoteExceptionFromCarService(e, new StopUserResult(status));
+        } finally {
+            EventLog.writeEvent(EventLogTags.CAR_DP_MGR_STOP_USER_RESP, uid, status);
         }
     }
 
