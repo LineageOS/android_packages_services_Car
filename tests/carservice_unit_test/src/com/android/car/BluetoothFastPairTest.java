@@ -39,6 +39,8 @@ import android.content.SharedPreferences;
 import android.content.res.Resources;
 import android.os.ParcelUuid;
 
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
+
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -47,7 +49,9 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.mockito.MockitoSession;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.quality.Strictness;
 
 import java.math.BigInteger;
 import java.util.ArrayList;
@@ -152,6 +156,8 @@ public class BluetoothFastPairTest {
     FastPairProvider mTestFastPairProvider;
     FastPairGattServer mTestGattServer;
 
+    MockitoSession mMockitoSession;
+
     @Before
     public void setUp() {
         MockitoAnnotations.initMocks(this);
@@ -170,16 +176,29 @@ public class BluetoothFastPairTest {
         when(mMockResources.getBoolean(anyInt())).thenReturn(true);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
         when(mMockBluetoothAdapter.getBluetoothLeAdvertiser()).thenReturn(mMockLeAdvertiser);
+        when(mMockBluetoothAdapter.getName()).thenReturn("name");
+        when(mMockBluetoothAdapter.getAddress()).thenReturn("00:11:22:33:FF:EE");
+        when(mMockBluetoothAdapter.getRemoteDevice(any(String.class))).thenReturn(
+                mMockBluetoothDevice);
+        when(mMockBluetoothAdapter.getRemoteDevice(any(byte[].class))).thenReturn(
+                mMockBluetoothDevice);
+
+        mMockitoSession = ExtendedMockito.mockitoSession()
+                .strictness(Strictness.WARN)
+                .spyStatic(BluetoothAdapter.class)
+                .startMocking();
+        ExtendedMockito.doReturn(mMockBluetoothAdapter).when(() ->
+                BluetoothAdapter.getDefaultAdapter());
 
         mTestFastPairAdvertiser = new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
         mTestFastPairProvider = new FastPairProvider(mMockContext);
         mTestGattServer = new FastPairGattServer(mMockContext, TEST_MODEL_ID,
                 TEST_PRIVATE_KEY_B_BASE64, mMockGattCallbacks, true);
-
     }
 
     @After
     public void tearDown() {
+        mMockitoSession.finishMocking();
     }
 
     @Test
