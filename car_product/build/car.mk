@@ -111,6 +111,7 @@ PRODUCT_PACKAGES += \
     LocalMediaPlayer \
     CarMediaApp \
     CarMessengerApp \
+    CarHTMLViewer \
     CarHvacApp \
     CarMapsPlaceholder \
     CarLatinIME \
