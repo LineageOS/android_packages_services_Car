@@ -234,6 +234,7 @@ public final class PowerComponentHandler {
                 if (i > 0) writer.print(", ");
                 writer.print(powerComponentToString(mLastModifiedComponents.keyAt(i)));
             }
+            writer.println();
             writer.decreaseIndent();
         }
     }
