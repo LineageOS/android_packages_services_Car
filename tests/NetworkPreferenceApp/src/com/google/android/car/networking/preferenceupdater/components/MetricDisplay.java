@@ -66,8 +66,8 @@ public final class MetricDisplay {
 
     private NetworkStats.Bucket mDisplayBucket;
     private Context mContext;
-    @Nullable
-    private Timer mTimer;
+    @Nullable private Timer mTimer;
+    private long mStartTime;
 
     private final Handler mMetricMessageHandler;
 
@@ -76,6 +76,7 @@ public final class MetricDisplay {
         mConnectivityManager = context.getSystemService(ConnectivityManager.class);
         mNetStatsMan = context.getSystemService(NetworkStatsManager.class);
         mMetricMessageHandler = handler;
+        mStartTime = System.currentTimeMillis();
 
         scanAndPrintOemNetworksIfExist();
     }
@@ -154,10 +155,7 @@ public final class MetricDisplay {
                         oemManaged);
         try {
             return calculateTraffic(
-                    mNetStatsMan.querySummary(
-                            template,
-                            System.currentTimeMillis() - 60000000,
-                            System.currentTimeMillis() + 60000000));
+                    mNetStatsMan.querySummary(template, mStartTime, System.currentTimeMillis()));
         } catch (Exception e) {
             return null;
         }
@@ -165,18 +163,16 @@ public final class MetricDisplay {
 
     private Pair<Long, Long> combinedTrafficFor(int oemManaged) {
         Pair<Long, Long> traffic;
-        long tx, rx;
-
-        tx = 0;
-        rx = 0;
+        long rx = 0;
+        long tx = 0;
         for (int matchRule : NETWORK_MATCHING_RULES) {
             traffic = trafficFor(matchRule, oemManaged);
             if (traffic != null) {
-                tx += traffic.first;
-                rx += traffic.second;
+                rx += traffic.first;
+                tx += traffic.second;
             }
         }
-        return new Pair(tx, rx);
+        return new Pair(rx, tx);
     }
 
     @WorkerThread
@@ -187,8 +183,8 @@ public final class MetricDisplay {
         Message msg = mMetricMessageHandler.obtainMessage();
         Bundle bundle = new Bundle();
         bundle.putInt(ManagerFragment.METRIC_MSG_OEM_PREFERENCE_KEY, type);
-        bundle.putLong(ManagerFragment.METRIC_MSG_OEM_PREFERENCE_TX_KEY, traffic.second);
         bundle.putLong(ManagerFragment.METRIC_MSG_OEM_PREFERENCE_RX_KEY, traffic.first);
+        bundle.putLong(ManagerFragment.METRIC_MSG_OEM_PREFERENCE_TX_KEY, traffic.second);
         msg.setData(bundle);
         mMetricMessageHandler.sendMessage(msg);
     }

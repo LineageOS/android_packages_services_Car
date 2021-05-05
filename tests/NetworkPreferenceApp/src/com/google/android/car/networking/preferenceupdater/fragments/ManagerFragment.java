@@ -61,8 +61,8 @@ public final class ManagerFragment extends Fragment {
     private static final String TAG = ManagerFragment.class.getSimpleName();
 
     public static final String METRIC_MSG_OEM_PREFERENCE_KEY = "oem_preference";
-    public static final String METRIC_MSG_OEM_PREFERENCE_TX_KEY = "oem_preference_tx";
     public static final String METRIC_MSG_OEM_PREFERENCE_RX_KEY = "oem_preference_rx";
+    public static final String METRIC_MSG_OEM_PREFERENCE_TX_KEY = "oem_preference_tx";
 
     private PersonalStorage mPersonalStorage;
     private OemNetworkPreferencesAdapter mOemNetworkPreferencesAdapter;
@@ -85,9 +85,9 @@ public final class ManagerFragment extends Fragment {
                 public void handleMessage(Message msg) {
                     Bundle bundle = msg.getData();
                     int oem_preference = bundle.getInt(METRIC_MSG_OEM_PREFERENCE_KEY);
-                    long tx = bundle.getLong(METRIC_MSG_OEM_PREFERENCE_TX_KEY);
                     long rx = bundle.getLong(METRIC_MSG_OEM_PREFERENCE_RX_KEY);
-                    updateMetricIndicatorByType(oem_preference, tx, rx);
+                    long tx = bundle.getLong(METRIC_MSG_OEM_PREFERENCE_TX_KEY);
+                    updateMetricIndicatorByType(oem_preference, rx, tx);
                 }
             };
 
@@ -168,19 +168,19 @@ public final class ManagerFragment extends Fragment {
         mMetricDisplay.setMainActivity(this);
     }
 
-    private void updateMetricIndicatorByType(int type, long tx, long rx) {
+    private void updateMetricIndicatorByType(int type, long rx, long tx) {
         switch (type) {
             case NetworkIdentity.OEM_PAID:
-                mOemPaidTxBytesTextView.setText(String.valueOf(tx));
-                mOemPaidRxBytesTextView.setText(String.valueOf(rx));
+                mOemPaidRxBytesTextView.setText("RX: " + String.valueOf(rx));
+                mOemPaidTxBytesTextView.setText("TX: " + String.valueOf(tx));
                 break;
             case NetworkIdentity.OEM_PRIVATE:
-                mOemPrivateTxBytesTextView.setText(String.valueOf(tx));
-                mOemPrivateRxBytesTextView.setText(String.valueOf(rx));
+                mOemPrivateRxBytesTextView.setText("RX: " + String.valueOf(rx));
+                mOemPrivateTxBytesTextView.setText("TX: " + String.valueOf(tx));
                 break;
             case NetworkTemplate.OEM_MANAGED_YES:
-                mOemTotalTxBytesTextView.setText(String.valueOf(tx));
-                mOemTotalRxBytesTextView.setText(String.valueOf(rx));
+                mOemTotalRxBytesTextView.setText("RX: " + String.valueOf(rx));
+                mOemTotalTxBytesTextView.setText("TX: " + String.valueOf(tx));
                 break;
             default:
                 Log.e(TAG, "Unknown NetworkIdentity " + type);
