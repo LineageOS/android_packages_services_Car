@@ -30,6 +30,7 @@ import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
 import android.car.cluster.IClusterHomeCallback;
 import android.car.cluster.IClusterHomeService;
+import android.car.cluster.navigation.NavigationState.NavigationStateProto;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ComponentName;
 import android.content.Context;
@@ -234,6 +235,10 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     public void onNavigationStateChanged(Bundle bundle) {
         byte[] protoBytes = bundle.getByteArray(NAV_STATE_PROTO_BUNDLE_KEY);
 
+        sendNavigationState(protoBytes);
+    }
+
+    private void sendNavigationState(byte[] protoBytes) {
         final int n = mClientCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {
             IClusterHomeCallback callback = mClientCallbacks.getBroadcastItem(i);
@@ -259,7 +264,12 @@ public class ClusterHomeService extends IClusterHomeService.Stub
 
     @Override
     public void notifyNavContextOwnerChanged(ClusterNavigationService.ContextOwner owner) {
-        // TODO: Implement this
+        Slogf.d(TAG, "notifyNavContextOwnerChanged: owner=%s", owner);
+        // Sends the empty NavigationStateProto to clear out the last direction
+        // when the app context owner is changed or the navigation is finished.
+        NavigationStateProto emptyProto = NavigationStateProto.newBuilder()
+                .setServiceStatus(NavigationStateProto.ServiceStatus.NORMAL).build();
+        sendNavigationState(emptyProto.toByteArray());
     }
     // ClusterNavigationServiceCallback ends
 
