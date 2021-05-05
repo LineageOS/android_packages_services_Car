@@ -64,7 +64,6 @@ import java.util.concurrent.CompletableFuture;
 @RunWith(AndroidJUnit4.class)
 @SmallTest
 public class ControllerTest {
-    private static final Slogger LOG = new Slogger("ControllerTest");
 
     @Rule public final MockitoRule rule = MockitoJUnit.rule();
 

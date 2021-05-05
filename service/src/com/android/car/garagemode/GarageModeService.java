@@ -28,7 +28,6 @@ import com.android.internal.annotations.VisibleForTesting;
  * Garage Mode enables idle time in cars.
  */
 public class GarageModeService implements CarServiceBase {
-    private static final Slogger LOG = new Slogger("Service");
 
     private final Context mContext;
     private final Controller mController;
