@@ -50,7 +50,6 @@ import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
@@ -63,6 +62,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 import com.android.internal.os.BackgroundThread;
+import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.BitSet;
@@ -77,6 +77,8 @@ import java.util.function.Supplier;
  */
 public class CarInputService extends ICarInput.Stub
         implements CarServiceBase, InputHalService.InputListener {
+
+    private static final String TAG = CarLog.TAG_INPUT;
 
     /** An interface to receive {@link KeyEvent}s as they occur. */
     public interface KeyEventListener {
@@ -142,18 +144,15 @@ public class CarInputService extends ICarInput.Stub
             new IVoiceInteractionSessionShowCallback.Stub() {
                 @Override
                 public void onFailed() {
-                    Slog.w(CarLog.TAG_INPUT, "Failed to show VoiceInteractionSession");
+                    Slogf.w(TAG, "Failed to show VoiceInteractionSession");
                 }
 
                 @Override
                 public void onShown() {
-                    if (DBG) {
-                        Slog.d(CarLog.TAG_INPUT, "IVoiceInteractionSessionShowCallback onShown()");
-                    }
+                    Slogf.d(TAG, "IVoiceInteractionSessionShowCallback onShown()");
                 }
             };
 
-    private static final boolean DBG = false;
     @VisibleForTesting
     static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
@@ -208,7 +207,7 @@ public class CarInputService extends ICarInput.Stub
         @Override
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
             if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                Slog.d(CarLog.TAG_INPUT, "Bluetooth proxy connected for HEADSET_CLIENT profile");
+                Slogf.d(TAG, "Bluetooth proxy connected for HEADSET_CLIENT profile");
                 synchronized (mLock) {
                     mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
                 }
@@ -218,7 +217,7 @@ public class CarInputService extends ICarInput.Stub
         @Override
         public void onServiceDisconnected(int profile) {
             if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                Slog.d(CarLog.TAG_INPUT, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
+                Slogf.d(TAG, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
                 synchronized (mLock) {
                     mBluetoothHeadsetClient = null;
                 }
@@ -227,7 +226,7 @@ public class CarInputService extends ICarInput.Stub
     };
 
     private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
-        Slog.d(CarLog.TAG_INPUT, "CarInputService.onEvent(" + event + ")");
+        Slogf.d(TAG, "CarInputService.onEvent(%s)", event);
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             updateRotaryServiceSettings(event.getUserId());
         }
@@ -313,12 +312,10 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void init() {
         if (!mInputHalService.isKeyInputSupported()) {
-            Slog.w(CarLog.TAG_INPUT, "Hal does not support key input.");
+            Slogf.w(TAG, "Hal does not support key input.");
             return;
-        } else if (DBG) {
-            Slog.d(CarLog.TAG_INPUT, "Hal supports key input.");
         }
-
+        Slogf.d(TAG, "Hal supports key input.");
         mInputHalService.setInputListener(this);
         if (mBluetoothAdapter != null) {
             BackgroundThread.getHandler().post(() -> {
@@ -397,12 +394,10 @@ public class CarInputService extends ICarInput.Stub
     @Override
     public void onCustomInputEvent(CustomInputEvent event) {
         if (!mCaptureController.onCustomInputEvent(event)) {
-            Slog.w(CarLog.TAG_INPUT, "Failed to propagate " + event);
+            Slogf.w(TAG, "Failed to propagate (%s)", event);
             return;
         }
-        if (DBG) {
-            Slog.d(CarLog.TAG_INPUT, "Succeed injecting " + event);
-        }
+        Slogf.d(TAG, "Succeed injecting (%s)", event);
     }
 
     private static List<KeyEvent> rotaryEventToKeyEvents(RotaryEvent event) {
@@ -422,7 +417,7 @@ public class CarInputService extends ICarInput.Stub
                         : KeyEvent.KEYCODE_VOLUME_DOWN;
                 break;
             default:
-                Slog.e(CarLog.TAG_INPUT, "Unknown rotary input type: " + event.getInputType());
+                Slogf.e(TAG, "Unknown rotary input type: %d", event.getInputType());
                 return Collections.EMPTY_LIST;
         }
         ArrayList<KeyEvent> keyEvents = new ArrayList<>(numEvents);
@@ -588,13 +583,13 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private void launchDialerHandler() {
-        Slog.i(CarLog.TAG_INPUT, "call key, launch dialer intent");
+        Slogf.i(TAG, "call key, launch dialer intent");
         Intent dialerIntent = new Intent(Intent.ACTION_DIAL);
         mContext.startActivityAsUser(dialerIntent, null, UserHandle.CURRENT_OR_SELF);
     }
 
     private void dialLastCallHandler() {
-        Slog.i(CarLog.TAG_INPUT, "call key, dialing last call");
+        Slogf.i(TAG, "call key, dialing last call");
 
         String lastNumber = mLastCalledNumberSupplier.get();
         if (!TextUtils.isEmpty(lastNumber)) {
@@ -607,7 +602,7 @@ public class CarInputService extends ICarInput.Stub
 
     private boolean acceptCallIfRinging() {
         if (mTelecomManager != null && mTelecomManager.isRinging()) {
-            Slog.i(CarLog.TAG_INPUT, "call key while ringing. Answer the call!");
+            Slogf.i(TAG, "call key while ringing. Answer the call!");
             mTelecomManager.acceptRingingCall();
             return true;
         }
@@ -616,7 +611,7 @@ public class CarInputService extends ICarInput.Stub
 
     private boolean endCall() {
         if (mTelecomManager != null && mTelecomManager.isInCall()) {
-            Slog.i(CarLog.TAG_INPUT, "End the call!");
+            Slogf.i(TAG, "End the call!");
             mTelecomManager.endCall();
             return true;
         }
@@ -646,8 +641,8 @@ public class CarInputService extends ICarInput.Stub
                         continue;
                     }
                     if (mBluetoothHeadsetClient.startVoiceRecognition(device)) {
-                        Slog.d(CarLog.TAG_INPUT, "started voice recognition on BT device at "
-                                + device.getAddress());
+                        Slogf.d(TAG, "started voice recognition on BT device at (%s)",
+                                device.getAddress());
                         return true;
                     }
                 }
@@ -657,10 +652,10 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private void launchDefaultVoiceAssistantHandler() {
-        Slog.i(CarLog.TAG_INPUT, "voice key, invoke AssistUtils");
+        Slogf.i(TAG, "voice key, invoke AssistUtils");
 
         if (mAssistUtils.getAssistComponentForUser(ActivityManager.getCurrentUser()) == null) {
-            Slog.w(CarLog.TAG_INPUT, "Unable to retrieve assist component for current user");
+            Slogf.w(TAG, "Unable to retrieve assist component for current user");
             return;
         }
 
