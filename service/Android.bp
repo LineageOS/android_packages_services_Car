@@ -34,6 +34,7 @@ car_service_sources = [
 ]
 
 common_lib_deps = [
+    "android.car.cluster.navigation",
     "android.car.userlib",
     "android.car.watchdoglib",
     "android.frameworks.automotive.powerpolicy.internal-java",
