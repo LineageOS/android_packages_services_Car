@@ -38,8 +38,9 @@
   <string name="oem_paid_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PAID capability (ssid1[:password],ssid2[:password2],...))</string>
   <string name="oem_private_wifi_ssids_text" translatable="false">Wifi SSIDs with OEM_PRIVATE capability (ssid1[:password],ssid2[:password2],...))</string>
   <string name="button_apply_wifi_configuration" translatable="false">Apply WiFi suggestions</string>
-  <string name="button_connect_to_oem_paid_wifi" translatable="false">Connect to OEM_PAID wifi</string>
-  <string name="button_connect_to_oem_private_wifi" translatable="false">Connect to OEM_PRIVATE wifi</string>
+  <string name="button_reset_wifi_configuration" translatable="false">Reset WiFi suggestions</string>
+  <string name="label_switch_connect_to_oem_paid_wifi" translatable="false">Connect to OEM_PAID wifi</string>
+  <string name="label_switch_connect_to_oem_private_wifi" translatable="false">Connect to OEM_PRIVATE wifi</string>
 
   <string name="no" translatable="false">No</string>
   <string name="on" translatable="false">On</string>

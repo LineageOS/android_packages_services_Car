@@ -25,6 +25,7 @@ import static android.net.OemNetworkPreferences.OEM_NETWORK_PREFERENCE_OEM_PRIVA
 
 import android.content.Context;
 import android.net.ConnectivityManager;
+import android.net.ConnectivityManager.NetworkCallback;
 import android.net.NetworkIdentity;
 import android.net.NetworkRequest;
 import android.net.NetworkTemplate;
@@ -100,8 +101,11 @@ public final class ManagerFragment extends Fragment {
     private Button mApplyConfigurationBtn;
     private Button mResetNetworkPreferencesBtn;
     private Button mApplyWifiCapabilitiesBtn;
-    private Button mConnectToOemPaidWifiBtn;
-    private Button mConnectToOemPrivateWifiBtn;
+    private Button mResetWifiCapabilitiesBtn;
+    private Switch mConnectToOemPaidWifiSwitch;
+    private NetworkCallback mConnectToOemPaidWifiSwitchNC;
+    private Switch mConnectToOemPrivateWifiSwitch;
+    private NetworkCallback mConnectToOemPrivateWifiSwitchNC;
 
     // Wifi SSIDs
     private EditText mOEMPaidWifiSSIDsEditText;
@@ -155,8 +159,9 @@ public final class ManagerFragment extends Fragment {
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
         mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
         mApplyWifiCapabilitiesBtn = v.findViewById(R.id.applyWifiCapabilitiesButton);
-        mConnectToOemPaidWifiBtn = v.findViewById(R.id.connectToOemPaidWifiButton);
-        mConnectToOemPrivateWifiBtn = v.findViewById(R.id.connectToOemPrivateWifiButton);
+        mResetWifiCapabilitiesBtn = v.findViewById(R.id.resetWifiCapabilitiesButton);
+        mConnectToOemPaidWifiSwitch = v.findViewById(R.id.connectToOemPaidWifiSwitch);
+        mConnectToOemPrivateWifiSwitch = v.findViewById(R.id.connectToOemPrivateWifiSwitch);
         // Since our Metric Display is going to be alive, we want to pass our TextView components
         // into MetricDisplay instance to simplify refresh logic.
         mOemPaidRxBytesTextView = v.findViewById(R.id.oemPaidRxBytesTextView);
@@ -191,15 +196,40 @@ public final class ManagerFragment extends Fragment {
     private void defineButtonActions() {
         mApplyConfigurationBtn.setOnClickListener(view -> onApplyConfigurationBtnClick());
         mApplyWifiCapabilitiesBtn.setOnClickListener(view -> onApplyWifiCapabilitiesBtnClick());
+        mResetWifiCapabilitiesBtn.setOnClickListener(view -> onResetWifiCapabilitiesBtnClick());
         mReapplyPANSOnBootSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) ->
                         mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
         mResetNetworkPreferencesBtn.setOnClickListener(view -> resetNetworkPreferences());
-        mConnectToOemPaidWifiBtn.setOnClickListener(view -> onConnectWifiBtnClick(true));
-        mConnectToOemPrivateWifiBtn.setOnClickListener(view -> onConnectWifiBtnClick(false));
+
+        mConnectToOemPaidWifiSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> updateNetworkRequestFor(true /*isOemPaid*/, isChecked));
+        mConnectToOemPrivateWifiSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) -> updateNetworkRequestFor(false /*isOemPaid*/, isChecked));
     }
 
-    private void onConnectWifiBtnClick(boolean isOemPaid) {
+    private void updateNetworkRequestFor(boolean isOemPaid, boolean isChecked) {
+        if (isChecked) {
+            if (isOemPaid) {
+                mConnectToOemPaidWifiSwitchNC = sendNetworkRequest(isOemPaid);
+            } else {
+                mConnectToOemPrivateWifiSwitchNC = sendNetworkRequest(isOemPaid);
+            }
+        } else {
+            mConnectivityManager.unregisterNetworkCallback(
+                    isOemPaid ? mConnectToOemPaidWifiSwitchNC : mConnectToOemPrivateWifiSwitchNC);
+        }
+    }
+
+    private void onResetWifiCapabilitiesBtnClick() {
+        mWifiManager.removeNetworkSuggestions(new ArrayList<>());
+        mOEMPaidWifiSSIDsEditText.setText("");
+        mOEMPrivateWifiSSIDsEditText.setText("");
+        mPersonalStorage.storeWifi(null, null);
+    }
+
+    private NetworkCallback sendNetworkRequest(boolean isOemPaid) {
+        NetworkCallback nc = new NetworkCallback();
         try {
             mConnectivityManager.requestNetwork(
                     new NetworkRequest.Builder()
@@ -209,7 +239,8 @@ public final class ManagerFragment extends Fragment {
                                             ? NET_CAPABILITY_OEM_PAID
                                             : NET_CAPABILITY_OEM_PRIVATE)
                             .build(),
-                    new ConnectivityManager.NetworkCallback());
+                    nc);
+            return nc;
         } catch (Exception ex) {
             Toast.makeText(getActivity(), ex.toString(), Toast.LENGTH_SHORT).show();
             String msg =
@@ -218,6 +249,7 @@ public final class ManagerFragment extends Fragment {
                             isOemPaid ? "OEM_PAID" : "OEM_PRIVATE");
             Log.e(TAG, msg, ex);
         }
+        return null;
     }
 
     private void resetNetworkPreferences() {
