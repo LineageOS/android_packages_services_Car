@@ -4,15 +4,22 @@ A structured log collection service for CarTelemetryService. See ARCHITECTURE.md
 
 ## Useful Commands
 
-**Dump service information**
+**Dumping the service information**
 
 `adb shell dumpsys android.automotive.telemetry.internal.ICarTelemetryInternal/default`
 
-**Starting emulator**
+**Enabling VERBOSE logs**
 
-`aae emulator run -selinux permissive -writable-system`
+```
+adb shell setprop log.tag.android.automotive.telemetryd@1.0 V
+adb shell setprop log.tag.cartelemetryd_impl_test V
+```
 
-**Running tests**
+**Starting emulator with cold boot**
+
+`emulator -verbose -show-kernel -selinux permissive -writable-system -no-snapshot -wipe-data`
+
+**Running the tests**
 
 `atest cartelemetryd_impl_test:CarTelemetryInternalImplTest#TestSetListenerReturnsOk`
 
