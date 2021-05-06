@@ -231,27 +231,24 @@ Return<EvsResult> HalCamera::clientStreamStarting() {
 }
 
 
+void HalCamera::cancelCaptureRequestFromClientLocked(std::deque<struct FrameRequest>* requests,
+                                                     const VirtualCamera* client) {
+    auto it = requests->begin();
+    while (it != requests->end()) {
+        if (it->client == client) {
+            requests->erase(it);
+            return;
+        }
+        ++it;
+    }
+}
+
+
 void HalCamera::clientStreamEnding(const VirtualCamera* client) {
     {
         std::lock_guard<std::mutex> lock(mFrameMutex);
-
-        auto itReq = mNextRequests->begin();
-        while (itReq != mNextRequests->end()) {
-            if (itReq->client == client) {
-                itReq = mNextRequests->erase(itReq);
-            } else {
-                ++itReq;
-            }
-        }
-
-        auto itCam = mClients.begin();
-        while (itCam != mClients.end()) {
-            if (itCam->promote() == client) {
-                itCam = mClients.erase(itCam);
-            } else {
-                ++itCam;
-            }
-        }
+        cancelCaptureRequestFromClientLocked(mNextRequests, client);
+        cancelCaptureRequestFromClientLocked(mCurrentRequests, client);
     }
 
     // Do we still have a running client?
