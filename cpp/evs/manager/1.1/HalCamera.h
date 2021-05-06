@@ -144,6 +144,9 @@ private:
         int64_t           timestamp = -1;
     };
 
+    void cancelCaptureRequestFromClientLocked(std::deque<FrameRequest>* requests,
+                                              const VirtualCamera* client) REQUIRES(mFrameMutex);
+
     // synchronization
     mutable std::mutex        mFrameMutex;
     std::deque<FrameRequest>  mFrameRequests[2] GUARDED_BY(mFrameMutex);
