@@ -18,3 +18,4 @@
 # Include generated RROs
 PRODUCT_PACKAGES += \
     generatedcaruiportrait-com-android-car-media \
+    generatedcaruiportrait-com-android-car-dialer \

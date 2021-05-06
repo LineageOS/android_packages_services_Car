@@ -21,6 +21,7 @@ CAR_UI_RRO_SET_NAME := generatedcaruiportrait
 CAR_UI_RRO_MANIFEST_FILE := $(LOCAL_PATH)/AndroidManifest.xml
 CAR_UI_RESOURCE_DIR := $(LOCAL_PATH)/res
 CAR_UI_RRO_TARGETS := \
-    com.android.car.media
+    com.android.car.media \
+    com.android.car.dialer \
 
 include packages/apps/Car/libs/car-ui-lib/generate_rros.mk
