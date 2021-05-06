@@ -108,7 +108,7 @@ public class CarPropertyManager extends CarManagerBase {
         }
     }
 
-    /** Read ON_CHANGE sensors */
+    /** Read ONCHANGE sensors. */
     public static final float SENSOR_RATE_ONCHANGE = 0f;
     /** Read sensors at the rate of  1 hertz */
     public static final float SENSOR_RATE_NORMAL = 1f;
@@ -219,6 +219,9 @@ public class CarPropertyManager extends CarManagerBase {
      *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}</li>
      *   <li>{@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}</li>
      * </ul>
+     * <b>Note:</b>If listener registers for updates for a
+     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE} property, it will receive the
+     * property's current value upon registration.
      * See {@link CarPropertyConfig#getChangeMode()} for details.
      * If rate is higher than {@link CarPropertyConfig#getMaxSampleRate()}, it will be registered
      * with max sample rate.
