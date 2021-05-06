@@ -35,6 +35,7 @@
     <uses-permission android:name="android.permission.CONTROL_OEM_PAID_NETWORK_PREFERNCE" />
     <!-- We need this to have an ability to read network stats from restricted networks -->
     <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+    <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
 
     <application android:label="NetworkPreferenceApp">
         <receiver
