@@ -66,8 +66,16 @@ public final class PersonalStorage {
 
     public void storeWifi(Set<String> paidSsids, Set<String> privateSsids) {
         SharedPreferences.Editor editor = mSharedPrefs.edit();
-        editor.putStringSet(KEY_OEM_PAID_WIFI_SSIDS, paidSsids);
-        editor.putStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, privateSsids);
+        if (paidSsids != null) {
+            editor.putStringSet(KEY_OEM_PAID_WIFI_SSIDS, paidSsids);
+        } else {
+            editor.remove(KEY_OEM_PAID_WIFI_SSIDS);
+        }
+        if (privateSsids != null) {
+            editor.putStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, privateSsids);
+        } else {
+            editor.remove(KEY_OEM_PRIVATE_WIFI_SSIDS);
+        }
         editor.apply();
     }
 

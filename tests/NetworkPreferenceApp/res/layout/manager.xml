@@ -205,13 +205,6 @@
                     android:layout_height="wrap_content"
                     android:inputType="textNoSuggestions"/>
             </LinearLayout>
-            <Button
-                style="@style/Button"
-                android:id="@+id/applyWifiCapabilitiesButton"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_weight="1"
-                android:text="@string/button_apply_wifi_configuration"/>
             <LinearLayout
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
@@ -219,18 +212,44 @@
                 android:weightSum="2">
                 <Button
                     style="@style/Button"
-                    android:id="@+id/connectToOemPaidWifiButton"
+                    android:id="@+id/applyWifiCapabilitiesButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/button_connect_to_oem_paid_wifi"/>
+                    android:text="@string/button_apply_wifi_configuration"/>
                 <Button
                     style="@style/Button"
-                    android:id="@+id/connectToOemPrivateWifiButton"
+                    android:id="@+id/resetWifiCapabilitiesButton"
                     android:layout_width="match_parent"
                     android:layout_height="wrap_content"
                     android:layout_weight="1"
-                    android:text="@string/button_connect_to_oem_private_wifi"/>
+                    android:text="@string/button_reset_wifi_configuration"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_switch_connect_to_oem_paid_wifi"/>
+                <Switch
+                    android:id="@+id/connectToOemPaidWifiSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
+            </LinearLayout>
+            <LinearLayout
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_weight="1">
+                <TextView
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"
+                    android:text="@string/label_switch_connect_to_oem_private_wifi"/>
+                <Switch
+                    android:id="@+id/connectToOemPrivateWifiSwitch"
+                    android:layout_width="wrap_content"
+                    android:layout_height="wrap_content"/>
             </LinearLayout>
         </LinearLayout>
     </LinearLayout>
