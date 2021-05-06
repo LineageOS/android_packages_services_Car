@@ -1208,15 +1208,16 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             currentPowerPolicyId = mCurrentPowerPolicyId;
             currentPolicyGroupId = mCurrentPowerPolicyGroupId;
         }
-        // In case where CPMS received power state change before taking control from the daemon.
-        notifyPowerPolicyChangeToDaemon(currentPowerPolicyId);
         // If the current power policy or the policy group has been modified by CPMS, we ignore
-        // the power policy or the policy group passed from car power policy daemon.
+        // the power policy or the policy group passed from car power policy daemon, and notifies
+        // the current power policy to the daemon.
         if (currentPowerPolicyId == null || currentPowerPolicyId.isEmpty()) {
             String errorMsg = applyPowerPolicy(state.policyId, false);
             if (errorMsg != null) {
                 Slogf.w(TAG, "Cannot apply power policy: %s", errorMsg);
             }
+        } else {
+            notifyPowerPolicyChangeToDaemon(currentPowerPolicyId);
         }
         if (currentPolicyGroupId == null || currentPolicyGroupId.isEmpty()) {
             String errMsg = setCurrentPowerPolicyGroup(state.policyGroupId);
