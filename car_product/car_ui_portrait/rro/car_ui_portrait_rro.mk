@@ -13,6 +13,9 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
+
+$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-customizations/product.mk)
+
 # All RROs to be included in car_ui_portrait builds.
 PRODUCT_PACKAGES += \
     CarUiPortraitMediaRRO \

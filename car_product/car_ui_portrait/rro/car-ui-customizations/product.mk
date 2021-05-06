@@ -1,4 +1,5 @@
-# Copyright (C) 2015 The Android Open Source Project
+#
+# Copyright (C) 2021 The Android Open-Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -12,11 +13,8 @@
 # See the License for the specific language governing permissions and
 # limitations under the License.
 #
-LOCAL_PATH := $(call my-dir)
-include $(CLEAR_VARS)
 
-# Include car_ui_portrait
-include $(LOCAL_PATH)/car_product/car_ui_portrait/Android.mk
-
-# Include the sub-makefiles
-include $(call all-makefiles-under,$(LOCAL_PATH))
+# Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
+# Include generated RROs
+PRODUCT_PACKAGES += \
+    generatedcaruiportrait-com-android-car-media \

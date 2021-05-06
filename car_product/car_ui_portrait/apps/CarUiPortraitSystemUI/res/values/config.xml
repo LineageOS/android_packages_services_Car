@@ -14,12 +14,9 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.media.caruiportrait.rro">
-    <application android:hasCode="false"/>
-    <overlay android:priority="20"
-             android:targetName="CarMediaApp"
-             android:targetPackage="com.android.car.media"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true" />
-</manifest>
+
+<resources>
+    <string name="config_systemUIFactoryComponent" translatable="false">
+        com.android.systemui.CarUiPortraitSystemUIFactory
+    </string>
+</resources>
