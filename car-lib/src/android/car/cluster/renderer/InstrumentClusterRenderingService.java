@@ -15,8 +15,6 @@
  */
 package android.car.cluster.renderer;
 
-import static android.content.PermissionChecker.PERMISSION_GRANTED;
-
 import android.annotation.CallSuper;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
@@ -376,7 +374,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
         // Check package permission.
         if (packageManager.checkPermission(Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER, packageName)
-                != PERMISSION_GRANTED) {
+                != PackageManager.PERMISSION_GRANTED) {
             Log.i(TAG, String.format("Package '%s' doesn't have permission %s", packageName,
                     Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER));
             return null;
