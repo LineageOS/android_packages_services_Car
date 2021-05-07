@@ -19,68 +19,140 @@
 #include "CarTelemetryImpl.h"
 #include "RingBuffer.h"
 
-#include <android-base/chrono_utils.h>
+#include <aidl/android/automotive/telemetry/internal/CarDataInternal.h>
 #include <android-base/logging.h>
-#include <android-base/properties.h>
-#include <android/binder_interface_utils.h>
-#include <android/binder_manager.h>
-#include <android/binder_process.h>
 
 #include <inttypes.h>  // for PRIu64 and friends
 
 #include <memory>
-#include <thread>  // NOLINT(build/c++11)
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::android::automotive::telemetry::RingBuffer;
+namespace {
 
-constexpr const char kCarTelemetryServiceName[] =
-        "android.frameworks.automotive.telemetry.ICarTelemetry/default";
-constexpr const char kCarTelemetryInternalServiceName[] =
-        "android.automotive.telemetry.internal.ICarTelemetryInternal/default";
+using ::aidl::android::automotive::telemetry::internal::CarDataInternal;
+using ::aidl::android::automotive::telemetry::internal::ICarDataListener;
+using ::aidl::android::frameworks::automotive::telemetry::CarData;
+using ::android::base::Error;
+using ::android::base::Result;
 
-// TODO(b/183444070): make it configurable using sysprop
-// CarData count limit in the RingBuffer. In worst case it will use kMaxBufferSize * 10Kb memory,
-// which is ~ 1MB.
-const int kMaxBufferSize = 100;
+enum {
+    MSG_PUSH_CAR_DATA_TO_LISTENER = 1,
+};
 
-TelemetryServer::TelemetryServer() : mRingBuffer(kMaxBufferSize) {}
+// If ICarDataListener cannot accept data, the next push should be delayed little bit to allow
+// the listener to recover.
+constexpr const std::chrono::seconds kPushCarDataFailureDelaySeconds = 1s;
+}  // namespace
 
-void TelemetryServer::registerServices() {
-    std::shared_ptr<CarTelemetryImpl> telemetry =
-            ndk::SharedRefBase::make<CarTelemetryImpl>(&mRingBuffer);
-    std::shared_ptr<CarTelemetryInternalImpl> telemetryInternal =
-            ndk::SharedRefBase::make<CarTelemetryInternalImpl>(&mRingBuffer);
+TelemetryServer::TelemetryServer(LooperWrapper* looper,
+                                 const std::chrono::nanoseconds& pushCarDataDelayNs,
+                                 const int maxBufferSize) :
+      mLooper(looper),
+      mPushCarDataDelayNs(pushCarDataDelayNs),
+      mRingBuffer(maxBufferSize),
+      mMessageHandler(new MessageHandlerImpl(this)) {}
 
-    // Wait for the service manager before starting ICarTelemetry service.
-    while (android::base::GetProperty("init.svc.servicemanager", "") != "running") {
-        // Poll frequent enough so the writer clients can connect to the service during boot.
-        std::this_thread::sleep_for(250ms);
+Result<void> TelemetryServer::setListener(const std::shared_ptr<ICarDataListener>& listener) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    if (mCarDataListener != nullptr) {
+        return Error(::EX_ILLEGAL_STATE) << "ICarDataListener is already set";
     }
+    mCarDataListener = listener;
+    mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
+                                MSG_PUSH_CAR_DATA_TO_LISTENER);
+    return {};
+}
 
-    LOG(VERBOSE) << "Registering " << kCarTelemetryServiceName;
-    binder_exception_t exception =
-            ::AServiceManager_addService(telemetry->asBinder().get(), kCarTelemetryServiceName);
-    if (exception != ::EX_NONE) {
-        LOG(FATAL) << "Unable to register " << kCarTelemetryServiceName
-                   << ", exception=" << exception;
+void TelemetryServer::clearListener() {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    if (mCarDataListener == nullptr) {
+        return;
     }
+    mCarDataListener = nullptr;
+    mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+}
 
-    LOG(VERBOSE) << "Registering " << kCarTelemetryInternalServiceName;
-    exception = ::AServiceManager_addService(telemetryInternal->asBinder().get(),
-                                             kCarTelemetryInternalServiceName);
-    if (exception != ::EX_NONE) {
-        LOG(FATAL) << "Unable to register " << kCarTelemetryInternalServiceName
-                   << ", exception=" << exception;
+std::shared_ptr<ICarDataListener> TelemetryServer::getListener() {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    return mCarDataListener;
+}
+
+void TelemetryServer::dump(int fd) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    dprintf(fd, "  TelemetryServer:\n");
+    mRingBuffer.dump(fd);
+}
+
+// TODO(b/174608802): Add 10kb size check for the `dataList`, see the AIDL for the limits
+void TelemetryServer::writeCarData(const std::vector<CarData>& dataList, uid_t publisherUid) {
+    const std::scoped_lock<std::mutex> lock(mMutex);
+    bool bufferWasEmptyBefore = mRingBuffer.size() == 0;
+    for (auto&& data : dataList) {
+        mRingBuffer.push({.mId = data.id,
+                          .mContent = std::move(data.content),
+                          .mPublisherUid = publisherUid});
+    }
+    // If the mRingBuffer was not empty, the message is already scheduled. It prevents scheduling
+    // too many unnecessary idendical messages in the looper.
+    if (mCarDataListener != nullptr && bufferWasEmptyBefore && mRingBuffer.size() > 0) {
+        mLooper->sendMessageDelayed(mPushCarDataDelayNs.count(), mMessageHandler,
+                                    MSG_PUSH_CAR_DATA_TO_LISTENER);
     }
 }
 
-void TelemetryServer::startAndJoinThreadPool() {
-    ::ABinderProcess_startThreadPool();  // Starts the default 15 binder threads.
-    ::ABinderProcess_joinThreadPool();
+// Runs on the main thread.
+void TelemetryServer::pushCarDataToListeners() {
+    std::shared_ptr<ICarDataListener> listener;
+    std::vector<CarDataInternal> pendingCarDataInternals;
+    {
+        const std::scoped_lock<std::mutex> lock(mMutex);
+        // Remove extra messages.
+        mLooper->removeMessages(mMessageHandler, MSG_PUSH_CAR_DATA_TO_LISTENER);
+        if (mCarDataListener == nullptr || mRingBuffer.size() == 0) {
+            return;
+        }
+        listener = mCarDataListener;
+        // Push elements to pendingCarDataInternals in reverse order so we can send data
+        // from the back of the pendingCarDataInternals vector.
+        while (mRingBuffer.size() > 0) {
+            auto carData = std::move(mRingBuffer.popBack());
+            CarDataInternal data;
+            data.id = carData.mId;
+            data.content = std::move(carData.mContent);
+            pendingCarDataInternals.push_back(data);
+        }
+    }
+
+    // Now the mutex is unlocked, we can do the heavy work.
+
+    // TODO(b/186477983): send data in batch to improve performance, but careful sending too
+    //                    many data at once, as it could clog the Binder - it has <1MB limit.
+    while (!pendingCarDataInternals.empty()) {
+        auto status = listener->onCarDataReceived({pendingCarDataInternals.back()});
+        if (!status.isOk()) {
+            LOG(WARNING) << "Failed to push CarDataInternal, will try again: "
+                         << status.getMessage();
+            sleep(kPushCarDataFailureDelaySeconds.count());
+        } else {
+            pendingCarDataInternals.pop_back();
+        }
+    }
+}
+
+TelemetryServer::MessageHandlerImpl::MessageHandlerImpl(TelemetryServer* server) :
+      mTelemetryServer(server) {}
+
+void TelemetryServer::MessageHandlerImpl::handleMessage(const Message& message) {
+    switch (message.what) {
+        case MSG_PUSH_CAR_DATA_TO_LISTENER:
+            mTelemetryServer->pushCarDataToListeners();
+            break;
+        default:
+            LOG(WARNING) << "Unknown message: " << message.what;
+    }
 }
 
 }  // namespace telemetry

@@ -31,6 +31,9 @@ cc_defaults {
         "liblog",
         "libutils",
     ],
+    header_libs: [
+        "libgtest_prod_headers",  // for FRIEND_TEST
+    ],
     product_variables: {
         debuggable: {
             cflags: [
@@ -48,6 +51,7 @@ cc_library {
     srcs: [
         "src/CarTelemetryImpl.cpp",
         "src/CarTelemetryInternalImpl.cpp",
+        "src/LooperWrapper.cpp",
         "src/RingBuffer.cpp",
         "src/TelemetryServer.cpp",
     ],
@@ -64,9 +68,7 @@ cc_test {
     ],
     test_suites: ["general-tests"],
     srcs: [
-        "tests/CarTelemetryImplTest.cpp",
-        "tests/CarTelemetryInternalImplTest.cpp",
-        "tests/RingBufferTest.cpp",
+        "tests/TelemetryServerTest.cpp",
     ],
     // Statically link only in tests, for portability reason.
     static_libs: [

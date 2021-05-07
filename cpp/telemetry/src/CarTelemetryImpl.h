@@ -17,7 +17,7 @@
 #ifndef CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
 #define CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
 
-#include "RingBuffer.h"
+#include "TelemetryServer.h"
 
 #include <aidl/android/frameworks/automotive/telemetry/BnCarTelemetry.h>
 #include <aidl/android/frameworks/automotive/telemetry/CarData.h>
@@ -33,15 +33,15 @@ namespace telemetry {
 // Implementation of android.frameworks.automotive.telemetry.ICarTelemetry.
 class CarTelemetryImpl : public aidl::android::frameworks::automotive::telemetry::BnCarTelemetry {
 public:
-    // Doesn't own `buffer`.
-    explicit CarTelemetryImpl(RingBuffer* buffer);
+    // Doesn't own `server`.
+    explicit CarTelemetryImpl(TelemetryServer* server);
 
     ndk::ScopedAStatus write(
             const std::vector<aidl::android::frameworks::automotive::telemetry::CarData>& dataList)
             override;
 
 private:
-    RingBuffer* mRingBuffer;  // not owned
+    TelemetryServer* mTelemetryServer;  // not owned
 };
 
 }  // namespace telemetry

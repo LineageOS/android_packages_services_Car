@@ -29,7 +29,6 @@ namespace telemetry {
 RingBuffer::RingBuffer(int32_t limit) : mSizeLimit(limit) {}
 
 void RingBuffer::push(BufferedCarData&& data) {
-    const std::scoped_lock<std::mutex> lock(mMutex);
     mList.push_back(std::move(data));
     while (mList.size() > mSizeLimit) {
         mList.pop_front();
@@ -37,23 +36,20 @@ void RingBuffer::push(BufferedCarData&& data) {
     }
 }
 
-BufferedCarData RingBuffer::popFront() {
-    const std::scoped_lock<std::mutex> lock(mMutex);
-    auto result = std::move(mList.front());
-    mList.pop_front();
+BufferedCarData RingBuffer::popBack() {
+    auto result = std::move(mList.back());
+    mList.pop_back();
     return result;
 }
 
 void RingBuffer::dump(int fd) const {
-    const std::scoped_lock<std::mutex> lock(mMutex);
-    dprintf(fd, "RingBuffer:\n");
-    dprintf(fd, "  mSizeLimit=%d\n", mSizeLimit);
-    dprintf(fd, "  mList.size=%zu\n", mList.size());
-    dprintf(fd, "  mTotalDroppedDataCount=%" PRIu64 "\n", mTotalDroppedDataCount);
+    dprintf(fd, "    RingBuffer:\n");
+    dprintf(fd, "      mSizeLimit=%d\n", mSizeLimit);
+    dprintf(fd, "      mList.size=%zu\n", mList.size());
+    dprintf(fd, "      mTotalDroppedDataCount=%" PRIu64 "\n", mTotalDroppedDataCount);
 }
 
 int32_t RingBuffer::size() const {
-    const std::scoped_lock<std::mutex> lock(mMutex);
     return mList.size();
 }
 

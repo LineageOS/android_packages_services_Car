@@ -14,7 +14,9 @@ adb push $ANDROID_PRODUCT_OUT/vendor/bin/android.automotive.telemetryd-samplecli
 
 adb shell /system/bin/android.automotive.telemetryd-sampleclient
 
-# Then check logcat and dumpsys to verify the results.
+# Then check logcat and dumpsys to verify the results. The following command enables VERBOSE logs.
+adb shell setprop log.tag.android.automotive.telemetryd@1.0 V
+adb logcat -v color -b all -T 1000
 ```
 
 **2. Under vendor**
