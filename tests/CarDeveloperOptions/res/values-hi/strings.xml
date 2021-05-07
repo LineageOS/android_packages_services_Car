@@ -4415,7 +4415,7 @@
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"बंद"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> पर स्विच करें?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"एक समय में डाउनलोड किया गया सिर्फ़ एक सिम इस्तेमाल किया जा सकता है. \n\n <xliff:g id="CARRIER1">%1$s</xliff:g> में स्विच करने से आपके <xliff:g id="CARRIER2">%2$s</xliff:g> की सेवा रद्द नहीं की जाएगी."</string>
-    <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> पर जाएं"</string>
+    <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> पर स्विच करें"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"सिम मिटाएं"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"इस डाउनलोड किए गए सिम को मिटाएं?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"इस सिम को इस डिवाइस से मिटाने पर <xliff:g id="CARRIER_0">%1$s</xliff:g> सेवा हट जाती है.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> के लिए सेवा रद्द नहीं की जाएगी."</string>

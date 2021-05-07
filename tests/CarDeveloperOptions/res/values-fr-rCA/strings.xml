@@ -4407,8 +4407,8 @@
     <string name="mobile_network_list_add_more" msgid="65420172175416318">"Ajouter"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Services actifs/Carte SIM"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Services inactifs/Carte SIM"</string>
-    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Services actifs/Cartes SIM téléchargées"</string>
-    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Services inactifs/Cartes SIM téléchargées"</string>
+    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Services actifs/Carte SIM téléchargée"</string>
+    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Services inactifs/Carte SIM téléchargée"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Nom de la carte SIM"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Renommer"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Utiliser la carte SIM"</string>

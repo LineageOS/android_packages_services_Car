@@ -1606,7 +1606,7 @@
     <string name="master_clear_failed" msgid="7588397453984229892">"Återställningen utfördes inte eftersom tjänsten för systemrensning inte är tillgänglig."</string>
     <string name="master_clear_confirm_title" msgid="698328669893512402">"Vill du radera all data?"</string>
     <string name="master_clear_not_available" msgid="4676613348163652454">"Den här användaren kan inte återställa till standardinställningarna"</string>
-    <string name="master_clear_progress_title" msgid="378953167274114857">"Rensar"</string>
+    <string name="master_clear_progress_title" msgid="378953167274114857">"Raderar"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"Vänta ..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"Samtalsinställningar"</string>
     <string name="call_settings_summary" msgid="2119161087671450035">"Ställ in röstbrevlåda, vidarekoppla samtal, samtal väntar, nummerpres."</string>

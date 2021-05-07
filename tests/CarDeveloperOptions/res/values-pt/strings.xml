@@ -1299,7 +1299,7 @@
     <string name="sim_change_data_title" msgid="2512227368681250054">"Usar <xliff:g id="CARRIER">%1$s</xliff:g> para dados móveis?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Você está usando <xliff:g id="CARRIER2_0">%2$s</xliff:g> para dados móveis. Se alterar para <xliff:g id="CARRIER1">%1$s</xliff:g>, <xliff:g id="CARRIER2_1">%2$s</xliff:g> não será mais usada para dados móveis."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Usar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
-    <string name="sim_preferred_title" msgid="3389680276182899407">"Atualiz. chip preferido?"</string>
+    <string name="sim_preferred_title" msgid="3389680276182899407">"Atualizar chip preferido?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"O <xliff:g id="NEW_SIM">%1$s</xliff:g> é o único chip no seu dispositivo. Quer usá-lo para dados móveis, chamadas e mensagens SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Código PIN do chip incorreto. Entre em contato com a operadora para desbloquear o dispositivo."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
@@ -1585,7 +1585,7 @@
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Os chips transferidos por download não podem ser limpos devido a um erro.\n\nReinicie o dispositivo e tente novamente."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Limpar todos os dados (redefinir para a configuração original)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Limpar todos os dados"</string>
-    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu tablet, incluindo:\n\n"<li>"sua Conta do Google;"</li>\n<li>"configurações e dados do sistema e dos apps;"</li>\n<li>"apps transferidos."</li></string>
+    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu tablet, incluindo:\n\n"<li>"Sua Conta do Google"</li>\n<li>"Configurações e dados do sistema e dos apps"</li>\n<li>"Apps instalados"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu smartphone, incluindo:\n\n"<li>"Sua Conta do Google"</li>\n<li>"Configurações e dados do sistema e dos apps"</li>\n<li>"Apps transferidos"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"No momento você está conectado às seguintes contas:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Há outros usuários presentes neste dispositivo.\n"</string>

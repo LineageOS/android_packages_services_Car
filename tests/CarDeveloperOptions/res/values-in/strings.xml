@@ -1299,7 +1299,7 @@
     <string name="sim_change_data_title" msgid="2512227368681250054">"Gunakan <xliff:g id="CARRIER">%1$s</xliff:g> untuk data seluler?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Anda menggunakan <xliff:g id="CARRIER2_0">%2$s</xliff:g> untuk data seluler. Jika Anda beralih ke <xliff:g id="CARRIER1">%1$s</xliff:g>, <xliff:g id="CARRIER2_1">%2$s</xliff:g> tidak akan digunakan lagi untuk data seluler."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Gunakan <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
-    <string name="sim_preferred_title" msgid="3389680276182899407">"Perbarui kartu SIM piihan?"</string>
+    <string name="sim_preferred_title" msgid="3389680276182899407">"Perbarui kartu SIM pilihan?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> satu-satunya SIM di perangkat. Ingin menggunakan SIM ini untuk data seluler, panggilan telepon, dan SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Kode PIN SIM salah, sekarang Anda harus menghubungi operator untuk membuka kunci perangkat."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
@@ -1318,7 +1318,7 @@
     <string name="fcc_equipment_id" msgid="8681995718533066093">"ID Peralatan"</string>
     <string name="baseband_version" msgid="9115560821840757786">"Versi pita basis"</string>
     <string name="kernel_version" msgid="8226014277756019297">"Versi kernel"</string>
-    <string name="build_number" msgid="8648447688306248633">"Nomor versi"</string>
+    <string name="build_number" msgid="8648447688306248633">"Nomor build"</string>
     <string name="module_version" msgid="1127871672527968730">"Versi modul mainline"</string>
     <string name="device_info_not_available" msgid="3762481874992799474">"Tidak tersedia"</string>
     <string name="device_status_activity_title" msgid="4046298541311839468">"Status"</string>
