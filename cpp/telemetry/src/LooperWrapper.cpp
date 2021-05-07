@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2021, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,29 +14,25 @@
  * limitations under the License.
  */
 
-#include "CarTelemetryImpl.h"
-
-#include "BufferedCarData.h"
-
-#include <aidl/android/frameworks/automotive/telemetry/CarData.h>
-#include <android/binder_ibinder.h>
-
-#include <stdio.h>
-
-#include <memory>
+#include "LooperWrapper.h"
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
-using ::aidl::android::frameworks::automotive::telemetry::CarData;
+using ::android::sp;
 
-CarTelemetryImpl::CarTelemetryImpl(TelemetryServer* server) : mTelemetryServer(server) {}
+int LooperWrapper::pollAll(int timeoutMillis) {
+    return mLooper->pollAll(timeoutMillis);
+}
 
-ndk::ScopedAStatus CarTelemetryImpl::write(const std::vector<CarData>& dataList) {
-    uid_t publisherUid = ::AIBinder_getCallingUid();
-    mTelemetryServer->writeCarData(dataList, publisherUid);
-    return ndk::ScopedAStatus::ok();
+void LooperWrapper::sendMessageDelayed(nsecs_t uptime, const sp<MessageHandler>& handler,
+                                       const Message& message) {
+    return mLooper->sendMessageDelayed(uptime, handler, message);
+}
+
+void LooperWrapper::removeMessages(const android::sp<MessageHandler>& handler, int what) {
+    return mLooper->removeMessages(handler, what);
 }
 
 }  // namespace telemetry

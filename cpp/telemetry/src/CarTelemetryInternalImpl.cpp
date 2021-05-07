@@ -32,68 +32,71 @@ using ::aidl::android::automotive::telemetry::internal::CarDataInternal;
 using ::aidl::android::automotive::telemetry::internal::ICarDataListener;
 using ::android::base::StringPrintf;
 
-CarTelemetryInternalImpl::CarTelemetryInternalImpl(RingBuffer* buffer) :
-      mRingBuffer(buffer),
+CarTelemetryInternalImpl::CarTelemetryInternalImpl(TelemetryServer* server) :
+      mTelemetryServer(server),
       mBinderDeathRecipient(
               ::AIBinder_DeathRecipient_new(CarTelemetryInternalImpl::listenerBinderDied)) {}
 
 ndk::ScopedAStatus CarTelemetryInternalImpl::setListener(
         const std::shared_ptr<ICarDataListener>& listener) {
-    const std::scoped_lock<std::mutex> lock(mMutex);
-
-    if (mCarDataListener != nullptr) {
-        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(::EX_ILLEGAL_STATE,
-                                                                "ICarDataListener is already set.");
+    LOG(VERBOSE) << "Received a setListener call";
+    auto result = mTelemetryServer->setListener(listener);
+    if (!result.ok()) {
+        LOG(WARNING) << __func__ << ": " << result.error().message();
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(result.error().code(),
+                                                                result.error().message().c_str());
     }
 
     // If passed a local binder, AIBinder_linkToDeath will do nothing and return
     // STATUS_INVALID_OPERATION. We ignore this case because we only use local binders in tests
     // where this is not an error.
-    if (listener->isRemote()) {
-        auto status = ndk::ScopedAStatus::fromStatus(
-                ::AIBinder_linkToDeath(listener->asBinder().get(), mBinderDeathRecipient.get(),
-                                       this));
-        if (!status.isOk()) {
-            return ndk::ScopedAStatus::fromExceptionCodeWithMessage(::EX_ILLEGAL_STATE,
-                                                                    status.getMessage());
-        }
+    if (!listener->isRemote()) {
+        return ndk::ScopedAStatus::ok();
     }
 
-    mCarDataListener = listener;
+    auto status = ndk::ScopedAStatus::fromStatus(
+            ::AIBinder_linkToDeath(listener->asBinder().get(), mBinderDeathRecipient.get(), this));
+    if (!status.isOk()) {
+        LOG(WARNING) << __func__ << ": Failed to linkToDeath: " << status.getMessage();
+        mTelemetryServer->clearListener();
+        return ndk::ScopedAStatus::fromExceptionCodeWithMessage(::EX_ILLEGAL_STATE,
+                                                                status.getMessage());
+    }
     return ndk::ScopedAStatus::ok();
 }
 
 ndk::ScopedAStatus CarTelemetryInternalImpl::clearListener() {
-    const std::scoped_lock<std::mutex> lock(mMutex);
-    if (mCarDataListener == nullptr) {
-        LOG(INFO) << __func__ << ": No ICarDataListener, ignoring the call";
+    auto listener = mTelemetryServer->getListener();
+    mTelemetryServer->clearListener();
+    if (listener == nullptr) {
         return ndk::ScopedAStatus::ok();
     }
     auto status = ndk::ScopedAStatus::fromStatus(
-            ::AIBinder_unlinkToDeath(mCarDataListener->asBinder().get(),
-                                     mBinderDeathRecipient.get(), this));
+            ::AIBinder_unlinkToDeath(listener->asBinder().get(), mBinderDeathRecipient.get(),
+                                     this));
     if (!status.isOk()) {
         LOG(WARNING) << __func__
                      << ": unlinkToDeath failed, continuing anyway: " << status.getMessage();
     }
-    mCarDataListener = nullptr;
     return ndk::ScopedAStatus::ok();
 }
 
 binder_status_t CarTelemetryInternalImpl::dump(int fd, const char** args, uint32_t numArgs) {
     dprintf(fd, "ICarTelemetryInternal:\n");
-    mRingBuffer->dump(fd);
+    mTelemetryServer->dump(fd);
     return ::STATUS_OK;
 }
 
 // Removes the listener if its binder dies.
 void CarTelemetryInternalImpl::listenerBinderDiedImpl() {
-    LOG(WARNING) << "A ICarDataListener died, removing the listener.";
-    const std::scoped_lock<std::mutex> lock(mMutex);
-    mCarDataListener = nullptr;
+    LOG(WARNING) << "A ICarDataListener died, clearing the listener.";
+    mTelemetryServer->clearListener();
 }
 
+// static
 void CarTelemetryInternalImpl::listenerBinderDied(void* cookie) {
+    // We expect the pointer to be alive as there is only a single instance of
+    // CarTelemetryInternalImpl and if it dies, the whole process should die too.
     auto thiz = static_cast<CarTelemetryInternalImpl*>(cookie);
     thiz->listenerBinderDiedImpl();
 }
