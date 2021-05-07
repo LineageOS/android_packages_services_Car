@@ -17,28 +17,90 @@
 #ifndef CPP_TELEMETRY_SRC_TELEMETRYSERVER_H_
 #define CPP_TELEMETRY_SRC_TELEMETRYSERVER_H_
 
-#include "CarTelemetryImpl.h"
-#include "CarTelemetryInternalImpl.h"
+#include "LooperWrapper.h"
+#include "RingBuffer.h"
 
-#include <utils/Errors.h>
+#include <aidl/android/automotive/telemetry/internal/ICarDataListener.h>
+#include <aidl/android/frameworks/automotive/telemetry/CarData.h>
+#include <android-base/chrono_utils.h>
+#include <android-base/result.h>
+#include <android-base/thread_annotations.h>
+#include <gtest/gtest_prod.h>
+#include <utils/Looper.h>
+
+#include <memory>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 
+// This class contains the main logic of cartelemetryd native service.
+//
+//   [writer clients] -> ICarTelemetry  -----------.
+//   [reader client] --> ICarTelemetryInternal -----`-> TelemetryServer
+//
+// TelemetryServer starts pushing CarData to ICarDataListener when there is a data available and
+// the listener is set and alive. It uses `mLooper` for periodically pushing the data.
+//
+// This class is thread-safe.
 class TelemetryServer {
 public:
-    TelemetryServer();
+    explicit TelemetryServer(LooperWrapper* looper,
+                             const std::chrono::nanoseconds& pushCarDataDelayNs, int maxBufferSize);
 
-    // Registers all the implemented AIDL services. Waits until `servicemanager` is available.
-    // Aborts the process if fails.
-    void registerServices();
+    // Dumps the current state for dumpsys.
+    // Expected to be called from a binder thread pool.
+    void dump(int fd);
 
-    // Blocks the thread.
-    void startAndJoinThreadPool();
+    // Writes incoming CarData to the RingBuffer.
+    // Expected to be called from a binder thread pool.
+    void writeCarData(
+            const std::vector<aidl::android::frameworks::automotive::telemetry::CarData>& dataList,
+            uid_t publisherUid);
+
+    // Sets the listener. If the listener already set, it returns an error.
+    // Expected to be called from a binder thread pool.
+    android::base::Result<void> setListener(
+            const std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>&
+                    listener);
+
+    // Clears the listener and returns it.
+    // Expected to be called from a binder thread pool.
+    void clearListener();
+
+    // Expected to be called from a binder thread pool.
+    std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener> getListener();
 
 private:
-    RingBuffer mRingBuffer;
+    class MessageHandlerImpl : public MessageHandler {
+    public:
+        explicit MessageHandlerImpl(TelemetryServer* server);
+
+        void handleMessage(const Message& message) override;
+
+    private:
+        TelemetryServer* mTelemetryServer;  // not owned
+    };
+
+private:
+    // Periodically called by mLooper if there is a "push car data" messages.
+    void pushCarDataToListeners();
+
+    LooperWrapper* mLooper;  // not owned
+    const std::chrono::nanoseconds mPushCarDataDelayNs;
+
+    // A single mutex for all the sensitive operations. Threads must not lock it for long time,
+    // as clients will be writing CarData to the ring buffer under this mutex.
+    std::mutex mMutex;
+    RingBuffer mRingBuffer GUARDED_BY(mMutex);
+    std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>
+            mCarDataListener GUARDED_BY(mMutex);
+    android::sp<MessageHandlerImpl> mMessageHandler;  // Handler for mLooper.
+
+    // Friends are simplest way of testing if `pushCarDataToListeners()` can handle edge cases.
+    friend class TelemetryServerTest;
+    FRIEND_TEST(TelemetryServerTest, NoListenerButMultiplePushes);
+    FRIEND_TEST(TelemetryServerTest, NoDataButMultiplePushes);
 };
 
 }  // namespace telemetry
