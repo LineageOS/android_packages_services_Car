@@ -523,8 +523,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testAddPowerPolicyListener() throws Exception {
         grantPowerPolicyPermission();
-        String policyId = "policy_id_enable_audio_disable_wifi";
-        mService.definePowerPolicy(policyId, new String[]{"AUDIO"}, new String[]{"WIFI"});
+        String policyId = "policy_id_enable_audio_wifi";
+        mService.definePowerPolicy(policyId, new String[]{"AUDIO", "WIFI"}, new String[]{});
         MockedPowerPolicyListener listenerAudio = new MockedPowerPolicyListener();
         MockedPowerPolicyListener listenerWifi = new MockedPowerPolicyListener();
         MockedPowerPolicyListener listenerLocation = new MockedPowerPolicyListener();
