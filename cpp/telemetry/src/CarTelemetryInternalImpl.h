@@ -17,7 +17,7 @@
 #ifndef CPP_TELEMETRY_SRC_CARTELEMETRYINTERNALIMPL_H_
 #define CPP_TELEMETRY_SRC_CARTELEMETRYINTERNALIMPL_H_
 
-#include "RingBuffer.h"
+#include "TelemetryServer.h"
 
 #include <aidl/android/automotive/telemetry/internal/BnCarTelemetryInternal.h>
 #include <aidl/android/automotive/telemetry/internal/CarDataInternal.h>
@@ -35,8 +35,8 @@ namespace telemetry {
 class CarTelemetryInternalImpl :
       public aidl::android::automotive::telemetry::internal::BnCarTelemetryInternal {
 public:
-    // Doesn't own `buffer`.
-    explicit CarTelemetryInternalImpl(RingBuffer* buffer);
+    // Doesn't own `server`.
+    explicit CarTelemetryInternalImpl(TelemetryServer* server);
 
     ndk::ScopedAStatus setListener(
             const std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>&
@@ -53,12 +53,8 @@ private:
 
     void listenerBinderDiedImpl();
 
-    RingBuffer* mRingBuffer;  // not owned
+    TelemetryServer* mTelemetryServer;  // not owned
     ndk::ScopedAIBinder_DeathRecipient mBinderDeathRecipient;
-    std::mutex mMutex;  // a mutex for the whole instance
-
-    std::shared_ptr<aidl::android::automotive::telemetry::internal::ICarDataListener>
-            mCarDataListener GUARDED_BY(mMutex);
 };
 
 }  // namespace telemetry
