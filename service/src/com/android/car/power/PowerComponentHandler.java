@@ -18,8 +18,6 @@ package com.android.car.power;
 
 import static android.car.hardware.power.PowerComponent.BLUETOOTH;
 import static android.car.hardware.power.PowerComponent.DISPLAY;
-import static android.car.hardware.power.PowerComponent.LOCATION;
-import static android.car.hardware.power.PowerComponent.NFC;
 import static android.car.hardware.power.PowerComponent.VOICE_INTERACTION;
 import static android.car.hardware.power.PowerComponent.WIFI;
 import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
@@ -33,14 +31,9 @@ import android.bluetooth.BluetoothAdapter;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.location.LocationManager;
 import android.net.wifi.WifiManager;
-import android.nfc.NfcAdapter;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.AtomicFile;
@@ -86,7 +79,7 @@ public final class PowerComponentHandler {
     private final SparseBooleanArray mComponentStates =
             new SparseBooleanArray(LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1);
     @GuardedBy("mLock")
-    private final SparseBooleanArray mUserControlledComponents = new SparseBooleanArray();
+    private final SparseBooleanArray mComponentsOffByPolicy = new SparseBooleanArray();
     @GuardedBy("mLock")
     private final SparseBooleanArray mLastModifiedComponents = new SparseBooleanArray();
     private final IVoiceInteractionManagerService mVoiceInteractionServiceHolder;
@@ -129,16 +122,8 @@ public final class PowerComponentHandler {
                     Slogf.w(TAG, "Power component(%s) is not available", componentName);
                     continue;
                 }
-                mediator.init();
                 mPowerComponentMediators.put(component, mediator);
             }
-        }
-    }
-
-    void release() {
-        for (int i = 0; i < mPowerComponentMediators.size(); i++) {
-            PowerComponentMediator mediator = mPowerComponentMediators.valueAt(i);
-            mediator.release();
         }
     }
 
@@ -220,12 +205,10 @@ public final class PowerComponentHandler {
                                 ? "on" : "off");
             }
             writer.decreaseIndent();
-            writer.println("Components controlled by user:");
+            writer.println("Components powered off by power policy:");
             writer.increaseIndent();
-            for (int i = 0; i < mUserControlledComponents.size(); i++) {
-                writer.printf("%s: %s by user\n",
-                        powerComponentToString(mUserControlledComponents.keyAt(i)),
-                        mUserControlledComponents.valueAt(i) ? "on" : "off");
+            for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
+                writer.println(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
             }
             writer.decreaseIndent();
             writer.print("Components changed by the last policy: ");
@@ -239,37 +222,51 @@ public final class PowerComponentHandler {
         }
     }
 
+    /**
+     * Modifies power component's state, considering user setting.
+     *
+     * @return {@code true} if power state is changed. Otherwise, {@code false}
+     */
     private boolean setComponentEnabledLocked(int component, boolean enabled) {
         boolean oldState = mComponentStates.get(component, /* valueIfKeyNotFound= */ false);
-        boolean componentDisabledByUser = !mUserControlledComponents.get(component,
-                /* valueIfKeyNotFound= */ true);
-        if (!componentDisabledByUser || !enabled) {
-            mComponentStates.put(component, enabled);
+        if (oldState == enabled) {
+            return false;
         }
-        // The component is actually updated when the old state and the new state are different
-        // or when a power policy disables an enabled component whose current policy state is
-        // off. The latter case can happen because a power policy respects user setting.
-        boolean modified =
-                oldState != mComponentStates.get(component, /* valueIfKeyNotFound= */ false)
-                        || (!componentDisabledByUser && !enabled);
-        if (modified && !componentDisabledByUser) {
-            mUserControlledComponents.delete(component);
-            writeUserOffComponentsLocked();
-        }
+
+        mComponentStates.put(component, enabled);
+
         PowerComponentMediator mediator = mPowerComponentMediators.get(component);
         if (mediator == null) {
             Slogf.w(TAG, "%s doesn't have a mediator", powerComponentToString(component));
-            return modified;
+            return true;
         }
-        if (modified && mediator.isControlledBySystem()) {
+
+        boolean needPowerChange = false;
+        if (mediator.isUserControllable()) {
+            if (!enabled && mediator.isEnabled()) {
+                mComponentsOffByPolicy.put(component, /* value= */ true);
+                needPowerChange = true;
+            }
+            if (enabled && mComponentsOffByPolicy.get(component, /* valueIfKeyNotFound= */ false)) {
+                mComponentsOffByPolicy.delete(component);
+                needPowerChange = true;
+            }
+            if (needPowerChange) {
+                writeUserOffComponentsLocked();
+            }
+        } else {
+            needPowerChange = true;
+        }
+
+        if (needPowerChange) {
             mediator.setEnabled(enabled);
         }
-        return modified;
+        return true;
     }
 
     private void readUserOffComponentsLocked() {
         boolean invalid = false;
-        mUserControlledComponents.clear();
+        mComponentsOffByPolicy.clear();
         try (BufferedReader reader = new BufferedReader(
                 new InputStreamReader(mOffComponentsByUserFile.openRead(),
                         StandardCharsets.UTF_8))) {
@@ -280,7 +277,7 @@ public final class PowerComponentHandler {
                     invalid = true;
                     break;
                 }
-                mUserControlledComponents.put(component, /* value= */ false);
+                mComponentsOffByPolicy.put(component, /* value= */ true);
             }
         } catch (FileNotFoundException e) {
             // Behave as if there are no forced-off components.
@@ -305,11 +302,11 @@ public final class PowerComponentHandler {
 
         try (BufferedWriter writer = new BufferedWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
-            for (int i = 0; i < mUserControlledComponents.size(); i++) {
-                if (mUserControlledComponents.valueAt(i)) {
+            for (int i = 0; i < mComponentsOffByPolicy.size(); i++) {
+                if (!mComponentsOffByPolicy.valueAt(i)) {
                     continue;
                 }
-                writer.write(powerComponentToString(mUserControlledComponents.keyAt(i)));
+                writer.write(powerComponentToString(mComponentsOffByPolicy.keyAt(i)));
                 writer.newLine();
             }
             writer.flush();
@@ -320,26 +317,6 @@ public final class PowerComponentHandler {
         }
     }
 
-    private void processComponentOn(int component) {
-        synchronized (mLock) {
-            if (!mComponentStates.get(component)
-                    || !mUserControlledComponents.get(component, /* valueIfKeyNotFound= */ true)) {
-                mUserControlledComponents.put(component, /* value= */ true);
-                writeUserOffComponentsLocked();
-            }
-        }
-    }
-
-    private void processComponentOff(int component) {
-        synchronized (mLock) {
-            if (mComponentStates.get(component)
-                    || mUserControlledComponents.get(component, /* valueIfKeyNotFound= */ false)) {
-                mUserControlledComponents.put(component, /* value= */ false);
-                writeUserOffComponentsLocked();
-            }
-        }
-    }
-
     abstract static class PowerComponentMediator {
         protected int mComponentId;
 
@@ -347,15 +324,15 @@ public final class PowerComponentHandler {
             mComponentId = component;
         }
 
-        public void init() {}
-
-        public void release() {}
-
         public boolean isComponentAvailable() {
             return false;
         }
 
-        public boolean isControlledBySystem() {
+        public boolean isUserControllable() {
+            return false;
+        }
+
+        public boolean isEnabled() {
             return false;
         }
 
@@ -375,8 +352,9 @@ public final class PowerComponentHandler {
             return true;
         }
 
-        public boolean isControlledBySystem() {
-            return true;
+        @Override
+        public boolean isEnabled() {
+            return mSystemInterface.isDisplayEnabled();
         }
 
         @Override
@@ -388,22 +366,6 @@ public final class PowerComponentHandler {
 
     private final class WifiPowerComponentMediator extends PowerComponentMediator {
         private final WifiManager mWifiManager;
-        private final BroadcastReceiver mWifiReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!WifiManager.WIFI_STATE_CHANGED_ACTION.equals(action)) {
-                    return;
-                }
-                int state = intent.getIntExtra(WifiManager.EXTRA_WIFI_STATE,
-                        /* defaultValue= */ -1);
-                if (state == WifiManager.WIFI_STATE_ENABLED) {
-                    processComponentOn(WIFI);
-                } else if (state == WifiManager.WIFI_STATE_DISABLED) {
-                    processComponentOff(WIFI);
-                }
-            }
-        };
 
         WifiPowerComponentMediator() {
             super(WIFI);
@@ -411,24 +373,18 @@ public final class PowerComponentHandler {
         }
 
         @Override
-        public void init() {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(WifiManager.WIFI_STATE_CHANGED_ACTION);
-            mContext.registerReceiver(mWifiReceiver, filter);
-        }
-
-        @Override
-        public void release() {
-            mContext.unregisterReceiver(mWifiReceiver);
-        }
-
-        @Override
         public boolean isComponentAvailable() {
             return mPackageManager.hasSystemFeature(PackageManager.FEATURE_WIFI);
         }
 
-        public boolean isControlledBySystem() {
+        @Override
+        public boolean isUserControllable() {
             return true;
+        }
+
+        @Override
+        public boolean isEnabled() {
+            return mWifiManager.isWifiEnabled();
         }
 
         @Override
@@ -458,8 +414,9 @@ public final class PowerComponentHandler {
             return mVoiceInteractionManagerService != null;
         }
 
-        public boolean isControlledBySystem() {
-            return true;
+        @Override
+        public boolean isEnabled() {
+            return mIsEnabled;
         }
 
         @Override
@@ -476,22 +433,6 @@ public final class PowerComponentHandler {
 
     private final class BluetoothPowerComponentMediator extends PowerComponentMediator {
         private final BluetoothAdapter mBluetoothAdapter;
-        private final BroadcastReceiver mBluetoothReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
-                    return;
-                }
-                int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE,
-                        /* defaultValue= */ -1);
-                if (state == BluetoothAdapter.STATE_ON) {
-                    processComponentOn(BLUETOOTH);
-                } else if (state == BluetoothAdapter.STATE_OFF) {
-                    processComponentOff(BLUETOOTH);
-                }
-            }
-        };
 
         BluetoothPowerComponentMediator() {
             super(BLUETOOTH);
@@ -499,24 +440,13 @@ public final class PowerComponentHandler {
         }
 
         @Override
-        public void init() {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-            mContext.registerReceiver(mBluetoothReceiver, filter);
-        }
-
-        @Override
-        public void release() {
-            mContext.unregisterReceiver(mBluetoothReceiver);
-        }
-
-        @Override
         public boolean isComponentAvailable() {
             return mPackageManager.hasSystemFeature(PackageManager.FEATURE_BLUETOOTH);
         }
 
-        public boolean isControlledBySystem() {
-            return false;
+        @Override
+        public boolean isEnabled() {
+            return mBluetoothAdapter.isEnabled();
         }
 
         @Override
@@ -524,110 +454,6 @@ public final class PowerComponentHandler {
             // No op
             Slogf.w(TAG, "Bluetooth power is controlled by "
                     + "com.android.car.BluetoothDeviceConnectionPolicy");
-        }
-    }
-
-    private final class NfcPowerComponentMediator extends PowerComponentMediator {
-        private final NfcAdapter mNfcAdapter;
-        private final BroadcastReceiver mNfcReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!NfcAdapter.ACTION_ADAPTER_STATE_CHANGED.equals(action)) {
-                    return;
-                }
-                int state = intent.getIntExtra(NfcAdapter.EXTRA_ADAPTER_STATE,
-                        /* defaultValue= */ -1);
-                if (state == NfcAdapter.STATE_ON) {
-                    processComponentOn(NFC);
-                } else if (state == NfcAdapter.STATE_OFF) {
-                    processComponentOff(NFC);
-                }
-            }
-        };
-
-        NfcPowerComponentMediator() {
-            super(NFC);
-            mNfcAdapter = NfcAdapter.getDefaultAdapter(mContext);
-        }
-
-        @Override
-        public void init() {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(NfcAdapter.ACTION_ADAPTER_STATE_CHANGED);
-            mContext.registerReceiver(mNfcReceiver, filter);
-        }
-
-        @Override
-        public void release() {
-            mContext.unregisterReceiver(mNfcReceiver);
-        }
-
-        @Override
-        public boolean isComponentAvailable() {
-            return mPackageManager.hasSystemFeature(PackageManager.FEATURE_NFC);
-        }
-
-        public boolean isControlledBySystem() {
-            return false;
-        }
-
-        @Override
-        public void setEnabled(boolean enabled) {
-            // No op
-            Slogf.w(TAG, "NFC power isn't controlled by CPMS");
-        }
-    }
-
-    private final class LocationPowerComponentMediator extends PowerComponentMediator {
-        private final LocationManager mLocationManager;
-        private final BroadcastReceiver mLocationReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                String action = intent.getAction();
-                if (!LocationManager.MODE_CHANGED_ACTION.equals(action)) {
-                    return;
-                }
-                boolean enabled = intent.getBooleanExtra(LocationManager.EXTRA_LOCATION_ENABLED,
-                        /* defaultValue= */ true);
-                if (enabled) {
-                    processComponentOn(LOCATION);
-                } else {
-                    processComponentOff(LOCATION);
-                }
-            }
-        };
-
-        LocationPowerComponentMediator() {
-            super(LOCATION);
-            mLocationManager = mContext.getSystemService(LocationManager.class);
-        }
-
-        @Override
-        public void init() {
-            IntentFilter filter = new IntentFilter();
-            filter.addAction(LocationManager.MODE_CHANGED_ACTION);
-            mContext.registerReceiver(mLocationReceiver, filter);
-        }
-
-        @Override
-        public void release() {
-            mContext.unregisterReceiver(mLocationReceiver);
-        }
-
-        @Override
-        public boolean isComponentAvailable() {
-            return mPackageManager.hasSystemFeature(PackageManager.FEATURE_LOCATION);
-        }
-
-        public boolean isControlledBySystem() {
-            return false;
-        }
-
-        @Override
-        public void setEnabled(boolean enabled) {
-            // No op
-            Slogf.w(TAG, "Location power isn controlled by GNSS HAL");
         }
     }
 
@@ -652,9 +478,7 @@ public final class PowerComponentHandler {
                 case PowerComponent.PROJECTION:
                     return null;
                 case PowerComponent.NFC:
-                    // NFC mediator doesn't directly turn on/off NFC, but it changes policy
-                    // behavior, considering user intervetion.
-                    return new NfcPowerComponentMediator();
+                    return null;
                 case PowerComponent.INPUT:
                     return null;
                 case PowerComponent.VOICE_INTERACTION:
@@ -673,10 +497,8 @@ public final class PowerComponentHandler {
                     // behavior, considering user intervetion.
                     return new BluetoothPowerComponentMediator();
                 case PowerComponent.LOCATION:
-                    // GNSS HAL handles power state change. So, location mediator doesn't directly
-                    // turn on/off location, but it changes policy behavior, considering user
-                    // intervetion.
-                    return new LocationPowerComponentMediator();
+                    // GNSS HAL handles power state change.
+                    return null;
                 case PowerComponent.CPU:
                     return null;
                 default:
