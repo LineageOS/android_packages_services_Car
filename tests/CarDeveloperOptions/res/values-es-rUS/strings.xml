@@ -2995,7 +2995,7 @@
     <string name="sim_calls_always_use" msgid="5322696995795851734">"Usar siempre para llamadas"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"Seleccionar SIM para datos"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"Selecciona una SIM para los SMS"</string>
-    <string name="data_switch_started" msgid="4517966162053949265">"Cambiando SIM de datos, esto puede demorar unos minutos…"</string>
+    <string name="data_switch_started" msgid="4517966162053949265">"Cambiando SIM de datos. Este proceso puede tardar hasta un minuto."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"Llamar con"</string>
     <string name="sim_select_card" msgid="5558215843972182767">"Seleccionar una tarjeta SIM"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
