@@ -21,6 +21,8 @@ import static android.media.AudioFormat.CHANNEL_OUT_MONO;
 import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 import static android.media.AudioTrack.MODE_STREAM;
 
+import static com.google.android.car.kitchensink.audio.AudioTestFragment.getAudioLogTag;
+
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioTrack;
@@ -31,7 +33,7 @@ import com.android.internal.util.Preconditions;
 
 final class AudioTrackPlayer {
 
-    private static final String TAG = AudioTrackPlayer.class.getSimpleName();
+    private static final String TAG = getAudioLogTag(AudioTrackPlayer.class);
     private static final boolean DEBUG = true;
     private static final int SAMPLE_RATE = 48_000;
     private static final int MS_TO_SECONDS = 1_000;
