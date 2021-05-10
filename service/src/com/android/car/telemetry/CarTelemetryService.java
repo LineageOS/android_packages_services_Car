@@ -15,7 +15,10 @@
  */
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_NEWER_MANIFEST_EXISTS;
 import static android.car.telemetry.CarTelemetryManager.ERROR_NONE;
+import static android.car.telemetry.CarTelemetryManager.ERROR_PARSE_MANIFEST_FAILED;
+import static android.car.telemetry.CarTelemetryManager.ERROR_SAME_MANIFEST_EXISTS;
 
 import android.annotation.NonNull;
 import android.car.Car;
@@ -29,6 +32,11 @@ import android.util.Slog;
 
 import com.android.car.CarServiceBase;
 
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.util.HashMap;
+import java.util.Map;
+
 /**
  * CarTelemetryService manages OEM telemetry collection, processing and communication
  * with a data upload service.
@@ -36,9 +44,11 @@ import com.android.car.CarServiceBase;
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
     private static final boolean DEBUG = false;
+    private static final int DEFAULT_VERSION = 0;
     private static final String TAG = CarTelemetryService.class.getSimpleName();
 
     private final Context mContext;
+    private final Map<String, Integer> mNameVersionMap = new HashMap<>();
 
     private ICarTelemetryServiceListener mListener;
 
@@ -97,12 +107,29 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
-        // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         if (DEBUG) {
             Slog.d(TAG, "Adding manifest to car telemetry service");
         }
+        int currentVersion = mNameVersionMap.getOrDefault(key.getName(), DEFAULT_VERSION);
+        if (currentVersion > key.getVersion()) {
+            return ERROR_NEWER_MANIFEST_EXISTS;
+        } else if (currentVersion == key.getVersion()) {
+            return ERROR_SAME_MANIFEST_EXISTS;
+        }
+
+        TelemetryProto.Manifest parsedManifest;
+        try {
+            parsedManifest = TelemetryProto.Manifest.parseFrom(manifest);
+        } catch (InvalidProtocolBufferException e) {
+            Slog.e(TAG, "Failed to parse manifest.", e);
+            return ERROR_PARSE_MANIFEST_FAILED;
+        }
+        mNameVersionMap.put(key.getName(), key.getVersion());
+
+        // TODO(b/186047142): Store the manifest to disk
+        // TODO(b/186047142): Send parsedManifest to a script manager or a queue
         return ERROR_NONE;
     }
 
@@ -111,12 +138,16 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public boolean removeManifest(@NonNull ManifestKey key) {
-        // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         if (DEBUG) {
             Slog.d(TAG, "Removing manifest from car telemetry service");
         }
+        Integer version = mNameVersionMap.remove(key.getName());
+        if (version == null) {
+            return false;
+        }
+        // TODO(b/186047142): Delete manifest from disk and remove it from queue
         return true;
     }
 
@@ -125,12 +156,13 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
      */
     @Override
     public void removeAllManifests() {
-        // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         if (DEBUG) {
             Slog.d(TAG, "Removing all manifest from car telemetry service");
         }
+        mNameVersionMap.clear();
+        // TODO(b/186047142): Delete all manifests from disk & queue
     }
 
     /**
