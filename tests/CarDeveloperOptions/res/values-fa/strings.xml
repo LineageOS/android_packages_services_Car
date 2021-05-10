@@ -1083,7 +1083,7 @@
     <string name="wifi_calling_suggestion_title" msgid="1402265373543523970">"با Wi-Fi تماس‌ها را گسترش دهید"</string>
     <string name="wifi_calling_suggestion_summary" msgid="198402175473169630">"با روشن کردن تماس ازطریق Wi-Fi، پوشش را افزایش دهید"</string>
     <string name="wifi_calling_mode_title" msgid="3350624859819920176">"اولویت‌های تماس"</string>
-    <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"تنظیمات ترجیحی تماس‌ها"</string>
+    <string name="wifi_calling_mode_dialog_title" msgid="652534533091724333">"اولویت تماس گرفتن"</string>
     <string name="wifi_calling_roaming_mode_title" msgid="2059151080231602753">"تنظیم برگزیده فراگردی"</string>
     <!-- no translation found for wifi_calling_roaming_mode_summary (620031651074963360) -->
     <skip />
@@ -4387,7 +4387,7 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"داده تلفن همراه"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"دسترسی به داده‌ها با استفاده از شبکه تلفن همراه"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"تلفن، وقتی در محدوده باشد، به‌طور خودکار به این شرکت مخابراتی جابه‌جا می‌شود"</string>
-    <string name="calls_preference" msgid="2076353032705811243">"تنظیمات ترجیحی تماس‌ها"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"اولویت تماس‌ها"</string>
     <string name="sms_preference" msgid="8449270011976880">"اولویت‌ها پیامک"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"هربار پرسیده شود"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"افزودن شبکه"</string>
