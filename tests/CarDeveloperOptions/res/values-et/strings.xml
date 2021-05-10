@@ -1776,7 +1776,7 @@
     <string name="activity_not_found" msgid="3492413375341165453">"Rakendus pole teie telefoni installitud."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Tööprofiili turvalisus"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Tööprofiili ekraanilukk"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Kasutatakse ühte lukku"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Kasuta ühte lukku"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Tööprofiili ja seadme ekraani puhul kasutatakse ühte lukku"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Kas kasutada ühte lukku?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Seade kasutab teie tööprofiili ekraanilukku. Mõlema luku puhul kehtivad tööreeglid."</string>

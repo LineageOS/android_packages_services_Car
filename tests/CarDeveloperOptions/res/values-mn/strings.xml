@@ -441,7 +441,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Хурууныхаа хээг ашиглах"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Утасныхаа түгжээг тайлах, худалдан авалт хийх болон апп-д нэвтрэхдээ хурууны хээний мэдрэгчид хүрэхэд хангалттай. Та хурууных нь хээг нэмэх хүнээ болгоомжтой сонгоно уу. Таны нэмсэн ганц л хурууны хээгээр дээрх үйлдлийг хийх боломжтой.\n\nСанамж: Таны хурууны хээ нь хэцүү зурган түгжээ, эсвэл ПИН-с хамгаалалт муутай байдаг."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Утасныхаа түгжээг тайлах, худалдан авалт зөвшөөрөхийн тулд хурууны хээгээ ашиглана уу.\n\nСанамж: Та хурууны хээгээр энэ төхөөрөмжийн түгжээг тайлах боломжгүй. Дэлгэрэнгүй мэдээлэл авахын тулд байгууллагынхаа админтай холбогдоно уу."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Утасныхаа түгжээг тайлах, худалдан авалт зөвшөөрөхөд хурууны хээгээ ашиглана уу.\n\nСанамж: Таны хурууны хээ нь хүчтэй зурган түгжээ эсвэл PIN-с хамгаалалт муутай байж болзошгүй."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Утасныхаа түгжээг тайлах, худалдан авалт зөвшөөрөхөд хурууны хээгээ ашиглана уу.\n\nСанамж: Таны хурууны хээ нь хүчтэй зурган түгжээ эсвэл ПИН-с хамгаалалт муутай байж болзошгүй."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Цуцлах"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Үргэлжлүүлэх"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Алгасах"</string>
@@ -508,14 +508,14 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Таблетыг шифрлэх"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Утсыг шифрлэх"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"Шифрлэгдсэн"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Та өөрийн бүртгэл, тохиргоо, татсан апп-ууд, тэдгээрийн дата, медиа болон бусад файлуудыг шифрлэх боломжтой. Та утсаа шифрлэсний дараа дэлгэцийг түгжсэн гэж бодвол (хээ буюу тоон PIN буюу нууц үгээр), та утасны шифрийг тайлахын тулд асаах бүртээ дэлгэцний түгжээг тайлах шаардлагатай болно. Өөр ганц арга байгаа нь утсыг үйлдвэрээс гарсан төлөв рүү сэргээж, бүх датаг арилгах юм.\n\nШифрлэлтэд нэг буюу түүнээс их цаг зарцуулагдана. Та энэ хугацааны турш утасныхаа батерегй цэнэглэж, цахилгаанд залгасан байх хэрэгтэй. Хэрэв тасалдвал та зарим буюу бүх датагаа алдаж болзошгүй."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Та өөрийн бүртгэл, тохиргоо, татсан апп-ууд, тэдгээрийн дата, медиа болон бусад файлуудыг шифрлэх боломжтой. Та утсаа шифрлэсний дараа дэлгэцийг түгжсэн гэж бодвол (хээ буюу тоон PIN буюу нууц үгээр), та утасны шифрийг тайлахын тулд асаах бүртээ дэлгэцний түгжээг тайлах шаардлагатай болно. Өөр ганц арга байгаа нь утсыг үйлдвэрээс гарсан төлөв рүү сэргээж, бүх датаг арилгах юм.\n\nШифрлэлтэд нэг буюу түүнээс их цаг зарцуулагдана. Та энэ хугацааны турш утасныхаа батерегй цэнэглэж, цахилгаанд залгасан байх хэрэгтэй. Хэрэв тасалдвал та зарим буюу бүх датагаа алдаж болзошгүй."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Та өөрийн бүртгэл, тохиргоо, татсан апп-ууд, тэдгээрийн дата, медиа болон бусад файлуудыг шифрлэх боломжтой. Та утсаа шифрлэсний дараа дэлгэцийг түгжсэн гэж бодвол (хээ буюу тоон ПИН буюу нууц үгээр), та утасны шифрийг тайлахын тулд асаах бүртээ дэлгэцний түгжээг тайлах шаардлагатай болно. Өөр ганц арга байгаа нь утсыг үйлдвэрээс гарсан төлөв рүү сэргээж, бүх датаг арилгах юм.\n\nШифрлэлтэд нэг буюу түүнээс их цаг зарцуулагдана. Та энэ хугацааны турш утасныхаа батерегй цэнэглэж, цахилгаанд залгасан байх хэрэгтэй. Хэрэв тасалдвал та зарим буюу бүх датагаа алдаж болзошгүй."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Та өөрийн бүртгэл, тохиргоо, татсан апп-ууд, тэдгээрийн дата, медиа болон бусад файлуудыг шифрлэх боломжтой. Та утсаа шифрлэсний дараа дэлгэцийг түгжсэн гэж бодвол (хээ буюу тоон ПИН буюу нууц үгээр), та утасны шифрийг тайлахын тулд асаах бүртээ дэлгэцний түгжээг тайлах шаардлагатай болно. Өөр ганц арга байгаа нь утсыг үйлдвэрээс гарсан төлөв рүү сэргээж, бүх датаг арилгах юм.\n\nШифрлэлтэд нэг буюу түүнээс их цаг зарцуулагдана. Та энэ хугацааны турш утасныхаа батерегй цэнэглэж, цахилгаанд залгасан байх хэрэгтэй. Хэрэв тасалдвал та зарим буюу бүх датагаа алдаж болзошгүй."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"Таблетыг шифрлэх"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"Утсыг шифрлэх"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"Зайгаа цэнэглээд дахин оролдоно уу."</string>
     <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"Цэнэглэгчээ залгаад дахин оролдоно уу."</string>
-    <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"Дэлгэцийн түгжээний PIN буюу нууц үг байхгүй"</string>
-    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"Та шифрлэлтийг эхлүүлэхийн өмнө дэлгэцийн түгжээний PIN буюу нууц үгийг тохируулах шаардлагатай."</string>
+    <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"Дэлгэцийн түгжээний ПИН буюу нууц үг байхгүй"</string>
+    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"Та шифрлэлтийг эхлүүлэхийн өмнө дэлгэцийн түгжээний ПИН буюу нууц үгийг тохируулах шаардлагатай."</string>
     <string name="crypt_keeper_confirm_title" msgid="8884417036062084547">"Шифрлэх үү?"</string>
     <string name="crypt_keeper_final_desc" product="tablet" msgid="2713708841024805586">"Шифрлэлтийн үйлдлийг буцаах боломжгүй бөгөөд та тасалдуулбал өгөгдлөө алдах болно. Шифрлэлтэд нэг цаг хүртэл хугацаа орж болох бөгөөд таблет хэд хэдэн удаа дахин асах болно."</string>
     <string name="crypt_keeper_final_desc" product="default" msgid="2483549885938505746">"Шифрлэлтийн үйлдлийг буцаах боломжгүй бөгөөд та тасалдуулбал өгөгдлөө алдах болно. Шифрлэлтэд нэг цаг болон түүнээс удаан хугацаа орж болох бөгөөд утас хэд хэдэн удаа дахин асах болно."</string>
@@ -561,7 +561,7 @@
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"идэвхгүй болсны <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g>-н дараа <xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>"</string>
     <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Ажлын профайлын түгжээ"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Дэлгэцийн түгжээг өөрчлөх"</string>
-    <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Загвар, PIN, буюу нууц үгийг өөрчлөх буюу идэвхгүйжүүлэх"</string>
+    <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Загвар, ПИН, буюу нууц үгийг өөрчлөх буюу идэвхгүйжүүлэх"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Дэлгэцийг түгжих аргаа сонгоно уу."</string>
     <string name="unlock_set_unlock_off_title" msgid="5049876793411416079">"Байхгүй"</string>
     <string name="unlock_set_unlock_off_summary" msgid="3997346045783359119"></string>
@@ -569,14 +569,14 @@
     <string name="unlock_set_unlock_none_summary" msgid="4044529413627659031">"Хамгаалалт байхгүй"</string>
     <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"Хээ"</string>
     <string name="unlock_set_unlock_pattern_summary" msgid="8858697834522201333">"Дундаж хамгаалалттай"</string>
-    <string name="unlock_set_unlock_pin_title" msgid="361479901761948207">"PIN"</string>
+    <string name="unlock_set_unlock_pin_title" msgid="361479901761948207">"ПИН"</string>
     <string name="unlock_set_unlock_pin_summary" msgid="8076921768675948228">"Дундажаас өндөр хамгаалалттай"</string>
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"Нууц үг"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"Өндөр хамгаалалттай"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"Одоо биш"</string>
     <string name="current_screen_lock" msgid="398328543694154510">"Одоо байгаа дэлгэцийн түгжээ"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"Хурууны хээ + Загвар"</string>
-    <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"Хурууны хээ + PIN"</string>
+    <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"Хурууны хээ + ПИН"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"Хурууны хээ + Нууц үг"</string>
     <string name="fingerprint_unlock_skip_fingerprint" msgid="2063700014903801639">"Хурууны хээгүйгээр үргэлжлүүлэх"</string>
     <string name="fingerprint_unlock_title" msgid="8009992449332532869">"Та утасныхаа түгжээг хурууныхаа хээг ашиглан тайлах боломжтой. Аюулгүй байдлын үүднээс энэ сонголтод нөөц дэлгэцийн түгжээ шаардлагатай."</string>
@@ -589,7 +589,7 @@
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"Байхгүй"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"Шудрах"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"Хээ"</string>
-    <string name="unlock_set_unlock_mode_pin" msgid="7828354651668392875">"PIN"</string>
+    <string name="unlock_set_unlock_mode_pin" msgid="7828354651668392875">"ПИН"</string>
     <string name="unlock_set_unlock_mode_password" msgid="397703731925549447">"Нууц үг"</string>
     <string name="unlock_setup_wizard_fingerprint_details" msgid="6515136915205473675">"Та дэлгэцийн цоожоо тохируулсны дараа Тохиргоо &amp; gt; Аюулгүй байдал цэсэнд ороод хурууны хээгээ мөн тохируулж болно."</string>
     <string name="unlock_disable_lock_title" msgid="3508492427073600294">"Дэлгэцийн түгжээг унтраах"</string>
@@ -615,7 +615,7 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"Профайл хамгаалах онцлог нь таны зурган түгжээгүйгээр ажиллах боломжгүй.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Таны хадгалсан хурууны хээг энэ профайлаас мөн устгах бөгөөд та профайлынхаа түгжээг тайлах, худалдан авалт хийх эсвэл аппад нэвтрэх боломжгүй болно."</string>
-    <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Профайл хамгаалах тохиргоо нь таны PIN-гүйгээр ажиллах боломжгүй."</string>
+    <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"Профайл хамгаалах тохиргоо нь таны ПИН-гүйгээр ажиллах боломжгүй."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"Профайл хамгаалах онцлог нь таны ПИН-гүйгээр ажиллах боломжгүй.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Таны хадгалсан хурууны хээг энэ профайлаас мөн устгах бөгөөд та профайлынхаа түгжээг тайлах, худалдан авалт хийх эсвэл аппад нэвтрэх боломжгүй болно."</string>
@@ -629,7 +629,7 @@
 </xliff:g>Таны хадгалсан хурууны хээг энэ профайлаас мөн устгах бөгөөд та профайлынхаа түгжээг тайлах, худалдан авалт хийх эсвэл аппад нэвтрэх боломжгүй болно."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"Тийм, устгана уу"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Тайлах хээг өөрчлөх"</string>
-    <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Тайлах PIN өөрчлөх"</string>
+    <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Тайлах ПИН өөрчлөх"</string>
     <string name="unlock_change_lock_password_title" msgid="7886432065775170719">"Тайлах нууц үгийг өөрчлөх"</string>
     <string name="unlock_footer_high_complexity_requested" msgid="8016987143669762130">"<xliff:g id="APP_NAME">%1$s</xliff:g> хүчтэй ПИН эсвэл нууц үг санал болгож байгаа бөгөөд үүнгүйгээр сайн ажиллахгүй байж болзошгүй"</string>
     <string name="unlock_footer_medium_complexity_requested" msgid="5004825329461874633">"<xliff:g id="APP_NAME">%1$s</xliff:g> шинэ ПИН эсвэл нууц үг санал болгож байгаа бөгөөд үүнгүйгээр сайн ажиллахгүй байж болзошгүй"</string>
@@ -732,10 +732,10 @@
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>-тай хослох уу?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Bluetooth хослох код"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Хослуулах кодыг оруулаад Return буюу Enter дарна уу"</string>
-    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN нь үсэг буюу тэмдэгт агуулна"</string>
+    <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"ПИН нь үсэг буюу тэмдэгт агуулна"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Гол төлөв 0000 буюу 1234"</string>
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"16 оронтой тоо байх ёстой"</string>
-    <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Та мөн энэ PIN-г нөгөө төхөөрөмжүүд дээр оруулах хэрэгтэй болж магадгүй."</string>
+    <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Та мөн энэ ПИН-г нөгөө төхөөрөмжүүд дээр оруулах хэрэгтэй болж магадгүй."</string>
     <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Та мөн энэ түлхүүрийг нөгөө төхөөрөмж дээр оруулах хэрэгтэй болж магадгүй."</string>
     <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Дараахтай хослуулах:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Дараах түлхүүрийг харуулж байгаа эсэхийг анхаарна уу:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
     <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"Юунаас:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Энэ төхөөрөмжтэй хослуулах уу?"</string>
@@ -1273,23 +1273,23 @@
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"Түгжсэн"</string>
     <string name="sim_lock_settings_title" msgid="877336472752342977">"SIM картын түгжээ"</string>
     <string name="sim_pin_toggle" msgid="2026507420678167488">"SIM картыг түгжих"</string>
-    <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"Таблетыг ашиглахын тулд PIN шаардах"</string>
-    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"Утсыг ашиглахын тулд PIN шаардах"</string>
-    <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"Таблетыг ашиглахын тулд PIN шаардах"</string>
-    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Утсыг ашиглахын тулд PIN шаардах"</string>
-    <string name="sim_pin_change" msgid="5615972926944053213">"SIM PIN өөрчлөх"</string>
-    <string name="sim_enter_pin" msgid="149201344579560481">"SIM PIN"</string>
+    <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"Таблетыг ашиглахын тулд ПИН шаардах"</string>
+    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"Утсыг ашиглахын тулд ПИН шаардах"</string>
+    <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"Таблетыг ашиглахын тулд ПИН шаардах"</string>
+    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Утсыг ашиглахын тулд ПИН шаардах"</string>
+    <string name="sim_pin_change" msgid="5615972926944053213">"SIM ПИН өөрчлөх"</string>
+    <string name="sim_enter_pin" msgid="149201344579560481">"SIM ПИН"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"SIM картыг түгжих"</string>
     <string name="sim_disable_sim_lock" msgid="394864376519820956">"SIM картын түгжээ тайлах"</string>
-    <string name="sim_enter_old" msgid="8984991229691526849">"Хуучин SIM PIN"</string>
-    <string name="sim_enter_new" msgid="1720792957661107585">"Шинэ SIM PIN"</string>
-    <string name="sim_reenter_new" msgid="5692585822458989725">"Шинэ PIN-г дахиж оруулна уу"</string>
-    <string name="sim_change_pin" msgid="1674620855223900785">"SIM PIN"</string>
-    <string name="sim_bad_pin" msgid="2409776007569751629">"Буруу PIN"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"PIN таарахгүй байна"</string>
-    <string name="sim_change_failed" msgid="8874765697694275459">"PIN-г өөрчилж чадахгүй.\nБуруу PIN бололтой."</string>
-    <string name="sim_change_succeeded" msgid="8802418023120614533">"SIM PIN амжилттай өөрчлөгдсөн"</string>
-    <string name="sim_lock_failed" msgid="7949781515066772755">"SIM картын түгжигдсэн байдлыг өөрчлөх боломжгүй.\nБуруу PIN байж магадгүй."</string>
+    <string name="sim_enter_old" msgid="8984991229691526849">"Хуучин SIM ПИН"</string>
+    <string name="sim_enter_new" msgid="1720792957661107585">"Шинэ SIM ПИН"</string>
+    <string name="sim_reenter_new" msgid="5692585822458989725">"Шинэ ПИН-г дахиж оруулна уу"</string>
+    <string name="sim_change_pin" msgid="1674620855223900785">"SIM ПИН"</string>
+    <string name="sim_bad_pin" msgid="2409776007569751629">"Буруу ПИН"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"ПИН таарахгүй байна"</string>
+    <string name="sim_change_failed" msgid="8874765697694275459">"ПИН-г өөрчилж чадахгүй.\nБуруу ПИН бололтой."</string>
+    <string name="sim_change_succeeded" msgid="8802418023120614533">"SIM ПИН амжилттай өөрчлөгдсөн"</string>
+    <string name="sim_lock_failed" msgid="7949781515066772755">"SIM картын түгжигдсэн байдлыг өөрчлөх боломжгүй.\nБуруу ПИН байж магадгүй."</string>
     <string name="sim_pin_disable_failed" msgid="6780973900290546751">"ПИН-г идэвхгүй болгож чадсангүй."</string>
     <string name="sim_pin_enable_failed" msgid="804897359922298792">"ПИН-г идэвхжүүлж чадсангүй."</string>
     <string name="sim_enter_ok" msgid="5103626479976731229">"OK"</string>
@@ -1717,11 +1717,11 @@
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Хээгээ баталгаажуулна уу"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"ПИН-ээ дахин оруулах"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Нууц үг таарахгүй байна."</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN таарахгүй байна"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"ПИН таарахгүй байна"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Хээгээ дахин зурах"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Тайлах сонголт"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"Нууц үгийг тохирууллаа"</string>
-    <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"PIN-г тохирууллаа"</string>
+    <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"ПИН-г тохирууллаа"</string>
     <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"Загварыг тохирууллаа"</string>
     <string name="lockpassword_choose_your_password_header_for_face" msgid="8823110536502072216">"Царайны баталгаажуулалт ашиглахын тулд нууц үгээ тохируулна уу"</string>
     <string name="lockpassword_choose_your_pattern_header_for_face" msgid="5563793748503883666">"Царайны баталгаажуулалт ашиглахын тулд хээгээ тохируулна уу"</string>
@@ -1749,7 +1749,7 @@
     <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"Зурган түгжээ буруу байна"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"Төхөөрөмжийн аюулгүй байдал"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Тайлах хээг өөрчлөх"</string>
-    <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Тайлах PIN өөрчлөх"</string>
+    <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Тайлах ПИН өөрчлөх"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Тайлах хээг зурна уу"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Цэсийг дарж туслам аваарай."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Дуусаад хуруугаа аваарай"</string>
@@ -2183,7 +2183,7 @@
     <string name="enable_service_encryption_warning" msgid="3580275420826492351">"Хэрэв та <xliff:g id="SERVICE">%1$s</xliff:g>-г асаавал таны төхөөрөмж дата шифрлэлтийг сайжруулах дэлгэцийн түгжээг ашиглахгүй."</string>
     <string name="secure_lock_encryption_warning" msgid="8724670910924531152">"Та хандалтын үйлчилгээг асаасан учир таны төхөөрөмж таны дэлгэцийн түгжээг дата шифрлэлтэнд ашиглахгүй."</string>
     <string name="enable_service_pattern_reason" msgid="7415969807374459848">"<xliff:g id="SERVICE">%1$s</xliff:g>-г асаах нь дата шифрлэлтэд нөлөөлөх учир та хээгээ баталгаажуулах шаардлагатай."</string>
-    <string name="enable_service_pin_reason" msgid="2899057249007636608">"<xliff:g id="SERVICE">%1$s</xliff:g>-г асаах нь дата шифрлэлтэд нөлөөлөх учир та PIN-ээ баталгаажуулах шаардлагатай."</string>
+    <string name="enable_service_pin_reason" msgid="2899057249007636608">"<xliff:g id="SERVICE">%1$s</xliff:g>-г асаах нь дата шифрлэлтэд нөлөөлөх учир та ПИН-ээ баталгаажуулах шаардлагатай."</string>
     <string name="enable_service_password_reason" msgid="5210815233227388083">"<xliff:g id="SERVICE">%1$s</xliff:g>-г асаах нь дата шифрлэлтэд нөлөөлөх учир та нууц үгээ баталгаажуулах шаардлагатай."</string>
     <string name="accessibility_service_warning" msgid="345702253188068806">"<xliff:g id="SERVICE">%1$s</xliff:g> энэ төхөөрөмжийг бүрэн хянах хүсэлтэй байна. Энэ үйлчилгээ дэлгэцийг уншиж, хүртээмжийн үйлчилгээ шаардлагатай хэрэглэгчдийн өмнөөс үйлдэл хийх боломжтой. Энэ түвшний хяналт нь ихэнх аппад тохиромжгүй."</string>
     <string name="disable_service_title" msgid="6234243399949005825">"<xliff:g id="SERVICE">%1$s</xliff:g>-г зогсоох уу?"</string>
@@ -2636,7 +2636,7 @@
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Гараар синк хийх боломжгүй"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"Энэ зүйлийн синкийг одоогоор идэвхгүйжүүлсэн байна. Тохиргоог өөрчлөхийн тулд далд дата болон автомат синкийг түр идэвхжүүлнэ үү."</string>
     <string name="enter_password" msgid="2963496904625715235">"Андройдыг эхлүүлэхийн тулд нууц үгээ оруулна уу"</string>
-    <string name="enter_pin" msgid="7140938268709546890">"Андройдыг эхлүүлэхийн тулд PIN оруулна уу"</string>
+    <string name="enter_pin" msgid="7140938268709546890">"Андройдыг эхлүүлэхийн тулд ПИН оруулна уу"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Андройдыг эхлүүлэхийн тулд хээгээ зурна уу"</string>
     <string name="cryptkeeper_wrong_pattern" msgid="4580105105385125467">"Нууц хэв буруу байна"</string>
     <string name="cryptkeeper_wrong_password" msgid="1709534330303983166">"Нууц үг буруу байна"</string>
@@ -2933,7 +2933,7 @@
     <string name="nfc_payment_set_default_instead_of" msgid="5746952277762109289">"\"Tap &amp; төл\"-ийг хийхийн тулд <xliff:g id="APP_1">%2$s</xliff:g>-ийн оронд <xliff:g id="APP_0">%1$s</xliff:g>-ыг үргэлж ашиглах уу?"</string>
     <string name="restriction_settings_title" msgid="4143751894908963736">"Хязгаарлалтууд"</string>
     <string name="restriction_menu_reset" msgid="3642252461410370554">"Хязгаарлалтыг арилгах"</string>
-    <string name="restriction_menu_change_pin" msgid="592512748243421101">"PIN өөрчлөх"</string>
+    <string name="restriction_menu_change_pin" msgid="592512748243421101">"ПИН өөрчлөх"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Мэдэгдлүүдийг харуулах"</string>
     <string name="help_label" msgid="1296484776243905646">"Тусламж &amp; санал хүсэлт"</string>
     <string name="support_summary" msgid="3278943815956130740">"Тусламжийн нийтлэл, утас &amp; чат, эхлүүлэх"</string>
@@ -3091,7 +3091,7 @@
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"оновчлолыг хэрэгсэхгүй байх, зүүрмэглэх, апп зогсолтын горим"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"чичиргээ, RGB, sRGB, өнгө, байгалийн, стандарт"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"өнгө, температур, D65, D73, цагаан, шар, цэнхэр, дулаан, хүйтэн"</string>
-    <string name="keywords_lockscreen" msgid="4936846554280830394">"түгжээг тайлахын тулд гулсуулах, нууц үг,  загвар, PIN"</string>
+    <string name="keywords_lockscreen" msgid="4936846554280830394">"түгжээг тайлахын тулд гулсуулах, нууц үг,  загвар, ПИН"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"ажлын сорилт, ажил, профайл"</string>
     <string name="keywords_unification" msgid="2020759909366983593">"ажлын профайл, удирдсан профайл, нэгтгэх, нэгдэл, ажил, профайл"</string>
     <string name="keywords_gesture" msgid="5031323247529869644">"зангаа"</string>
@@ -3557,7 +3557,7 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"Дэлгэц тогтоох"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Энэ тохиргоо асаалттай үед та одоогийн дэлгэцийг бэхлэхээ болиулах хүртэл үргэлжлүүлэн харуулахын тулд дэлгэц бэхлэх онцлогийг ашиглах боломжтой.\n\nДэлгэц бэхлэх онцлогийг ашиглахын тулд:\n\n1. Дэлгэц бэхлэх онцлог асаалттай эсэхийг шалгах\n\n2. Тоймыг нээх\n\n3. Дэлгэцийн дээд хэсгийн аппын дүрс тэмдгийг товшиж Бэхлэх гэснийг товшино уу"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Тогтоосныг суллахаас өмнө түгжээ тайлах хээ асуух"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Бэхэлснийг болиулахаасаа өмнө PIN асуух"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Бэхэлснийг болиулахаасаа өмнө ПИН асуух"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Тогтоосныг суллахаас өмнө нууц үг асуух"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Unpinning хийх үед төхөөрөмжийг түгжинэ"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Энэ ажлын профайлыг удирдагч нь:"</string>
@@ -3578,10 +3578,10 @@
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"Үгүй"</string>
     <string name="restricted_true_label" msgid="1545180379083441282">"Хязгаарласан"</string>
     <string name="restricted_false_label" msgid="4512495920090068495">"Апп батарейг арын дэвсгэрт ашиглах боломжтой"</string>
-    <string name="encrypt_talkback_dialog_require_pin" msgid="2781758476498571031">"PIN шаардах уу?"</string>
+    <string name="encrypt_talkback_dialog_require_pin" msgid="2781758476498571031">"ПИН шаардах уу?"</string>
     <string name="encrypt_talkback_dialog_require_pattern" msgid="8705104812047332411">"Загварыг шаардах уу?"</string>
     <string name="encrypt_talkback_dialog_require_password" msgid="5070710417271353306">"Нууц үг шаардах уу?"</string>
-    <string name="encrypt_talkback_dialog_message_pin" msgid="1912533826818077891">"Та энэ төхөөрөмжийг эхлүүлэхдээ PIN оруулах үед <xliff:g id="SERVICE">%1$s</xliff:g> мэтийн хандалтын үйлчилгээнүүд хараахан ашиглах боломжгүй байна."</string>
+    <string name="encrypt_talkback_dialog_message_pin" msgid="1912533826818077891">"Та энэ төхөөрөмжийг эхлүүлэхдээ ПИН оруулах үед <xliff:g id="SERVICE">%1$s</xliff:g> мэтийн хандалтын үйлчилгээнүүд хараахан ашиглах боломжгүй байна."</string>
     <string name="encrypt_talkback_dialog_message_pattern" msgid="4415837749933863432">"Та энэ төхөөрөмжийг эхлүүлэхдээ хээ оруулах үед <xliff:g id="SERVICE">%1$s</xliff:g> мэтийн хандалтын үйлчилгээнүүд хараахан ашиглах боломжгүй байна."</string>
     <string name="encrypt_talkback_dialog_message_password" msgid="4276703366120881008">"Та энэ төхөөрөмжийг эхлүүлэхдээ нууц үг оруулах үед <xliff:g id="SERVICE">%1$s</xliff:g> мэтийн хандалтын үйлчилгээнүүд хараахан ашиглах боломжгүй байна."</string>
     <string name="direct_boot_unaware_dialog_message" msgid="5253248227337914350">"Санамж: Хэрэв та утсаа дахин эхлүүлэх болон дэлгэцийн түгжээ тохируулбал энэ апп таныг утасныхаа түгжээг тайлах хүртэл эхлэх боломжгүй"</string>
@@ -3997,7 +3997,7 @@
     <string name="no_default_home" msgid="1518949210961918497">"Үндсэн нүүр хуудас тохируулаагүй байна"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Аюулгүй эхлэл"</string>
     <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"Төхөөрөмжөө асаахын тулд загвар оруулахаар тохируулаарай. Төхөөрөмж унтраалттай үед дуудлага, мессеж, мэдэгдэл хүлээн авах болон сэрүүлэг дуугарах боломжгүй."</string>
-    <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"Төхөөрөмжөө асаахын тулд PIN оруулахаар тохируулаарай. Төхөөрөмж унтраалттай үед дуудлага, мессеж, мэдэгдэл хүлээн авах, эсвэл сэрүүлэг дуугарах боломжгүй."</string>
+    <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"Төхөөрөмжөө асаахын тулд ПИН оруулахаар тохируулаарай. Төхөөрөмж унтраалттай үед дуудлага, мессеж, мэдэгдэл хүлээн авах, эсвэл сэрүүлэг дуугарах боломжгүй."</string>
     <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"Төхөөрөмжөө асаахын тулд нууц үг оруулахаар тохируулаарай. Төхөөрөмж унтраалттай үед дуудлага, мессеж, мэдэгдэл хүлээн авах болон сэрүүлэг дуугарах боломжгүй."</string>
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"Өөр хурууны хээ нэмэх"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"Түгжээг өөр хуруугаар тайлах"</string>
