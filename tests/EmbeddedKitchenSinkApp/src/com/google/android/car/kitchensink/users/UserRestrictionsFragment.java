@@ -16,9 +16,10 @@
 package com.google.android.car.kitchensink.users;
 
 import android.annotation.Nullable;
-import android.content.Context;
 import android.os.Bundle;
+import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -30,14 +31,16 @@ import androidx.fragment.app.Fragment;
 
 import com.google.android.car.kitchensink.R;
 
-import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
+import java.util.stream.Collectors;
 
 /**
  * Manipulate users in various ways
  */
-public class UserRestrictionsFragment extends Fragment {
+public final class UserRestrictionsFragment extends Fragment {
+
+    private static final String TAG = UserRestrictionsFragment.class.getSimpleName();
 
     private static final List<String> CONFIGURABLE_USER_RESTRICTIONS =
             Arrays.asList(
@@ -70,8 +73,7 @@ public class UserRestrictionsFragment extends Fragment {
             UserRestrictionAdapter adapter =
                     (UserRestrictionAdapter) userRestrictionsList.getAdapter();
             int count = adapter.getCount();
-            UserManager userManager =
-                    (UserManager) getContext().getSystemService(Context.USER_SERVICE);
+            UserManager userManager = getUserManager();
 
             // Iterate through all of the user restrictions and set their values
             for (int i = 0; i < count; i++) {
@@ -86,11 +88,20 @@ public class UserRestrictionsFragment extends Fragment {
     }
 
     private List<UserRestrictionListItem> createUserRestrictionItems() {
-        UserManager userManager = (UserManager) getContext().getSystemService(Context.USER_SERVICE);
-        ArrayList<UserRestrictionListItem> list = new ArrayList<>();
-        for (String key : CONFIGURABLE_USER_RESTRICTIONS) {
-            list.add(new UserRestrictionListItem(key, userManager.hasUserRestriction(key)));
-        }
+        int userId = getContext().getUserId();
+        UserHandle user = UserHandle.of(userId);
+        UserManager userManager = getUserManager();
+
+        List<UserRestrictionListItem> list = CONFIGURABLE_USER_RESTRICTIONS.stream()
+                .map((key) -> new UserRestrictionListItem(key,
+                        userManager.hasBaseUserRestriction(key, user)))
+                .collect(Collectors.toList());
+        Log.d(TAG, "Current restrictions for user " + userId + ": " + list);
+
         return list;
+    }
+
+    private UserManager getUserManager() {
+        return getContext().getSystemService(UserManager.class);
     }
 }
