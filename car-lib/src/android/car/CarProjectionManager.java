@@ -772,13 +772,16 @@ public final class CarProjectionManager extends CarManagerBase {
 
                     switch (msg.what) {
                         case PROJECTION_AP_STARTED:
-                            SoftApConfiguration config = (SoftApConfiguration) msg.obj;
-                            if (config == null) {
+                            if (msg.obj == null) {
                                 Log.e(TAG, LOG_PREFIX + "config cannot be null.");
                                 callback.onFailed(ProjectionAccessPointCallback.ERROR_GENERIC);
                                 return;
                             }
-                            callback.onStarted(config);
+                            if (msg.obj instanceof SoftApConfiguration) {
+                                callback.onStarted((SoftApConfiguration) msg.obj);
+                            } else if (msg.obj instanceof WifiConfiguration) {
+                                callback.onStarted((WifiConfiguration) msg.obj);
+                            }
                             break;
                         case PROJECTION_AP_STOPPED:
                             Log.i(TAG, LOG_PREFIX + "hotspot stopped");
