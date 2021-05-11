@@ -366,7 +366,10 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                                                  [this]() REQUIRES(mFrameDeliveryMutex) {
                                                      return mSourceCameras.empty();
                                                  })) {
-                    PLOG(ERROR) << this << ": Camera hangs?";
+                    // This happens when either a new frame does not arrive
+                    // before a timer expires or we're requested to stop
+                    // capturing frames.
+                    LOG(DEBUG) << "Exiting a capture thread.";
                     break;
                 } else if (mStreamState == RUNNING) {
                     // Fetch frames and forward to the client
@@ -483,7 +486,13 @@ Return<void> VirtualCamera::stopVideoStream()  {
             }
         }
 
-        // Join a thread
+        // Signal a condition to unblock a capture thread and then join
+        {
+            std::lock_guard<std::mutex> lock(mFrameDeliveryMutex);
+            mSourceCameras.clear();
+            mFramesReadySignal.notify_all();
+        }
+
         if (mCaptureThread.joinable()) {
             mCaptureThread.join();
         }
