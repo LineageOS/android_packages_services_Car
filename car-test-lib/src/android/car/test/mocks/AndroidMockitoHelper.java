@@ -17,7 +17,9 @@ package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
-import static org.mockito.Matchers.anyString;
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
@@ -173,6 +175,21 @@ public final class AndroidMockitoHelper {
     public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags, @NonNull RuntimeException e) {
         when(um.createUser(name, userType, flags)).thenThrow(e);
+    }
+
+    /**
+     * Mocks a call to {@code UserManager#createGuest(Context, String)}.
+     */
+    @NonNull
+    public static UserInfo mockUmCreateGuest(
+            @NonNull UserManager um, @Nullable String name, @UserIdInt int userId) {
+        UserInfo userInfo = new UserInfoBuilder(userId)
+                .setName(name)
+                .setType(UserManager.USER_TYPE_FULL_GUEST)
+                .setFlags(0)
+                .build();
+        when(um.createGuest(any(Context.class), eq(name))).thenReturn(userInfo);
+        return userInfo;
     }
 
     /**

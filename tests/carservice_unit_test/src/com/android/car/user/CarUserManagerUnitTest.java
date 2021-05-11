@@ -56,7 +56,6 @@ import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationTyp
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.os.RemoteException;
 import android.os.UserManager;
-import android.provider.Settings;
 
 import com.android.internal.infra.AndroidFuture;
 
@@ -394,7 +393,6 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         assertThat(newUser.name).isEqualTo("dudeGuest");
         assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
         assertThat(newUser.flags).isEqualTo(0);
-        assertThat(getSettingsString(Settings.Secure.SKIP_FIRST_USE_HINTS)).isEqualTo("1");
     }
 
     @Test
