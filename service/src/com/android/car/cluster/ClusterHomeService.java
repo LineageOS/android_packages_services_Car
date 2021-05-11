@@ -131,6 +131,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             return;  // Skip if the cluster display isn't changed.
         }
         mClusterDisplayId = clusterDisplayId;
+        sendDisplayState(ClusterHomeManager.CONFIG_DISPLAY_ID);
         if (clusterDisplayId == Display.INVALID_DISPLAY) {
             return;
         }
@@ -185,17 +186,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
             mUiType = uiType;
             changes |= ClusterHomeManager.CONFIG_UI_TYPE;
         }
-        final ClusterState state = createClusterState();
-        final int n = mClientCallbacks.beginBroadcast();
-        for (int i = 0; i < n; i++) {
-            IClusterHomeCallback callback = mClientCallbacks.getBroadcastItem(i);
-            try {
-                callback.onClusterStateChanged(state, changes);
-            } catch (RemoteException ignores) {
-                // ignore
-            }
-        }
-        mClientCallbacks.finishBroadcast();
+        sendDisplayState(changes);
     }
 
     @Override
@@ -208,16 +199,19 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         }
         if (bounds != null && !mBounds.equals(bounds)) {
             mBounds = bounds;
-            changes |= ClusterHomeManager.CONFIG_DISPLAY_SIZE;
+            changes |= ClusterHomeManager.CONFIG_DISPLAY_BOUNDS;
         }
         if (insets != null && !mInsets.equals(insets)) {
             mInsets = insets;
             changes |= ClusterHomeManager.CONFIG_DISPLAY_INSETS;
         }
-        // TODO: need to change actual display state based on the arguments.
+        sendDisplayState(changes);
+    }
+    // ClusterHalEventListener ends
 
-        final ClusterState state = createClusterState();
-        final int n = mClientCallbacks.beginBroadcast();
+    private void sendDisplayState(int changes) {
+        ClusterState state = createClusterState();
+        int n = mClientCallbacks.beginBroadcast();
         for (int i = 0; i < n; i++) {
             IClusterHomeCallback callback = mClientCallbacks.getBroadcastItem(i);
             try {
@@ -228,7 +222,6 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         }
         mClientCallbacks.finishBroadcast();
     }
-    // ClusterHalEventListener sends
 
     // ClusterNavigationServiceCallback starts
     @Override
@@ -360,6 +353,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         state.bounds = mBounds;
         state.insets = mInsets;
         state.uiType = mUiType;
+        state.displayId = mClusterDisplayId;
         return state;
     }
 }

@@ -49,7 +49,7 @@ public class ClusterHomeManager extends CarManagerBase {
     /** @hide */
     @IntDef(flag = true, prefix = { "CONFIG_" }, value = {
             CONFIG_DISPLAY_ON_OFF,
-            CONFIG_DISPLAY_SIZE,
+            CONFIG_DISPLAY_BOUNDS,
             CONFIG_DISPLAY_INSETS,
             CONFIG_UI_TYPE,
     })
@@ -58,9 +58,10 @@ public class ClusterHomeManager extends CarManagerBase {
 
     /** Bit fields indicates which fields of {@link ClusterState} are changed */
     public static final int CONFIG_DISPLAY_ON_OFF = 0x01;
-    public static final int CONFIG_DISPLAY_SIZE = 0x02;
+    public static final int CONFIG_DISPLAY_BOUNDS = 0x02;
     public static final int CONFIG_DISPLAY_INSETS = 0x04;
     public static final int CONFIG_UI_TYPE = 0x08;
+    public static final int CONFIG_DISPLAY_ID = 0x10;
 
     /**
      * Callback for ClusterHome to get notifications
