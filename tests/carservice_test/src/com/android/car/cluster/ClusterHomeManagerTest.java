@@ -206,7 +206,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
         assertThat(mState.insets.right).isEqualTo(INSET_RIGHT);
         assertThat(mState.insets.bottom).isEqualTo(INSET_BOTTOM);
         assertThat(mChanges).isEqualTo(ClusterHomeManager.CONFIG_DISPLAY_ON_OFF
-                | ClusterHomeManager.CONFIG_DISPLAY_SIZE
+                | ClusterHomeManager.CONFIG_DISPLAY_BOUNDS
                 | ClusterHomeManager.CONFIG_DISPLAY_INSETS);
 
         ClusterState state2 = mClusterHomeManager.getClusterState();
