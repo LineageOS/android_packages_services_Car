@@ -14,13 +14,22 @@
  * limitations under the License.
  */
 
-package com.android.systemui;
+package com.android.systemui.car.window;
 
-import com.android.systemui.car.window.ExtendedOverlayWindowModule;
+import com.android.systemui.car.rvc.ExtendedRearViewCameraViewMediator;
 
+import dagger.Binds;
 import dagger.Module;
+import dagger.multibindings.ClassKey;
+import dagger.multibindings.IntoMap;
 
-/** Binder for AAECarSystemUI specific {@link SystemUI} modules and components. */
-@Module(includes = {ExtendedOverlayWindowModule.class})
-abstract class CarUiPortraitSystemUIBinder extends CarSystemUIBinder {
+/** Lists additional {@link OverlayViewMediator} that apply to the CarUiPortraitSystemUI. */
+@Module
+public abstract class ExtendedOverlayWindowModule {
+    /** Injects RearViewCameraViewMediator. */
+    @Binds
+    @IntoMap
+    @ClassKey(ExtendedRearViewCameraViewMediator.class)
+    public abstract OverlayViewMediator bindRearViewCameraViewMediator(
+            ExtendedRearViewCameraViewMediator overlayViewsMediator);
 }
