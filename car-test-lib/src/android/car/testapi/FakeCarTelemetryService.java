@@ -88,21 +88,21 @@ public class FakeCarTelemetryService extends ICarTelemetryService.Stub implement
         if (!mScriptResultMap.containsKey(key)) {
             return;
         }
-        mListener.onDataReceived(mScriptResultMap.get(key));
+        mListener.onResult(key, mScriptResultMap.get(key));
         mScriptResultMap.remove(key);
     }
 
     @Override
     public void sendAllFinishedReports() throws RemoteException {
-        for (byte[] data : mScriptResultMap.values()) {
-            mListener.onDataReceived(data);
+        for (Map.Entry<ManifestKey, byte[]> entry : mScriptResultMap.entrySet()) {
+            mListener.onResult(entry.getKey(), entry.getValue());
         }
         mScriptResultMap.clear();
     }
 
     @Override
     public void sendScriptExecutionErrors() throws RemoteException {
-        mListener.onDataReceived(mErrorBytes);
+        mListener.onError(mErrorBytes);
     }
 
     /**************************** CarTelemetryController impl ********************************/
