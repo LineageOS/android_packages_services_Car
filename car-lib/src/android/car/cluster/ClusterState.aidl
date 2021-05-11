@@ -25,4 +25,5 @@ parcelable ClusterState {
     Rect bounds;
     Insets insets;
     int uiType;
+    int displayId;
 }
