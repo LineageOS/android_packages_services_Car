@@ -34,7 +34,7 @@ using ::android::base::Result;
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
 sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
 sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
-sp<IWatchdogServiceHelperInterface> ServiceManager::sWatchdogServiceHelper = nullptr;
+sp<IWatchdogServiceHelper> ServiceManager::sWatchdogServiceHelper = nullptr;
 
 Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (sWatchdogBinderMediator != nullptr || sWatchdogServiceHelper != nullptr ||

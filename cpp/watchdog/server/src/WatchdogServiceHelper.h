@@ -45,7 +45,7 @@ class WatchdogServiceHelperPeer;
 
 }  // namespace internal
 
-class IWatchdogServiceHelperInterface : public android::IBinder::DeathRecipient {
+class IWatchdogServiceHelper : public android::IBinder::DeathRecipient {
 public:
     virtual android::binder::Status registerService(
             const android::sp<
@@ -68,6 +68,8 @@ public:
     virtual android::binder::Status latestIoOveruseStats(
             const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
                     packageIoOveruseStats) = 0;
+    virtual android::binder::Status resetResourceOveruseStats(
+            const std::vector<std::string>& packageNames) = 0;
 
 protected:
     virtual android::base::Result<void> init(
@@ -81,7 +83,7 @@ private:
 // WatchdogServiceHelper implements the helper functions for the outbound API requests to
 // the CarWatchdogService. This class doesn't handle the inbound APIs requests from
 // CarWatchdogService except the registration APIs.
-class WatchdogServiceHelper final : public IWatchdogServiceHelperInterface {
+class WatchdogServiceHelper final : public IWatchdogServiceHelper {
 public:
     WatchdogServiceHelper() : mService(nullptr), mWatchdogProcessService(nullptr) {}
     ~WatchdogServiceHelper();
@@ -107,6 +109,7 @@ public:
     android::binder::Status latestIoOveruseStats(
             const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&
                     packageIoOveruseStats);
+    android::binder::Status resetResourceOveruseStats(const std::vector<std::string>& packageNames);
 
 protected:
     android::base::Result<void> init(

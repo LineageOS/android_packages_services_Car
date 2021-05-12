@@ -59,7 +59,7 @@ public:
 
 protected:
     virtual android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) = 0;
+            const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) = 0;
     virtual void setPackageConfigurations(
             const std::unordered_set<std::string>& vendorPackagePrefixes,
             const std::unordered_map<
@@ -112,7 +112,7 @@ protected:
     static void terminate();
 
     android::base::Result<void> initWatchdogServiceHelper(
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper);
+            const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper);
 
     virtual void setPackageConfigurations(
             const std::unordered_set<std::string>& vendorPackagePrefixes,
@@ -141,7 +141,7 @@ private:
      * thread. In order to avoid a race condition between |initWatchdogServiceHelper| and
      * |getPackage*ForUids| calls, mWatchdogServiceHelper is guarded by a read-write lock.
      */
-    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
+    android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper GUARDED_BY(mRWMutex);
     std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>
             mUidToPackageInfoMapping GUARDED_BY(mRWMutex);
     std::vector<std::string> mVendorPackagePrefixes GUARDED_BY(mRWMutex);

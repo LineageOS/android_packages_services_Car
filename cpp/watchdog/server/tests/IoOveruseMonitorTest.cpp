@@ -37,8 +37,6 @@ constexpr std::chrono::seconds kTestMonitorInterval = 5s;
 
 using ::android::IPCThreadState;
 using ::android::RefBase;
-using ::android::automotive::watchdog::internal::ApplicationCategoryType;
-using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
@@ -48,14 +46,11 @@ using ::android::base::Result;
 using ::android::base::StringAppendF;
 using ::android::binder::Status;
 using ::testing::_;
-using ::testing::AllOf;
 using ::testing::DoAll;
-using ::testing::Field;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::SaveArg;
 using ::testing::UnorderedElementsAreArray;
-using ::testing::Value;
 
 namespace {
 
@@ -208,6 +203,41 @@ protected:
         mIoOveruseMonitorPeer.clear();
     }
 
+    void setUpPackagesAndConfigurations() {
+        std::unordered_map<uid_t, PackageInfo> packageInfoMapping =
+                {{1001000,
+                  constructPackageInfo(
+                          /*packageName=*/"system.daemon", /*uid=*/1001000, UidType::NATIVE)},
+                 {1112345,
+                  constructPackageInfo(
+                          /*packageName=*/"com.android.google.package", /*uid=*/1112345,
+                          UidType::APPLICATION)},
+                 {1113999,
+                  constructPackageInfo(
+                          /*packageName=*/"com.android.google.package", /*uid=*/1113999,
+                          UidType::APPLICATION)},
+                 {1212345,
+                  constructPackageInfo(
+                          /*packageName=*/"com.android.google.package", /*uid=*/1212345,
+                          UidType::APPLICATION)},
+                 {1312345,
+                  constructPackageInfo(
+                          /*packageName=*/"com.android.google.package", /*uid=*/1312345,
+                          UidType::APPLICATION)}};
+        ON_CALL(*mMockPackageInfoResolver, getPackageInfosForUids(_))
+                .WillByDefault(Return(packageInfoMapping));
+        mMockIoOveruseConfigs->injectPackageConfigs({
+                {"system.daemon",
+                 {constructPerStateBytes(/*fgBytes=*/80'000, /*bgBytes=*/40'000,
+                                         /*gmBytes=*/100'000),
+                  /*isSafeToKill=*/false}},
+                {"com.android.google.package",
+                 {constructPerStateBytes(/*fgBytes=*/70'000, /*bgBytes=*/30'000,
+                                         /*gmBytes=*/100'000),
+                  /*isSafeToKill=*/true}},
+        });
+    }
+
     void executeAsUid(uid_t uid, std::function<void()> func) {
         sp<ScopedChangeCallingUid> scopedChangeCallingUid = new ScopedChangeCallingUid(uid);
         ASSERT_NO_FATAL_FAILURE(func());
@@ -221,33 +251,7 @@ protected:
 };
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollection) {
-    std::unordered_map<uid_t, PackageInfo> packageInfoMapping =
-            {{1001000,
-              constructPackageInfo(
-                      /*packageName=*/"system.daemon", /*uid=*/1001000, UidType::NATIVE)},
-             {1112345,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1112345,
-                      UidType::APPLICATION)},
-             {1212345,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1212345,
-                      UidType::APPLICATION)},
-             {1113999,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1113999,
-                      UidType::APPLICATION)}};
-    ON_CALL(*mMockPackageInfoResolver, getPackageInfosForUids(_))
-            .WillByDefault(Return(packageInfoMapping));
-    mMockIoOveruseConfigs->injectPackageConfigs({
-            {"system.daemon",
-             {constructPerStateBytes(/*fgBytes=*/80'000, /*bgBytes=*/40'000, /*gmBytes=*/100'000),
-              /*isSafeToKill=*/false}},
-            {"com.android.google.package",
-             {constructPerStateBytes(/*fgBytes=*/70'000, /*bgBytes=*/30'000, /*gmBytes=*/100'000),
-              /*isSafeToKill=*/true}},
-    });
-
+    setUpPackagesAndConfigurations();
     sp<MockResourceOveruseListener> mockResourceOveruseListener = new MockResourceOveruseListener();
     ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
         ASSERT_RESULT_OK(mIoOveruseMonitor->addIoOveruseListener(mockResourceOveruseListener));
@@ -404,32 +408,7 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithZeroWriteBytes) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithSmallWrittenBytes) {
-    std::unordered_map<uid_t, PackageInfo> packageInfoMapping =
-            {{1001000,
-              constructPackageInfo(
-                      /*packageName=*/"system.daemon", /*uid=*/1001000, UidType::NATIVE)},
-             {1112345,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1112345,
-                      UidType::APPLICATION)},
-             {1212345,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1212345,
-                      UidType::APPLICATION)},
-             {1312345,
-              constructPackageInfo(
-                      /*packageName=*/"com.android.google.package", /*uid=*/1312345,
-                      UidType::APPLICATION)}};
-    EXPECT_CALL(*mMockPackageInfoResolver, getPackageInfosForUids(_))
-            .WillRepeatedly(Return(packageInfoMapping));
-    mMockIoOveruseConfigs->injectPackageConfigs(
-            {{"system.daemon",
-              {constructPerStateBytes(/*fgBytes=*/80'000, /*bgBytes=*/40'000, /*gmBytes=*/100'000),
-               /*isSafeToKill=*/false}},
-             {"com.android.google.package",
-              {constructPerStateBytes(/*fgBytes=*/70'000, /*bgBytes=*/30'000, /*gmBytes=*/100'000),
-               /*isSafeToKill=*/true}}});
-
+    setUpPackagesAndConfigurations();
     sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
     /*
      * UID 1212345 current written bytes < |KTestMinSyncWrittenBytes| so the UID's stats are not
@@ -657,18 +636,7 @@ TEST_F(IoOveruseMonitorTest, TestUnaddIoOveruseListenerOnUnlinkToDeathError) {
 }
 
 TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
-    // Setup internal counters for a package.
-    ON_CALL(*mMockPackageInfoResolver, getPackageInfosForUids(_))
-            .WillByDefault([]() -> std::unordered_map<uid_t, PackageInfo> {
-                return {{1001000,
-                         constructPackageInfo(/*packageName=*/"system.daemon", /*uid=*/1001000,
-                                              UidType::NATIVE)}};
-            });
-    mMockIoOveruseConfigs->injectPackageConfigs(
-            {{"system.daemon",
-              {constructPerStateBytes(/*fgBytes=*/80'000, /*bgBytes=*/40'000,
-                                      /*gmBytes=*/100'000),
-               /*isSafeToKill=*/false}}});
+    setUpPackagesAndConfigurations();
     sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
     mockUidIoStats->expectDeltaStats(
             {{1001000, IoUsage(0, 0, /*fgWrBytes=*/90'000, /*bgWrBytes=*/20'000, 0, 0)}});
@@ -692,6 +660,50 @@ TEST_F(IoOveruseMonitorTest, TestGetIoOveruseStats) {
     }));
     EXPECT_THAT(actual, expected) << "Expected: " << expected.toString()
                                   << "\nActual: " << actual.toString();
+}
+
+TEST_F(IoOveruseMonitorTest, TestResetIoOveruseStats) {
+    setUpPackagesAndConfigurations();
+    sp<MockUidIoStats> mockUidIoStats = new MockUidIoStats();
+    mockUidIoStats->expectDeltaStats(
+            {{1001000, IoUsage(0, 0, /*fgWrBytes=*/90'000, /*bgWrBytes=*/20'000, 0, 0)}});
+
+    ASSERT_RESULT_OK(
+            mIoOveruseMonitor->onPeriodicCollection(std::chrono::system_clock::to_time_t(
+                                                            std::chrono::system_clock::now()),
+                                                    mockUidIoStats, nullptr, nullptr));
+
+    IoOveruseStats actual;
+    ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
+        ASSERT_RESULT_OK(mIoOveruseMonitor->getIoOveruseStats(&actual));
+    }));
+
+    EXPECT_NE(actual.totalOveruses, 0);
+    EXPECT_NE(actual.writtenBytes.foregroundBytes, 0);
+    EXPECT_NE(actual.writtenBytes.backgroundBytes, 0);
+
+    std::vector<std::string> packageNames = {"system.daemon"};
+    EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
+            .WillOnce(Return(Status::ok()));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->resetIoOveruseStats(packageNames));
+
+    ASSERT_NO_FATAL_FAILURE(executeAsUid(1001000, [&]() {
+        ASSERT_RESULT_OK(mIoOveruseMonitor->getIoOveruseStats(&actual));
+    }));
+
+    EXPECT_EQ(actual.totalOveruses, 0);
+    EXPECT_EQ(actual.writtenBytes.foregroundBytes, 0);
+    EXPECT_EQ(actual.writtenBytes.backgroundBytes, 0);
+}
+
+TEST_F(IoOveruseMonitorTest, TestErrorsResetIoOveruseStatsOnWatchdogServiceHelperError) {
+    std::vector<std::string> packageNames = {"system.daemon"};
+    EXPECT_CALL(*mMockWatchdogServiceHelper, resetResourceOveruseStats(packageNames))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE)));
+
+    ASSERT_FALSE(mIoOveruseMonitor->resetIoOveruseStats(packageNames).ok())
+            << "Must return error when WatchdogServiceHelper fails to reset stats";
 }
 
 TEST_F(IoOveruseMonitorTest, TestErrorsGetIoOveruseStatsOnNoStats) {
