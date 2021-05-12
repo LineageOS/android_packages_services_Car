@@ -82,6 +82,10 @@ PRODUCT_PACKAGES += evs_app \
 include packages/services/Car/cpp/evs/apps/sepolicy/evsapp.mk
 include packages/services/Car/cpp/evs/sampleDriver/sepolicy/evsdriver.mk
 endif
+ifeq ($(ENABLE_CAREVSSERVICE_SAMPLE), true)
+PRODUCT_PACKAGES += CarEvsCameraPreviewApp \
+                    CarSystemUIEvsRRO
+endif
 ifeq ($(ENABLE_REAR_VIEW_CAMERA_SAMPLE), true)
 PRODUCT_PACKAGES += SampleRearViewCamera
 PRODUCT_PACKAGE_OVERLAYS += packages/services/Car/tests/SampleRearViewCamera/overlay
