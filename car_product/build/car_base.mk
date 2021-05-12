@@ -66,7 +66,7 @@ PRODUCT_PACKAGES += \
 include packages/services/Car/cpp/evs/manager/evsmanager.mk
 
 # Automotive Telemetry services
-include packages/services/Car/cpp/telemetry/products/telemetry.mk
+include packages/services/Car/cpp/telemetry/cartelemetryd/products/telemetry.mk
 
 # EVS manager overrides cameraserver on automotive implementations so
 # we need to configure Camera API to not connect to it

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_TELEMETRYSERVER_H_
-#define CPP_TELEMETRY_SRC_TELEMETRYSERVER_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_SRC_TELEMETRYSERVER_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_SRC_TELEMETRYSERVER_H_
 
 #include "LooperWrapper.h"
 #include "RingBuffer.h"
@@ -107,4 +107,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_TELEMETRYSERVER_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_SRC_TELEMETRYSERVER_H_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_LOOPERWRAPPER_H_
-#define CPP_TELEMETRY_SRC_LOOPERWRAPPER_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_SRC_LOOPERWRAPPER_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_SRC_LOOPERWRAPPER_H_
 
 #include <utils/Looper.h>
 
@@ -28,8 +28,8 @@ namespace telemetry {
 // Refer to utils/Looper.h for the class and methods descriptions.
 class LooperWrapper {
 public:
-    LooperWrapper(android::sp<Looper> looper) : mLooper(looper){};
-    virtual ~LooperWrapper(){};
+    explicit LooperWrapper(android::sp<Looper> looper) : mLooper(looper) {}
+    virtual ~LooperWrapper() {}
 
     virtual int pollAll(int timeoutMillis);
     virtual void sendMessageDelayed(nsecs_t uptime, const android::sp<MessageHandler>& handler,
@@ -44,4 +44,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_LOOPERWRAPPER_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_SRC_LOOPERWRAPPER_H_

@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
-#define CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_SRC_CARTELEMETRYIMPL_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_SRC_CARTELEMETRYIMPL_H_
 
 #include "TelemetryServer.h"
 
@@ -48,4 +48,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_CARTELEMETRYIMPL_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_SRC_CARTELEMETRYIMPL_H_
