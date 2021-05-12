@@ -42,7 +42,6 @@ namespace watchdog {
 
 namespace aawi = ::android::automotive::watchdog::internal;
 
-using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageResourceOveruseAction;
@@ -59,10 +58,9 @@ namespace {
 
 class MockWatchdogBinderMediator : public WatchdogBinderMediator {
 public:
-    MockWatchdogBinderMediator(
-            const android::sp<WatchdogProcessService>& watchdogProcessService,
-            const android::sp<WatchdogPerfService>& watchdogPerfService,
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+    MockWatchdogBinderMediator(const android::sp<WatchdogProcessService>& watchdogProcessService,
+                               const android::sp<WatchdogPerfService>& watchdogPerfService,
+                               const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) :
           WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, watchdogServiceHelper,
                                  [](const char*, const android::sp<android::IBinder>&)
                                          -> Result<void> { return Result<void>{}; }) {}

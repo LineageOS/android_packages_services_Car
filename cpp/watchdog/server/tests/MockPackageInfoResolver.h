@@ -33,8 +33,7 @@ class MockPackageInfoResolver : public IPackageInfoResolver {
 public:
     MockPackageInfoResolver() {}
     MOCK_METHOD(android::base::Result<void>, initWatchdogServiceHelper,
-                (const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper),
-                (override));
+                (const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper), (override));
     MOCK_METHOD((std::unordered_map<uid_t, std::string>), getPackageNamesForUids,
                 (const std::vector<uid_t>& uids), (override));
     MOCK_METHOD((std::unordered_map<uid_t, android::automotive::watchdog::internal::PackageInfo>),

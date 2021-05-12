@@ -62,4 +62,11 @@ interface ICarWatchdogServiceForSystem {
    *                                    recent collection.
    */
   oneway void latestIoOveruseStats(in List<PackageIoOveruseStats> packageIoOveruseStats);
+
+  /**
+   * Resets resource overuse stats on the watchdog server side.
+   *
+   * @param packageNames       Package names for which to reset the stats.
+   */
+  oneway void resetResourceOveruseStats(in @utf8InCpp List<String> packageNames);
 }

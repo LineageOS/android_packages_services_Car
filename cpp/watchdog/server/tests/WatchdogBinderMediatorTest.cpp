@@ -40,8 +40,8 @@ using ::android::base::StringAppendF;
 using ::android::binder::Status;
 using ::testing::_;
 using ::testing::DoAll;
-using ::testing::NiceMock;
 using ::testing::Return;
+using ::testing::SaveArg;
 using ::testing::SetArgPointee;
 using ::testing::UnorderedElementsAreArray;
 
@@ -172,13 +172,13 @@ TEST_F(WatchdogBinderMediatorTest, TestTerminate) {
     EXPECT_EQ(mWatchdogBinderMediator->mWatchdogInternalHandler, nullptr);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestHandlesEmptyDumpArgs) {
+TEST_F(WatchdogBinderMediatorTest, TestDumpWithEmptyArgs) {
     EXPECT_CALL(*mMockWatchdogProcessService, dump(-1, _)).WillOnce(Return(Result<void>()));
     EXPECT_CALL(*mMockWatchdogPerfService, onDump(-1)).WillOnce(Return(Result<void>()));
     mWatchdogBinderMediator->dump(-1, Vector<String16>());
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomPerfCollection) {
+TEST_F(WatchdogBinderMediatorTest, TestDumpWithStartCustomPerfCollection) {
     EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, _))
             .WillOnce(Return(Result<void>()));
 
@@ -187,7 +187,7 @@ TEST_F(WatchdogBinderMediatorTest, TestHandlesStartCustomPerfCollection) {
     ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomPerfCollection) {
+TEST_F(WatchdogBinderMediatorTest, TestDumpWithStopCustomPerfCollection) {
     EXPECT_CALL(*mMockWatchdogPerfService, onCustomCollection(-1, _))
             .WillOnce(Return(Result<void>()));
 
@@ -196,10 +196,36 @@ TEST_F(WatchdogBinderMediatorTest, TestHandlesStopCustomPerfCollection) {
     ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK);
 }
 
-TEST_F(WatchdogBinderMediatorTest, TestErrorOnInvalidDumpArgs) {
+TEST_F(WatchdogBinderMediatorTest, TestDumpWithResetResourceOveruseStats) {
+    std::vector<std::string> actualPackages;
+    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualPackages), Return(Result<void>())));
+
+    Vector<String16> args;
+    args.push_back(String16(kResetResourceOveruseStatsFlag));
+    args.push_back(String16("packageA,packageB"));
+    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK);
+    ASSERT_EQ(actualPackages, std::vector<std::string>({"packageA", "packageB"}));
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestFailsDumpWithInvalidResetResourceOveruseStatsArg) {
+    EXPECT_CALL(*mMockIoOveruseMonitor, resetIoOveruseStats(_)).Times(0);
+
+    Vector<String16> args;
+    args.push_back(String16(kResetResourceOveruseStatsFlag));
+    args.push_back(String16(""));
+    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), BAD_VALUE);
+}
+
+TEST_F(WatchdogBinderMediatorTest, TestDumpWithInvalidDumpArgs) {
     Vector<String16> args;
     args.push_back(String16("--invalid_option"));
-    ASSERT_EQ(mWatchdogBinderMediator->dump(-1, args), OK) << "Error returned on invalid args";
+    int nullFd = open("/dev/null", O_RDONLY);
+    EXPECT_CALL(*mMockWatchdogProcessService, dump(nullFd, _)).WillOnce(Return(Result<void>()));
+    EXPECT_CALL(*mMockWatchdogPerfService, onDump(nullFd)).WillOnce(Return(Result<void>()));
+
+    EXPECT_EQ(mWatchdogBinderMediator->dump(nullFd, args), OK) << "Error returned on invalid args";
+    close(nullFd);
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRegisterClient) {

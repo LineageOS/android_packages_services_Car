@@ -596,6 +596,21 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Resets the resource overuse stats for the given package. */
+    public void resetResourceOveruseStats(Set<String> packageNames) {
+        synchronized (mLock) {
+            for (PackageResourceUsage usage : mUsageByUserPackage.values()) {
+                if (packageNames.contains(usage.packageName)) {
+                    usage.resetStats();
+                    /*
+                     * TODO(b/185287136): When the stats are persisted in local DB, reset the stats
+                     *  for this package from local DB.
+                     */
+                }
+            }
+        }
+    }
+
     private void notifyResourceOveruseStatsLocked(int uid,
             ResourceOveruseStats resourceOveruseStats) {
         String packageName = resourceOveruseStats.getPackageName();
@@ -656,7 +671,7 @@ public final class WatchdogPerfHandler {
                 }
             }
             /* TODO(b/170741935): Stash the old usage into SQLite DB storage. */
-            usage.ioUsage.clear();
+            usage.resetStats();
         }
         if (CarWatchdogService.DEBUG) {
             Slogf.d(CarWatchdogService.TAG, "Handled date change successfully");
@@ -1110,6 +1125,10 @@ public final class WatchdogPerfHandler {
             }
             return mKillableState;
         }
+
+        public void resetStats() {
+            ioUsage.resetStats();
+        }
     }
 
     private static final class PackageIoUsage {
@@ -1154,7 +1173,7 @@ public final class WatchdogPerfHandler {
                     || remaining.garageModeBytes == 0;
         }
 
-        public void clear() {
+        public void resetStats() {
             mIoOveruseStats = null;
             mForgivenWriteBytes = null;
             mTotalTimesKilled = 0;
