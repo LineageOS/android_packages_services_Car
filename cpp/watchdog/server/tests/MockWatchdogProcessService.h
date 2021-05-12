@@ -43,7 +43,7 @@ public:
     MOCK_METHOD(android::base::Result<void>, dump, (int fd, const Vector<android::String16>& args),
                 (override));
     MOCK_METHOD(android::base::Result<void>, registerWatchdogServiceHelper,
-                (const android::sp<IWatchdogServiceHelperInterface>& helper), (override));
+                (const android::sp<IWatchdogServiceHelper>& helper), (override));
 
     MOCK_METHOD(android::binder::Status, registerClient,
                 (const sp<ICarWatchdogClient>& client, TimeoutLength timeout), (override));

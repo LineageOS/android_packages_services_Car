@@ -45,7 +45,7 @@ class WatchdogInternalHandler : public android::automotive::watchdog::internal::
 public:
     explicit WatchdogInternalHandler(
             const android::sp<WatchdogBinderMediator>& binderMediator,
-            const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper,
+            const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper,
             const android::sp<WatchdogProcessService>& watchdogProcessService,
             const android::sp<WatchdogPerfService>& watchdogPerfService,
             const android::sp<IIoOveruseMonitor>& ioOveruseMonitor) :
@@ -107,7 +107,7 @@ private:
     void checkAndRegisterIoOveruseMonitor();
 
     android::sp<WatchdogBinderMediator> mBinderMediator;
-    android::sp<IWatchdogServiceHelperInterface> mWatchdogServiceHelper;
+    android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper;
     android::sp<WatchdogProcessService> mWatchdogProcessService;
     android::sp<WatchdogPerfService> mWatchdogPerfService;
     android::sp<IIoOveruseMonitor> mIoOveruseMonitor;
