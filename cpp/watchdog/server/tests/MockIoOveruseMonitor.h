@@ -36,6 +36,7 @@ public:
     }
     ~MockIoOveruseMonitor() {}
     MOCK_METHOD(bool, isInitialized, (), (override));
+    MOCK_METHOD(bool, dumpHelpText, (int), (override));
     MOCK_METHOD(android::base::Result<void>, updateResourceOveruseConfigurations,
                 (const std::vector<
                         android::automotive::watchdog::internal::ResourceOveruseConfiguration>&),
@@ -54,6 +55,8 @@ public:
     MOCK_METHOD(android::base::Result<void>, removeIoOveruseListener,
                 (const sp<IResourceOveruseListener>&), (override));
     MOCK_METHOD(android::base::Result<void>, getIoOveruseStats, (IoOveruseStats*), (override));
+    MOCK_METHOD(android::base::Result<void>, resetIoOveruseStats, (const std::vector<std::string>&),
+                (override));
 };
 
 }  // namespace watchdog

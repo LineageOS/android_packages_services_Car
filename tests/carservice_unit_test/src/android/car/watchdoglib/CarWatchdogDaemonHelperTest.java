@@ -263,5 +263,8 @@ public class CarWatchdogDaemonHelperTest {
 
         @Override
         public void latestIoOveruseStats(List<PackageIoOveruseStats> ioOveruseStats) {}
+
+        @Override
+        public void resetResourceOveruseStats(List<String> packageNames) {}
     }
 }

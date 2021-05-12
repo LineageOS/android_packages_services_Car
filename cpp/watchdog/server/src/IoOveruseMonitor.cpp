@@ -22,6 +22,7 @@
 #include "PackageInfoResolver.h"
 
 #include <WatchdogProperties.sysprop.h>
+#include <android-base/file.h>
 #include <android/automotive/watchdog/internal/PackageIdentifier.h>
 #include <android/automotive/watchdog/internal/UidType.h>
 #include <binder/IPCThreadState.h>
@@ -45,6 +46,7 @@ using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::Result;
+using ::android::base::WriteStringToFd;
 using ::android::binder::Status;
 
 // Minimum written bytes to sync the stats with the Watchdog service.
@@ -53,6 +55,10 @@ constexpr int64_t kMinSyncWrittenBytes = 100 * 1024;
 constexpr double kDefaultIoOveruseWarnPercentage = 80;
 // Maximum numer of system-wide stats (from periodic monitoring) to cache.
 constexpr size_t kMaxPeriodicMonitorBufferSize = 1000;
+constexpr const char* kHelpText =
+        "\n%s dump options:\n"
+        "%s <package name>, <package name>,...: Reset resource overuse stats for the given package "
+        "names. Value for this flag is a comma-separated value containing package names.\n";
 
 namespace {
 
@@ -101,7 +107,7 @@ std::tuple<int64_t, int64_t> calculateStartAndDuration(const time_t& currentTime
 }
 
 IoOveruseMonitor::IoOveruseMonitor(
-        const android::sp<IWatchdogServiceHelperInterface>& watchdogServiceHelper) :
+        const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) :
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
       mWatchdogServiceHelper(watchdogServiceHelper),
       mSystemWideWrittenBytes({}),
@@ -310,7 +316,8 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     if (const auto status = mWatchdogServiceHelper->latestIoOveruseStats(mLatestIoOveruseStats);
         !status.isOk()) {
         // Don't clear the cache as it can be pushed again on the next collection.
-        ALOGW("Failed to push the latest I/O overuse stats to watchdog service");
+        ALOGW("Failed to push the latest I/O overuse stats to watchdog service: %s",
+              status.toString8().c_str());
     } else {
         mLatestIoOveruseStats.clear();
         if (DEBUG) {
@@ -392,6 +399,11 @@ Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
     // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages that
     //  exceed xx% of their threshold.
     return {};
+}
+
+bool IoOveruseMonitor::dumpHelpText(int fd) {
+    return WriteStringToFd(StringPrintf(kHelpText, name().c_str(), kResetResourceOveruseStatsFlag),
+                           fd);
 }
 
 void IoOveruseMonitor::notifyNativePackagesLocked(
@@ -521,6 +533,23 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
     return {};
 }
 
+Result<void> IoOveruseMonitor::resetIoOveruseStats(const std::vector<std::string>& packageNames) {
+    if (const auto status = mWatchdogServiceHelper->resetResourceOveruseStats(packageNames);
+        !status.isOk()) {
+        return Error() << "Failed to reset stats in watchdog service: " << status.toString8();
+    }
+    std::unordered_set<std::string> uniquePackageNames;
+    std::copy(packageNames.begin(), packageNames.end(),
+              std::inserter(uniquePackageNames, uniquePackageNames.end()));
+    for (auto& [key, usage] : mUserPackageDailyIoUsageById) {
+        if (uniquePackageNames.find(usage.packageInfo.packageIdentifier.name) !=
+            uniquePackageNames.end()) {
+            usage.resetStats();
+        }
+    }
+    return {};
+}
+
 void IoOveruseMonitor::handleBinderDeath(const wp<IBinder>& who) {
     std::unique_lock writeLock(mRwMutex);
     IBinder* binder = who.unsafe_get();
@@ -580,6 +609,14 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
 
 const std::string IoOveruseMonitor::UserPackageIoUsage::id() const {
     return uniquePackageIdStr(packageInfo.packageIdentifier);
+}
+
+void IoOveruseMonitor::UserPackageIoUsage::resetStats() {
+    writtenBytes = {};
+    forgivenWriteBytes = {};
+    totalOveruses = 0;
+    isPackageWarned = false;
+    lastSyncedWrittenBytes = 0;
 }
 
 }  // namespace watchdog
