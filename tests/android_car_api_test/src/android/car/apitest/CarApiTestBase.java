@@ -140,7 +140,7 @@ abstract class CarApiTestBase {
         PowerManager powerManager = sContext.getSystemService(PowerManager.class);
         runShellCommand("cmd car_service suspend");
         // Check for suspend success
-        waitUntil("Suspend is not successful",
+        waitUntil("screen is still on after suspend",
                 SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
 
         // Force turn off garage mode
