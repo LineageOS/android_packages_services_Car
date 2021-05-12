@@ -203,6 +203,17 @@ Status WatchdogServiceHelper::latestIoOveruseStats(
     return service->latestIoOveruseStats(packageIoOveruseStats);
 }
 
+Status WatchdogServiceHelper::resetResourceOveruseStats(
+        const std::vector<std::string>& packageNames) {
+    sp<ICarWatchdogServiceForSystem> service;
+    if (std::shared_lock readLock(mRWMutex); mService == nullptr) {
+        return fromExceptionCode(Status::EX_ILLEGAL_STATE, "Watchdog service is not initialized");
+    } else {
+        service = mService;
+    }
+    return service->resetResourceOveruseStats(packageNames);
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
