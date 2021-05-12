@@ -23,7 +23,7 @@ adb logcat -v color -b all -T 1000
 
 To include it in the final image, add
 `PRODUCT_PACKAGES += android.automotive.telemetryd-sampleclient` to
-`//packages/services/Car/cpp/telemetry/products/telemetry.mk` (or other suitable mk file).
+`//packages/services/Car/cpp/telemetry/cartelemetryd/products/telemetry.mk` (or other suitable mk file).
 
 ```
 # this goes to products/telemetry.mk
