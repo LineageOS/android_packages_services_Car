@@ -270,6 +270,7 @@ public final class ManagerFragment extends Fragment {
         mOEMPaidWifiSSIDsEditText.setText(Utils.toString(mPersonalStorage.getOemPaidWifiSsids()));
         mOEMPrivateWifiSSIDsEditText.setText(
                 Utils.toString(mPersonalStorage.getOemPrivateWifiSsids()));
+        updatePansPolicyInEffectStatus(false);
     }
 
     private String getFromStorage(int type) {
