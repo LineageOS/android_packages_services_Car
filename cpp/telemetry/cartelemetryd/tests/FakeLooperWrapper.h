@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_TESTS_FAKELOOPERWRAPPER_H_
-#define CPP_TELEMETRY_SRC_TESTS_FAKELOOPERWRAPPER_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_TESTS_FAKELOOPERWRAPPER_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_TESTS_FAKELOOPERWRAPPER_H_
 
 #include "LooperWrapper.h"
 
@@ -35,7 +35,7 @@ class FakeLooperWrapper : public LooperWrapper {
 public:
     static inline constexpr int kNoScheduledMessage = -1;
 
-    FakeLooperWrapper() : LooperWrapper(nullptr){};
+    FakeLooperWrapper() : LooperWrapper(nullptr) {}
 
     int pollAll(int timeoutMillis) override { return 0; }
 
@@ -101,4 +101,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_TESTS_FAKELOOPERWRAPPER_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_TESTS_FAKELOOPERWRAPPER_H_

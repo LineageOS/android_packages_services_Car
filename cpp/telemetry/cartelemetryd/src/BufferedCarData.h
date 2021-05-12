@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_BUFFEREDCARDATA_H_
-#define CPP_TELEMETRY_SRC_BUFFEREDCARDATA_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_SRC_BUFFEREDCARDATA_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_SRC_BUFFEREDCARDATA_H_
 
 #include <stdint.h>
 
@@ -52,4 +52,4 @@ struct BufferedCarData {
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_BUFFEREDCARDATA_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_SRC_BUFFEREDCARDATA_H_
