@@ -32,7 +32,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockWatchdogServiceHelper : public IWatchdogServiceHelperInterface {
+class MockWatchdogServiceHelper : public IWatchdogServiceHelper {
 public:
     MockWatchdogServiceHelper() {}
     ~MockWatchdogServiceHelper() {}
@@ -59,7 +59,8 @@ public:
             android::binder::Status, latestIoOveruseStats,
             (const std::vector<android::automotive::watchdog::internal::PackageIoOveruseStats>&),
             (override));
-
+    MOCK_METHOD(android::binder::Status, resetResourceOveruseStats,
+                (const std::vector<std::string>&), (override));
     MOCK_METHOD(void, terminate, (), (override));
 };
 

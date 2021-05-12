@@ -44,6 +44,7 @@ import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
+import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLocalServices;
@@ -433,6 +434,20 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
             service.mWatchdogPerfHandler.latestIoOveruseStats(packageIoOveruseStats);
+        }
+
+        @Override
+        public void resetResourceOveruseStats(List<String> packageNames) {
+            if (packageNames.isEmpty()) {
+                Slogf.w(TAG, "Provided an empty package name to reset resource overuse stats");
+                return;
+            }
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return;
+            }
+            service.mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(packageNames));
         }
     }
 }
