@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SRC_RINGBUFFER_H_
-#define CPP_TELEMETRY_SRC_RINGBUFFER_H_
+#ifndef CPP_TELEMETRY_CARTELEMETRYD_SRC_RINGBUFFER_H_
+#define CPP_TELEMETRY_CARTELEMETRYD_SRC_RINGBUFFER_H_
 
 #include "BufferedCarData.h"
 
@@ -66,4 +66,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  // CPP_TELEMETRY_SRC_RINGBUFFER_H_
+#endif  // CPP_TELEMETRY_CARTELEMETRYD_SRC_RINGBUFFER_H_
