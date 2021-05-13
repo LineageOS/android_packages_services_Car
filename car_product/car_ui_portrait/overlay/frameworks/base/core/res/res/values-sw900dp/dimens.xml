@@ -16,6 +16,6 @@
   -->
 <resources>
     <!-- Height of the bottom navigation / climate bar. -->
-    <dimen name="navigation_bar_height">136dp</dimen>
-    <dimen name="navigation_bar_height_landscape">136dp</dimen>
+    <dimen name="navigation_bar_height">160dp</dimen>
+    <dimen name="navigation_bar_height_landscape">160dp</dimen>
 </resources>
