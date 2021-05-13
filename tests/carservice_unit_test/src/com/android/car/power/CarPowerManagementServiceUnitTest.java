@@ -421,18 +421,18 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     @Test
     public void testDefinePowerPolicyFromCommand() throws Exception {
         String policyId = "policy_id_valid";
-        String errMsg = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
+        int status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUETOOTH"},
                 new String[]{"WIFI"});
-        assertThat(errMsg).isNull();
+        assertThat(status).isEqualTo(PolicyOperationStatus.OK);
         assertThat(mPowerPolicyDaemon.getLastDefinedPolicyId()).isEqualTo(policyId);
 
-        errMsg = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUTTOOTH"},
+        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "BLUTTOOTH"},
                 new String[]{"WIFI", "NFC"});
-        assertThat(errMsg).isNotNull();
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY);
 
-        errMsg = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "INVALID_COMPONENT"},
+        status = mService.definePowerPolicy(policyId, new String[]{"AUDIO", "INVALID_COMPONENT"},
                 new String[]{"WIFI"});
-        assertThat(errMsg).isNotNull();
+        assertThat(status).isEqualTo(PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY);
     }
 
     @Test
@@ -479,14 +479,14 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         StringWriter stringWriter = new StringWriter();
 
         try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
-            String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+            boolean isSuccess = mService.definePowerPolicyGroupFromCommand(args, writer);
 
-            assertThat(errMsg).isNull();
+            assertThat(isSuccess).isTrue();
 
             args = new String[]{"set-power-policy-group", policyGroupId};
-            errMsg = mService.setPowerPolicyGroupFromCommand(args, writer);
+            isSuccess = mService.setPowerPolicyGroupFromCommand(args, writer);
 
-            assertThat(errMsg).isNull();
+            assertThat(isSuccess).isTrue();
         }
     }
 
@@ -498,9 +498,9 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         StringWriter stringWriter = new StringWriter();
 
         try (IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ")) {
-            String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+            boolean isSuccess = mService.definePowerPolicyGroupFromCommand(args, writer);
 
-            assertThat(errMsg).isNotNull();
+            assertThat(isSuccess).isFalse();
         }
     }
 
@@ -514,9 +514,9 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         StringWriter stringWriter = new StringWriter();
         IndentingPrintWriter writer = new IndentingPrintWriter(stringWriter, "  ");
 
-        String errMsg = mService.definePowerPolicyGroupFromCommand(args, writer);
+        boolean isSuccess = mService.definePowerPolicyGroupFromCommand(args, writer);
 
-        assertThat(errMsg).isNotNull();
+        assertThat(isSuccess).isFalse();
         writer.close();
     }
 
