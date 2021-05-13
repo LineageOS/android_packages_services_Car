@@ -3517,11 +3517,11 @@
     <string name="notification_importance_low" msgid="7609797151662295364">"عرض بدون تنبيه صوتي"</string>
     <string name="notification_importance_default" msgid="4091563759103917166">"إصدار تنبيه صوتي"</string>
     <string name="notification_importance_high" msgid="7973764540402436656">"إصدار تنبيه صوتي والظهور بسرعة على الشاشة"</string>
-    <string name="notification_importance_high_silent" msgid="3177662759865661155">"تمييز على الشاشة"</string>
+    <string name="notification_importance_high_silent" msgid="3177662759865661155">"عرض على الشاشة"</string>
     <string name="notification_importance_min_title" msgid="705872537330744154">"تصغير"</string>
     <string name="notification_importance_low_title" msgid="2956199021781786232">"أهميّة متوسّطة"</string>
     <string name="notification_importance_default_title" msgid="7985549807203332482">"شديد الأهميّة"</string>
-    <string name="notification_importance_high_title" msgid="7258373094258585858">"تمييز على الشاشة"</string>
+    <string name="notification_importance_high_title" msgid="7258373094258585858">"عرض على الشاشة"</string>
     <string name="notification_block_title" msgid="2570364198866886906">"حظر"</string>
     <string name="notification_silence_title" msgid="6959637402003838093">"عرض بدون تنبيه صوتي"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"تنبيه"</string>
