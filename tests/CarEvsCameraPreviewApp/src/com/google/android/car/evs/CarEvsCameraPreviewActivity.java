@@ -86,62 +86,6 @@ public class CarEvsCameraPreviewActivity extends Activity {
         }
     };
 
-    /** CarEvsService status change listener */
-    private final CarEvsManager.CarEvsStatusListener mStatusListener = (status) -> {
-        if (status.getServiceType() != CarEvsManager.SERVICE_TYPE_REARVIEW) {
-            Log.e(TAG, "Unexpected service type: " + status.getServiceType());
-            return;
-        }
-
-        switch (status.getState()) {
-            case CarEvsManager.SERVICE_STATE_REQUESTED:
-                // Upon this state transition, we request to start a video stream
-                // from the rearview service.
-                // TODO(b/179517136): Acquires a token from Intent and passes it with below request.
-                synchronized (mLock) {
-                    handleVideoStreamLocked();
-                }
-                break;
-
-            case CarEvsManager.SERVICE_STATE_ACTIVE:
-                Log.d(TAG, "Video stream started, type = " + status.getServiceType());
-                break;
-
-            case CarEvsManager.SERVICE_STATE_UNAVAILABLE:
-                // CarEvsManager lost a native EVS service.
-                Log.d(TAG, "We've lost a connection to the EVS service.");
-
-                // Drop all buffer references safely
-                synchronized (mBufferQueue) {
-                    mBufferQueue.clear();
-                }
-
-                synchronized (mLock) {
-                    if (!mStreamRunning) {
-                        // Exits if the preview is not running.
-                        finish();
-                    }
-                }
-                break;
-
-            case CarEvsManager.SERVICE_STATE_INACTIVE:
-                synchronized (mLock) {
-                    if (mStreamRunning) {
-                        // We lost the service while the preview was running so start a video stream
-                        // upon the service restore.
-                        mStreamRunning = false;
-                        handleVideoStreamLocked();
-                    }
-                }
-                break;
-
-            default:
-                Log.d(TAG, "No actions on a status changed event, type = " +
-                        status.getServiceType() + " state = " + status.getState());
-                break;
-        }
-    };
-
     /**
      * The Activity with showWhenLocked doesn't go to sleep even if the display sleeps.
      * So we'd like to monitor the display state and react on it manually.
@@ -184,7 +128,6 @@ public class CarEvsCameraPreviewActivity extends Activity {
                 synchronized (mLock) {
                     mCar = car;
                     mEvsManager = (CarEvsManager) car.getCarManager(Car.CAR_EVS_SERVICE);
-                    mEvsManager.setStatusListener(mCallbackExecutor, mStatusListener);
                     handleVideoStreamLocked();
                 }
             } catch (CarNotConnectedException err) {

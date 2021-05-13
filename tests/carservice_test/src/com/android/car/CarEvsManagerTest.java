@@ -128,7 +128,7 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
     }
 
     @Test
-    public void testStartAndStopVideoStream_withoutSurface() throws Exception {
+    public void testStartAndStopVideoStream() throws Exception {
         // Requests to start a video stream.  We're intentionally using the listener that
         // is registered during the test setup.
         assertThat(
@@ -167,12 +167,6 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
 
         // Unregister a listener
         mEvsManager.clearStatusListener();
-    }
-
-    @Test
-    public void testStartAndStopVideoStream_withSurface() throws Exception {
-        // TODO(b/179517132): Implements this test to verify CarEvsManager's preview rendering on
-        //                    registered Surface.
     }
 
     @Test
