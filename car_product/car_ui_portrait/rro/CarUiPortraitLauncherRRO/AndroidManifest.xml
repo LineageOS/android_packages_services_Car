@@ -14,14 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- IME should not hide nav bar -->
-    <bool name="config_automotiveHideNavBarForKeyboard">false</bool>
-
-    <!-- Class name of the device specific implementation of DisplayAreaPolicy.Provider
-    or empty if the default should be used. -->
-    <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
-        com.android.server.wm.CarDisplayAreaPolicyProvider
-    </string>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.carlauncher.caruiportrait.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="20"
+             android:targetName="CarLauncher"
+             android:targetPackage="com.android.car.carlauncher"
+             android:resourcesMap="@xml/overlays"
+             android:isStatic="true" />
+</manifest>

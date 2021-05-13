@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,14 +13,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
+<overlay>
+    <item target="id/top_card" value="@id/top_card" />
+    <item target="id/bottom_card" value="@id/bottom_card" />
+    <item target="id/maps_card" value="@id/maps_card" />
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- IME should not hide nav bar -->
-    <bool name="config_automotiveHideNavBarForKeyboard">false</bool>
-
-    <!-- Class name of the device specific implementation of DisplayAreaPolicy.Provider
-    or empty if the default should be used. -->
-    <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
-        com.android.server.wm.CarDisplayAreaPolicyProvider
-    </string>
-</resources>
+    <item target="layout/car_launcher" value="@layout/car_launcher"/>
+</overlay>
