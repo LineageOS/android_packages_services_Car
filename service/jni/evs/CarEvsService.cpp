@@ -93,13 +93,13 @@ jboolean openCamera(JNIEnv* env, jobject /*thiz*/, jlong handle, jstring cameraI
     }
 
     // Attempts to open the target camera device
-    const char* id = env->GetStringUTFChars(cameraId, JNI_FALSE);
-    if (!ctxt->openCamera(id)) {
+    const char* id = env->GetStringUTFChars(cameraId, NULL);
+    if (!id || !ctxt->openCamera(id)) {
         LOG(ERROR) << "Failed to open a camera device";
         return JNI_FALSE;
     }
 
-    env->ReleaseStringUTFChars(cameraId, JNI_FALSE);
+    env->ReleaseStringUTFChars(cameraId, id);
     return JNI_TRUE;
 }
 
