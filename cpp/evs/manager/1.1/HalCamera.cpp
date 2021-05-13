@@ -98,7 +98,8 @@ void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     unsigned clientCount = mClients.size();
     mClients.remove(virtualCamera);
     if (clientCount != mClients.size() + 1) {
-        LOG(ERROR) << "Couldn't find camera in our client list to remove it";
+        LOG(ERROR) << "Couldn't find camera in our client list to remove it; "
+                   << "this client may be removed already.";
     }
 
     // Recompute the number of buffers required with the target camera removed from the list
@@ -365,10 +366,14 @@ Return<void> HalCamera::deliverFrame_1_1(const hardware::hidl_vec<BufferDesc_1_1
 
                 // Reports a skipped frame
                 mUsageStats->framesSkippedToSync();
-            } else if (vCam != nullptr && vCam->deliverFrame(buffer[0])) {
-                // Forward a frame and move a timeline.
-                LOG(DEBUG) << getId() << " forwarded the buffer #" << buffer[0].bufferId;
-                ++frameDeliveriesV1;
+            } else if (vCam != nullptr) {
+                if (!vCam->deliverFrame(buffer[0])) {
+                    LOG(WARNING) << getId() << " failed to forward the buffer to " << vCam.get();
+                } else {
+                    LOG(ERROR) << getId() << " forwarded the buffer #" << buffer[0].bufferId
+                               << " to " << vCam.get() << " from " << this;
+                    ++frameDeliveriesV1;
+                }
             }
         }
     }
