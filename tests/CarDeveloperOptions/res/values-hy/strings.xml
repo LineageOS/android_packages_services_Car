@@ -1765,7 +1765,7 @@
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"Պահանջել նախշ"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"Օգտագործել նախշ՝ հեռախոսը պաշտպանելու համար"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Նախշը տեսանելի դարձնել"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Պրոֆիլի նախշը տեսանելի դարձնել"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Տեսանելի դարձնել պրոֆիլի նախշը"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Հպման թրթռոց"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Սնուցման կոճակը անկնթարթորեն կողպվում է"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Բացառությամբ, երբ ապակողպված է պահվում <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>-ի կողմից"</string>

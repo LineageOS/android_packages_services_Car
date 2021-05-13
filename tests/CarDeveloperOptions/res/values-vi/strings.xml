@@ -1776,13 +1776,13 @@
     <string name="activity_not_found" msgid="3492413375341165453">"Ứng dụng chưa được cài đặt trên điện thoại của bạn."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Bảo mật hồ sơ công việc"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Phương thức khóa màn hình hồ sơ công việc"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Sử dụng 1 khóa"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Sử dụng 1 khóa cho hồ sơ công việc và màn hình thiết bị"</string>
-    <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Sử dụng 1 khóa?"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Sử dụng 1 kiểu khóa"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Sử dụng 1 kiểu khóa cho hồ sơ công việc và màn hình thiết bị"</string>
+    <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Sử dụng 1 kiểu khóa?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Thiết bị của bạn sẽ sử dụng khóa màn hình hồ sơ công việc. Chính sách công việc sẽ được áp dụng cho cả hai khóa."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Khóa hồ sơ công việc của bạn không đáp ứng yêu cầu bảo mật của tổ chức. Bạn có thể sử dụng cùng một khóa cho màn hình thiết bị và hồ sơ công việc của mình nhưng mọi chính sách khóa hồ sơ công việc sẽ được áp dụng."</string>
-    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"Sử dụng 1 khóa"</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"Sử dụng 1 khóa"</string>
+    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"Sử dụng 1 kiểu khóa"</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"Sử dụng 1 kiểu khóa"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"Giống như phương thức khóa màn hình thiết bị"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"Quản lý ứng dụng"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"Quản lý và xóa ứng dụng đã cài đặt"</string>

@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"ഔദ്യോഗിക പ്രൊഫൈൽ സുരക്ഷ"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"ഔദ്യോഗിക പ്രൊഫൈൽ സ്ക്രീൻ ലോക്ക്"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"ഒരു ലോക്ക് ഉപയോഗിക്കുക"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"ഔദ്യോഗിക പ്രൊഫൈലിനും ഉപകരണ സ്ക്രീനിനും ഒരൊറ്റ ലോക്ക് ഉപയോഗിക്കുക"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"ഔദ്യോഗിക പ്രൊഫൈലിനും ഉപകരണ സ്ക്രീനിനും ഒറ്റ ലോക്ക് ഉപയോഗിക്കുക"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"ഒരു ലോക്ക് ഉപയോഗിക്കണോ?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"ഉപകരണം നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈൽ സ്‌ക്രീൻ ലോക്ക് ഉപയോഗിക്കും. രണ്ട് ലോക്കുകൾക്കും ഔദ്യോഗിക നയങ്ങൾ ബാധകമാണ്."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"നിങ്ങളുടെ സ്ഥാപനത്തിന്റെ സുരക്ഷാ ആവശ്യകതകളെ നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈൽ ലോക്ക് പാലിക്കുന്നില്ല. ഉപകരണ സ്ക്രീനിനും നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈലിനും നിങ്ങൾക്ക് ഒരേ ലോക്ക് സജ്ജമാക്കാവുന്നതാണ്, ഔദ്യോഗിക സ്‌ക്രീൻ ലോക്കിന് എന്തെങ്കിലും നയങ്ങളുണ്ടെങ്കിൽ നിങ്ങളുടെ ഉപകരണ സ്‌ക്രീൻ ലോക്കിനും അവ ബാധകമാവും."</string>

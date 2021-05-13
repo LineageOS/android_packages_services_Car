@@ -391,7 +391,7 @@
     <string name="security_status_title" msgid="1261960357751754428">"လုံခြုံရေး အခြေအနေ"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ဖုန်းမျက်နှာပြင် လော့ခ်၊ မျက်နှာမှတ် သော့ဖွင့်ခြင်း"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ဖန်သားပြင် လော့ခ်ချခြင်း၊ လက်ဗွေ"</string>
-    <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ဖန်သားပြင် လော့ခ်ချခြင်း"</string>
+    <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ဖန်သားပြင်လော့ခ်"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"မျက်နှာ ထည့်သွင်းပြီး"</string>
     <string name="security_settings_face_preference_summary_none" msgid="8427755590493904386">"မျက်နှာစိစစ်ခြင်း သတ်မှတ်ရန်တို့ပါ"</string>
     <string name="security_settings_face_preference_title" msgid="2630071872604654381">"မျက်နှာ စိစစ်ခြင်း"</string>
@@ -431,7 +431,7 @@
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"လက်ဗွေရာများ စီမံရန်"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"လက်ဗွေရာအား သုံးရန်"</string>
     <string name="fingerprint_add_title" msgid="6840343900784463856">"လက်ဗွေထည့်သွင်းမည်"</string>
-    <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"ဖုန်းမျက်နှာပြင်အား သော့ချရန်"</string>
+    <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"ဖန်သားပြင်လော့ခ်"</string>
     <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
       <item quantity="other">လက်ဗွေရာ <xliff:g id="COUNT_1">%1$d</xliff:g> ခု ပြင်ဆင်သတ်မှတ်ရန်</item>
       <item quantity="one">လက်ဗွေရာ <xliff:g id="COUNT_0">%1$d</xliff:g> ခု ပြင်ဆင်သတ်မှတ်ရန်</item>
@@ -556,10 +556,10 @@
     <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"အရန်မျက်နှာပြင်လော့ခ် နည်းလမ်းတစ်ခု ရွေးချယ်ပါ"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"မျက်နှာပြင် လော့ခ်ချရန် ရွေးချယ်စရာများ"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"မျက်နှာပြင် လော့ခ်ချရန် ရွေးချယ်စရာများ"</string>
-    <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ဖန်သားပြင် လော့ခ်ချခြင်း"</string>
+    <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ဖန်သားပြင်လော့ခ်"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / ပိတ်သွားလျှင်သွားချင်း"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> ပိတ်ထားပြီးနောက်"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"အလုပ်ပရိုဖိုင် လော့ခ်ချခြင်း"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"အလုပ်ပရိုဖိုင်လော့ခ်"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"မျက်နှာပြင်သော့ပြောင်း"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"ပုံဖော်၊ပင်နံပါတ်၊စကားဝှက်ကို ပြောင်း၊ပိတ်မည်"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"မျက်နှာပြင်သော့ချနည်းကို  ရွေးချယ်မည်"</string>
@@ -574,7 +574,7 @@
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"စကားဝှက်"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"လုံခြုံရေး မြင့်မည်"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"ယခုမလုပ်ပါ"</string>
-    <string name="current_screen_lock" msgid="398328543694154510">"လက်ရှိမျက်နှာပြင် လော့ခ်ချခြင်း"</string>
+    <string name="current_screen_lock" msgid="398328543694154510">"လက်ရှိဖန်သားပြင်လော့ခ်"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"လက်ဗွေ + ပုံစံ"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"လက်ဗွေ + ပင်နံပါတ်"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"လက်ဗွေ + စကားဝှက်"</string>
@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"အလုပ် ပရိုဖိုင် လုံခြုံရေး"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"အလုပ် ပရိုဖိုင် မျက်နှာပြင် သော့ခတ်"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"လော့ခ်တစ်ခုတည်းကို အသုံးပြုပါ"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"အလုပ်ပရိုဖိုင်နှင့် စက်ပစ္စည်းမျက်နှာပြင်အတွက် လော့ခ်တစ်ခုတည်းကို အသုံးပြုပါ"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"အလုပ်ပရိုဖိုင်နှင့် စက်ဖန်သားပြင်အတွက် လော့ခ်တစ်ခုတည်းကို အသုံးပြုပါ"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"လော့ခ်တစ်ခုတည်းကို အသုံးပြုမလား။"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"စက်ပစ္စည်းက သင့်အလုပ်ပရိုဖိုင်၏ လော့ခ်မျက်နှာပြင်ကို အသုံးပြုသွားပါမည်။ လုပ်ငန်းခွင်ဆိုင်ရာ မူဝါဒများသည် လော့ခ်နှစ်ခုစလုံးသို့ သက်ရောက်မှုရှိပါလိမ့်မည်။"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"သင့်အလုပ်ပရိုဖိုင်သည် သင့်အဖွဲ့အစည်း၏ လုံခြုံရေးလိုအပ်ချက်များနှင့် ကိုက်ညီမှုမရှိပါ။ သင့်စက်ပစ္စည်းမျက်နှာပြင်နှင့် အလုပ်ပရိုဖိုင်အတွက် တူညီသည့်လော့ခ်ကို အသုံးပြုနိုင်သော်လည်း သင့်အလုပ်သုံးလော့ခ်မှုဝါဒများ သက်ရောက်မှုရှိပါလိမ့်မည်။"</string>

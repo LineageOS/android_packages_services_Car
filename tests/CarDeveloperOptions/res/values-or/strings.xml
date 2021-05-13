@@ -1776,12 +1776,12 @@
     <string name="activity_not_found" msgid="3492413375341165453">"ଆପଣଙ୍କ ଫୋନରେ ଆପ୍ଲିକେସନ୍‌ ସଂସ୍ଥାପିତ ହୋଇନାହିଁ।"</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସୁରକ୍ଷା"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"ଗୋଟିଏ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"ଗୋଟିଏ ଲକ୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ଏବଂ ଡିଭାଇସ୍‌ ସ୍କ୍ରୀନ୍‌ ପାଇଁ ଗୋଟିଏ ଲକ୍‌ ବ୍ୟବହାର କରନ୍ତୁ।"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"ଗୋଟିଏ ଲକ୍‌ ବ୍ୟବହାର କରିବେ?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"ଆପଣଙ୍କ କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌କୁ ଆପଣଙ୍କର ଡିଭାଇସ୍‌ ବ୍ୟବହାର କରିବ। ଉଭୟ ଲକ୍‌ରେ କାର୍ଯ୍ୟ ନୀତି ଲାଗୁହେବ।"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"ଆପଣଙ୍କର ଅଫିସ୍‌ ପ୍ରୋଫାଇଲ୍‌ ଲକ୍‌, ଆପଣଙ୍କ ସଂସ୍ଥାର ସୁରକ୍ଷା ସର୍ତ୍ତକୁ ପୂରଣ କରୁନାହିଁ। ସେହି ଲକ୍‌କୁ ଆପଣ ନିଜ ଡିଭାଇସ୍‌ ସ୍କ୍ରୀନ୍‌ ଓ ଅଫିସ୍‌ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ମଧ୍ୟ ବ୍ୟବହାର କରିପାରିବେ, କିନ୍ତୁ ଅଫିସ୍‌ ଲକ୍‌ର ଯେକୌଣସି ନୀତି ଲାଗୁ ହେବ।"</string>
-    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"ଗୋଟିଏ ଲକ ବ୍ୟବହାର କରନ୍ତୁ"</string>
+    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"ଗୋଟିଏ ଲକ୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"ଗୋଟିଏ ଲକ୍‌ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ଡିଭାଇସ୍‌ ସ୍କ୍ରୀନ୍‌ ଲକ୍‌ ପରି ସମାନ"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"ଆପ୍‌ଗୁଡ଼ିକର ପରିଚାଳନା କରନ୍ତୁ"</string>

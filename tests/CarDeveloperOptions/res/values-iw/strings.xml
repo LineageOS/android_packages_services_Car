@@ -2326,7 +2326,7 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"התאמת צריכת סוללה"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"חבילות כלולות"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"האפליקציות פועלות כרגיל"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"דפוס השימוש בסוללה בטלפון זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"דפוס השימוש בסוללה של אפליקציות הפועלות ברקע בטלפון זה הוא אופייני"</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"דפוס השימוש בסוללה בטאבלט זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"דפוס השימוש בסוללה במכשיר זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"קיבולת הסוללה נמוכה"</string>

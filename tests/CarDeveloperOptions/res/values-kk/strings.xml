@@ -574,7 +574,7 @@
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"Құпия сөз"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"Жоғары қауіпсіздік"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"Қазір емес"</string>
-    <string name="current_screen_lock" msgid="398328543694154510">"Ағымдағы экран құлпы"</string>
+    <string name="current_screen_lock" msgid="398328543694154510">"Қазіргі экран құлпы"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"Саусақ ізі + өрнек"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"Саусақ ізі + PIN"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"Саусақ ізі + құпия сөз"</string>

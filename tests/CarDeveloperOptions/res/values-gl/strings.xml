@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Seguranza do perfil de traballo"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Bloqueo de pantalla do perfil de traballo"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Utilizar un só bloqueo"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Utilizar un só bloqueo para o perfil de traballo e a pantalla do dispositivo"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Utiliza un só bloqueo para o perfil de traballo e a pantalla do dispositivo"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Queres utilizar un só bloqueo?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"O dispositivo utilizará o bloqueo da pantalla do teu perfil de traballo. Aplicaranse as políticas de traballo aos dous bloqueos."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"O bloqueo do perfil de traballo non reúne os requisitos de seguranza da túa organización. Podes utilizar o mesmo bloqueo para a pantalla do dispositivo e o perfil de traballo, pero aplicaranse todas as políticas de bloqueo do traballo."</string>

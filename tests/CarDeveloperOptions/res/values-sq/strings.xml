@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Siguria e profilit të punës"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Kyçja e ekranit të profilit të punës"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Përdor një kyçje të vetme"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Përdorni një kyçje të vetme për profilin e punës dhe ekranin e pajisjes"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Përdor një kyçje të vetme për profilin e punës dhe ekranin e pajisjes"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Të përdoret një kyçje e vetme?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Pajisja jote do të përdorë ekranin e kyçjes së profilit të punës. Politikat e punës do të zbatohen për të dyja kyçjet."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Kyçja e ekranit e punës nuk i plotëson kërkesat e sigurisë së organizatës tënde. Mund të përdorësh të njëjtën kyçje për ekranin e pajisjes tënde dhe për profilin e punës, por do të zbatohet çdo politikë për kyçjen e punës."</string>

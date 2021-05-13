@@ -574,7 +574,7 @@
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"Pasahitza"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"Segurtasun handia"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"Orain ez"</string>
-    <string name="current_screen_lock" msgid="398328543694154510">"Unekoa"</string>
+    <string name="current_screen_lock" msgid="398328543694154510">"Ezarrita dagoen pantailaren blokeoa"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"Hatz-marka digitala + eredua"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"Hatz-marka digitala + PIN kodea"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"Hatz-marka digitala + pasahitza"</string>

@@ -559,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Verrouillage de l\'écran"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / immédiatement après la mise en veille"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / après <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> de veille"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Verr. profil profess."</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Verrouillage du profil professionnel"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Modifier écran verr."</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Modifier ou désactiver la sécurité : schéma, NIP ou mot de passe"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Choisir une méthode pour verrouiller l\'écran"</string>
