@@ -23,6 +23,7 @@ import android.car.hardware.CarSensorManager;
 import android.car.hardware.hvac.CarHvacManager;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.property.CarPropertyManager;
+import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -77,6 +78,7 @@ import com.google.android.car.kitchensink.users.UserRestrictionsFragment;
 import com.google.android.car.kitchensink.vehiclectrl.VehicleCtrlFragment;
 import com.google.android.car.kitchensink.vhal.VehicleHalFragment;
 import com.google.android.car.kitchensink.volume.VolumeTestFragment;
+import com.google.android.car.kitchensink.watchdog.CarWatchdogTestFragment;
 import com.google.android.car.kitchensink.weblinks.WebLinksTestFragment;
 
 import java.util.Arrays;
@@ -208,6 +210,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("vehicle ctrl", VehicleCtrlFragment.class),
             new FragmentMenuEntry("vehicle hal", VehicleHalFragment.class),
             new FragmentMenuEntry("volume test", VolumeTestFragment.class),
+            new FragmentMenuEntry("watchdog", CarWatchdogTestFragment.class),
             new FragmentMenuEntry("web links", WebLinksTestFragment.class));
 
     private Car mCarApi;
@@ -217,6 +220,7 @@ public class KitchenSinkActivity extends FragmentActivity {
     private CarSensorManager mSensorManager;
     private CarAppFocusManager mCarAppFocusManager;
     private CarProjectionManager mCarProjectionManager;
+    private CarWatchdogManager mCarWatchdogManager;
     private Object mPropertyManagerReady = new Object();
 
     public KitchenSinkActivity() {
@@ -241,6 +245,10 @@ public class KitchenSinkActivity extends FragmentActivity {
 
     public CarProjectionManager getProjectionManager() {
         return mCarProjectionManager;
+    }
+
+    public CarWatchdogManager getCarWatchdogManager() {
+        return mCarWatchdogManager;
     }
 
     /* Open any tab directly:
@@ -400,6 +408,8 @@ public class KitchenSinkActivity extends FragmentActivity {
                     (CarAppFocusManager) car.getCarManager(Car.APP_FOCUS_SERVICE);
             mCarProjectionManager =
                     (CarProjectionManager) car.getCarManager(Car.PROJECTION_SERVICE);
+            mCarWatchdogManager =
+                    (CarWatchdogManager) car.getCarManager(Car.CAR_WATCHDOG_SERVICE);
             mPropertyManagerReady.notifyAll();
         }
     }
