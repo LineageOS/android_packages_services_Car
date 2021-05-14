@@ -37,6 +37,7 @@ import static org.testng.Assert.assertThrows;
 
 import android.car.Car;
 import android.car.watchdog.CarWatchdogManager;
+import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.IoOveruseConfiguration;
@@ -50,6 +51,7 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 
@@ -65,6 +67,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -81,7 +84,7 @@ public class CarWatchdogManagerUnitTest {
 
     @Mock private Car mCar;
     @Mock private IBinder mBinder;
-    @Mock private CarWatchdogService mService;
+    @Mock private ICarWatchdogService mService;
 
     private CarWatchdogManager mCarWatchdogManager;
 
@@ -381,11 +384,11 @@ public class CarWatchdogManagerUnitTest {
     @Test
     public void testGetPackageKillableStatesAsUser() throws Exception {
         UserHandle userHandle = Process.myUserHandle();
-        List<PackageKillableState> expectedPackages = new ArrayList<>(Arrays.asList(
+        List<PackageKillableState> expectedPackages = Arrays.asList(
                 new PackageKillableState("random.package.A", /*userId=*/10,
                         PackageKillableState.KILLABLE_STATE_YES),
                 new PackageKillableState("random.package.B", /*userId=*/11,
-                        PackageKillableState.KILLABLE_STATE_NEVER)));
+                        PackageKillableState.KILLABLE_STATE_NEVER));
         when(mService.getPackageKillableStatesAsUser(userHandle)).thenReturn(expectedPackages);
 
         List<PackageKillableState> actualPackages =
@@ -396,30 +399,55 @@ public class CarWatchdogManagerUnitTest {
 
     @Test
     public void testSetResourceOveruseConfigurations() throws Exception {
-        ResourceOveruseConfiguration config = sampleResourceOveruseConfigBuilder().build();
-        List<ResourceOveruseConfiguration> configs = new ArrayList<>(Arrays.asList(config));
+        List<ResourceOveruseConfiguration> configs =
+                Collections.singletonList(sampleResourceOveruseConfigBuilder().build());
 
-        mCarWatchdogManager.setResourceOveruseConfigurations(configs, FLAG_RESOURCE_OVERUSE_IO);
+        when(mService.setResourceOveruseConfigurations(configs, FLAG_RESOURCE_OVERUSE_IO))
+                .thenReturn(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        assertThat(mCarWatchdogManager.setResourceOveruseConfigurations(configs,
+                FLAG_RESOURCE_OVERUSE_IO)).isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         verify(mService, times(1)).setResourceOveruseConfigurations(configs,
                 FLAG_RESOURCE_OVERUSE_IO);
     }
 
     @Test
+    public void testFailsSetResourceOveruseConfigurations() throws Exception {
+        List<ResourceOveruseConfiguration> configs =
+                Collections.singletonList(sampleResourceOveruseConfigBuilder().build());
+
+        when(mService.setResourceOveruseConfigurations(configs, FLAG_RESOURCE_OVERUSE_IO))
+                .thenThrow(new RemoteException());
+
+        assertThat(mCarWatchdogManager.setResourceOveruseConfigurations(configs,
+                FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(CarWatchdogManager.RETURN_CODE_ERROR);
+    }
+
+    @Test
     public void testGetResourceOveruseConfigurations() throws Exception {
-        ResourceOveruseConfiguration config = sampleResourceOveruseConfigBuilder().build();
-        List<ResourceOveruseConfiguration> expectedConfigs = new ArrayList<>(Arrays.asList(config));
+        List<ResourceOveruseConfiguration> expectedConfigs =
+                Collections.singletonList(sampleResourceOveruseConfigBuilder().build());
+
         when(mService.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO))
                 .thenReturn(expectedConfigs);
 
-        List<ResourceOveruseConfiguration> actualConfigs =
-                mCarWatchdogManager.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO);
+        assertThat(mCarWatchdogManager.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(expectedConfigs);
+    }
 
-        assertThat(actualConfigs).isEqualTo(expectedConfigs);
+    @Test
+    public void testFailsGetResourceOveruseConfigurations() throws Exception {
+        when(mService.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO))
+                .thenThrow(new RemoteException());
+
+        assertThat(mCarWatchdogManager.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO))
+                .isEqualTo(null);
     }
 
     private ICarWatchdogServiceCallback registerClient(
-            CarWatchdogManager.CarWatchdogClientCallback client) {
+            CarWatchdogManager.CarWatchdogClientCallback client) throws Exception {
         mCarWatchdogManager.registerClient(mExecutor, client, TIMEOUT_CRITICAL);
         ArgumentCaptor<ICarWatchdogServiceCallback> clientImplCaptor =
                 ArgumentCaptor.forClass(ICarWatchdogServiceCallback.class);
@@ -464,7 +492,8 @@ public class CarWatchdogManagerUnitTest {
         return resourceOveruseStatsBuilder;
     }
 
-    private IResourceOveruseListener captureListenerImplOnAdd(int resourceOveruseFlag) {
+    private IResourceOveruseListener captureListenerImplOnAdd(
+            int resourceOveruseFlag) throws Exception {
         ArgumentCaptor<IResourceOveruseListener> listenerArgumentCaptor =
                 ArgumentCaptor.forClass(IResourceOveruseListener.class);
 
@@ -473,7 +502,8 @@ public class CarWatchdogManagerUnitTest {
         return listenerArgumentCaptor.getValue();
     }
 
-    private IResourceOveruseListener captureListenerForSystemImplOnAdd(int resourceOveruseFlag) {
+    private IResourceOveruseListener captureListenerForSystemImplOnAdd(
+            int resourceOveruseFlag) throws Exception {
         ArgumentCaptor<IResourceOveruseListener> listenerArgumentCaptor =
                 ArgumentCaptor.forClass(IResourceOveruseListener.class);
 
