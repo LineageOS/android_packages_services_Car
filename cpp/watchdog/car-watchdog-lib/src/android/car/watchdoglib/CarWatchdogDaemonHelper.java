@@ -77,7 +77,7 @@ public final class CarWatchdogDaemonHelper {
                 mCarWatchdogDaemon = null;
             }
             for (OnConnectionChangeListener listener : mConnectionListeners) {
-                listener.onConnectionChange(false);
+                listener.onConnectionChange(/* isConnected= */false);
             }
             mHandler.sendMessageDelayed(obtainMessage(CarWatchdogDaemonHelper::connectToDaemon,
                     CarWatchdogDaemonHelper.this, CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY),
@@ -94,7 +94,7 @@ public final class CarWatchdogDaemonHelper {
      */
     public interface OnConnectionChangeListener {
         /** Gets called when car watchdog daemon is connected or disconnected. */
-        void onConnectionChange(boolean connected);
+        void onConnectionChange(boolean isConnected);
     }
 
     public CarWatchdogDaemonHelper() {
@@ -343,7 +343,7 @@ public final class CarWatchdogDaemonHelper {
         }
         linkToDeath();
         for (OnConnectionChangeListener listener : mConnectionListeners) {
-            listener.onConnectionChange(true);
+            listener.onConnectionChange(/* isConnected= */true);
         }
         return true;
     }

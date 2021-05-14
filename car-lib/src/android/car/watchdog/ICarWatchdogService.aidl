@@ -52,7 +52,7 @@ interface ICarWatchdogService {
         in boolean isKillable);
     List<PackageKillableState> getPackageKillableStatesAsUser(in UserHandle user);
 
-    void setResourceOveruseConfigurations(
+    int setResourceOveruseConfigurations(
         in List<ResourceOveruseConfiguration> configurations, in int resourceOveruseFlag);
     List<ResourceOveruseConfiguration> getResourceOveruseConfigurations(
         in int resourceOveruseFlag);
