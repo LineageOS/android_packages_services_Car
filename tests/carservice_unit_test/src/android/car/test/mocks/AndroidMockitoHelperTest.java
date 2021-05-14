@@ -21,6 +21,7 @@ import static android.car.test.mocks.AndroidMockitoHelper.mockBinderGetCallingUs
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
 import static android.car.test.mocks.AndroidMockitoHelper.mockSmGetService;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetSystemUser;
@@ -91,6 +92,18 @@ public final class AndroidMockitoHelperTest {
     public void testMockUmCreateUser() {
         assertThat(mMockedUserManager.createUser(mTestUser.name, mTestUser.userType,
                 mTestUser.flags).getUserHandle()).isEqualTo(mTestUser.getUserHandle());
+    }
+
+    @Test
+    public void testMockUmCreateGuest() {
+        Context mockContext = mock(Context.class);
+        int userId = 101;
+        String name = "guestUser";
+
+        UserInfo guestUser = mockUmCreateGuest(mMockedUserManager, name, userId);
+
+        assertThat(mMockedUserManager.createGuest(mockContext, name).getUserHandle())
+                .isEqualTo(guestUser.getUserHandle());
     }
 
     @Test

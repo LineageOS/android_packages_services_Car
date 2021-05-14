@@ -1313,6 +1313,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             @UserInfoFlag int flags, int timeoutMs,
             @NonNull AndroidFuture<UserCreationResult> receiver,
             boolean hasCallerRestrictions) {
+        boolean isGuest = userType.equals(UserManager.USER_TYPE_FULL_GUEST);
+        if (isGuest && flags != 0) {
+            // Non-zero flags are not allowed when creating a guest user.
+            Slogf.e(TAG, "Invalid flags %d specified when creating a guest user %s", flags, name);
+            sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
+            return;
+        }
         if (hasCallerRestrictions) {
             // Restrictions:
             // - type/flag can only be normal user, admin, or guest
@@ -1325,7 +1332,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                         || (flags & UserInfo.FLAG_ADMIN) == UserInfo.FLAG_ADMIN;
                     break;
                 case UserManager.USER_TYPE_FULL_GUEST:
-                    validCombination = flags == 0;
+                    validCombination = true;
                     break;
                 default:
                     validCombination = false;
@@ -1351,12 +1358,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_INVALID_REQUEST);
                 return;
             }
-
         }
 
         UserInfo newUser;
         try {
-            newUser = mUserManager.createUser(name, userType, flags);
+            newUser = isGuest
+                    ? mUserManager.createGuest(mContext, name)
+                    : mUserManager.createUser(name, userType, flags);
             if (newUser == null) {
                 Slog.w(TAG, "um.createUser() returned null for user of type " + userType
                         + " and flags " + UserInfo.flagsToString(flags));

@@ -42,7 +42,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.ArrayMap;
 import android.util.EventLog;
@@ -394,10 +393,6 @@ public final class CarUserManager extends CarManagerBase {
                     if (result != null) {
                         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
                                 result.getStatus(), result.getErrorMessage());
-                        UserInfo user = result.getUser();
-                        if (result.isSuccess() && user != null && user.isGuest()) {
-                            onGuestCreated(user);
-                        }
                     } else {
                         Log.w(TAG, "createUser(" + userType + "," + UserInfo.flagsToString(flags)
                                 + ") failed: " + err);
@@ -462,12 +457,6 @@ public final class CarUserManager extends CarManagerBase {
         } catch (RemoteException | RuntimeException e) {
             handleExceptionFromCarService(e, null);
         }
-    }
-
-    // TODO(b/159283854): move to UserManager
-    private void onGuestCreated(UserInfo user) {
-        Settings.Secure.putStringForUser(getContext().getContentResolver(),
-                Settings.Secure.SKIP_FIRST_USE_HINTS, "1", user.id);
     }
 
     /**

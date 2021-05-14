@@ -16,6 +16,7 @@
 
 package com.android.car.user;
 
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateGuest;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmCreateUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserInfo;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
@@ -40,6 +41,7 @@ import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.argThat;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
@@ -1653,11 +1655,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testCreateUser_halNotSupported_success() throws Exception {
         mockUserHalSupported(false);
         mockExistingUsersAndCurrentUser(mAdminUser);
-        int userId = mGuestUser.id;
-        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_GUEST,
+        int userId = mRegularUser.id;
+        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, userId);
 
-        createUser("dude", UserManager.USER_TYPE_FULL_GUEST,
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
                 NO_CALLER_RESTRICTIONS);
 
@@ -1670,13 +1672,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testCreateUser_success() throws Exception {
         mockExistingUsersAndCurrentUser(mAdminUser);
-        int userId = mGuestUser.id;
-        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_GUEST,
+        int userId = mRegularUser.id;
+        mockUmCreateUser(mMockedUserManager, "dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, userId);
         ArgumentCaptor<CreateUserRequest> requestCaptor =
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        createUser("dude", UserManager.USER_TYPE_FULL_GUEST,
+        createUser("dude", UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
                 NO_CALLER_RESTRICTIONS);
 
@@ -1685,7 +1687,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         Log.d(TAG, "createUser() request: " + request);
         assertThat(request.newUserName).isEqualTo("dude");
         assertThat(request.newUserInfo.userId).isEqualTo(userId);
-        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.GUEST | UserFlags.EPHEMERAL);
+        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.EPHEMERAL);
         assertDefaultUsersInfo(request.usersInfo, mAdminUser);
 
         UserCreationResult result = getUserCreationResult();
@@ -1695,24 +1697,70 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(newUser).isNotNull();
         assertThat(newUser.id).isEqualTo(userId);
         assertThat(newUser.name).isEqualTo("dude");
-        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
+        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_SECONDARY);
         assertThat(newUser.flags).isEqualTo(UserInfo.FLAG_EPHEMERAL);
 
+        verify(mMockedUserManager, never()).createGuest(any(Context.class), anyString());
         verifyNoUserRemoved();
         assertNoHalUserRemoval();
     }
 
     @Test
+    public void testCreateUser_guest_success() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+        int userId = mGuestUser.id;
+        mockUmCreateGuest(mMockedUserManager, "guest", userId);
+        ArgumentCaptor<CreateUserRequest> requestCaptor =
+                mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
+
+        createUser("guest", UserManager.USER_TYPE_FULL_GUEST,
+                0, mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+
+        // Assert request
+        CreateUserRequest request = requestCaptor.getValue();
+        Log.d(TAG, "createUser() request: " + request);
+        assertThat(request.newUserName).isEqualTo("guest");
+        assertThat(request.newUserInfo.userId).isEqualTo(userId);
+        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.GUEST);
+        assertDefaultUsersInfo(request.usersInfo, mAdminUser);
+
+        UserCreationResult result = getUserCreationResult();
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
+        assertThat(result.getErrorMessage()).isNull();
+        UserInfo newUser = result.getUser();
+        assertThat(newUser).isNotNull();
+        assertThat(newUser.id).isEqualTo(userId);
+        assertThat(newUser.name).isEqualTo("guest");
+        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
+        assertThat(newUser.flags).isEqualTo(0);
+
+        verify(mMockedUserManager, never()).createUser(anyString(), anyString(), anyInt());
+        verifyNoUserRemoved();
+        assertNoHalUserRemoval();
+    }
+
+    @Test
+    public void testCreateUser_guest_failsWithNonZeroFlags() throws Exception {
+        mockExistingUsersAndCurrentUser(mAdminUser);
+
+        createUser("guest", UserManager.USER_TYPE_FULL_GUEST,
+                FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture, NO_CALLER_RESTRICTIONS);
+
+        assertInvalidArgumentsFailure();
+    }
+
+
+    @Test
     public void testCreateUser_success_nullName() throws Exception {
         String nullName = null;
         mockExistingUsersAndCurrentUser(mAdminUser);
-        int userId = mGuestUser.id;
-        mockUmCreateUser(mMockedUserManager, nullName, UserManager.USER_TYPE_FULL_GUEST,
+        int userId = mRegularUser.id;
+        mockUmCreateUser(mMockedUserManager, nullName, UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, userId);
         ArgumentCaptor<CreateUserRequest> requestCaptor =
                 mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        createUser(nullName, UserManager.USER_TYPE_FULL_GUEST,
+        createUser(nullName, UserManager.USER_TYPE_FULL_SECONDARY,
                 UserInfo.FLAG_EPHEMERAL, mAsyncCallTimeoutMs, mUserCreationFuture,
                 NO_CALLER_RESTRICTIONS);
 
@@ -1721,7 +1769,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         Log.d(TAG, "createUser() request: " + request);
         assertThat(request.newUserName).isEmpty();
         assertThat(request.newUserInfo.userId).isEqualTo(userId);
-        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.GUEST | UserFlags.EPHEMERAL);
+        assertThat(request.newUserInfo.flags).isEqualTo(UserFlags.EPHEMERAL);
         assertDefaultUsersInfo(request.usersInfo, mAdminUser);
 
         UserCreationResult result = getUserCreationResult();
@@ -1732,7 +1780,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         assertThat(newUser).isNotNull();
         assertThat(newUser.id).isEqualTo(userId);
         assertThat(newUser.name).isNull();
-        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
+        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_SECONDARY);
         assertThat(newUser.flags).isEqualTo(UserInfo.FLAG_EPHEMERAL);
 
         verifyNoUserRemoved();
