@@ -73,12 +73,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandler mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
-    private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener =
-            (connected) -> {
-                if (connected) {
-                    registerToDaemon();
-                }
-            };
+    private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
 
     public CarWatchdogService(Context context) {
         mContext = context;
@@ -89,6 +84,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
                 mPackageInfoHandler);
+        mConnectionListener = (isConnected) -> {
+            if (isConnected) {
+                registerToDaemon();
+            }
+            mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
+        };
     }
 
     @Override
@@ -145,7 +146,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     }
 
     @VisibleForTesting
-    protected int getClientCount(int timeout) {
+    int getClientCount(int timeout) {
         return mWatchdogProcessHandler.getClientCount(timeout);
     }
 
@@ -251,11 +252,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
      * Sets {@link android.car.watchdog.ResourceOveruseConfiguration} for the specified resources.
      */
     @Override
-    public void setResourceOveruseConfigurations(
+    @CarWatchdogManager.ReturnCode
+    public int setResourceOveruseConfigurations(
             List<ResourceOveruseConfiguration> configurations,
-            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag)
+            throws RemoteException {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
-        mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations, resourceOveruseFlag);
+        return mWatchdogPerfHandler.setResourceOveruseConfigurations(configurations,
+                resourceOveruseFlag);
     }
 
     /** Returns the available {@link android.car.watchdog.ResourceOveruseConfiguration}. */
