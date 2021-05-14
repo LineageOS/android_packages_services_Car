@@ -24,3 +24,22 @@ adb shell setprop log.tag.cartelemetryd_impl_test V
 `atest cartelemetryd_impl_test:CarTelemetryInternalImplTest#TestSetListenerReturnsOk`
 
 `atest cartelemetryd_impl_test`
+
+## Enabling cartelemetryd
+
+`cartelemertryd` service is by default not included in the final build. To include it on specific
+targets, add the following lines in necessary `.mk` files:
+
+```
+# Enable Automotive Telemetry Services (cartelemetryd) only on specific devices.
+ifneq ($(filter $(TARGET_PRODUCT), TARGET1 TARGET2),)
+include packages/services/Car/cpp/telemetry/cartelemetryd/products/telemetry.mk
+endif
+```
+
+To find where the service was included, run this from `$ANDROID_BUILD_TOP`:
+
+```
+grep -rH --color --exclude-dir='**/.*' --exclude-dir='out' --include='*.mk' \
+    'cartelemetryd/products/telemetry.mk' device/ vendor/
+```
