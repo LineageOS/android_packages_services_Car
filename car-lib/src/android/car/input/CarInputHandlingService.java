@@ -50,6 +50,9 @@ import java.lang.ref.WeakReference;
  *
  * @deprecated No longer needed after the new Car Input API was introduced (see
  *         {@link CarInputManager} for more details).
+ *
+ * @remove to be removed in T
+ *
  * @hide
  */
 @SystemApi
