@@ -41,6 +41,7 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.net.Uri;
+import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
@@ -478,8 +479,13 @@ public class CarInputService extends ICarInput.Stub
             throw new SecurityException("Injecting KeyEvent requires INJECT_EVENTS permission");
         }
 
-        // Redirect event to onKeyEvent
-        onKeyEvent(event, targetDisplayType);
+        long token = Binder.clearCallingIdentity();
+        try {
+            // Redirect event to onKeyEvent
+            onKeyEvent(event, targetDisplayType);
+        } finally {
+            Binder.restoreCallingIdentity(token);
+        }
     }
 
     private void handleVoiceAssistKey(KeyEvent event) {
