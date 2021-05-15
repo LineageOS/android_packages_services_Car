@@ -345,7 +345,7 @@ public class VehiclePropertyIdsTest extends AndroidTestCase {
                 VehiclePropertyIds.toString(VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION));
         assertEquals("0x3", VehiclePropertyIds.toString(3));
         // Properties in S
-        assertEquals("UNIX_TIME", VehiclePropertyIds.toString(VehiclePropertyIds.UNIX_TIME));
+        assertEquals("EPOCH_TIME", VehiclePropertyIds.toString(VehiclePropertyIds.EPOCH_TIME));
         assertEquals("STORAGE_ENCRYPTION_BINDING_SEED",
                 VehiclePropertyIds.toString(VehiclePropertyIds.STORAGE_ENCRYPTION_BINDING_SEED));
     }

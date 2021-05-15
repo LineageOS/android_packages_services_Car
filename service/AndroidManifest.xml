@@ -246,13 +246,13 @@
          android:label="@string/car_permission_label_car_exterior_environment"
          android:description="@string/car_permission_desc_car_exterior_environment"/>
 
-    <!-- Allows an application to read and write car's unix time.
+    <!-- Allows an application to read and write car's epoch time.
          <p>Protection level: signature|privileged
     -->
-    <permission android:name="android.car.permission.CAR_UNIX_TIME"
+    <permission android:name="android.car.permission.CAR_EPOCH_TIME"
                 android:protectionLevel="signature|privileged"
-                android:label="@string/car_permission_label_car_unix_time"
-                android:description="@string/car_permission_desc_car_unix_time"/>
+                android:label="@string/car_permission_label_car_epoch_time"
+                android:description="@string/car_permission_desc_car_epoch_time"/>
 
     <!-- Allows an application to read and write car's storage encryption binding seed.
          <p>Protection level: signature|privileged

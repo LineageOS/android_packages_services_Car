@@ -248,6 +248,7 @@ package android.car {
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_OIL_TEMP = 291504900; // 0x11600304
     field @RequiresPermission("android.car.permission.CAR_ENGINE_DETAILED") public static final int ENGINE_RPM = 291504901; // 0x11600305
     field @RequiresPermission(android.car.Car.PERMISSION_EXTERIOR_ENVIRONMENT) public static final int ENV_OUTSIDE_TEMPERATURE = 291505923; // 0x11600703
+    field @RequiresPermission("android.car.permission.CAR_EPOCH_TIME") public static final int EPOCH_TIME = 290457094; // 0x11500606
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int EV_BATTERY_DISPLAY_UNITS = 289408515; // 0x11400603
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908; // 0x1160030c
     field @RequiresPermission(android.car.Car.PERMISSION_ENERGY) public static final int EV_BATTERY_LEVEL = 291504905; // 0x11600309
@@ -358,7 +359,6 @@ package android.car {
     field @RequiresPermission.Read(@androidx.annotation.RequiresPermission(android.car.Car.PERMISSION_READ_DISPLAY_UNITS)) @RequiresPermission.Write(@androidx.annotation.RequiresPermission(allOf={android.car.Car.PERMISSION_CONTROL_DISPLAY_UNITS, "android.car.permission.CAR_VENDOR_EXTENSION"})) public static final int TIRE_PRESSURE_DISPLAY_UNITS = 289408514; // 0x11400602
     field @RequiresPermission("android.car.permission.CAR_DYNAMICS_STATE") public static final int TRACTION_CONTROL_ACTIVE = 287310859; // 0x1120040b
     field @RequiresPermission("android.car.permission.CAR_EXTERIOR_LIGHTS") public static final int TURN_SIGNAL_STATE = 289408008; // 0x11400408
-    field @RequiresPermission("android.car.permission.CAR_UNIX_TIME") public static final int UNIX_TIME = 290457094; // 0x11500606
     field @RequiresPermission(anyOf={"android.car.permission.VMS_PUBLISHER", "android.car.permission.VMS_SUBSCRIBER"}) public static final int VEHICLE_MAP_SERVICE = 299895808; // 0x11e00c00
     field @RequiresPermission(android.car.Car.PERMISSION_SPEED) public static final int WHEEL_TICK = 290521862; // 0x11510306
     field @RequiresPermission("android.car.permission.CONTROL_CAR_WINDOWS") public static final int WINDOW_LOCK = 320867268; // 0x13200bc4
