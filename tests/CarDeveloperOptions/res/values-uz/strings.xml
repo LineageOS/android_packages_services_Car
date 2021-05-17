@@ -4069,7 +4069,7 @@
     <string name="developer_smallest_width" msgid="2603134476228805075">"Eng kichik eni"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"O‘rnatilgan ilovalardan hech biri pulli SMS yuborish uchun ruxsat so‘ramagan"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"SMS uchun sizdan haq olinishi va operatorga qo‘shimcha to‘lov amalga oshirilishi mumkin. Agar ilova uchun ruxsatnoma taqdim etsangiz, o‘sha ilovadan SMS yuborishingiz mumkin bo‘ladi."</string>
-    <string name="premium_sms_access" msgid="4550027460595822851">"Pulli SMS yuborishga ruxsat"</string>
+    <string name="premium_sms_access" msgid="4550027460595822851">"Pulli SMS yuborish"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Yoqilmagan"</string>
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> qurilmasiga ulangan"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"Bir nechta qurilmaga ulangan"</string>
