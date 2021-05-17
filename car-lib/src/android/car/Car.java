@@ -537,11 +537,11 @@ public final class Car {
     public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
 
     /**
-     * Permission necessary to access car's property {@link VehiclePropertyIds#UNIX_TIME}.
+     * Permission necessary to access car's property {@link VehiclePropertyIds#EPOCH_TIME}.
      * @hide
      */
     @SystemApi
-    public static final String PERMISSION_CAR_UNIX_TIME = "android.car.permission.CAR_UNIX_TIME";
+    public static final String PERMISSION_CAR_EPOCH_TIME = "android.car.permission.CAR_EPOCH_TIME";
 
     /**
      * Permission necessary to access car's property

@@ -260,10 +260,10 @@
     <!-- Permission text: apps access car's exterior lights state [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_car_exterior_lights">Access car\u2019s exterior lights state.</string>
 
-    <!-- Permission text: apps access car's UNIX time [CHAR LIMIT=NONE] -->
-    <string name="car_permission_label_car_unix_time">access car\u2019s UNIX time</string>
-    <!-- Permission text: apps access car's UNIX time [CHAR LIMIT=NONE] -->
-    <string name="car_permission_desc_car_unix_time">Access car\u2019s UNIX time.</string>
+    <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_car_epoch_time">access car\u2019s epoch time</string>
+    <!-- Permission text: apps access car's epoch time [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_car_epoch_time">Access car\u2019s epoch time.</string>
 
     <!-- Permission text: apps access car's encryption binding seed [CHAR LIMIT=NONE] -->
     <string name="car_permission_label_encryption_binding_seed">access car\u2019s encryption binding seed </string>
