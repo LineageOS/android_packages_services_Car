@@ -673,7 +673,7 @@ public class InputCaptureClientController {
                     + clientsToDispatch.mClientsToDispatch.size());
         }
         mClientDispatchQueue.add(clientsToDispatch);
-        CarServiceUtils.runOnMain(() -> {
+        CarServiceUtils.runOnCommon(() -> {
             ClientsToDispatch clients;
             synchronized (mLock) {
                 if (mClientDispatchQueue.isEmpty()) {
@@ -706,7 +706,7 @@ public class InputCaptureClientController {
 
     private void dispatchKeyEvent(int targetDisplayType, KeyEvent event,
             ICarInputCallback callback) {
-        CarServiceUtils.runOnMain(() -> {
+        CarServiceUtils.runOnCommon(() -> {
             mKeyEventDispatchScratchList.clear();
             mKeyEventDispatchScratchList.add(event);
             try {
@@ -726,7 +726,7 @@ public class InputCaptureClientController {
         }
         // TODO(b/159623196): Use HandlerThread for dispatching rather than relying on the main
         //     thread. Change here and other dispatch methods.
-        CarServiceUtils.runOnMain(() -> {
+        CarServiceUtils.runOnCommon(() -> {
             mRotaryEventDispatchScratchList.clear();
             mRotaryEventDispatchScratchList.add(event);
             try {
@@ -745,7 +745,7 @@ public class InputCaptureClientController {
         if (DBG_DISPATCH) {
             Slog.d(TAG, "dispatchCustomInputEvent:" + event);
         }
-        CarServiceUtils.runOnMain(() -> {
+        CarServiceUtils.runOnCommon(() -> {
             mCustomInputEventDispatchScratchList.clear();
             mCustomInputEventDispatchScratchList.add(event);
             try {

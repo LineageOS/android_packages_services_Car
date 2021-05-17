@@ -432,6 +432,8 @@ public final class FixedActivityService implements CarServiceBase {
                         Slog.e(TAG_AM, "remote exception from AM", e);
                     }
                     CarServiceUtils.runOnMain(() -> {
+                        // This code cannot be off-loaded to the common thread as it creates
+                        // the presentation (which is a dialog) and sets its content view.
                         Display display = mDm.getDisplay(displayIdForActivity);
                         if (display == null) {
                             Slog.e(TAG_AM, "Display not available, cannot launnch window:"
