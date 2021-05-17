@@ -791,7 +791,7 @@ public final class WatchdogPerfHandler {
                 ? "resource overuse system listener" : "resource overuse listener";
 
         ResourceOveruseListenerInfo listenerInfo = listenerInfosByUid.get(callingUid, null);
-        if (listenerInfo == null || listenerInfo.listener != listener) {
+        if (listenerInfo == null || listenerInfo.listener.asBinder() != listener.asBinder()) {
             Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
             return;
         }
