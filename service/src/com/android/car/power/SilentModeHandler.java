@@ -237,7 +237,7 @@ final class SilentModeHandler {
                         Slogf.i(TAG, "%s indicates %s mode", mHwStateMonitoringFileName,
                                 mSilentModeByHwState ? "silent" : "non-silent");
                     } catch (Exception e) {
-                        Slogf.w(TAG, e, "Failed to read %s: %s", mHwStateMonitoringFileName);
+                        Slogf.w(TAG, e, "Failed to read %s", mHwStateMonitoringFileName);
                         return;
                     }
                     newSilentMode = mSilentModeByHwState;
