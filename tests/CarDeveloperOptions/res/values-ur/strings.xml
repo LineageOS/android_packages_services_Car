@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"رازداری"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"منتظم کی طرف سے غیر فعال کردہ"</string>
     <string name="security_status_title" msgid="1261960357751754428">"سیکیورٹی کی صورتحال"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"اسکرین لاک، چہرے کے ذریعے غیر مقفل کرنا"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"اسکرین لاک، فیس اَنلاک"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"اسکرین لاک، فنگر پرنٹ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"اسکرین لاک"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"چہرہ شامل کر دیا گیا"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"چہرے کا ڈیتا ہٹائیں"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"آپ کے چہرے کے استعمال سے آپ آلہ غیر مقفل کیا جا سکتا ہے اور ایپس تک رسائی حاصل کی جا سکتی ہے۔ "<annotation id="url">"مزید جانیں"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"چہرے کا ڈیٹا حذف کریں؟"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"چہرے کے ذریعے غیر مقفل کر کے ریکارڈ کردہ ڈیٹا کو مستقل اور محفوظ طور پر حذف کر دیا جائے گا۔ ہٹانے کے بعد، آپ کو اپنا فون غیر مقفل کرنے، ایپس میں سائن ان کرنے اور ادائیگیوں کی تصدیق کرنے کے لیے اپنا PIN، پیٹرن یا پاس ورڈ درکار ہوگا۔"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"فیس اَنلاک کے ذریعے ریکارڈ کردہ ڈیٹا کو مستقل اور محفوظ طور پر حذف کر دیا جائے گا۔ ہٹانے کے بعد، آپ کو اپنا فون غیر مقفل کرنے، ایپس میں سائن ان کرنے اور ادائیگیوں کی تصدیق کرنے کے لیے اپنا PIN، پیٹرن یا پاس ورڈ درکار ہوگا۔"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"فنگر پرنٹ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"فنگر پرنٹس کا نظم کریں"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"فنگر پرنٹ استعمال کریں برائے"</string>

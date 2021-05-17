@@ -3280,16 +3280,16 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Та мэдэгдэл харахгүй эсвэл сонгохгүй. Одоор тэмдэглэсэн харилцагч болон дахин дуудлага хийгчийн дуудлагыг зөвшөөрдөг."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Одоогийн тохиргоо)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Бүү саад бол горимын мэдэгдлийн тохиргоог өөрчлөх үү?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"Ажлын профайлын дуу"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"Ажлын профайлын ая"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Хувийн профайлын дууг ашиглах"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Ажлын болон хувийн профайлын дуу ижил"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Ажлын утасны ая"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Ажлын мэдэгдлийн өгөгдмөл дуу"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Ажлын сэрүүлгийн өгөгдмөл дуу"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Ажлын мэдэгдлийн өгөгдмөл ая"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Ажлын сэрүүлгийн өгөгдмөл ая"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Хувийн профайлтай ижил"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Дууг өөрчлөх үү?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Солих"</string>
-    <string name="work_sync_dialog_message" msgid="944233463059129156">"Таны хувийн профайлын дууг ажлын профайлд ашиглах болно"</string>
+    <string name="work_sync_dialog_message" msgid="944233463059129156">"Таны хувийн профайлын аяыг ажлын профайлд ашиглах болно"</string>
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"Захиалгат дуу нэмэх үү?"</string>
     <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"Энэ файлыг <xliff:g id="FOLDER_NAME">%s</xliff:g> фолдерт зөөх болно"</string>
     <string name="ringtones_category_preference_title" msgid="4491932700769815470">"Хонхны ая"</string>
