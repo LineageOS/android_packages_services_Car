@@ -197,7 +197,7 @@ public class CarPropertyManagerPublicPermissionTest {
         mProps.add(VehiclePropertyIds.FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME);
         mProps.add(VehiclePropertyIds.VEHICLE_SPEED_DISPLAY_UNITS);
         // Properties in S
-        mProps.add(VehiclePropertyIds.UNIX_TIME);
+        mProps.add(VehiclePropertyIds.EPOCH_TIME);
         mProps.add(VehiclePropertyIds.STORAGE_ENCRYPTION_BINDING_SEED);
     }
 
