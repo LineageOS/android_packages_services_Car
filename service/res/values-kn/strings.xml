@@ -59,7 +59,7 @@
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"ಸಲಕರಣೆ ಸಂಚಯ ನಿಯಂತ್ರಣ"</string>
     <string name="car_permission_desc_car_cluster_control" msgid="9222776665281176031">"ಸಲಕರಣೆ ಸಂಚಯದಲ್ಲಿ ಆ್ಯಪ್‌ಗಳನ್ನು ಪ್ರಾರಂಭಿಸಿ"</string>
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"ಸಲಕರಣೆ ಸಂಚಯ ತೋರಿಸು"</string>
-    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸು"</string>
+    <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"ಸಲಕರಣೆ ಸಂಚಯ ಮಾಹಿತಿಯನ್ನು ಸ್ವೀಕರಿಸಿ"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX ನಿರ್ಬಂಧಗಳ ಸಂರಚನೆ"</string>
     <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"ಯುಎಕ್ಸ್ ನಿರ್ಬಂಧಗಳನ್ನು ಸಂರಚಿಸು"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ಖಾಸಗಿ ಡಿಸ್‌ಪ್ಲೇ ಐಡಿಗೆ ಓದುವ ಪ್ರವೇಶ"</string>
