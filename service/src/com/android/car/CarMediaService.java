@@ -53,7 +53,6 @@ import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerExecutor;
 import android.os.HandlerThread;
-import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -138,8 +137,8 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     private final RemoteCallbackList<ICarMediaSourceListener>[] mMediaSourceListeners =
             new RemoteCallbackList[MEDIA_SOURCE_MODES];
 
-    private final Handler mMainHandler = new Handler(Looper.getMainLooper());
-
+    private final Handler mCommonThreadHandler = new Handler(
+            CarServiceUtils.getCommonHandlerThread().getLooper());
 
     private final HandlerThread mHandlerThread  = CarServiceUtils.getHandlerThread(
             getClass().getSimpleName());
@@ -531,11 +530,11 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
     }
 
     // TODO(b/153115826): this method was used to be called from the ICar binder thread, but it's
-    // now called by UserCarService. Currently UserCarServie is calling every listener in one
+    // now called by UserCarService. Currently UserCarService is calling every listener in one
     // non-main thread, but it's not clear how the final behavior will be. So, for now it's ok
     // to post it to mMainHandler, but once b/145689885 is fixed, we might not need it.
     private void onUserUnlock(int userId) {
-        mMainHandler.post(() -> {
+        mCommonThreadHandler.post(() -> {
             // No need to handle system user, non current foreground user.
             if (userId == UserHandle.USER_SYSTEM
                     || userId != ActivityManager.getCurrentUser()) {
