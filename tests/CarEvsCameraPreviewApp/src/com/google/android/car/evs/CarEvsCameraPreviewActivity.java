@@ -232,16 +232,28 @@ public class CarEvsCameraPreviewActivity extends Activity {
     }
 
     private void handleVideoStreamLocked() {
-        if (mActivityResumed && !mStreamRunning && mEvsManager != null &&
-                mDisplayState == Display.STATE_ON) {
-            mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                    mSessiontoken, mCallbackExecutor, mStreamHandler);
-            mStreamRunning = true;
-        } else if (mStreamRunning) {
-            // Stops a video stream if it's active.
-            if (mEvsManager != null) {
-                mEvsManager.stopVideoStream();
+        if (mEvsManager == null) {
+            Log.w(TAG, "CarEvsManager is not available.");
+            return;
+        }
+
+        if (mActivityResumed && mDisplayState == Display.STATE_ON) {
+            // We show a camera preview only when the activity has been resumed and the display is
+            // on.
+            if (!mStreamRunning) {
+                Log.d(TAG, "Request to start a video stream");
+                mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
+                        mSessiontoken, mCallbackExecutor, mStreamHandler);
+                mStreamRunning = true;
             }
+
+            return;
+        }
+
+        // Otherwise, we do not need a video stream.
+        if (mStreamRunning) {
+            Log.d(TAG, "Request to stop a video stream");
+            mEvsManager.stopVideoStream();
             mStreamRunning = false;
         }
     }
