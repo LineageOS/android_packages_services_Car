@@ -30,6 +30,9 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsError;
@@ -43,18 +46,23 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.HardwareBuffer;
+import android.hardware.automotive.vehicle.V2_0.VehicleArea;
+import android.hardware.automotive.vehicle.V2_0.VehicleGear;
+import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
+import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseIntArray;
 
+import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.ICarImpl;
 import com.android.car.R;
@@ -62,6 +70,7 @@ import com.android.car.hal.EvsHalService;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;
+import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 
@@ -114,25 +123,32 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private static final int REQUEST_PRIORITY_LOW = 2;
 
     private static final class EvsHalEvent {
+        private long mTimestamp;
         private int mServiceType;
         private boolean mOn;
 
-        public EvsHalEvent(@CarEvsServiceType int type, boolean on) {
+        public EvsHalEvent(long timestamp, @CarEvsServiceType int type, boolean on) {
+            mTimestamp = timestamp;
             mServiceType = type;
             mOn = on;
+        }
+
+        public long getTimestamp() {
+            return mTimestamp;
         }
 
         public @CarEvsServiceType int getServiceType() {
             return mServiceType;
         }
 
-        public boolean isRequestingToStart() {
+        public boolean isRequestingToStartActivity() {
             return mOn;
         }
     }
 
     private final Context mContext;
     private final EvsHalService mEvsHalService;
+    private final CarPropertyService mPropertyService;
     // Shouldn't acquire mStateLock holding mLock.
     private final Object mLock = new Object();
 
@@ -188,6 +204,22 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     // RemoteCallbackList to avoid double-lock situation.
     @GuardedBy("mLock")
     private final StreamCallbackList mStreamCallbacks = new StreamCallbackList(this);
+
+    /**
+     * {@link CarPropertyEvent} listener registered with {@link CarPropertyService} to listen to
+     * {@link VehicleProperty.GEAR_SELECTION} change notifications.
+     */
+    private final ICarPropertyEventListener mGearSelectionPropertyListener =
+            new ICarPropertyEventListener.Stub() {
+                @Override
+                public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
+                    synchronized (mLock) {
+                        // Handle only the latest event
+                        Slog.e(TAG_EVS, "Handling GearSelection");
+                        handlePropertyEventLocked(events.get(events.size() - 1));
+                    }
+                }
+            };
 
     // CarEvsService state machine implementation to handle all state transitions.
     private final class StateMachine {
@@ -380,11 +412,15 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     break;
 
                 case SERVICE_STATE_ACTIVE:
-                    // Transits to the REQUESTED state only CarEvsService receives a HIGH and
-                    // a NORMAL priority service request while an active video stream was
-                    // requested with a LOW priority.
                     if (priority > mLastRequestPriority) {
+                        // We decline a request because CarEvsService is busy with a higher priority
+                        // client.
                         return ERROR_BUSY;
+                    } else if (priority == mLastRequestPriority) {
+                        // We do not need to transit to the REQUESTED state because CarEvsService
+                        // was transited to the ACTIVE state by a request that has the same priority
+                        // with current request.
+                        return ERROR_NONE;
                     }
 
                     break;
@@ -476,6 +512,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @GuardedBy("mLock")
     private IBinder mSessionToken = null;
 
+    // This boolean flag is true if CarEvsService uses GEAR_SELECTION VHAL property instead of
+    // EVS_SERVICE_REQUEST.
+    private boolean mUseGearSelection = true;
+
     private void setSessionToken(IBinder token) {
         synchronized (mLock) {
             mSessionToken = token;
@@ -493,7 +533,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     // The last event EvsHalService reported.  This will be set to null when a related service
     // request is handled.
-    private EvsHalEvent mLastEvsHalEvent;
+    @GuardedBy("mLock")
+    private EvsHalEvent mLastEvsHalEvent = new EvsHalEvent(SystemClock.elapsedRealtimeNanos(),
+            CarEvsManager.SERVICE_TYPE_REARVIEW, /* on = */false);
 
     // Stops a current video stream and unregisters a callback
     private void stopVideoStreamAndUnregisterCallback(ICarEvsStreamCallback callback) {
@@ -531,27 +573,28 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     // Waits for a video stream request from the System UI with a valid token.
     private void handleActivityRequestTimeout() {
-        // No client has responded to a state transition to the REQUESTED
-        // state before the timer expires.  CarEvsService sends a
-        // notification again if it's still needed.
-        EvsHalEvent pendingEvent = mLastEvsHalEvent;
-        if (pendingEvent != null && pendingEvent.isRequestingToStart()) {
-            // Requests again the System UI to launch the activity
-            Slog.w(TAG_EVS, "Timer expired.  Request the activity again.");
-            mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
-                    pendingEvent.getServiceType());
-        } else if (mStateEngine.getState() == SERVICE_STATE_REQUESTED) {
-            // If the service is no longer required by other services, we transit to
-            // the INACTIVE state.
-            mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
+        synchronized (mLock) {
+            // No client has responded to a state transition to the REQUESTED
+            // state before the timer expires.  CarEvsService sends a
+            // notification again if it's still needed.
+            if (mLastEvsHalEvent != null && mLastEvsHalEvent.isRequestingToStartActivity()) {
+                // Requests again the System UI to launch the activity
+                Slog.w(TAG_EVS, "Timer expired.  Request the activity again.");
+                mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
+                        mLastEvsHalEvent.getServiceType());
+            } else if (mStateEngine.getState() == SERVICE_STATE_REQUESTED) {
+                // If the service is no longer required by other services, we transit to
+                // the INACTIVE state.
+                mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
+            }
         }
     }
 
     /** Creates an Extended View System service instance given a {@link Context}. */
-    public CarEvsService(Context context, EvsHalService halService) {
+    public CarEvsService(Context context, EvsHalService halService,
+            CarPropertyService propertyService) {
         mContext = context;
-        // TODO(b/183674444): Uses GEAR_SELECTION property to control the rearview camera if
-        //                    EVS_SERVICE_REQUEST is not supported.
+        mPropertyService = propertyService;
         mEvsHalService = halService;
     }
 
@@ -563,14 +606,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     "Received an event from EVS HAL: type = " + type + ", on = " + on);
         }
 
-        int targetState = on ? SERVICE_STATE_REQUESTED : SERVICE_STATE_INACTIVE;
-        if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type) !=
-                ERROR_NONE) {
-            Slog.e(TAG_EVS, "Failed to execute a service request.");
-        }
+        synchronized (mLock) {
+            int targetState = on ? SERVICE_STATE_REQUESTED : SERVICE_STATE_INACTIVE;
+            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type) !=
+                    ERROR_NONE) {
+                Slog.e(TAG_EVS, "Failed to execute a service request.");
+            }
 
-        // Stores the last event
-        mLastEvsHalEvent = new EvsHalEvent(type, on);
+            // Stores the last event
+            mLastEvsHalEvent = new EvsHalEvent(SystemClock.elapsedRealtimeNanos(), type, on);
+        }
     }
 
     @Override
@@ -579,24 +624,54 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slog.d(TAG_EVS, "Initializing the service");
         }
 
-        // Below registration may throw IllegalStateException if neither of EVS_SERVICE_REQUEST nor
-        // GEAR_SELECTION VHAL properties are not supported.
-        try {
-            mEvsHalService.setListener(this);
-        } catch (IllegalStateException e) {
-            Slog.e(TAG_EVS, Log.getStackTraceString(e));
-            return;
+        if (mEvsHalService.isEvsServiceRequestSupported()) {
+            try {
+                mEvsHalService.setListener(this);
+                if (DBG) {
+                    Slog.d(TAG_EVS, "CarEvsService listens to EVS_SERVICE_REQUEST property.");
+                }
+                mUseGearSelection = false;
+            } catch (IllegalStateException e) {
+                Slog.w(TAG_EVS,
+                        "Failed to set a EvsHalService listener.  Try to use GEAR_SELECTION.");
+            }
+        }
+
+        if (mUseGearSelection) {
+            if (DBG) {
+                Slog.d(TAG_EVS, "CarEvsService listens to GEAR_SELECTION property.");
+            }
+
+            if (mPropertyService == null ||
+                mPropertyService.getProperty(VehicleProperty.GEAR_SELECTION,
+                        VehicleArea.GLOBAL) == null) {
+                Slog.e(TAG_EVS,
+                        "CarEvsService is disabled because GEAR_SELECTION is unavailable.");
+                mUseGearSelection = false;
+                return;
+            }
+
+            mPropertyService.registerListener(VehicleProperty.GEAR_SELECTION, /*rate=*/0,
+                    mGearSelectionPropertyListener);
         }
 
         // Creates a handle to use the native Extended View System service
         mNativeEvsServiceObj = CarEvsService.nativeCreateServiceHandle();
 
         // Attempts to transit to the INACTIVE state
-        if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) !=
-                ERROR_NONE) {
-            Slog.e(TAG_EVS, "Failed to transit to the INACTIVE state.");
+        if (mNativeEvsServiceObj == 0 ||
+            mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
+            Slog.e(TAG_EVS, "Failed to create a service handle or transit to the INACTIVE state,");
             CarEvsService.nativeDestroyServiceHandle(mNativeEvsServiceObj);
             mNativeEvsServiceObj = 0;
+
+            if (mUseGearSelection && mPropertyService != null) {
+                if (DBG) {
+                    Slog.d(TAG_EVS, "Unregister a property listener on init() failure.");
+                }
+                mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
+                        mGearSelectionPropertyListener);
+            }
         }
     }
 
@@ -606,8 +681,17 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slog.d(TAG_EVS, "Finalizing the service");
         }
 
-        mStatusListeners.kill();
-        mStreamCallbacks.kill();
+        synchronized (mLock) {
+            if (mUseGearSelection && mPropertyService != null) {
+                if (DBG) {
+                    Slog.d(TAG_EVS, "Unregister a property listener in release()");
+                }
+                mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
+                        mGearSelectionPropertyListener);
+            }
+            mStatusListeners.kill();
+            mStreamCallbacks.kill();
+        }
 
         CarEvsService.nativeDestroyServiceHandle(mNativeEvsServiceObj);
         mNativeEvsServiceObj = 0;
@@ -936,6 +1020,52 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             // Cancel a pending message to check a request timeout
             mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
         }
+    }
+
+    @GuardedBy("mLock")
+    private void handlePropertyEventLocked(CarPropertyEvent event) {
+        if (event.getEventType() != CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE) {
+            // CarEvsService is interested only in the property change event.
+            return;
+        }
+
+        CarPropertyValue value = event.getCarPropertyValue();
+        if (value.getPropertyId() != VehicleProperty.GEAR_SELECTION) {
+            // CarEvsService is interested only in the GEAR_SELECTION property.
+            return;
+        }
+
+        long timestamp = value.getTimestamp();
+        if (timestamp <= mLastEvsHalEvent.getTimestamp()) {
+            if (DBG) {
+                Slog.d(TAG_EVS,
+                        "Ignoring GEAR_SELECTION change happened past, timestamp = " + timestamp +
+                        ", last event was at " + mLastEvsHalEvent.getTimestamp());
+            }
+            return;
+        }
+
+        // TODO(b/179029031): CarEvsService may need to process VehicleGear.GEAR_PARK when
+        // Surround View service is integrated.
+        int gear = (Integer) value.getValue();
+        if (gear == VehicleGear.GEAR_REVERSE) {
+            // Request to start the rearview activity when the gear is shifted into the reverse
+            // position.
+            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
+                    CarEvsManager.SERVICE_TYPE_REARVIEW) != ERROR_NONE) {
+                Slog.w(TAG_EVS, "Failed to request the rearview activity.");
+            }
+        } else {
+            // Request to stop the rearview activity when the gear is shifted from the reverse
+            // position to other positions.
+            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE,
+                    CarEvsManager.SERVICE_TYPE_REARVIEW) != ERROR_NONE) {
+                Slog.d(TAG_EVS, "Failed to stop the rearview activity.");
+            }
+        }
+
+        mLastEvsHalEvent = new EvsHalEvent(timestamp, CarEvsManager.SERVICE_TYPE_REARVIEW,
+                gear == VehicleGear.GEAR_REVERSE);
     }
 
     /** Processes a streaming event and propagates it to registered clients */
