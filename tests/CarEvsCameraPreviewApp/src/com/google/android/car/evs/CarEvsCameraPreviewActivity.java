@@ -25,12 +25,18 @@ import android.car.CarNotConnectedException;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.content.Intent;
+import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.util.Log;
 import android.view.Display;
+import android.view.Gravity;
+import android.view.LayoutInflater;
 import android.view.View;
+import android.view.WindowManager;
+import android.widget.Button;
+import android.widget.LinearLayout;
 
 import java.util.ArrayList;
 import java.util.concurrent.ExecutorService;
@@ -48,7 +54,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
     private final ExecutorService mCallbackExecutor = Executors.newFixedThreadPool(1);
 
     /** GL backed surface view to render the camera preview */
-    private CarEvsCameraGLSurfaceView mView;
+    private CarEvsCameraGLSurfaceView mEvsView;
+    private LinearLayout mPreviewContainer;
 
     /** Display manager to monitor the display's state */
     private DisplayManager mDisplayManager;
@@ -59,13 +66,12 @@ public class CarEvsCameraPreviewActivity extends Activity {
     /** Tells whether or not a video stream is running */
     private boolean mStreamRunning = false;
 
-    /** True if we need to start a video stream */
-    private boolean mActivityResumed = false;
-
     private Car mCar;
     private CarEvsManager mEvsManager;
 
-    private IBinder mSessiontoken;
+    private IBinder mSessionToken;
+
+    private boolean mUseSystemWindow;
 
     /** Callback to listen to EVS stream */
     private final CarEvsManager.CarEvsStreamCallback mStreamHandler =
@@ -75,6 +81,9 @@ public class CarEvsCameraPreviewActivity extends Activity {
         public void onStreamEvent(int event) {
             // This reference implementation only monitors a stream event without any action.
             Log.i(TAG, "Received: " + event);
+            if (event == CarEvsManager.STREAM_EVENT_STREAM_STOPPED) {
+                finish();
+            }
         }
 
         @Override
@@ -141,6 +150,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        parseExtra(getIntent());
+
         setShowWhenLocked(true);
         mDisplayManager = getSystemService(DisplayManager.class);
         mDisplayManager.registerDisplayListener(mDisplayListener, null);
@@ -152,83 +163,97 @@ public class CarEvsCameraPreviewActivity extends Activity {
         Car.createCar(getApplicationContext(), /* handler = */ null,
                 Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mCarServiceLifecycleListener);
 
-        mView = new CarEvsCameraGLSurfaceView(getApplication(), this);
-        setContentView(mView);
+        mEvsView = new CarEvsCameraGLSurfaceView(getApplication(), this);
+        mPreviewContainer = (LinearLayout) LayoutInflater.from(this).inflate(
+                R.layout.evs_preview_activity, /* root= */ null);
+        LinearLayout.LayoutParams viewParam = new LinearLayout.LayoutParams(
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                LinearLayout.LayoutParams.MATCH_PARENT,
+                1.0f
+        );
+        mEvsView.setLayoutParams(viewParam);
+        mPreviewContainer.addView(mEvsView, 0);
+        Button closeButton = mPreviewContainer.findViewById(R.id.close_button);
+        closeButton.setOnClickListener((v) -> finish());
 
-        setSessionToken(getIntent());
+        int width = WindowManager.LayoutParams.MATCH_PARENT;
+        int height = WindowManager.LayoutParams.MATCH_PARENT;
+        int x = 0;
+        int y = 0;
+        if (mUseSystemWindow) {
+            width = getResources().getDimensionPixelOffset(R.dimen.camera_preview_width);
+            height = getResources().getDimensionPixelOffset(R.dimen.camera_preview_height);
+            x = (getResources().getDisplayMetrics().widthPixels - width) / 2;
+            y = (getResources().getDisplayMetrics().heightPixels - height) / 2;
+        }
+        WindowManager.LayoutParams params = new WindowManager.LayoutParams(
+                width, height, x, y,
+                2020 /* WindowManager.LayoutParams.TYPE_VOLUME_OVERLAY */,
+                WindowManager.LayoutParams.FLAG_LAYOUT_IN_SCREEN
+                        | WindowManager.LayoutParams.FLAG_NOT_TOUCH_MODAL,
+                PixelFormat.TRANSLUCENT);
+        params.gravity = Gravity.LEFT | Gravity.TOP;
+        if (mUseSystemWindow) {
+            WindowManager wm = getSystemService(WindowManager.class);
+            wm.addView(mPreviewContainer, params);
+        } else {
+            setContentView(mPreviewContainer, params);
+        }
     }
 
     @Override
     protected void onNewIntent(Intent intent) {
         super.onNewIntent(intent);
-        setSessionToken(intent);
+        parseExtra(intent);
     }
 
-    private void setSessionToken(Intent intent) {
+    private void parseExtra(Intent intent) {
         Bundle extras = intent.getExtras();
         if (extras == null) {
-            mSessiontoken = null;
+            mSessionToken = null;
             return;
         }
-        mSessiontoken = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
+        mSessionToken = extras.getBinder(CarEvsManager.EXTRA_SESSION_TOKEN);
+        mUseSystemWindow = mSessionToken != null;
     }
 
     @Override
     protected void onStart() {
         Log.d(TAG, "onStart");
         super.onStart();
+        handleVideoStreamLocked();
     }
 
-    @Override
-    protected void onResume() {
-        Log.d(TAG, "onResume");
-        super.onResume();
-
-        synchronized (mLock) {
-            mActivityResumed = true;
-            handleVideoStreamLocked();
-        }
-    }
-
-    @Override
-    protected void onPause() {
-        Log.d(TAG, "onPause");
-        super.onPause();
-
-        synchronized (mLock) {
-            mActivityResumed = false;
-            handleVideoStreamLocked();
-        }
-
-        synchronized (mBufferQueue) {
-            mBufferQueue.clear();
-        }
-    }
 
     @Override
     protected void onStop() {
         Log.d(TAG, "onStop");
         super.onStop();
-
-        // Request to stop current service and unregister a status listener
-        synchronized (mLock) {
-            if (mEvsManager != null) {
-                mEvsManager.stopActivity();
-                mEvsManager.clearStatusListener();
-            }
-        }
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         Log.d(TAG, "onDestroy");
+        // Request to stop current service and unregister a status listener
+        synchronized (mBufferQueue) {
+            mBufferQueue.clear();
+        }
         synchronized (mLock) {
+            if (mEvsManager != null) {
+                mEvsManager.stopVideoStream();
+                mEvsManager.stopActivity();
+                mEvsManager.clearStatusListener();
+            }
             if (mCar != null) {
                 mCar.disconnect();
             }
         }
         mDisplayManager.unregisterDisplayListener(mDisplayListener);
+        if (mUseSystemWindow) {
+            WindowManager wm = getSystemService(WindowManager.class);
+            wm.removeView(mPreviewContainer);
+        }
     }
 
     private void handleVideoStreamLocked() {
@@ -237,13 +262,13 @@ public class CarEvsCameraPreviewActivity extends Activity {
             return;
         }
 
-        if (mActivityResumed && mDisplayState == Display.STATE_ON) {
+        if (mDisplayState == Display.STATE_ON) {
             // We show a camera preview only when the activity has been resumed and the display is
             // on.
             if (!mStreamRunning) {
                 Log.d(TAG, "Request to start a video stream");
                 mEvsManager.startVideoStream(CarEvsManager.SERVICE_TYPE_REARVIEW,
-                        mSessiontoken, mCallbackExecutor, mStreamHandler);
+                        mSessionToken, mCallbackExecutor, mStreamHandler);
                 mStreamRunning = true;
             }
 
