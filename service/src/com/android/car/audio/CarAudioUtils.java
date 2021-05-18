@@ -16,7 +16,10 @@
 
 package com.android.car.audio;
 
-class CarAudioUtils {
+final class CarAudioUtils {
+    private CarAudioUtils() {
+    }
+
     static boolean hasExpired(long startTimeMs, long currentTimeMs, int timeoutMs) {
         return (currentTimeMs - startTimeMs) > timeoutMs;
     }
