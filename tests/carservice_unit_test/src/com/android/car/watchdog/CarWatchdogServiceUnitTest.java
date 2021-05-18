@@ -1187,7 +1187,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private ICarWatchdogServiceForSystem registerCarWatchdogService() throws Exception {
         ArgumentCaptor<ICarWatchdogServiceForSystem> watchdogServiceForSystemImplCaptor =
                 ArgumentCaptor.forClass(ICarWatchdogServiceForSystem.class);
-        verify(mMockCarWatchdogDaemon).registerCarWatchdogService(
+        // Registering to daemon is done through a message handler. So, a buffer time of 1000ms is
+        // given.
+        verify(mMockCarWatchdogDaemon, timeout(1000)).registerCarWatchdogService(
                 watchdogServiceForSystemImplCaptor.capture());
         return watchdogServiceForSystemImplCaptor.getValue();
     }
