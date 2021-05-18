@@ -382,6 +382,17 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     }
 
     @Test
+    public void testRegisterPropertyUnavailable() throws Exception {
+        TestSequenceCallback callback = new TestSequenceCallback(1);
+        // Registering a property which has an unavailable initial value
+        // won't throw ServiceSpecificException.
+        mManager.registerCallback(callback, PROP_CAUSE_STATUS_CODE_NOT_AVAILABLE,
+                CarPropertyManager.SENSOR_RATE_ONCHANGE);
+        // initial value is unavailable, should not get any callback.
+        assertThrows(IllegalStateException.class, callback::assertOnChangeEventCalled);
+    }
+
+    @Test
     public void testNotReceiveOnErrorEvent() throws Exception {
         TestErrorCallback callback = new TestErrorCallback();
         mManager.registerCallback(callback, VehiclePropertyIds.HVAC_TEMPERATURE_SET,

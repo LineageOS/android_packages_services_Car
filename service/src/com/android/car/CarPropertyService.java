@@ -265,7 +265,7 @@ public class CarPropertyService extends ICarProperty.Stub
         List<CarPropertyEvent> events = new LinkedList<>();
         int propId = config.getPropertyId();
         if (config.isGlobalProperty()) {
-            CarPropertyValue value = mHal.getProperty(propId, 0);
+            CarPropertyValue value = mHal.getPropertySafe(propId, 0);
             if (value != null) {
                 CarPropertyEvent event = new CarPropertyEvent(
                         CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
@@ -273,7 +273,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
         } else {
             for (int areaId : config.getAreaIds()) {
-                CarPropertyValue value = mHal.getProperty(propId, areaId);
+                CarPropertyValue value = mHal.getPropertySafe(propId, areaId);
                 if (value != null) {
                     CarPropertyEvent event = new CarPropertyEvent(
                             CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE, value);
@@ -416,6 +416,25 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         ICarImpl.assertPermission(mContext, mHal.getReadPermission(prop));
         return mHal.getProperty(prop, zone);
+    }
+
+    /**
+     * Get property value for car service's internal usage.
+     * @param prop property id
+     * @param zone area id
+     * @return null if property is not implemented or there is an exception in the vehicle.
+     */
+    public CarPropertyValue getPropertySafe(int prop, int zone) {
+        synchronized (mLock) {
+            if (mConfigs.get(prop) == null) {
+                // Do not attempt to register an invalid propId
+                Slog.e(TAG, "getPropertySafe: propId is not in config list:0x"
+                        + toHexString(prop));
+                return null;
+            }
+        }
+        ICarImpl.assertPermission(mContext, mHal.getReadPermission(prop));
+        return mHal.getPropertySafe(prop, zone);
     }
 
     @Nullable
