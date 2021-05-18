@@ -46,15 +46,21 @@ void EvsCallbackThread::threadLoop() {
         Task task;
         {
             std::unique_lock<std::mutex> lock(mLock);
-            mCondition.wait(lock);
-            // The conditional variable is signalled when either a new task
-            // is enqueued or we are requested to stop.  If we wake up
-            // spuriously, the task queue must be empty so go back to sleep.
             if (!mRunning) {
-                LOG(DEBUG) << "Exiting a callback handler thread.";
                 break;
-            } else if (mTaskQueue.empty()) {
-                continue;
+            }
+
+            if (mTaskQueue.empty()) {
+                mCondition.wait(lock);
+                // The conditional variable is signalled when either a new task
+                // is enqueued or we are requested to stop.  If we wake up
+                // spuriously, the task queue must be empty so go back to sleep.
+                if (!mRunning) {
+                    break;
+                } else if (mTaskQueue.empty()) {
+                    LOG(DEBUG) << "No pending tasks; continue.";
+                    continue;
+                }
             }
 
             task = mTaskQueue.front();
@@ -78,6 +84,8 @@ void EvsCallbackThread::threadLoop() {
     if (!mTaskQueue.empty()) {
         LOG(WARNING) << mTaskQueue.size() << " tasks are ignored.";
     }
+
+    LOG(DEBUG) << "Exiting a callback handler thread.";
 }
 
 void EvsCallbackThread::enqueue(const Task& task) {
@@ -106,7 +114,7 @@ void EvsCallbackThread::stop() {
     if (mThread.get_id() == std::this_thread::get_id()) {
         // Should not join by myself
         mThread.detach();
-    } else {
+    } else if (mThread.joinable()) {
         mThread.join();
     }
 }
