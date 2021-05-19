@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Tietosuoja"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Järjestelmänvalvojan estämä"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Suojaustila"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Näytön lukitus, Face Unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Näytön lukitus, kasvojentunnistusavaus"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Näytön lukitus, sormenjälki"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Näytön lukitus"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Kasvot lisätty"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Poista kasvodata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Voit avata laitteesi ja käyttää sovelluksia kasvojesi avulla. "<annotation id="url">"Lisätietoja"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Poistetaanko kasvodata?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Face Unlockin tallentama data poistetaan pysyvästi ja turvallisesti. Poistamisen jälkeen tarvitset PIN-koodia, kuviota tai salasanaa puhelimen lukituksen avaamiseen, sovelluksiin kirjautumiseen ja maksujen vahvistamiseen."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Kasvojentunnistusavauksen tallentama data poistetaan pysyvästi ja turvallisesti. Poistamisen jälkeen tarvitset PIN-koodia, kuviota tai salasanaa puhelimen lukituksen avaamiseen, sovelluksiin kirjautumiseen ja maksujen vahvistamiseen."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Sormenjälki"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Sormenjälkien hallinta"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Sormenj. käyttökohde"</string>

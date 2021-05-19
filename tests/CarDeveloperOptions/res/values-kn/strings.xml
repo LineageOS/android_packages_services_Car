@@ -2306,8 +2306,8 @@
       <item quantity="other">ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಹಿನ್ನೆಲೆಯಲ್ಲಿ ರನ್ ಆಗುವುದಿಲ್ಲ</item>
     </plurals>
     <plurals name="battery_tip_restrict_app_dialog_title" formatted="false" msgid="3042021435866172168">
-      <item quantity="one">%1$d ರಷ್ಟು ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವುದೇ?</item>
-      <item quantity="other">%1$d ರಷ್ಟು ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವುದೇ?</item>
+      <item quantity="one">%1$d ಆ್ಯಪ್‍ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವುದೇ?</item>
+      <item quantity="other">%1$d ಆ್ಯಪ್‍ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವುದೇ?</item>
     </plurals>
     <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"ಬ್ಯಾಟರಿ ಉಳಿಸಲು, ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಬ್ಯಾಟರಿ ಬಳಸುವುದನ್ನು <xliff:g id="APP">%1$s</xliff:g> ನಲ್ಲಿ ನಿಲ್ಲಿಸಿ. ಈ ಅಪ್ಲಿಕೇಶನ್ ಸರಿಯಾಗಿ ಕೆಲಸ ಮಾಡದಿರಬಹುದು ಮತ್ತು ಅಧಿಸೂಚನೆಗಳು ವಿಳಂಬವಾಗಬಹುದು."</string>
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"ಬ್ಯಾಟರಿ ಉಳಿಸಲು, ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಹಿನ್ನೆಲೆಯಲ್ಲಿ ಬ್ಯಾಟರಿ ಬಳಸುವುದನ್ನು ನಿಲ್ಲಿಸಿ. ನಿರ್ಬಂಧಿತ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಸರಿಯಾಗಿ ಕೆಲಸ ಮಾಡದಿರಬಹುದು ಮತ್ತು ಅಧಿಸೂಚನೆಗಳು ವಿಳಂಬವಾಗಬಹುದು.\n\nಅಪ್ಲಿಕೇಶನ್‌ಗಳು:"</string>

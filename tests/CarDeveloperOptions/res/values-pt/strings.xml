@@ -2936,7 +2936,7 @@
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Alterar PIN"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Mostrar notificações"</string>
     <string name="help_label" msgid="1296484776243905646">"Ajuda e feedback"</string>
-    <string name="support_summary" msgid="3278943815956130740">"Ajuda, início, telefone e bate-papo"</string>
+    <string name="support_summary" msgid="3278943815956130740">"Ajuda, início, telefone e chat"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Conta para conteúdo"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"ID de foto"</string>
     <string name="extreme_threats_title" msgid="1405820547540456436">"Ameaças extremas"</string>
@@ -3147,7 +3147,7 @@
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Som de alarme padrão"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibrar para chamadas"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Outros sons"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Tons de discagem"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Sons do teclado"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Sons de bloqueio de tela"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Sons e vibração ao carregar"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Sons da base"</string>
