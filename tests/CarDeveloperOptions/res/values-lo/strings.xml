@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ຄວາມເປັນສ່ວນຕົວ"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"ຖືກຜູ້ເບິ່ງແຍງລະບົບປິດໄວ້"</string>
     <string name="security_status_title" msgid="1261960357751754428">"ສະຖານະຄວາມປອດໄພ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ລັອກໜ້າຈໍ, ການປົດລັອກດ້ວຍໃບໜ້າ"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ລັອກໜ້າຈໍ, ການປົດລັອກດ້ວຍໜ້າ"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ການລັອກໜ້າຈໍ, ລາຍນິ້ວມື"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ການລັອກໜ້າຈໍ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"ເພີ່ມໜ້າແລ້ວ"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"ລຶບຂໍ້ມູນໃບໜ້າອອກ"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ໃບໜ້າຂອງທ່ານສາມາດໃຊ້ເພື່ອປົດລັອກອຸປະກອນ ແລະ ເຂົ້າເຖິງແອັບຕ່າງໆໄດ້. "<annotation id="url">"ສຶກສາເພີ່ມເຕີມ"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"ລຶບຂໍ້ມູນໃບໜ້າອອກບໍ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ຂໍ້ມູນທີ່ບັນທຶກໂດຍການປົດລັອກໜ້າຈໍຈະຖືກລຶບອອກຖາວອນຢ່າງປອດໄພ. ຫຼັງຈາກການລຶບແລ້ວ, ທ່ານຈະຕ້ອງໃຊ້ PIN, ຮູບແບບປົດລັອກ ຫຼື ລະຫັດຜ່ານໃນການປົດລັອກໂທລະສັບ, ການລົງຊື່ເຂົ້າໃຊ້ແອັບ ແລະ ການຢືນຢັນການຈ່າຍເງິນ."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ຂໍ້ມູນທີ່ບັນທຶກໂດຍການປົດລັອກດ້ວຍໜ້າຈໍຈະຖືກລຶບອອກຖາວອນຢ່າງປອດໄພ. ຫຼັງຈາກການລຶບແລ້ວ, ທ່ານຈະຕ້ອງໃຊ້ PIN, ຮູບແບບປົດລັອກ ຫຼື ລະຫັດຜ່ານໃນການປົດລັອກໂທລະສັບ, ການລົງຊື່ເຂົ້າໃຊ້ແອັບ ແລະ ການຢືນຢັນການຈ່າຍເງິນ."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ລາຍນີ້ວ​ມື"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ຈັດ​ການ​ລາຍ​ນີ້ວ​ມື"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ໃຊ້​ລາຍ​ນີ້ວ​ມື​ສຳ​ລັບ"</string>

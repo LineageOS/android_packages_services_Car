@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"pagar, tocar, pagos"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"copia de seguridad, copia seguridad"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gesto"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"cara, desbloquear, autorización, iniciar sesión"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"facial, desbloqueo, autorización, iniciar sesión"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, versión de prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"red, estado de la red móvil, estado del servicio, intensidad de la señal, tipo de red móvil, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"número de serie, versión de hardware"</string>

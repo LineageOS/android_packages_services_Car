@@ -3281,8 +3281,8 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"您不會看到或聽到通知，但允許顯示已加星號的聯絡人和重複來電者的來電。"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(目前設定)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"要變更「請勿騷擾」通知設定嗎？"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"工作設定檔聲音"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔聲音"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"工作設定檔音效"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔音效"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"在工作和個人設定檔中使用相同音效"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"工作手機鈴聲"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設工作通知音效"</string>

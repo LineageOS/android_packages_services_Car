@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"బ్లూటూత్, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"బ్లూటూత్"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"యాప్‌లు &amp; నోటిఫికేషన్‌లు"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, ఇటీవలి యాప్‌లు, డిఫాల్ట్ యాప్‌లు"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, ఇటీవలి యాప్‌లు, ఆటోమేటిక్‌ యాప్‌లు"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"కార్యాలయ ప్రొఫైల్‌లో ఉన్న యాప్‌లకు సంబంధించి నోటిఫికేషన్ యాక్సెస్ అందుబాటులో లేదు."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"ఖాతాలు"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"ఖాతాలు జోడించబడలేదు"</string>
@@ -4067,7 +4067,7 @@
     <string name="notification_suggestion_title" msgid="3292107671498148560">"లాక్ స్క్రీన్‌పై నియంత్రణ సమాచారం"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"నోటిఫికేషన్ కంటెంట్‌ను చూపు లేదా దాచు"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"అన్నీ"</string>
-    <string name="page_tab_title_support" msgid="5569262185010367870">"చిట్కాలు &amp; మద్దతు"</string>
+    <string name="page_tab_title_support" msgid="5569262185010367870">"చిట్కాలు &amp; సపోర్ట్"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"అతితక్కువ వెడల్పు"</string>
     <string name="premium_sms_none" msgid="940723020871007898">"ఇన్‌స్టాల్ చేసిన యాప్‌లు ఏవీ ప్రీమియం SMS ప్రాప్యతను అభ్యర్థించలేదు"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"ప్రీమియం SMSతో మీకు డబ్బు ఖర్చు కావచ్చు, ఈ ఛార్జీ మీ క్యారియర్ బిల్లుల్లో విధించబడుతుంది. మీరు ఒక అనువర్తనానికి అనుమతిని అందిస్తే, ఆ యాప్‌ను ఉపయోగించి ప్రీమియం SMSను పంపగలరు."</string>

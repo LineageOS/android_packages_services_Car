@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Yüz verisini kaldır"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Yüzünüzü kullanarak cihazınızın kilidini açabilir ve uygulamalara erişebilirsiniz. "<annotation id="url">"Daha fazla bilgi"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Yüz verileri silinsin mi?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Yüz tanıma kilidi tarafından kaydedilen veriler kalıcı ve güvenli bir şekilde silinecek. Kaldırma işleminden sonra, telefonunuzun kilidini açmak, oturumlarda oturum açmak ve ödemeleri onaylamak için PIN\'inize, deseninize veya şifrenize ihtiyacınız olur."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Yüz tanıma kilidi tarafından kaydedilen veriler kalıcı ve güvenli bir şekilde silinecek. Kaldırma işleminden sonra, telefonunuzun kilidini açmak, uygulamalarda oturum açmak ve ödemeleri onaylamak için PIN\'inize, deseninize veya şifrenize ihtiyacınız olur."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Parmak izi"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Parmak izi yönetimi"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Parmak izi kullanımı:"</string>

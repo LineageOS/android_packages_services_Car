@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ကန့်သတ်ရန် ဆက်တင်"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"စီမံခန့်ခွဲသူက ပိတ်ထားသည်"</string>
     <string name="security_status_title" msgid="1261960357751754428">"လုံခြုံရေး အခြေအနေ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ဖုန်းမျက်နှာပြင် လော့ခ်၊ မျက်နှာပြ လော့ခ်ဖွင့်ခြင်း"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ဖန်သားပြင် လော့ခ်၊ မျက်နှာပြ လော့ခ်ဖွင့်ခြင်း"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ဖန်သားပြင် လော့ခ်ချခြင်း၊ လက်ဗွေ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ဖန်သားပြင်လော့ခ်"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"မျက်နှာ ထည့်သွင်းပြီး"</string>

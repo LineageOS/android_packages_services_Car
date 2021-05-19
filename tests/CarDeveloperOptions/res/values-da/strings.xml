@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privatliv"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Deaktiveret af administratoren"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sikkerhedsstatus"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skærmlås, Ansigtslås"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skærmlås, ansigtslås"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skærmlås, fingeraftryk"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skærmlås"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Ansigtet blev tilføjet"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Fjern ansigtsdata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Du kan låse din enhed op og få adgang til apps ved hjælp af dit ansigt. "<annotation id="url">"Få flere oplysninger"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Vil du slette ansigtsdata?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data, der er registreret via Ansigtslås slettes permanent på en sikker måde. Efter fjernelsen skal du bruge din pinkode, dit mønster eller din adgangskode til at låse din telefon op, logge ind i apps og bekræfte betalinger."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data, der er registreret via ansigtslås, slettes permanent på en sikker måde. Efter fjernelsen skal du bruge din pinkode, dit mønster eller din adgangskode til at låse din telefon op, logge ind i apps og bekræfte betalinger."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingeraftryk"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Adm. fingeraftryk"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Brug fingeraftryk til"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(aktuel indstilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vil du ændre notifikationsindstillingerne for Forstyr ikke?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Lyde for arbejdsprofil"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Brug lyde fra privat profil"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Brug lyde fra din personlige profil"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Lydene er de samme for din arbejdsprofil og din personlige profil"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Ringetone til arbejdstelefon"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standardlyd for arbejdsnotifikationer"</string>

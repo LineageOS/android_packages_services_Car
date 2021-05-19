@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"গোপনীয়তা"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"প্রশাসক দ্বারা অক্ষম করা হয়েছে"</string>
     <string name="security_status_title" msgid="1261960357751754428">"নিরাপত্তা স্থিতি"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্রিন লক, মুখের সাহায্যে আনলক"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্রিন লক, ফেস আনলক"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"স্ক্রিন লক, আঙ্গুলের ছাপ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"স্ক্রিন লক"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"ফেস যোগ করা হয়েছে"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"মুখের ডেটা সরান"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"আপনার মুখ ব্যবহার করে ডিভাইস আনলক এবং অ্যাপে অ্যাক্সেস করতে পারেন। "<annotation id="url">"আরও জানুন"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"মুখের ডেটা মুছে ফেলতে চান?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"মুখের সাহায্যে আনলক করার মাধ্যমে রেকর্ড করা ডেটা স্থায়ীভাবে ও নিরাপদে মুছে ফেলা হবে। সরিয়ে দেওয়ার পরে আপনাকে পিন, প্যাটার্ন বা পাসওয়ার্ডের সাহায্যে ফোন আনলক করতে, অ্যাপে সাইন-ইন করতে এবং পেমেন্ট কনফার্ম করতে হবে।"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ফেস আনলক করার মাধ্যমে রেকর্ড করা ডেটা স্থায়ীভাবে ও নিরাপদে মুছে ফেলা হবে। সরিয়ে দেওয়ার পরে আপনাকে পিন, প্যাটার্ন বা পাসওয়ার্ডের সাহায্যে ফোন আনলক করতে, অ্যাপে সাইন-ইন করতে এবং পেমেন্ট কনফার্ম করতে হবে।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"আঙ্গুলের ছাপ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"আঙ্গুলের ছাপগুলি পরিচালনা করুন"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"এর জন্য আঙ্গুলের ছাপ ব্যবহার করুন"</string>
@@ -3280,10 +3280,10 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"আপনি কোনও বিজ্ঞপ্তি দেখতে বা শুনতে পাবেন না। যারা তারা চিহ্নিত পরিচিতি এবং আগে যারা ফোন করেছেন তারা আবার ফোন করতে পারবেন।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(বর্তমান সেটিং)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"বিরক্ত করবে না\" মোডের বিজ্ঞপ্তির সেটিংস পরিবর্তন করবেন?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"কর্মস্থলের প্রোফাইলের ধ্বনিগুলি"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"অফিস প্রোফাইলের সাউন্ড"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ব্যক্তিগত প্রোফাইলের ধ্বনিগুলি ব্যবহার করুন"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"কাজ এবং ব্যক্তিগত প্রোফাইলের জন্য একই শব্দ"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"কর্মস্থলের ফোনের রিংটোন"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"অফিস ফোনের রিংটোন"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ডিফল্ট কাজের বিজ্ঞপ্তির শব্দ"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ডিফল্ট কাজের অ্যালার্মের শব্দ"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ব্যক্তিগত প্রোফাইলের অনুরূপ"</string>

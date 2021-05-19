@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Maxfiylik"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Administrator tomonidan o‘chirilgan"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Xavfsizlik holati"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekran qulfi, qulfni yuzni tanitib ochish"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekran qulfi, yuz bilan ochish"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Ekran qulfi, barmoq izi"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Ekran qulfi"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Yuz tekshiruvi tugadi"</string>
@@ -3046,7 +3046,7 @@
     <string name="account_dashboard_title" msgid="4734300939532555885">"Hisoblar"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"Hech qanday hisobga kirilmagan"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"Birlamchi ilovalar"</string>
-    <string name="system_dashboard_summary" msgid="6582464466735779394">"Tillar, ishoralar, vaqt, zaxiralash"</string>
+    <string name="system_dashboard_summary" msgid="6582464466735779394">"Tillar, vaqt, ishoralar, zaxira"</string>
     <string name="search_results_title" msgid="4160717656435503940">"Sozlamalar"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"Wi-Fi, WiFi, tarmoq aloqasi, Internet, simsiz, mobil internet, Wi Fi"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Wi‑Fi bildirishnomasi, Wi-Fi bildirishnoma"</string>
@@ -3280,10 +3280,10 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Bildirishnomalar chiqmaydi yoki eshittirilmaydi. Yulduzchali kontaktlardan chaqiruvlar va qayta chaqiruvlarga ruxsat berilgan."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Joriy parametr)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Bezovta qilinmasin rejimining bildirishnomalar sozlamalari o‘zgartirilsinmi?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"Ish profili ovozlari"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Shaxsiy profil ovozlaridan foydalanish"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"Ish profilidagi tovushlar"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Shaxsiy profil tovushlaridan foydalanish"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Tovushlar ishchi va shaxsiy profillar uchun bir xil"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Ishchi telefon ringtoni"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Ish telefoni ringtoni"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standart bildirishnoma tovushi"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Standart signal tovushi"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Shaxsiy profilniki bilan bir xil"</string>

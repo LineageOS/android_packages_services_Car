@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Datenschutz"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Vom Administrator deaktiviert"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sicherheitsstatus"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Displaysperre, Gesichtserkennung"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Displaysperre, Gesichtsentsperrung"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Displaysperre und Fingerabdruck"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Displaysperre"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Gesicht hinzugefügt"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Gesichtsdaten entfernen"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Du kannst dein Gerät per Gesichtserkennung entsperren und auf deine Apps zugreifen. "<annotation id="url">"Weitere Informationen"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Gesichtsdaten löschen?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Mit Face Unlock aufgezeichnete Daten werden dauerhaft und sicher gelöscht. Nach dem Entfernen benötigst du deine PIN, dein Muster oder dein Passwort zum Entsperren deines Smartphones, zum Anmelden bei Apps und zum Bestätigen von Zahlungen."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Mit Gesichtsentsperrung aufgezeichnete Daten werden dauerhaft und sicher gelöscht. Nach dem Entfernen benötigst du deine PIN, dein Muster oder dein Passwort zum Entsperren deines Smartphones, zum Anmelden bei Apps und zum Bestätigen von Zahlungen."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingerabdruck"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Fingerabdrücke verwalten"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Abdruck nutzen für"</string>
@@ -3099,7 +3099,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"bezahlen, kontaktlos, Zahlungen"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"Sicherung, sicherung"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"bewegung, geste, touch-geste"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"Face, Unlock, Gesichtserkennung, Anmeldung"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"Gesichtsentsperrung, Authentifizierung, Anmeldung"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, Min., prl version, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"netzwerk, status des mobilfunknetz, servicestatus, signalstärke, art des mobilfunknetzes, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"seriennummer, hardwareversion"</string>
@@ -3282,7 +3282,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Aktuelle Einstellung)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Einstellungen für „Bitte nicht stören“ ändern?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Töne für Arbeitsprofil"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Töne vom persönlichen Profil verwenden"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Töne des privaten Profils verwenden"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Töne in Arbeits- und privaten Profilen stimmen überein"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Klingelton für Arbeitsprofil"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standard-Benachrichtigungston für Arbeitsprofil"</string>

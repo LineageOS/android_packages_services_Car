@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ਪਰਦੇਦਾਰੀ"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"ਪ੍ਰਸ਼ਾਸਕ ਦੁਆਰਾ ਅਯੋਗ ਬਣਾਇਆ ਗਿਆ"</string>
     <string name="security_status_title" msgid="1261960357751754428">"ਸੁਰੱਖਿਆ ਸਥਿਤੀ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ਸਕ੍ਰੀਨ ਲਾਕ, ਚਿਹਰਾ ਅਣਲਾਕ"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ਸਕ੍ਰੀਨ ਲਾਕ, ਫ਼ੇਸ ਅਣਲਾਕ"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ਸਕ੍ਰੀਨ ਲਾਕ, ਫਿੰਗਰਪ੍ਰਿੰਟ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ਸਕ੍ਰੀਨ ਲਾਕ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"ਚਿਹਰਾ ਸ਼ਾਮਲ ਕੀਤਾ ਗਿਆ"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"ਚਿਹਰੇ ਦਾ ਡਾਟਾ ਹਟਾਓ"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ਤੁਹਾਡੇ ਡੀਵਾਈਸ ਨੂੰ ਅਣਲਾਕ ਅਤੇ ਐਪਾਂ ਤੱਕ ਪਹੁੰਚ ਕਰਨ ਲਈ ਤੁਹਾਡੇ ਚਿਹਰੇ ਦੀ ਵਰਤੋਂ ਕੀਤੀ ਜਾ ਸਕਦੀ ਹੈ। "<annotation id="url">"ਹੋਰ ਜਾਣੋ"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"ਕੀ ਚਿਹਰੇ ਦਾ ਡਾਟਾ ਮਿਟਾਉਣਾ ਹੈ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ਚਿਹਰਾ ਅਣਲਾਕ ਰਾਹੀਂ ਰਿਕਾਰਡ ਕੀਤਾ ਡਾਟਾ ਸਥਾਈ ਤੌਰ \'ਤੇ ਸੁਰੱਖਿਅਤ ਢੰਗ ਨਾਲ ਮਿਟਾਇਆ ਜਾਵੇਗਾ। ਮਿਟਾਉਣ ਤੋਂ ਬਾਅਦ, ਤੁਹਾਨੂੰ ਆਪਣਾ ਫ਼ੋਨ ਅਣਲਾਕ ਕਰਨ ਲਈ, ਐਪਾਂ \'ਤੇ ਸਾਈਨ-ਇਨ ਕਰਨ ਅਤੇ ਭੁਗਤਾਨਾਂ ਦੀ ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਆਪਣੇ ਪਿੰਨ, ਪੈਟਰਨ ਜਾਂ ਪਾਸਵਰਡ ਦੀ ਲੋੜ ਹੋਵੇਗੀ।"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ਫ਼ੇਸ ਅਣਲਾਕ ਰਾਹੀਂ ਰਿਕਾਰਡ ਕੀਤਾ ਡਾਟਾ ਸਥਾਈ ਤੌਰ \'ਤੇ ਸੁਰੱਖਿਅਤ ਢੰਗ ਨਾਲ ਮਿਟਾਇਆ ਜਾਵੇਗਾ। ਮਿਟਾਉਣ ਤੋਂ ਬਾਅਦ, ਤੁਹਾਨੂੰ ਆਪਣਾ ਫ਼ੋਨ ਅਣਲਾਕ ਕਰਨ ਲਈ, ਐਪਾਂ \'ਤੇ ਸਾਈਨ-ਇਨ ਕਰਨ ਅਤੇ ਭੁਗਤਾਨਾਂ ਦੀ ਪੁਸ਼ਟੀ ਕਰਨ ਲਈ ਆਪਣੇ ਪਿੰਨ, ਪੈਟਰਨ ਜਾਂ ਪਾਸਵਰਡ ਦੀ ਲੋੜ ਹੋਵੇਗੀ।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ਫਿੰਗਰਪ੍ਰਿੰਟ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ਫਿੰਗਰਪ੍ਰਿੰਟਸ ਵਿਵਸਥਿਤ ਕਰੋ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ਇਸ ਲਈ ਫਿੰਗਰਪ੍ਰਿੰਟ ਵਰਤੋ"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"ਭੁਗਤਾਨ ਕਰੋ, ਟੈਪ ਕਰੋ, ਭੁਗਤਾਨ"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ਬੈਕਅੱਪ, ਬੈਕ ਅੱਪ"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"ਸੰਕੇਤ"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ਚਿਹਰਾ, ਅਣਲਾਕ, ਪ੍ਰਮਾਣੀਕਰਨ, ਸਾਈਨ-ਇਨ"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"ਫ਼ੇਸ, ਅਣਲਾਕ, ਪ੍ਰਮਾਣੀਕਰਨ, ਸਾਈਨ-ਇਨ"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl ਵਰਜਨ, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"ਨੈੱਟਵਰਕ, ਮੋਬਾਈਲ ਨੈੱਟਵਰਕ ਅਵਸਥਾ, ਸੇਵਾ ਅਵਸਥਾ, ਸਿਗਨਲ ਸ਼ਕਤੀ, ਮੋਬਾਈਲ ਨੈੱਟਵਰਕ ਦੀ ਕਿਸਮ, ਰੋਮਿੰਗ, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"ਸੀਰੀਅਲ ਨੰਬਰ, ਹਾਰਡਵੇਅਰ ਵਰਜਨ"</string>

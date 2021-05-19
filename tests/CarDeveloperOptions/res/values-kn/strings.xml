@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"ಬ್ಲೂಟೂತ್, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"ಬ್ಲೂಟೂತ್"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ಆ್ಯಪ್ &amp; ಅಧಿಸೂಚನೆ"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"ಅಸಿಸ್ಟೆಂಟ್, ಇತ್ತೀಚಿನ ಆ್ಯಪ್‌ಗಳು, ಡೀಫಾಲ್ಟ್ ಆ್ಯಪ್‌ಗಳು"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, ಇತ್ತೀಚಿನ ಆ್ಯಪ್‌ಗಳು, ಡೀಫಾಲ್ಟ್ ಆ್ಯಪ್‌ಗಳು"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"ಕೆಲಸದ ಪ್ರೊಫೈಲ್‌ನಲ್ಲಿರುವ ಅಪ್ಲಿಕೇಶನ್‌ಗಳಿಗೆ ಅಧಿಸೂಚನೆ ಪ್ರವೇಶ ಲಭ್ಯವಿಲ್ಲ."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"ಖಾತೆಗಳು"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"ಯಾವುದೇ ಖಾತೆಗಳನ್ನು ಸೇರಿಸಿಲ್ಲ"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"ಪಾವತಿಸಿ, ಟ್ಯಾಪ್ ಮಾಡಿ, ಪಾವತಿಗಳು"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ಬ್ಯಾಕಪ್, ಬ್ಯಾಕ್ ಅಪ್"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"ಗೆಸ್ಚರ್"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ಮುಖ, ಅನ್‌ಲಾಕ್‌, ದೃಢೀಕರಣ, ಸೈನ್ ಇನ್"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"ಫೇಸ್, ಅನ್‌ಲಾಕ್‌, ದೃಢೀಕರಣ, ಸೈನ್ ಇನ್"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl ಆವೃತ್ತಿ, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"ನೆಟ್‌ವರ್ಕ್, ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ಸ್ಥಿತಿ, ಸೇವಾ ಸ್ಥಿತಿ, ಸಿಗ್ನಲ್ ಸಾಮರ್ಥ್ಯ, ಮೊಬೈಲ್ ನೆಟ್‌ವರ್ಕ್ ವಿಧ, ರೋಮಿಂಗ್, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"ಕ್ರಮ ಸಂಖ್ಯೆ, ಹಾರ್ಡ್‌ವೇರ್ ಆವೃತ್ತಿ"</string>

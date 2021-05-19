@@ -1965,7 +1965,7 @@
     <string name="spellchecker_language" msgid="5168501692418112444">"Dil"</string>
     <string name="keyboard_and_input_methods_category" msgid="5870292843201629800">"Klaviaturalar"</string>
     <string name="virtual_keyboard_category" msgid="4313267486239328613">"Virtual klaviatura"</string>
-    <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"Mövcud virtual klaviyatura"</string>
+    <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"Əlçatan virtual klaviatura"</string>
     <string name="add_virtual_keyboard" msgid="490638727157806209">"Klaviaturaları idarə edin"</string>
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"Klaviatura yardımı"</string>
     <string name="physical_keyboard_title" msgid="3508591962962814313">"Fiziki klaviatura"</string>

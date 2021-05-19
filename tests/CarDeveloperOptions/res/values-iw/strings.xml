@@ -799,14 +799,14 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"אפשרויות..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"אפשרויות מתקדמות"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth מתקדם"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"כש-Bluetooth פועל, יש קשר למכשירי Bluetooth אחרים."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"כשה-Bluetooth מופעל, המכשיר יכול לתקשר עם מכשירי Bluetooth אחרים שנמצאים בקרבת מקום."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"כש-Bluetooth מופעל, המכשיר יכול לתקשר עם מכשירי Bluetooth אחרים שנמצאים בקרבת מקום.\n\nלשיפור חוויית השימוש במכשיר, אפליקציות ושירותים עדיין יכולים לסרוק מכשירים בקרבת מקום בכל עת, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי-מיקום. אפשר לשנות זאת ב"<annotation id="link">"הגדרות הסריקה"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"כדי לשפר את דיוק המיקום, אפליקציות ושירותים של המערכת יכולים עדיין לזהות התקני Bluetooth. ניתן לשנות זאת ב<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>הגדרות הסריקה<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"לא ניתן להתחבר. יש לנסות שוב."</string>
     <string name="device_details_title" msgid="726517818032923222">"פרטי מכשיר"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"כתובת המכשיר לחיבור דרך Bluetooth: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"לשכוח את המכשיר?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ההתאמה בין הטלפון שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ההתאמה בין הטלפון שלך למכשיר <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"ההתאמה בין הטאבלט שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"ההתאמה בין המכשיר שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"כן, אפשר לשכוח"</string>
@@ -3226,7 +3226,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"צליל ברירת המחדל להתראות"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"צליל שסיפקה האפליקציה"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"צליל ברירת המחדל להתראות"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"צליל לשעון מעורר"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"צליל ברירת המחדל לשעון מעורר"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"רטט לשיחות"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"צלילים אחרים"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"צלילים של לוח חיוג"</string>
@@ -3243,7 +3243,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"צלילים"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"רטט"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"הפעלת צלילים"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"כתוביות בזמן אמת"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"כתוביות מיידיות"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"הוספת כתוביות אוטומטית למדיה"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"אף פעם"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">

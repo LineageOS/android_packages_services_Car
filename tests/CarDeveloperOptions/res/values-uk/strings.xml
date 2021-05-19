@@ -432,7 +432,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Видалити обличчя"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Ви можете розблоковувати пристрій і відкривати додатки за допомогою даних про обличчя. "<annotation id="url">"Докладніше"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Видалити дані про обличчя?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Дані, записані Фейсконтролем, буде остаточно й безпечно видалено. Після видалення потрібно буде ввести PIN-код, ключ або пароль, щоб розблоковувати телефон, входити в додатки та підтверджувати платежі."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Дані, записані фейсконтролем, буде остаточно й безпечно видалено. Після видалення потрібно буде ввести PIN-код, ключ або пароль, щоб розблоковувати телефон, входити в додатки та підтверджувати платежі."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Цифровий відбиток"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Керування відбитками"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Використ. відбиток для"</string>
@@ -4629,7 +4629,7 @@
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Замінити примусовий темний режим"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Не дозволяє постійний примусовий темний режим"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Конфіденційність"</string>
-    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Дозволи, активність в обліковому записі, персональні дані"</string>
+    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Дозволи, дії в обліковому записі, персональні дані"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Видалити"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Залишити"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Видалити цю пропозицію?"</string>

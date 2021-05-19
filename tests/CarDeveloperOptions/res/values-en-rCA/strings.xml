@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privacy"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Disabled by admin"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Security status"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Screen lock, face unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Screen lock, Face Unlock"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Screen lock, fingerprint"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Screen lock"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Face added"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Remove face data"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Your face can be used to unlock your device and access apps. "<annotation id="url">"Learn more"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Delete face data?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data recorded by face unlock will be permanently and securely deleted. After removal, you will need your PIN, pattern or password to unlock your phone, sign in to apps and confirm payments."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data recorded by Face Unlock will be permanently and securely deleted. After removal, you will need your PIN, pattern or password to unlock your phone, sign in to apps and confirm payments."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingerprint"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Manage fingerprints"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Use fingerprint for"</string>

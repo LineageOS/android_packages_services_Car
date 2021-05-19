@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Sons del perfil de treball"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utilitza sons del perfil personal"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Els sons del perfil de treball i personal són els mateixos"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"So de trucada de la feina"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"So de trucada del telèfon de la feina"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"So de notificació de la feina predeterminat"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"So d\'alarma de la feina predeterminat"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Igual que al perfil personal"</string>

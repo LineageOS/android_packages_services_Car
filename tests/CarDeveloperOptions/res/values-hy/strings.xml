@@ -3280,7 +3280,7 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ծանուցումներն ամբողջությամբ կանջատվեն։ Զանգեր կստանաք միայն աստղանշված և հաճախակի զանգող բաժանորդներից։"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ընթացիկ կարգավորումը)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Փոփոխե՞լ «Չանհանգստացնել» ռեժիմի ծանուցումների կարգավորումները"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"Աշխատանքային պրոֆիլի ձայները"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"Աշխատանքային պրոֆիլի ձայներ"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Օգտագործել անձնական պրոֆիլի ձայները"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Զանգերանգները նույնն են աշխատանքային և անձնական պրոֆիլների համար"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Հեռախոսի զանգերանգը"</string>

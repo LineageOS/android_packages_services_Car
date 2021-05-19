@@ -4208,8 +4208,8 @@
     </plurals>
     <string name="enterprise_privacy_lock_device" msgid="1533125067038409945">"Admin dapat mengunci perangkat dan menyetel ulang sandi"</string>
     <string name="enterprise_privacy_wipe_device" msgid="7555287990273929922">"Admin dapat menghapus semua data perangkat"</string>
-    <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"Gagal memasukkan sandi sebelum menghapus semua data perangkat"</string>
-    <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"Gagal memasukkan sandi sebelum menghapus data profil kerja"</string>
+    <string name="enterprise_privacy_failed_password_wipe_device" msgid="4101502079202483156">"Kesalahan sandi sebelum menghapus semua data perangkat"</string>
+    <string name="enterprise_privacy_failed_password_wipe_work" msgid="2881646286634693392">"Kesalahan sandi sebelum menghapus data profil kerja"</string>
     <plurals name="enterprise_privacy_number_failed_password_wipe" formatted="false" msgid="562550414712223382">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> upaya</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> upaya</item>
