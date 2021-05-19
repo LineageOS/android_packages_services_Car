@@ -2239,7 +2239,7 @@
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"पृष्ठभूमिको प्रयोगमा प्रतिबन्ध लगाउन सकिँदैन"</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"पृष्ठभूमिको गतिविधिलाई सीमित गर्ने हो?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"तपाईंले कुनै एपको पृष्ठभूमिको गतिविधिलाई सीमित गर्नुभयो भने यसले सही तरिकाले काम नगर्न सक्छ"</string>
-    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"यो एपलाई ब्याट्री अप्टिमाइज गर्न भनी सेट नगरिएको हुनाले तपाईं यसमा बन्देज लगाउन सक्नुहुन्न।\n\nअनुप्रयोगमा बन्देज लगाउन पहिले ब्याट्री अप्टिमाइजेसन सुविधा सक्रिय गर्नुहोस्।"</string>
+    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"यो एपलाई ब्याट्री अप्टिमाइज गर्न भनी सेट नगरिएको हुनाले तपाईं यसमा बन्देज लगाउन सक्नुहुन्न।\n\nएपमा बन्देज लगाउन पहिले ब्याट्री अप्टिमाइजेसन सुविधा सक्रिय गर्नुहोस्।"</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"पूर्ण चार्ज भएदेखि स्क्रिनको प्रयोगको अवधि"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"पूर्ण चार्ज भएदेखि ब्याट्रीको खपत"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"पूर्ण चार्ज भएदेखि स्क्रिन सक्रिय रहेको समय"</string>
@@ -2339,7 +2339,7 @@
     <string name="battery_manager_off" msgid="9114027524232450371">"निष्क्रिय छ"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
       <item quantity="other">%1$d एपहरूमा प्रतिबन्ध लगाइयो</item>
-      <item quantity="one">%1$d अनुप्रयोगमा प्रतिबन्ध लगाइयो</item>
+      <item quantity="one">%1$d एपमा प्रतिबन्ध लगाइयो</item>
     </plurals>
     <string name="battery_header_title_alternate" msgid="1161081105263761743">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">%</xliff:g>"</font></small>""</string>
     <string name="dialog_stop_title" msgid="4354544579084434590">"एपलाई रोक्ने हो?"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"भुक्तानी गर्नुहोस्, ट्याप गर्नुहोस्, भुक्तानी"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ब्याकअप, ब्याकअप गर्नुहोस्"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"इसारा"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"अनुहार, अनलक, अधिकार दिने कार्य, साइन इन"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"फेस, अनलक, अधिकार दिने कार्य, साइन इन"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl संस्करण, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"नेटवर्क, मोबाइल नेटवर्कको स्थिति, सेवाको स्थिति, सिग्नलको क्षमता, मोबाइल नेटवर्कको प्रकार, रोमिङ, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"क्रम संख्या, हार्डवेयरको संस्करण"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(हालको सेटिङ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"बाधा नपुर्याउनुहोस् नामक मोडका सूचनासम्बन्धी सेटिङहरू बदल्ने हो?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"कार्य प्रोफाइलसम्बन्धी साउन्ड"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"व्यक्तिगत प्रोफाइलका ध्वनिहरूको प्रयोग गर्नुहोस्"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"व्यक्तिगत प्रोफाइलका साउन्डहरूको प्रयोग गरियोस्"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"कार्य र व्यक्तिगत दुवै प्रोफाइलका लागि उही साउन्ड प्रयोग गरिएको छ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"कार्यको फोनको रिङटोन"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"सूचनाको डिफल्ट आवाज"</string>
@@ -3312,7 +3312,7 @@
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"बबलहरू"</string>
     <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"<xliff:g id="APP_NAME">%1$s</xliff:g> लाई केही सूचनाहरू बबलका रूपमा देखाउन दिनुहोस्"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"बबलहरू सक्रिय पार्नुहोस्"</string>
-    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"यस अनुप्रयोगमा बबल सक्रिय गर्न सर्वप्रथम तपाईंले आफ्नो डिभाइसमा तिनीहरूलाई सक्रिय गर्नु पर्ने हुन्छ यस कार्यले तपाईंले यसअघि बबलहरू सक्रिय गर्नुभएका अन्य एपहरूमा प्रभाव पार्छ।"</string>
+    <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"यस एपमा बबल सक्रिय गर्न सर्वप्रथम तपाईंले आफ्नो डिभाइसमा तिनीहरूलाई सक्रिय गर्नु पर्ने हुन्छ यस कार्यले तपाईंले यसअघि बबलहरू सक्रिय गर्नुभएका अन्य एपहरूमा प्रभाव पार्छ।"</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"डिभाइसमा सक्रिय गर्नुहोस्"</string>
     <string name="bubbles_feature_disabled_button_cancel" msgid="4807286844588486198">"रद्द गर्नुहोस्"</string>
     <string name="swipe_direction_title" msgid="7535031630668873009">"कारबाहीहरू स्वाइप गर्नुहोस्"</string>
@@ -3658,9 +3658,9 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> अनुप्रयोगले समर्थित लिंकहरू खोल्न सक्छन्</item>
       <item quantity="one">एउटा अनुप्रयोगले समर्थित लिंकहरू खोल्न सक्छ</item>
     </plurals>
-    <string name="app_link_open_always" msgid="7723587434377688415">"यो अनुप्रयोगमा खोल्नुहोस्"</string>
+    <string name="app_link_open_always" msgid="7723587434377688415">"यो एपमा खोल्नुहोस्"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"प्रत्येक पटक सोधियोस्"</string>
-    <string name="app_link_open_never" msgid="5774359835242754350">"यो अनुप्रयोगमा नखोल्नुहोस्"</string>
+    <string name="app_link_open_never" msgid="5774359835242754350">"यो एपमा नखोल्नुहोस्"</string>
     <string name="default_apps_title" msgid="3848048391400989931">"डिफल्ट"</string>
     <string name="default_for_work" msgid="7290411716804495366">"कार्यका लागि डिफल्ट"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"सहायक तथा आवाजको इनपुट"</string>
@@ -4174,7 +4174,7 @@
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"तपाईंको यस यन्त्रमाथिको पहुँच"</string>
     <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"इमेल र पात्रो जस्ता तपाईंका काम सम्बन्धी खातासँग सम्बन्धित डेटा"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"तपाईंको डिभाइसमा भएका अनुप्रयोगहरूको सूची"</string>
-    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"प्रत्येक अनुप्रयोगमा खर्च भएको समय र डेटाको परिमाण"</string>
+    <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"प्रत्येक एपमा खर्च भएको समय र डेटाको परिमाण"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"नेटवर्क ट्राफिकको सबैभन्दा पछिल्लो लग"</string>
     <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"सबैभन्दा पछिल्लो बग रिपोर्ट"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"सबैभन्दा पछिल्लो सुरक्षा लग"</string>

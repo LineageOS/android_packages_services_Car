@@ -1902,7 +1902,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Žádné aplikace"</string>
     <string name="internal_storage" msgid="7392373600013294853">"Interní úložiště"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Přepočítávání velikosti..."</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Vymazat data aplikace?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Smazat data aplikace?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Veškerá data (všechny soubory, nastavení, účty, databáze apod.) této aplikace budou trvale vymazána."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Zrušit"</string>

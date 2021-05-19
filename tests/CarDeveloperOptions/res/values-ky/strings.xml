@@ -3289,7 +3289,7 @@
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Жеке профилдеги үндөргө окшош"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Добуштар алмаштырылсынбы?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Алмаштыруу"</string>
-    <string name="work_sync_dialog_message" msgid="944233463059129156">"Жумуш профилиңиз үчүн жеке профилиңиздин добуштары колдонулат"</string>
+    <string name="work_sync_dialog_message" msgid="944233463059129156">"Жумуш профилиңиз үчүн жеке профилиңиздин үндөрү колдонулат"</string>
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"Жеке добуш кошулсунбу?"</string>
     <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"Бул файл <xliff:g id="FOLDER_NAME">%s</xliff:g> куржунуна көчүрүлөт"</string>
     <string name="ringtones_category_preference_title" msgid="4491932700769815470">"Рингтондор"</string>

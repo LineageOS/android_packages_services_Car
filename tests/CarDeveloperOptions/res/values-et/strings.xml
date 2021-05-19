@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privaatsus"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Administraatori keelatud"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Turvalisuse olek"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekraanilukk, Face Unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekraanilukk, näoga avamine"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Ekraanilukk, sõrmejälg"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Ekraanilukk"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Nägu on lisatud"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Eemalda näoandmed"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Võite oma nägu kasutada seadme avamiseks ja rakendustele juurdepääsemiseks. "<annotation id="url">"Lisateave"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Kas soovite näoandmed kustutada?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Funktsiooniga Face Unlock salvestatud andmed kustutatakse jäädavalt ja turvaliselt. Pärast eemaldamist vajate telefoni avamiseks, rakendustesse sisselogimiseks ja maksete kinnitamiseks PIN-koodi, mustrit või parooli."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Näoga avamise funktsiooniga salvestatud andmed kustutatakse jäädavalt ja turvaliselt. Pärast eemaldamist vajate telefoni avamiseks, rakendustesse sisselogimiseks ja maksete kinnitamiseks PIN-koodi, mustrit või parooli."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Sõrmejälg"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Sõrmejälgede haldamine"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Sõrmej. kasutatakse:"</string>
