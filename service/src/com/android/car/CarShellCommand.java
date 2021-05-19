@@ -1869,27 +1869,23 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private int definePowerPolicy(String[] args, IndentingPrintWriter writer) {
-        String errorMsg = mCarPowerManagementService.definePowerPolicyFromCommand(args, writer);
-        if (errorMsg == null) return RESULT_OK;
-        writer.println(errorMsg);
+        boolean result = mCarPowerManagementService.definePowerPolicyFromCommand(args, writer);
+        if (result) return RESULT_OK;
         writer.printf("\nUsage: cmd car_service %s <POLICY_ID> [--enable COMP1,COMP2,...] "
                 + "[--disable COMP1,COMP2,...]\n", COMMAND_DEFINE_POWER_POLICY);
         return RESULT_ERROR;
     }
 
     private int applyPowerPolicy(String[] args, IndentingPrintWriter writer) {
-        String errorMsg = mCarPowerManagementService.applyPowerPolicyFromCommand(args, writer);
-        if (errorMsg == null) return RESULT_OK;
-        writer.println(errorMsg);
+        boolean result = mCarPowerManagementService.applyPowerPolicyFromCommand(args, writer);
+        if (result) return RESULT_OK;
         writer.printf("\nUsage: cmd car_service %s <POLICY_ID>\n", COMMAND_APPLY_POWER_POLICY);
         return RESULT_ERROR;
     }
 
     private int definePowerPolicyGroup(String[] args, IndentingPrintWriter writer) {
-        String errorMsg = mCarPowerManagementService.definePowerPolicyGroupFromCommand(args,
-                writer);
-        if (errorMsg == null) return RESULT_OK;
-        writer.println(errorMsg);
+        boolean result = mCarPowerManagementService.definePowerPolicyGroupFromCommand(args, writer);
+        if (result) return RESULT_OK;
         writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID> [%s:<POLICY_ID>] "
                 + "[%s:<POLICY_ID>]\n", COMMAND_DEFINE_POWER_POLICY_GROUP,
                 POWER_STATE_WAIT_FOR_VHAL, POWER_STATE_ON);
@@ -1897,9 +1893,8 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private int setPowerPolicyGroup(String[] args, IndentingPrintWriter writer) {
-        String errorMsg = mCarPowerManagementService.setPowerPolicyGroupFromCommand(args, writer);
-        if (errorMsg == null) return RESULT_OK;
-        writer.println(errorMsg);
+        boolean result = mCarPowerManagementService.setPowerPolicyGroupFromCommand(args, writer);
+        if (result) return RESULT_OK;
         writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID>\n",
                 COMMAND_SET_POWER_POLICY_GROUP);
         return RESULT_ERROR;

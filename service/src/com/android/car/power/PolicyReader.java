@@ -205,57 +205,69 @@ public final class PolicyReader {
     /**
      * Creates and registers a new power policy.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code PolicyOperationStatus.OK}, if successful. Otherwise, the other values.
      */
-    @Nullable
-    String definePowerPolicy(String policyId, String[] enabledComponents,
+    @PolicyOperationStatus.ErrorCode
+    int definePowerPolicy(String policyId, String[] enabledComponents,
             String[] disabledComponents) {
         if (policyId == null) {
-            return "policyId cannot be null";
+            int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, "policyId cannot be null"));
+            return error;
         }
         if (isSystemPowerPolicy(policyId)) {
-            return "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX;
+            int error = PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_ID;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error,
+                    "policyId should not start with " + SYSTEM_POWER_POLICY_PREFIX));
+            return error;
         }
         if (mRegisteredPowerPolicies.containsKey(policyId)) {
-            return policyId + " is already registered";
+            int error = PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_ID;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId));
+            return error;
         }
         SparseBooleanArray components = new SparseBooleanArray();
-        String errorMsg = parseComponents(enabledComponents, true, components);
-        if (errorMsg != null) {
-            return errorMsg;
+        int status = parseComponents(enabledComponents, true, components);
+        if (status != PolicyOperationStatus.OK) {
+            return status;
         }
-        errorMsg = parseComponents(disabledComponents, false, components);
-        if (errorMsg != null) {
-            return errorMsg;
+        status = parseComponents(disabledComponents, false, components);
+        if (status != PolicyOperationStatus.OK) {
+            return status;
         }
         CarPowerPolicy policy = new CarPowerPolicy(policyId, toIntArray(components, true),
                 toIntArray(components, false));
         mRegisteredPowerPolicies.put(policyId, policy);
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
     /**
      * Defines and registers a new power policy group.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code PolicyOperationStatus.OK}, if successful. Otherwise, the other values.
      */
-    @Nullable
-    String definePowerPolicyGroup(String policyGroupId, SparseArray<String> defaultPolicyPerState) {
+    @PolicyOperationStatus.ErrorCode
+    int definePowerPolicyGroup(String policyGroupId, SparseArray<String> defaultPolicyPerState) {
         if (policyGroupId == null) {
-            return "policyGroupId cannot be null";
+            return PolicyOperationStatus.ERROR_INVALID_POWER_POLICY_GROUP_ID;
         }
         if (mPolicyGroups.containsKey(policyGroupId)) {
-            return policyGroupId + " is already registered";
+            int error = PolicyOperationStatus.ERROR_DOUBLE_REGISTERED_POWER_POLICY_GROUP_ID;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyGroupId));
+            return error;
         }
         for (int i = 0; i < defaultPolicyPerState.size(); i++) {
             int state = defaultPolicyPerState.keyAt(i);
             String policyId = defaultPolicyPerState.valueAt(i);
             if (!mRegisteredPowerPolicies.containsKey(policyId)) {
-                return policyId + " for " + powerStateToString(state) + " is not registered";
+                int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId + " for "
+                        + powerStateToString(state)));
+                return error;
             }
         }
         mPolicyGroups.put(policyGroupId, defaultPolicyPerState);
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
     void dump(IndentingPrintWriter writer) {
@@ -676,20 +688,23 @@ public final class PolicyReader {
         return buffer.toString();
     }
 
-    @Nullable
-    private String parseComponents(String[] componentArr, boolean enabled,
-            SparseBooleanArray components) {
+    @PolicyOperationStatus.ErrorCode
+    int parseComponents(String[] componentArr, boolean enabled, SparseBooleanArray components) {
         for (int i = 0; i < componentArr.length; i++) {
             int component = toPowerComponent(componentArr[i], false);
             if (component == INVALID_POWER_COMPONENT) {
-                return componentArr[i] + " is not a valid power component";
+                int error = PolicyOperationStatus.ERROR_INVALID_POWER_COMPONENT;
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
+                return error;
             }
             if (components.indexOfKey(component) >= 0) {
-                return componentArr[i] + " is specified more than oncee";
+                int error = PolicyOperationStatus.ERROR_DUPLICATED_POWER_COMPONENT;
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, componentArr[i]));
+                return error;
             }
             components.put(component, enabled);
         }
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
     static int toPowerState(String state) {
