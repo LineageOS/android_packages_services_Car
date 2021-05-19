@@ -634,6 +634,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // Simulate system shutdown to Deep Sleep
     private void simulateShutdownPrepare() {
         Slogf.i(TAG, "starting shutdown prepare");
+        makeSureNoUserInteraction();
         sendPowerManagerEvent(CarPowerStateListener.SHUTDOWN_PREPARE);
         mHal.sendShutdownPrepare();
         doHandlePreprocessing();
@@ -869,6 +870,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void doHandleDeepSleep(boolean simulatedMode) {
+        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_SUSPEND_TO_RAM);
+        if (status != PolicyOperationStatus.OK) {
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
+        }
         // keep holding partial wakelock to prevent entering sleep before enterDeepSleep call
         // enterDeepSleep should force sleep entry even if wake lock is kept.
         mSystemInterface.switchToPartialWakeLock();
@@ -1092,9 +1097,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         Preconditions.checkArgument(policyId != null, "policyId cannot be null");
         Preconditions.checkArgument(!policyId.startsWith(PolicyReader.SYSTEM_POWER_POLICY_PREFIX),
                 "System power policy cannot be applied by apps");
-        String errorMsg = applyPowerPolicy(policyId, true);
-        if (errorMsg != null) {
-            throw new IllegalArgumentException(errorMsg);
+        int status = applyPowerPolicy(policyId, true);
+        if (status != PolicyOperationStatus.OK) {
+            throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
         }
     }
 
@@ -1105,9 +1110,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public void setPowerPolicyGroup(String policyGroupId) {
         ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyGroupId != null, "policyGroupId cannot be null");
-        String errorMsg = setCurrentPowerPolicyGroup(policyGroupId);
-        if (errorMsg != null) {
-            throw new IllegalArgumentException(errorMsg);
+        int status = setCurrentPowerPolicyGroup(policyGroupId);
+        if (status != PolicyOperationStatus.OK) {
+            throw new IllegalArgumentException(PolicyOperationStatus.errorCodeToString(status));
         }
     }
 
@@ -1211,57 +1216,66 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // the power policy or the policy group passed from car power policy daemon, and notifies
         // the current power policy to the daemon.
         if (currentPowerPolicyId == null || currentPowerPolicyId.isEmpty()) {
-            String errorMsg = applyPowerPolicy(state.policyId, false);
-            if (errorMsg != null) {
-                Slogf.w(TAG, "Cannot apply power policy: %s", errorMsg);
+            int status = applyPowerPolicy(state.policyId, false);
+            if (status != PolicyOperationStatus.OK) {
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
             }
         } else {
             notifyPowerPolicyChangeToDaemon(currentPowerPolicyId);
         }
         if (currentPolicyGroupId == null || currentPolicyGroupId.isEmpty()) {
-            String errMsg = setCurrentPowerPolicyGroup(state.policyGroupId);
-            if (errMsg != null) {
-                Slogf.w(TAG, "Cannot set power policy group: %s", errMsg);
+            int status = setCurrentPowerPolicyGroup(state.policyGroupId);
+            if (status != PolicyOperationStatus.OK) {
+                Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
             }
         }
         mSilentModeHandler.init();
     }
 
-    private String setCurrentPowerPolicyGroup(String policyGroupId) {
+    @PolicyOperationStatus.ErrorCode
+    private int setCurrentPowerPolicyGroup(String policyGroupId) {
         if (!mPolicyReader.isPowerPolicyGroupAvailable(policyGroupId)) {
-            return "Cannot set policy group: " + policyGroupId + " is not registered";
+            int error = PolicyOperationStatus.ERROR_SET_POWER_POLICY_GROUP;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error,
+                    policyGroupId + " is not registered"));
+            return error;
         }
         synchronized (mLock) {
             mCurrentPowerPolicyGroupId = policyGroupId;
         }
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
-    @Nullable
-    private String applyPowerPolicy(@Nullable String policyId, boolean upToDaemon) {
+    @PolicyOperationStatus.ErrorCode
+    private int applyPowerPolicy(@Nullable String policyId, boolean upToDaemon) {
         CarPowerPolicy policy = mPolicyReader.getPowerPolicy(policyId);
         if (policy == null) {
-            return policyId + " is not registered as a regular power policy";
+            int error = PolicyOperationStatus.ERROR_APPLY_POWER_POLICY;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId));
+            return error;
         }
         synchronized (mLock) {
             if (mIsPowerPolicyLocked) {
                 Slogf.i(TAG, "Power policy is locked. The request policy(%s) will be applied when "
                         + "power policy becomes unlocked", policyId);
                 mPendingPowerPolicyId = policyId;
-                return null;
+                return PolicyOperationStatus.OK;
             }
             mCurrentPowerPolicyId = policyId;
         }
         mPowerComponentHandler.applyPowerPolicy(policy);
         notifyPowerPolicyChange(policyId, upToDaemon);
         Slogf.i(TAG, "The current power policy is %s", policyId);
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
-    private String applyPreemptivePowerPolicy(String policyId) {
+    @PolicyOperationStatus.ErrorCode
+    private int applyPreemptivePowerPolicy(String policyId) {
         CarPowerPolicy policy = mPolicyReader.getPreemptivePowerPolicy(policyId);
         if (policy == null) {
-            return policyId + " is not registered as a preemptive power policy";
+            int error = PolicyOperationStatus.ERROR_NOT_REGISTERED_POWER_POLICY_ID;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error, policyId));
+            return error;
         }
         synchronized (mLock) {
             mIsPowerPolicyLocked = true;
@@ -1273,7 +1287,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mPowerComponentHandler.applyPowerPolicy(policy);
         notifyPowerPolicyChange(policyId, true);
         Slogf.i(TAG, "The current power policy is %s", policyId);
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
     private void cancelPreemptivePowerPolicy() {
@@ -1286,10 +1300,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
             mIsPowerPolicyLocked = false;
             policyId = mPendingPowerPolicyId;
+            mPendingPowerPolicyId = null;
         }
-        String errMsg = applyPowerPolicy(policyId, true);
-        if (errMsg != null) {
-            Slogf.w(TAG, "Failed to cancel system power policy: %s", errMsg);
+        int status = applyPowerPolicy(policyId, true);
+        if (status != PolicyOperationStatus.OK) {
+            Slogf.w(TAG, "Failed to cancel system power policy: %s",
+                    PolicyOperationStatus.errorCodeToString(status));
         }
     }
 
@@ -1349,10 +1365,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private void makeSureNoUserInteraction() {
         mSilentModeHandler.updateKernelSilentMode(true);
-        String errMsg = applyPreemptivePowerPolicy(
-                PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION);
-        if (errMsg != null) {
-            Slogf.w(TAG, errMsg);
+        int status = applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION);
+        if (status != PolicyOperationStatus.OK) {
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(status));
         }
     }
 
@@ -1792,12 +1807,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      *
      * <p>If the given ID already exists or specified power components are invalid, it fails.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code true}, if successful. Otherwise, {@code false}.
      */
-    @Nullable
-    public String definePowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
+    public boolean definePowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length < 2) {
-            return "Too few arguments";
+            writer.println("Too few arguments");
+            return false;
         }
         String powerPolicyId = args[1];
         int index = 2;
@@ -1807,26 +1822,31 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             switch (args[index]) {
                 case "--enable":
                     if (index == args.length - 1) {
-                        return "No components for --enable";
+                        writer.println("No components for --enable");
+                        return false;
                     }
                     enabledComponents = args[index + 1].split(",");
                     break;
                 case "--disable":
                     if (index == args.length - 1) {
-                        return "No components for --disabled";
+                        writer.println("No components for --disabled");
+                        return false;
                     }
                     disabledComponents = args[index + 1].split(",");
                     break;
                 default:
-                    return "Unrecognized argument: " + args[index];
+                    writer.printf("Unrecognized argument: %s\n", args[index]);
+                    return false;
             }
             index += 2;
         }
-        String errMsg = definePowerPolicy(powerPolicyId, enabledComponents, disabledComponents);
-        if (errMsg == null) {
-            writer.printf("Power policy(%s) is successfully defined.\n", powerPolicyId);
+        int status = definePowerPolicy(powerPolicyId, enabledComponents, disabledComponents);
+        if (status != PolicyOperationStatus.OK) {
+            writer.println(PolicyOperationStatus.errorCodeToString(status));
+            return false;
         }
-        return errMsg;
+        writer.printf("Power policy(%s) is successfully defined.\n", powerPolicyId);
+        return true;
     }
 
     /**
@@ -1835,13 +1855,15 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * <p> A policy defined with this method is valid until the system is rebooted/restarted.
      */
     @VisibleForTesting
-    @Nullable
-    public String definePowerPolicy(String powerPolicyId, String[] enabledComponents,
+    @PolicyOperationStatus.ErrorCode
+    public int definePowerPolicy(String powerPolicyId, String[] enabledComponents,
             String[] disabledComponents) {
-        String errorMsg = mPolicyReader.definePowerPolicy(powerPolicyId, enabledComponents,
-                disabledComponents);
-        if (errorMsg != null) {
-            return "Failed to define power policy: " + errorMsg;
+        int status = mPolicyReader.definePowerPolicy(powerPolicyId,
+                enabledComponents, disabledComponents);
+        if (status != PolicyOperationStatus.OK) {
+            int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error));
+            return error;
         }
         ICarPowerPolicySystemNotification daemon;
         synchronized (mLock) {
@@ -1851,9 +1873,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             daemon.notifyPowerPolicyDefinition(powerPolicyId, enabledComponents,
                     disabledComponents);
         } catch (RemoteException e) {
-            return "Failed to define power policy: " + e.getMessage();
+            int error = PolicyOperationStatus.ERROR_DEFINE_POWER_POLICY;
+            Slogf.w(TAG, PolicyOperationStatus.errorCodeToString(error));
+            return error;
         }
-        return null;
+        return PolicyOperationStatus.OK;
     }
 
     /**
@@ -1861,25 +1885,27 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      *
      * <p>If the given ID is not defined, it fails.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code true}, if successful. Otherwise, {@code false}.
      */
-    @Nullable
-    public String applyPowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
+    public boolean applyPowerPolicyFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
-            return "Power policy ID should be given";
+            writer.println("Power policy ID should be given");
+            return false;
         }
         String powerPolicyId = args[1];
         if (powerPolicyId == null) {
-            return "Policy ID cannot be null";
+            writer.println("Policy ID cannot be null");
+            return false;
         }
         boolean isPreemptive = mPolicyReader.isPreemptivePowerPolicy(powerPolicyId);
-        String errorMsg = isPreemptive ? applyPreemptivePowerPolicy(powerPolicyId)
+        int status = isPreemptive ? applyPreemptivePowerPolicy(powerPolicyId)
                 : applyPowerPolicy(powerPolicyId, true);
-        if (errorMsg != null) {
-            return "Failed to apply power policy: " + errorMsg;
+        if (status != PolicyOperationStatus.OK) {
+            writer.println(PolicyOperationStatus.errorCodeToString(status));
+            return false;
         }
         writer.printf("Power policy(%s) is successfully applied.\n", powerPolicyId);
-        return null;
+        return true;
     }
 
     /**
@@ -1888,12 +1914,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * <p>If the given ID already exists, a wrong power state is given, or specified power policy ID
      * doesn't exist, it fails.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code true}, if successful. Otherwise, {@code false}.
      */
-    @Nullable
-    public String definePowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
+    public boolean definePowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length < 3 || args.length > 4) {
-            return "Invalid syntax";
+            writer.println("Invalid syntax");
+            return false;
         }
         String policyGroupId = args[1];
         int index = 2;
@@ -1901,21 +1927,25 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         while (index < args.length) {
             String[] tokens = args[index].split(":");
             if (tokens.length != 2) {
-                return "Invalid syntax";
+                writer.println("Invalid syntax");
+                return false;
             }
             int state = PolicyReader.toPowerState(tokens[0]);
             if (state == PolicyReader.INVALID_POWER_STATE) {
-                return "Invalid power state: " + tokens[0];
+                writer.printf("Invalid power state: %s\n", tokens[0]);
+                return false;
             }
             defaultPolicyPerState.put(state, tokens[1]);
             index++;
         }
-        String errorMsg = mPolicyReader.definePowerPolicyGroup(policyGroupId,
+        int status = mPolicyReader.definePowerPolicyGroup(policyGroupId,
                 defaultPolicyPerState);
-        if (errorMsg == null) {
-            writer.printf("Power policy group(%s) is successfully defined.\n", policyGroupId);
+        if (status != PolicyOperationStatus.OK) {
+            writer.println(PolicyOperationStatus.errorCodeToString(status));
+            return false;
         }
-        return errorMsg;
+        writer.printf("Power policy group(%s) is successfully defined.\n", policyGroupId);
+        return true;
     }
 
     /**
@@ -1923,19 +1953,21 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      *
      * <p>If the given ID is not defined, it fails.
      *
-     * @return {@code null}, if successful. Otherwise, error message.
+     * @return {@code true}, if successful. Otherwise, {@code false}.
      */
-    @Nullable
-    public String setPowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
+    public boolean setPowerPolicyGroupFromCommand(String[] args, IndentingPrintWriter writer) {
         if (args.length != 2) {
-            return "Power policy group ID should be given";
+            writer.println("Power policy group ID should be given");
+            return false;
         }
         String policyGroupId = args[1];
-        String errorMsg = setCurrentPowerPolicyGroup(policyGroupId);
-        if (errorMsg == null) {
-            writer.printf("Setting power policy group(%s) is successful.\n", policyGroupId);
+        int status = setCurrentPowerPolicyGroup(policyGroupId);
+        if (status != PolicyOperationStatus.OK) {
+            writer.println(PolicyOperationStatus.errorCodeToString(status));
+            return false;
         }
-        return errorMsg;
+        writer.printf("Setting power policy group(%s) is successful.\n", policyGroupId);
+        return true;
     }
 
     /**
