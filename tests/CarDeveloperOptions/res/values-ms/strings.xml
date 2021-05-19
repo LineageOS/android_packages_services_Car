@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privasi"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Dilumpuhkan oleh pentadbir"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Status keselamatan"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Kunci skrin, wajah buka kunci"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Kunci skrin, buka kunci wajah"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Kunci skrin, cap jari"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Kunci skrin"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Wajah ditambahkan"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Alh kluar data wajah"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Wajah anda boleh digunakan untuk membuka kunci peranti anda dan mengakses apl. "<annotation id="url">"Ketahui lebih lanjut"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Padamkan data wajah?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data yang dirakam oleh wajah buka kunci akan dipadamkan secara kekal dan selamat. Selepas pengalihan keluar, anda memerlukan PIN, corak atau kata laluan untuk membuka kunci telefon, log masuk ke apl dan mengesahkan pembayaran."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data yang dirakam oleh buka kunci wajah akan dipadamkan secara kekal dan selamat. Selepas pengalihan keluar, anda memerlukan PIN, corak atau kata laluan untuk membuka kunci telefon, log masuk ke apl dan mengesahkan pembayaran."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Cap jari"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Urus cap jari"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Gunakan cap jari untuk"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"bayar, ketik, bayaran"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"sandaran, sandarkan"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gerak isyarat"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"wajah, buka kunci, auth, daftar masuk"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"wajah, buka kunci, auth, log masuk"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, versi prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"rangkaian, keadaan rangkaian mudah alih, keadaan perkhidmatan, kekuatan isyarat, jenis rangkaian mudah alih, perayauan, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"nombor siri, versi perkakasan"</string>

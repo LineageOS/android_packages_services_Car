@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Məxfilik"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Admin tərəfindən deaktiv edildi"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Güvənlik statusu"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekran kilidi, üzün kiliddən çıxarılması"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekran kilidi, üz ilə kiliddən açma"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Ekran kilidi, barmaq izi"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Ekran kilidi"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Üz əlavə edildi"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Üz datasını silin"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Üzünüzdən cihazı kiliddən çıxarmaq və tətbiqlərə daxil olmaq üçün istifadə edə bilərsiniz. "<annotation id="url">"Ətraflı məlumat"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Üz datası silinsin?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Üz kilidi ilə qeydə alınmış data həmişəlik və təhlükəsiz şəkildə silinəcək. Silindikdən sonra telefonu kiliddən çıxarmaq, tətbiqlərə daxil olmaq və ödənişləri təsdiq etmək üçün PIN, model və ya parol tələb ediləcək."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Üz ilə Kiliddən Açma ilə qeydə alınmış data həmişəlik və təhlükəsiz şəkildə silinəcək. Silindikdən sonra telefonu kiliddən çıxarmaq, tətbiqlərə daxil olmaq və ödənişləri təsdiq etmək üçün PIN, model və ya parol tələb ediləcək."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Barmaq izi"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Barmaq izlərini idarə edin"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Bunun üçün barmaq izi istifadə edin:"</string>

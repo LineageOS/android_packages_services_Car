@@ -1211,7 +1211,7 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"見ている間は画面が OFF にならなくなります。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen Aware は前面カメラを使用して、ユーザーが画面を見ているかどうかを検出します。この検出はデバイスのみで行われます。画像が保存されたり、Google に送信されたりすることはありません。"</string>
     <string name="night_display_title" msgid="1305002424893349814">"夜間モード"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"夜間モードを利用すると画面が黄味がかった色になります。薄明かりの下でも画面を見やすくなり、寝付きを良くする効果も期待できます。"</string>
+    <string name="night_display_text" msgid="5330502493684652527">"夜間モードを利用すると画面が黄身がかった色になります。薄明かりの下でも画面が見やすくなり、寝つきを良くする効果も期待できます。"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"スケジュール"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"使用しない"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"指定した時間に ON"</string>
@@ -1237,7 +1237,7 @@
     <string name="night_display_not_currently_on" msgid="1436588493764429281">"夜間モードは現在 OFF です"</string>
     <string name="screen_timeout" msgid="1700950247634525588">"スリープ"</string>
     <string name="screen_timeout_title" msgid="150117777762864112">"画面がOFFになったとき"</string>
-    <string name="screen_timeout_summary" msgid="8644192861778491060">"操作が行われない状態で<xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>経過後"</string>
+    <string name="screen_timeout_summary" msgid="8644192861778491060">"操作が行われない状態で <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>経過後"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"壁紙"</string>
     <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"スタイルと壁紙"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"デフォルト"</string>
