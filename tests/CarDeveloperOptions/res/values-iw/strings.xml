@@ -129,7 +129,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"בקשת התאמה"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"הקש כדי ליצור התאמה עם <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"קבצים שהתקבלו"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"הקבצים התקבלו באמצעות Bluetooth"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"קבצים שהתקבלו באמצעות Bluetooth"</string>
     <string name="device_picker" msgid="8345264486071697705">"בחר מכשיר Bluetooth"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> רוצה להפעיל את ה-Bluetooth"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> רוצה לכבות את ה-Bluetooth"</string>
@@ -2594,7 +2594,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"איפוס המכשיר"</string>
     <string name="tts_play" msgid="9023430029380675514">"הפעלה"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"אחסון אישורים"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"אחסון פרטי כניסה"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"התקנה מאמצעי אחסון"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"התקנה מכרטיס SD"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"התקנת אישורים מאמצעי אחסון"</string>

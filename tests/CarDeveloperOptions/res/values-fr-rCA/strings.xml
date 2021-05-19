@@ -27,7 +27,7 @@
       <item quantity="other">Plus que <xliff:g id="STEP_COUNT_1">%1$d</xliff:g> étapes pour devenir un développeur.</item>
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Vous êtes désormais un développeur!"</string>
-    <string name="show_dev_already" msgid="7665948832405148689">"Inutile, vous êtes déjà un concepteur."</string>
+    <string name="show_dev_already" msgid="7665948832405148689">"Inutile, vous êtes déjà un développeur."</string>
     <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Veuillez d\'abord activer les options pour les concepteurs"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Sans fil et réseaux"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Système"</string>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Sélectionnez un thème"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Ce paramètres s\'applique également aux applications"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Les applications compatibles utiliseront aussi le thème sombre"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Paramètres rapides, tuiles de concepteur"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Paramètres rapides, tuiles de développeur"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Traçage Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Capteurs désactivés"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Paramètres du profil professionnel"</string>
@@ -4259,7 +4259,7 @@
     <string name="autofill_max_partitions" msgid="125269645910590057">"Nombre maximal de demandes par session"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Nombre maximal d\'ensembles de données"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Réinitialiser aux valeurs par défaut"</string>
-    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Les options de remplissage automatique du concepteur ont été réinitialisées"</string>
+    <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Les options de remplissage automatique du développeur ont été réinitialisées"</string>
     <string name="device_theme" msgid="8992291311481135893">"Thème de l\'appareil"</string>
     <string name="default_theme" msgid="5986996377385956138">"Par défaut"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"Nom du réseau"</string>

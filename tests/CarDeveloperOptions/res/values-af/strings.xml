@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privaatheid"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Gedeaktiveer deur administrateur"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sekuriteitstatus"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skermslot, gesigslot"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skermslot, Gesigslot"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skermslot, vingerafdruk"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skermslot"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Gesig is bygevoeg"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Verwyder gesigdata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Jou gesig kan gebruik word om jou toestel te ontsluit en toegang tot programme te kry. "<annotation id="url">"Kom meer te wete"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Vee gesigdata uit?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data wat deur gesigslot opgeneem word, sal permanent en veilig uitgevee word. Nadat dit uitgevee is, sal jy jou PIN, patroon of wagwoord nodig hê om jou foon te ontsluit, by programme aan te meld en betalings te bevestig."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data wat deur Gesigslot opgeneem word, sal permanent en veilig uitgevee word. Nadat dit uitgevee is, sal jy jou PIN, patroon of wagwoord nodig hê om jou foon te ontsluit, by programme aan te meld en betalings te bevestig."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Vingerafdruk"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Bestuur vingerafdrukke"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Gebruik vingerafdruk vir"</string>

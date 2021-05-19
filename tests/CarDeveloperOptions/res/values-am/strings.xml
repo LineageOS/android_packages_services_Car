@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ግላዊነት"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"በአስተዳዳሪ ተሰናክሏል"</string>
     <string name="security_status_title" msgid="1261960357751754428">"የደህንነት ሁኔታ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ማያ ገጽ መቆለፊያ፣ የፊት መክፈቻ"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ማያ ገጽ መቆለፊያ፣ በመልክ መክፈት"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"የማያ ገጽ ቁልፍ፣ የጣት አሻራ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ማሳያ መቆለፊያ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"መልክ ታክሏል"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"የፊት ውሂብ አስወግድ"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"የእርስዎ ፊት የእርስዎን መሣሪያ ለመክፈት እና መተግበሪያዎችን ለመድረስ ጥቅም ላይ ሊውል ይችላል። "<annotation id="url">"የበለጠ ለመረዳት"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"የፊት ውሂብ ይሰረዝ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ፊትን ተጠቅሞ በመክፈት የተመዘገብ ውሂብ በቋሚነት እና ለደህንነት አስተማማኝ በሆነ መንገድ ይሰረዛል። ከስረዛ በኋላ፣ የእርስዎን ስልክ ለመክፈት፣ ወደ መተግበሪያዎች በመለያ ለመግባት፣ እና ክፍያዎችን ለማረጋገጥ የእርስዎን ፒን፣ ሥርዓተ ጥለት ወይም የይለፍ ቃል መጠቀም ይኖርብዎታል።"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"በመልክ መክፈት የተመዘገብ ውሂብ በቋሚነት እና ለደህንነት አስተማማኝ በሆነ መንገድ ይሰረዛል። ከስረዛ በኋላ፣ የእርስዎን ስልክ ለመክፈት፣ ወደ መተግበሪያዎች በመለያ ለመግባት፣ እና ክፍያዎችን ለማረጋገጥ የእርስዎን ፒን፣ ሥርዓተ ጥለት ወይም የይለፍ ቃል መጠቀም ይኖርብዎታል።"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"የጣት አሻራ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"የጣት አሻራዎችን ያስተዳድሩ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"የጣት አሻራን ይጠቀሙ ለ"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"ይክፈሉ፣ መታ ያድርጉ፣ ክፍያዎች"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ምትኬ"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"የጣት ምልክት"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ፊት፣ ክፈት፣ ፈቀዳ፣ በመለያ መግቢያ"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"መልክ፣ መክፈት፣ ፈቀዳ፣ በመለያ መግቢያ"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei፣ meid፣ ደቂቃ፣ prl ስሪት፣ imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"አውታረ መረብ፣ የተንቀሳቃሽ ስልክ አውታረ መረብ ሁኔታ፣ አገልግሎት ሁኔታ፣ የሲግናል ጥንካሬ፣ የተንቀሳቃሽ ስልክ አውታረ መረብ ዓይነት፣ ከአገልግሎት መስጫ ክልል ውጭ፣ iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"ተከታታይ ቁጥር፣ የሃርድዌር ስሪት"</string>

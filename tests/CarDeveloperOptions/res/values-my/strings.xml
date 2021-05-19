@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ကန့်သတ်ရန် ဆက်တင်"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"စီမံခန့်ခွဲသူက ပိတ်ထားသည်"</string>
     <string name="security_status_title" msgid="1261960357751754428">"လုံခြုံရေး အခြေအနေ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ဖုန်းမျက်နှာပြင် လော့ခ်၊ မျက်နှာမှတ် သော့ဖွင့်ခြင်း"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ဖုန်းမျက်နှာပြင် လော့ခ်၊ မျက်နှာပြ လော့ခ်ဖွင့်ခြင်း"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ဖန်သားပြင် လော့ခ်ချခြင်း၊ လက်ဗွေ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ဖန်သားပြင်လော့ခ်"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"မျက်နှာ ထည့်သွင်းပြီး"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"မျက်နှာဒေတာ ဖယ်ရန်"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"သင်၏ စက်ပစ္စည်းကို ဖွင့်ရန်နှင့် အက်ပ်များကို သုံးရန် သင့်မျက်နှာကို အသုံးပြုနိုင်ပါသည်။ "<annotation id="url">"ပိုမို လေ့လာရန်"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"မျက်နှာဒေတာ ဖျက်လိုသလား။"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"\'မျက်နှာမှတ် သော့ဖွင့်ခြင်း\' နှင့် ကူးယူထားသော ဒေတာများကို လုံခြုံစွာ အပြီးဖျက်ပါမည်။ ဖျက်ပြီးသည့်အခါ သင့်ဖုန်းလော့ခ်ဖွင့်ရန် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်၊ အက်ပ်များသို့ လက်မှတ်ထိုးဝင်ခြင်းနှင့် ငွေပေးချေမှုများ အတည်ပြုခြင်းတို့ လိုအပ်ပါမည်။"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"\'မျက်နှာပြ လော့ခ်ဖွင့်ခြင်း\' နှင့် ကူးယူထားသော ဒေတာများကို လုံခြုံစွာ အပြီးဖျက်ပါမည်။ ဖျက်ပြီးသည့်အခါ သင့်ဖုန်းလော့ခ်ဖွင့်ရန် ပင်နံပါတ်၊ ပုံစံ သို့မဟုတ် စကားဝှက်၊ အက်ပ်များသို့ လက်မှတ်ထိုးဝင်ခြင်းနှင့် ငွေပေးချေမှုများ အတည်ပြုခြင်းတို့ လိုအပ်ပါမည်။"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"လက်ဗွေရာ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"လက်ဗွေရာများ စီမံရန်"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"လက်ဗွေရာအား သုံးရန်"</string>
