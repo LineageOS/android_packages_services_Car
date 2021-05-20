@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Купуялык"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Администратор өчүрүп койгон"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Коопсуздук абалы"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Экранды кулпулоо, жүзүнөн таануу"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Экранды кулпулоо, Жүзүнөн таанып ачуу"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Экранды кулпулоо, манжа изи"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Экран кулпусу"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Жүз кошулду"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"төлөө, таптоо, төлөмдөр"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"камдык көчүрмөнү сактоо, камдык көчүрмөнү сактоо"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"жаңсоо"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"жүз, кулпуну ачуу, аутентификация, кирүү"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"жүзүнөн, таанып ачуу, аутентификация, кирүү"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl версиясы, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"тармак, мобилдик тармактын абалы, кызматтын абалы, сигналдын күчү, мобилдик тармактын түрү, роуминг, смарт-картанын идентификатору"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"сериялык номер, аппараттык камсыздоонун версиясы"</string>

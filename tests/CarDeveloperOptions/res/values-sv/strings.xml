@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Aktuell inställning)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vill du ändra aviseringsinställningarna för Stör ej?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Jobbprofilens ljud"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Använd pers. profilens ljud"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Använd den privata profilens ljud"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Samma ljud används i jobbprofilen och den personliga profilen"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Ringsignal för jobbet"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standardljud för jobbaviseringar"</string>

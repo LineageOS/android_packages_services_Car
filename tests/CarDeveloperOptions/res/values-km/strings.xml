@@ -3283,9 +3283,9 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"សំឡេងប្រវត្តិរូបការងារ"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ប្រើសំឡេងប្រវត្តិរូបផ្ទាល់ខ្លួន"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"សំឡេងសម្រាប់កម្រងព័ត៌មានការងារ និងផ្ទាល់ខ្លួនគឺដូចគ្នា"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"សំឡេងរោទិ៍ទូរស័ព្ទការងារ"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"សំឡេងរោទ៍ទូរសព្ទការងារ"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"សំឡេងការជូនដំណឹងការងារលំនាំដើម"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"សំឡេងម៉ោងរោទិ៍ការងារលំនាំដើម"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"សំឡេងម៉ោងរោទ៍ការងារលំនាំដើម"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ដូចគ្នានឹងប្រវត្តិរូបការងារ"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ប្តូរសំឡេង?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"ជំនួស"</string>

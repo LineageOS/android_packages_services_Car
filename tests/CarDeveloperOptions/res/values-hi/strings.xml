@@ -1170,12 +1170,12 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्‍यक्‍तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"खोज"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिसप्ले"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"स्‍क्रीन अपने आप घूमने की सुविधा चालू करें"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"स्क्रीन का अपने-आप दिशा बदलना (ऑटो-रोटेट)"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"बिना किसी बदलाव के"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"बढ़ाया गया"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"सैचुरेट किया गया"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"आस-पास की रोशनी के अनुसार स्क्रीन की चमक बदले"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"ज़रूरत के हिसाब से स्क्रीन की चमक बदलता है"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"सिर्फ़ सटीक रंगों का इस्तेमाल करें"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"चटख और सटीक रंगों के बीच मनमुताबिक बदलाव करें"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"टैबलेट घुमाने पर स्क्रीन की दिशा अपने आप बदलें"</string>

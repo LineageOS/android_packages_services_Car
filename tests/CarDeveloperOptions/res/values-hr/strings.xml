@@ -429,7 +429,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Ukloni podatke lica"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Za otključavanje uređaja i pristup aplikacijama može se upotrijebiti vaše lice. "<annotation id="url">"Saznajte više"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Želite li izbrisati podatke o licu?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Podaci koje je snimilo Otključavanje licem izbrisat će se trajno i na siguran način. Nakon uklanjanja trebat će vam PIN, uzorak ili zaporka da biste otključali telefon, prijavili se u aplikacije i potvrdili plaćanja."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Podaci koje je zabilježilo otključavanje licem izbrisat će se trajno i na siguran način. Nakon uklanjanja trebat će vam PIN, uzorak ili zaporka da biste otključali telefon, prijavili se u aplikacije i potvrdili plaćanja."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Otisak prsta"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Otisci prstiju"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Upotreba otiska prsta"</string>
@@ -3139,7 +3139,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"plati, dodir, plaćanja"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"sigurnosno kopirati, sigurnosna kopija"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"pokret"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"otključavanje, lice, autentifikacija, prijava"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"lice, otključavanje, autentifikacija, prijava"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"IMEI, MEID, min, verzija PRL-a, IMEI SV"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"mreža, stanje mobilne mreže, stanje usluge, jačina signala, vrsta mobilne mreže, roaming, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"serijski broj, verzija hardvera"</string>

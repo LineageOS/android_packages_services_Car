@@ -1178,7 +1178,7 @@
     <string name="volume_media_description" msgid="3659485559976891268">"Музыка, видео, игры и другие медиафайлы"</string>
     <string name="volume_ring_description" msgid="1975431532517579212">"Рингтон и уведомления"</string>
     <string name="volume_notification_description" msgid="8871940450828766751">"Уведомления"</string>
-    <string name="volume_alarm_description" msgid="3230692343946237658">"Будильник"</string>
+    <string name="volume_alarm_description" msgid="3230692343946237658">"Будильники"</string>
     <string name="volume_ring_mute" msgid="6022038055768721847">"Отключить рингтон и другие уведомления"</string>
     <string name="volume_media_mute" msgid="816848304566175614">"Отключить звук"</string>
     <string name="volume_notification_mute" msgid="7759564556421535211">"Скрыть уведомления"</string>
@@ -2721,11 +2721,11 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> из <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Выбрать все"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Передача данных"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Мобильный Интернет и Wi‑Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Мобильный интернет и Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Статистика вашего оператора связи может отличаться от статистики устройства."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Приложения"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"О ПРИЛОЖЕНИИ"</string>
-    <string name="data_usage_cellular_data" msgid="3509117353455285808">"Мобильный Интернет"</string>
+    <string name="data_usage_cellular_data" msgid="3509117353455285808">"Мобильный интернет"</string>
     <string name="data_usage_data_limit" msgid="4070740691087063670">"Установить лимит использования трафика"</string>
     <string name="data_usage_cycle" msgid="1877235461828192940">"Период статистики"</string>
     <string name="data_usage_app_items_header_text" msgid="5396134508509913851">"Приложения"</string>
@@ -2762,7 +2762,7 @@
     <string name="data_usage_tab_3g" msgid="4262659656028408064">"2G/3G"</string>
     <string name="data_usage_list_mobile" msgid="5623011459774885900">"Мобильный Интернет"</string>
     <string name="data_usage_list_none" msgid="5948870220795490796">"Нет сетей"</string>
-    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"Моб. Интернет"</string>
+    <string name="data_usage_enable_mobile" msgid="7238385042860001374">"Моб. интернет"</string>
     <string name="data_usage_enable_3g" msgid="3725838726334043367">"Передача данных по сетям 2G/3G"</string>
     <string name="data_usage_enable_4g" msgid="8872517106293561179">"Передача данных 4G"</string>
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"Роуминг"</string>
@@ -3602,7 +3602,7 @@
     <string name="zen_mode_media" msgid="3701280649874724055">"Звуки мультимедиа"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"мультимедиа"</string>
     <string name="zen_mode_system" msgid="597437265986355038">"Звук нажатия на экран"</string>
-    <string name="zen_mode_system_list" msgid="480192458506838077">"звук нажатия на экран"</string>
+    <string name="zen_mode_system_list" msgid="480192458506838077">"звуки нажатия на экран"</string>
     <string name="zen_mode_reminders" msgid="7560664194610054038">"Напоминания"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"напоминания"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Уведомления о мероприятиях"</string>
@@ -4538,7 +4538,7 @@
     <string name="select_automatically" msgid="3421552364854534865">"Выбирать сеть автоматически"</string>
     <string name="carrier_settings_title" msgid="7989949967020825268">"Настройки оператора"</string>
     <string name="cdma_lte_data_service" msgid="8996857851150069339">"Настройка передачи данных"</string>
-    <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мобильный Интернет"</string>
+    <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мобильный интернет"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Доступ к Интернету по мобильной сети"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефон автоматически подключится к сети этого оператора, когда вы окажетесь в зоне ее действия."</string>
     <string name="calls_preference" msgid="2076353032705811243">"Настройки звонков"</string>

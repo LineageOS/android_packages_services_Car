@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"ବ୍ଲୁଟୁଥ,NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"ବ୍ଲୁଟୂଥ୍‍‌"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ଆପ୍‌ ଓ ବିଜ୍ଞପ୍ତି"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant,କିଛିସମୟ ପୂର୍ବରୁ ବ୍ୟବହୃତ ଆପ୍ସ,ଡିଫଲ୍ଟ ଆପ୍ସ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant,ବର୍ତ୍ତମାନର ଆପଗୁଡ଼ିକ, ଡିଫଲ୍ଟ ଆପଗୁଡ଼ିକ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"ୱାର୍କ ପ୍ରୋଫାଇଲ୍‍ରେ ଆପ୍‍ସ ପାଇଁ ବିଜ୍ଞପ୍ତି ଆକ୍ସେସ ଉପଲବ୍ଧ ନାହିଁ."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"ଆକାଉଣ୍ଟ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"କୌଣସି ଆକାଉଣ୍ଟ ଯୋଗ କରାଯାଇନାହିଁ"</string>

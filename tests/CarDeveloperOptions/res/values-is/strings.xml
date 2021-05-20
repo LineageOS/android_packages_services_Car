@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Hljóð vinnuprófils"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Nota hljóð úr persónulegum prófíl"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Hljóð vinnuprófíls eru þau sömu og í persónulegum prófíl"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Vinnuhringingartónn"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Vinnuhringitónn"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sjálfgefið hljóð vinnutilkynninga"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sjálfgefið hljóð í vekjara fyrir vinnu"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Sama og í persónulegum prófíl"</string>

@@ -386,7 +386,7 @@
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Näkymä"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Aseta Oma sijainti, näytön lukituksen poisto, SIM-kortin lukitus, käyttöoikeustietojen tallennustilan lukitus"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Aseta Oma sijainti, näytön lukituksen poisto, käyttöoikeustietojen tallennustilan lukitus"</string>
-    <string name="security_passwords_title" msgid="6853942836045862315">"Tietosuoja"</string>
+    <string name="security_passwords_title" msgid="6853942836045862315">"Yksityisyys"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Järjestelmänvalvojan estämä"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Suojaustila"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Näytön lukitus, kasvojentunnistusavaus"</string>
@@ -932,7 +932,7 @@
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Valitse vähintään yksi kaista Wi‑Fi-hotspotille:"</string>
     <string name="wifi_ip_settings" msgid="4636102290236116946">"IP-asetukset"</string>
-    <string name="wifi_privacy_settings" msgid="4462092795794247809">"Tietosuoja"</string>
+    <string name="wifi_privacy_settings" msgid="4462092795794247809">"Yksityisyys"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Satunnaistettu MAC-osoite"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Lisää laite"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Yhdistä <xliff:g id="SSID">%1$s</xliff:g> keskittämällä QR-koodi alle"</string>
@@ -4470,7 +4470,7 @@
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Pakota kokeellinen työpöytätila toissijaisille näytöille"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Ohita SmartDarkin pakottaminen päälle"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Ohittaa toiminnon, joka pakottaa SmartDark-ominaisuuden aina päälle"</string>
-    <string name="privacy_dashboard_title" msgid="8764930992456607513">"Tietosuoja"</string>
+    <string name="privacy_dashboard_title" msgid="8764930992456607513">"Yksityisyys"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Luvat, tilitoiminta, henkilökohtaiset tiedot"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Poista"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Säilytä"</string>

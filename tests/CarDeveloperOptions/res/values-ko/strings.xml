@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"개인정보 보호"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"관리자가 사용 중지함"</string>
     <string name="security_status_title" msgid="1261960357751754428">"보안 상태"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"화면 잠금, 얼굴인식 잠금해제"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"화면 잠금, 얼굴 인식 잠금 해제"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"화면 잠금, 지문"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"화면 잠금"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"얼굴 추가 완료"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"얼굴 데이터 삭제"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"얼굴로 기기를 잠금 해제하고 앱에 액세스할 수 있습니다. "<annotation id="url">"자세히 알아보기"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"얼굴 데이터를 삭제하시겠습니까?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"얼굴인식 잠금해제에서 기록한 데이터가 완전히 삭제됩니다. 삭제 이후에 휴대전화를 잠금 해제하고 앱에 로그인하고 결제를 확인하려면 PIN, 패턴 또는 비밀번호가 필요합니다."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"얼굴 인식 잠금 해제에서 기록한 데이터가 완전히 삭제됩니다. 삭제 이후에 휴대전화를 잠금 해제하고 앱에 로그인하고 결제를 확인하려면 PIN, 패턴 또는 비밀번호가 필요합니다."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"지문"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"지문 관리"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"지문을 사용할 항목"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"결제, 탭, 결제"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"백업, 백 업"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"동작"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"얼굴, 잠금 해제, 승인, 로그인"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"얼굴 인식, 잠금 해제, 승인, 로그인"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"IMEI, MEID, MIN, PRL 버전, IMEI SV"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"네트워크, 모바일 네트워크 상태, 서비스 상태, 신호 강도, 모바일 네트워크 유형, 로밍, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"일련번호, 하드웨어 버전"</string>

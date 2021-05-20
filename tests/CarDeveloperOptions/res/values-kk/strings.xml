@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Құпиялылық"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Әкімші өшірген"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Қауіпсіздік күйі"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Экранды құлыптау, Face Unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Экранды құлыптау, бет тану"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Экранды құлыптау, саусақ ізі"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Экранды құлыптау"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Бет енгізілді"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Бет деректерін өшіру"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Бетіңіз арқылы құрылғы құлпын ашуға және қолданбаларға кіруге болады. "<annotation id="url">"Толығырақ"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Адам жүзі туралы деректер жойылсын ба?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Face Unlock жазған деректер біржола және қауіпсіз түрде жойылады. Жойылғаннан кейін, телефоныңыздың құлпын ашу, қолданбаларға кіру және төлемдерді растау үшін PIN коды, өрнек немесе құпия сөз қажет болады."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Бет ану кезінде жазылған деректер біржола және қауіпсіз түрде жойылады. Жойылғаннан кейін, телефоныңыздың құлпын ашу, қолданбаларға кіру және төлемдерді растау үшін PIN коды, өрнек немесе құпия сөз қажет болады."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Саусақ ізі"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Саусақ таңбасын бас-у"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Саусақ таңбасын пайд-у"</string>
