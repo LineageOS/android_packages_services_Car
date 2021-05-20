@@ -33,7 +33,6 @@ public final class CarLog {
     public static final String TAG_HAL = "CAR.HAL";
     public static final String TAG_INPUT = "CAR.INPUT";
     public static final String TAG_MEDIA = "CAR.MEDIA";
-    public static final String TAG_PACKAGE = "CAR.PACKAGE";
     public static final String TAG_POWER = "CAR.POWER";
     public static final String TAG_PROJECTION = "CAR.PROJECTION";
     public static final String TAG_SENSOR = "CAR.SENSOR";
