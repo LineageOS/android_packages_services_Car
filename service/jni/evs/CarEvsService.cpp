@@ -158,7 +158,7 @@ jlong createServiceHandle(JNIEnv* env, jclass clazz) {
 /*
  * Static method to destroy the service context
  */
-void destroyServiceHandle(JNIEnv* /*env*/, jclass /*clazz*/, jobject handle) {
+void destroyServiceHandle(JNIEnv* /*env*/, jclass /*clazz*/, jlong handle) {
     delete reinterpret_cast<EvsServiceContext*>(handle);
 }
 
