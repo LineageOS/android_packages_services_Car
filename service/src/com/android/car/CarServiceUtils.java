@@ -38,6 +38,8 @@ public final class CarServiceUtils {
     private static final String TAG = CarLog.tagFor(CarServiceUtils.class);
     /** Empty int array */
     public  static final int[] EMPTY_INT_ARRAY = new int[0];
+    private static final String COMMON_HANDLER_THREAD_NAME =
+            "CarServiceUtils_COMMON_HANDLER_THREAD";
 
     private static final String PACKAGE_NOT_FOUND = "Package not found:";
 
@@ -45,7 +47,7 @@ public final class CarServiceUtils {
     private static final ArrayMap<String, HandlerThread> sHandlerThreads = new ArrayMap<>();
 
     /** do not construct. static only */
-    private CarServiceUtils() {};
+    private CarServiceUtils() {}
 
     /**
      * Check if package name passed belongs to UID for the current binder call.
@@ -122,6 +124,16 @@ public final class CarServiceUtils {
             handler.post(sr);
             sr.waitForComplete();
         }
+    }
+
+    /**
+     * Executes a runnable on the common thread. Useful for doing any kind of asynchronous work
+     * across the car related code that doesn't need to be on the main thread.
+     *
+     * @param action The code to run on the common thread.
+     */
+    public static void runOnCommon(Runnable action) {
+        runOnLooper(getCommonHandlerThread().getLooper(), action);
     }
 
     private static final class SyncRunnable implements Runnable {
@@ -219,8 +231,16 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Gets the static instance of the common {@code HandlerThread} meant to be used across
+     * CarService.
+     */
+    public static HandlerThread getCommonHandlerThread() {
+        return getHandlerThread(COMMON_HANDLER_THREAD_NAME);
+    }
+
+    /**
      * Finishes all queued {@code Handler} tasks for {@code HandlerThread} created via
-     * {@link #getHandlerThread(String)}. This is useful only for testing.
+     * {@link#getHandlerThread(String)}. This is useful only for testing.
      */
     @VisibleForTesting
     public static void finishAllHandlerTasks() {
