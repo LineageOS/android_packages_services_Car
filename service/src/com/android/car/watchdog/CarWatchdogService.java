@@ -50,9 +50,11 @@ import android.util.IndentingPrintWriter;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
 import com.android.car.ICarImpl;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
 import com.android.server.utils.Slogf;
@@ -74,6 +76,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogPerfHandler mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+    private final Object mLock = new Object();
+    @GuardedBy("mLock")
+    private boolean mReadyToRespond;
+    @GuardedBy("mLock")
+    private boolean mIsConnected;
 
     public CarWatchdogService(Context context) {
         mContext = context;
@@ -85,10 +92,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
                 mPackageInfoHandler);
         mConnectionListener = (isConnected) -> {
-            if (isConnected) {
-                registerToDaemon();
-            }
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
+            synchronized (mLock) {
+                mIsConnected = isConnected;
+            }
+            registerToDaemon();
         };
     }
 
@@ -100,6 +108,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
         mWatchdogPerfHandler.init();
+        // To make sure the main handler is ready for responding to car watchdog daemon, registering
+        // to the daemon is done through the main handler. Once the registration is completed, we
+        // can assume that the main handler is not too busy handling other stuffs.
+        postRegisterToDaemonMessage();
         if (DEBUG) {
             Slogf.d(TAG, "CarWatchdogService is initialized");
         }
@@ -272,7 +284,21 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         return mWatchdogPerfHandler.getResourceOveruseConfigurations(resourceOveruseFlag);
     }
 
+    private void postRegisterToDaemonMessage() {
+        CarServiceUtils.runOnMain(() -> {
+            synchronized (mLock) {
+                mReadyToRespond = true;
+            }
+            registerToDaemon();
+        });
+    }
+
     private void registerToDaemon() {
+        synchronized (mLock) {
+            if (!mIsConnected || !mReadyToRespond) {
+                return;
+            }
+        }
         try {
             mCarWatchdogDaemonHelper.registerCarWatchdogService(mWatchdogServiceForSystem);
             if (DEBUG) {

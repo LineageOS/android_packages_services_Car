@@ -216,12 +216,11 @@ public final class WatchdogProcessHandler {
         }
     }
 
-    /** Post health check message */
+    /** Posts health check message */
     public void postHealthCheckMessage(int sessionId) {
         mMainHandler.sendMessage(obtainMessage(
                 WatchdogProcessHandler::doHealthCheck, this, sessionId));
     }
-
 
     /** Returns the registered and alive client count. */
     public int getClientCount(int timeout) {
@@ -231,7 +230,7 @@ public final class WatchdogProcessHandler {
         }
     }
 
-    /** Reset pinged clients before health checking */
+    /** Resets pinged clients before health checking */
     public void prepareHealthCheck() {
         synchronized (mLock) {
             for (int timeout : ALL_TIMEOUTS) {
