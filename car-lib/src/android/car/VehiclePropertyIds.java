@@ -1254,8 +1254,8 @@ public final class VehiclePropertyIds {
      *
      * <p>This value denotes the number of milliseconds that have elapsed since 1/1/1970 UTC.
      */
-    @RequiresPermission(Car.PERMISSION_CAR_UNIX_TIME)
-    public static final int UNIX_TIME = 290457094;
+    @RequiresPermission(Car.PERMISSION_CAR_EPOCH_TIME)
+    public static final int EPOCH_TIME = 290457094;
 
     /**
      * External encryption binding seed.
@@ -1595,8 +1595,8 @@ public final class VehiclePropertyIds {
                 return "CLUSTER_REQUEST_DISPLAY";
             case CLUSTER_NAVIGATION_STATE:
                 return "CLUSTER_NAVIGATION_STATE";
-            case UNIX_TIME:
-                return "UNIX_TIME";
+            case EPOCH_TIME:
+                return "EPOCH_TIME";
             case STORAGE_ENCRYPTION_BINDING_SEED:
                 return "STORAGE_ENCRYPTION_BINDING_SEED";
             case ELECTRONIC_TOLL_COLLECTION_CARD_STATUS:

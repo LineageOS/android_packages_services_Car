@@ -40,13 +40,13 @@ package android.car {
     field public static final String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
     field public static final String PERMISSION_CAR_DYNAMICS_STATE = "android.car.permission.CAR_DYNAMICS_STATE";
     field public static final String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
+    field public static final String PERMISSION_CAR_EPOCH_TIME = "android.car.permission.CAR_EPOCH_TIME";
     field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
     field public static final String PERMISSION_CAR_MONITOR_INPUT = "android.car.permission.CAR_MONITOR_INPUT";
     field public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
     field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
     field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
     field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
-    field public static final String PERMISSION_CAR_UNIX_TIME = "android.car.permission.CAR_UNIX_TIME";
     field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
     field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
     field public static final String PERMISSION_CONTROL_CAR_CLIMATE = "android.car.permission.CONTROL_CAR_CLIMATE";
