@@ -85,6 +85,11 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
             return null;
         }
 
+        // Some kernels already add 0x prefix
+        if (!eolData.startsWith("0x")) {
+            eolData = "0x" + eolData;
+        }
+
         int lifetimeA;
         int lifetimeB;
         int eol;
@@ -92,7 +97,7 @@ public class EMmcWearInformationProvider implements WearInformationProvider {
         try {
             lifetimeA = Integer.decode(lifetimes[0]);
             lifetimeB = Integer.decode(lifetimes[1]);
-            eol = Integer.decode("0x" + eolData);
+            eol = Integer.decode(eolData);
         } catch (NumberFormatException e) {
             Slog.w(CarLog.TAG_STORAGE, "lifetime data not in expected format: " + lifetimeData);
             return null;
