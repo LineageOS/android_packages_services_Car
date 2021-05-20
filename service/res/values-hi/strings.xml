@@ -127,8 +127,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कार के वेंडर की अनुमति संबंधित जानकारी ऐक्सेस करें."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति देख सकता है"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कार के बाहरी हिस्से में लगी लाइटों की स्थिति ऐक्सेस कर सकता है."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"कार के यूएनआईएक्स टाइम को ऐक्सेस करें"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"कार के यूएनआईएक्स टाइम को ऐक्सेस करें."</string>
+    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
+    <skip />
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कार के एन्क्रिप्शन बाइंडिंग सीड को ऐक्सेस करें"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कार के बाहरी हिस्से में लगी लाइटें नियंत्रित कर सकता है"</string>

@@ -127,8 +127,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Få tilgang til bilens informasjon om leverandørtillatelser."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"lese tilstanden til bilens utvendige lys"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Tilgang til tilstanden til bilens utvendige lys."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"ha tilgang til bilens unixtid"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"ha tilgang til bilens unixtid"</string>
+    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
+    <skip />
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"ha tilgang til bilens bindingskilde for kryptering"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"ha tilgang til bilens bindingskilde for kryptering"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"lese bilens utvendige lys"</string>

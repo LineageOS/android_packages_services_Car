@@ -127,8 +127,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"მანქანის მწარმოებლის ნებართვასთან დაკავშირებულ ინფორმაციაზე წვდომა."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"მანქანის გარე განათების მდგომარეობის წაკითხვა"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"მანქანის გარე განათების მდგომარეობაზე წვდომა."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"წვდომა მანქანის UNIX დროზე"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"წვდომა მანქანის UNIX დროზე."</string>
+    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
+    <skip />
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"წვდომა მანქანის დაშიფვრის ბმის საწყის რიცხვზე"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"წვდომა მანქანის დაშიფვრის ბმის საწყის რიცხვზე."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"მანქანის გარე განათების წაკითხვა"</string>
