@@ -129,8 +129,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Qasu tek informacionet për lejet e shitësit të makinës."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"lexo gjendjen e dritave të jashtme të makinës"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Qasu te gjendja e dritave të jashtme të makinës."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"të qaset në kohën UNIX të makinës"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Të qaset në kohën UNIX të makinës."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"qasje në kohën kompjuterike të makinës"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Qasje në kohën kompjuterike të makinës."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"të qaset në bërthamën e lidhjes së enkriptimit të makinës"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Të qaset në bërthamën e lidhjes së enkriptimit të makinës."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"lexo dritat e jashtme të makinës"</string>
