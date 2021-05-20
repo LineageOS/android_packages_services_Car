@@ -25,4 +25,18 @@
     <dimen name="rear_view_camera_exit_button_margin">24dp</dimen>
     <dimen name="rear_view_camera_exit_icon_width">26dp</dimen>
     <dimen name="rear_view_camera_exit_icon_height">26dp</dimen>
+
+    <dimen name="hvac_container_padding">16dp</dimen>
+    <dimen name="hvac_temperature_text_size">48sp</dimen>
+    <dimen name="hvac_temperature_text_padding">0dp</dimen>
+
+    <dimen name="system_bar_icon_drawing_size">56dp</dimen>
+    <dimen name="system_bar_button_size">88dp</dimen>
+    <!-- Margin between the system bar buttons -->
+    <dimen name="system_bar_button_margin">32dp</dimen>
+    <!-- Padding between the system bar button and the icon within it -->
+    <dimen name="system_bar_button_padding">16dp</dimen>
+
+    <dimen name="system_bar_user_icon_drawing_size">44dp</dimen>
+    <dimen name="status_bar_system_icon_spacing">32dp</dimen>
 </resources>
