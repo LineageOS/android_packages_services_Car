@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Juurdepääs auto edasimüüja lubade teabele."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"auto salongitulede oleku lugemine"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Juurdepääs auto välistulede olekule."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"juurdepääs auto UNIX-ajale"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Juurdepääs auto UNIX-ajale."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"juurdepääs auto ajajärgu ajale"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Juurdepääs auto ajajärgu ajale."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"juurdepääs auto krüpteerimise siduvseemnele"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Juurdepääs auto krüpteerimise siduvseemnele."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"auto välistulede lugemine"</string>

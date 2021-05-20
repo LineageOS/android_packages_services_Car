@@ -127,8 +127,10 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Приступа информацијама о дозволама продавца аутомобила."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"читање стања спољних светла аутомобила"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Приступ стању спољних светла аутомобила."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"приступају UNIX времену аутомобила"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Приступају UNIX времену аутомобила."</string>
+    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
+    <skip />
+    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
+    <skip />
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"приступају почетној вредности за повезивање шифровања"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Приступају почетној вредности за повезивање шифровања."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"читање статуса спољних светла аутомобила"</string>

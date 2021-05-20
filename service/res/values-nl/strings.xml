@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Toegang tot informatie over de leveranciersrechten van de auto."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"status van buitenverlichting van auto lezen"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Toegang tot status van buitenverlichting van auto."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"toegang tot UNIX-tijd van auto"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Toegang tot UNIX-tijd van auto."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"toegang krijgen tot de epochtijd van de auto"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Toegang krijgen tot de epochtijd van de auto."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"toegang tot seed voor coderingsbinding van auto"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Toegang tot seed voor coderingsbinding van auto."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"buitenverlichting van auto lezen"</string>

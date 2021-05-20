@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Aceda às informações de autorização do fornecedor do automóvel."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"ler o estado das luzes exteriores do automóvel"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Aceder ao estado das luzes exteriores do automóvel."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"aceder à hora UNIX do automóvel"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Aceder à hora UNIX do automóvel."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"aceder à hora da época do automóvel"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Aceda à hora da época do automóvel."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"aceder à semente de vinculação de encriptação do automóvel"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Aceder à semente de vinculação de encriptação do automóvel."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"ler as luzes exteriores do automóvel"</string>
