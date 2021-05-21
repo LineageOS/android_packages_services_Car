@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"เข้าถึงข้อมูลสิทธิ์ผู้จำหน่ายของรถ"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"อ่านสถานะไฟภายนอกรถ"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"เข้าถึงสถานะไฟภายนอกรถ"</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"เข้าถึงเวลา UNIX ของรถยนต์"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"เข้าถึงเวลา UNIX ของรถยนต์"</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"เข้าถึงเวลา Epoch ของรถยนต์"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"เข้าถึงเวลา Epoch ของรถยนต์"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"เข้าถึง SEED การเชื่อมโยงการเข้ารหัสของรถยนต์"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"เข้าถึง SEED การเชื่อมโยงการเข้ารหัสของรถยนต์"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"อ่านไฟภายนอกรถ"</string>

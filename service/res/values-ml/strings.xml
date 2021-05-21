@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"കാറിന്റെ വെൻഡർ അനുമതി വിവരങ്ങൾ ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില വായിക്കുക"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില ആക്‌സസ് ചെയ്യുക."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"കാറിന്റെ UNIX സമയം ആക്‌സസ് ചെയ്യുക"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"കാറിന്റെ UNIX സമയം ആക്‌സസ് ചെയ്യുക."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"കാറിന്റെ epoch സമയം ആക്സസ് ചെയ്യുക"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"കാറിന്റെ epoch സമയം ആക്സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"കാറിന്റെ എൻക്രിപ്‌ഷൻ ബെെൻഡിംഗ് സീഡ് ആക്‌സസ് ചെയ്യുക"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"കാറിന്റെ എൻക്രിപ്‌ഷൻ ബെെൻഡിംഗ് സീഡ് ആക്‌സസ് ചെയ്യുക."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"കാറിൻ്റെ പുറംഭാഗത്തെ ലൈറ്റുകളുടെ നില വായിക്കുക"</string>

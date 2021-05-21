@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Accédez aux renseignements d\'autorisation du fournisseur du véhicule."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"lire l\'état des feux extérieurs de la voiture"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Accéder à l\'état des feux extérieurs de la voiture."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"accédez à l\'heure Unix du véhicule"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Accédez à l\'heure Unix du véhicule."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"accédez à l\'heure Unix du véhicule"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Accédez à l\'heure Unix du véhicule."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"accédez à la graine de liaison du chiffrement du véhicule"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Accédez à la graine de liaison du chiffrement du véhicule."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"lire les feux extérieurs de la voiture"</string>

@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Finyelela ulwazi lwemvume lomthengisi wemoto."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"funda isimo somkhanyo wemoto sangaphakathi"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Finyelela isimo sezibani sangaphandle semoto."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"finyelela isikhathi se-UNIX emotweni"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Finyelela isikhathi se-UNIX emotweni."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"finyelela isikhathi se-epoch semoto"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Finyelela isikhathi se-epoch semoto."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"finyelela imbewu yokubophezela ukubethela emotweni"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Finyelela imbewu yokubophezela ukubethela emotweni."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"Funda isimo sezibani zangaphandle zemoto"</string>
