@@ -214,7 +214,7 @@ public class BluetoothDeviceConnectionPolicy {
          * <p>
          * Note, comments for {@link CarPropertyManager#getIntProperty(int, int)} indicate it may
          * take a couple of seconds to complete, whereas there are no such comments for
-         * {@link CarPropertyService#getProperty(int, int)}, but we assume there is also similar
+         * {@link CarPropertyService#getPropertySafe(int, int)}, but we assume there is also similar
          * latency in querying VHAL properties.
          *
          * @return An {@code int} representing driver's seat location.
@@ -225,7 +225,7 @@ public class BluetoothDeviceConnectionPolicy {
             if (mCarPropertyService == null) {
                 return defaultLocation;
             }
-            CarPropertyValue value = mCarPropertyService.getProperty(
+            CarPropertyValue value = mCarPropertyService.getPropertySafe(
                     VehiclePropertyIds.INFO_DRIVER_SEAT, VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (value == null) {
                 // Distinguish between two possible causes for null, based on
