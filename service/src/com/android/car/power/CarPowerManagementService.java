@@ -161,6 +161,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private final WifiManager mWifiManager;
     private final AtomicFile mWifiStateFile;
+    private final boolean mWifiAdjustmentForSuspend;
 
     // This is a temp work-around to reduce user switching delay after wake-up.
     private final boolean mSwitchGuestUserBeforeSleep;
@@ -295,6 +296,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         mWifiManager = context.getSystemService(WifiManager.class);
         mWifiStateFile = new AtomicFile(
                 new File(mSystemInterface.getSystemCarDir(), WIFI_STATE_FILENAME));
+        mWifiAdjustmentForSuspend = getWifiAdjustmentForSuspendConfig();
         mPowerComponentHandler = powerComponentHandler;
         mSilentModeHandler = new SilentModeHandler(this, silentModeHwStatePath,
                 silentModeKernelStatePath, bootReason);
@@ -494,7 +496,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendSleepExit();
                 break;
         }
-        restoreWifi();
+        if (mWifiAdjustmentForSuspend) restoreWifi();
     }
 
     private void updateCarUserNoticeServiceIfNecessary() {
@@ -681,7 +683,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             }
         }
         // To make Kernel implementation simpler when going into sleep.
-        disableWifi();
+        if (mWifiAdjustmentForSuspend) disableWifi();
 
         if (mustShutDown) {
             // shutdown HU
@@ -2032,5 +2034,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private int getMaxSuspendWaitDurationConfig() {
         return mContext.getResources().getInteger(R.integer.config_maxSuspendWaitDuration);
+    }
+
+    private boolean getWifiAdjustmentForSuspendConfig() {
+        return mContext.getResources().getBoolean(R.bool.config_wifiAdjustmentForSuspend);
     }
 }
