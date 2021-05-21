@@ -127,10 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"कारको विक्रेतासम्बन्धी अनुमतिको जानकारीमाथि पहुँच राख्नुहोस्।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"कारका बाहिरी बत्तीहरूको स्थिति पढ्ने"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"कारका बाहिरी बत्तीहरूको स्थितिमाथि पहुँच राख्ने।"</string>
-    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
-    <skip />
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"कारको epoch समय हेर्न दिनुहोस्"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"कारको epoch समय हेर्न दिनुहोस्।"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"कारको इन्क्रिप्सन बाइन्डिङ सिड हेर्ने।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"कारका बाहिरी बत्तीहरूको अवस्थाबारे जानकारी प्राप्त गर्ने"</string>

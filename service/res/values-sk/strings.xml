@@ -127,10 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Prístup k informáciám o povoleniach dodávateľa auta."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"čítať stav vonkajších svetiel auta"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Prístup k stavu vonkajších svetiel auta."</string>
-    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
-    <skip />
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"prístup k času epochy v aute"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Prístup k času epochy v aute."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"prístup k záväznej hodnote seed šifrovania v aute"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Prístup k záväznej hodnote seed šifrovania v aute."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"čítať vonkajšie svetlá auta"</string>
