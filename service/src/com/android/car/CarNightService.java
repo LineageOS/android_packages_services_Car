@@ -170,7 +170,7 @@ public class CarNightService implements CarServiceBase {
         synchronized (mLock) {
             mCarPropertyService.registerListener(VehicleProperty.NIGHT_MODE, 0,
                     mICarPropertyEventListener);
-            CarPropertyValue propertyValue = mCarPropertyService.getProperty(
+            CarPropertyValue propertyValue = mCarPropertyService.getPropertySafe(
                     VehicleProperty.NIGHT_MODE, 0);
             if (propertyValue != null && propertyValue.getTimestamp() != 0) {
                 mLastSensorEventTime = propertyValue.getTimestamp();
