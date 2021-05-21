@@ -31,14 +31,16 @@
         android:orientation="horizontal">
 
         <com.android.systemui.car.hvac.TemperatureControlView
-            android:id="@+id/driver_temperature_control"
+            android:id="@+id/driver_hvac"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_weight="1"
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
             systemui:hvacAreaId="49"
-            systemui:hvacTempFormat="@string/hvac_temperature_format"/>
+            systemui:hvacTempFormat="@string/hvac_temperature_format">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
 
         <LinearLayout
             android:layout_width="wrap_content"
@@ -79,14 +81,16 @@
         </LinearLayout>
 
         <com.android.systemui.car.hvac.TemperatureControlView
-            android:id="@+id/passenger_temperature_control"
+            android:id="@+id/passenger_hvac"
             android:layout_width="0dp"
             android:layout_height="match_parent"
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
             systemui:hvacAreaId="68"
-            systemui:hvacTempFormat="@string/hvac_temperature_format"/>
+            systemui:hvacTempFormat="@string/hvac_temperature_format">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
 
     </LinearLayout>
 </com.android.systemui.car.systembar.CarSystemBarView>
