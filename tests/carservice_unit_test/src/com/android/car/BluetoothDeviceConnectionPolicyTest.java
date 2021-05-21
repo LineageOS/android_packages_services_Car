@@ -154,7 +154,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
         // setting the driver's seat location
         when(mMockCarPropertyService
-                .getProperty(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
+                .getPropertySafe(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
                 .thenReturn(new CarPropertyValue<Integer>(VehiclePropertyIds.INFO_DRIVER_SEAT,
                 0 /*areaId*/, new Integer(DRIVER_SEAT)));
 
@@ -578,7 +578,7 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
     @Test
     public void testGetDriverSeatLocationNull_policyCreated() {
         when(mMockCarPropertyService
-                .getProperty(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
+                .getPropertySafe(eq(VehiclePropertyIds.INFO_DRIVER_SEAT), anyInt()))
                 .thenReturn(null);
 
         BluetoothDeviceConnectionPolicy policyUnderTest = BluetoothDeviceConnectionPolicy.create(

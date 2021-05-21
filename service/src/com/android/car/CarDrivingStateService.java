@@ -474,7 +474,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @GuardedBy("mLock")
     private void updateVehiclePropertiesIfNeededLocked() {
         if (mLastGearTimestamp == NOT_RECEIVED) {
-            CarPropertyValue propertyValue = mPropertyService.getProperty(
+            CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.GEAR_SELECTION,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
@@ -487,7 +487,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         }
 
         if (mLastParkingBrakeTimestamp == NOT_RECEIVED) {
-            CarPropertyValue propertyValue = mPropertyService.getProperty(
+            CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.PARKING_BRAKE_ON,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
@@ -500,7 +500,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         }
 
         if (mLastSpeedTimestamp == NOT_RECEIVED) {
-            CarPropertyValue propertyValue = mPropertyService.getProperty(
+            CarPropertyValue propertyValue = mPropertyService.getPropertySafe(
                     VehicleProperty.PERF_VEHICLE_SPEED,
                     VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL);
             if (propertyValue != null) {
