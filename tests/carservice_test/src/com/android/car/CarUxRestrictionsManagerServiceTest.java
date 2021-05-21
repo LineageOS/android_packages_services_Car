@@ -690,7 +690,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         CarPropertyValue<Float> speed = new CarPropertyValue<>(VehicleProperty.PERF_VEHICLE_SPEED,
                 0, 0f);
-        when(mMockCarPropertyService.getProperty(VehicleProperty.PERF_VEHICLE_SPEED, 0))
+        when(mMockCarPropertyService.getPropertySafe(VehicleProperty.PERF_VEHICLE_SPEED, 0))
                 .thenReturn(speed);
     }
 
@@ -700,7 +700,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         CarPropertyValue<Float> speed = new CarPropertyValue<>(VehicleProperty.PERF_VEHICLE_SPEED,
                 0, 30f);
-        when(mMockCarPropertyService.getProperty(VehicleProperty.PERF_VEHICLE_SPEED, 0))
+        when(mMockCarPropertyService.getPropertySafe(VehicleProperty.PERF_VEHICLE_SPEED, 0))
                 .thenReturn(speed);
     }
 
