@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"นำข้อมูลใบหน้าออก"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ใช้ใบหน้าของคุณเพื่อปลดล็อกอุปกรณ์และเข้าถึงแอปได้ "<annotation id="url">"ดูข้อมูลเพิ่มเติม"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"ลบข้อมูลใบหน้าไหม"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ระบบจะลบข้อมูลที่การปลดล็อกด้วยใบหน้าบันทึกไว้อย่างถาวรและปลอดภัย หลักจากที่นำออกแล้ว คุณจะต้องใช้ PIN รูปแบบ หรือรหัสผ่านเพื่อปลดล็อกโทรศัพท์ ลงชื่อเข้าใช้แอป และยืนยันการชำระเงิน"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ระบบจะลบข้อมูลที่การปลดล็อกด้วยใบหน้าบันทึกไว้อย่างถาวรและปลอดภัย หลังจากที่นำออกแล้ว คุณจะต้องใช้ PIN รูปแบบ หรือรหัสผ่านเพื่อปลดล็อกโทรศัพท์ ลงชื่อเข้าใช้แอป และยืนยันการชำระเงิน"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ลายนิ้วมือ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"จัดการลายนิ้วมือ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ใช้ลายนิ้วมือเพื่อ"</string>

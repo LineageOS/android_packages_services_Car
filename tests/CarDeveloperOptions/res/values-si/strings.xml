@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"රහස්‍යතාව"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"ඔබගේ පරිපාලක විසින් අබල කර ඇත"</string>
     <string name="security_status_title" msgid="1261960357751754428">"ආරක්ෂක තත්ත්වය"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"තිර අගුල, මුහුණු අගුලු හැරීම"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"තිර අගුල, මුහුණෙන් අගුළු ඇරීම"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"තිර අගුල, ඇඟිලි සලකුණ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"තිර අගුල"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"මුහුණ එකතු කරන ලදි"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"මුහුණ දත්ත ඉවත් කරන්න"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ඔබගේ උපාංගය අගුලු හැරීමට සහ යෙදුම් වෙත පිවිසීමට ඔබේ මුහුණ භාවිතා කළ හැකිය. "<annotation id="url">"තව දැන ගන්න"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"මුහුණු දත්ත මකන්නේද?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"මුහුණු අඟුලු ඇරීමෙන් පටිගත කෙරෙන දත්ත ස්ථීරව සහ සුරක්‍ෂිතව මකනු ලැබේ. ඉවත් කළ පසු, ඔබේ දුරකථනය අඟුලු ඇරීමට, යෙදුම්වලට පුරන්නට, සහ ගෙවීම් තහවුරු කිරීමට ඔබට ඔබේ රහස් අංකය, රටාව, හෝ මුරපදය අවශ්‍ය වෙයි."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"මුහුණෙන් අගුළු ඇරීමෙන් පටිගත කෙරෙන දත්ත ස්ථීරව සහ සුරක්‍ෂිතව මකනු ලැබේ. ඉවත් කළ පසු, ඔබේ දුරකථනය අඟුලු ඇරීමට, යෙදුම්වලට පුරන්නට, සහ ගෙවීම් තහවුරු කිරීමට ඔබට ඔබේ රහස් අංකය, රටාව, හෝ මුරපදය අවශ්‍ය වෙයි."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ඇඟිලි සලකුණ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ඇඟිලි සලකුණු කළමනාකරණය කරන්න"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"මෙය සඳහා ඇඟිලි සලකුණු භාවිත කරන්න"</string>

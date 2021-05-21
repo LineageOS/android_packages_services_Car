@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privacy"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Disattivata dall\'amministratore"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Stato sicurezza"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Blocco schermo, Sblocco con il volto"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Blocco schermo, sblocco con il volto"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Blocco schermo, impronta digitale"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Blocco schermo"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Volto aggiunto"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Rimuovi dati viso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Il tuo viso può essere utilizzato per sbloccare il tuo dispositivo e accedere alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Eliminare i dati del volto?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati da Sblocco con il volto verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati dallo sblocco con il volto verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impronta digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gestisci impronte digitali"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Utilizza l\'impronta digitale per"</string>

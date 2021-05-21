@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"плати, допри, плаќања"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"бекап, прави бекап"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"движење"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"лице, отклучи, проверка, најави се"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"лик, отклучи, проверка, најави се"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, верзија на prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"мрежа, состојба на мобилна мрежа, состојба на услуга, јачина на сигнал, тип на мобилна мрежа, роаминг, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"сериски број, верзија на хардвер"</string>

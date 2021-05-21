@@ -3099,7 +3099,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"पेमेंट करा, टॅप करा, पेमेंट"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"बॅकअप, बॅक अप"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"जेश्चर"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"चेहरा, अनलॉक, प्रमाणीकरण, साइन इन"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"फेस, अनलॉक, प्रमाणीकरण, साइन इन"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl आवृत्ती, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"नेटवर्क, मोबाइल नेटवर्क स्थिती, सेवा स्थिती, सिग्नल तीव्रता, मोबाइल नेटवर्क प्रकार, रोमिंग, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"सीरीअल नंबर, हार्डवेअर आवृत्ती"</string>

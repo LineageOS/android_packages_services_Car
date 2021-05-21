@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"paga, toca, pagaments"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"còpia de seguretat, crear una còpia de seguretat"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gest"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"cara, desbloquejar, autenticació, iniciar la sessió"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"desbloqueig facial, autenticació, iniciar la sessió"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, versió de prl, versió de software d\'imei"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"xarxa, estat de la xarxa mòbil, estat del servei, intensitat del senyal, tipus de xarxa mòbil, itinerància, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"número de sèrie, versió de maquinari"</string>

@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"私隱權"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"已由管理員停用"</string>
     <string name="security_status_title" msgid="1261960357751754428">"安全性狀態"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定, 臉孔解鎖"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定、面孔解鎖"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"螢幕鎖定、指紋"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"螢幕鎖定"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"已加入臉孔"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"移除臉容資料"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"您的臉容可以用來解鎖裝置和存取應用程式。"<annotation id="url">"瞭解詳情"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"是否刪除臉孔資料？"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"臉孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"面孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"指紋"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"管理指紋"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"使用指紋"</string>
@@ -3099,7 +3099,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"支付, 輕按, 付款"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"備份內容, 備份"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"手勢"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"臉容, 解鎖, 驗證, 登入"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"面孔, 解鎖, 驗證, 登入"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"MEI, MEID, MIN, PRL 版本, IMEI SV"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"網絡, 流動網絡狀態, 服務狀態, 訊號強度, 流動網絡類型, 漫遊, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"序號, 硬件版本"</string>

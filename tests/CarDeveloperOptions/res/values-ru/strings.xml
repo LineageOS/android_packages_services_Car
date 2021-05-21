@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"Бесконтактная оплата"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"создать резервную копию"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"жест"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"лицо, разблокировать, аутентификация, вход"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"фейс, контроль, аутентификация, вход"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, версия prl, imeisv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"сеть, подключение к мобильной сети, доступность мобильной сети, уровень сигнала, тип мобильной сети, роуминг, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"серийный номер, версия аппаратного обеспечения"</string>

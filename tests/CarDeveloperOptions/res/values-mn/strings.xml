@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Нууцлал"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Админ цуцалсан"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Аюулгүй байдлын төлөв"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Дэлгэцийн түгжээ, царайгаар тайлах"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Дэлгэцийн түгжээ, царайгаар түгжээ тайлах"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Дэлгэцийн түгжээ, хурууны хээ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Дэлгэцийн түгжээ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Царай нэмсэн"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Царайны өгөгдлийг хасах"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Та царайгаа төхөөрөмжийн түгжээ тайлах болон аппад нэвтрэхэд ашиглах боломжтой. "<annotation id="url">"Нэмэлт мэдээлэл авах"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Царайны өгөгдлийг устгах уу?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Царайгаар тайлах онцлогоор бичсэн өгөгдлийг бүрмөсөн, аюулгүйгээр устгана. Та үүнийг устгасны дараа утасныхаа түгжээг тайлах, аппуудад нэвтрэх болон төлбөрийг баталгаажуулахын тулд ПИН, хээ эсвэл нууц үгээ оруулах шаардлагатай болно."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Царайгаар түгжээ тайлах онцлогоор бичсэн өгөгдлийг бүрмөсөн, аюулгүйгээр устгана. Та үүнийг устгасны дараа утасныхаа түгжээг тайлах, аппуудад нэвтрэх болон төлбөрийг баталгаажуулахын тулд ПИН, хээ эсвэл нууц үгээ оруулах шаардлагатай болно."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Хурууны хээ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Хурууны хээ удирдах"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Хурууны хээг дараах зорилгоор ашиглах"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"төлөх, товших, төлбөр"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"нөөцлөлт, нөөцлөх"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"зангаа"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"царай, түгжээг тайлах, нотлох, нэвтрэх"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"царайгаар, түгжээ тайлах, нотлох, нэвтрэх"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl хувилбар, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"сүлжээ, мобайл сүлжээний төлөв, үйлчилгээний төлөв, дохионы хүч, мобайл сүлжээний төрөл, роуминг, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"серийн дугаар, техник хангамжийн хувилбар"</string>
