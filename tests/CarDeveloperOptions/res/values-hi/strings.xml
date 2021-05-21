@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS पंजीकरण: <xliff:g id="STATUS">%1$s</xliff:g>\nवॉइस ओवर LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nवॉइस ओवर वाई-फ़ाई: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nवीडियो कॉलिंग: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT इंटरफ़ेस: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"सेवा में"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"सेवा में नहीं"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"केवल आपातकालीन कॉल"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"सिर्फ़ आपातकालीन कॉल"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"रेडियो बंद"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"रोमिंग"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"रोमिंग नहीं"</string>

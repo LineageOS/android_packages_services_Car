@@ -401,7 +401,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"الخصوصية"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"تم إيقاف الإعداد بواسطة المشرف"</string>
     <string name="security_status_title" msgid="1261960357751754428">"حالة الأمان"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل الشاشة، فتح القفل بالوجه"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل الشاشة، فتح الجهاز بالتعرف على الوجه"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"قفل الشاشة، بصمة الإصبع"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"قفل الشاشة"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"تمت إضافة الوجه"</string>
@@ -438,7 +438,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"إزالة بيانات الوجه"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"يمكن فتح قفل جهازك والوصول إلى التطبيقات بالوجه. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"هل تريد حذف بيانات الوجه؟"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"سيتم حذف البيانات المسجّلة باستخدام ميزة \"فتح القفل بالوجه\" نهائيًا وبشكل آمن. وبعد إزالتها، ستحتاج إلى رقم التعريف الشخصي أو النقش أو كلمة المرور لفتح قفل الهاتف وتسجيل الدخول إلى التطبيقات وتأكيد الدفعات."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"سيتم حذف البيانات المسجّلة باستخدام ميزة \"فتح الجهاز بالتعرف على الوجه\" نهائيًا وبشكل آمن. وبعد إزالتها، ستحتاج إلى رقم التعريف الشخصي أو النقش أو كلمة المرور لفتح قفل الهاتف وتسجيل الدخول إلى التطبيقات وتأكيد الدفعات."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"بصمة الإصبع"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"إدارة بصمات الإصبع"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"استخدام بصمة الإصبع في"</string>
@@ -3262,7 +3262,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"دفع، نقر، دفعات"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"نسخ احتياطية، نسخة احتياطية"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"إيماءة"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"بالوجه، فتح القفل، مصادقة، تسجيل الدخول"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"بالتعرف على الوجه، فتح الجهاز، مصادقة، تسجيل الدخول"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei‏، meid‏، min‏، إصدار prl‏، imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"شبكة، حالة شبكة الجوّال، حالة الخدمة، قوة الإشارة، نوع شبكة الجوّال، التجوال، iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"رقم تسلسلي، إصدار الجهاز"</string>

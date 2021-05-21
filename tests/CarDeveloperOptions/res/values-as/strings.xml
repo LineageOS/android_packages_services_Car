@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"গোপনীয়তা"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"প্ৰশাসকে অক্ষম কৰিছে"</string>
     <string name="security_status_title" msgid="1261960357751754428">"সুৰক্ষা স্থিতি"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্ৰীণ লক, ফে’চ আনলক"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্ৰীণ লক, ফেচ আনলক"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"স্ক্ৰীণ লক, ফিংগাৰপ্ৰিণ্ট"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"স্ক্ৰীণ লক"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"চেহেৰা যোগ কৰা হ\'ল"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"মুখমণ্ডল ডেটা আঁতৰাওক"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"আপোনাৰ মুখমণ্ডল আপোনাৰ ডিভাইচ আনলক কৰা আৰু এপসমূহ এক্সেছ কৰাত ব্যৱহাৰ কৰিব পাৰি।"<annotation id="url">"অধিক জানক"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"মুখমণ্ডলৰ ডেটা মচিবনে?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ফে’চ আনলক ব্যৱহাৰ কৰি ৰেকৰ্ড কৰা ডেটা স্থায়ীভাৱে আৰু সুৰক্ষিতভাৱে মচা হ’ব। আঁতৰোৱাৰ পিছত আপোনাৰ ফ’নটো আনলক কৰিবলৈ পিন আৰ্হি বা পাছৱৰ্ডৰ প্ৰয়োজন হ’ব, এপ্‌সমূহত ছাইন ইন কৰক আৰু পৰিশোধ নিশ্চিত কৰক।"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ফেচ আনলক ব্যৱহাৰ কৰি ৰেকৰ্ড কৰা ডেটা স্থায়ীভাৱে আৰু সুৰক্ষিতভাৱে মচা হ’ব। আঁতৰোৱাৰ পিছত আপোনাৰ ফ’নটো আনলক কৰিবলৈ পিন আৰ্হি বা পাছৱৰ্ডৰ প্ৰয়োজন হ’ব, এপ্‌সমূহত ছাইন ইন কৰক আৰু পৰিশোধ নিশ্চিত কৰক।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ফিংগাৰপ্ৰিণ্ট"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ফিংগাৰপ্ৰিণ্টসমূহ পৰিচালনা কৰক"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ফিংগাৰপ্ৰিণ্ট ব্যৱহাৰ কৰক"</string>

@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Ta bort ansiktsdata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Du kan låsa upp enheten och komma åt appar med hjälp av ansiktet. "<annotation id="url">"Läs mer"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Vill du radera ansiktsdata?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data som har registrerats av Ansiktslås raderas säkert och permanent. Efter borttagningen låser du upp mobilen, loggar in i appar och bekräftar betalningar med hjälp av pinkoden, det grafiska lösenordet eller lösenordet."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data som har registrerats av ansiktslås raderas säkert och permanent. Efter borttagningen låser du upp mobilen, loggar in i appar och bekräftar betalningar med hjälp av pinkoden, det grafiska lösenordet eller lösenordet."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingeravtryck"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Hantera fingeravtryck"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Använd avtryck för"</string>

@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"platiť, klepnutie, platby"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"záloha, zálohovanie"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gesto"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"tvár, odomknutie, overenie totožnosti, prihlásenie"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"odomknutie, tvárou, overenie totožnosti, prihlásenie"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, verzia prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"sieť, stav mobilnej siete, stav služby, sila signálu, typ mobilnej siete, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"sériové číslo, hardvérová verzia"</string>

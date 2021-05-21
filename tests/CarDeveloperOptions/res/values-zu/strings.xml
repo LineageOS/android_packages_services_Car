@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Ubumfihlo"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Kukhutshazwe umlawuli"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Isimo sokuphepha"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ukukhiya isikrini, i-face unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ukukhiya isikrini, ukuvula ngobuso"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Ukukhiywa kwesikrini, isigxivizo somunwe"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Isikrini sivaliwe"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Ubuso bungeziwe"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Susa idatha yobuso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Ubuso bakho bungasetshenziswa ukuvula idivayisi yakho nokufinyelela izinhlelo zokusebenza. "<annotation id="url">"Funda kabanzi"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Susa idatha yobuso?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Idatha erekhodwe ngokuvulwa kobuso izosuswa ngunaphakade nangokuvikelekile. Ngemuva kokususwa, uzodinga iphinikhodi, iphethini, noma iphasiwedi ukuze uvule ifoni yakho, ungene ngemvume kuzinhlelo zokusebenza, uphinde uqinisekise izinkokhelo."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Idatha erekhodwe ngokuvulwa ngobuso izosuswa ngunaphakade nangokuvikelekile. Ngemuva kokususwa, uzodinga iphinikhodi, iphethini, noma iphasiwedi ukuze uvule ifoni yakho, ungene ngemvume kuzinhlelo zokusebenza, uphinde uqinisekise izinkokhelo."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Izigxivizo zeminwe"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Phatha izigxivizo zeminwe"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Sebenzisa izigxivizo zeminwe ukuthi"</string>
@@ -3099,7 +3099,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"khokha, thepha, i-payments"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"isipele, yenza isipele"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"ukuthinta"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ubuso, ukuvulwa, i-auth, ukungena ngemvume"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"ukuvula, ngobuso, i-auth, ukungena ngemvume"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, inguqulo ye-prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"inethiwekhi, isimo senethiwekhi yeselula, isimo sesevisi, amandla esignali, uhlobo lwenethiwekhi yeselula, ukuzula, i-iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"inombolo yomkhiqizo, inguqulo yehadiwe"</string>

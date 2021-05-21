@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"حریم‌خصوصی"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"توسط سرپرست غیرفعال شده"</string>
     <string name="security_status_title" msgid="1261960357751754428">"وضعیت امنیتی"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل صفحه، بازگشایی با چهره"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"قفل صفحه، قفل‌گشایی با چهره"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"قفل صفحه، اثرانگشت"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"قفل صفحه"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"چهره افزوده شد"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"حذف داده‌های چهره"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"می‌توانید از چهره‌تان برای باز کردن قفل دستگاه و دسترسی به برنامه‌ها استفاده کنید. "<annotation id="url">"بیشتر بدانید"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"داده‌های چهره حذف شود؟"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"داده‌هایی که «بازگشایی با چهره»‌ ضبط کرده است، به‌طور دائم و ایمن حذف می‌شود. پس از برداشته شدن داده‌ها، برای باز کردن قفل تلفن، ورود به سیستم برنامه‌ها، و تأیید پرداخت‌ها، به پین، الگو، یا گذرواژه نیاز دارید."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"داده‌هایی که «قفل‌گشایی با چهره»‌ ضبط کرده است، به‌طور دائم و ایمن حذف می‌شود. پس از برداشته شدن داده‌ها، برای باز کردن قفل تلفن، ورود به سیستم برنامه‌ها، و تأیید پرداخت‌ها، به پین، الگو، یا گذرواژه نیاز دارید."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"اثر انگشت"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"مدیریت اثر انگشت"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"استفاده از اثر انگشت برای"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"پرداخت کردن، ضربه زدن، پرداخت‌ها"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"پشتیبان‌گیری، پشتیبان"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"اشاره"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"چهره، بازگشایی، اصالت‌سنجی، ورود به سیستم"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"چهره، قفل‌گشایی، اصالت‌سنجی، ورود به سیستم"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei، ‏meid،‏ min، نسخه prl، ‏imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"شبکه، وضعیت شبکه همراه، وضعیت سرویس، شدت سیگنال، نوع شبکه همراه، فراگردی، iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"شماره سریال، نسخه سخت‌افزار"</string>

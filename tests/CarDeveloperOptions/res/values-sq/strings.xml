@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Hiq të dhënat e fytyrës"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Fytyra jote mund të përdoret për të shkyçur pajisjen tënde dhe për të pasur qasje tek aplikacionet. "<annotation id="url">"Mëso më shumë"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Do t\'i fshish të dhënat e fytyrës?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Të dhënat e regjistruara nga shkyçja me fytyrën do të fshihen përgjithmonë dhe në mënyrë të sigurt. Pas heqjes, do të të duhet kodi PIN, motivi ose fjalëkalimi për ta shkyçur telefonin, për t\'u identifikuar në aplikacione dhe për të konfirmuar pagesat."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Të dhënat e regjistruara nga shkyçja me fytyrë do të fshihen përgjithmonë dhe në mënyrë të sigurt. Pas heqjes, do të të duhet kodi PIN, motivi ose fjalëkalimi për ta shkyçur telefonin, për t\'u identifikuar në aplikacione dhe për të konfirmuar pagesat."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Gjurma e gishtit"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Menaxho gjurm. gishtit"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Përdor gjurmën për"</string>

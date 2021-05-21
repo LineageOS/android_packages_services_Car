@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Confidentialité"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Désactivé par l\'administrateur"</string>
     <string name="security_status_title" msgid="1261960357751754428">"État de la sécurité"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Verrouillage de l\'écran, Face Unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Verrouillage de l\'écran, déverrouillage par reconnaissance faciale"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Verrouillage de l\'écran, empreinte digitale"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Verrouillage de l\'écran"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Visage ajouté"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Suppr. données visage"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Vous pouvez utiliser votre visage pour déverrouiller votre appareil et accéder à des applications. "<annotation id="url">"En savoir plus"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Supprimer les données de reconnaissance faciale ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées par Face Unlock seront supprimées de manière sécurisée et définitive. Une fois l\'inscription retirée, vous devrez utiliser votre code, votre motif ou votre mot de passe pour déverrouiller votre téléphone, vous connecter aux applications et confirmer les paiements."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées pour le déverrouillage par reconnaissance faciale seront supprimées de manière sécurisée et définitive. Une fois l\'inscription retirée, vous devrez utiliser votre code, votre motif ou votre mot de passe pour déverrouiller votre téléphone, vous connecter aux applications et confirmer les paiements."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Empreinte digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gérer empreintes num."</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Utiliser empr. num. pour"</string>
