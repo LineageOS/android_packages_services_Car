@@ -34,6 +34,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
 import android.os.Build;
+import android.os.ServiceSpecificException;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
@@ -165,11 +166,12 @@ public class PropertyHalService extends HalServiceBase {
 
     /**
      * Returns property or null if property is not ready yet.
-     * @param mgrPropId
-     * @param areaId
+     * @param mgrPropId property id in {@link VehiclePropertyIds}
+     * @param areaId area id
+     * @throws ServiceSpecificException if there is an exception in HAL.
      */
     @Nullable
-    public CarPropertyValue getProperty(int mgrPropId, int areaId) {
+    public CarPropertyValue getProperty(int mgrPropId, int areaId) throws ServiceSpecificException {
         int halPropId = managerToHalPropId(mgrPropId);
         if (!isPropertySupportedInVehicle(halPropId)) {
             throw new IllegalArgumentException("Invalid property Id : 0x" + toHexString(mgrPropId));
@@ -177,8 +179,9 @@ public class PropertyHalService extends HalServiceBase {
 
         // CarPropertyManager catches and rethrows exception, no need to handle here.
         VehiclePropValue value = mVehicleHal.get(halPropId, areaId);
-        if (value == null) return null;
-
+        if (value == null) {
+            return null;
+        }
         if (isMixedTypeProperty(halPropId)) {
             VehiclePropConfig propConfig;
             synchronized (mLock) {
@@ -189,6 +192,21 @@ public class PropertyHalService extends HalServiceBase {
             return toMixedCarPropertyValue(value, mgrPropId, containBooleanType, containStringType);
         }
         return toCarPropertyValue(value, mgrPropId);
+    }
+
+    /**
+     * Return property or null if property is not ready yet or there is an exception in HAL.
+     */
+    @Nullable
+    public CarPropertyValue getPropertySafe(int mgrPropId, int areaId) {
+        try {
+            return getProperty(mgrPropId, areaId);
+        } catch (ServiceSpecificException e) {
+            Slog.e(TAG, "get property value failed for property id: 0x "
+                    + toHexString(mgrPropId) + " area id: 0x" + toHexString(areaId)
+                    + " exception: " + e);
+            return null;
+        }
     }
 
     /**
