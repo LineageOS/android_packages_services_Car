@@ -31,11 +31,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ParcelUuid;
 import android.util.Base64;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
+
+import com.android.car.CarServiceUtils;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;
@@ -132,7 +133,8 @@ class FastPairGattServer {
             mSharedSecretKey = null;
         }
     };
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(
+            CarServiceUtils.getCommonHandlerThread().getLooper());
     private BluetoothGattCharacteristic mModelIdCharacteristic;
     private BluetoothGattCharacteristic mKeyBasedPairingCharacteristic;
     private BluetoothGattCharacteristic mPasskeyCharacteristic;

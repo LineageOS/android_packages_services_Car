@@ -24,11 +24,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
-import android.os.Looper;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 
 /**
@@ -141,7 +141,8 @@ public class FastPairProvider {
             return;
         }
         Slog.d(TAG, "modelId == " + mModelId);
-        mFastPairAdvertiserHandler = new Handler(Looper.getMainLooper());
+        mFastPairAdvertiserHandler = new Handler(
+                CarServiceUtils.getCommonHandlerThread().getLooper());
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);

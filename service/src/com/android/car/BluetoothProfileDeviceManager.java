@@ -37,7 +37,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.ParcelUuid;
 import android.os.Parcelable;
 import android.os.RemoteException;
@@ -143,7 +142,8 @@ public class BluetoothProfileDeviceManager {
     private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
     private final ICarBluetoothUserService mBluetoothUserProxies;
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(
+            CarServiceUtils.getCommonHandlerThread().getLooper());
 
     /**
      * A BroadcastReceiver that listens specifically for actions related to the profile we're

@@ -26,7 +26,6 @@ import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.text.TextUtils;
@@ -69,7 +68,8 @@ public class BluetoothProfileInhibitManager {
     @GuardedBy("mProfileInhibitsLock")
     private final HashSet<BluetoothConnection> mAlreadyDisabledProfiles = new HashSet<>();
 
-    private final Handler mHandler = new Handler(Looper.getMainLooper());
+    private final Handler mHandler = new Handler(
+            CarServiceUtils.getCommonHandlerThread().getLooper());
 
     /**
      * BluetoothConnection - encapsulates the information representing a connection to a device on a
