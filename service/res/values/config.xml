@@ -414,4 +414,8 @@
 
     <!-- A name of a camera device that provides the rearview through EVS service -->
     <string name="config_evsRearviewCameraId">/dev/video10</string>
+
+    <!-- A configuration flag to adjust Wifi for suspend. -->
+    <bool name="config_wifiAdjustmentForSuspend">false</bool>
+
 </resources>
