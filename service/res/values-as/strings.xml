@@ -127,10 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"গাড়ীৰ বিক্ৰেতাৰ অনুমতি সম্পৰ্কীয় তথ্য এক্সেছ কৰক।"</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি পঢ়িব"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"গাড়ীৰ বাহ্যিক লাইটৰ স্থিতি এক্সেছ কৰিব।"</string>
-    <!-- no translation found for car_permission_label_car_epoch_time (6303397910662625112) -->
-    <skip />
-    <!-- no translation found for car_permission_desc_car_epoch_time (398907082895238558) -->
-    <skip />
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"গাড়ীৰ ইপক সময় এক্সেছ কৰিবলৈ দিয়ক"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"গাড়ীৰ ইপক সময় এক্সেছ কৰিবলৈ দিয়ক।"</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"গাড়ীৰ এনক্ৰিপশ্বন বাইণ্ডিং ছীড এক্সেছ কৰক"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"গাড়ীৰ এনক্ৰিপশ্বন বাইণ্ডিং ছীড এক্সেছ কৰক।"</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"গাড়ীৰ বাহ্যিক লাইট পঢ়িব"</string>
