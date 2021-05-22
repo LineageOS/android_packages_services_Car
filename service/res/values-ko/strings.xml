@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"차량 공급업체 권한 정보에 액세스합니다."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"차량 외부 조명 상태 읽기"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"차량의 외부 조명 상태에 액세스합니다."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"차량의 유닉스 시간에 액세스합니다."</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"차량의 유닉스 시간에 액세스합니다."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"차량의 유닉스 시간에 액세스"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"차량의 유닉스 시간에 액세스합니다."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"차량의 암호화용 결합 시드에 액세스합니다."</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"차량의 암호화용 결합 시드에 액세스합니다."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"차량 외부 조명 읽기"</string>

@@ -127,8 +127,8 @@
     <string name="car_permission_desc_vendor_permission_info" msgid="8152113853528488398">"Aracın tedarikçi firma izin bilgilerine erişin."</string>
     <string name="car_permission_label_car_exterior_lights" msgid="541304469604902110">"aracın dış ışıklarının durumunu okuma"</string>
     <string name="car_permission_desc_car_exterior_lights" msgid="4038037584100849318">"Aracın dış ışıklarının durumuna erişim."</string>
-    <string name="car_permission_label_car_unix_time" msgid="1670260167623542214">"aracın UNIX zamanına erişebilir"</string>
-    <string name="car_permission_desc_car_unix_time" msgid="9104228524876348441">"Aracın UNIX zamanına erişebilir."</string>
+    <string name="car_permission_label_car_epoch_time" msgid="6303397910662625112">"arabanın sıfır zamanına erişim"</string>
+    <string name="car_permission_desc_car_epoch_time" msgid="398907082895238558">"Arabanın sıfır zamanına erişim."</string>
     <string name="car_permission_label_encryption_binding_seed" msgid="4652180636501144684">"aracın şifreleme bağlama başlangıç noktasına erişebilir"</string>
     <string name="car_permission_desc_encryption_binding_seed" msgid="6290944678417286024">"Aracın şifreleme bağlama başlangıç noktasına erişebilir."</string>
     <string name="car_permission_label_control_car_exterior_lights" msgid="101357531386232141">"aracın dış ışıklarını okuma"</string>
