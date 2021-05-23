@@ -144,6 +144,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         public boolean isRequestingToStartActivity() {
             return mOn;
         }
+
+        public String toString() {
+            return "ServiceType = " + mServiceType + ", mOn = " + mOn +
+                    ", Timestamp = " + mTimestamp;
+        }
     }
 
     private final Context mContext;
@@ -502,6 +507,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     return "UNKNOWN";
             }
         }
+
+        public String toString() {
+            return toString(mState);
+        }
     }
 
     private final StateMachine mStateEngine = new StateMachine();
@@ -698,14 +707,15 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarEvsService*");
-        writer.printf("%s to HAL service",
+        writer.printf("Current state = %s\n", mStateEngine);
+        writer.printf("%s to HAL service\n",
                 mNativeEvsServiceObj == 0 ? "Not connected" : "Connected");
-        writer.printf("%d stream listeners subscribed.",
+        writer.printf("%d stream listeners subscribed.\n",
                 mStreamCallbacks.getRegisteredCallbackCount());
-        writer.printf("%d service listeners subscribed.",
+        writer.printf("%d service listeners subscribed.\n",
                 mStatusListeners.getRegisteredCallbackCount());
-
-        // TODO(b/177923530): Dump more status information
+        writer.printf("Last HAL event = %s\n", mLastEvsHalEvent);
+        writer.printf("Current session token = %s\n", mSessionToken);
     }
 
     /**
