@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -13,12 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<overlay>
-    <item target="id/bottom_card" value="@id/bottom_card" />
+<resources>
+    <!--  Entry/exit animation transition speed in milliseconds.  This is the animation of foreground DA.-->
+    <integer name="enter_exit_animation_foreground_display_area_duration_ms">500</integer>
+</resources>
 
-    <item target="layout/car_launcher" value="@layout/car_launcher"/>
-
-    <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
-
-    <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
-</overlay>

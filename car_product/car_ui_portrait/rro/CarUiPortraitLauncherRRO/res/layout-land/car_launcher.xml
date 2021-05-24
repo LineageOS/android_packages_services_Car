@@ -22,14 +22,6 @@
     android:layoutDirection="ltr">
 
     <com.android.car.ui.FocusArea
-        android:id="@+id/top_card"
-        android:layout_width="0dp"
-        android:layout_height="match_parent"
-        android:padding="10dp"
-        android:layout_weight="1"
-        android:layoutDirection="locale"/>
-
-    <com.android.car.ui.FocusArea
         android:id="@+id/bottom_card"
         android:layout_width="0dp"
         android:layout_height="match_parent"
@@ -37,9 +29,4 @@
         android:padding="10dp"
         android:layoutDirection="locale"/>
 
-    <FrameLayout
-        android:id="@+id/maps_card"
-        android:layout_width="1dp"
-        android:layout_height="1dp"
-        android:layoutDirection="locale"/>
 </LinearLayout>
