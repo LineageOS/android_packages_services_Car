@@ -488,7 +488,7 @@ Return<EvsResult> HalCamera::forceMaster(sp<VirtualCamera> virtualCamera) {
 }
 
 
-Return<EvsResult> HalCamera::unsetMaster(sp<VirtualCamera> virtualCamera) {
+Return<EvsResult> HalCamera::unsetMaster(const VirtualCamera* virtualCamera) {
     if (mPrimaryClient.promote() != virtualCamera) {
         return EvsResult::INVALID_ARG;
     } else {
