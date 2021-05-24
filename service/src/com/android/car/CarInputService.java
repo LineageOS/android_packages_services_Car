@@ -44,7 +44,6 @@ import android.net.Uri;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
 import android.provider.Settings;
@@ -244,7 +243,7 @@ public class CarInputService extends ICarInput.Stub
     public CarInputService(Context context, InputHalService inputHalService,
             CarUserService userService, CarOccupantZoneService occupantZoneService) {
         this(context, inputHalService, userService, occupantZoneService,
-                new Handler(Looper.getMainLooper()),
+                new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class), new AssistUtils(context),
                 event ->
                         context.getSystemService(InputManager.class)
