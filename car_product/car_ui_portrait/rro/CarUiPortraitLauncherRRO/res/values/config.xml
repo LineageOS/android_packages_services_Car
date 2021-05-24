@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="UTF-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -13,12 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<overlay>
-    <item target="id/bottom_card" value="@id/bottom_card" />
 
-    <item target="layout/car_launcher" value="@layout/car_launcher"/>
+<resources>
+    <!-- A list of package names that provide the cards to display on the home screen -->
+    <string-array name="config_homeCardModuleClasses" translatable="false">
+        <item>com.android.car.carlauncher.homescreen.audio.AudioCard</item>
+    </string-array>
 
-    <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
-
-    <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
-</overlay>
+</resources>
