@@ -188,7 +188,7 @@ extern "C" int LLVMFuzzerTestOneInput(const uint8_t* data, size_t size) {
                 if (!virtualCameras.empty()) {
                     uint32_t whichCam =
                             fdp.ConsumeIntegralInRange<uint32_t>(0, virtualCameras.size() - 1);
-                    halCamera->unsetMaster(virtualCameras[whichCam]);
+                    halCamera->unsetMaster(virtualCameras[whichCam].get());
                 }
                 break;
             }

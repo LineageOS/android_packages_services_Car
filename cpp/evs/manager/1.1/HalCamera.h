@@ -95,7 +95,7 @@ public:
     Return<void>        doneWithFrame(const BufferDesc_1_1& buffer);
     Return<EvsResult>   setMaster(sp<VirtualCamera> virtualCamera);
     Return<EvsResult>   forceMaster(sp<VirtualCamera> virtualCamera);
-    Return<EvsResult>   unsetMaster(sp<VirtualCamera> virtualCamera);
+    Return<EvsResult>   unsetMaster(const VirtualCamera* virtualCamera);
     Return<EvsResult>   setParameter(sp<VirtualCamera> virtualCamera,
                                      CameraParam id, int32_t& value);
     Return<EvsResult>   getParameter(CameraParam id, int32_t& value);
