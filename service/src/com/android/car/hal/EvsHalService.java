@@ -190,7 +190,7 @@ public class EvsHalService extends HalServiceBase {
 
     @Override
     public void dump(PrintWriter writer) {
-        writer.println("*EVS HAL*");
+        writer.println("*EVSHALSERVICE*");
         writer.printf("Use EVS_SERVICE_REQUEST: %b\n", isEvsServiceRequestSupported());
     }
 }
