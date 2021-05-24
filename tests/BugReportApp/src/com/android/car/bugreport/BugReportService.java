@@ -492,7 +492,8 @@ public class BugReportService extends Service {
     static void showBugReportFinishedNotification(Context context, MetaBugReport bug) {
         Intent intent = new Intent(context, BugReportInfoActivity.class);
         PendingIntent startBugReportInfoActivity =
-                PendingIntent.getActivity(context, 0, intent, 0);
+                PendingIntent.getActivity(context.getApplicationContext(),
+                        /* requestCode= */ 0, intent, PendingIntent.FLAG_IMMUTABLE);
         Notification notification = new Notification
                 .Builder(context, STATUS_CHANNEL_ID)
                 .setContentTitle(context.getText(R.string.notification_bugreport_finished_title))
