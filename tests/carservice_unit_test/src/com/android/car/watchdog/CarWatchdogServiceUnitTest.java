@@ -87,6 +87,7 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
 import com.android.internal.util.function.TriConsumer;
 
 import com.google.common.truth.Correspondence;
@@ -1159,7 +1160,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private void captureDaemonBinderDeathRecipient() throws Exception {
         ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
                 ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
-        verify(mMockBinder, timeout(MAX_WAIT_TIME_MS))
+        verify(mMockBinder, timeout(MAX_WAIT_TIME_MS).atLeastOnce())
                 .linkToDeath(deathRecipientCaptor.capture(), anyInt());
         mCarWatchdogDaemonBinderDeathRecipient = deathRecipientCaptor.getValue();
     }
@@ -1185,11 +1186,14 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     private ICarWatchdogServiceForSystem registerCarWatchdogService() throws Exception {
+        /* Registering to daemon is done on the main thread. To ensure the registration completes
+         * before verification, execute an empty block on the main thread.
+         */
+        CarServiceUtils.runOnMainSync(() -> {});
+
         ArgumentCaptor<ICarWatchdogServiceForSystem> watchdogServiceForSystemImplCaptor =
                 ArgumentCaptor.forClass(ICarWatchdogServiceForSystem.class);
-        // Registering to daemon is done through a message handler. So, a buffer time of 1000ms is
-        // given.
-        verify(mMockCarWatchdogDaemon, timeout(1000)).registerCarWatchdogService(
+        verify(mMockCarWatchdogDaemon, atLeastOnce()).registerCarWatchdogService(
                 watchdogServiceForSystemImplCaptor.capture());
         return watchdogServiceForSystemImplCaptor.getValue();
     }
