@@ -144,12 +144,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         public boolean isRequestingToStartActivity() {
             return mOn;
         }
+
+        public String toString() {
+            return "ServiceType = " + mServiceType + ", mOn = " + mOn +
+                    ", Timestamp = " + mTimestamp;
+        }
     }
 
     private final Context mContext;
     private final EvsHalService mEvsHalService;
     private final CarPropertyService mPropertyService;
-    // Shouldn't acquire mStateLock holding mLock.
     private final Object mLock = new Object();
 
     // This handler is to monitor the client sends a video stream request within a given time
@@ -223,18 +227,16 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     // CarEvsService state machine implementation to handle all state transitions.
     private final class StateMachine {
-        private Object mStateLock = new Object();
-
         // Current state
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private int mState = SERVICE_STATE_UNAVAILABLE;
 
         // Current service type
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private int mServiceType = CarEvsManager.SERVICE_TYPE_REARVIEW;
 
         // Priority of a last service request
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private int mLastRequestPriority = REQUEST_PRIORITY_LOW;
 
         public @CarEvsError int execute(int priority, int destination) {
@@ -253,17 +255,18 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         public @CarEvsError int execute(int priority, int destination, int service, IBinder token,
                 ICarEvsStreamCallback callback) {
 
-            if (mState == destination && destination != SERVICE_STATE_REQUESTED) {
-                // Nothing to do
-                return ERROR_NONE;
-            }
+            int result = ERROR_NONE;
+            synchronized (mLock) {
+                // TODO(b/188970686): Reduce this lock duration.
+                if (mState == destination && destination != SERVICE_STATE_REQUESTED) {
+                    // Nothing to do
+                    return ERROR_NONE;
+                }
 
-            int previousState = mState;
-            int result;
-            Slog.d(TAG_EVS, "Transition requested: " + toString(previousState) +
-                    " -> " + toString(destination));
+                int previousState = mState;
+                Slog.d(TAG_EVS, "Transition requested: " + toString(previousState) +
+                        " -> " + toString(destination));
 
-            synchronized (mStateLock) {
                 switch (destination) {
                     case SERVICE_STATE_UNAVAILABLE:
                         result = handleTransitionToUnavailableLocked();
@@ -296,24 +299,24 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         public @CarEvsServiceState int getState() {
-            synchronized (mStateLock) {
+            synchronized (mLock) {
                 return mState;
             }
         }
 
         public @CarEvsServiceType int getServiceType() {
-            synchronized (mStateLock) {
+            synchronized (mLock) {
                 return mServiceType;
             }
         }
 
         public CarEvsStatus getStateAndServiceType() {
-            synchronized (mStateLock) {
+            synchronized (mLock) {
                 return new CarEvsStatus(mServiceType, mState);
             }
         }
 
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private @CarEvsError int handleTransitionToUnavailableLocked() {
             // This transition happens only when CarEvsService loses the active connection to the
             // Extended View System service.
@@ -332,7 +335,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_NONE;
         }
 
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private @CarEvsError int handleTransitionToInactiveLocked(int priority, int service,
                 ICarEvsStreamCallback callback) {
 
@@ -383,7 +386,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_NONE;
         }
 
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private @CarEvsError int handleTransitionToRequestedLocked(int priority, int service) {
             switch (mState) {
                 case SERVICE_STATE_UNAVAILABLE:
@@ -440,7 +443,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return ERROR_NONE;
         }
 
-        @GuardedBy("mStateLock")
+        @GuardedBy("mLock")
         private @CarEvsError int handleTransitionToActiveLocked(int priority, int service,
                 IBinder token, ICarEvsStreamCallback callback) {
 
@@ -503,6 +506,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 default:
                     return "UNKNOWN";
             }
+        }
+
+        public String toString() {
+            return toString(mState);
         }
     }
 
@@ -700,14 +707,15 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarEvsService*");
-        writer.printf("%s to HAL service",
+        writer.printf("Current state = %s\n", mStateEngine);
+        writer.printf("%s to HAL service\n",
                 mNativeEvsServiceObj == 0 ? "Not connected" : "Connected");
-        writer.printf("%d stream listeners subscribed.",
+        writer.printf("%d stream listeners subscribed.\n",
                 mStreamCallbacks.getRegisteredCallbackCount());
-        writer.printf("%d service listeners subscribed.",
+        writer.printf("%d service listeners subscribed.\n",
                 mStatusListeners.getRegisteredCallbackCount());
-
-        // TODO(b/177923530): Dump more status information
+        writer.printf("Last HAL event = %s\n", mLastEvsHalEvent);
+        writer.printf("Current session token = %s\n", mSessionToken);
     }
 
     /**
