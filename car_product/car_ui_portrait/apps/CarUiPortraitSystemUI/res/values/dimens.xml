@@ -39,4 +39,13 @@
 
     <dimen name="system_bar_user_icon_drawing_size">44dp</dimen>
     <dimen name="status_bar_system_icon_spacing">32dp</dimen>
+
+    <dimen name="hvac_panel_bg_radius">24dp</dimen>
+    <dimen name="hvac_panel_button_radius">24dp</dimen>
+    <dimen name="hvac_panel_full_expanded_height">456dp</dimen>
+    <dimen name="hvac_panel_button_dimen">88dp</dimen>
+    <dimen name="hvac_panel_wide_button_width">374dp</dimen>
+    <dimen name="hvac_panel_slider_width">540dp</dimen>
+    <dimen name="hvac_panel_button_external_margin">24dp</dimen>
+    <dimen name="hvac_panel_button_internal_margin">16dp</dimen>
 </resources>
