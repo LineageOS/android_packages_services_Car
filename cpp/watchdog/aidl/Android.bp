@@ -31,6 +31,7 @@ aidl_interface {
     },
     versions: [
         "2",
+        "3",
     ],
 }
 
@@ -48,6 +49,6 @@ aidl_interface {
         },
     },
     imports: [
-        "android.automotive.watchdog",
+        "android.automotive.watchdog-V3",
     ],
 }
