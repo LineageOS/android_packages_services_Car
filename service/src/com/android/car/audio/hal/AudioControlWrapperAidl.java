@@ -202,6 +202,16 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         }
 
         @Override
+        public int getInterfaceVersion() {
+            return this.VERSION;
+        }
+
+        @Override
+        public String getInterfaceHash() {
+            return this.HASH;
+        }
+
+        @Override
         public void requestAudioFocus(String usage, int zoneId, int focusGain) {
             @AttributeUsage int usageValue = AudioAttributes.xsdStringToUsage(usage);
             mListener.requestAudioFocus(usageValue, zoneId, focusGain);
