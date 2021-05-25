@@ -39,7 +39,6 @@ import android.content.pm.PackageManager;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -52,6 +51,7 @@ import android.view.WindowManagerGlobal;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -82,7 +82,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     @Nullable
     private final Intent mServiceIntent;
 
-    private final Handler mMainHandler;
+    private final Handler mCommonThreadHandler;
 
     private final Object mLock = new Object();
 
@@ -118,7 +118,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             int userId = event.getUserId();
             if (DBG) Slog.d(TAG, "User switch event received. Target User:" + userId);
 
-            CarUserNoticeService.this.mMainHandler.post(() -> {
+            CarUserNoticeService.this.mCommonThreadHandler.post(() -> {
                 stopUi(/* clearUiShown= */ true);
                 synchronized (mLock) {
                     // This should be the only place to change user
@@ -133,10 +133,10 @@ public final class CarUserNoticeService implements CarServiceBase {
         @Override
         public void onStateChanged(int state) {
             if (state == CarPowerManager.CarPowerStateListener.SHUTDOWN_PREPARE) {
-                mMainHandler.post(() -> stopUi(/* clearUiShown= */ true));
+                mCommonThreadHandler.post(() -> stopUi(/* clearUiShown= */ true));
             } else if (state == CarPowerManager.CarPowerStateListener.ON) {
                 // Only ON can be relied on as car can restart while in garage mode.
-                mMainHandler.post(() -> startNoticeUiIfNecessary());
+                mCommonThreadHandler.post(() -> startNoticeUiIfNecessary());
             }
         }
     };
@@ -166,7 +166,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     private final IUserNotice.Stub mIUserNotice = new IUserNotice.Stub() {
         @Override
         public void onDialogDismissed() {
-            mMainHandler.post(() -> stopUi(/* clearUiShown= */ false));
+            mCommonThreadHandler.post(() -> stopUi(/* clearUiShown= */ false));
         }
     };
 
@@ -211,12 +211,12 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     public CarUserNoticeService(Context context) {
-        this(context, new Handler(Looper.getMainLooper()));
+        this(context, new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()));
     }
 
     @VisibleForTesting
     CarUserNoticeService(Context context, Handler handler) {
-        mMainHandler = handler;
+        mCommonThreadHandler = handler;
         Resources res = context.getResources();
         String componentName = res.getString(R.string.config_userNoticeUiService);
         if (componentName.isEmpty()) {
@@ -237,7 +237,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private boolean checkKeyguardLockedWithPolling() {
-        mMainHandler.removeCallbacks(mKeyguardPollingRunnable);
+        mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
         IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
         boolean locked = true;
         if (wm != null) {
@@ -248,7 +248,8 @@ public final class CarUserNoticeService implements CarServiceBase {
             }
         }
         if (locked) {
-            mMainHandler.postDelayed(mKeyguardPollingRunnable, KEYGUARD_POLLING_INTERVAL_MS);
+            mCommonThreadHandler.postDelayed(mKeyguardPollingRunnable,
+                    KEYGUARD_POLLING_INTERVAL_MS);
         }
         return locked;
     }
@@ -364,7 +365,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private void stopUi(boolean clearUiShown) {
-        mMainHandler.removeCallbacks(mKeyguardPollingRunnable);
+        mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
         boolean serviceBound;
         synchronized (mLock) {
             mUiService = null;
