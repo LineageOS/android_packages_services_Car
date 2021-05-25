@@ -1274,9 +1274,9 @@
     <string name="sim_lock_settings_title" msgid="877336472752342977">"सिम कार्ड लॉक"</string>
     <string name="sim_pin_toggle" msgid="2026507420678167488">"सिम कार्ड लॉक करें"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"टैबलेट के उपयोग के लिए पिन आवश्‍यक"</string>
-    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"फ़ोन का उपयोग करने के लिए पिन ज़रूरी है"</string>
+    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"फ़ोन का इस्तेमाल करने के लिए पिन ज़रूरी है"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"टैबलेट के उपयोग के लिए पिन आवश्‍यक"</string>
-    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"फ़ोन का उपयोग करने के लिए पिन ज़रूरी है"</string>
+    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"फ़ोन का इस्तेमाल करने के लिए पिन ज़रूरी है"</string>
     <string name="sim_pin_change" msgid="5615972926944053213">"सिम पिन बदलें"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"सिम पिन"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"सिम कार्ड लॉक करें"</string>
@@ -1286,7 +1286,7 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"नया पिन फिर से लिखें"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"सिम पिन"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"गलत पिन"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"पिन मेल नहीं खाते"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"पिन मेल नहीं खा रहे"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"पिन नहीं बदल सकता.\nसंभवत: गलत पिन."</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"सिम पिन सफलतापूर्वक बदला गया"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"सिम कार्ड लॉक स्‍थिति नहीं बदल सकता.\nसंभवत: गलत पिन."</string>
@@ -1716,8 +1716,8 @@
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"पासवर्ड फिर से डालें"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"अपने पैटर्न की पुष्टि करें"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"पिन फिर से डालें"</string>
-    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"पासवर्ड मेल नहीं खाते"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"पिन मेल नहीं खाते"</string>
+    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"पासवर्ड मेल नहीं खा रहे"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"पिन मेल नहीं खा रहे"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"अपना पैटर्न फिर से बनाएं"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"अनलॉक करने के लिए चुनें"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"पासवर्ड सेट कर दिया गया है"</string>

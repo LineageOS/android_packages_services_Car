@@ -655,7 +655,7 @@
       <item quantity="one">अनिवार्य रूपमा कम्तीमा <xliff:g id="COUNT_0">%d</xliff:g> वर्ण हुनु पर्छ</item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
-      <item quantity="other">PIN मा अनिवार्य रूपमा कम्तीमा <xliff:g id="COUNT_1">%d</xliff:g> अङ्कहरू हुनु पर्छ</item>
+      <item quantity="other">PIN मा अनिवार्य रूपमा कम्तीमा <xliff:g id="COUNT_1">%d</xliff:g> अङ्क हुनु पर्छ</item>
       <item quantity="one">PIN मा अनिवार्य रूपमा कम्तीमा <xliff:g id="COUNT_0">%d</xliff:g> अङ्क हुनु पर्छ</item>
     </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"जारी राख्नुहोस्"</string>
@@ -1267,19 +1267,19 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"समय, सूचनाका आइकनहरू र अन्य जानकारी देखाउनुहोस्। ब्याट्रीको बढेको उपयोग।"</string>
     <string name="title_font_size" msgid="5021464556860010851">"फन्टको आकार"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"टेक्स्ट म्यासेज अझ ठुलो वा सानो पार्नुहोस्"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"SIM कार्ड लक सेटिङहरू"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"SIM कार्ड लक गर्ने सेटिङ"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"सिमकार्ड लक"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"निष्क्रिय छ"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"लक गरिएको छ"</string>
     <string name="sim_lock_settings_title" msgid="877336472752342977">"सिमकार्ड लक"</string>
-    <string name="sim_pin_toggle" msgid="2026507420678167488">"SIM कार्ड लक गर्नुहोस्"</string>
+    <string name="sim_pin_toggle" msgid="2026507420678167488">"SIM कार्ड लक गरियोस्"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"ट्याब्लेट प्रयोग गर्न PIN आवश्यक हुन्छ"</string>
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"फोन प्रयोग गर्नको लागि PIN को आवश्यकता हुन्छ"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"ट्याब्लेट प्रयोग गर्नको लागि PIN को आवश्यकता हुन्छ"</string>
     <string name="sim_lock_off" product="default" msgid="5873747770983496755">"फोन प्रयोग गर्न PIN आवश्यक छ"</string>
     <string name="sim_pin_change" msgid="5615972926944053213">"SIM को PIN परिवर्तन गर्नुहोस्"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"SIM PIN"</string>
-    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"SIM कार्ड लक गर्नुहोस्"</string>
+    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"SIM कार्ड लक गरियोस्"</string>
     <string name="sim_disable_sim_lock" msgid="394864376519820956">"SIM कार्ड अनलक गर्नुहोस्"</string>
     <string name="sim_enter_old" msgid="8984991229691526849">"पुराना SIM PIM"</string>
     <string name="sim_enter_new" msgid="1720792957661107585">"नयाँ SIM PIN"</string>
@@ -1755,7 +1755,7 @@
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"सकिएपछि औँला उचाल्नुहोस्।"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"कम्तीमा <xliff:g id="NUMBER">%d</xliff:g>वटा थोप्लाहरू जोड्नुहोस्। फेरि प्रयास गर्नुहोस्:"</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"प्याटर्न रेकर्ड भयो।"</string>
-    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"पुष्टि गर्न प्याटर्न फेरि बनाउनुहोस्"</string>
+    <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"पुष्टि गर्न फेरि प्याटर्न हाल्नुहोस्"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"नयाँ अनलक प्याटर्न:"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"निश्चित गर्नुहोस्"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"पुनःचित्रण गर्नुहोस्"</string>
@@ -1767,8 +1767,8 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"प्याटर्न देखिने पारियोस्"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"प्रोफाइलको ढाँचालाई देखिने बनाउनुहोस्"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ट्याप गर्दा भाइब्रेट गर्नुहोस्"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"पावर बटनले तुरुन्त लक गर्दछ"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> ले अनलक अवस्थामा राखेका बेला बाहेक"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"पावर बटन थिच्दा तुरुन्त लक होस्"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> ले अनलक अवस्थामा राखेका बेलाबाहेक"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"अनलक प्याटर्न सेट गर्नुहोस्"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"अनलक प्याटर्न बदल्नुहोस्"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"अनलक प्याटर्न कसरी हाल्ने?"</string>
@@ -2522,7 +2522,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"रिसेट गर्नुहोस्"</string>
     <string name="tts_play" msgid="9023430029380675514">"प्ले गर्नुहोस्"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"प्रमाणको भण्डारण"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"क्रिडेन्सियलको भण्डारण"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"भण्डारणबाट स्थापना गर्नुहोस्"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD कार्डबाट स्थापना गर्नुहोस्"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"भण्डारणबाट सर्टिफिकेट इन्स्टल गर्नुहोस्"</string>
@@ -2541,7 +2541,7 @@
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN र एपका लागि इन्स्टल गरिएको"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Wi-Fi का लागि स्थापना गरिएको"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"सम्पूर्ण सामग्री हटाउने हो?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"प्रमाणको भण्डारण मेटियो।"</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"क्रिडेन्सियलको भण्डारण मेटियो।"</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"प्रामाणिक डेटा भण्डारण मेटाउन सकिएन।"</string>
     <string name="usage_access_title" msgid="7981321142726540574">"उपयोग पहुँचसहितका एप"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"इमर्जेन्सी डाइलिङसम्बन्धी सङ्केत"</string>
@@ -2576,7 +2576,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restrict SMS तथा कलका लगहरूमाथिका पहुँचमा प्रतिबन्ध लगाउनुहोस्‌"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"डिफल्ट फोन र सन्देश अनुप्रयोगहरूसँग मात्र SMS र कल लग अनुमति हुन्छ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"विश्वस्त प्रतिनिधि उपलब्ध छैन"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"डिभाइसको एडमिन एपलाई सक्रिय गर्ने हो?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"डिभाइसको एडमिन एप एक्टिभेट गर्ने हो?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"यो डिभाइसको एडमिन एप एक्टिभेट गर्नुहोस्"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"यन्त्रको प्रशासक"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"तपाईंले यो एडमिन एप एक्टिभेट गर्नुभयो भने <xliff:g id="APP_NAME">%1$s</xliff:g> ले निम्न कार्य गर्ने अनुमति पाउने छ:"</string>
@@ -2819,7 +2819,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d CA सर्टिफिकेटहरू"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"प्रमाणका विवरणहरू"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"हटाइएको प्रमाण: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"प्रयोगकर्ताका क्रिडेन्सियल स्थापना गरिएका छैनन्"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"प्रयोगकर्ताका क्रिडेन्सियल इन्स्टल गरिएका छैनन्"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"स्पेल चेकर"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"कार्यस्थलको स्पेल चेकर"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"यहाँ तपाईंको हालको ब्याकअप पासवर्ड टाइप गर्नुहोस्"</string>
@@ -3557,9 +3557,9 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"पर्दा पिन गर्दै"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"यो सेटिङ सक्रिय गर्दा, हालको स्क्रिनलाई तपाईंले अनपिन नगरुन्जेल दृश्य अवस्थामा राख्न स्क्रिन पिनिङ प्रयोग गर्न सक्नुहुन्छ।\n\nस्क्रिन पिनिङ सुविधा प्रयोग गर्न:\n\n१. स्क्रिन पिनिङ सक्रिय रहेको सुनिश्चित गर्नुहोस् \n\n२. ओभरभ्यू खोल्नुहोस्\n\n३. स्क्रिनको सिरानमा रहेको एप आइकनमा ट्याप गरी  पिनमा ट्याप गर्नुहोस्"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"पिन निकाल्नुअघि अनलक प्याटर्न सोध्नुहोस्"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"पिन निकाल्नुअघि PIN सोध्नुहोस्"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"अनपिन गर्नुअघि PIN मागियोस्"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"पिन निकाल्नुअघि पासवर्ड सोध्नुहोस्"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"अनपिन गर्दा डिभाइस लक गर्नुहोस्"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"अनपिन गर्दा डिभाइस लक गरियोस्"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"यो कार्य प्रोफाइल निम्नद्वारा व्यवस्थित गरिन्छ:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"<xliff:g id="ADMIN_APP_LABEL">%s</xliff:g> द्वारा व्यवस्थापन गरिएको"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(प्रयोगात्मक)"</string>
