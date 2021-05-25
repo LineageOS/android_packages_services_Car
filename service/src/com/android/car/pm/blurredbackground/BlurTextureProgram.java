@@ -100,7 +100,8 @@ public class BlurTextureProgram {
      * @param screenshotTextureBuffer IntBuffer
      * @param texMatrix Float array used to scale the screenshot texture
      * @param vertexShader String containing the horizontal blur shader
-     * @param horizontalBlurShader String containing the fragment shader for horizontal blur
+     * @param horizontalBlurShader String containing the fragment shader for horizontal
+     *         blur
      * @param verticalBlurShader String containing the fragment shader for vertical blur
      * @param windowRect Rect representing the location of the window being covered
      */
@@ -153,8 +154,8 @@ public class BlurTextureProgram {
     }
 
     /**
-     * Executes all of the rendering logic.  Sets up FrameBuffers and programs to complete
-     * two rendering passes on the captured screenshot to produce a blur.
+     * Executes all of the rendering logic.  Sets up FrameBuffers and programs to complete two
+     * rendering passes on the captured screenshot to produce a blur.
      */
     public void render() {
         setupProgram(mHorizontalBlurProgram, mScreenshotTextureId,
@@ -271,11 +272,10 @@ public class BlurTextureProgram {
     }
 
     /**
-     * Sets the program to be used in the next rendering, and binds
-     * a texture to it
+     * Sets the program to be used in the next rendering, and binds a texture to it
      *
-     * @param programId     The Id of the program
-     * @param textureId     The Id of the texture to be bound
+     * @param programId The Id of the program
+     * @param textureId The Id of the texture to be bound
      * @param textureTarget The type of texture that is being bound
      */
     private void setupProgram(int programId, int textureId, int textureTarget) {

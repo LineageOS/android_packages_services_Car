@@ -225,7 +225,7 @@ public final class FixedActivityService implements CarServiceBase {
 
         @Override
         public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes) {
-          // ignore
+            // ignore
         }
 
         @Override
@@ -396,8 +396,9 @@ public final class FixedActivityService implements CarServiceBase {
 
     /**
      * Launches all stored fixed mode activities if necessary.
+     *
      * @param displayId Display id to check if it is visible. If check is not necessary, should pass
-     *        {@link Display#INVALID_DISPLAY}.
+     *         {@link Display#INVALID_DISPLAY}.
      * @return true if fixed Activity for given {@code displayId} is visible / successfully
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
@@ -552,7 +553,7 @@ public final class FixedActivityService implements CarServiceBase {
         launchIfNecessary(Display.INVALID_DISPLAY);
     }
 
-    private void logComponentNotFound(ComponentName component, @UserIdInt  int userId,
+    private void logComponentNotFound(ComponentName component, @UserIdInt int userId,
             Exception e) {
         Slog.e(TAG_AM, "Specified Component not found:" + component
                 + " for userid:" + userId, e);

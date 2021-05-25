@@ -219,8 +219,8 @@ public class ActivityBlockingActivity extends Activity {
     }
 
     /**
-     * Computes a Rect that represents the portion of the screen that
-     * contains the activity that is being blocked.
+     * Computes a Rect that represents the portion of the screen that contains the activity that is
+     * being blocked.
      *
      * @return Rect that represents the application window
      */

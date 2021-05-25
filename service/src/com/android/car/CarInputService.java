@@ -117,7 +117,7 @@ public class CarInputService extends ICarInput.Stub
 
         /**
          * Marks that a key was released, and stops the long-press timer.
-         *
+         * <p>
          * Returns true if the press was a long-press.
          */
         boolean keyUp() {
@@ -204,26 +204,26 @@ public class CarInputService extends ICarInput.Stub
 
     private final BluetoothProfile.ServiceListener mBluetoothProfileServiceListener =
             new BluetoothProfile.ServiceListener() {
-        @Override
-        public void onServiceConnected(int profile, BluetoothProfile proxy) {
-            if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                Slogf.d(TAG, "Bluetooth proxy connected for HEADSET_CLIENT profile");
-                synchronized (mLock) {
-                    mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
+                @Override
+                public void onServiceConnected(int profile, BluetoothProfile proxy) {
+                    if (profile == BluetoothProfile.HEADSET_CLIENT) {
+                        Slogf.d(TAG, "Bluetooth proxy connected for HEADSET_CLIENT profile");
+                        synchronized (mLock) {
+                            mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
+                        }
+                    }
                 }
-            }
-        }
 
-        @Override
-        public void onServiceDisconnected(int profile) {
-            if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                Slogf.d(TAG, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
-                synchronized (mLock) {
-                    mBluetoothHeadsetClient = null;
+                @Override
+                public void onServiceDisconnected(int profile) {
+                    if (profile == BluetoothProfile.HEADSET_CLIENT) {
+                        Slogf.d(TAG, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
+                        synchronized (mLock) {
+                            mBluetoothHeadsetClient = null;
+                        }
+                    }
                 }
-            }
-        }
-    };
+            };
 
     private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
         Slogf.d(TAG, "CarInputService.onEvent(%s)", event);

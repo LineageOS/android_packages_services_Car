@@ -295,14 +295,15 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
      */
     public interface FocusOwnershipCallback {
         void onFocusAcquired(int appType, int uid, int pid);
+
         void onFocusAbandoned(int appType, int uid, int pid);
     }
 
     /**
      * Registers callback.
-     *
-     * If any focus already acquired it will trigger
-     * {@link FocusOwnershipCallback#onFocusAcquired} call immediately in the same thread.
+     * <p>
+     * If any focus already acquired it will trigger {@link FocusOwnershipCallback#onFocusAcquired}
+     * call immediately in the same thread.
      */
     public void registerContextOwnerChangedCallback(FocusOwnershipCallback callback) {
         SparseArray<OwnershipClientInfo> owners;

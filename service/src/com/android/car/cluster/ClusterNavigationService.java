@@ -57,7 +57,9 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
 
     interface ClusterNavigationServiceCallback {
         void onNavigationStateChanged(Bundle bundle);
+
         CarNavigationInstrumentCluster getInstrumentClusterInfo();
+
         void notifyNavContextOwnerChanged(ContextOwner owner);
     }
 

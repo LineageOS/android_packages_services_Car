@@ -64,7 +64,7 @@ public final class ClusterHalService extends HalServiceBase {
         /**
          * Called when CLUSTER_DISPLAY_STATE message is received.
          *
-         * @param onOff  0 - off, 1 - on
+         * @param onOff 0 - off, 1 - on
          * @param bounds the area to render the cluster Activity in pixel
          * @param insets Insets of the cluster display
          */
@@ -220,11 +220,11 @@ public final class ClusterHalService extends HalServiceBase {
     /**
      * Reports the current display state and ClusterUI state.
      *
-     * @param onOff          0 - off, 1 - on
-     * @param bounds         the area to render the cluster Activity in pixel
-     * @param insets         Insets of the cluster display
-     * @param uiTypeMain     uiType that ClusterHome tries to show in main area
-     * @param uiTypeSub      uiType that ClusterHome tries to show in sub area
+     * @param onOff 0 - off, 1 - on
+     * @param bounds the area to render the cluster Activity in pixel
+     * @param insets Insets of the cluster display
+     * @param uiTypeMain uiType that ClusterHome tries to show in main area
+     * @param uiTypeSub uiType that ClusterHome tries to show in sub area
      * @param uiAvailability the byte array to represent the availability of ClusterUI.
      */
     public void reportState(int onOff, Rect bounds, Insets insets,
