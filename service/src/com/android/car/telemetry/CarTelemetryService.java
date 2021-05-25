@@ -31,6 +31,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarServiceBase;
+import com.android.internal.annotations.GuardedBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -48,8 +49,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private static final String TAG = CarTelemetryService.class.getSimpleName();
 
     private final Context mContext;
+    @GuardedBy("mLock")
     private final Map<String, Integer> mNameVersionMap = new HashMap<>();
+    private final Object mLock = new Object();
 
+    @GuardedBy("mLock")
     private ICarTelemetryServiceListener mListener;
 
     public CarTelemetryService(Context context) {
@@ -79,10 +83,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         // TODO(b/184890506): verify that only a hardcoded app can set the listener
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        if (DEBUG) {
-            Slog.d(TAG, "Setting the listener for car telemetry service");
+        synchronized (mLock) {
+            setListenerLocked(listener);
         }
-        mListener = listener;
     }
 
     /**
@@ -92,10 +95,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public void clearListener() {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        if (DEBUG) {
-            Slog.d(TAG, "Clearing listener");
+        synchronized (mLock) {
+            clearListenerLocked();
         }
-        mListener = null;
     }
 
     /**
@@ -109,28 +111,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        if (DEBUG) {
-            Slog.d(TAG, "Adding manifest to car telemetry service");
+        synchronized (mLock) {
+            return addManifestLocked(key, manifest);
         }
-        int currentVersion = mNameVersionMap.getOrDefault(key.getName(), DEFAULT_VERSION);
-        if (currentVersion > key.getVersion()) {
-            return ERROR_NEWER_MANIFEST_EXISTS;
-        } else if (currentVersion == key.getVersion()) {
-            return ERROR_SAME_MANIFEST_EXISTS;
-        }
-
-        TelemetryProto.Manifest parsedManifest;
-        try {
-            parsedManifest = TelemetryProto.Manifest.parseFrom(manifest);
-        } catch (InvalidProtocolBufferException e) {
-            Slog.e(TAG, "Failed to parse manifest.", e);
-            return ERROR_PARSE_MANIFEST_FAILED;
-        }
-        mNameVersionMap.put(key.getName(), key.getVersion());
-
-        // TODO(b/186047142): Store the manifest to disk
-        // TODO(b/186047142): Send parsedManifest to a script manager or a queue
-        return ERROR_NONE;
     }
 
     /**
@@ -140,15 +123,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public boolean removeManifest(@NonNull ManifestKey key) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        if (DEBUG) {
-            Slog.d(TAG, "Removing manifest from car telemetry service");
+        synchronized (mLock) {
+            return removeManifestLocked(key);
         }
-        Integer version = mNameVersionMap.remove(key.getName());
-        if (version == null) {
-            return false;
-        }
-        // TODO(b/186047142): Delete manifest from disk and remove it from queue
-        return true;
     }
 
     /**
@@ -158,11 +135,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public void removeAllManifests() {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
-        if (DEBUG) {
-            Slog.d(TAG, "Removing all manifest from car telemetry service");
+        synchronized (mLock) {
+            removeAllManifestsLocked();
         }
-        mNameVersionMap.clear();
-        // TODO(b/186047142): Delete all manifests from disk & queue
     }
 
     /**
@@ -203,5 +178,66 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         if (DEBUG) {
             Slog.d(TAG, "Flushing script execution errors");
         }
+    }
+
+    @GuardedBy("mLock")
+    private void setListenerLocked(@NonNull ICarTelemetryServiceListener listener) {
+        if (DEBUG) {
+            Slog.d(TAG, "Setting the listener for car telemetry service");
+        }
+        mListener = listener;
+    }
+
+    @GuardedBy("mLock")
+    private void clearListenerLocked() {
+        if (DEBUG) {
+            Slog.d(TAG, "Clearing listener");
+        }
+        mListener = null;
+    }
+
+    @GuardedBy("mLock")
+    private @AddManifestError int addManifestLocked(ManifestKey key, byte[] manifest) {
+        if (DEBUG) {
+            Slog.d(TAG, "Adding manifest to car telemetry service");
+        }
+        int currentVersion = mNameVersionMap.getOrDefault(key.getName(), DEFAULT_VERSION);
+        if (currentVersion > key.getVersion()) {
+            return ERROR_NEWER_MANIFEST_EXISTS;
+        } else if (currentVersion == key.getVersion()) {
+            return ERROR_SAME_MANIFEST_EXISTS;
+        }
+
+        TelemetryProto.Manifest parsedManifest;
+        try {
+            parsedManifest = TelemetryProto.Manifest.parseFrom(manifest);
+        } catch (InvalidProtocolBufferException e) {
+            Slog.e(TAG, "Failed to parse manifest.", e);
+            return ERROR_PARSE_MANIFEST_FAILED;
+        }
+        mNameVersionMap.put(key.getName(), key.getVersion());
+
+        // TODO(b/186047142): Store the manifest to disk
+        // TODO(b/186047142): Send parsedManifest to a script manager or a queue
+        return ERROR_NONE;
+    }
+
+    @GuardedBy("mLock")
+    private boolean removeManifestLocked(@NonNull ManifestKey key) {
+        Integer version = mNameVersionMap.remove(key.getName());
+        if (version == null) {
+            return false;
+        }
+        // TODO(b/186047142): Delete manifest from disk and remove it from queue
+        return true;
+    }
+
+    @GuardedBy("mLock")
+    private void removeAllManifestsLocked() {
+        if (DEBUG) {
+            Slog.d(TAG, "Removing all manifest from car telemetry service");
+        }
+        mNameVersionMap.clear();
+        // TODO(b/186047142): Delete all manifests from disk & queue
     }
 }
