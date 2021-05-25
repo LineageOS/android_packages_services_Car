@@ -106,6 +106,9 @@ final class CarDuckingUtils {
         sContextsToDuck.append(ANNOUNCEMENT, new int[0]);
     }
 
+    private CarDuckingUtils() {
+    }
+
     static int[] getUsagesHoldingFocus(List<AudioFocusInfo> focusHolders) {
         Set<Integer> uniqueUsages = new HashSet<>();
         for (AudioFocusInfo focusInfo : focusHolders) {
