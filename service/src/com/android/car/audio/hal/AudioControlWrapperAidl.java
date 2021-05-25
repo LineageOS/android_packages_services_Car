@@ -142,15 +142,18 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     }
 
     @Override
-    public void onDevicesToDuckChange(@NonNull CarDuckingInfo carDuckingInfo) {
-        Objects.requireNonNull(carDuckingInfo);
-        DuckingInfo duckingInfo = carDuckingInfo.generateDuckingInfo();
+    public void onDevicesToDuckChange(@NonNull List<CarDuckingInfo> carDuckingInfos) {
+        Objects.requireNonNull(carDuckingInfos);
+        DuckingInfo[] duckingInfos = new DuckingInfo[carDuckingInfos.size()];
+        for (int i = 0; i < carDuckingInfos.size(); i++) {
+            CarDuckingInfo info = Objects.requireNonNull(carDuckingInfos.get(i));
+            duckingInfos[i] = info.generateDuckingInfo();
+        }
 
         try {
-            mAudioControl.onDevicesToDuckChange(new DuckingInfo[] {duckingInfo});
+            mAudioControl.onDevicesToDuckChange(duckingInfos);
         } catch (RemoteException e) {
-            Slog.e(TAG, "onDevicesToDuckChange for zone " + carDuckingInfo.mZoneId
-                    + " failed", e);
+            Slog.e(TAG, "onDevicesToDuckChange failed", e);
         }
     }
 

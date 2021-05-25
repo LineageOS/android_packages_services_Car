@@ -285,11 +285,12 @@ public class CarZonesAudioFocusTest {
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor = ArgumentCaptor.forClass(
-                List.class);
-        verify(mMockCarFocusCallback).onFocusChange(eq(PRIMARY_ZONE_ID),
+        ArgumentCaptor<SparseArray<List<AudioFocusInfo>>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(SparseArray.class);
+        verify(mMockCarFocusCallback).onFocusChange(eq(new int[]{PRIMARY_ZONE_ID}),
                 focusHoldersCaptor.capture());
-        assertThat(focusHoldersCaptor.getValue()).containsExactly(audioFocusInfo);
+        assertThat(focusHoldersCaptor.getValue().get(PRIMARY_ZONE_ID))
+                .containsExactly(audioFocusInfo);
     }
 
     @Test
@@ -299,11 +300,11 @@ public class CarZonesAudioFocusTest {
 
         carZonesAudioFocus.onAudioFocusAbandon(audioFocusInfo);
 
-        ArgumentCaptor<List<AudioFocusInfo>> focusHoldersCaptor = ArgumentCaptor.forClass(
-                List.class);
-        verify(mMockCarFocusCallback).onFocusChange(eq(PRIMARY_ZONE_ID),
+        ArgumentCaptor<SparseArray<List<AudioFocusInfo>>> focusHoldersCaptor =
+                ArgumentCaptor.forClass(SparseArray.class);
+        verify(mMockCarFocusCallback).onFocusChange(eq(new int[]{PRIMARY_ZONE_ID}),
                 focusHoldersCaptor.capture());
-        assertThat(focusHoldersCaptor.getValue()).isEmpty();
+        assertThat(focusHoldersCaptor.getValue().get(PRIMARY_ZONE_ID)).isEmpty();
     }
 
     private AudioFocusInfo generateMediaRequestForPrimaryZone() {
