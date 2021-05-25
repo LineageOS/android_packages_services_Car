@@ -2619,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"Одоо синк хийхийн тулд дарна уу<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"Хуанли"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"Календарь"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"Харилцагчид"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google синк-д тавтай морилно уу!"</font>" \nТанд өөрийн харилцагчид, товлосон уулзалтууд болон бусад олон мэдээллүүддээ хаанаас ч хандалт хийх боломж олгохын тулд өгөгдлийг синк хийх Google-н аргачлал юм."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"Апп синк тохиргоо"</string>
@@ -3455,9 +3455,9 @@
     <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Чухалчилсан үйл ажиллагааны үед Бүү Саад Хий тохиргоог асаах автомат горим гаргасан."</string>
     <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Үйл явдлын турш"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g> үйл явдлын үеэр"</string>
-    <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"Дурын хуанли"</string>
+    <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"Дурын календарь"</string>
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Хариулт нь <xliff:g id="REPLY">%1$s</xliff:g>"</string>
-    <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Дурын хуанли"</string>
+    <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Дурын календарь"</string>
     <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"Хариулт нь"</string>
     <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"Тийм, Магадгүй эсвэл Хариулаагүй"</string>
     <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"Тийм эсвэл Магадгүй"</string>
@@ -4172,7 +4172,7 @@
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"Таны байгууллага харах боломжтой мэдээллийн төрөл"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Таны байгууллагын админы хийсэн өөрчлөлт"</string>
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"Таны энэ төхөөрөмж дэх хандалт"</string>
-    <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Имэйл, хуанли зэрэг таны ажлын бүртгэлтэй холбоотой өгөгдөл"</string>
+    <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Имэйл, календарь зэрэг таны ажлын бүртгэлтэй холбоотой өгөгдөл"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Таны төхөөрөмжийн аппын жагсаалт"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Апп тус бүрд зарцуулсан цаг, дата"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Хамгийн сүүлийн сүлжээний ачааллын бүртгэл"</string>

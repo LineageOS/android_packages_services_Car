@@ -717,7 +717,7 @@
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> ገቢር መተግበሪያዎች</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ገቢር መተግበሪያዎች</item>
     </plurals>
-    <string name="manage_trust_agents" msgid="8129970926213142261">"የተአማኒነት ወኪሎች"</string>
+    <string name="manage_trust_agents" msgid="8129970926213142261">"የተዓማኒነት ወኪሎች"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"ለመጠቀም በመጀመሪያ የቁልፍ ገጽ ያዋቅሩ"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"ምንም የለም"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
@@ -1764,7 +1764,7 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"ስርዓተ ጥለት ክፈት"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"ስርዓተ ጥለት ጠይቅ"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"ማያ ለመክፈት ስርዓተ ጥለት ሳል"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"መልክ የሚታይ አድርግ"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ስርዓተ ጥለት የሚታይ አድርግ"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"የመገለጫ ስርዓተ ጥለት የሚታይ አድርገው"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ነካ ሲደረግ ንዘር"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"የኃይል አዝራር ወዲያውኑ ይቆልፋል"</string>
@@ -2575,7 +2575,7 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ስራ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"የኤስኤምኤስ እና የጥሪ ምዝግብ መዳረሻን ገድብ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ነባሪ የስልክ እና የመልዕክት መላላኪያ መተግበሪያዎች ብቻ የኤስኤምኤስ እና የጥሪ ምዝግብ ማስታወሻ ፈቃዶች አላቸው"</string>
-    <string name="no_trust_agents" msgid="5757792915019113084">"ምንም የሚገኙ የተአማኒነት ወኪሎች የሉም"</string>
+    <string name="no_trust_agents" msgid="5757792915019113084">"ምንም የሚገኙ የተዓማኒነት ወኪሎች የሉም"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"የመሣሪያ አስተዳዳሪ መተግበሪያ ገቢር ይሁን?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"የዚህ መሣሪያ አስተዳዳሪ መተግበሪያን አግብር"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"የመሣሪያ አስተዳዳሪ"</string>
