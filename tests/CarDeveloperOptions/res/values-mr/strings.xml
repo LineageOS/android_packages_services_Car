@@ -3481,7 +3481,7 @@
     <string name="zen_mode_calls" msgid="1844534357711539325">"कॉलची अनुमती द्या"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"कॉल"</string>
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"अनुमती असलेल्या कॉलचा आवाज होईल याची खात्री करण्याकरिता तुमचे डिव्हाइस रिंग, कंपन किंवा सायलंटवर सेट केले आहे का ते तपासा."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ साठी येणारे कॉल ब्लॉक केले आहेत. तुमच्या मित्रमैत्रिणींना, कुटुंबीयांना किंवा इतर संपर्कांना तुमच्याशी संपर्क साधण्याची अनुमती देण्यासाठी तुम्ही सेटिंग्ज अ‍ॅडजस्ट करू शकता."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ साठी इनकमिंग कॉल ब्लॉक केले आहेत. तुमच्या मित्रमैत्रिणींना, कुटुंबीयांना किंवा इतर संपर्कांना तुमच्याशी संपर्क साधण्याची अनुमती देण्यासाठी तुम्ही सेटिंग्ज अ‍ॅडजस्ट करू शकता."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"तारांकित संपर्क"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="other"><xliff:g id="NUM_PEOPLE">%d</xliff:g> अन्य</item>
@@ -3489,7 +3489,7 @@
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"एसएमएसला अनुमती द्या"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"अनुमती असलेले मेसेज आल्यावर आवाज होईल याची खात्री करण्यासाठी तुमचे डिव्हाइस रिंग होण्यासाठी, कंपन किंवा सायलंटवर सेट केले आहे की नाही ते पाहा."</string>
-    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ साठी येणारे एसएमएस ब्लॉक केले आहेत. तुमच्या मित्रमैत्रिणींना, कुटुंबीयांना किंवा इतर संपर्कांना तुमच्याशी संपर्क साधण्याची अनुमती देण्यासाठी तुम्ही सेटिंग्ज अ‍ॅडजस्ट करू शकता."</string>
+    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ साठी इनकमिंग एसएमएस ब्लॉक केले आहेत. तुमच्या मित्रमैत्रिणींना, कुटुंबीयांना किंवा इतर संपर्कांना तुमच्याशी संपर्क साधण्याची अनुमती देण्यासाठी तुम्ही सेटिंग्ज अ‍ॅडजस्ट करू शकता."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"एसएमएस, MMS आणि मेसेजिंग अ‍ॅप्स"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"कोणालाही"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"केवळ संपर्कांकडून"</string>

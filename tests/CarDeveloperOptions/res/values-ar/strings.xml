@@ -3279,7 +3279,7 @@
     <string name="keywords_display_adaptive_sleep" msgid="1695357782432822811">"إضاءة خافتة للشاشة، سكون، بطارية، مهلة، تنبيه، عرض، شاشة، عدم نشاط"</string>
     <string name="keywords_auto_rotate" msgid="4320791369951647513">"تدوير، قلب، دوران، عمودي، أفقي، اتجاه، رأسي، عرضي"</string>
     <string name="keywords_system_update_settings" msgid="4419971277998986067">"ترقية، android"</string>
-    <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"الرجاء عدم الإزعاج، جدول زمني، إشعارات، حظر، صامت، اهتزاز، سكون، عمل، تركيز، صوت، كتم الصوت، يوم، يوم من الأسبوع، عطلة نهاية الأسبوع، ليلة من الأسبوع، حدث"</string>
+    <string name="keywords_zen_mode_settings" msgid="4103819458182535493">"عدم الإزعاج، جدول زمني، إشعارات، حظر، صامت، اهتزاز، سكون، عمل، تركيز، صوت، كتم الصوت، يوم، يوم من الأسبوع، عطلة نهاية الأسبوع، ليلة من الأسبوع، حدث"</string>
     <string name="keywords_screen_timeout" msgid="4328381362313993666">"شاشة، وقت القفل، مهلة، شاشة قفل"</string>
     <string name="keywords_storage_settings" msgid="6422454520424236476">"ذاكرة، تخزين مؤقت، بيانات، حذف، محو، فارغة، مساحة"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"متصل، جهاز، سماعات رأس، سماعة، مكبر صوت، لاسلكي، إقران، سمّاعات أذن، موسيقى، وسائط"</string>
@@ -3337,7 +3337,7 @@
       <item quantity="one">تم تفعيل قاعدة واحدة.</item>
     </plurals>
     <string name="zen_mode_settings_title" msgid="3425263414594779244">"وضع \"عدم الإزعاج\""</string>
-    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"تفعيل وضع \"الرجاء عدم الإزعاج\""</string>
+    <string name="zen_mode_settings_turn_on_dialog_title" msgid="3062548369931058282">"تفعيل ميزة \"عدم الإزعاج\""</string>
     <string name="zen_mode_behavior_settings_title" msgid="423125904296667490">"الاستثناءات"</string>
     <string name="zen_mode_duration_settings_title" msgid="5522668871014735728">"المدة التلقائية"</string>
     <string name="zen_mode_behavior_allow_title" msgid="2440627647424280842">"السماح بالأصوات والاهتزازات من"</string>
@@ -3400,10 +3400,10 @@
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"تفعيل"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"التفعيل الآن"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"الإيقاف الآن"</string>
-    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"وضع \"الرجاء عدم الإزعاج\" مفعَّل حتى <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
+    <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"ميزة \"عدم الإزعاج\" مفعَّلة حتى <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"سيظل وضع \"عدم الإزعاج\" مفعَّلاً إلى أن توقفه."</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"تمّ تفعيل وضع \"عدم الإزعاج\" تلقائيًا حسب جدول زمني (<xliff:g id="RULE_NAME">%s</xliff:g>)."</string>
-    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"تم تفعيل وضع \"الرجاء عدم الإزعاج\" تلقائيًا باستخدام تطبيق (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
+    <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"لقد فعَّل تطبيق (<xliff:g id="APP_NAME">%s</xliff:g>) تلقائيًا ميزة \"عدم الإزعاج\"."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"تم تفعيل ميزة \"عدم الإزعاج\" لـ <xliff:g id="RULE_NAMES">%s</xliff:g> باستخدام إعدادات مخصّصة."</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" عرض الإعدادات المُخصَّصة"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"الأولوية فقط"</string>
@@ -3448,14 +3448,14 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"الإشعارات"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"المدة"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"الرسائل والأحداث والتذكيرات"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"عند تفعيل الإعداد \"الرجاء عدم الإزعاج\"، سيتم تجاهل الإشعارات عن الرسائل والتذكيرات والأحداث، باستثناء الإشعارات التي تسمح بها أعلاه. يمكنك ضبط إعدادات الرسائل للسماح لأصدقائك أو أفراد عائلتك أو جهات الاتصال الأخرى بالتواصل معك."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"عند تفعيل ميزة \"عدم الإزعاج\"، سيتم تجاهل إشعارات الرسائل والتذكيرات والأحداث، باستثناء الإشعارات التي تسمح بها أعلاه. يمكنك ضبط إعدادات الرسائل للسماح لأصدقائك أو أفراد عائلتك أو جهات الاتصال الأخرى بالتواصل معك."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"تمّ"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"الإعدادات"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"بدون تنبيهات مرئيّة أو صوتية من الإشعارات"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"بدون تنبيهات صوتية من الإشعارات"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"لن ترى أو تسمع إشعارات. ويُسمح بالمكالمات من جهات الاتصال المميّزة بنجمة والمتصلين المتكرّرين."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(الإعداد الحالي)"</string>
-    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"هل تريد تغيير إعدادات إشعار \"الرجاء عدم الإزعاج\"؟"</string>
+    <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"هل تريد تغيير إعدادات إشعار ميزة \"عدم الإزعاج\"؟"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"أصوات الملف الشخصي للعمل"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"استخدام أصوات الملف الشخصي"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"يتم استخدام الأصوات نفسها لكل من الملف الشخصي للعمل والملف الشخصي."</string>
@@ -3638,9 +3638,9 @@
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"هل تريد حذف قاعدة \"<xliff:g id="RULE">%1$s</xliff:g>\"؟"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"حذف"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"غير معروف"</string>
-    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"لا يمكن تغيير هذه الإعدادات الآن. لقد اختار أحد التطبيقات (<xliff:g id="APP_NAME">%1$s</xliff:g>) تفعيل وضع \"الرجاء عدم الإزعاج\" تلقائيًا مع سلوك مخصّص."</string>
-    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"لا يمكن تغيير هذه الإعدادات الآن. لقد اختار أحد التطبيقات تفعيل وضع \"الرجاء عدم الإزعاج\" تلقائيًا مع سلوك مخصّص."</string>
-    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"لا يمكن تغيير هذه الإعدادات الآن. تم تفعيل وضع \"الرجاء عدم الإزعاج\" يدويًا مع سلوك مخصّص."</string>
+    <string name="zen_mode_app_set_behavior" msgid="8597398780262575571">"لا يمكن تغيير هذه الإعدادات الآن. لقد اختار أحد التطبيقات (<xliff:g id="APP_NAME">%1$s</xliff:g>) تفعيل ميزة \"عدم الإزعاج\" تلقائيًا مع سلوك مخصّص."</string>
+    <string name="zen_mode_unknown_app_set_behavior" msgid="5666462954329932302">"لا يمكن تغيير هذه الإعدادات الآن. لقد اختار أحد التطبيقات تفعيل ميزة \"عدم الإزعاج\" تلقائيًا مع سلوك مخصّص."</string>
+    <string name="zen_mode_qs_set_behavior" msgid="788646569296973998">"لا يمكن تغيير هذه الإعدادات الآن. تم تفعيل ميزة \"عدم الإزعاج\" يدويًا مع سلوك مخصّص."</string>
     <string name="zen_schedule_rule_type_name" msgid="4516851728113801329">"وقت"</string>
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"تم ضبط القاعدة التلقائية على تفعيل وضع \"عدم الإزعاج\" أثناء أوقات محددة"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"حدث"</string>
@@ -3752,10 +3752,10 @@
     <string name="zen_mode_summary_alarms_only_by_time" msgid="2462898862757904560">"التغيير إلى التنبيهات فقط حتى <xliff:g id="FORMATTEDTIME">%1$s</xliff:g>"</string>
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"تغيير إلى المقاطعة دائمًا"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"عندما تكون الشاشة قيد التفعيل"</string>
-    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"السماح للإشعارات التي تم كتم صوتها بواسطة وضع \"الرجاء عدم الإزعاج\" بالظهور بسرعة على الشاشة وعرض رمز شريط الحالة"</string>
+    <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"السماح للإشعارات التي تجاهلتها ميزة \"عدم الإزعاج\" بالظهور بسرعة على الشاشة وعرض رمز شريط الحالة"</string>
     <string name="zen_mode_screen_off" msgid="84211490206459038">"عندما تكون الشاشة متوقفة"</string>
-    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة وإحداث وميض ضوئي"</string>
-    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"السماح للإشعارات التي يتجاهلها وضع \"الرجاء عدم الإزعاج\" بتشغيل الشاشة"</string>
+    <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"السماح للإشعارات التي تجاهلتها ميزة \"عدم الإزعاج\" بتشغيل الشاشة وإحداث وميض ضوئي"</string>
+    <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"السماح للإشعارات التي تجاهلتها ميزة \"عدم الإزعاج\" بتشغيل الشاشة"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"إعدادات الإشعارات"</string>
     <string name="suggestion_button_text" msgid="5783566542423813847">"حسنًا"</string>
     <string name="device_feedback" msgid="4042352891448769818">"إرسال ملاحظات حول هذا الجهاز"</string>
@@ -4134,7 +4134,7 @@
     <string name="condition_hotspot_title" msgid="4143299802283098506">"نقطة الاتصال مفعّلة"</string>
     <string name="condition_airplane_title" msgid="8484582712516148433">"وضع الطيران قيد التفعيل"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"الشبكات غير متوفرة"</string>
-    <string name="condition_zen_title" msgid="2128184708916052585">"تمّ تفعيل \"الرجاء عدم الإزعاج\""</string>
+    <string name="condition_zen_title" msgid="2128184708916052585">"ميزة \"عدم الإزعاج\" مفعَّلة"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"تم كتم صوت الهاتف."</string>
     <string name="condition_zen_summary_with_exceptions" msgid="3435216391993785818">"مع بعض الاستثناءات"</string>
     <string name="condition_battery_title" msgid="6704870010912986274">"تم تفعيل وضع توفير شحن البطارية"</string>
@@ -4580,7 +4580,7 @@
     <string name="storage_movies_tv" msgid="7282484273991655296">"تطبيقات الأفلام والتلفزيون"</string>
     <string name="carrier_provisioning" msgid="3309125279191534469">"معلومات توفير خدمة مشغل شبكة الجوال"</string>
     <string name="trigger_carrier_provisioning" msgid="6284005970057901477">"بدء توفير خدمة مشغل شبكة الجوال"</string>
-    <string name="zen_suggestion_title" msgid="2134699720214231950">"تحديث إعداد \"الرجاء عدم الإزعاج\""</string>
+    <string name="zen_suggestion_title" msgid="2134699720214231950">"تعديل إعدادات ميزة \"عدم الإزعاج\""</string>
     <string name="zen_suggestion_summary" msgid="4041062903237952737">"إيقاف الإشعارات مؤقتًا للحفاظ على التركيز"</string>
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"لا تتوفر هذه الميزة على هذا الجهاز"</string>
     <string name="disabled_feature" msgid="3747549387387702365">"هذه الميزة ليست متوفرة."</string>
