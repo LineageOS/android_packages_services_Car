@@ -348,8 +348,8 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Убакыт"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Автокулпу"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> уктагандан кийин"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Көшүү режимине өтөөрү менен, кулпуланбаган экран <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> кызматында колдоого алынбаса"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"Кулпуланбаган экран <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> кызматында колдоого алынбаса, көшүү режимине өткөндөн <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> кийин"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Көшүү режимине өтөөрү менен (кулпуланбаган экранда <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> функциясы колдонулбаса)"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"Көшүү режимине өткөндөн <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> кийин (кулпуланбаган экранда <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> функциясы колдонулбаса)"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Кулпуланган экрандан ээсинин маалыматы көрүнсүн"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Экрандагы текст"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Виджеттерди жандыруу"</string>
@@ -772,7 +772,7 @@
     <string name="device_details_title" msgid="726517818032923222">"Түзмөктүн чоо-жайы"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Түзмөктүн Bluetooth дареги: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Түзмөк унутулсунбу?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Мындан ары телефонуңуз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефонуңуз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Мындан ары планшетиңиз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Мындан ары түзмөгүңүз <xliff:g id="DEVICE_NAME">%1$s</xliff:g> түзмөгүнөн ажыратылат"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Түзмөк унутулсун"</string>
@@ -1768,7 +1768,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Профилдин графикалык ачкычы көрүнсүн"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Таптаганда дирилдесин"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Кубат баскычы дароо кулпулайт"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Кулпуланбаган экран <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> кызматында колдоого алынбаса"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Ккулпуланбаган экранда <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> функциясы колдонулбаса"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Графикалык ачкычты коюу"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Графикалык ачкычты өзгөртүү"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Графикалык ачкычты кантип тартыш керек"</string>

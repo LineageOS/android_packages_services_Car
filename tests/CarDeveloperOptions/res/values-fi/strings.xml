@@ -2820,7 +2820,7 @@
     <string name="user_credential_title" msgid="6237611303219831419">"Kirjautumistiedot"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Poistetut kirjautumistiedot: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"Ei asennettuja käyttäjän kirjautumistietoja"</string>
-    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Oikeinkirjoituksen tarkistus"</string>
+    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Oikoluku"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"Oikoluku työkäyttöön"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Anna nykyinen varmuuskopioinnin salasana"</string>
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"Anna uusi varmuuskopioinnin salasana"</string>

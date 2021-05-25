@@ -2239,11 +2239,11 @@
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Arxa fon istifadəsi məhdudlaşdırıla bilər"</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"Arxa fon fəaliyyəti məhdudlaşdırılsın?"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Tətbiqin arxa fon fəaliyyətini məhdudlaşdırsanız, o səhv işləyə bilər"</string>
-    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Bu tətbiqdə batareyanın optimallaşdırılması ayarlanmadığına görə onu məhdudlaşdıra bilməzsiniz.\n\nTətbiqi məhdudlaşdırmaq üçün əvvəlcə batareya optimallaşdırmasını aktiv edin."</string>
-    <string name="device_screen_usage" msgid="4470485475363132750">"Tam doldurmadan sonrakı ekran istifadəsi"</string>
+    <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Bu tətbiq üçün enerji israfına qənaət quraşdırılmayıb.\n\nMəhdudiyyətləri tətbiq etmək üçün enerji qənaətini aktiv edin."</string>
+    <string name="device_screen_usage" msgid="4470485475363132750">"Tam şarjdan sonra ekran istifadəsi"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"Tam şarjdan sonra enerji istifadəsi"</string>
-    <string name="screen_usage_summary" msgid="263396144684078341">"Dam doldurmadan sonra ekranın vaxtı miqdarı aktiv edilib"</string>
-    <string name="device_usage_list_summary" msgid="8299017481332816368">"Tam doldurmadan sonrakı cihaz istifadəsi"</string>
+    <string name="screen_usage_summary" msgid="263396144684078341">"Tam şarjdan sonra ekranın işləmə müddəti"</string>
+    <string name="device_usage_list_summary" msgid="8299017481332816368">"Tam şarjdan sonra cihaz istifadəsi"</string>
     <string name="battery_since_unplugged" msgid="6486555910264026856">"Elektrik şəbəkəsindən çıxarılandan sonra batareya istifadəsi"</string>
     <string name="battery_since_reset" msgid="4747587791838336661">"Sıfırlanandan sonra batareya istifadəsi"</string>
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"Batareyada <xliff:g id="TIME">%1$s</xliff:g>"</string>
@@ -2285,9 +2285,9 @@
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Planşet hədindən çox istifadə etdi"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Cihaz həddindən çox istifadə etdi"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Batareya həmişə olduğundan daha tez bitə bilər"</string>
-    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Telefon həddindən çox istifadə olunub. Batareya gözlədiyinizdən daha tez bitə bilər.\n\nBatareya tam dolduqdan sonra ən çox istifadə edilən tətbiqlər:"</string>
-    <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Planşet həddindən artıq çox istifadə olunub. Batareya gözlədiyinizdən daha tez bitə bilər.\n\nBatareya tam dolduqdan sonra ən çox istifadə edilən tətbiqlər:"</string>
-    <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Cihaz həddindən artıq çox istifadə olunub. Batareya gözlədiyinizdən daha tez bitə bilər.\n\nBatareya tam dolduqdan sonra ən çox istifadə edilən tətbiqlər:"</string>
+    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Telefon həddən çox istifadə olunur. Enerji gözləniləndən tez bitə bilər.\n\nEnerji tam dolandan sonra ən çox istifadə edilən tətbiqlər:"</string>
+    <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Planşet həddən çox istifadə olunur. Enerji gözlənildiyindən tez bitə bilər.\n\nTam şarjdan sonra ən çox istifadə edilən tətbiqlər:"</string>
+    <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Cihaz həddən çox istifadə olunub. Enerji gözlənildiyindən tez bitə bilər.\n\nTam şarjdan sonra ən çox istifadə edilən tətbiqlər:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Batareyadan çox istifadə edən arxa fon fəaliyyəti daxildir"</string>
     <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
       <item quantity="other">%1$d tətbiqi məhdudlaşdırın</item>
@@ -2426,15 +2426,15 @@
     <string name="battery_screen_usage" msgid="8327893465518679384">"Ekran istifadəsi <xliff:g id="TIME">^1</xliff:g>"</string>
     <string name="battery_used_by" msgid="840331542883421888">"<xliff:g id="APP">%2$s</xliff:g> <xliff:g id="PERCENT">%1$s</xliff:g> batareya istifadə etdi"</string>
     <string name="battery_overall_usage" msgid="5874301442415987516">"<xliff:g id="PERCENT">%1$s</xliff:g> batareya istifadəsi"</string>
-    <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Sonuncu tam doldurmadan sonrakı istifadə problemi"</string>
+    <string name="battery_detail_since_full_charge" msgid="3814176986148084378">"Tam şarjdan sonra istifadə problemi"</string>
     <string name="battery_last_full_charge" msgid="5624033030647170717">"Sonuncu tam doldurma"</string>
     <string name="battery_full_charge_last" msgid="4614554109170251301">"Tam doldurulmuş batareya təxminən bu qədər davam edir"</string>
     <string name="battery_footer_summary" msgid="4828444679643906943">"Enerji istifadəsi haqqında məlumat təxminidir və istifadə intensivliyinə əsasən dəyişir."</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Aktiv istifadədə olarkən"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"Arxa fonda olarkən"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Enerji istifadəsi"</string>
-    <string name="battery_detail_info_title" msgid="4617514228447481336">"Tam dolmadan sonra"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"Batareya istifadəsini idarə edin"</string>
+    <string name="battery_detail_info_title" msgid="4617514228447481336">"Tam şarjdan sonra"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"Enerji sərfiyyatının idarəedilməsi"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Təxmini qalan batareya səviyyəsi cihazdan istifadəyə əsaslanır"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"Təxmini qalan vaxt"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"Tam enerji yığana kimi"</string>
@@ -3694,7 +3694,7 @@
     <string name="memory_avg_desc" msgid="1200185697910086968">"Orta <xliff:g id="MEMORY">%1$s</xliff:g>"</string>
     <string name="memory_use_running_format" msgid="3741170402563292232">"<xliff:g id="MEMORY">%1$s</xliff:g> / <xliff:g id="RUNNING">%2$s</xliff:g>"</string>
     <string name="process_format" msgid="8575347150598564509">"<xliff:g id="APP_NAME">%1$s</xliff:g> (<xliff:g id="COUNT">%2$d</xliff:g>)"</string>
-    <string name="high_power_apps" msgid="2518319744362028920">"Batareya optimallaşması"</string>
+    <string name="high_power_apps" msgid="2518319744362028920">"Enerjiyə qənaət"</string>
     <string name="additional_battery_info" msgid="6877663897819271203">"İstifadə siqnalları"</string>
     <string name="show_all_apps" msgid="5442552004569634846">"İstifadə haqqında hər şey"</string>
     <string name="hide_extra_apps" msgid="6798261081113299441">"Tətbiq istifadəsi"</string>
@@ -3709,13 +3709,13 @@
     <string name="high_power_filter_on" msgid="5294209328473386403">"Enerjiyə qənaət etmir"</string>
     <string name="high_power_on" msgid="3573501822510580334">"Enerjiyə qənaət etmir"</string>
     <string name="high_power_off" msgid="5906679734326490426">"Batareya istifadəsi optimallaşdırılır"</string>
-    <string name="high_power_system" msgid="739584574711292753">"Batareya optimallaşdırılması əlçatan deyil"</string>
-    <string name="high_power_desc" msgid="333756885680362741">"Batareya optimallaşdırılması tətbiq etməyin. Batareya daha tez qurtara bilər."</string>
+    <string name="high_power_system" msgid="739584574711292753">"Enerjiyə qənaət etmək olmur"</string>
+    <string name="high_power_desc" msgid="333756885680362741">"Enerjiyə qənaət edilməsin. Enerji daha tez qurtara bilər."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Tətbiqə həmişə arxa fonda işləməyə icazə verilsin?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> tətbiqinə həmişə arxa fonda işləmək icazəsi vermək batareya enerjisini azalda bilər. \n\nBunu daha sonra Ayarlar &gt;Tətbiqlər və bildirişlər bölməsindən dəyişə bilərsiniz."</string>
-    <string name="battery_summary" msgid="4345690800899981339">"Sonuncu tam doldurmadan sonra <xliff:g id="PERCENTAGE">%1$s</xliff:g> batareya istifadəsi"</string>
+    <string name="battery_summary" msgid="4345690800899981339">"Tam şarjdan sonra <xliff:g id="PERCENTAGE">%1$s</xliff:g> enerji istifadəsi"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Enerji idarəetməsi"</string>
-    <string name="no_battery_summary" msgid="4105932628367471314">"Batareya tam dolandan sonra istifadə olunmayıb"</string>
+    <string name="no_battery_summary" msgid="4105932628367471314">"Enerji tam dolandan sonra istifadə olunmayıb"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Tətbiq ayarları"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI Tuner göstərin"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Əlavə icazələr"</string>
@@ -4006,7 +4006,7 @@
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Deaktiv"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"İndi aktiv edin"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"İndi deaktiv edin"</string>
-    <string name="not_battery_optimizing" msgid="2616044774307734160">"Batareya optimallaşdırılması istifadə olunmur"</string>
+    <string name="not_battery_optimizing" msgid="2616044774307734160">"Enerjiyə qənaət edilmir"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Cihaz kilidlidirsə, bildirişlərdə cavab və ya digər mətnlərin yazılmasının qarşısını alın."</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Defolt orfoqrafik yoxlama"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Orfoqrafik yoxlama seçin"</string>
