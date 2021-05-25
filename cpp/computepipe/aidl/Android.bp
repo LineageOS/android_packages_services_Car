@@ -10,7 +10,7 @@ aidl_interface {
         "android/automotive/computepipe/*.aidl",
     ],
     imports: [
-        "android.hardware.graphics.common",
+        "android.hardware.graphics.common-V2",
     ],
     stability: "vintf",
     backend: {
