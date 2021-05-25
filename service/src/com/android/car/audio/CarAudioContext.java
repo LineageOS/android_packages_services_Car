@@ -220,6 +220,9 @@ public final class CarAudioContext {
         }
     }
 
+    private CarAudioContext() {
+    }
+
     /**
      * Checks if the audio context is within the valid range from MUSIC to SYSTEM_SOUND
      */

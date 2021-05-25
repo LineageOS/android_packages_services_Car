@@ -27,6 +27,9 @@ import com.android.car.CarLog;
 public final class AudioControlFactory {
     private static final String TAG = CarLog.tagFor(AudioControlFactory.class);
 
+    private AudioControlFactory() {
+    }
+
     /**
      * Generates {@link AudioControlWrapper} for interacting with IAudioControl HAL service. The HAL
      * version priority is: Current AIDL, HIDL V2, HIDL V1. The wrapper will try to fetch the
