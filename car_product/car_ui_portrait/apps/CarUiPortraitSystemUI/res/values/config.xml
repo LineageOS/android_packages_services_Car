@@ -24,6 +24,7 @@
          Whenever a new class is added, make sure to also add that class to OverlayWindowModule. -->
     <string-array name="config_carSystemUIOverlayViewsMediators" translatable="false">
         <item>@string/config_notificationPanelViewMediator</item>
+        <item>com.android.systemui.car.hvac.HvacPanelOverlayViewMediator</item>
         <item>com.android.systemui.car.keyguard.CarKeyguardViewMediator</item>
         <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
