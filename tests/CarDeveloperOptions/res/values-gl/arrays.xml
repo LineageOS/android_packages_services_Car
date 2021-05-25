@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Tratar como rede con tarifa plana"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Usar MAC aleatorio (valor predeterminado)"</item>
+    <item msgid="6545683814310036454">"Usar MAC aleatorio (predefinido)"</item>
     <item msgid="214234417308375326">"Usar MAC do dispositivo"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
