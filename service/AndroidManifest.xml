@@ -935,7 +935,10 @@
             </intent-filter>
         </service>
         <service android:name=".PerUserCarService"
-             android:exported="false"/>
+            android:exported="false"/>
+        <service android:name=".telemetry.ScriptExecutor"
+            android:exported="false"
+            android:isolatedProcess="true"/>
 
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
              android:documentLaunchMode="always"
