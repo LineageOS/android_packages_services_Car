@@ -495,7 +495,7 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Removes user with USER_ID using the HAL integration.");
         pw.println("\t  The --hal-only option only calls HAL, without removing the user,");
 
-        pw.printf("\t%s [--hal-only] [--timeout TIMEOUT_MS] [--type TYPE] [--flags FLAGS] [NAME]\n",
+        pw.printf("\t%s [--hal-only] [--timeout TIMEOUT_MS] [--guest] [--flags FLAGS] [NAME]\n",
                 COMMAND_CREATE_USER);
         pw.println("\t  Creates a new user using the HAL integration.");
         pw.println("\t  The --hal-only uses UserManager to create the user,");
@@ -1333,15 +1333,18 @@ final class CarShellCommand extends ShellCommand {
     private void createUser(String[] args, IndentingPrintWriter writer) {
         int timeout = DEFAULT_HAL_TIMEOUT_MS + DEFAULT_CAR_USER_SERVICE_TIMEOUT_MS;
         int flags = 0;
+        boolean isGuest = false;
         boolean halOnly = false;
         String name = null;
-        String userType = null;
 
         for (int i = 1; i < args.length; i++) {
             String arg = args[i];
             switch (arg) {
                 case "--timeout":
                     timeout = Integer.parseInt(args[++i]);
+                    break;
+                case "--guest":
+                    isGuest = true;
                     break;
                 case "--hal-only":
                     halOnly = true;
@@ -1350,8 +1353,10 @@ final class CarShellCommand extends ShellCommand {
                     flags = Integer.parseInt(args[++i]);
                     break;
                 case "--type":
-                    userType = args[++i];
-                    break;
+                    // print an error and quit.
+                    writer.printf("Error: --type is not supported. Use --guest to create a guest.");
+                    writer.println();
+                    return;
                 default:
                     if (name != null) {
                         writer.println("Invalid option at index " + i + ": " + arg);
@@ -1361,18 +1366,15 @@ final class CarShellCommand extends ShellCommand {
             }
         }
 
-        if (userType == null) {
-            userType = android.content.pm.UserInfo.getDefaultUserType(flags);
-        }
-
-        Slog.d(TAG, "createUser(): name=" + name + ", userType=" + userType
+        Slog.d(TAG, "createUser(): name=" + name
                 + ", flags=" + android.content.pm.UserInfo.flagsToString(flags)
-                + ", halOnly=" + halOnly + ", timeout=" + timeout);
+                + ", guest=" + isGuest + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
         if (!halOnly) {
             CarUserManager carUserManager = getCarUserManager(mContext);
-            AsyncFuture<UserCreationResult> future = carUserManager
-                    .createUser(name, userType, flags);
+            AsyncFuture<UserCreationResult> future = isGuest
+                    ? carUserManager.createGuest(name)
+                    : carUserManager.createUser(name, flags);
 
             UserCreationResult result = waitForFuture(writer, future, timeout);
             if (result == null) return;
@@ -1395,7 +1397,8 @@ final class CarShellCommand extends ShellCommand {
         CreateUserRequest request = new CreateUserRequest();
 
         UserManager um = UserManager.get(mContext);
-        android.content.pm.UserInfo newUser = um.createUser(name, userType, flags);
+        android.content.pm.UserInfo newUser =
+                isGuest ? um.createGuest(mContext, name) : um.createUser(name, flags);
         if (newUser == null) {
             writer.printf("Failed to create user");
             return;

@@ -170,7 +170,7 @@ public final class UserFragment extends Fragment {
                 }
             }
             Log.v(TAG, "Create user: name=" + name + ", flags=" + UserInfo.flagsToString(flags));
-            future = mCarUserManager.createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
+            future = mCarUserManager.createUser(name, flags);
         }
         UserCreationResult result = getResult(future);
         updateState();
