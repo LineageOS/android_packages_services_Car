@@ -66,6 +66,7 @@ cc_defaults {
     shared_libs: [
         "libcutils",
         "libprocessgroup",
+        "libtinyxml2",
         "libwatchdog_package_info_resolver",
     ],
 }
@@ -82,6 +83,7 @@ cc_library {
         "src/IoOveruseMonitor.cpp",
         "src/IoPerfCollection.cpp",
         "src/LooperWrapper.cpp",
+        "src/OveruseConfigurationXmlHelper.cpp",
         "src/ProcDiskStats.cpp",
         "src/ProcPidStat.cpp",
         "src/ProcStat.cpp",
@@ -92,6 +94,13 @@ cc_library {
     ],
     export_include_dirs: [
         "src",
+    ],
+}
+
+filegroup {
+    name: "watchdog_test_xml_files",
+    srcs: [
+        "tests/data/*.xml",
     ],
 }
 
@@ -108,6 +117,8 @@ cc_test {
         "tests/IoOveruseMonitorTest.cpp",
         "tests/IoPerfCollectionTest.cpp",
         "tests/LooperStub.cpp",
+        "tests/OveruseConfigurationTestUtils.cpp",
+        "tests/OveruseConfigurationXmlHelperTest.cpp",
         "tests/PackageInfoResolverTest.cpp",
         "tests/ProcDiskStatsTest.cpp",
         "tests/ProcPidDir.cpp",
@@ -128,6 +139,7 @@ cc_test {
         "libwatchdog_process_service",
         "libwatchdog_package_info_resolver",
     ],
+    data: [":watchdog_test_xml_files"],
 }
 
 cc_defaults {
