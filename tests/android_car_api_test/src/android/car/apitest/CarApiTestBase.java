@@ -143,21 +143,30 @@ abstract class CarApiTestBase {
         }
     }
 
-    protected static void suspendToRamAndResume() throws Exception {
+    protected static void suspendToRamAndResume(boolean disableBackgroundUsersStart)
+            throws Exception {
         Log.d(TAG, "Emulate suspend to RAM and resume");
-        PowerManager powerManager = sContext.getSystemService(PowerManager.class);
-        // clear log
-        runShellCommand("logcat -b all -c");
-        runShellCommand("cmd car_service suspend");
-        // Check for suspend success
-        waitUntil("screen is still on after suspend",
-                SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
+        try {
+            if (disableBackgroundUsersStart) {
+                runShellCommand("cmd car_service set-start-bg-users-on-garage-mode false");
+            }
 
-        // Force turn off garage mode
-        runShellCommand("cmd car_service garage-mode off");
-        runShellCommand("cmd car_service resume");
-        waitForLogcatMessage("logcat -b events", "car_user_svc_initial_user_info_req_complete: "
-                + InitialUserInfoRequestType.RESUME, 60_000);
+            PowerManager powerManager = sContext.getSystemService(PowerManager.class);
+            // clear log
+            runShellCommand("logcat -b all -c");
+            runShellCommand("cmd car_service suspend");
+            // Check for suspend success
+            waitUntil("screen is still on after suspend",
+                    SUSPEND_TIMEOUT_MS, () -> !powerManager.isScreenOn());
+
+            // Force turn off garage mode
+            runShellCommand("cmd car_service garage-mode off");
+            runShellCommand("cmd car_service resume");
+            waitForLogcatMessage("logcat -b events", "car_user_svc_initial_user_info_req_complete: "
+                    + InitialUserInfoRequestType.RESUME, 60_000);
+        } catch (Exception e) {
+            runShellCommand("cmd car_service set-start-bg-users-on-garage-mode true");
+        }
     }
 
     /**
