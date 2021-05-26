@@ -184,6 +184,8 @@ public final class CarWatchdogManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void registerClient(@NonNull @CallbackExecutor Executor executor,
             @NonNull CarWatchdogClientCallback client, @TimeoutLengthEnum int timeout) {
+        Objects.requireNonNull(client, "Client must be non-null");
+        Objects.requireNonNull(executor, "Executor must be non-null");
         synchronized (mLock) {
             if (mRegisteredClient == client) {
                 return;
@@ -218,6 +220,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void unregisterClient(@NonNull CarWatchdogClientCallback client) {
+        Objects.requireNonNull(client, "Client must be non-null");
         synchronized (mLock) {
             if (mRegisteredClient != client) {
                 Log.w(TAG, "Cannot unregister the client. It has not been registered.");
@@ -249,6 +252,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_WATCHDOG)
     public void tellClientAlive(@NonNull CarWatchdogClientCallback client, int sessionId) {
+        Objects.requireNonNull(client, "Client must be non-null");
         boolean shouldReport;
         synchronized (mLock) {
             if (mRegisteredClient != client) {
