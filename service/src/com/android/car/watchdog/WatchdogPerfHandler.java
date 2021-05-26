@@ -87,6 +87,7 @@ import java.util.Map;
 import java.util.Objects;
 import java.util.Set;
 import java.util.function.BiFunction;
+import java.util.function.Consumer;
 
 /**
  * Handles system resource performance monitoring module.
@@ -112,11 +113,11 @@ public final class WatchdogPerfHandler {
     private final List<PackageResourceOveruseAction> mOveruseActionsByUserPackage =
             new ArrayList<>();
     @GuardedBy("mLock")
-    private final SparseArray<ResourceOveruseListenerInfo> mOveruseListenerInfosByUid =
+    private final SparseArray<ArrayList<ResourceOveruseListenerInfo>> mOveruseListenerInfosByUid =
             new SparseArray<>();
     @GuardedBy("mLock")
-    private final SparseArray<ResourceOveruseListenerInfo> mOveruseSystemListenerInfosByUid =
-            new SparseArray<>();
+    private final SparseArray<ArrayList<ResourceOveruseListenerInfo>>
+            mOveruseSystemListenerInfosByUid = new SparseArray<>();
     /* Set of safe-to-kill system and vendor packages. */
     @GuardedBy("mLock")
     public final Set<String> mSafeToKillPackages = new ArraySet<>();
@@ -516,7 +517,7 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             checkAndHandleDateChangeLocked();
             for (PackageIoOveruseStats stats : packageIoOveruseStats) {
-                String packageName = packageNamesByUid.get(stats.uid, null);
+                String packageName = packageNamesByUid.get(stats.uid);
                 if (packageName == null) {
                     continue;
                 }
@@ -640,27 +641,19 @@ public final class WatchdogPerfHandler {
     private void notifyResourceOveruseStatsLocked(int uid,
             ResourceOveruseStats resourceOveruseStats) {
         String packageName = resourceOveruseStats.getPackageName();
-        ResourceOveruseListenerInfo listenerInfo = mOveruseListenerInfosByUid.get(uid, null);
-        if (listenerInfo != null && (listenerInfo.flag & FLAG_RESOURCE_OVERUSE_IO) != 0) {
-            try {
-                listenerInfo.listener.onOveruse(resourceOveruseStats);
-            } catch (RemoteException e) {
-                Slogf.e(TAG, e, "Failed to notify listener(uid %d, package '%s') on resource "
-                        + "overuse", uid, resourceOveruseStats);
+        ArrayList<ResourceOveruseListenerInfo> listenerInfos = mOveruseListenerInfosByUid.get(uid);
+        if (listenerInfos != null) {
+            for (ResourceOveruseListenerInfo listenerInfo : listenerInfos) {
+                listenerInfo.notifyListener(FLAG_RESOURCE_OVERUSE_IO, uid, packageName,
+                        resourceOveruseStats);
             }
         }
         for (int i = 0; i < mOveruseSystemListenerInfosByUid.size(); ++i) {
-            ResourceOveruseListenerInfo systemListenerInfo =
+            ArrayList<ResourceOveruseListenerInfo> systemListenerInfos =
                     mOveruseSystemListenerInfosByUid.valueAt(i);
-            if ((systemListenerInfo.flag & FLAG_RESOURCE_OVERUSE_IO) == 0) {
-                continue;
-            }
-            try {
-                systemListenerInfo.listener.onOveruse(resourceOveruseStats);
-            } catch (RemoteException e) {
-                Slogf.e(TAG, e, "Failed to notify system listener(uid %d, pid: %d) of resource "
-                        + "overuse by package(uid %d, package '%s')", systemListenerInfo.uid,
-                        systemListenerInfo.pid, uid, packageName);
+            for (ResourceOveruseListenerInfo listenerInfo : systemListenerInfos) {
+                listenerInfo.notifyListener(FLAG_RESOURCE_OVERUSE_IO, uid, packageName,
+                        resourceOveruseStats);
             }
         }
         if (DEBUG) {
@@ -744,17 +737,21 @@ public final class WatchdogPerfHandler {
     private void addResourceOveruseListenerLocked(
             @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag,
             @NonNull IResourceOveruseListener listener,
-            SparseArray<ResourceOveruseListenerInfo> listenerInfosByUid) {
+            SparseArray<ArrayList<ResourceOveruseListenerInfo>> listenerInfosByUid) {
         int callingPid = Binder.getCallingPid();
         int callingUid = Binder.getCallingUid();
         boolean isListenerForSystem = listenerInfosByUid == mOveruseSystemListenerInfosByUid;
         String listenerType = isListenerForSystem ? "resource overuse listener for system" :
                 "resource overuse listener";
 
-        ResourceOveruseListenerInfo existingListenerInfo = listenerInfosByUid.get(callingUid, null);
-        if (existingListenerInfo != null) {
-            IBinder binder = listener.asBinder();
-            if (existingListenerInfo.listener.asBinder() == binder) {
+        IBinder binder = listener.asBinder();
+        ArrayList<ResourceOveruseListenerInfo> listenerInfos = listenerInfosByUid.get(callingUid);
+        if (listenerInfos == null) {
+            listenerInfos = new ArrayList<>();
+            listenerInfosByUid.put(callingUid, listenerInfos);
+        }
+        for (ResourceOveruseListenerInfo listenerInfo : listenerInfos) {
+            if (listenerInfo.listener.asBinder() == binder) {
                 throw new IllegalStateException(
                         "Cannot add " + listenerType + " as it is already added");
             }
@@ -768,48 +765,43 @@ public final class WatchdogPerfHandler {
             Slogf.w(TAG, "Cannot add %s: linkToDeath to listener failed", listenerType);
             return;
         }
-
-        if (existingListenerInfo != null) {
-            Slogf.w(TAG, "Overwriting existing %s: pid %d, uid: %d", listenerType,
-                    existingListenerInfo.pid, existingListenerInfo.uid);
-            existingListenerInfo.unlinkToDeath();
-        }
-
-
-        listenerInfosByUid.put(callingUid, listenerInfo);
+        listenerInfos.add(listenerInfo);
         if (DEBUG) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is added", listenerType, callingPid,
-                    callingUid);
+            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is added", listenerType,
+                    callingPid, callingUid);
         }
     }
 
     private void removeResourceOveruseListenerLocked(@NonNull IResourceOveruseListener listener,
-            SparseArray<ResourceOveruseListenerInfo> listenerInfosByUid) {
+            SparseArray<ArrayList<ResourceOveruseListenerInfo>> listenerInfosByUid) {
         int callingUid = Binder.getCallingUid();
-
         String listenerType = listenerInfosByUid == mOveruseSystemListenerInfosByUid
                 ? "resource overuse system listener" : "resource overuse listener";
-
-        ResourceOveruseListenerInfo listenerInfo = listenerInfosByUid.get(callingUid, null);
-        if (listenerInfo == null || listenerInfo.listener.asBinder() != listener.asBinder()) {
+        ArrayList<ResourceOveruseListenerInfo> listenerInfos = listenerInfosByUid.get(callingUid);
+        if (listenerInfos == null) {
             Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
             return;
         }
-        listenerInfo.unlinkToDeath();
-        listenerInfosByUid.remove(callingUid);
-        if (DEBUG) {
-            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is removed", listenerType, listenerInfo.pid,
-                    listenerInfo.uid);
-        }
-    }
-
-    private void onResourceOveruseListenerDeath(int uid, boolean isListenerForSystem) {
-        synchronized (mLock) {
-            if (isListenerForSystem) {
-                mOveruseSystemListenerInfosByUid.remove(uid);
-            } else {
-                mOveruseListenerInfosByUid.remove(uid);
+        IBinder binder = listener.asBinder();
+        ResourceOveruseListenerInfo cachedListenerInfo = null;
+        for (ResourceOveruseListenerInfo listenerInfo : listenerInfos) {
+            if (listenerInfo.listener.asBinder() == binder) {
+                cachedListenerInfo = listenerInfo;
+                break;
             }
+        }
+        if (cachedListenerInfo == null) {
+            Slogf.w(TAG, "Cannot remove the %s: it has not been registered before", listenerType);
+            return;
+        }
+        cachedListenerInfo.unlinkToDeath();
+        listenerInfos.remove(cachedListenerInfo);
+        if (listenerInfos.isEmpty()) {
+            listenerInfosByUid.remove(callingUid);
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "The %s (pid: %d, uid: %d) is removed", listenerType,
+                    cachedListenerInfo.pid, cachedListenerInfo.uid);
         }
     }
 
@@ -1306,8 +1298,40 @@ public final class WatchdogPerfHandler {
         public void binderDied() {
             Slogf.w(TAG, "Resource overuse listener%s (pid: %d) died",
                     isListenerForSystem ? " for system" : "", pid);
-            onResourceOveruseListenerDeath(uid, isListenerForSystem);
+            Consumer<SparseArray<ArrayList<ResourceOveruseListenerInfo>>> removeListenerInfo =
+                    listenerInfosByUid -> {
+                        ArrayList<ResourceOveruseListenerInfo> listenerInfos =
+                                listenerInfosByUid.get(uid);
+                        if (listenerInfos == null) {
+                            return;
+                        }
+                        listenerInfos.remove(this);
+                        if (listenerInfos.isEmpty()) {
+                            listenerInfosByUid.remove(uid);
+                        }
+                    };
+            if (isListenerForSystem) {
+                removeListenerInfo.accept(mOveruseSystemListenerInfosByUid);
+            } else {
+                removeListenerInfo.accept(mOveruseListenerInfosByUid);
+            }
             unlinkToDeath();
+        }
+
+        public void notifyListener(@CarWatchdogManager.ResourceOveruseFlag int resourceType,
+                int overusingUid, String overusingPackage,
+                ResourceOveruseStats resourceOveruseStats) {
+            if ((flag & resourceType) == 0) {
+                return;
+            }
+            try {
+                listener.onOveruse(resourceOveruseStats);
+            } catch (RemoteException e) {
+                Slogf.e(TAG, "Failed to notify %s (uid %d, pid: %d) of resource overuse by "
+                                + "package(uid %d, package '%s'): %s",
+                        (isListenerForSystem ? "system listener" : "listener"), uid, pid,
+                        overusingUid, overusingPackage, e);
+            }
         }
 
         private void linkToDeath() throws RemoteException {
