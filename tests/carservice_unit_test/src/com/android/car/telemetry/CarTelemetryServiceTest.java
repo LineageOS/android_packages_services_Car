@@ -40,8 +40,8 @@ public class CarTelemetryServiceTest {
 
     private final ManifestKey mManifestKeyV1 = new ManifestKey("Name", 1);
     private final ManifestKey mManifestKeyV2 = new ManifestKey("Name", 2);
-    private final TelemetryProto.Manifest mManifest =
-            TelemetryProto.Manifest.newBuilder().setScript("no-op").build();
+    private final TelemetryProto.MetricsConfig mMetricsConfig =
+            TelemetryProto.MetricsConfig.newBuilder().setScript("no-op").build();
 
     private CarTelemetryService mService;
 
@@ -52,16 +52,16 @@ public class CarTelemetryServiceTest {
 
     @Test
     public void testAddManifest_newManifest_shouldSucceed() {
-        int result = mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        int result = mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_NONE);
     }
 
     @Test
     public void testAddManifest_duplicateManifest_shouldFail() {
-        mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
-        int result = mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        int result = mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_SAME_MANIFEST_EXISTS);
     }
@@ -75,25 +75,25 @@ public class CarTelemetryServiceTest {
 
     @Test
     public void testAddManifest_olderManifest_shouldFail() {
-        mService.addManifest(mManifestKeyV2, mManifest.toByteArray());
+        mService.addManifest(mManifestKeyV2, mMetricsConfig.toByteArray());
 
-        int result = mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        int result = mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_NEWER_MANIFEST_EXISTS);
     }
 
     @Test
     public void testAddManifest_newerManifest_shouldReplace() {
-        mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
-        int result = mService.addManifest(mManifestKeyV2, mManifest.toByteArray());
+        int result = mService.addManifest(mManifestKeyV2, mMetricsConfig.toByteArray());
 
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_NONE);
     }
 
     @Test
     public void testRemoveManifest_manifestExists_shouldSucceed() {
-        mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
 
         boolean result = mService.removeManifest(mManifestKeyV1);
 
@@ -109,15 +109,15 @@ public class CarTelemetryServiceTest {
 
     @Test
     public void testRemoveAllManifests_shouldSucceed() {
-        mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
-        mService.addManifest(mManifestKeyV2, mManifest.toByteArray());
+        mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
+        mService.addManifest(mManifestKeyV2, mMetricsConfig.toByteArray());
 
         mService.removeAllManifests();
 
         // verify that the manifests are cleared by adding them again, should succeed
-        int result = mService.addManifest(mManifestKeyV1, mManifest.toByteArray());
+        int result = mService.addManifest(mManifestKeyV1, mMetricsConfig.toByteArray());
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_NONE);
-        result = mService.addManifest(mManifestKeyV2, mManifest.toByteArray());
+        result = mService.addManifest(mManifestKeyV2, mMetricsConfig.toByteArray());
         assertThat(result).isEqualTo(CarTelemetryManager.ERROR_NONE);
     }
 }
