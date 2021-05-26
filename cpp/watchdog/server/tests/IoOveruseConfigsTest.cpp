@@ -15,6 +15,7 @@
  */
 
 #include "IoOveruseConfigs.h"
+#include "OveruseConfigurationTestUtils.h"
 
 #include <android-base/strings.h>
 #include <gmock/gmock.h>
@@ -32,40 +33,17 @@ using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageMetadata;
-using ::android::automotive::watchdog::internal::PerStateIoOveruseThreshold;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::ResourceSpecificConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
-using ::testing::AllOf;
-using ::testing::AnyOf;
-using ::testing::ExplainMatchResult;
-using ::testing::Field;
 using ::testing::IsEmpty;
 using ::testing::Matcher;
 using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
-using ::testing::Value;
 
 namespace {
-
-PerStateBytes toPerStateBytes(const int64_t fgBytes, const int64_t bgBytes,
-                              const int64_t garageModeBytes) {
-    PerStateBytes perStateBytes;
-    perStateBytes.foregroundBytes = fgBytes;
-    perStateBytes.backgroundBytes = bgBytes;
-    perStateBytes.garageModeBytes = garageModeBytes;
-    return perStateBytes;
-}
-
-IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSeconds,
-                                                  const int64_t writtenBytesPerSecond) {
-    IoOveruseAlertThreshold threshold;
-    threshold.durationInSeconds = durationInSeconds;
-    threshold.writtenBytesPerSecond = writtenBytesPerSecond;
-    return threshold;
-}
 
 const PerStateBytes SYSTEM_COMPONENT_LEVEL_THRESHOLDS = toPerStateBytes(200, 100, 500);
 const PerStateBytes SYSTEM_PACKAGE_A_THRESHOLDS = toPerStateBytes(600, 400, 1000);
@@ -79,43 +57,6 @@ const PerStateBytes THIRD_PARTY_COMPONENT_LEVEL_THRESHOLDS = toPerStateBytes(300
 const std::vector<IoOveruseAlertThreshold> ALERT_THRESHOLDS = {toIoOveruseAlertThreshold(5, 200),
                                                                toIoOveruseAlertThreshold(30,
                                                                                          40000)};
-
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
-                                                        const PerStateBytes& perStateBytes) {
-    PerStateIoOveruseThreshold threshold;
-    threshold.name = name;
-    threshold.perStateWriteBytes = perStateBytes;
-    return threshold;
-}
-
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type,
-                                                        const PerStateBytes& perStateBytes) {
-    return toPerStateIoOveruseThreshold(toString(type), perStateBytes);
-}
-
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const std::string& name,
-                                                        const int64_t fgBytes,
-                                                        const int64_t bgBytes,
-                                                        const int64_t garageModeBytes) {
-    PerStateIoOveruseThreshold threshold;
-    threshold.name = name;
-    threshold.perStateWriteBytes = toPerStateBytes(fgBytes, bgBytes, garageModeBytes);
-    return threshold;
-}
-
-PerStateIoOveruseThreshold toPerStateIoOveruseThreshold(const ComponentType type,
-                                                        const int64_t fgBytes,
-                                                        const int64_t bgBytes,
-                                                        const int64_t garageModeBytes) {
-    return toPerStateIoOveruseThreshold(toString(type), fgBytes, bgBytes, garageModeBytes);
-}
-
-PackageMetadata toPackageMetadata(std::string packageName, ApplicationCategoryType type) {
-    PackageMetadata meta;
-    meta.packageName = packageName;
-    meta.appCategoryType = type;
-    return meta;
-}
 
 std::unordered_map<std::string, ApplicationCategoryType> toPackageToAppCategoryMappings(
         const std::vector<PackageMetadata>& metas) {
@@ -137,35 +78,6 @@ PackageInfo constructPackageInfo(
     return packageInfo;
 }
 
-ResourceOveruseConfiguration constructResourceOveruseConfig(
-        const ComponentType type, const std::vector<std::string>&& safeToKill,
-        const std::vector<std::string>&& vendorPrefixes,
-        const std::vector<PackageMetadata> packageMetadata,
-        const IoOveruseConfiguration& ioOveruseConfiguration) {
-    ResourceOveruseConfiguration resourceOveruseConfig;
-    resourceOveruseConfig.componentType = type;
-    resourceOveruseConfig.safeToKillPackages = safeToKill;
-    resourceOveruseConfig.vendorPackagePrefixes = vendorPrefixes;
-    resourceOveruseConfig.packageMetadata = packageMetadata;
-    ResourceSpecificConfiguration config;
-    config.set<ResourceSpecificConfiguration::ioOveruseConfiguration>(ioOveruseConfiguration);
-    resourceOveruseConfig.resourceSpecificConfigurations.push_back(config);
-    return resourceOveruseConfig;
-}
-
-IoOveruseConfiguration constructIoOveruseConfig(
-        PerStateIoOveruseThreshold componentLevel,
-        const std::vector<PerStateIoOveruseThreshold>& packageSpecific,
-        const std::vector<PerStateIoOveruseThreshold>& categorySpecific,
-        const std::vector<IoOveruseAlertThreshold>& systemWide) {
-    IoOveruseConfiguration config;
-    config.componentLevelThresholds = componentLevel;
-    config.packageSpecificThresholds = packageSpecific;
-    config.categorySpecificThresholds = categorySpecific;
-    config.systemWideThresholds = systemWide;
-    return config;
-}
-
 std::string toString(std::vector<ResourceOveruseConfiguration> configs) {
     std::string buffer;
     StringAppendF(&buffer, "[");
@@ -179,58 +91,11 @@ std::string toString(std::vector<ResourceOveruseConfiguration> configs) {
     return buffer;
 }
 
-MATCHER_P(IsIoOveruseConfiguration, config, "") {
-    return arg.componentLevelThresholds == config.componentLevelThresholds &&
-            ExplainMatchResult(UnorderedElementsAreArray(config.packageSpecificThresholds),
-                               arg.packageSpecificThresholds, result_listener) &&
-            ExplainMatchResult(UnorderedElementsAreArray(config.categorySpecificThresholds),
-                               arg.categorySpecificThresholds, result_listener) &&
-            ExplainMatchResult(UnorderedElementsAreArray(config.systemWideThresholds),
-                               arg.systemWideThresholds, result_listener);
-}
-
-MATCHER_P(IsResourceSpecificConfiguration, config, "") {
-    if (arg.getTag() != config.getTag()) {
-        return false;
-    }
-    // Reference with the actual datatype so the templated get method can be called.
-    const ResourceSpecificConfiguration& expected = config;
-    const ResourceSpecificConfiguration& actual = arg;
-    switch (arg.getTag()) {
-        case ResourceSpecificConfiguration::ioOveruseConfiguration: {
-            const auto& expectedIoConfig =
-                    expected.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
-            const auto& actualIoConfig =
-                    actual.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
-            return ExplainMatchResult(IsIoOveruseConfiguration(expectedIoConfig), actualIoConfig,
-                                      result_listener);
-        }
-        default:
-            return true;
-    }
-}
-
-Matcher<const ResourceOveruseConfiguration> IsResourceOveruseConfiguration(
-        const ResourceOveruseConfiguration& config) {
-    std::vector<Matcher<const ResourceSpecificConfiguration>> matchers;
-    for (const auto& resourceSpecificConfig : config.resourceSpecificConfigurations) {
-        matchers.push_back(IsResourceSpecificConfiguration(resourceSpecificConfig));
-    }
-
-    return AllOf(Field(&ResourceOveruseConfiguration::componentType, config.componentType),
-                 Field(&ResourceOveruseConfiguration::safeToKillPackages,
-                       UnorderedElementsAreArray(config.safeToKillPackages)),
-                 Field(&ResourceOveruseConfiguration::vendorPackagePrefixes,
-                       UnorderedElementsAreArray(config.vendorPackagePrefixes)),
-                 Field(&ResourceOveruseConfiguration::resourceSpecificConfigurations,
-                       UnorderedElementsAreArray(matchers)));
-}
-
-std::vector<Matcher<const ResourceOveruseConfiguration>> IsResourceOveruseConfigurations(
+std::vector<Matcher<const ResourceOveruseConfiguration>> ResourceOveruseConfigurationsMatchers(
         const std::vector<ResourceOveruseConfiguration>& configs) {
     std::vector<Matcher<const ResourceOveruseConfiguration>> matchers;
     for (const auto config : configs) {
-        matchers.push_back(IsResourceOveruseConfiguration(config));
+        matchers.push_back(ResourceOveruseConfigurationMatcher(config));
     }
     return matchers;
 }
@@ -313,7 +178,7 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
     std::vector<ResourceOveruseConfiguration> actual;
     ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 
     // Check whether previous configs are overwritten.
@@ -379,7 +244,7 @@ TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
     actual.clear();
     ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
@@ -558,7 +423,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
     std::vector<ResourceOveruseConfiguration> actual;
     ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
@@ -597,7 +462,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
     std::vector<ResourceOveruseConfiguration> actual;
     ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
@@ -636,7 +501,7 @@ TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) 
     std::vector<ResourceOveruseConfiguration> actual;
     ioOveruseConfigs.get(&actual);
 
-    EXPECT_THAT(actual, UnorderedElementsAreArray(IsResourceOveruseConfigurations(expected)))
+    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
