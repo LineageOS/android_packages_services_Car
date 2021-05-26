@@ -44,6 +44,8 @@ import java.util.Map;
  */
 public class CarTelemetryService extends ICarTelemetryService.Stub implements CarServiceBase {
 
+    // TODO(b/189340793): Rename Manifest to MetricsConfig
+
     private static final boolean DEBUG = false;
     private static final int DEFAULT_VERSION = 0;
     private static final String TAG = CarTelemetryService.class.getSimpleName();
@@ -103,16 +105,16 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     /**
      * Allows client to send telemetry manifests.
      *
-     * @param key      the unique key to identify the manifest.
-     * @param manifest the serialized bytes of a Manifest object.
+     * @param key    the unique key to identify the manifest.
+     * @param config the serialized bytes of a Manifest object.
      * @return {@link AddManifestError} the error code.
      */
     @Override
-    public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
+    public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] config) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         synchronized (mLock) {
-            return addManifestLocked(key, manifest);
+            return addManifestLocked(key, config);
         }
     }
 
@@ -197,9 +199,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     @GuardedBy("mLock")
-    private @AddManifestError int addManifestLocked(ManifestKey key, byte[] manifest) {
+    private @AddManifestError int addManifestLocked(ManifestKey key, byte[] configProto) {
         if (DEBUG) {
-            Slog.d(TAG, "Adding manifest to car telemetry service");
+            Slog.d(TAG, "Adding MetricsConfig to car telemetry service");
         }
         int currentVersion = mNameVersionMap.getOrDefault(key.getName(), DEFAULT_VERSION);
         if (currentVersion > key.getVersion()) {
@@ -208,17 +210,17 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             return ERROR_SAME_MANIFEST_EXISTS;
         }
 
-        TelemetryProto.Manifest parsedManifest;
+        TelemetryProto.MetricsConfig metricsConfig;
         try {
-            parsedManifest = TelemetryProto.Manifest.parseFrom(manifest);
+            metricsConfig = TelemetryProto.MetricsConfig.parseFrom(configProto);
         } catch (InvalidProtocolBufferException e) {
-            Slog.e(TAG, "Failed to parse manifest.", e);
+            Slog.e(TAG, "Failed to parse MetricsConfig.", e);
             return ERROR_PARSE_MANIFEST_FAILED;
         }
         mNameVersionMap.put(key.getName(), key.getVersion());
 
-        // TODO(b/186047142): Store the manifest to disk
-        // TODO(b/186047142): Send parsedManifest to a script manager or a queue
+        // TODO(b/186047142): Store the MetricsConfig to disk
+        // TODO(b/186047142): Send metricsConfig to a script manager or a queue
         return ERROR_NONE;
     }
 
