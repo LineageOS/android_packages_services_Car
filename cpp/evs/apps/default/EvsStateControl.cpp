@@ -14,18 +14,19 @@
  * limitations under the License.
  */
 #include "EvsStateControl.h"
-#include "RenderDirectView.h"
-#include "RenderTopView.h"
-#include "RenderPixelCopy.h"
-#include "FormatConvert.h"
 
-#include <stdio.h>
-#include <string.h>
+#include "FormatConvert.h"
+#include "RenderDirectView.h"
+#include "RenderPixelCopy.h"
+#include "RenderTopView.h"
 
 #include <android-base/logging.h>
-#include <inttypes.h>
+#include <android/binder_manager.h>
 #include <utils/SystemClock.h>
-#include <binder/IServiceManager.h>
+
+#include <inttypes.h>
+#include <stdio.h>
+#include <string.h>
 
 using ::android::hardware::automotive::evs::V1_0::EvsResult;
 using EvsDisplayState = ::android::hardware::automotive::evs::V1_0::DisplayState;
@@ -33,8 +34,7 @@ using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 using BufferDesc_1_1  = ::android::hardware::automotive::evs::V1_1::BufferDesc;
 
 static bool isSfReady() {
-    const android::String16 serviceName("SurfaceFlinger");
-    return android::defaultServiceManager()->checkService(serviceName) != nullptr;
+    return ::ndk::SpAIBinder(::AServiceManager_getService("SurfaceFlinger")).get() != nullptr;
 }
 
 // TODO:  Seems like it'd be nice if the Vehicle HAL provided such helpers (but how & where?)
