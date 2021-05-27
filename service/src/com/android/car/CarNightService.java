@@ -73,10 +73,9 @@ public class CarNightService implements CarServiceBase {
             };
 
     /**
-     * Acts on {@link CarPropertyEvent} events marked with
-     * {@link CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE} and marked with {@link
-     * VehicleProperty.NIGHT_MODE} by
-     * setting the vehicle in night mode.
+     * Acts on {@link CarPropertyEvent} events marked with {@link
+     * CarPropertyEvent.PROPERTY_EVENT_PROPERTY_CHANGE} and marked with {@link
+     * VehicleProperty.NIGHT_MODE} by setting the vehicle in night mode.
      * <p>
      * This method does nothing if the event parameter is {@code null}.
      *

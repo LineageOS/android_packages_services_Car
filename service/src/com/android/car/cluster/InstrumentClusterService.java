@@ -76,7 +76,8 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     private final CarInputService mCarInputService;
     private final ClusterNavigationService mClusterNavigationService;
     /**
-     * TODO: (b/121277787) Remove this on main.
+     * TODO(b/121277787): Remove this on main.
+     *
      * @deprecated CarInstrumentClusterManager is being deprecated.
      */
     @Deprecated
@@ -381,6 +382,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
 
     /**
      * TODO: (b/121277787) Remove on main
+     *
      * @deprecated CarClusterManager is being deprecated.
      */
     @Deprecated

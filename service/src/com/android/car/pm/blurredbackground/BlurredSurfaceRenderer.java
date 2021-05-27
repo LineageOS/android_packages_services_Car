@@ -61,8 +61,8 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
     private boolean mIsScreenShotCaptured = false;
 
     /**
-     * Constructs a new {@link BlurredSurfaceRenderer} and loads the shaders
-     * needed for rendering a blurred texture
+     * Constructs a new {@link BlurredSurfaceRenderer} and loads the shaders needed for rendering a
+     * blurred texture
      *
      * @param windowRect Rect that represents the application window
      */
@@ -128,8 +128,7 @@ public class BlurredSurfaceRenderer implements GLSurfaceView.Renderer {
     }
 
     /**
-     * Called when the ActivityBlockingActivity pauses
-     * cleans up the OpenGL program
+     * Called when the ActivityBlockingActivity pauses cleans up the OpenGL program
      */
     public void onPause() {
         if (mProgram != null) {

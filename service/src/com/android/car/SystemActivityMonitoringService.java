@@ -88,14 +88,15 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         public String toString() {
             return String.format(
                     "TaskInfoContainer [topActivity=%s, taskId=%d, stackId=%d, userId=%d, "
-                    + "displayId=%d, position=%d",
-                  topActivity, taskId, taskInfo.taskId, taskInfo.userId, displayId, position);
+                            + "displayId=%d, position=%d",
+                    topActivity, taskId, taskInfo.taskId, taskInfo.userId, displayId, position);
         }
     }
 
     public interface ActivityLaunchListener {
         /**
          * Notify launch of activity.
+         *
          * @param topTask Task information for what is currently launched.
          */
         void onActivityLaunch(TopTaskInfoContainer topTask);
@@ -179,6 +180,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
     /**
      * Block the current task: Launch new activity with given Intent and finish the current task.
+     *
      * @param currentTask task to finish
      * @param newActivityIntent Intent for new Activity
      */
@@ -219,8 +221,8 @@ public class SystemActivityMonitoringService implements CarServiceBase {
      * Attempts to restart a task.
      *
      * <p>Restarts a task by sending an empty intent with flag
-     * {@link Intent#FLAG_ACTIVITY_CLEAR_TASK} to its root activity. If the task does not exist,
-     * do nothing.
+     * {@link Intent#FLAG_ACTIVITY_CLEAR_TASK} to its root activity. If the task does not exist, do
+     * nothing.
      *
      * @param taskId id of task to be restarted.
      */
@@ -444,7 +446,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
             if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
                 Slog.i(CarLog.TAG_AM,
                         String.format("onForegroundActivitiesChanged uid %d pid %d fg %b",
-                    uid, pid, foregroundActivities));
+                                uid, pid, foregroundActivities));
             }
             mHandler.requestForegroundActivitiesChanged(pid, uid, foregroundActivities);
         }
@@ -470,7 +472,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
     }
 
     private static final class ActivityMonitorHandler extends Handler {
-        private  static final String TAG = ActivityMonitorHandler.class.getSimpleName();
+        private static final String TAG = ActivityMonitorHandler.class.getSimpleName();
 
         private static final int MSG_UPDATE_TASKS = 0;
         private static final int MSG_FOREGROUND_ACTIVITIES_CHANGED = 1;
@@ -529,7 +531,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
                     break;
                 case MSG_BLOCK_ACTIVITY:
                     Pair<TopTaskInfoContainer, Intent> pair =
-                        (Pair<TopTaskInfoContainer, Intent>) msg.obj;
+                            (Pair<TopTaskInfoContainer, Intent>) msg.obj;
                     service.handleBlockActivity(pair.first, pair.second);
                     break;
             }

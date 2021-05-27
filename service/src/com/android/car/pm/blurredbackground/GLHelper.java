@@ -44,10 +44,10 @@ public class GLHelper {
     private static final int SIZEOF_FLOAT = 4;
 
     /**
-     * Creates an OpenGL program that uses the provided shader sources
-     * and returns the id of the created program
+     * Creates an OpenGL program that uses the provided shader sources and returns the id of the
+     * created program
      *
-     * @param vertexShaderSource   The source for the vertex shader
+     * @param vertexShaderSource The source for the vertex shader
      * @param fragmentShaderSource The source for the fragment shader
      * @return The id of the created program
      */
@@ -78,7 +78,7 @@ public class GLHelper {
      * Creates and binds a texture and returns the id of the created texture
      *
      * @param textureIdBuffer The IntBuffer that will contain the created texture id
-     * @param textureTarget   The texture target for the created texture
+     * @param textureTarget The texture target for the created texture
      * @return The id of the created and bound texture
      */
     public static int createAndBindTextureObject(IntBuffer textureIdBuffer, int textureTarget) {
