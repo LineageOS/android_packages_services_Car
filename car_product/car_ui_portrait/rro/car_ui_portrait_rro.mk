@@ -19,5 +19,4 @@ $(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/ca
 # All RROs to be included in car_ui_portrait builds.
 PRODUCT_PACKAGES += \
     CarUiPortraitMediaRRO \
-    CarUiPortraitSettingsRRO \
     CarUiPortraitLauncherRRO \

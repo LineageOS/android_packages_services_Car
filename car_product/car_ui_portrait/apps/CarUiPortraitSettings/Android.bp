@@ -11,15 +11,43 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
+
 android_app {
-    name: "CarUiPortraitSettingsRRO",
-    resource_dirs: ["res"],
+    name: "CarUiPortraitSettings",
+    overrides: ["CarSettings"],
     platform_apis: true,
-    aaptflags: [
-        "--no-resource-deduping",
-        "--no-resource-removal"
+
+    manifest: "AndroidManifest.xml",
+
+    resource_dirs: ["res"],
+
+    static_libs: [
+        "CarSettings-core",
     ],
+
+    certificate: "platform",
+
+    optimize: {
+        enabled: false,
+    },
+
+    privileged: true,
+
+    dex_preopt: {
+        enabled: false,
+    },
+
+    required: ["allowed_privapp_com.android.car.settings"],
+
+    dxflags: ["--multi-dex"],
+
+    product_variables: {
+        pdk: {
+            enabled: false,
+        },
+    },
 }
