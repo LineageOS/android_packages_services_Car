@@ -213,7 +213,7 @@
     <item msgid="6902033473986647035">"Sistem qərar versin"</item>
   </string-array>
   <string-array name="app_ops_categories">
-    <item msgid="1102693344156734891">"Yer"</item>
+    <item msgid="1102693344156734891">"Məkan"</item>
     <item msgid="6842381562497597649">"Şəxsi"</item>
     <item msgid="3966700236695683444">"Mesajlaşma"</item>
     <item msgid="8563996233342430477">"Media"</item>
@@ -287,9 +287,9 @@
     <item msgid="6423861043647911030">"əlçatımlılıq dərəcəsi"</item>
   </string-array>
   <string-array name="app_ops_labels">
-    <item msgid="7892361636570580123">"Yer"</item>
-    <item msgid="6656077694190491067">"Yer"</item>
-    <item msgid="8790228218278477369">"Yer"</item>
+    <item msgid="7892361636570580123">"Məkan"</item>
+    <item msgid="6656077694190491067">"Məkan"</item>
+    <item msgid="8790228218278477369">"Məkan"</item>
     <item msgid="7836406246005211990">"Vibrasiya"</item>
     <item msgid="3951439024549922598">"Kontaktları oxuyun"</item>
     <item msgid="8802152411647068">"Kontaktları dəyişdirin"</item>
@@ -297,7 +297,7 @@
     <item msgid="7396102294405899613">"Zəng jurnalına dəyişiklik edin"</item>
     <item msgid="3597797992398484655">"Təqvim oxuyun"</item>
     <item msgid="2705975774250907343">"Təqvimə dəyişiklik edin"</item>
-    <item msgid="4668747371441932697">"Yer"</item>
+    <item msgid="4668747371441932697">"Məkan"</item>
     <item msgid="1487578921720243646">"Bildiriş göndərin"</item>
     <item msgid="4636080349724146638">"Məkan"</item>
     <item msgid="673510900286463926">"Telefon zəngi"</item>
@@ -329,7 +329,7 @@
     <item msgid="2311478519251301183">"Bluetooth həcmi"</item>
     <item msgid="5133991377896747027">"Oyaq saxla"</item>
     <item msgid="2464189519136248621">"Məkan"</item>
-    <item msgid="2062677934050803037">"Yer"</item>
+    <item msgid="2062677934050803037">"Məkan"</item>
     <item msgid="1735171933192715957">"İstifadə statistikasını əldə edin"</item>
     <item msgid="1014093788778383554">"Mikrofonu susdurun/susdurmayın"</item>
     <item msgid="4199297950608622850">"Tostu göstərin"</item>

@@ -478,7 +478,7 @@
   </string-array>
   <string-array name="wifi_privacy_entries">
     <item msgid="6545683814310036454">"Koristi nasumičnu MAC adresu (zadano)"</item>
-    <item msgid="214234417308375326">"Upotrijebite MAC uređaja"</item>
+    <item msgid="214234417308375326">"Koristi MAC adresu uređaja"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
     <item msgid="7426878022650940844">"Ne"</item>

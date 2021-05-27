@@ -477,7 +477,7 @@
     <item msgid="1008268820118852416">"Behandla som nätverk utan datapriser"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Använd slumpgenererad MAC-adress (standard)"</item>
+    <item msgid="6545683814310036454">"Slumpgenererad MAC-adress (standard)"</item>
     <item msgid="214234417308375326">"Använd enhetens MAC-adress"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
