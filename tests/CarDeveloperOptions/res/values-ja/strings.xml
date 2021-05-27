@@ -2813,8 +2813,8 @@
     <string name="trusted_credentials_disable_confirmation" msgid="643386483024801539">"システムのCA証明書を無効にしますか？"</string>
     <string name="trusted_credentials_remove_confirmation" msgid="3731678919848637342">"ユーザーのCA証明書を完全に削除しますか？"</string>
     <string name="credential_contains" msgid="483346955378412119">"この認証情報には以下が含まれています。"</string>
-    <string name="one_userkey" msgid="5349738921509013845">"ユーザーキー1個"</string>
-    <string name="one_usercrt" msgid="856282310586987313">"ユーザー証明書1件"</string>
+    <string name="one_userkey" msgid="5349738921509013845">"ユーザーキー 1 個"</string>
+    <string name="one_usercrt" msgid="856282310586987313">"ユーザー証明書 1 件"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"CA証明書1件"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"CA証明書%d件"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"認証情報の詳細"</string>

@@ -348,8 +348,8 @@
     <string name="time_picker_title" msgid="1596400307061268660">"အချိန်"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"အလိုအလျောက်လော့ခ်ချရန်"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> ပိတ်ပြီးနောက်"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> မှ ဆက်လက်ဖွင့်ထားသည် မှ လွဲ၍၊ အိပ်သည်နှင့် ချက်ချင်း"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> က သော့ဖွင့်ထားချိန်မှ လွဲပြီး <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> နားပြီးနောက်တွင်"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> မှ လော့ခ်ဆက်ဖွင့်ထားချိန်မှအပ နားလိုက်သည်နှင့် ချက်ချင်း"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> က လော့ခ်ဆက်ဖွင့်ထားချိန်မှအပ နားပြီးနောက် <xliff:g id="TIMEOUT_STRING">%1$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"သော့ခတ်ထားသောမျက်နှာပြင်ပေါ်ပိုင်ရှင်အကြောင်းပြရန်"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"လော့ခ်မျက်နှာပြင် မက်ဆေ့ဂျ်"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"ဝဒ်ဂျက်များဖွင့်ရန်"</string>
@@ -908,7 +908,7 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"သင်၏ရောက်တာက ကွန်ရက် ID ကို မထုတ်လွှင့်သော်လည်း နောင်တွင် ၎င်းကို ချိတ်ဆက်လိုလျှင် ကွန်ရက်ကို ဖျောက်ထားသည် အဖြစ် သတ်မှတ်နိုင်သည်။\n\nကွန်ရက်ကို ရှာဖွေရန် သင့်ဖုန်း၏ လိုင်းကို ပုံမှန်ထုတ်လွှင့်နေမည် ဖြစ်သည့်အတွက် ၎င်းသည် လုံခြုံရေး အန္တရာယ်ကို ဖြစ်ပေါ်စေနိုင်သည်။\n\nကွန်ရက်ကို ဖျောက်ထားသည် အဖြစ် သတ်မှတ်ခြင်းက သင်၏ရောက်တာ ဆက်တင်များကို ပြောင်းလဲမည် မဟုတ်ပါ။"</string>
     <string name="wifi_signal" msgid="696548364467704808">"ထုတ်လွင့်မှုအား"</string>
     <string name="wifi_status" msgid="3439931558930689940">"အခြေအနေ"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"ထုတ်လွှင့်မှု လင့်ခ်အမြန်နှုန်း"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"ထုတ်လွှင့်ခြင်း လင့်ခ်အမြန်နှုန်း"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"လက်ခံခြင်းလင့်ခ် အမြန်နှုန်း"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"လှိုင်းနှုန်း"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"အိုင်ပီလိပ်စာ"</string>
@@ -970,7 +970,7 @@
     <string name="wifi_unchanged" msgid="6804964646942333992">"(ပြောင်းလဲခြင်းမရှိ)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"ကျေးဇူးပြု၍ ရွေးချယ်ပါ"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(အသိမှတ်ပြုလက်မှတ်များ ပေါင်းထည့်ပြီးပါပြီ)"</string>
-    <string name="wifi_use_system_certs" msgid="4794489370929885022">"စနစ်ပိုင်း အသိအမှတ်ပြုလက်မှတ်များကို သုံးပါ"</string>
+    <string name="wifi_use_system_certs" msgid="4794489370929885022">"စနစ်လက်မှတ်များ သုံးပါ"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"မပေးထားပါ"</string>
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"အတည်မပြုပါ"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"အသိမှတ်ပြုလက်မှတ် သတ်မှတ်မထားပါ။ သင့်ချိတ်ဆက်မှု တသီးတသန့်ဖြစ်မည် မဟုတ်ပါ။"</string>
@@ -1038,7 +1038,7 @@
     <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="392977552691002076">"၀နှင့်၃၂အရှည်ရှိသော ကွန်ယက်အစပြုနံပတ်ကိုထည့်ပါ"</string>
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
-    <string name="wifi_gateway" msgid="7455334454444443397">"ဝင်ပေါက် (gateway)"</string>
+    <string name="wifi_gateway" msgid="7455334454444443397">"ဂိတ်ဝ"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"ကွန်ရက် အစပြုဂဏန်း၏အရှည်"</string>
     <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"တိုက်ရိုက် Wi-Fi"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"စက်ပိုင်းဆိုင်ရာအချက်အလက်"</string>
@@ -1267,19 +1267,19 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"အချိန်၊ အကြောင်းကြားချက်သင်္ကေတများနှင့် အခြားအချက်အလက်များကို ပြသပါ။ ဘက်ထရီအသုံးပြုမှု တိုးလာသည်။"</string>
     <string name="title_font_size" msgid="5021464556860010851">"စာလုံးအရွယ်အစား"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"စာလုံးကို ပိုကြီးအောင် သို့မဟုတ် ပိုသေးအောင်ပြုလုပ်ပါ"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"ဆင်းမ်ကဒ် လော့ခ်ဆက်တင်များ"</string>
-    <string name="sim_lock_settings_category" msgid="1126759898277681516">"ဆင်းမ်ကဒ် လော့ခ်"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"ဆင်းမ်ကတ် လော့ခ်ဆက်တင်များ"</string>
+    <string name="sim_lock_settings_category" msgid="1126759898277681516">"ဆင်းမ်ကတ် လော့ခ်"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"ပိတ်ထားသည်"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"လော့ခ်ချထားသည်"</string>
     <string name="sim_lock_settings_title" msgid="877336472752342977">"ဆင်းကဒ် သော့ချခြင်း"</string>
-    <string name="sim_pin_toggle" msgid="2026507420678167488">"ဆင်းမ်ကဒ် လော့ခ်ချခြင်း"</string>
+    <string name="sim_pin_toggle" msgid="2026507420678167488">"ဆင်းမ်ကတ် လော့ခ်ချခြင်း"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"တက်ဘလက်ကိုအသုံးပြုရန် ပင်နံပါတ်လိုအပ်သည်"</string>
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"ဖုန်းကိုအသုံးပြုရန် ပင်နံပါတ်လိုအပ်သည်"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"တက်ဘလက်ကိုအသုံးပြုရန် ပင်နံပါတ်လိုအပ်သည်"</string>
     <string name="sim_lock_off" product="default" msgid="5873747770983496755">"ဖုန်းကိုအသုံးပြုရန် ပင်နံပါတ်လိုအပ်သည်"</string>
-    <string name="sim_pin_change" msgid="5615972926944053213">"ဆင်းမ်ကဒ် ပင်နံပါတ်ပြောင်းရန်"</string>
+    <string name="sim_pin_change" msgid="5615972926944053213">"ဆင်းမ်ကတ် ပင်နံပါတ်ပြောင်းရန်"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"ဆင်းကဒ် ပင်နံပါတ်"</string>
-    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"ဆင်းမ်ကဒ် လော့ခ်ချခြင်း"</string>
+    <string name="sim_enable_sim_lock" msgid="4478794975656337476">"ဆင်းမ်ကတ် လော့ခ်ချခြင်း"</string>
     <string name="sim_disable_sim_lock" msgid="394864376519820956">"ဆင်းမ်ကဒ်ကို သော့ဖွင့်ရန်"</string>
     <string name="sim_enter_old" msgid="8984991229691526849">"ဆင်းကဒ် ပင်နံပါတ်အဟောင်း"</string>
     <string name="sim_enter_new" msgid="1720792957661107585">"ဆင်းကဒ် ပင်နံပါတ် အသစ်"</string>
@@ -1301,12 +1301,12 @@
     <string name="sim_change_data_ok" msgid="7491552537317573235">"<xliff:g id="CARRIER">%1$s</xliff:g> သုံးရန်"</string>
     <string name="sim_preferred_title" msgid="3389680276182899407">"SIM ကဒ်ကို အပ်ဒိတ်လုပ်မလား"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"<xliff:g id="NEW_SIM">%1$s</xliff:g> သည် သင့်ဖုန်းထဲရှိ တစ်ခုတည်းသော ဆင်းမ်ကဒ်ဖြစ်သည်။ ဤဆင်းမ်ကဒ်ကို မိုဘိုင်းဒေတာ အသုံးပြုရန်၊ ဖုန်းခေါ်ရန်နှင့် SMS မက်ဆေ့ဂျ်ပို့ရန် အတွက် အသုံးပြုလိုပါသလား။"</string>
-    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"ဆင်းမ်ကဒ်၏ လျှို့ဝှက်နံပါတ် မှားနေပါသည်၊ သင်၏ စက်ပစ္စည်းကို သော့ဖွင့်ရန် ဖုန်းလိုင်းဌာနသို့ ဆက်သွယ်ရမည် ဖြစ်ပါတယ်"</string>
+    <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"ဆင်းမ်ကတ်၏ လျှို့ဝှက်နံပါတ် မှားနေပါသည်၊ သင်၏ စက်ပစ္စည်းကို သော့ဖွင့်ရန် ဖုန်းလိုင်းဌာနသို့ ဆက်သွယ်ရမည် ဖြစ်ပါတယ်"</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
-      <item quantity="other">ဆင်းမ်ကဒ်၏ ပင်နံပါတ် မှားနေပါသည်၊ သင့်တွင် <xliff:g id="NUMBER_1">%d</xliff:g> ခါ ကြိုးစားခွင့် ကျန်ပါသေးသည်။</item>
-      <item quantity="one">ဆင်းမ်ကဒ်၏ ပင်နံပါတ် မှားနေပါသည်၊ သင့်ကိရိယာကို ဖွင့်ရန်  မိုဘိုင်းဖုန်းဆက်သွယ်ရေးဝန်ဆောင်မှုဌာနသို့ မဆက်သွယ်မီ သင့်တွင် <xliff:g id="NUMBER_0">%d</xliff:g>  ခါ ကြိုးစားခွင့် ကျန်ပါသေးသည်။</item>
+      <item quantity="other">ဆင်းမ်ကတ်၏ ပင်နံပါတ် မှားနေပါသည်၊ သင့်တွင် <xliff:g id="NUMBER_1">%d</xliff:g> ခါ ကြိုးစားခွင့် ကျန်ပါသေးသည်။</item>
+      <item quantity="one">ဆင်းမ်ကတ်၏ ပင်နံပါတ် မှားနေပါသည်၊ သင့်ကိရိယာကို ဖွင့်ရန်  မိုဘိုင်းဖုန်းဆက်သွယ်ရေးဝန်ဆောင်မှုဌာနသို့ မဆက်သွယ်မီ သင့်တွင် <xliff:g id="NUMBER_0">%d</xliff:g>  ခါ ကြိုးစားခွင့် ကျန်ပါသေးသည်။</item>
     </plurals>
-    <string name="pin_failed" msgid="4877356137480446727">"ဆင်းမ်ကဒ် ပင်လုပ်ငန်းဆောင်ရွက်မှု မအောင်မြင်ပါ!"</string>
+    <string name="pin_failed" msgid="4877356137480446727">"ဆင်းမ်ကတ် ပင်လုပ်ငန်းဆောင်ရွက်မှု မအောင်မြင်ပါ!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"စနစ်အားတိုးမြင့်ခြင်း"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
     <string name="firmware_version" msgid="547095584029938749">"Android ဗားရှင်း"</string>
@@ -1768,7 +1768,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"ပရိုဖိုင်ပုံစံ မြင်နိုင်အောင်ပြုလုပ်ပါ"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"တို့လျှင် တုန်ခါပါ"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"မီးခလုတ်ဖြင့် ပိတ်ရန်"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>က သော့ဖွင့်ထားချိန်မှ လွဲပြီး"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"<xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>က လော့ခ်ဆက်ဖွင့်ထားချိန်မှအပ"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"သော့ဖွင့်ရန်ပုံဖော်မှုအား သတ်မှတ်မည်"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"သော့ဖွင့်ရန်ပုံဖော်မှုအား ပြောင်းမည်"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"သော့ဖွင့်ရန်ပုံဖော်ခြင်းအား မည်ကဲ့သို့ဆွဲရမည်"</string>
@@ -2449,7 +2449,7 @@
     <string name="battery_saver" msgid="3989710213758938398">"ဘက်ထရီ အားထိန်း"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"အလိုအလျောက် ဖွင့်ရန်"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"အချိန်ဇယား မရှိပါ"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"သင်၏ လုပ်ရိုးလုပ်စဉ်အပေါ် အခြေခံထားသည်"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"သင့်ပုံမှန်လုပ်ရပ်ပေါ် အခြေခံသည်"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"ရာခိုင်နှုန်းအပေါ် အခြေခံထားသည်"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"နောက်တစ်ကြိမ် ပုံမှန် အားသွင်းခြင်းမပြုမီ သင့်ဘက်ထရီ အားကုန်ခါနီးတွင် \'ဘက်ထရီ အားထိန်း\' ကို ဖွင့်ပေးသည်"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> တွင် ဖွင့်ပါမည်"</string>
@@ -2922,7 +2922,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"မူရင်းသတ်မှတ်ချက် သုံးရန်"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"အမြဲတမ်း"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"အခြား ငွေပေးချေရေး အက်ပ်ပွင့်နေချိန်မှ လွဲပြီး"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"အခြား ငွေပေးချေရေး အက်ပ်ပွင့်နေချိန်မှအပ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"တို့ထိပြီးပေးရန် နေရာတွင် အောက်ပါနည်းဖြင့် ပေးပါ-"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ငွေချေစက်တွင် ငွေပေးချေခြင်း"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ငွေပေးချေရေး အက်ပ်ကို သတ်မှတ်ပါ။ ၎င်းနောက် သင့်ဖုန်း၏ ကျောဘက်ကို ချိတ်ဆက်ရန် မလိုသင်္ကေတပါ ငွေချေစက် တစ်ခုဆီသို့ ကပ်လိုက်ပါ။"</string>
@@ -2999,7 +2999,7 @@
     <string name="select_sim_for_calls" msgid="131091573472832807">"ဖြင့် ခေါ်ဆိုရန်"</string>
     <string name="sim_select_card" msgid="5558215843972182767">"ဆင်းမ် ကဒ်ကို ရွေးရန်"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"ဆင်းမ် <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
-    <string name="sim_slot_empty" msgid="2710430326225678239">"ဆင်းမ်ကဒ် မရှိ"</string>
+    <string name="sim_slot_empty" msgid="2710430326225678239">"ဆင်းမ်ကတ် မရှိ"</string>
     <string name="sim_editor_name" msgid="3367549287943555967">"ဆင်းမ် အမည်"</string>
     <string name="sim_name_hint" msgid="4462143545744872744">"ဆင်းမ်အမည် ရိုက်ထည့်ပါ"</string>
     <string name="sim_editor_title" msgid="2303147682835318920">"ဆင်းမ် အထိုင် %1$d"</string>
@@ -3020,7 +3020,7 @@
     <string name="preferred_network_offload_footer" msgid="7454087782004987490">"ကွန်ရက် အမည် ထုတ်လွှင့်မှု ပိတ်ထားမှုက သင်၏ ကွန်ရက် အချက်အလက်များကို အခြားသူတို့မှ ရယူများမှ ကာကွယ်ပေးသည်။"</string>
     <string name="preferred_network_offload_popup" msgid="204626698006378960">"ကွန်ရက် အမည် ထုတ်လွှင့်မှု ပိတ်ထားမှုက ဝှက်ထားသည့် ကွန်ရက်များသို့ အလိုအလျောက် ချိတ်ဆက်မှုကို ဟန့်တားပေးမည်။"</string>
     <string name="sim_signal_strength" msgid="6426261068520364170">"<xliff:g id="DBM">%1$d</xliff:g> dBm <xliff:g id="ASU">%2$d</xliff:g> asu"</string>
-    <string name="sim_notification_title" msgid="2457890173055955672">"ဆင်းမ်ကဒ် ပြောင်းပြီးဖြစ်၏။"</string>
+    <string name="sim_notification_title" msgid="2457890173055955672">"ဆင်းမ်ကတ် ပြောင်းပြီးဖြစ်၏။"</string>
     <string name="sim_notification_summary" msgid="6421556454979313850">"တပ်ဆင်ရန်တို့ပါ"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"အတွက် ဦးစားပေး ဆင်းမ်"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"အကြိမ်တိုင်းမှာ မေးရန်"</string>

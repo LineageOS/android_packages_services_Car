@@ -3002,7 +3002,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Použiť predvolenú"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Vždy"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Okrem prípadov, keď je spustená iná platobná aplikácia"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Iba keď nie je spustená iná platobná aplikácia"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Aplikácia na platby mobilom"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Platenie pri termináli"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Nastavte si platobnú aplikáciu. Potom iba priložte zadnú časť vášho telefónu k akémukoľvek terminálu so symbolom pre bezkontaktné platby."</string>

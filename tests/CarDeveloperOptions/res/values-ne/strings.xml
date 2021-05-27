@@ -105,7 +105,7 @@
     <string name="bluetooth_profile_details" msgid="1785505059738682493">"प्रोफाइल सेटिङहरू"</string>
     <string name="bluetooth_name_not_set" msgid="1886067683138385142">"नाम सेट गरिएको छैन, खाता नाम प्रयोग गर्दै"</string>
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"उपकरणहरूको लागि स्क्यान गर्नुहोस्"</string>
-    <string name="bluetooth_rename_device" msgid="7862992396452800566">"यस उपकरण पुन:नामाकरण गर्नुहोस्"</string>
+    <string name="bluetooth_rename_device" msgid="7862992396452800566">"यो डिभाइसको नाम बदल्नुहोस्"</string>
     <string name="bluetooth_rename_button" msgid="8946904845821073267">"पुनःनामाकरण गर्नुहोस्"</string>
     <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"यन्त्र विच्छेद गर्ने हो?"</string>
     <string name="bluetooth_disconnect_all_profiles" product="default" msgid="8920448151607060442">"तपाईंको फोन <xliff:g id="DEVICE_NAME">%1$s</xliff:g> बाट विच्छेद हुनेछ।"</string>
@@ -174,8 +174,8 @@
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_message" msgid="4837282201316413412">"यो सेटिङ परिवर्तन गर्न तपाईंले आफ्नो यन्त्र पुनः सुरु गर्नु पर्छ।"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_confirm" msgid="9066883770039735632">"पुन: सुरु गर्नु…"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_cancel" msgid="116355977067301404">"रद्द गर्नु…"</string>
-    <string name="connected_device_available_media_title" msgid="9126345752002774342">"मिडियासम्बन्धी सुविधा भएका उपलब्ध यन्त्रहरू"</string>
-    <string name="connected_device_available_call_title" msgid="6774859446815858428">"कल गर्ने सुविधा भएका उपलब्ध यन्त्रहरू"</string>
+    <string name="connected_device_available_media_title" msgid="9126345752002774342">"मिडियासम्बन्धी सुविधा भएका उपलब्ध डिभाइस"</string>
+    <string name="connected_device_available_call_title" msgid="6774859446815858428">"कल गर्ने सुविधा भएका उपलब्ध डिभाइस"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"हाल जडान अवस्थामा छ"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"सुरक्षित गरिएका यन्त्रहरू"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"जोडा बनाउनका लागि ब्लुटुथ सक्रिय हुने छ"</string>
@@ -755,28 +755,28 @@
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"फोन पुस्तिका साझेदारी गर्नुहुन्छ?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> तपाईँका सबै सम्पर्कहरू र कल इतिहासहरूमा पहुँच गर्न चाहन्छ।"</string>
     <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ब्लुटुथसँग जोडी गर्न चाहन्छ। जडान भएपछि, यसको तपाईँको सम्पर्कहरू र कल इतिहासमा पहुँच हुने छ।"</string>
-    <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"उपलब्ध यन्त्रहरू"</string>
+    <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"उपलब्ध डिभाइस"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"कुनै उपकरण उपलब्ध छैन"</string>
-    <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"जडान गर्नुहोस्"</string>
+    <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_device_context_disconnect" msgid="8085015949275771802">"डिस्कनेक्ट गर्नुहोस्"</string>
-    <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"जोडी पार्नुहोस् र जडान गर्नुहोस्"</string>
+    <string name="bluetooth_device_context_pair_connect" msgid="1503322591778810032">"जोडी पार्नुहोस् र कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_device_context_unpair" msgid="250588431708253041">"जोडा हटाउनुहोस्"</string>
     <string name="bluetooth_device_context_disconnect_unpair" msgid="4519151805677280077">"विच्छेन र नजोडिएको"</string>
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"विकल्पहरू..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"जटिल"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"जटिल ब्लुटुथ"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लुटुथ खोलेको बेला तपाईँको उपकरणले नजिकैका अन्य ब्लुटुथ उपकरणहरूसँग संचार गर्न सक्छन्।"</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लुटुथ अन हुँदा तपाईंको डिभाइस नजिकैका अन्य ब्लुटुथ डिभाइससँग कनेक्ट हुन सक्छ"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ब्लुटुथ सक्रिय गरिएको बेला तपाईंको यन्त्र वरपरका अन्य ब्लुटुथ यन्त्रहरूसँग सञ्चार गर्न सक्नुहुन्छ।, \n\nअनुभवमा सुधार गर्न एप तथा सेवाहरू अझै पनि जुनसुकै बेला (ब्लुटुथ निष्क्रिय भएको बेलामा पनि) वरपरका यन्त्रहरू स्क्यान गर्न सक्छन्। यसलाई लोकेसनमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नका लागि प्रयोग गर्न सकिन्छ। तपाईं "<annotation id="link">"स्क्यानिङसम्बन्धी सेटिङहरू"</annotation>" मा गई यसलाई परिवर्तन गर्न सक्नुहुन्छ।"</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"स्थान पहिचान सामर्थ्यतामा सुधार गर्न, प्रणाली एपहरू र सेवाहरूले अझै पनि ब्लुटुथ यन्त्रहरूलाई पहिचान गर्न सक्छन्। तपाईँले यसलाई  <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g> स्क्यानिङ सेटिङहरू <xliff:g id="LINK_END_1">LINK_END</xliff:g> मा परिवर्तन गर्न सक्नुहुन्छ।"</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"जडान गर्न सकिएन। फेरि प्रयास गर्नुहोस्।"</string>
-    <string name="device_details_title" msgid="726517818032923222">"यन्त्रसम्बन्धी विवरणहरू"</string>
+    <string name="device_details_title" msgid="726517818032923222">"डिभाइसको विवरण"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"यन्त्रको ब्लुटुथ एड्रेस: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"डिभाइस बिर्सने हो?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"तपाईंको यन्त्रलाई अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग जोडा बनाइने छैन।"</string>
-    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"तपाईंको ट्याब्लेटलाई अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग जोडा बनाइने छैन"</string>
-    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"तपाईंको यन्त्रलाई अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग जोडा बनाइने छैन"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"तपाईंको डिभाएस अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग कनेक्ट गरिने छैन।"</string>
+    <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"तपाईंको ट्याब्लेटलाई अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग कनेक्ट गरिने छैन"</string>
+    <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"तपाईंको डिभाएस अब उप्रान्त <xliff:g id="DEVICE_NAME">%1$s</xliff:g> सँग कनेक्ट गरिने छैन"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"डिभाइस बिर्सनुहोस्"</string>
-    <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"सँग जडान गर्नुहोस् ..."</string>
+    <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"सँग कनेक्ट गर्नुहोस् ..."</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> मिडिया अडियोबाट जडान हटाइने छ।"</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ह्यान्ड फ्रि अडियोबाट विच्छेन गरिने छ।"</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> इनपुट उपकरणबाट जडान हटाइने छ।"</string>
@@ -784,8 +784,8 @@
     <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस ट्याब्लेटको इन्टरनेट जडान साझा गर्नबाट विच्छेद गरिनेछ।"</string>
     <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस फोनको इन्टरनेट जडान सेझेदारी गर्नबाट विच्छेद गरिनेछ।"</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"जोडा ब्लुटुथ उपकरण"</string>
-    <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"जडान गर्नुहोस्"</string>
-    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"ब्लुटुथ उपकरणसँग जडान गर्नुहोस्"</string>
+    <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"कनेक्ट गर्नुहोस्"</string>
+    <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"ब्लुटुथ उपकरणसँग कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"निम्नको लागि प्रयोग"</string>
     <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"पुनःनामाकरण गर्नुहोस्"</string>
     <string name="bluetooth_device_advanced_enable_opp_title" msgid="8258863155491651198">"आगमन फाइल स्थानान्तरणहरूलाई अनुमति दिनुहोस्।"</string>
@@ -849,14 +849,14 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"खुला नेटवर्क सम्बन्धी  सूचना"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"उच्च गुणस्तरको सार्वजनिक नेटवर्क उपलब्ध हुँदा सूचित गराउनुहोस्"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fi स्वत: अन गरियोस्"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"तपाईंको घरको नेटवर्क जस्ता सेभ गरिएका उच्च गुणस्तरका नेटवर्कहरू नजिक हुँदा Wi‑Fi अन हुने छ"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"घरको नेटवर्क जस्ता सेभ गरिएका उच्च गुणस्तरका नेटवर्कहरू नजिक हुँदा Wi‑Fi आफैँ अन होस्"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"स्थान निष्क्रिय पारिएको हुनाले उपलब्ध छैन। "<annotation id="link">"स्थान"</annotation>" सक्रिय गर्नुहोस्।"</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Wi‑Fi स्क्यान गर्ने सेवालाई निष्क्रिय पारिएको हुनाले Wi-Fi वेकअप विकल्प उपलब्ध छैन"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"प्रयोग गर्न कुनै नेटवर्क मूल्याङ्कनसम्बन्धी प्रदायक चयन गर्नुहोस्"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"कमजोर जडान त्याग्नुहोस्"</string>
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"Wi-Fi नेटवर्कमा राम्रो इन्टरनेट जडान उपलब्ध नभएसम्म प्रयोग नगर्नुहोस्"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"राम्रो इन्टरनेट जडान हुने नेटवर्क मात्र प्रयोग गर्नुहोस्"</string>
-    <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"खुला नेटवर्कहरूमा जडान गर्नुहोस्"</string>
+    <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"खुला नेटवर्कहरूमा कनेक्ट गर्नुहोस्"</string>
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"द्रूत इन्टरनेट भएका सार्वजनिक नेटवर्कहरूमा स्वतः कनेक्ट गरियोस्"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"प्रयोग गर्न कुनै नेटवर्क मूल्याङ्कनसम्बन्धी प्रदायक चयन गर्नुहोस्"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"प्रयेाग गर्न कुनै उपयुक्त नेटवर्क मूल्याङ्कनसम्बन्धी प्रदायक चयन गर्नुहोस्"</string>
@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"गोपनीयता"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"क्रमरहित MAC"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"डिभाइस थप्नुहोस्"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"उक्त डिभाइसलाई “<xliff:g id="SSID">%1$s</xliff:g>” मा थप्न तलको QR कोडलाई मध्य भागमा पार्नुहोस्"</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"डिभाइस “<xliff:g id="SSID">%1$s</xliff:g>” मा कनेक्ट गर्न तलको QR कोड मध्य भागमा पार्नुहोस्"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR कोड स्क्यान गर्नुहोस्"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>” मा जडान गर्न तलको QR कोडलाई मध्य भागमा राख्नुहोस्"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">" Wi‑Fi जोड्न QR कोड स्क्यान गर्नुहोस्"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">" QR कोड स्क्यान गरेर Wi‑Fi मा कनेक्ट गर्नुहोस्"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi सेयर गर्नुहोस्"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"“<xliff:g id="SSID">%1$s</xliff:g>” मा कनेक्ट गर्न र पासवर्ड सेयर गर्न यो QR कोड स्क्यान गर्नुहोस्"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"“<xliff:g id="SSID">%1$s</xliff:g>” मा जडान गर्न QR कोड स्क्यान गर्नुहोस्"</string>
@@ -970,7 +970,7 @@
     <string name="wifi_unchanged" msgid="6804964646942333992">"(अपरिवर्तित)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"कृपया चयन गर्नुहोस्"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(बहु प्रमाणपत्रहरू थपिए)"</string>
-    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम सर्टिफिकेटहरू प्रयोग गर्नुहोस्"</string>
+    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टमका सर्टिफिकेट प्रयोग गरियोस्"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"प्रदान नगर्नुहोस्"</string>
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"प्रमाणित नगर्नुहोस्"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"कुनै प्रमाणपत्र निर्दिष्ट गरिएको छैन। तपाईंको जडान निजी हुने छैन।"</string>
@@ -979,7 +979,7 @@
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS उपलब्ध छ"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS उपलब्ध)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"सेवा प्रदायकको Wi‑Fi नेटवर्क"</string>
-    <string name="wifi_carrier_content" msgid="3467402515071949783">"<xliff:g id="NAME">%1$s</xliff:g> मार्फत जडान गर्नुहोस्"</string>
+    <string name="wifi_carrier_content" msgid="3467402515071949783">"<xliff:g id="NAME">%1$s</xliff:g> मार्फत कनेक्ट गर्नुहोस्"</string>
     <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"स्थान सटिकता सुधार गर्न र अन्य प्रायोजनहरूको लागि, <xliff:g id="APP_NAME">%1$s</xliff:g> नेटवर्क स्क्यानिङ खुला भएको चाहन्छ, Wi-Fi बन्द भएता पनि।\n\nके यसलाई सबै अनुप्रयोगहरूको लागि अनुमति दिन चाहनुहुन्छ जसले स्क्यान गर्न चाहन्छन्?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"यो बन्द गर्न, अतिप्रवाह मेनुमा उन्नतमा जानुहोस्।"</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"अनुमति दिनुहोस्"</string>
@@ -995,7 +995,7 @@
     <string name="lost_internet_access_switch" msgid="9218006455779873700">"मोबाइलमा स्विच गर्नुहोस्"</string>
     <string name="lost_internet_access_cancel" msgid="6577871064062518744">"Wi‑Fi मा कायम रहनुहोस्"</string>
     <string name="lost_internet_access_persist" msgid="6368659013482055611">"फेरि कहिल्यै नदेखाउनुहोस्"</string>
-    <string name="wifi_connect" msgid="5653612760223533650">"जडान गर्नुहोस्"</string>
+    <string name="wifi_connect" msgid="5653612760223533650">"कनेक्ट गर्नुहोस्"</string>
     <string name="wifi_turned_on_message" msgid="3377779146238242894">"Wi-Fi सक्रिय गरियो"</string>
     <!-- no translation found for wifi_connected_to_message (2875589636437599620) -->
     <skip />
@@ -1023,7 +1023,7 @@
     <string name="wifi_details_title" msgid="2164042631550920157">"नेटवर्कको विवरण"</string>
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"सबनेट मास्क"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
-    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 ठेगानाहरू"</string>
+    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 एड्रेसहरू"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"सेभ गरिएका नेटवर्कहरू"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"सदस्यताहरू"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
@@ -1068,7 +1068,7 @@
     <string name="wifi_hotspot_password_title" msgid="4289338152595154889">"हटस्पटको पासवर्ड"</string>
     <string name="wifi_hotspot_ap_band_title" msgid="3485744480410441949">"AP ब्यान्ड"</string>
     <string name="wifi_hotspot_footer_info_regular" msgid="3876006922622827363">"आफ्ना अन्य यन्त्रहरूका लागि Wi‑Fi नेटवर्क सिर्जना गर्न हटस्पट प्रयोग गर्नुहोस्। हटस्पटले तपाईंको मोबाइल डेटा जडान प्रयोग गरेर इन्टरनेट प्रदान गर्दछ। अतिरिक्त मोबाइल डेटाको शुल्क लाग्न सक्छ।"</string>
-    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"एपहरूले नजिकैका यन्त्रहरूसँग सामग्री आदान प्रदान गर्न एउटा हटस्पट सिर्जना गर्न सक्छन्।"</string>
+    <string name="wifi_hotspot_footer_info_local_only" msgid="3339582350894639261">"एपहरूले नजिकैका डिभाइससँग सामग्री आदान प्रदान गर्न एउटा हटस्पट सिर्जना गर्न सक्छन्।"</string>
     <string name="wifi_hotspot_auto_off_title" msgid="7416022590415189590">"स्वतः Wi‑Fi हटस्पट अफ गर्नुहोस्"</string>
     <string name="wifi_hotspot_auto_off_summary" msgid="3866769400624802105">"कुनै पनि यन्त्र जडान नहुँदा Wi‑Fi हटस्पट स्वतः निष्क्रिय हुनेछ"</string>
     <string name="wifi_tether_starting" msgid="7676952148471297900">"हटस्पट खुल्दै..."</string>
@@ -1420,7 +1420,7 @@
     <string name="storage_menu_free" msgid="6586253660759145508">"ठाउँ खाली गर्नुहोस्"</string>
     <string name="storage_menu_manage" msgid="461380717863926516">"भण्डारणको व्यवस्थापन गर्नुहोस्"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"USB कम्प्युटर जडान"</string>
-    <string name="usb_connection_category" msgid="2888975803638116041">"यस रूपमा जडान गर्नुहोस्"</string>
+    <string name="usb_connection_category" msgid="2888975803638116041">"यस रूपमा कनेक्ट गर्नुहोस्"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"मिडिया उपकरण (MTP)"</string>
     <string name="usb_mtp_summary" msgid="4427354560399094322">"तपाईँलाई विन्डोजमा मिडिया फाइलहरू सार्न वा म्याकमा एन्ड्रोइड फाइल सार्न अनुमति दिन्छ (हेर्नुहोस् (www.android.com/filetransfer)"</string>
     <string name="usb_ptp_title" msgid="6629335976394685361">"क्यामेरा (PTP)"</string>
@@ -1621,15 +1621,15 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"डेटा सेभर अन हुँदा टेदरिङ वा पोर्टेबल हटस्पटहरूको प्रयोग गर्न सक्दैन"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB टेदरिङ"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"USB मार्फत फोनको इन्टरनेट सेयर गर्नुहोस्"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"USB मार्फत फोनको इन्टरनेट सेयर गरियोस्"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"USB मार्फत ट्याब्लेटको इन्टरनेट जडान साझा गर्नुहोस्"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"ब्लुटुथ टेदर गर्दै"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"ब्लुटुथमार्फत ट्याब्लेटको इन्टरनेट जडान सझा गर्नुहोस्‌"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"ब्लुटुथमार्फत फोनको इन्टरनेट सेयर गर्नुहोस्‌"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"ब्लुटुथमार्फत फोनको इन्टरनेट सेयर गरियोस्‌"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"ब्लुटुथमार्फत यो <xliff:g id="DEVICE_NAME">%1$d</xliff:g> को इन्टरनेट जडान साझा गर्दै"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"<xliff:g id="MAXCONNECTION">%1$d</xliff:g> उपकरणहरूभन्दा बढीसँग टेदर गर्न सक्दैन।"</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> अनटेथर गरिने छ।"</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"आफ्नो मोबाइल डेटा जडानमार्फत अन्य यन्त्रहरूलाई इन्टरनेट उपलब्ध गराउन हटस्पट र टेदरिङ प्रयोग गर्नुहोस्। नजिकैका यन्त्रहरूसँग सामग्री आदान प्रदान गर्नाका निम्ति एपहरूले हटस्पट सिर्जना गर्न पनि सक्छन्।"</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"आफ्नो मोबाइल डेटा जडानमार्फत अन्य यन्त्रहरूलाई इन्टरनेट उपलब्ध गराउन हटस्पट र टेदरिङ प्रयोग गर्नुहोस्। नजिकैका डिभाइससँग सामग्री आदान प्रदान गर्नाका निम्ति एपहरूले हटस्पट सिर्जना गर्न पनि सक्छन्।"</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"मद्दत"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"मोबाइल नेटवर्क"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"मोबाईल योजना"</string>
@@ -2328,8 +2328,8 @@
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"ब्याट्री म्यानेजरले एपहरूले ब्याट्री खर्च गरिरहेको कुरा पत्ता लगायो भने तपाईं ती एपहरूलाई प्रतिबन्धित गर्न सक्नुहुन्छ। प्रतिबन्धित एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आउन ढिलाइ हुन सक्छ।"</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"प्रतिबन्धित एपहरू"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
-      <item quantity="other">ब्याट्रीको खपत %1$d एपहरूमा सीमित पार्दै</item>
-      <item quantity="one">ब्याट्रीको खपत %1$d एपहरूमा सीमित पार्दै</item>
+      <item quantity="other">%1$d एपलाई मात्र ब्याट्री खपत गर्न दिँइदै छ</item>
+      <item quantity="one">%1$d एपलाई मात्र ब्याट्री खपत गर्न दिँइदै छ</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> बजे बन्देज लगाइएको"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"यी एपहरूले ब्याकग्राउन्डमा ब्याट्री प्रयोग गरिरहेका छन्‌। प्रतिबन्ध लगाइएका एपहरूले सही किसिमले काम नगर्न सक्छन् र सूचनाहरू आइपुग्न ढिलाइ हुन सक्छ।"</string>
@@ -2767,7 +2767,7 @@
     <string name="vpn_cancel" msgid="440645172381062337">"रद्द गर्नुहोस्"</string>
     <string name="vpn_done" msgid="6314426362224527349">"खारेज गर्नुहोस्"</string>
     <string name="vpn_save" msgid="1332625259182278316">"सेभ गर्नुहोस्"</string>
-    <string name="vpn_connect" msgid="772295154834334710">"जडान गर्नुहोस्"</string>
+    <string name="vpn_connect" msgid="772295154834334710">"कनेक्ट गर्नुहोस्"</string>
     <string name="vpn_replace" msgid="7818130465019803404">"प्रतिस्थापन गर्नुहोस्"</string>
     <string name="vpn_edit" msgid="7284861108584255618">"VPN प्रोफाइल सम्पादन गर्नुहोस्"</string>
     <string name="vpn_forget" msgid="7662717604542624887">"बिर्सनुहोस्"</string>
@@ -2920,12 +2920,12 @@
     <string name="nfc_payment_default" msgid="7869273092463612271">"डिफल्ट भुक्तानी विधि"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"सेट गरिएको छैन"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"डिफल्ट प्रयोग गर्नुहोस्"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"डिफल्ट विधि प्रयोग गरियोस्"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"सधैँ"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"अर्को भुक्तानी एप खुला भएको बेला बाहेक"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"अर्को भुक्तानी एप खुला नभएको अवस्थामा"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ट्याप गरेर भुक्तानी गर्ने टर्मिनलमा यसमार्फत भुक्तानी गर्नुहोस्:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"टर्मिनलमा भुक्तानी"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"एउटा भुक्तानी एप सेटअप गर्नुहोस्। त्यसपछि आफ्नो फोनको पछाडिको भाग कन्ट्याक्टलेस सङ्केतभएको कुनै टर्मिनलले पहिचान गर्ने गरी होल्ड गर्नुहोस्।"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"टर्मिनलमा भुक्तानी गर्ने तरिका"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"कुनै भुक्तानी एप सेटअप गर्नुहोस् र कन्ट्याक्टलेस सङ्केत भएको टर्मिनलले पहिचान गर्ने गरी आफ्नो फोनको पछाडिको भाग होल्ड गर्नुहोस्।"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"बुझेँ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"थप..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"तपाईँको प्राथमिकताको रूपमा सेट गर्ने हो?"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"अस्वीकार गर्नुहोस्"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"डेटा ट्रान्सफर नगरियोस्"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"केवल यो डिभाइस चार्ज गर्नुहोस्"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"कनेक्ट गरिएको डिभाइस चार्ज गर्नुहोस्‌"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"कनेक्ट गरिएको डिभाइस चार्ज गरियोस्‌"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"फाइल स्थानान्तरण"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"फाइलहरूलाई अर्को डिभाइसमा स्थानान्तरण गर्नुहोस्"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3736,9 +3736,9 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"USB टेदरिङ"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"यस यन्त्रलाई MIDI को रूपमा प्रयोग गर्नुहोस्"</string>
-    <string name="usb_use" msgid="8940500223316278632">"निम्न सेवाका लागि USB प्रयोग गर्नुहोस्"</string>
+    <string name="usb_use" msgid="8940500223316278632">"निम्न सेवाका लागि USB प्रयोग गरियोस्"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"USB को डिफल्ट कन्फिगरेसन"</string>
-    <string name="usb_default_info" msgid="953775292571786528">"अर्को यन्त्र जडान भएको र तपाईंको फोन अनलक भएको खण्डमा यी सेटिङहरू लागू हुने छन्‌। विश्वसनीय यन्त्रहरूमा मात्र जडान गर्नुहोस्‌।"</string>
+    <string name="usb_default_info" msgid="953775292571786528">"अर्को यन्त्र जडान भएको र तपाईंको फोन अनलक भएको खण्डमा यी सेटिङहरू लागू हुने छन्‌। विश्वसनीय यन्त्रहरूमा मात्र कनेक्ट गर्नुहोस्‌।"</string>
     <string name="usb_pref" msgid="6194821550693495068">"USB"</string>
     <string name="usb_preference" msgid="7092987095048592826">"USB का प्राथमिकताहरू"</string>
     <string name="usb_control_title" msgid="2379698856760894768">"निम्नमध्ये USB नियन्त्रण गर्ने चिज"</string>
@@ -3888,7 +3888,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"देखाउनुहोस्"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"लुकाउनुहोस्"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"हटस्पट अन छ"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"हवाइजहाज मोड खुला छ"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"हवाइजहाज मोड अन छ"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"नेटवर्क उपलब्ध छैन"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"बाधा नपुर्‍याउनुहोस् सक्रिय छ"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"फोन म्युट गरियो"</string>
@@ -4144,8 +4144,8 @@
     <string name="gesture_setting_on" msgid="7573680730101327866">"सक्रिय"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"निष्क्रिय"</string>
     <string name="oem_unlock_enable_disabled_summary_bootloader_unlocked" msgid="7233244080078311793">"बुटलोडर पहिले नै अनलक गरिएको छ"</string>
-    <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"पहिले इन्टरनेटमा जडान गर्नुहोस्"</string>
-    <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"इन्टरनेटमा जडान गर्नुहोस् वा आफ्नो सेवा प्रदायकलाई सम्पर्क गर्नु"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity" msgid="262986780389836168">"पहिले इन्टरनेटमा कनेक्ट गर्नुहोस्"</string>
+    <string name="oem_unlock_enable_disabled_summary_connectivity_or_locked" msgid="3331374502670483142">"इन्टरनेटमा कनेक्ट गर्नुहोस् वा आफ्नो सेवा प्रदायकलाई सम्पर्क गर्नु"</string>
     <string name="oem_unlock_enable_disabled_summary_sim_locked_device" msgid="5223278198179877704">"वाहकद्वारा लक गरिएका यन्त्रहरूमा उपलब्ध छैन"</string>
     <string name="oem_lock_info_message" msgid="5090850412279403901">"यन्त्रको सुरक्षासम्बन्धी सुविधा सक्षम पार्न कृपया यन्त्र पुनः सुरु गर्नुहोस्।"</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"कुल उपलब्ध गराइएको <xliff:g id="SIZE">%1$s</xliff:g>\n\nपछिल्लो पटक <xliff:g id="DATE">%2$s</xliff:g> मा सञ्चालन गरिएको"</string>
@@ -4390,7 +4390,7 @@
     <string name="calls_preference" msgid="2076353032705811243">"कलसम्बन्धी प्राथमिकता"</string>
     <string name="sms_preference" msgid="8449270011976880">"SMS सम्बन्धी प्राथमिकता"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"प्रत्येक पटक सोधियोस्"</string>
-    <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"कुनै नेटवर्क थप्नुहोस्"</string>
+    <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"मोबाइल नेटवर्क हाल्नुहोस्"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
       <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> SIM हरू</item>
       <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> SIM</item>
