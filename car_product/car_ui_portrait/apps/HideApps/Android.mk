@@ -24,6 +24,10 @@ LOCAL_SDK_VERSION := current
 
 # Add packages here to remove them from the build
 LOCAL_OVERRIDES_PACKAGES := \
+    CarRotaryController \
+    RotaryPlayground \
+    RotaryIME \
+    CarRotaryImeRRO \
     googlecarui-com-android-car-ui-paintbooth \
     googlecarui-com-android-car-rotaryplayground \
     googlecarui-com-android-car-themeplayground \
