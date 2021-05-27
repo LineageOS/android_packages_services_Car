@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Administrar conexiones, establecer el nombre del dispositivo y la visibilidad"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"¿Emparejar con <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Código de vinculación por Bluetooth"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Código de emparejamiento por Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Escribe el código de vinculación y, a continuación, pulsa la tecla Intro"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"El PIN contiene letras o símbolos."</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Normalmente: 0000 o 1234"</string>
@@ -765,7 +765,7 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"Opciones…"</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Ajustes avanzados"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Ajustes avanzados de Bluetooth"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Cuando el Bluetooth está activado, tu dispositivo se puede comunicar con otros dispositivos con Bluetooth cercanos"</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Cuando el Bluetooth está activado, tu dispositivo se puede comunicar con otros dispositivos cercanos que tengan Bluetooth"</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Si el Bluetooth está activado, el dispositivo se puede comunicar con otros dispositivos Bluetooth cercanos.\n\nPara mejorar la experiencia de uso del dispositivo, las aplicaciones y los servicios pueden seguir buscando dispositivos cercanos en cualquier momento, aunque el Bluetooth esté desactivado. Esta opción se puede utilizar, por ejemplo, para mejorar los servicios y funciones basados en la ubicación, y puedes cambiarla en los "<annotation id="link">"ajustes de búsqueda"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Para mejorar la precisión de la ubicación, los servicios y las aplicaciones del sistema pueden seguir detectando dispositivos Bluetooth. Puedes cambiar esta opción en los <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>ajustes de búsqueda de Bluetooth<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"No se ha podido establecer conexión. Vuelve a intentarlo."</string>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Sin programación"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Basado en tu rutina"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Según el porcentaje"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Ahorro de batería se activa si es probable que te quedes sin batería antes de tu próxima carga normal."</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Ahorro de batería se activa si es probable que te quedes sin batería antes de tu próxima carga habitual"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Se activará cuando llegue al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Establecer una programación"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desactivar con la carga al máximo"</string>

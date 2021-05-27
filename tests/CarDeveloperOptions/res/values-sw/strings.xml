@@ -1276,7 +1276,7 @@
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"Inahitaji PIN ili kutumia kompyuta kibao"</string>
     <string name="sim_lock_on" product="default" msgid="1363159192182487883">"Unahitaji PIN ili utumie simu"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"Itisha PIN ili kutumia kompyuta kibao"</string>
-    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Itisha PIN kabla kuruhusu simu itumike"</string>
+    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"Itisha PIN kabla ya kuruhusu simu itumike"</string>
     <string name="sim_pin_change" msgid="5615972926944053213">"Badilisha PIN ya SIM"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"PIN ya SIM"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"Funga SIM kadi"</string>

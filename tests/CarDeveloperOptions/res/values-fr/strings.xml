@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Suppr. données visage"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Vous pouvez utiliser votre visage pour déverrouiller votre appareil et accéder à des applications. "<annotation id="url">"En savoir plus"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Supprimer les données de reconnaissance faciale ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées pour le déverrouillage par reconnaissance faciale seront supprimées de manière sécurisée et définitive. Une fois l\'inscription retirée, vous devrez utiliser votre code, votre motif ou votre mot de passe pour déverrouiller votre téléphone, vous connecter aux applications et confirmer les paiements."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Les données enregistrées pour le déverrouillage par reconnaissance faciale seront supprimées de manière sécurisée et définitive. Après la suppression, vous devrez utiliser votre code, votre motif ou votre mot de passe pour déverrouiller votre téléphone, vous connecter aux applications et confirmer les paiements."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Empreinte digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gérer empreintes num."</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Utiliser empr. num. pour"</string>
@@ -565,7 +565,7 @@
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Choisir une méthode pour verrouiller l\'écran"</string>
     <string name="unlock_set_unlock_off_title" msgid="5049876793411416079">"Aucun"</string>
     <string name="unlock_set_unlock_off_summary" msgid="3997346045783359119"></string>
-    <string name="unlock_set_unlock_none_title" msgid="1922027966983146392">"Balayer l\'écran"</string>
+    <string name="unlock_set_unlock_none_title" msgid="1922027966983146392">"Balayage"</string>
     <string name="unlock_set_unlock_none_summary" msgid="4044529413627659031">"Aucune sécurité"</string>
     <string name="unlock_set_unlock_pattern_title" msgid="7533759994999423587">"Schéma"</string>
     <string name="unlock_set_unlock_pattern_summary" msgid="8858697834522201333">"Sécurité moyenne"</string>
@@ -587,7 +587,7 @@
     <string name="face_unlock_title" msgid="1298031162909236127">"Vous pouvez déverrouiller votre téléphone à l\'aide de votre visage. Pour plus de sécurité, cette option doit être associée à un mode de verrouillage d\'écran secondaire."</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"Désactivé par l\'admin, règles chiffrement, stockage ID"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"Aucun"</string>
-    <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"Balayer l\'écran"</string>
+    <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"Balayage"</string>
     <string name="unlock_set_unlock_mode_pattern" msgid="8564909572968419459">"Schéma"</string>
     <string name="unlock_set_unlock_mode_pin" msgid="7828354651668392875">"Code"</string>
     <string name="unlock_set_unlock_mode_password" msgid="397703731925549447">"Mot de passe"</string>
@@ -848,7 +848,7 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"En mode Avion"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Notifications de réseau ouvert"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"M\'avertir lorsqu\'un réseau public de haute qualité est disponible"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"Activation automatique du Wi‑Fi"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"Activer automatiquement le Wi‑Fi"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Réactiver le Wi‑Fi à proximité des réseaux haute qualité déjà enregistrés, par exemple votre réseau domestique"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Indisponible, car le service de localisation est désactivé. Activez la "<annotation id="link">"localisation"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Indisponible, car la recherche Wi‑Fi est désactivée"</string>
@@ -3556,10 +3556,10 @@
     <string name="switch_off_text" msgid="3539551289454353555">"Désactivé"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"Épinglage d\'écran"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Si ce paramètre est activé, vous pouvez épingler l\'écran pour qu\'il reste affiché jusqu\'à l\'annulation de cette opération.\n\nPour épingler l\'écran :\n\n1. Assurez-vous que l\'épinglage d\'écran est activé.\n\n2. Appuyez sur \"Aperçu\".\n\n3. Appuyez sur l\'icône d\'épinglage en haut de l\'écran, puis sur \"Épingler\"."</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Demander le schéma de déverrouillage avant d\'annuler l\'épinglage"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Demander le code avant d\'annuler l\'épinglage"</string>
-    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Demander le mot de passe avant d\'annuler l\'épinglage"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Verrouiller l\'appareil après l\'annulation de l\'épinglage"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Demander le schéma de déverrouillage avant de retirer l\'épingle"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Demander le code avant de retirer l\'épingle"</string>
+    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Demander le mot de passe avant de retirer l\'épingle"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Verrouiller l\'appareil quand l\'épingle est retirée"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Ce profil professionnel est géré par"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Géré par <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Expérimental)"</string>

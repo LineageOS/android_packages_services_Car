@@ -348,8 +348,8 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Hora"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Bloqueja automàticament"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'entrar en repòs"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Immediatament després del repòs, excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
-    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'activar el repòs, excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Immediatament després del repòs, excepte si <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> manté el dispositiu desbloquejat"</string>
+    <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> després d\'activar el repòs, excepte si <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> manté el dispositiu desbloquejat"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Mostra informació del propietari a la pantalla de bloqueig"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Missatge a la pantalla de bloqueig"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Activa els widgets"</string>
@@ -737,9 +737,9 @@
     <string name="bluetooth_pin_values_hint_16_digits" msgid="2665983525706661525">"Ha de tenir 16 dígits"</string>
     <string name="bluetooth_enter_pin_other_device" msgid="1727015949040507621">"Pot ser que també hagis d\'introduir aquest PIN a l\'altre dispositiu."</string>
     <string name="bluetooth_enter_passkey_other_device" msgid="1709886959534143500">"Pot ser que també hagis d\'introduir aquesta clau d\'accés a l\'altre dispositiu."</string>
-    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Per vincular amb:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Assegura\'t que apareix aquesta clau d\'accés:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
+    <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"Per vincular a &lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;assegura\'t que es mostra aquesta clau d\'accés:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
     <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"De:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;Vols vincular-lo amb aquest dispositiu?"</string>
-    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Per vincular amb:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>Escriu <xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> en el dispositiu i, a continuació, prem la tecla de retorn."</string>
+    <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"Per vincular a <xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>escriu-hi <xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g> i, a continuació, prem Retorn."</string>
     <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"Permet l\'accés als contactes i a l\'historial de trucades"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"No s\'ha pogut connectar amb <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -1267,7 +1267,7 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Mostra l\'hora, les icones de notificació i altres dades. Augmenta l\'ús de la bateria."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Mida de la lletra"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Amplia o redueix el text"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"Config. de bloqueig de SIM"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"Configuració de bloqueig de SIM"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Bloqueig de la targeta SIM"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"Desactivada"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"Bloquejada"</string>
@@ -1768,7 +1768,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Mostra el patró del perfil"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibra en tocar"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"El botó d\'engegada bloqueja"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Excepte si està desbloquejat per <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Excepte si <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> manté el dispositiu desbloquejat"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Defineix el patró de desbloqueig"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Canvia el patró de desbloqueig"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Com crear un patró de desbloqueig"</string>
@@ -2566,7 +2566,7 @@
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Crea còpies de seguretat automàtiques de les dades del dispositiu (com ara les contrasenyes de la Wi-Fi o l\'historial de trucades) i de les aplicacions (com ara les configuracions i els fitxers que desin) de manera remota.\n\nQuan activis les còpies de seguretat automàtiques, les dades dels dispositius i de les aplicacions s\'emmagatzemaran periòdicament de manera remota. Les dades de les aplicacions poden ser qualsevol mena de dada que hagi desat una aplicació (en funció de la configuració del desenvolupador), incloses les dades potencialment confidencials, com ara contactes, missatges i fotos."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Configuració de l\'administrador del dispositiu"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"Aplicació d\'administració del dispositiu"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Desactiva l\'aplicació d\'administració d\'aquest dispositiu"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Desactiva aquesta aplicació d\'administració del dispositiu"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Desinstal·la l\'aplicació"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Desactiva i desinstal·la"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Aplicacions d\'administració del dispositiu"</string>
@@ -2576,8 +2576,8 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Restringeix accés a SMS i registre de trucades"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Només les aplicacions de trucades i missatgeria predeterminades tenen accés als SMS i al registre de trucades"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"No hi ha agents de confiança disponibles."</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Activar l\'app d\'admin. del dispositiu?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"Activa l\'aplicació d\'administració d\'aquest dispositiu"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Activar l\'aplicació d\'administració?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"Activa aquesta aplicació d\'administració del dispositiu"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administrador del dispositiu"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"En activar aquesta aplicació d\'administració, l\'aplicació <xliff:g id="APP_NAME">%1$s</xliff:g> podrà dur a terme les operacions següents:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Aquesta aplicació d\'administració està activa i permet a l\'aplicació <xliff:g id="APP_NAME">%1$s</xliff:g> dur a terme les operacions següents:"</string>
@@ -2924,7 +2924,7 @@
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Sempre"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Excepte quan hi hagi oberta una altra aplicació de pagaments"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"En un terminal que tingui la funció Toca i paga, paga amb:"</string>
-    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar a la terminal"</string>
+    <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagar al terminal"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Configura una aplicació de pagaments. A continuació, apropa la part posterior del telèfon a un terminal amb el símbol de pagament sense contacte."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Entesos"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Més..."</string>
@@ -3557,7 +3557,7 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"Fixació de pantalla"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Si aquesta opció està activada, pots fixar la pantalla per mantenir-la visible fins que deixis de fixar-la.\n\nPer fer-ho:\n\n1. Assegura\'t que la fixació de pantalla estigui activada. \n\n2. Obre Aplicacions recents.\n\n3. Toca la icona de l\'aplicació a la part superior de la pantalla i, després, toca Fixa."</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Sol·licita el patró de desbloqueig per deixar de fixar"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Demana el codi PIN per deixar de fixar"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Demana el PIN per deixar de fixar"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Demana la contrasenya per deixar de fixar"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Bloqueja el dispositiu en deixar de fixar"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"L\'administrador d\'aquest perfil de treball és:"</string>

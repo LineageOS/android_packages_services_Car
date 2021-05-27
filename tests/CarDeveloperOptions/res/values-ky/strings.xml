@@ -181,7 +181,7 @@
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth күйгүзүлөт"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Байланыш параметрлери"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Буга чейин туташкан түзмөктөр"</string>
-    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Мурда туташкан"</string>
+    <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Буга чейин туташкан түзмөктөр"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth күйгүзүлдү"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"Баарын көрүү"</string>
     <string name="date_and_time" msgid="2957463607025909857">"Күн жана убакыт"</string>
@@ -2309,9 +2309,9 @@
       <item quantity="other">%1$d колдонмо чектелсинби?</item>
       <item quantity="one">Колдонмо чектелсинби?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Батареяны үнөмдөө максатында, <xliff:g id="APP">%1$s</xliff:g> колдонмосунун фондо иштөөсүн токтотуп койсоңуз болот. Колдонмо талаптагыдай иштебей, билдирмелери кечигүү менен көрсөтүлүшү мүмкүн."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Батареяны үнөмдөө максатында, бул колдонмолордун фондо иштөөсүн токтотуп койсоңуз болот. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрсөтүлүшү мүмкүн.\n\nКолдонмолор:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Батареяны үнөмдөө максатында, бул колдонмолордун фондо иштөөсүн токтотуп койсоңуз болот. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрсөтүлүшү мүмкүн.\n\nКолдонмолор:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"Батареяны үнөмдөө максатында, <xliff:g id="APP">%1$s</xliff:g> колдонмосунун фондо иштөөсүн токтотуп койсоңуз болот. Колдонмо талаптагыдай иштебей, билдирмелери кечигүү менен көрүнүшү мүмкүн."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Батареяны үнөмдөө максатында, бул колдонмолордун фондо иштөөсүн токтотуп койсоңуз болот. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрүнүшү мүмкүн.\n\nКолдонмолор:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Батареяны үнөмдөө максатында, бул колдонмолордун фондо иштөөсүн токтотуп койсоңуз болот. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрүнүшү мүмкүн.\n\nКолдонмолор:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Чектөө"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Чектөөлөр өчүрүлсүнбү?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Бул колдонмо батареяны фондо керектей берет. Батареяңыз күтүлгөндөн эртерээк отуруп калышы мүмкүн."</string>
@@ -2332,7 +2332,7 @@
       <item quantity="one">%1$d колдонмо батареяны чектелген режимде колдонуп жатат</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> чектелди"</string>
-    <string name="restricted_app_detail_footer" msgid="482460517275754465">"Бул колдонмолор батареяны фондо колдонуп жатат. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрсөтүлүшү мүмкүн."</string>
+    <string name="restricted_app_detail_footer" msgid="482460517275754465">"Бул колдонмолор батареяны фондо колдонуп жатат. Чектелген колдонмолор талаптагыдай иштебей, билдирмелери кечигүү менен көрүнүшү мүмкүн."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Battery Manager\'ди колдонуу"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Колдонмолордун батареяны тез сарптаганы аныкталсын"</string>
     <string name="battery_manager_on" msgid="5626982529932239656">"Күйүк / Колдонмолордун батареяны тез сарптаганы аныкталууда"</string>

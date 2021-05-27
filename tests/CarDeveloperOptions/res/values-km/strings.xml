@@ -377,7 +377,7 @@
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"កំពុងផ្ទុក…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"គណនី"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"សុវត្ថិភាព"</string>
-    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"ការ​អ៊ីនគ្រីប និងព័ត៌មានសម្គាល់ខ្លួន"</string>
+    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"ការ​អ៊ីនគ្រីប និងព័ត៌មានផ្ទៀងផ្ទាត់"</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"បានអ៊ិនគ្រីបទូរសព្ទ"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"ទូរសព្ទ​មិនបាន​អិុនគ្រីប​ទេ"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"ឧបករណ៍​ត្រូវបានអ៊ិនគ្រីប"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"រៀបចំ​ស្វ័យ​ប្រវត្តិ (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"បើក​ការ​ស្កេន Wi‑Fi ដែរ​ទេ?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"ដើម្បី​បើក Wi‑Fi ដោយ​ស្វ័យ​ប្រវត្តិ អ្នក​ត្រូវ​បើក​ការ​ស្កេន Wi‑Fi ជាមុន​សិន។"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"ការ​ស្កេន Wi‑Fi អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ធ្វើ​ការ​ស្កេនរក​បណ្ដាញ Wi‑Fi បាន​គ្រប់ពេល ទោះបីជា Wi‑Fi ​បិទក៏ដោយ។ ឧទាហរណ៍ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង។"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"ការ​ស្កេន Wi‑Fi អនុញ្ញាត​ឱ្យ​កម្មវិធី និងសេវាកម្ម​ធ្វើ​ការ​ស្កេនរក​បណ្ដាញ Wi‑Fi បាន​គ្រប់ពេល ទោះបីជា Wi‑Fi ​បិទក៏ដោយ។ សកម្មភាព​នេះ​អាច​ត្រូវ​បាន​ប្រើ ដើម្បី​កែលម្អ​មុខងារ និងសេវាកម្មនានា​ដែល​ផ្អែក​លើ​ទីតាំង​ជាដើម។"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"បើក"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"បានបើក​ការស្កេន Wi‑Fi"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"ជម្រើស​កម្រិត​ខ្ពស់"</string>
@@ -2195,8 +2195,8 @@
     <string name="print_settings" msgid="7886184656544483072">"ការ​បោះពុម្ព"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"បិទ"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
-      <item quantity="other">សេវាកម្មបោះពុម្ព <xliff:g id="COUNT">%1$d</xliff:g> បានបើកហើយ</item>
-      <item quantity="one">សេវាកម្មបោះពុម្ព 1 បានបើកហើយ</item>
+      <item quantity="other">សេវាកម្មបោះពុម្ព <xliff:g id="COUNT">%1$d</xliff:g> បានបើក</item>
+      <item quantity="one">សេវាកម្មបោះពុម្ព 1 បានបើក</item>
     </plurals>
     <plurals name="print_jobs_summary" formatted="false" msgid="6180308415569432845">
       <item quantity="other">ការងារ​បោះពុម្ព <xliff:g id="COUNT">%1$d</xliff:g></item>
@@ -2328,8 +2328,8 @@
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"នៅ​ពេល​កម្មវិធី​គ្រប់គ្រង​ថ្ម​រកឃើញ​ថាកម្មវិធី​កំពុងធ្វើឱ្យ​ថ្ម​ឆាប់​អស់ អ្នក​នឹង​មាន​ជម្រើស​ដើម្បីដាក់​កំហិត​កម្មវិធី​ទាំងនេះ។ កម្មវិធី​ដែល​បាន​កំហិតអាច​​មិន​ដំណើរការ​ប្រក្រតី ហើយ​ការជូនដំណឹង​អាច​​ត្រូវ​បាន​ពន្យារពេល។"</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"កម្មវិធី​ដែល​បាន​រឹតបន្តឹង"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
-      <item quantity="other">ការ​កម្រិត​ការប្រើប្រាស់​ថ្ម​សម្រាប់​កម្មវិធី %1$d</item>
-      <item quantity="one">ការ​កម្រិត​ការប្រើប្រាស់​ថ្ម​សម្រាប់​កម្មវិធី %1$d</item>
+      <item quantity="other">កំពុងដាក់កំហិតលើ​ការប្រើប្រាស់​ថ្ម​សម្រាប់​កម្មវិធី %1$d</item>
+      <item quantity="one">កំពុងដាក់កំហិតលើ​ការប្រើប្រាស់​ថ្ម​សម្រាប់​កម្មវិធី %1$d</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"បានរឹតបន្តឹង <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"កម្មវិធី​ទាំងនេះ​កំពុងប្រើប្រាស់ថ្មនៅផ្ទៃ​ខាងក្រោយ។ កម្មវិធី​ដែលបាន​ដាក់​កំហិត​អាច​​ដំណើរការ​ខុសប្រក្រតី ហើយ​ការជូនដំណឹង​អាច​​មានការ​ពន្យារ​ពេល។"</string>
@@ -2522,17 +2522,17 @@
     <string name="tts_reset" msgid="8864073594540705579">"កំណត់​ឡើងវិញ"</string>
     <string name="tts_play" msgid="9023430029380675514">"លេង"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"កន្លែងផ្ទុកព័ត៌មានសម្គាល់ខ្លួន"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"កន្លែងផ្ទុក​ព័ត៌មានផ្ទៀងផ្ទាត់"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"ដំឡើង​ពី​ឧបករណ៍​ផ្ទុក"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"ដំឡើង​ពី​កាត​អេសឌី"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"ដំឡើង​វិញ្ញាបនបត្រ​ពី​ឧបករណ៍​ផ្ទុក"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"ដំឡើង​វិញ្ញាបនបត្រ​ពី​កាត​អេសឌី"</string>
-    <string name="credentials_reset" msgid="355080737664731678">"សម្អាត​ព័ត៌មានសម្គាល់ខ្លួន"</string>
+    <string name="credentials_reset" msgid="355080737664731678">"សម្អាត​ព័ត៌មានផ្ទៀងផ្ទាត់"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"លុប​វិញ្ញាបនបត្រ​ទាំងអស់"</string>
-    <string name="trusted_credentials" msgid="6989242522455395200">"​ព័ត៌មានសម្គាល់ខ្លួន​ដែលជឿ​ទុក​ចិត្ត"</string>
+    <string name="trusted_credentials" msgid="6989242522455395200">"ព័ត៌មាន​ផ្ទៀងផ្ទាត់​ដែល​ទុកចិត្ត"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"បង្ហាញ​វិញ្ញាបនបត្រ CA ដែល​ទុក​ចិត្ត"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"ព័ត៌មានសម្គាល់ខ្លួនអ្នកប្រើ"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"មើល និងកែប្រែព័ត៌មានសម្គាល់ខ្លួនដែលបានផ្ទុក"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"ព័ត៌មានផ្ទៀងផ្ទាត់អ្នកប្រើ"</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"មើល និងកែប្រែព័ត៌មានផ្ទៀងផ្ទាត់ដែលបានរក្សាទុក"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"កម្រិត​ខ្ពស់"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"ប្រភេទ​ឧបករណ៍​ផ្ទុក"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"កន្លែង​ផ្ទុក​របស់​​ផ្នែក​រឹង"</string>
@@ -2819,8 +2819,8 @@
     <string name="n_cacrts" msgid="7539893176217891549">"វិញ្ញាបនបត្រ CA %d"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"ព័ត៌មានលម្អិតអំពីព័ត៌មានសម្គាល់ខ្លួន"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"ព័ត៌មានអត្តសញ្ញាណត្រូវបានលុប៖ <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"មិនមានការដំឡើងព័ត៌មានសម្គាល់ខ្លួន​សម្រាប់អ្នកប្រើប្រាស់ទេ"</string>
-    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"កម្មវិធី​ពិនិត្យ​អក្ខរា​វិរុទ្ធ"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"មិនមានព័ត៌មានផ្ទៀងផ្ទាត់អ្នកប្រើដែលបានដំឡើងទេ"</string>
+    <string name="spellcheckers_settings_title" msgid="1687210427248364327">"មុខងារពិនិត្យអក្ខរាវិរុទ្ធ"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"មុខងារ​ពិនិត្យ​អក្ខរាវិរុទ្ធ​សម្រាប់ការងារ"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"បញ្ចូល​ពាក្យ​សម្ងាត់​បម្រុងទុក​ពេញលេញ​បច្ចុប្បន្ន​របស់​អ្នក​នៅ​ទីនេះ"</string>
     <string name="new_backup_pw_prompt" msgid="4949729756223335850">"បញ្ចូល​ពាក្យ​សម្ងាត់​ថ្មី​សម្រាប់​ការ​បម្រុងទុក​ពេញលេញ​នៅ​ទី​នេះ"</string>
@@ -3557,7 +3557,7 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"ភ្ជាប់​អេក្រង់"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"នៅ​ពេល​បើក​ការកំណត់នេះ អ្នក​អាច​ប្រើ​ការ​ភ្ជាប់​អេក្រង់ ដើម្បី​រក្សាការបង្ហាញ​អេក្រង់​បច្ចុប្បន្ន​​ រហូតដល់ពេល​អ្នក​ឈប់​ភ្ជាប់។\n\nដើម្បី​ប្រើ​ការ​ភ្ជាប់​អេក្រង់៖\n\n1. ត្រូវប្រាកដ​ថាការ​ភ្ជាប់​អេក្រង់ត្រូវ​បាន​បើក\n\n2. បើក​ទិដ្ឋភាពរួម\n\n3. ចុច​រូប​កម្មវិធី​នៅ​ផ្នែក​ខាងលើ​អេក្រង់ រួចចុចភ្ជាប់"</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"សួរ​រក​លំនាំ​ដោះ​សោ​មុន​ពេលដោះខ្ទាស់"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"សួរ​រក​កូដ PIN មុន​ពេល​ផ្ដាច់"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"សួរ​រក​កូដ PIN មុន​ពេលដកខ្ទាស់"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"សួរ​រក​ពាក្យ​សម្ងាត់​មុន​ពេល​ផ្ដាច់"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ចាក់​សោ​ឧបករណ៍​ពេល​មិន​ខ្ទាស់"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"ប្រវត្តិរូបការងារនេះត្រូវបានគ្រប់គ្រងដោយ៖"</string>
@@ -3888,7 +3888,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"បង្ហាញ"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"លាក់"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"ហតស្ប៉តកំពុង​ដំណើរការ"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"បើករបៀបជិះយន្តហោះ"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"បានបើកមុខងារ​ពេល​ជិះ​យន្តហោះ"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"​មិនអាចប្រើ​បណ្តាញ​បានទេ"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"មុខងារ​កុំ​រំខាន​បាន​បើក"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"បានបិទ​សំឡេង​ទូរសព្ទ"</string>
@@ -4008,7 +4008,7 @@
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"បិទ​ឥឡូវ​នេះ"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"មិនប្រើការបង្កើនប្រសិទ្ធភាពថ្មទេ"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"ពេលឧបករណ៍ជាប់សោ ទប់ស្កាត់ការវាយអក្សរឆ្លើយតប ឬអត្ថបទផ្សេងទៀតនៅក្នុងការជូនដំណឹង"</string>
-    <string name="default_spell_checker" msgid="8636661093243189533">"កម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធលំនាំដើម"</string>
+    <string name="default_spell_checker" msgid="8636661093243189533">"មុខងារពិនិត្យអក្ខរាវិរុទ្ធលំនាំដើម"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"ជ្រើសរើសកម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធ"</string>
     <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"ប្រើកម្មវិធីពិនិត្យអក្ខរាវិរុទ្ធ"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"មិនបានជ្រើស"</string>
@@ -4455,8 +4455,8 @@
     <string name="network_connection_connect_successful" msgid="888912275986965748">"ការតភ្ជាប់​ទទួលបាន​ជោគជ័យ​ហើយ"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"បង្ហាញ​ទាំងអស់"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
-      <item quantity="other">បាន​ភ្ជាប់​ឧបករណ៍ <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g></item>
-      <item quantity="one">បាន​ភ្ជាប់​ឧបករណ៍ <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g></item>
+      <item quantity="other">ឧបករណ៍ <xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> បានភ្ជាប់</item>
+      <item quantity="one">ឧបករណ៍ <xliff:g id="NUMBER_DEVICE_COUNT_0">%1$d</xliff:g> បានភ្ជាប់</item>
     </plurals>
     <string name="no_bluetooth_devices" msgid="4338224958734305244">"គ្មាន​ឧបករណ៍ប៊្លូធូសទេ"</string>
     <string name="bluetooth_left_name" msgid="4393660998014637355">"ឆ្វេង"</string>
