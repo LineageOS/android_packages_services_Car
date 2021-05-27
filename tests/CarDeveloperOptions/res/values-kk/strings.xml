@@ -553,7 +553,7 @@
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Құрылғыны қорғау мүмкіндіктерін белсендіру арқылы басқалардың осы құрылғыны рұқсатыңызсыз пайдалануын болдырмаңыз. Пайдаланғыңыз келетін экран бекітпесін таңдаңыз."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Құрылғыны қорғау мүмкіндіктерін белсендіру арқылы басқалардың осы телефонды рұқсатыңызсыз пайдалануын болдырмаңыз. Пайдаланғыңыз келетін экран бекітпесін таңдаңыз."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"Сақтық көшірме экранын құлыптау әдісін таңдаңыз"</string>
-    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Қосымша экран құлпы әдісін таңдаңыз"</string>
+    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Экранды құлыптаудың қосымша әдісін таңдаңыз."</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Экран құлпы опциялары"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"Экран құлпы опциялары"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Экран құлпы"</string>
@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSID енгізіңіз"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Қауіпсіздік"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Жасырын желі"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Маршрутизатор желі идентификаторын таратып жатпаса, бірақ оған алдағы уақытта қосылғыңыз келсе, желіні жасырып қоюыңызға болады.\n\nБұл – қауіпсіздік мәселесін тудыруы мүмкін, себебі телефон осы желіні іздеп, сигнал таратады.\n\nЖеліні жасырын күйге қою маршрутизатордың параметрлерін өзгертпейді."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Маршрутизатор желі идентификаторын таратпаса, оған алдағы уақытта қосылғыңыз келген жағдайда, желіні жасырып қоюға болады.\n\nБұл қауіпсіздікке кері әсерін тигізуі мүмкін, себебі телефон осы желіні іздеп, сигнал таратады.\n\nЖеліні жасырын күйге қою маршрутизатордың параметрлерін өзгертпейді."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Сигнал күші"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Күйі"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Тарату жылдамдығы"</string>
@@ -2522,10 +2522,10 @@
     <string name="tts_reset" msgid="8864073594540705579">"Бастапқы күйге қайтару"</string>
     <string name="tts_play" msgid="9023430029380675514">"Ойнату"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"Тіркелу деректерінің жады"</string>
-    <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"Жадтан орнату"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"Тіркелу деректерінің қоймасы"</string>
+    <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"Қоймадан орнату"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD картадан орнату"</string>
-    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Сертификаттарды жадтан орнату"</string>
+    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Сертификаттарды қоймадан орнату"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Сертификаттарды SD картадан орнату"</string>
     <string name="credentials_reset" msgid="355080737664731678">"Тіркелу деректерін өшіру"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Барлық сертификаттарды жою"</string>
@@ -3559,7 +3559,7 @@
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Босату алдында құлыпты ашу өрнегін сұрау"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Босату алдында PIN кодын сұрау"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Босату алдында құпия сөзді сұрау"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Босатқанда құрылғыны бекіту"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Босатқанда құрылғыны құлыптау"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Бұл жұмыс профилін басқаратын:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"<xliff:g id="ADMIN_APP_LABEL">%s</xliff:g> арқылы басқарылады"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Эксперименттік)"</string>

@@ -655,8 +655,8 @@
       <item quantity="one">കുറഞ്ഞത് <xliff:g id="COUNT_0">%d</xliff:g> പ്രതീകം അടങ്ങിയിരിക്കണം</item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
-      <item quantity="other">പിൻ നമ്പരിൽ ചുരുങ്ങിയത് <xliff:g id="COUNT_1">%d</xliff:g> അക്കമെങ്കിലും വേണം</item>
-      <item quantity="one">പിൻ നമ്പരിൽ ചുരുങ്ങിയത് <xliff:g id="COUNT_0">%d</xliff:g> അക്കമെങ്കിലും വേണം</item>
+      <item quantity="other">പിൻ നമ്പറിൽ ചുരുങ്ങിയത് <xliff:g id="COUNT_1">%d</xliff:g> അക്കമെങ്കിലും വേണം</item>
+      <item quantity="one">പിൻ നമ്പറിൽ ചുരുങ്ങിയത് <xliff:g id="COUNT_0">%d</xliff:g> അക്കമെങ്കിലും വേണം</item>
     </plurals>
     <string name="lockpassword_continue_label" msgid="7279261861924400655">"തുടരുക"</string>
     <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">

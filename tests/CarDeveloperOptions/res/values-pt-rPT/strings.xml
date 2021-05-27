@@ -553,7 +553,7 @@
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"Impeça terceiros de utilizar este dispositivo sem a sua autorização ao ativar as funcionalidades de proteção do dispositivo. Escolha o bloqueio de ecrã que pretende utilizar."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"Impeça terceiros de utilizar este telemóvel sem a sua autorização ao ativar as funcionalidades de proteção do dispositivo. Escolha o bloqueio de ecrã que pretende utilizar."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"Escolha o método de bloqueio de ecrã de segurança"</string>
-    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Escolha o método de bloqueio de ecrã de segurança."</string>
+    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"Escolha o método de bloqueio de ecrã de segurança"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"Opções de bloqueio de ecrã"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"Opções de bloqueio de ecrã"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Bloqueio de ecrã"</string>
@@ -908,7 +908,7 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Se o router não estiver a transmitir um ID de rede, mas pretender ligar-se à mesma no futuro, pode definir a rede como oculta.\n\nEsta opção pode criar um risco de segurança, pois o seu telemóvel irá transmitir regularmente o respetivo sinal para encontrar a rede.\n\nDefinir a rede como oculta não altera as definições do router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Intensidade do sinal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Estado"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocid. da ligação transmissão"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocidade da ligação transmissão"</string>
     <string name="rx_wifi_speed" msgid="7392873246110937187">"Velocidade da ligação de receção"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Frequência"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Endereço IP"</string>
@@ -935,10 +935,10 @@
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Privacidade"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"MAC aleatório"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Adicione um dispositivo"</string>
-    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Centre o código QR abaixo para adicionar o dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\"."</string>
+    <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Centre o código QR abaixo para adicionar o dispositivo a \"<xliff:g id="SSID">%1$s</xliff:g>\""</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Ler código QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Centre o código QR abaixo para estabelecer ligação a “<xliff:g id="SSID">%1$s</xliff:g>”"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Estabeleça ligação ao Wi-Fi ao ler um código QR."</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Leia um código QR para ligar ao Wi-Fi"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Partilhar Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Leia este código QR para se ligar a \"<xliff:g id="SSID">%1$s</xliff:g>\" e partilhar a palavra-passe"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Leia este código QR para se ligar a \"<xliff:g id="SSID">%1$s</xliff:g>\""</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"Pretende cancelar o convite para se ligar a <xliff:g id="PEER_NAME">%1$s</xliff:g>?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Esquecer este grupo?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Zona Wi-Fi"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Não está a partilhar Internet nem conteúdo com outros dispositivos."</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Não está a partilhar Internet nem conteúdo com outros dispositivos"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"A partilhar a ligação à Internet deste tablet através de zona Wi-Fi…"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"A partilhar a ligação à Internet deste telemóvel através de zona Wi-Fi…"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"A aplicação está a partilhar conteúdo. Para partilhar a ligação à Internet, desative e volte a ativar a zona Wi-Fi."</string>
@@ -2328,8 +2328,8 @@
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Quando o Battery Manager deteta a existência de aplicações a consumir a bateria rapidamente, tem a opção de restringir estas aplicações. As aplicações restringidas poderão não funcionar corretamente e as notificações poderão sofrer atrasos."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"Apps restritas"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
-      <item quantity="other">Limiar a utilização da bateria para %1$d aplicações</item>
-      <item quantity="one">Limitar a utilização da bateria para %1$d aplicação</item>
+      <item quantity="other">Limiar a utilização da bateria para %1$d apps</item>
+      <item quantity="one">Limitar a utilização da bateria para %1$d app</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"Restrita <xliff:g id="TIME">%1$s</xliff:g>."</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Estas aplicações têm consumido bateria em segundo plano. As aplicações restringidas poderão não funcionar corretamente e as notificações poderão sofrer atrasos."</string>
@@ -2566,7 +2566,7 @@
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Faça cópias de segurança automáticas dos dados do dispositivo (como palavras-passe de Wi-Fi e o histórico de chamadas) e dos dados das aplicações (como as definições e os ficheiros armazenados pelas aplicações) remotamente.\n\nQuando ativa a cópia de segurança automática, os dados do dispositivo e das aplicações são guardados remotamente de forma periódica. Os dados das aplicações podem ser quaisquer dados que uma aplicação tenha guardado (com base nas definições do programador), incluindo dados potencialmente confidenciais como contactos, mensagens e fotos."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Definições de administração do dispositivo"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"App administração do dispositivo"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Desativar esta aplicação de administração do dispositivo"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Desativar esta app de administração do dispositivo"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Desinstalar aplicação"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Desativar e desinstalar"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Apps de gestor do dispositivo"</string>
@@ -2580,7 +2580,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"Ativar a aplicação de administração deste dispositivo"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administrador do dispositivo"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"A ativação desta aplicação de administração permite que a aplicação <xliff:g id="APP_NAME">%1$s</xliff:g> execute as seguintes operações:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"Esta aplicação de administração está ativa e permite que a aplicação <xliff:g id="APP_NAME">%1$s</xliff:g> execute as seguintes operações:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"Esta app de administração está ativa e permite que a app <xliff:g id="APP_NAME">%1$s</xliff:g> execute as seguintes operações:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Pretende ativar o Gestor de perfis?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Ao continuar, o utilizador será gerido pelo seu gestor, que, para além dos seus dados pessoais, também poderá armazenar dados associados.\n\nO gestor pode monitorizar e gerir as definições, o acesso, as aplicações e os dados associados a este utilizador, incluindo a atividade da rede e as informações de localização do seu dispositivo."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"As outras opções estão desativadas pelo gestor"</string>

@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s आपके मैसेज तक पहुंचना चाहता है. %2$s को पहुंचने दें?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"सिम का इस्तेमाल करने के लिए अनुरोध"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> आपके SIM कार्ड को ऐक्सेस करना चाहता है. SIM कार्ड की ऐक्सेस देने से कनेक्शन की अवधि तक आपके डिवाइस पर डेटा कनेक्टिविटी अक्षम हो जाएगी. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> को ऐक्सेस दें"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"दूसरे डिवाइस को \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' के रूप में दिखाई देता है"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"दूसरे डिवाइसों को \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' के रूप में दिखाई देता है"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"अपने डिवाइस को दूसरे डिवाइस से जोड़ने के लिए ब्लूटूथ चालू करें."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"आपके डिवाइस"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"नया डिवाइस जोड़ें"</string>
@@ -196,7 +196,7 @@
     <string name="proxy_settings_title" msgid="6014901859338211713">"प्रॉक्सी"</string>
     <string name="proxy_clear_text" msgid="498317431076294101">"साफ़ करें"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"प्रॉक्सी पोर्ट"</string>
-    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"इसके लिए प्रॉक्‍सी का उपयोग न करें"</string>
+    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"इसके लिए प्रॉक्‍सी का इस्तेमाल न करें"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"डिफ़ॉल्ट पुनर्स्थापित करें"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"हो गया"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"प्रॉक्सी होस्‍टनाम"</string>
@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"आपको पोर्ट फ़ील्‍ड पूरा करना होगा."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"अगर होस्‍ट फ़ील्‍ड खाली है तो पोर्ट फ़ील्‍ड को खाली होना ही चाहिए."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"  लिखा गया पोर्ट मान्‍य नहीं है."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP प्रॉक्सी का उपयोग ब्राउज़र द्वारा किया जाता है लेकिन अन्य ऐप्लिकेशन द्वारा उपयोग नहीं किया जा सकता."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"एचटीटीपी प्रॉक्सी का इस्तेमाल ब्राउज़र करता है, लेकिन हो सकता है कि अन्य ऐप्लिकेशन इसका इस्तेमाल न कर पाएं."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC यूआरएल: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"डीएल बैंडविड्थ (केबीपीएस):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"यूएल बैंडविड्थ (केबीपीएस):"</string>
@@ -765,14 +765,14 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"विकल्प…"</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"बेहतर सेटिंग"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"बेहतर ब्लूटूथ"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लूटूथ चालू होने पर, आपका डिवाइस आस-पास के दूसरे ब्लूटूथ डिवाइस से संपर्क कर सकता है."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लूटूथ चालू होने पर, आपका डिवाइस आस-पास के दूसरे ब्लूटूथ डिवाइसों से संपर्क कर सकता है."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ब्लूटूथ चालू हाेने पर, आपका डिवाइस आस-पास के ब्लूटूथ डिवाइस से जुड़ सकता है. \n\nडिवाइस काे बेहतर तरीके से चलाने के लिए, ऐप्लिकेशन आैर सेवाएं, ब्लूटूथ बंद हाेने के बावजूद किसी भी समय आस-पास के ब्लूटूथ डिवाइस काे स्कैन कर सकती हैं. इसका इस्तेमाल करके, जगह की जानकारी जैसी सुविधाओं और सेवाओं में सुधार किया जा सकता है. आप "<annotation id="link">"स्कैन करने की सेटिंग"</annotation>" में जाकर इसे बदल सकते हैं."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"जगह की सटीक जानकारी को बेहतर बनाने के लिए, सिस्‍टम ऐप्लिकेशन और सेवाएं अब भी ब्‍लूटूथ डिवाइसों का पता लगा सकती हैं. आप इसे <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्‍कैन करने की सेटिंग<xliff:g id="LINK_END_1">LINK_END</xliff:g> में बदल सकते हैं."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"कनेक्ट नहीं हो सका. फिर से कोशिश करें."</string>
     <string name="device_details_title" msgid="726517818032923222">"डिवाइस की जानकारी"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"डिवाइस का ब्लूटूथ पता: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"क्या डिवाइस को भूलना चाहते हैं?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"आपका फ़ोन अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"आपका फ़ोन अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ जुड़ा नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"आपका टैबलेट अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"आपका डिवाइस अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"डिवाइस को भूल जाएं"</string>
@@ -880,7 +880,7 @@
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"नेटवर्क मिलने पर भी वाई-फ़ाई अपने आप चालू नहीं होता"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"वाई-फ़ाई  नेटवर्क"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"ज़्यादा विकल्प"</string>
-    <string name="wifi_menu_p2p" msgid="4945665601551289791">"वाई-फ़ाई डायरेक्ट"</string>
+    <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"स्कैन करें"</string>
     <string name="wifi_menu_advanced" msgid="5984484498045511072">"बेहतर सेटिंग"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"कॉन्फ़िगर करें"</string>
@@ -970,7 +970,7 @@
     <string name="wifi_unchanged" msgid="6804964646942333992">"(अपरिवर्तित)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"कृपया चुनें"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(एकाधिक प्रमाणपत्र जोड़े गए)"</string>
-    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम प्रमाणपत्रों का उपयोग करें"</string>
+    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम प्रमाणपत्रों का इस्तेमाल करें"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"मुहैया न कराएं"</string>
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"मान्‍य न करें"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"कोई प्रमाणपत्र मौजूद नहीं है. आपका कनेक्‍शन निजी नहीं होगा."</string>
@@ -1040,7 +1040,7 @@
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"गेटवे"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"नेटवर्क उपसर्ग लंबाई"</string>
-    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"वाई-फ़ाई डायरेक्ट"</string>
+    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi‑Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"डिवाइस की जानकारी"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"यह कनेक्‍शन याद रखें"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"डिवाइस सर्च करें"</string>
@@ -2241,7 +2241,7 @@
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"अगर आप ऐप की बैकग्राउंड गतिविधि को सीमित करते हैं, तो हो सकता है यह ठीक ढंग से काम न करे"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"ऐप्लिकेशन पर रोक नहीं लगेगी क्योंकि यह बैटरी ऑप्टिमाइज़ नहीं कर सकता.\n\nबैटरी ऑप्टिमाइज़ेशन चालू करके ही ऐसा हो सकता है."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"पूरी चार्ज होने के बाद से अब तक स्क्रीन का इस्तेमाल"</string>
-    <string name="power_usage_list_summary" msgid="4314438658308211057">"पिछली बार बैटरी पूरी चार्ज करने के बाद, उसके इस्तेमाल से जुड़ी जानकारी"</string>
+    <string name="power_usage_list_summary" msgid="4314438658308211057">"पिछली बार बैटरी पूरी चार्ज करने के बाद, बैटरी खर्च से जुड़ी जानकारी"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"पिछली बार पूरी तरह चार्ज होने के बाद से अब तक स्क्रीन के चालू रहने का समय"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"पिछली बार पूरी चार्ज होने के बाद से अब तक का डिवाइस उपयोग"</string>
     <string name="battery_since_unplugged" msgid="6486555910264026856">"अनप्‍लग होने के बाद से बैटरी का उपयोग"</string>
@@ -3736,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"यूएसबी टेदरिंग"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"इस डिवाइस का उपयोग MIDI के रूप में करें"</string>
-    <string name="usb_use" msgid="8940500223316278632">"यूएसबी का उपयोग इसके लिए करें"</string>
+    <string name="usb_use" msgid="8940500223316278632">"यूएसबी का इस्तेमाल इसके लिए करें"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"यूएसबी का डिफ़ॉल्ट कॉन्फ़िगरेशन"</string>
     <string name="usb_default_info" msgid="953775292571786528">"जब आपका फ़ोन किसी दूसरे डिवाइस से जुड़ा हो और वह अनलॉक हो तो, ये सेटिंग लागू होंगी. अपना फ़ोन सिर्फ़ भरोसेमंद डिवाइस से ही जोड़ें."</string>
     <string name="usb_pref" msgid="6194821550693495068">"यूएसबी"</string>

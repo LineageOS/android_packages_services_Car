@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Masukkan SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Keselamatan"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Rangkaian tersembunyi"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jika penghala anda tidak menyiarkan ID rangkaian tetapi anda mahu menyambungkan telefon ke rangkaian ini pada masa hadapan, anda boleh menetapkan rangkaian tersebut sebagai disembunyikan.\n\nIni boleh menimbulkan risiko keselamatan kerana telefon anda akan menyiarkan isyarat secara kerap untuk mencari rangkaian itu.\n\nPenetapan rangkaian sebagai disembunyikan tidak menukar tetapan penghala anda."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jika penghala anda tidak menyiarkan ID rangkaian tetapi anda mahu menyambungkan telefon kepada rangkaian ini pada masa hadapan, anda boleh menetapkan rangkaian tersebut sebagai disembunyikan.\n\nIni boleh menimbulkan risiko keselamatan kerana telefon anda akan menyiarkan isyarat secara kerap untuk mencari rangkaian itu.\n\nPenetapan rangkaian sebagai disembunyikan tidak menukar tetapan penghala anda."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Kekuatan isyarat"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Status"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Kelajuan pautan hantar"</string>

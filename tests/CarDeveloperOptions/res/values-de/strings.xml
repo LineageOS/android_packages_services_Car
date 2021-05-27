@@ -1755,7 +1755,7 @@
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Menütaste drücken, um die Hilfe aufzurufen"</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Wenn du fertig bist, lass das Display los"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Verbinde mindestens <xliff:g id="NUMBER">%d</xliff:g> Punkte. Bitte versuche es noch einmal."</string>
-    <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"Muster wurde aufgezeichnet."</string>
+    <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"Muster wurde aufgezeichnet"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"Zeichne das Muster zur Bestätigung erneut"</string>
     <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"Dein neues Entsperrungsmuster:"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"Bestätigen"</string>
@@ -3560,7 +3560,7 @@
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Zum Loslösen nach Entsperrungsmuster fragen"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Vor Beenden nach PIN fragen"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Vor dem Beenden nach Passwort fragen"</string>
-    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Gerät beim Beenden sperren"</string>
+    <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Gerät beim Loslösen der App sperren"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Dieses Arbeitsprofil wird verwaltet von:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Verwaltet von <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Experimentell)"</string>

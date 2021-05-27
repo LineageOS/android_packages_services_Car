@@ -367,7 +367,7 @@
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Kilid ekranında profil haqqında infonu göstər"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profil info"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Hesablar"</string>
-    <string name="location_settings_title" msgid="2707201457572301030">"Yer"</string>
+    <string name="location_settings_title" msgid="2707201457572301030">"Məkan"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Məkan istifadə edin"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Deaktiv"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
@@ -1794,7 +1794,7 @@
     <string name="recent_app_category_title" msgid="7688788038277126727">"Ən son istifadə edilən tətbiqlər"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"Bütün <xliff:g id="COUNT">%1$d</xliff:g> tətbiqə baxın"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"Planşet və şəxsi datanız naməlum tətbiqlərin hücumuna qarşı daha həssasdır. Bu mənbədən tətbiq quraşdırmaqla planşetinə dəyə biləcək zərər və ya həmin tətbiqlərin istifadəsi nəticəsində baş verən data itkisinə görə məsuliyyət daşıdığınızı qəbul edirsiniz."</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Telefon və şəxsi datanız naməlum tətbiqlərin hücumuna qarşı daha həssasdır. Bu mənbədən tətbiq quraşdırmaqla telefona dəyə biləcək zərər və ya həmin tətbiqlərin istifadəsi nəticəsində baş verən data itkisinə görə məsuliyyət daşıdığınızı qəbul edirsiniz."</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"Şəxsi məlumatlarınız naməlum mənbə tətbiqlərindən olan hücumlar tərəfindən ələ keçirilə bilər. Bu cür tətbiqləri quraşdırmaqla smartfona dəyəcək bütün zədələrə, məlumatlarınızın oğurlanmasına və itirilməsinə görə məsuliyyəti öz üzərinizə götürdüyünüzü qəbul edirsiniz."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"Cihaz və şəxsi datanız naməlum tətbiqlərin hücumuna qarşı daha həssasdır. Bu mənbədən tətbiq quraşdırmaqla cihaza dəyə biləcək zərər və ya həmin tətbiqlərin istifadəsi nəticəsində baş verən data itkisinə görə məsuliyyət daşıdığınızı qəbul edirsiniz."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"Qabaqcıl ayarlar"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Daha çox parametr seçimlərini aktiv edin"</string>
@@ -2233,7 +2233,7 @@
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"<xliff:g id="REMAIN">%1$s</xliff:g> qalır"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"Şarjın bitməsinə var: <xliff:g id="UNTIL_CHARGED">%1$s</xliff:g>"</string>
-    <string name="background_activity_title" msgid="7207836362312111483">"Arxa fonun məhdudlaşdırılması"</string>
+    <string name="background_activity_title" msgid="7207836362312111483">"Fon rejimində işin məhdudlaşdırılması"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"Tətbiqin arxa fonda işləməsinə icazə verin"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"Tətbiqin arxa fonda işləmək üçün icazəsi yoxdur"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Arxa fon istifadəsi məhdudlaşdırıla bilər"</string>
@@ -2313,8 +2313,8 @@
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"Batareyaya qənaət etmək üçün bu tətbiqlərin arxa fonda batareyadan istifadə etməsini dayandırın. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər.\n\nTətbiqlər:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Batareyaya qənaət etmək üçün bu tətbiqlərin arxa fonda batareyadan istifadə etməsini dayandırın. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər.\n\nTətbiqlər:\n<xliff:g id="APP_LIST">%1$s</xliff:g>"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Mədudlaşdırın"</string>
-    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Məhddudiyyət silinsin?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Bu tətbiq arxa fonda batareyadan istifadə edəcək. Batareya gözlədiyinizdən daha tez bitə bilər."</string>
+    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Məhdudiyyət olmasın?"</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Bu tətbiq fon rejimində batareya enerjisi işlətdiyi üçün enerji tez qurtara bilər."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Silin"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Ləğv edin"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Tətbiqlər batareyadan normal istifadə edirlər. Tətbiqlər həddinən artıq çox batareya istifadə edərsə, telefon Sizin üçün tədbirlər təklif edəcək.\n\nTelefondan az batareya ilə istifadə edirsinizsə, Batareya Qənaətini aktiv edin."</string>
@@ -2449,9 +2449,9 @@
     <string name="battery_saver" msgid="3989710213758938398">"Enerjiyə qənaət"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Avtomatik aktiv edin"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Plan yoxdur"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Rejimə əsasən"</string>
-    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Faizə əsasən"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Batareya növbəti tipik enerji yüklənməsindən əvvəl bitərsə, Enerjiyə Qənaət rejimi aktiv edilir"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Şarj tarixçəsinə əsasən"</string>
+    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Şarj faizinə əsasən"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Bitməyinə az qaldığı halda enerjiyə qənaət edilsin"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"<xliff:g id="PERCENT">%1$s</xliff:g> olduqda aktiv ediləcək"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Cədvəl ayarlayın"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Batareya tam dolduqda deaktiv edin"</string>
@@ -2602,7 +2602,7 @@
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Təşkilatınız tərəfindən idarə olunur"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Tətbiq və bildirişlər deaktivdir"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"İş profilini silin"</string>
-    <string name="background_data" msgid="8275750862371471171">"Fon datası"</string>
+    <string name="background_data" msgid="8275750862371471171">"Arxa fon datası"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Tətbiqlər istənilən vaxt datanı sinxronlaşdıra, göndərə və qəbul edə bilər"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Fon data deaktiv edilsin?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Fon datasının deaktiv edilməsi batareya ömrünü uzadır və data istifadəsini azaldır. Bəzi tətbiqlər də fon data bağlantısını istifadə edə bilərlər."</string>
@@ -2697,7 +2697,7 @@
     <string name="data_usage_forground_label" msgid="8992577451178005406">"Ön fon:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"Arxa fon:"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Tətbiq ayarları"</string>
-    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Arxafon datası"</string>
+    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Arxa fon datası"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Mobil datanın arxa fonda istifadəsini aktiv edin"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Bu tətbiq üçün fon datasını məhdudlaşdırmaq üçün ilk öncə mobil data limitini ayarlayın."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Fon datası məhdudlaşdırılsın?"</string>
@@ -2976,7 +2976,7 @@
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> digər NFC cihazına toxunan zaman data mübadiləsinə icazə verin"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Planşet digər cihazla əlaqədə olduqda data mübadiləsinə icazə verin"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"Telefon digər cihazla əlaqədə olduqda data mübadiləsinə icazə verin"</string>
-    <string name="restriction_location_enable_title" msgid="358506740636434856">"Yer"</string>
+    <string name="restriction_location_enable_title" msgid="358506740636434856">"Məkan"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"Tətbiqlərə yeriniz haqqında məlumatı istifadə etməyə icazə verin"</string>
     <string name="wizard_back" msgid="223654213898117594">"Geri"</string>
     <string name="wizard_next" msgid="5239664512608113542">"Növbəti"</string>
@@ -3681,7 +3681,7 @@
     <string name="usage_access" msgid="2023443456361489516">"İstifadə girişi"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"İstifadə girişinə icazə verin"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Tətbiqin istifadə tərcihləri"</string>
-    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Ekran vaxtı"</string>
+    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"İstifadə müddəti"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"İstifadə girişi işlədilən tətbiqləri və müntəzəmliyi izləyir, operatoru, dili və digər parametrləri müəyyən edir."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Yaddaş"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Yaddaş detalları"</string>
@@ -3758,13 +3758,13 @@
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI və enerji tədarükü"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Arxa fon yoxlaması"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Tam arxa fon girişi"</string>
-    <string name="assist_access_context_title" msgid="2274614501747710439">"Ekrandan mətn istifadə edin"</string>
+    <string name="assist_access_context_title" msgid="2274614501747710439">"Ekrandakı mətni istifadə edin"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"Köməkçi tətbiqə ekran məzmunlarına mətn kimi daxil olmağa icazə verin"</string>
-    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Ani görüntü istifadə edin"</string>
+    <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Skrinşot istifadə edin"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Köməkçi tətbiqə ekran təsvirinə daxil olmağa icazə verin"</string>
-    <string name="assist_flash_title" msgid="8852484250748551092">"Ekran parıldasın"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"Yardım tətbiqi ekrandan və ya ani ekran görüntüsündən mətn daxil etdikdə ekranın kənarları parıldasın"</string>
-    <string name="assist_footer" msgid="7030121180457472165">"Kömək tətbiqləri ekranda baxdığınız məlumatdan asılı olaraq Sizə kömək edə bilər. Bəzi tətbiqlər tamamlanmış kömək üçün həm başladıcı, həm də səs daxiletməsi xidmətlərini dəstəkləyir."</string>
+    <string name="assist_flash_title" msgid="8852484250748551092">"Ekran işıqlansın"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"Köməkçi tətbiq mətnə və ya skrinşota girəndə ekranın kənarları işıqlansın"</string>
+    <string name="assist_footer" msgid="7030121180457472165">"Köməkçi tətbiqlər ekrandakı məlumatı istifadə edə bilər. Rahat olmaları üçün onlardan bəziləri digər tətbiqlərin işə salınmasını və səsli əmr funksiyasını dəstəkləyir."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Orta yaddaş istifadə"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Maksimum yaddaş istifadə"</string>
     <string name="memory_usage" msgid="7963253555330830906">"Yaddaş istifadəsi"</string>
@@ -3799,28 +3799,28 @@
     <string name="app_list_preference_none" msgid="7100409177446935028">"Heç biri"</string>
     <string name="work_profile_usage_access_warning" msgid="403208064382097510">"Bu tətbiqin istifadə girişini deaktiv etmək adminin iş profilindəki tətbiqlərin data istifadəsini izləməsinin qarşısını almır"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"<xliff:g id="COUNT_1">%2$d</xliff:g> simvoldan <xliff:g id="COUNT_0">%1$d</xliff:g> ədəd istifadə olunub"</string>
-    <string name="draw_overlay" msgid="2878665072530660668">"Tətbiqlər üzərindən görüntüləmə"</string>
-    <string name="system_alert_window_settings" msgid="3024330223417646567">"Tətbiqlər üzərindən görüntüləmə"</string>
+    <string name="draw_overlay" msgid="2878665072530660668">"Tətbiqlərin üzərində"</string>
+    <string name="system_alert_window_settings" msgid="3024330223417646567">"Tətbiqlərin üzərində"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"Tətbiqlər"</string>
-    <string name="system_alert_window_access_title" msgid="5187343732185369675">"Tətbiqlər üzərindən görüntüləmə"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"Digər tətbiq üzərindən görüntüləmək icazəsi"</string>
+    <string name="system_alert_window_access_title" msgid="5187343732185369675">"Tətbiqlərin üzərində"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"Tətbiqlərin üzərində"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"Bu tətbiqə işlətdiyiniz digər tətbiqlərin üzərində göstərilmək icazəsi verin. Bu tətbiq həmin tətbiqlərin istifadəsinə müdaxilə edə və ya tətbiqlərin görünüş və davranışını dəyişə bilər."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr virtual reallıq dinləyici stereo köməkçi xidməti"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"digər tətbiqlərin üzərində sistem siqnalının pəncərə dialoq görüntüsü"</string>
-    <string name="overlay_settings" msgid="3325154759946433666">"Tətbiqlər üzərindən görüntüləmə"</string>
-    <string name="system_alert_window_summary" msgid="7703582115861844158">"Digər tətbiqlərin üzərindən görüntülənən <xliff:g id="COUNT_1">%2$d</xliff:g> tətbiqdən <xliff:g id="COUNT_0">%1$d</xliff:g> tətbiq"</string>
+    <string name="overlay_settings" msgid="3325154759946433666">"Tətbiqlərin üzərində"</string>
+    <string name="system_alert_window_summary" msgid="7703582115861844158">"Digər tətbiqlər üzərində görünən <xliff:g id="COUNT_1">%2$d</xliff:g> tətbiqdən <xliff:g id="COUNT_0">%1$d</xliff:g> tətbiq"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Icazəsi ilə Apps"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"İcazə verilib"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"İcazə verilməyib"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"naməlum mənbələrdən tətbiq quraşdırın"</string>
-    <string name="write_settings" msgid="9009040811145552108">"Sistem ayarlarında dəyişiklik edin"</string>
+    <string name="write_settings" msgid="9009040811145552108">"Sistem ayarlarını dəyişin"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"sistem ayarlarını dəyişdirmək yazmaq"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g> tətbiqdən <xliff:g id="COUNT_0">%1$d</xliff:g> tətbiqin sistem ayarlarını dəyişdirməyə icazə verildi"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"Maliyyə Tətbiqləri Sms Girişi"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"Digər tətbiqləri quraşdıra bilər"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Sistem ayarlarını dəyişdirə bilər"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Sistem ayarlarını dəyişdirə bilər"</string>
-    <string name="write_system_settings" msgid="20450765210832463">"Sistem ayarlarında dəyişiklik edin"</string>
+    <string name="write_system_settings" msgid="20450765210832463">"Sistem ayarlarını dəyişin"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Sistem ayarlarının redaktəsinə icazə verin"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Bu icazə tətbiqə sistem ayarlarını dəyişdirməyə imkan verir."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Bəli"</string>
@@ -3991,8 +3991,8 @@
     <string name="data_saver_on" msgid="7281809065420480881">"Aktiv"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Deaktiv"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Datanı qənaətlə işlədin"</string>
-    <string name="unrestricted_app_title" msgid="4390661122069905122">"Məhdudlaşdırılmamış data istifadəsi"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Data Saver aktiv olduğu zaman məhdudlaşdırılmamış data girişinə icazə verin"</string>
+    <string name="unrestricted_app_title" msgid="4390661122069905122">"Məhdudlaşmamış data istifadəsi"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"Trafikə qənaət rejimində icazə verilsin"</string>
     <string name="home_app" msgid="3695063566006954160">"Əsas səhifə tətbiqi"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Defolt Əsas səhifə yoxdur"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"Təhlükəsiz başlama"</string>
@@ -4067,7 +4067,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Bütün"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Tövsiyə və dəstək"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Ən kiçik en"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Heç bir quraşdırılmış tətbiq Premium SMS girişi tələb etməyib"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Quraşdırılmış heç bir tətbiq Premium SMS girişi tələb etməyib"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"Premium SMS müəyyən məbləğ tuta bilər və mobil operator fakturasına əlavə oluna bilər. Tətbiq üçün icazəni aktiv etsəniz, həmin tətbiqdən istifadə edərək, Premium SMS göndərə biləcəksiniz."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Premium SMS girişi"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Deaktiv"</string>

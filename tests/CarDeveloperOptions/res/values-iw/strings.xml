@@ -119,7 +119,7 @@
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> גלוי למכשירים קרובים כאשר הגדרת Bluetooth פתוחה."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"כתובת הטלפון לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"כתובת הטאבלט לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"כתובת המכשיר לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"כתובת המכשיר לחיבור דרך Bluetooth‏: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"האם לנתק את <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"שידור"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"מכשיר Bluetooth ללא שם"</string>
@@ -210,7 +210,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"שדה היציאה חייב להיות ריק אם שדה המארח ריק."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"היציאה שהקלדת אינה חוקית."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"שרת ה-Proxy של HTTP נמצא בשימוש הדפדפן, אך אפליקציות אחרות לא יכולות להשתמש בו."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"כתובת אתר של PAC: "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"כתובת URL של PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"רוחב פס DL (ב-kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"רוחב פס UL (ב-kbps):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"מידע על מיקום סלולרי (הוצא משימוש):"</string>
@@ -804,7 +804,7 @@
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"כדי לשפר את דיוק המיקום, אפליקציות ושירותים של המערכת יכולים עדיין לזהות התקני Bluetooth. ניתן לשנות זאת ב<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>הגדרות הסריקה<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"לא ניתן להתחבר. יש לנסות שוב."</string>
     <string name="device_details_title" msgid="726517818032923222">"פרטי מכשיר"</string>
-    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"כתובת המכשיר לחיבור דרך Bluetooth: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"כתובת המכשיר לחיבור דרך Bluetooth‏: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"לשכוח את המכשיר?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ההתאמה בין הטלפון שלך למכשיר <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"ההתאמה בין הטאבלט שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
@@ -3005,7 +3005,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"רק אם לא פועלת אפליקציית תשלום אחרת"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"במסוף \'הקש ושלם\', שלם באמצעות:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"תשלום במסוף"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"יש להגדיר אפליקציית תשלום. לאחר מכן עליך רק להצמיד את גב הטלפון למסוף שעליו מופיע סמל התשלום ללא מגע."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"יש להגדיר אפליקציית תשלום. לאחר מכן, רק צריך להצמיד את גב הטלפון למסוף שעליו מופיע סמל התשלום ללא מגע."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"הבנתי"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"עוד..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"האם להגדיר בתור ההעדפה שלך?"</string>
