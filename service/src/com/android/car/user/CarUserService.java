@@ -791,6 +791,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         if (!isUserHalSupported()) {
             fallbackToDefaultInitialUserBehavior(/* userLocales= */ null, replaceGuest);
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ_COMPLETE,
+                    requestType);
             return;
         }
 
@@ -843,6 +845,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_RESP, status);
                 fallbackToDefaultInitialUserBehavior(/* user locale */ null, replaceGuest);
             }
+            EventLog.writeEvent(EventLogTags.CAR_USER_SVC_INITIAL_USER_INFO_REQ_COMPLETE,
+                    requestType);
         });
     }
 
