@@ -67,7 +67,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
-     * Battery capacity of the vehicle, if EV or hybrid.  This is the nominal
+     * Battery capacity of the vehicle in watt-hours (Wh), if EV or hybrid. This is the nominal
      * battery capacity when the vehicle is new.
      * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
@@ -130,19 +130,19 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EXTERIOR_DIMENSIONS = 289472779;
     /**
-     * Current odometer value of the vehicle
+     * Current odometer value of the vehicle in kilometers.
      * The property is protected by the signature permission: android.car.permission.CAR_MILEAGE.
      */
     @RequiresPermission(Car.PERMISSION_MILEAGE)
     public static final int PERF_ODOMETER = 291504644;
     /**
-     * Speed of the vehicle
+     * Speed of the vehicle in meters per second.
      * Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int PERF_VEHICLE_SPEED = 291504647;
     /**
-     * Speed of the vehicle for displays
+     * Speed of the vehicle in meters per second for displays.
      *
      * Some cars display a slightly slower speed than the actual speed. This is
      * usually displayed on the speedometer.
@@ -151,23 +151,23 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648;
     /**
-     * Front bicycle model steering angle for vehicle
+     * Front bicycle model steering angle for vehicle in degrees.
      *
-     * Angle is in degrees. Left is negative.
+     * Left is negative.
      * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
      */
     @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
     public static final int PERF_STEERING_ANGLE = 291504649;
     /**
-     * Rear bicycle model steering angle for vehicle
+     * Rear bicycle model steering angle for vehicle in degrees.
      *
-     * Angle is in degrees. Left is negative.
+     * Left is negative.
      * Requires permission: {@link Car#PERMISSION_READ_STEERING_STATE}.
      */
     @RequiresPermission(Car.PERMISSION_READ_STEERING_STATE)
     public static final int PERF_REAR_STEERING_ANGLE = 291504656;
     /**
-     * Temperature of engine coolant
+     * Temperature of engine coolant in celsius.
      * The property is protected by the signature permission:
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
@@ -181,7 +181,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
     public static final int ENGINE_OIL_LEVEL = 289407747;
     /**
-     * Temperature of engine oil
+     * Temperature of engine oil in celsius.
      * The property is protected by the signature permission:
      * android.car.permission.CAR_ENGINE_DETAILED.
      */
@@ -216,7 +216,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
-     * EV battery level in WH, if EV or hybrid
+     * EV battery level in watt-hours (Wh), if EV or hybrid.
      * Requires permission: {@link Car#PERMISSION_ENERGY}.
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
@@ -256,7 +256,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
     public static final int RANGE_REMAINING = 291504904;
     /**
-     * Tire pressure
+     * Tire pressure in kilopascals.
      *
      * min/max value indicates tire pressure sensor range.  Each tire will have a separate min/max
      * value denoted by its areaConfig.areaId.
@@ -358,7 +358,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_FAN_DIRECTION = 356517121;
     /**
-     * HVAC current temperature.
+     * HVAC current temperature in celsius.
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
      */
@@ -625,7 +625,7 @@ public final class VehiclePropertyIds {
             Car.PERMISSION_VENDOR_EXTENSION}))
     public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
     /**
-     * Outside temperature
+     * Outside temperature in celsius.
      * Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_ENVIRONMENT)
