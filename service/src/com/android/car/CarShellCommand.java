@@ -238,6 +238,8 @@ final class CarShellCommand extends ShellCommand {
                 PERMISSION_CAR_CONTROL_AUDIO_VOLUME);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_KEY,
                 android.Manifest.permission.INJECT_EVENTS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_ROTARY,
+                android.Manifest.permission.INJECT_EVENTS);
     }
 
     private static final String PARAM_DAY_MODE = "day";
