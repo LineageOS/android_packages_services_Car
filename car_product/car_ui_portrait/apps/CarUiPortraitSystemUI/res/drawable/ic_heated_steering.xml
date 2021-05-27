@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="43"
+    android:viewportHeight="44">
+  <path
+      android:pathData="M41.7242,26.5517V23.7586C41.7242,23.2063 41.2765,22.7586 40.7242,22.7586H21.2414H0.7587V26.5517H4.3609C8.8031,26.5517 13.0107,28.5456 15.8237,31.9837C17.38,33.8858 18.3595,36.1935 18.6467,38.6343L18.9656,41.3448H23.5173L23.8362,38.6343C24.1233,36.1935 25.1029,33.8858 26.6591,31.9837C29.4721,28.5456 33.6798,26.5517 38.122,26.5517H41.7242Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M40.9244,24.2756C40.6293,28.1041 39.2241,31.7634 36.8809,34.8054C34.5377,37.8474 31.3583,40.14 27.7319,41.4025C24.1055,42.6649 20.1897,42.8424 16.464,41.9132C12.7383,40.984 9.3645,38.9883 6.7557,36.1708C4.1469,33.3532 2.4165,29.836 1.7763,26.0499C1.1361,22.2638 1.614,18.3732 3.1514,14.8546C4.6887,11.3359 7.2189,8.342 10.432,6.2395C13.6451,4.137 17.4015,3.0172 21.2414,3.0172"
+      android:strokeWidth="3"
+      android:fillColor="@android:color/transparent"
+      android:strokeColor="@color/hvac_on_icon_fill_color"
+      android:strokeLineCap="round"/>
+  <path
+      android:pathData="M22.7587,11.7035V18.9655H25.7931V12.6066C25.7931,11.4639 26.1961,10.3578 26.9311,9.4828C27.6661,8.6078 28.069,7.5016 28.069,6.3589V0H25.0345V5.4558C25.0345,6.5985 24.6316,7.7046 23.8966,8.5796C23.1616,9.4546 22.7587,10.5608 22.7587,11.7035Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M29.5862,11.7035V18.9655H32.6207V12.6066C32.6207,11.4639 33.0236,10.3578 33.7586,9.4828C34.4936,8.6078 34.8965,7.5016 34.8965,6.3589V0H31.862V5.4558C31.862,6.5985 31.4591,7.7046 30.7241,8.5796C29.9891,9.4546 29.5862,10.5608 29.5862,11.7035Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M36.4138,11.7035V18.9655H39.4483V12.6066C39.4483,11.4639 39.8512,10.3578 40.5862,9.4828C41.3212,8.6078 41.7242,7.5016 41.7242,6.3589V0H38.6897V5.4558C38.6897,6.5985 38.2867,7.7046 37.5517,8.5796C36.8168,9.4546 36.4138,10.5608 36.4138,11.7035Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+</vector>
