@@ -83,7 +83,10 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * Creates an instance of CarPropertyValue.
+     * Creates an instance of CarPropertyValue. The {@code timestamp} is the time in nanoseconds at
+     * which the event happened. For a given car property, each new CarPropertyValue should be
+     * monotonically increasing using the same time base as
+     * {@link SystemClock#elapsedRealtimeNanos()}.
      *
      * @param propertyId Property ID
      * @param areaId     Area ID of Property
@@ -189,7 +192,13 @@ public final class CarPropertyValue<T> implements Parcelable {
     }
 
     /**
-     * @return Elapsed time of CarPropertyValue since boot in nanoseconds
+     * Returns the timestamp in nanoseconds at which the CarPropertyValue happened. For a given car
+     * property, each new CarPropertyValue should be monotonically increasing using the same time
+     * base as {@link SystemClock#elapsedRealtimeNanos()}.
+     *
+     * <p>NOTE: Timestamp should be synchronized with other signals from the platform (e.g.
+     * {@link Location} and {@link SensorEvent} instances). Ideally, timestamp synchronization
+     * error should be below 1 millisecond.
      */
     public long getTimestamp() {
         return mTimestamp;
