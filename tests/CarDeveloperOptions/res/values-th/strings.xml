@@ -2817,7 +2817,7 @@
     <string name="one_usercrt" msgid="856282310586987313">"ใบรับรองสำหรับผู้ใช้ 1 ราย"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"1 ใบรับรอง CA"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"%d ใบรับรอง CA"</string>
-    <string name="user_credential_title" msgid="6237611303219831419">"รายละเอียดข้อมูลรับรอง"</string>
+    <string name="user_credential_title" msgid="6237611303219831419">"รายละเอียดข้อมูลเข้าสู่ระบบ"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"ข้อมูลรับรองที่นำออก: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"ไม่ได้ติดตั้งข้อมูลรับรองของผู้ใช้"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"โปรแกรมตรวจตัวสะกด"</string>

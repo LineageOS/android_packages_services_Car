@@ -848,7 +848,7 @@
     <string name="wifi_in_airplane_mode" msgid="4729571191578262246">"I flygplansläge"</string>
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Avisering om öppet nätverk"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Meddela om tillgängliga offentliga nätverk av hög kvalitet"</string>
-    <string name="wifi_wakeup" msgid="4963732992164721548">"Aktivera Wi‑Fi automatiskt"</string>
+    <string name="wifi_wakeup" msgid="4963732992164721548">"Aktivera wifi automatiskt"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi‑Fi aktiveras i närheten av sparade nätverk av hög kvalitet, till exempel ditt hemnätverk"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ej tillgängligt eftersom platsåtkomst har inaktiverats. Aktivera "<annotation id="link">"plats"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Detta är inte tillgängligt eftersom Wi‑Fi-sökning har inaktiverats"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Automatisk installation (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vill du aktivera wifi-sökning?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Du måste aktivera wifi-sökning för att kunna aktivera wifi automatiskt."</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Med hjälp av wifi-sökning kan appar och tjänster söka efter Wi‑Fi-nätverk när som helst, även när Wi‑Fi är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Med hjälp av wifi-sökning kan appar och tjänster söka efter wifi-nätverk när som helst, även när wifi är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Aktivera"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi‑Fi-sökning har aktiverats"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Avancerade alternativ"</string>
@@ -1767,7 +1767,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Gör grafiskt lösenord synligt"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Gör det grafiska lösenordet för profilen synligt"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibrera vid tryck"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Strömbrytaren låser direkt"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Strömbrytaren låses direkt"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Utom när den hålls olåst av <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Ange grafiskt lösenord"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Byt grafiskt lösenord"</string>

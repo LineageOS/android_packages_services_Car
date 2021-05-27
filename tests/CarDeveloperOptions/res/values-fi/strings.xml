@@ -2229,7 +2229,7 @@
     <string name="printer_info_desc" msgid="5913001479556045848">"Lisätietoja tästä tulostimesta"</string>
     <string name="power_usage_summary_title" msgid="3871905566750338898">"Akku"</string>
     <string name="power_usage_summary" msgid="2950273948620691117">"Mikä on käyttänyt akkua"</string>
-    <string name="power_usage_not_available" msgid="7040527428065650339">"Akun käyttötietoja ei saatavilla"</string>
+    <string name="power_usage_not_available" msgid="7040527428065650339">"Akun käyttödata ei saatavilla"</string>
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> – <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"<xliff:g id="REMAIN">%1$s</xliff:g> jäljellä"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> latausaikaa jäljellä"</string>
@@ -3645,7 +3645,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"Lisäasetukset"</string>
     <string name="configure_apps" msgid="4066683118857400943">"Sovellusten konfigurointi"</string>
     <string name="unknown_app" msgid="2312052973570376877">"Tuntematon sovellus"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"Käyttöoikeuksien ylläpito"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"Lupien ylläpito"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"Sovellukset, joilla on lupa käyttää seuraavia: <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Herätä napauttamalla"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Herätä laite napauttamalla näyttöä kahdesti."</string>

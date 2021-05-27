@@ -2522,7 +2522,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"రీసెట్ చేయి"</string>
     <string name="tts_play" msgid="9023430029380675514">"ప్లే చేయి"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"ఆధారాల నిల్వ"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"ఆధారాల స్టోరేజ్"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"నిల్వ నుండి ఇన్‌స్టాల్ చేయండి"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD కార్డు నుండి ఇన్‌స్టాల్ చేయండి"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"స్టోరేజ్ నుండి స‌ర్టిఫికెట్‌ల‌ను ఇన్‌స్టాల్ చేయండి"</string>
@@ -2566,7 +2566,7 @@
     <string name="fullbackup_data_summary" msgid="406274198094268556">"డివైజ్ డేటా (Wi-Fi పాస్‌వర్డ్‌లు మరియు కాల్ చరిత్ర వంటివి) మరియు యాప్ డేటాను (సెట్టింగ్‌లు మరియు యాప్‌ల ద్వారా నిల్వ చేయబడిన ఫైల్‌లు వంటివి) స్వయంచాలకంగా రిమోట్ విధానంలో బ్యాకప్ చేస్తుంది.\n\nమీరు స్వీయ బ్యాకప్‌ను ఆన్ చేసినప్పుడు, డివైజ్ మరియు యాప్ డేటా కాలానుగుణంగా రిమోట్ విధానంలో సేవ్ చేయబడుతుంది. డివైజ్‌లు, సందేశాలు మరియు ఫోటోల వంటి సున్నితమైన వ్యక్తిగత డేటాతో సహా యాప్ సేవ్ చేసిన (డెవలపర్ సెట్టింగ్‌ల ఆధారంగా) ఎలాంటి డేటా అయినా యాప్ డేటాగా పరిగణించబడుతుంది."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"పరికర నిర్వాహకుల సెట్టింగ్‌లు"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"డివైజ్ నిర్వాహకుల యాప్"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"ఈ పరికర నిర్వాహకుల యాప్‌ను డీయాక్టివేట్ చేయి"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"ఈ పరికర అడ్మిన్ యాప్‌ను డీయాక్టివేట్ చేయి"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"యాప్‌ను అన్‌ఇన్‌స్టాల్ చేయి"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"నిష్క్రియం చేసి, అన్ఇన్‌స్టాల్ చేయి"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"పరికర నిర్వాహకుల యాప్‌లు"</string>
@@ -2580,7 +2580,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"ఈ పరికరం నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయి"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"పరికర అడ్మిన్"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ఈ \'నిర్వాహకుల యాప్‌\'ను యాక్టివేట్‌ చేస్తే, కింది చర్యలను చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్ అనుమతించబడుతుంది:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"ఈ నిర్వాహకుల యాప్ యాక్టివ్‌గా ఉంది. కింది చర్యలు చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్‌ను అనుమతిస్తుంది:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"ఈ అడ్మిన్ యాప్ యాక్టివ్‌గా ఉంది. కింది చర్యలు చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్‌ను అనుమతిస్తుంది:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"ప్రొఫైల్ నిర్వాహకుడిని సక్రియం చేయాలా?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"కొనసాగిస్తే, మీ వినియోగదారును మీ నిర్వాహకులు నిర్వహించగలరు, దాని వలన మీ వ్యక్తిగత డేటాతో పాటు అనుబంధితంగా ఉన్న డేటా కూడా నిల్వ చేయబడవచ్చు.\n\nమీ నిర్వాహకులు నెట్‌వర్క్ కార్యకలాపం మరియు మీ డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకు అనుబంధితంగా ఉన్న సెట్టింగ్‌లు, యాక్సెస్, యాప్‌లు మరియు డేటాని పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"ఇతర ఎంపికలను మీ నిర్వాహకులు నిలిపివేసారు"</string>

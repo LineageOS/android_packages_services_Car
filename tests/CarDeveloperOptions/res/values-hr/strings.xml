@@ -932,7 +932,7 @@
     <string name="passpoint_label" msgid="7429247462404128615">"Spremljeno putem"</string>
     <string name="passpoint_content" msgid="340527524510304327">"<xliff:g id="NAME">%1$s</xliff:g> vjerodajnice"</string>
     <string name="wifi_eap_method" msgid="3752116941487485859">"EAP metoda"</string>
-    <string name="please_select_phase2" msgid="5848080896810435677">"2. faza provjere autentičnosti"</string>
+    <string name="please_select_phase2" msgid="5848080896810435677">"2. faza autentifikacije"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA certifikat"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domena"</string>
     <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Korisnički certifikat"</string>
@@ -1285,7 +1285,7 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Prikazivanje vremena, ikona obavijesti i drugih informacija. Povećana potrošnja baterije."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Veličina fonta"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Smanjite ili povećajte tekst"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"Postavke zaklj. SIM kartice"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"Postavke zaključavanja SIM kartice"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Zaključavanje SIM kartice"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"Isključeno"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"Zaključano"</string>
@@ -2258,7 +2258,7 @@
     <string name="printer_info_desc" msgid="5913001479556045848">"Više informacija o ovom pisaču"</string>
     <string name="power_usage_summary_title" msgid="3871905566750338898">"Baterija"</string>
     <string name="power_usage_summary" msgid="2950273948620691117">"Što troši bateriju"</string>
-    <string name="power_usage_not_available" msgid="7040527428065650339">"Podaci o upotrebi baterije nedostupni."</string>
+    <string name="power_usage_not_available" msgid="7040527428065650339">"Podaci o potrošnji baterije nedostupni."</string>
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"Preostalo je <xliff:g id="REMAIN">%1$s</xliff:g>"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> do dovršetka punjenja"</string>
