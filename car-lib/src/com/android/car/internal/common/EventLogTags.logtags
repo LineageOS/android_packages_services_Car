@@ -94,6 +94,7 @@ option java_package com.android.car.internal.common
 150126 car_user_svc_start_user_in_background_resp (user_id|1),(result|1)
 150127 car_user_svc_stop_user_req (user_id|1)
 150128 car_user_svc_stop_user_resp (user_id|1),(result|1)
+150129 car_user_svc_initial_user_info_req_complete (request_type|1)
 
 150140 car_user_hal_initial_user_info_req (request_id|1),(request_type|1),(timeout|1)
 150141 car_user_hal_initial_user_info_resp (request_id|1),(status|1),(action|1),(user_id|1),(flags|1),(safe_name|3),(user_locales|3)
