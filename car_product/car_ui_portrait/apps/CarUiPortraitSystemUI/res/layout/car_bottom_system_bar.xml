@@ -60,8 +60,10 @@
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/notifications"
                 style="@style/SystemBarButton"
+                systemui:componentNames="com.android.car.notification/.CarNotificationCenterActivity"
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_notification"
+                systemui:intent="intent:#Intent;component=com.android.car.notification/.CarNotificationCenterActivity;launchFlags=0x24000000;end"
                 systemui:longIntent="intent:#Intent;component=com.android.car.bugreport/.BugReportActivity;end"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
