@@ -141,7 +141,6 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    removed_dex_api_filename: "removed-dex.txt",
     args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* ",
     installable: false,
     check_api: {
@@ -169,7 +168,6 @@ droidstubs {
 droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
-    removed_dex_api_filename: "system-removed-dex.txt",
     args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi ",
     installable: false,
