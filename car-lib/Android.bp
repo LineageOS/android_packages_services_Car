@@ -153,7 +153,6 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    removed_dex_api_filename: "removed-dex.txt",
     args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
         "--hide-package com.android.internal ",
     installable: false,
@@ -182,7 +181,6 @@ droidstubs {
 droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
-    removed_dex_api_filename: "system-removed-dex.txt",
     // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--no-docs --stub-packages android.car* " +
