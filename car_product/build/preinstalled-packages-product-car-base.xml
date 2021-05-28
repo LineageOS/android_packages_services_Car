@@ -37,6 +37,11 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- RemoteProvisioner app does not have any UI and will only be run as
+    a background service -->
+    <install-in-user-type package="com.android.remoteprovisioner">
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
 <!--
   Apps that need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL and SYSTEM.
