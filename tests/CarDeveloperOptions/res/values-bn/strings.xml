@@ -504,7 +504,7 @@
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"আপনি আপনার আঙ্গুলের ছাপ দিয়ে আপনার ফোন আনলক করতে, কেনাকাটাগুলি অনুমোদন করতে বা অ্যাপগুলিতে সাইন-ইন করতে পারবেন না"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"আপনি আপনার আঙ্গুলের ছাপগুলি ব্যবহার করে আপনার কর্মস্থলের প্রোফাইল আনলক করতে, কেনাকাটাগুলি অনুমোদন করতে বা কাজের অ্যাপগুলিতে প্রবেশ করতে পারবেন না"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"হ্যাঁ, সরান"</string>
-    <string name="crypt_keeper_settings_title" msgid="839783588093862748">"এনক্রিপশান"</string>
+    <string name="crypt_keeper_settings_title" msgid="839783588093862748">"এনক্রিপশন"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"ট্যাবলেট এনক্রিপ্ট করুন"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"ফোন এনক্রিপ্ট করুন"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"এনক্রিপ্ট করা আছে"</string>
@@ -772,7 +772,7 @@
     <string name="device_details_title" msgid="726517818032923222">"ডিভাইসের বিবরণ"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"ডিভাইসের ব্লুটুথ ঠিকানা: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"ডিভাইসটি কি ভুলে যাবেন?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> এর সাথে আপনার ফোনটি আর যুক্ত থাকবে না"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>-এর সাথে আপনার ফোনটি আর যুক্ত থাকবে না"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> এর সাথে আপনার ট্যাবলেটটি আর যুক্ত থাকবে না"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> এর সাথে আপনার ডিভাইসটি আর যুক্ত থাকবে না"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"ডিভাইসটি ভুলে যান"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"সর্বদা-চালু VPN গুলিতে শুধুমাত্র সেই DNS সার্ভারগুলি কাজ করে যেগুলির ঠিকানা সংখ্যায় আছে"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"সর্বদা-চালু VPN গুলির জন্য একটি DNS সার্ভার উল্লেখ করা আবশ্যক"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"সর্বদা-চালু VPN গুলির জন্য DNS সার্ভারের ঠিকানাগুলি সংখ্যায় হওয়া আবশ্যক"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"দিয়ে থাকা তথ্য সর্বদা-চালু VPN গুলিতে কাজ করে না"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"দিয়ে থাকা তথ্য \'সর্বদা-চালু VPN\'-এ কাজ করে না"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"বাতিল"</string>
     <string name="vpn_done" msgid="6314426362224527349">"খারিজ করুন"</string>
     <string name="vpn_save" msgid="1332625259182278316">"সেভ করুন"</string>

@@ -730,7 +730,7 @@
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"Bluetooth"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"Управувај со конекции, постави име и откривливост на уредот"</string>
     <string name="bluetooth_pairing_request" msgid="7221745525632573125">"Да се спари со <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
-    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Код за спарување на Bluetooth"</string>
+    <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"Код за спарување преку Bluetooth"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"Внесете го кодот за спарување, а потоа притиснете Врати или Внеси"</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"PIN-от содржи букви или симболи"</string>
     <string name="bluetooth_pin_values_hint" msgid="8044671726261326240">"Обично 0000 или 1234"</string>
@@ -1972,7 +1972,7 @@
     <string name="show_ime" msgid="7322620473198763563">"Прикажи виртуелна тастатура"</string>
     <string name="show_ime_summary" msgid="3246628154011464373">"Прикажувај ја на екранот додека е активна физичката тастатура"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Помош за кратенки на тастатура"</string>
-    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Прикажи ги достапните кратенки на тастатурата"</string>
+    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Прикажувај ги достапните кратенки"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"Тастатури и алатки за работниот профил"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"Виртуелна тастатура за работа"</string>
     <string name="default_keyboard_layout" msgid="9171704064451242230">"Стандардно"</string>
@@ -2229,7 +2229,7 @@
     <string name="printer_info_desc" msgid="5913001479556045848">"Повеќе информации за печатачот"</string>
     <string name="power_usage_summary_title" msgid="3871905566750338898">"Батерија"</string>
     <string name="power_usage_summary" msgid="2950273948620691117">"Што ја користеше батеријата"</string>
-    <string name="power_usage_not_available" msgid="7040527428065650339">"Податоците за батеријата се недостапни"</string>
+    <string name="power_usage_not_available" msgid="7040527428065650339">"Податоците за батеријата се недостапни."</string>
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
     <string name="power_discharge_remaining" msgid="3461915627093471868">"Преостануваат <xliff:g id="REMAIN">%1$s</xliff:g>"</string>
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> до полнење"</string>
@@ -2744,11 +2744,11 @@
     <string name="vpn_server" msgid="5216559017318406820">"Адреса на сервер"</string>
     <string name="vpn_mppe" msgid="4027660356538086985">"Шифрирање PPP (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP тајна"</string>
-    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec идентификатор"</string>
+    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec-идентификатор"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec претходно споделен клуч"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"Кориснички сертификат на IPSec"</string>
-    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA сертификат"</string>
-    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Сертификат за IPSec сервер"</string>
+    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA-сертификат"</string>
+    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"Сертификат за IPSec-сервер"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Прикажи напредни опции"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"Домени на пребарување на DNS"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"DNS-сервери (на пр., 8.8.8.8)"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Постојано вклучената VPN поддржува само нумерички адреси на сервер"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Мора да се назначи DNS-сервер за секогаш вклучената VPN"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Адресите на DNS-серверот мора да се нумерички за секогаш вклучената VPN"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Внесените информации не поддржуваат постојано вклучена VPN"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Внесените податоци не поддржуваат секогаш вклучена VPN"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Откажи"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Отфрли"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Зачувај"</string>
@@ -3023,7 +3023,7 @@
     <string name="sim_notification_title" msgid="2457890173055955672">"SIM-картичките се променети."</string>
     <string name="sim_notification_summary" msgid="6421556454979313850">"Допрете за да поставите"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"Претпочитана SIM-картичка за"</string>
-    <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Секогаш прашувај"</string>
+    <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Прашувај секогаш"</string>
     <string name="sim_selection_required_pref" msgid="8738591348923992419">"Потребно е да се избере"</string>
     <string name="sim_selection_channel_title" msgid="5671915549529226023">"Избор на SIM"</string>
     <string name="dashboard_title" msgid="3343056553551876215">"Поставки"</string>
@@ -3244,7 +3244,7 @@
     <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Исклучено / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Исклучено"</string>
     <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Вклучено"</string>
-    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Секогаш прашувај (освен ако не е вклучено автоматски)"</string>
+    <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Прашувај секогаш (освен ако не е вклучено автоматски)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Додека не го исклучите (освен ако не е вклучено автоматски)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
       <item quantity="one"><xliff:g id="NUM_HOURS">%d</xliff:g> час (освен ако не e вклучeно автоматски)</item>
@@ -3659,7 +3659,7 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> апликации отвораат поддржани линкови</item>
     </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"Отвори во апликацијава"</string>
-    <string name="app_link_open_ask" msgid="4054678686331517561">"Секогаш прашувај"</string>
+    <string name="app_link_open_ask" msgid="4054678686331517561">"Прашувај секогаш"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"Не отворај во апликацијава"</string>
     <string name="default_apps_title" msgid="3848048391400989931">"Стандардно"</string>
     <string name="default_for_work" msgid="7290411716804495366">"Стандардно за работа"</string>
@@ -4389,7 +4389,7 @@
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефонот автоматски ќе се префли на овој оператор кога ќе биде во опсег"</string>
     <string name="calls_preference" msgid="2076353032705811243">"Претпочитана претплата за повици"</string>
     <string name="sms_preference" msgid="8449270011976880">"Претпочитана претплата за SMS"</string>
-    <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Секогаш прашувај"</string>
+    <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Прашувај секогаш"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Додајте мрежа"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
       <item quantity="one"><xliff:g id="COUNT_1">%1$d</xliff:g> SIM-картичка</item>

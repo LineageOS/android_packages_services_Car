@@ -2579,7 +2579,7 @@
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Kích hoạt ứng dụng quản trị thiết bị?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Kích hoạt ứng dụng quản trị thiết bị này"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Quản trị viên thiết bị"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Kích hoạt ứng dụng quản trị này sẽ cho phép ứng dụng <xliff:g id="APP_NAME">%1$s</xliff:g> thực hiện các thao tác sau:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Khi bạn kích hoạt ứng dụng quản trị này, ứng dụng <xliff:g id="APP_NAME">%1$s</xliff:g> sẽ có thể thực hiện các thao tác sau:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Ứng dụng quản trị này đang hoạt động và cho phép ứng dụng <xliff:g id="APP_NAME">%1$s</xliff:g> thực hiện các thao tác sau:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Kích hoạt Trình quản lý hồ sơ?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Bằng cách tiếp tục, người dùng sẽ được quản lý bởi quản trị viên của bạn, người này cũng có thể lưu trữ dữ liệu được liên kết, ngoài thông tin cá nhân của bạn. \n\nQuản trị viên của bạn có thể giám sát và quản lý cài đặt, quyền truy cập, ứng dụng và dữ liệu được liên kết với người dùng này, bao gồm cả hoạt động mạng và thông tin vị trí của thiết bị."</string>
@@ -3888,7 +3888,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"Hiển thị"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"Ẩn"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Điểm phát sóng đang hoạt động"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"Đang bật chế độ trên máy bay"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"Chế độ trên máy bay đang bật"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Không có mạng"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"Không làm phiền đang bật"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Điện thoại đã tắt tiếng"</string>

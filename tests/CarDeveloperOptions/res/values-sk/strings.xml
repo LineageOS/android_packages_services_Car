@@ -4411,7 +4411,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"Automatické dopĺňanie"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Úroveň zaznamenávania"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Maximálny počet žiadostí na reláciu"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Max. viditeľných množín dát"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Maximum viditeľných množín údajov"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Resetovať na predvolené hodnoty"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Možnosti automatického dopĺňania pre vývojárov boli obnovené"</string>
     <string name="device_theme" msgid="8992291311481135893">"Motív zariadenia"</string>

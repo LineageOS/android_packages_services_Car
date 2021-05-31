@@ -2744,8 +2744,8 @@
     <string name="vpn_server" msgid="5216559017318406820">"អាសយដ្ឋាន​ម៉ាស៊ីន​មេ"</string>
     <string name="vpn_mppe" msgid="4027660356538086985">"ការអ៊ីនគ្រីប PPP (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"ព័ត៌មាន​សម្ងាត់ L2TP"</string>
-    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"គ្រឿង​សម្គាល់ IPSec"</string>
-    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"សោ​ចែករំលែក​មុន IPSec"</string>
+    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"ព័ត៌មានសម្គាល់ IPSec"</string>
+    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"កូដ​ចែករំលែក​ពីមុន IPSec"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"វិញ្ញាបនបត្រ​អ្នក​ប្រើ IPSec"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"វិញ្ញាបនបត្រ IPSec CA"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"វិញ្ញាបនបត្រ​ម៉ាស៊ីន​មេ IPSec"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"VPN ដែលបើកជានិច្ចស្គាល់តែអាសយដ្ឋានម៉ាស៊ីមេជាលេខតែប៉ុណ្ណោះ"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"ម៉ាស៊ីនមេ DNS ត្រូវតែធ្វើការបញ្ជាក់សម្រាប់ VPN ដែលបើកជានិច្ច"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"អាសយដ្ឋាន​ម៉ាស៊ីនមេ DNS ត្រូវតែជាលេខសម្រាប់ VPN ដែលបើកជានិច្ច"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"ព័ត៌មានដែល​បានបញ្ចូល​មិនស្គាល់ VPN ដែលបើកជានិច្ចទេ"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"ព័ត៌មានដែល​បានបញ្ចូល​មិនអាចប្រើជាមួយ \"បើក VPN ជានិច្ច\" បានទេ"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"បោះ​បង់​"</string>
     <string name="vpn_done" msgid="6314426362224527349">"ច្រានចោល"</string>
     <string name="vpn_save" msgid="1332625259182278316">"រក្សាទុក"</string>

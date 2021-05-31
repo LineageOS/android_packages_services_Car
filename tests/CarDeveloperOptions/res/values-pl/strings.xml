@@ -939,7 +939,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Wpisz identyfikator SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Zabezpieczenia"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Sieć ukryta"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jeśli router nie transmituje identyfikatora sieci, ale chcesz się z nią łączyć w przyszłości, możesz ją ustawić jako ukrytą.\n\nMoże to stanowić zagrożenie bezpieczeństwa, bo Twój telefon będzie regularnie transmitował sygnał, by znaleźć sieć.\n\nUstawienie sieci jako ukrytej nie zmienia ustawień routera."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jeśli router nie transmituje identyfikatora sieci, ale chcesz się z nią łączyć w przyszłości, możesz ją ustawić jako ukrytą.\n\nMoże to stanowić zagrożenie dla bezpieczeństwa, bo Twój telefon będzie regularnie transmitował sygnał, żeby znaleźć sieć.\n\nUstawienie sieci jako ukrytej nie zmienia ustawień routera."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Siła sygnału"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Stan"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Szybkość łącza nadawania"</string>
@@ -2648,7 +2648,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ogranicz dostęp do SMS-ów i rejestru połączeń"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Tylko domyślne aplikacje do obsługi telefonu i wiadomości mają dostęp do SMS-ów i rejestru połączeń"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Brak agentów zaufania"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktywować aplikację do administrowania urządzeniem?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktywować tę aplikację?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktywuj tę aplikację do administrowania urządzeniem"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administrator urządzenia"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Aktywowanie tej aplikacji do zarządzania pozwoli aplikacji <xliff:g id="APP_NAME">%1$s</xliff:g> wykonywać te operacje:"</string>

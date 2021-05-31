@@ -729,7 +729,7 @@
     <string name="bluetooth_settings" msgid="5228032727293770389">"ಬ್ಲೂಟೂತ್‌‌"</string>
     <string name="bluetooth_settings_title" msgid="7261244857456521825">"ಬ್ಲೂಟೂತ್‌‌"</string>
     <string name="bluetooth_settings_summary" msgid="1221689092429277887">"ಸಂಪರ್ಕಗಳನ್ನು ನಿರ್ವಹಿಸಿ, ಸಾಧನದ ಹೆಸರು &amp; ಅನ್ವೇಷಣೆಯಾಗುವಿಕೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
-    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ಜೊತೆ ಜೋಡಿಸುವುದೇ?"</string>
+    <string name="bluetooth_pairing_request" msgid="7221745525632573125">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ಜೊತೆ ಜೋಡಿಸಬೇಕೇ?"</string>
     <string name="bluetooth_pairing_key_msg" msgid="1139230917419961975">"ಬ್ಲೂಟೂತ್ ಜೋಡಿಸುವ ಕೋಡ್"</string>
     <string name="bluetooth_enter_passkey_msg" msgid="6205151011298670207">"ಜೋಡಣೆ ಕೋಡ್‌ ಟೈಪ್‌ ಮಾಡಿ ತದನಂತರ ರಿಟರ್ನ್‌ ಅಥವಾ ಎಂಟರ್‌ ಒತ್ತಿ."</string>
     <string name="bluetooth_enable_alphanumeric_pin" msgid="9138308197078115672">"ಅಕ್ಷರಗಳು ಅಥವಾ ಚಿಹ್ನೆಗಳನ್ನು ಪಿನ್‌ ಹೊಂದಿದೆ"</string>
@@ -1568,7 +1568,7 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"ಡಿಫಾಲ್ಟ್ APN ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಮರುಸ್ಥಾಪಿಸಲಾಗುತ್ತಿದೆ."</string>
     <string name="menu_restore" msgid="3799288817317293115">"ಡೀಫಾಲ್ಟ್‌ಗೆ  ಮರುಹೊಂದಿಸು"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"ಡಿಫಾಲ್ಟ್ APN ಸೆಟ್ಟಿಂಗ್‌ಗಳ ಮರುಹೊಂದಿಕೆಯು ಪೂರ್ಣಗೊಂಡಿದೆ."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"ಮರುಹೊಂದಿಸುವ ಆಯ್ಕೆಗಳು"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"ರೀಸೆಟ್ ಆಯ್ಕೆಗಳು"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"ನೆಟ್‌ವರ್ಕ್, ಆ್ಯಪ್‍‍ಗಳು ಅಥವಾ ಸಾಧನವನ್ನು ಮರುಹೊಂದಿಸಬಹುದಾಗಿದೆ"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"ವೈ-ಫೈ, ಮೊಬೈಲ್ ಮತ್ತು ಬ್ಲೂಟೂತ್ ಮರುಹೊಂದಿಸಿ"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"ಕೆಳಗಿನವುಗಳನ್ನು ಒಳಗೊಂಡಂತೆ ಇದು ಎಲ್ಲಾ ನೆಟ್‌ವರ್ಕ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಮರುಹೊಂದಿಸುತ್ತದೆ:\n\n"<li>"ವೈ-ಫೈ"</li>\n<li>"ಮೊಬೈಲ್ ಡೇಟಾ"</li>\n<li>"ಬ್ಲೂಟೂತ್‌"</li></string>
@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"ಭೌತಿಕ ಕೀಬೋರ್ಡ್‌ ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"\".\" ಅನ್ನು ಸೇರಿಸಲು ಸ್ಪೇಸ್ ಕೀ ಅನ್ನು ಎರಡು ಬಾರಿ ಒತ್ತಿ"</string>
     <string name="show_password" msgid="620964020348073739">"ಪಾಸ್‌ವರ್ಡ್‌ಗಳನ್ನು ತೋರಿಸಿ"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"ನೀವು ಟೈಪ್ ಮಾಡಿದಂತೆ ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಅಕ್ಷರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಿ"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"ನೀವು ಟೈಪ್ ಮಾಡುತ್ತಿರುವಾಗಲೇ ಸಂಕ್ಷಿಪ್ತವಾಗಿ ಅಕ್ಷರಗಳನ್ನು ಪ್ರದರ್ಶಿಸಿ"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"ಪಾಸ್‌ವರ್ಡ್‌ಗಳು ಮತ್ತು ಕ್ರೆಡಿಟ್ ಕಾರ್ಡ್ ಸಂಖ್ಯೆಗಳಂತಹ ವೈಯಕ್ತಿಕ ಡೇಟಾ ಒಳಗೊಂಡಂತೆ ನೀವು ಟೈಪ್ ಮಾಡುವ ಎಲ್ಲ ಪಠ್ಯವನ್ನು ಸಂಗ್ರಹಿಸಲು ಈ ಕಾಗುಣಿತ ಪರೀಕ್ಷಕಕ್ಕೆ ಸಾಧ್ಯವಾಗಬಹುದು. ಇದು <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g> ಅಪ್ಲಿಕೇಶನ್‌ನಿಂದ ಬರುತ್ತದೆ. ಈ ಕಾಗುಣಿತ ಪರೀಕ್ಷಕವನ್ನು ಬಳಸುವುದೇ?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"ಭಾಷೆ"</string>
@@ -2525,7 +2525,7 @@
     <string name="credentials_title" msgid="7119207354982673965">"ರುಜುವಾತು ಸಂಗ್ರಹಣೆ"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"ಸಂಗ್ರಹಣೆಯಿಂದ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD ಕಾರ್ಡ್‌ನಿಂದ ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
-    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"ಸಂಗ್ರಹಣೆಯಿಂದ ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ಸ್ಥಾಪಿಸಿ"</string>
+    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"ಸಂಗ್ರಹಣೆಯಿಂದ ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD ಕಾರ್ಡ್‌ನಿಂದ ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ಇನ್‌ಸ್ಟಾಲ್ ಮಾಡಿ"</string>
     <string name="credentials_reset" msgid="355080737664731678">"ರುಜುವಾತುಗಳನ್ನು ತೆರವುಗೊಳಿಸಿ"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"ಎಲ್ಲ ಪ್ರಮಾಣಪತ್ರಗಳನ್ನು ತೆಗೆದುಹಾಕು"</string>
@@ -2576,8 +2576,8 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"ಎಸ್‌ಎಂಎಸ್ ಮತ್ತು ಕರೆ ಲಾಗ್ ಪ್ರವೇಶವನ್ನು ನಿರ್ಬಂಧಿಸಿ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ಡೀಫಾಲ್ಟ್ ಫೋನ್ ಮತ್ತು ಸಂದೇಶ ಕಳುಹಿಸುವಿಕೆ ಆ್ಯಪ್‌ಗಳು ಎಸ್‌ಎಂಎಸ್ ಮತ್ತು ಕರೆ ಲಾಗ್ ಅನುಮತಿಗಳನ್ನು ಹೊಂದಿವೆ"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"ಯಾವುದೇ ವಿಶ್ವಾಸಾರ್ಹ ಏಜೆಂಟ್‌ಗಳು ಲಭ್ಯವಿಲ್ಲ"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"ಸಾಧನ ನಿರ್ವಹಣೆ ಅಪ್ಲಿಕೇಶನ್ ಸಕ್ರಿಯ ಮಾಡಬೇಕೇ?"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"ಈ ಸಾಧನ ನಿರ್ವಹಣೆ ಅಪ್ಲಿಕೇಶನ್ ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"ಸಾಧನ ನಿರ್ವಹಣೆ ಆ್ಯಪ್ ಸಕ್ರಿಯ ಮಾಡಬೇಕೇ?"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"ಈ ಸಾಧನ ನಿರ್ವಹಣೆ ಆ್ಯಪ್ ಸಕ್ರಿಯಗೊಳಿಸಿ"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"ಸಾಧನದ ನಿರ್ವಾಹಕರು"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ಈ ನಿರ್ವಹಣಾ ಅಪ್ಲಿಕೇಶನ್ ಅನ್ನು ಸಕ್ರಿಯಗೊಳಿಸಿದರೆ, ಈ ಕೆಳಗಿನ ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು ಮಾಡಲು <xliff:g id="APP_NAME">%1$s</xliff:g> ಗೆ ಅನುಮತಿಸಲಾಗುತ್ತದೆ:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"ಈ ನಿರ್ವಹಣಾ ಅಪ್ಲಿಕೇಶನ್ ಸಕ್ರಿಯವಾಗಿದೆ ಮತ್ತು ಈ ಕೆಳಗಿನ ಕಾರ್ಯಾಚರಣೆಗಳನ್ನು ಮಾಡಲು <xliff:g id="APP_NAME">%1$s</xliff:g> ಗೆ ಅನುಮತಿ ನೀಡುತ್ತದೆ:"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"ಮತ್ತೊಂದು ಪಾವತಿ ಅಪ್ಲಿಕೇಶನ್ ತೆರೆದಿರುವುದನ್ನು ಹೊರತುಪಡಿಸಿ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"ಟ್ಯಾಪ್‌ ಮಾಡಿ ಮತ್ತು ಪಾವತಿ ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ, ಇದರ ಮೂಲಕ ಪಾವತಿಸಿ:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ಟರ್ಮಿನಲ್‌ನಲ್ಲಿ ಪಾವತಿಸುವಿಕೆ"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ಪಾವತಿ ಆ್ಯಪ್ ಹೊಂದಿಸಿ. ನಂತರ ಸಂಪರ್ಕವಿಲ್ಲದ ಚಿಹ್ನೆಯೊಂದಿಗೆ ಯಾವುದೇ ಟರ್ಮಿನಲ್‌ಗೆ ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಹಿಡಿದುಕೊಳ್ಳಿ."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ಪಾವತಿ ಆ್ಯಪ್ ಸೆಟ್ ಅಪ್ ಮಾಡಿ. ನಂತರ ಸಂಪರ್ಕವಿಲ್ಲದ ಚಿಹ್ನೆಯೊಂದಿಗೆ ಯಾವುದೇ ಟರ್ಮಿನಲ್‌ಗೆ ನಿಮ್ಮ ಫೋನ್ ಅನ್ನು ಹೋಲ್ಡ್ ಮಾಡಿ."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ತಿಳಿಯಿತು"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"ಇನ್ನಷ್ಟು..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"ನಿಮ್ಮ ಪ್ರಾಶಸ್ತ್ಯವನ್ನು ಹೊಂದಿಸಬೇಕೆ?"</string>

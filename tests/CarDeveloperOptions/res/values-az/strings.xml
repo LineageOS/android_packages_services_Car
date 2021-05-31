@@ -1800,7 +1800,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Daha çox parametr seçimlərini aktiv edin"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Tətbiq info"</string>
     <string name="storage_label" msgid="1109537840103290384">"Yaddaş"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Defolt olaraq açın"</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Defolt olaraq açılsın"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Defoltlar"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Ekran uyğunluğu"</string>
     <string name="permissions_label" msgid="7341733648403464213">"İcazələr"</string>
@@ -1829,7 +1829,7 @@
     <string name="app_factory_reset" msgid="8718986000278776272">"Güncəlləşmələri qaldırın"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Siz bu tətbiqi defolt olaraq bəzi əməliyyatlar üçün işəsalımlı etdiniz."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Siz bu tətbiqə widget yaratmaq və onların məlumatlarını əldə etməyə imkan vermə seçimini etmisiniz."</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Varsayılan ayarlanmayıb."</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"Defolt ayarlanmayıb."</string>
     <string name="clear_activities" msgid="2068014972549235347">"Varsayılanları təmizlə"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"Bu tətbiq ekranınıza uyğunlaşa bilməz. Ekranınıza necə uyğunlaşması haqqında burada idrə edə bilərsiniz."</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"Başladılanda soruş"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Həmişə aktiv olan VPN yalnız rəqəmli server ünvanlarını dəstəkləyir"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Həmişə aktiv olan VPN üçün DNS serveri göstərilməlidir"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Həmişə aktiv olan VPN üçün DNS server ünvanları rəqəmli olmalıdır"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Daxil edilən məlumat həmişə aktiv volan VPN\'i dəstəkləmir"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Daxil edilən məlumat həmişə aktiv olan VPN\'i dəstəkləmir"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Ləğv edin"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Rədd edin"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Yadda saxlayın"</string>
@@ -3389,7 +3389,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"şiş şəkil içində"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Şəkil-içində-şəkil"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Şəkil içində şəkil icazəsi"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Tətbiq açıq olanda və ya tətbiqdən çıxdıqdan sonra (məsələn, videoya baxmağa davam etmək üçün) bu tətbiqə şəkil içində şəkil pəncərəsi yaratmağa icazə verin. Bu pəncərə istifadə etdiyiniz digər tətbiqlərin üstündə görüntülənəcək."</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Tətbiq açıq olanda və ya tətbiqdən çıxdıqdan sonra (məsələn, videoya baxmağa davam etmək üçün) bu tətbiqə şəkil içində şəkil pəncərəsi yaratmağa icazə versəniz, bu pəncərə digər tətbiqlərin üzərində görünəcək."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"\"Narahat etməyin\" girişi"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"\"Narahat etməyin\" rejiminə icazə verin"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Heç bir tətbiq \"Narahat etməyin\" girişi sorğusu göndərməyib"</string>
@@ -3588,9 +3588,9 @@
     <string name="imei_information_title" msgid="7666097743700170757">"IMEI məlumat"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI nisbi məlumat"</string>
     <string name="slot_number" msgid="785422579177068698">"(Slot<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Defolt olaraq açın"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Linklər açılır"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Dəstəklənən linkləri açın"</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Defolt olaraq açılsın"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Linklərin açılması"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Dəstəklənən linklər açılsın"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Soruşmadan açın"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Dəstəklənən linklər"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Digər defoltlar"</string>
@@ -3649,8 +3649,8 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g> istifadə edən tətbiqlər"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Oyatmaq üçün tıklayın"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Cihazı oyatmaq üçün ekranın istənilən yerində iki dəfə basın"</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"Linklər açılır"</string>
-    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Dəstəklənən linkləri açmayın"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"Linklərin açılması"</string>
+    <string name="domain_urls_summary_none" msgid="5401203416941265109">"Dəstəklənən linklər açılmasın"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"<xliff:g id="DOMAIN">%s</xliff:g> domenini açın"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"<xliff:g id="DOMAIN">%s</xliff:g> domenini və digər URL\'ləri açın"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Tətbiq açan dəstəklənən link yoxdur"</string>
@@ -4010,7 +4010,7 @@
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Cihaz kilidlidirsə, bildirişlərdə cavab və ya digər mətnlərin yazılmasının qarşısını alın."</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Defolt orfoqrafik yoxlama"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Orfoqrafik yoxlama seçin"</string>
-    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Orfoqrafik yoxlamadan istifadə edin"</string>
+    <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Orfoqrafik yoxlama işlədin"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Seçilməyib"</string>
     <string name="notification_log_no_title" msgid="3668232437235348628">"(heç biri)"</string>
     <string name="notification_log_details_delimiter" msgid="5485526744689532908">": "</string>
@@ -4150,7 +4150,7 @@
     <string name="oem_lock_info_message" msgid="5090850412279403901">"Cihazın qoruma funksiyasını aktiv etmək üçün yeniən başladın."</string>
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"Ümumi olaraq <xliff:g id="SIZE">%1$s</xliff:g> əlçatandır\n\nSonuncu dəfə <xliff:g id="DATE">%2$s</xliff:g> tarixində çalışdı"</string>
     <string name="web_action_enable_title" msgid="4462106633708675959">"Ani tətbiqlər"</string>
-    <string name="web_action_enable_summary" msgid="1729016644691793085">"Hətta quraşdırılmasa belə, linki tətbiqlərdə açın"</string>
+    <string name="web_action_enable_summary" msgid="1729016644691793085">"Hətta tətbiqlər quraşdırılmış olmasa da, onlardakı linklər açılsın"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"Ani tətbiqlər"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"Ani Tətbiq seçimləri"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"Quraşdırılmış tətbiqlər"</string>
@@ -4309,7 +4309,7 @@
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Cihaz adı"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi nəzarəti"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Tətbiqə Wi-Fi şəbəkəsinə nəzarət etmək icazəsi verin"</string>
-    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Bu tətbiqə Wi-Fi şəbəkəsini aktiv və ya deaktiv etmək, Wi-Fi  şəbəkəsini skan etmək və ona qoşulmaq, şəbəkə əlavə etmək və ya silmək, eyni zamanda yalnız lokal olan hotspota qoşulmaq icazəsi verin"</string>
+    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Bu tətbiqə Wi-Fi şəbəkəsini aktiv və ya deaktiv etmək, Wi-Fi  şəbəkəsini skan etmək və ona qoşulmaq, şəbəkə əlavə etmək və ya silmək, eyni zamanda yalnız lokal hotspota qoşulmaq icazəsi verin"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Medianı oxudun"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Bu cihaz"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Telefon"</string>

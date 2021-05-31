@@ -895,7 +895,7 @@
     <string name="wifi_more" msgid="3538241640407382185">"Mehr"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Automatisches Setup (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"WLAN-Suche aktivieren?"</string>
-    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Damit die WLAN-Funktion automatisch aktiviert werden kann, musst die Funktion \"WLAN-Suche\" aktiviert sein."</string>
+    <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Damit die WLAN-Funktion automatisch aktiviert werden kann, muss die Funktion „WLAN-Suche“ aktiviert sein."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wenn die Funktion \"WLAN-Suche\" aktiviert ist, dürfen Apps und Dienste immer nach WLANs suchen, auch wenn die WLAN-Funktion deaktiviert ist. Das hilft z. B. dabei, standortbasierte Funktionen und Dienste zu verbessern."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Aktivieren"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"WLAN-Suche aktiviert"</string>
@@ -1973,7 +1973,7 @@
     <string name="show_ime" msgid="7322620473198763563">"Bildschirmtastatur anzeigen"</string>
     <string name="show_ime_summary" msgid="3246628154011464373">"Bildschirmtastatur auch dann anzeigen, wenn physische Tastatur aktiv ist"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Hilfe zu Tastenkombinationen"</string>
-    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Verfügbare Tastenkombinationen anzeigen"</string>
+    <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Verfügbare Tastenkürzel anzeigen"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"Tastaturen und Tools für das Arbeitsprofil"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"Bildschirmtastatur für die Arbeit"</string>
     <string name="default_keyboard_layout" msgid="9171704064451242230">"Standard"</string>
@@ -2450,8 +2450,8 @@
     <string name="battery_saver" msgid="3989710213758938398">"Energiesparmodus"</string>
     <string name="battery_saver_auto_title" msgid="4158659069641849952">"Automatisch aktivieren"</string>
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Keine Aktivierung nach Zeitplan"</string>
-    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Gemäß meiner Gewohnheiten"</string>
-    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Anhand des Ladestands"</string>
+    <string name="battery_saver_auto_routine" msgid="886514412067906980">"Aktivierung gemäß meiner Gewohnheiten"</string>
+    <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Aktivierung gemäß festgelegtem Akkustand"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Der Energiesparmodus wird automatisch aktiviert, wenn der Akku wahrscheinlich nicht bis zum nächsten Aufladen hält (ermittelt anhand deines üblichen Aufladezeitpunkts)."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Wird bei <xliff:g id="PERCENT">%1$s</xliff:g> aktiviert"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Zeitplan festlegen"</string>

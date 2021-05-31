@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s иска достъп до съобщенията ви. Ще предоставите ли достъп до %2$s?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"Заявка за достъп до SIM картата"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> иска да получи достъп до SIM картата ви. Предоставянето му ще деактивира мобилните данни на устройството ви за продължителността на връзката. Разрешаване на достъпа до <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Видимо като „<xliff:g id="DEVICE_NAME">^1</xliff:g>“ за другите устройства"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"Видимо като <xliff:g id="DEVICE_NAME">^1</xliff:g> за другите устройства"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"Включете Bluetooth, за да се свържете с други устройства."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"Вашите устройства"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"Сдвояване на ново устройство"</string>
@@ -772,7 +772,7 @@
     <string name="device_details_title" msgid="726517818032923222">"Подробности за устройството"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Bluetooth адрес на устройството: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Да се забрави ли устройството?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефонът ви вече няма да бъде сдвоен с(ъс) „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефонът ви вече няма да бъде сдвоен с(ъс) <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Таблетът ви вече няма да бъде сдвоен с/ъс „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Устройството ви вече няма да бъде сдвоено с/ъс „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Забравяне на устройството"</string>
@@ -2708,7 +2708,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Всички промени, които правите в профилите си в мрежата, ще бъдат копирани автоматично в телефона ви.\n\nНякои профили може също да копират автоматично в мрежата извършените от вас промени в телефона. Профилът в Google работи по този начин."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Да се изключи ли авт. синхронизиране на данни?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Това ще спести използването на данни и батерия, но ще трябва да синхронизирате ръчно всеки профил, за да събирате скорошна информация. Също така няма да получавате известия, когато има актуализации."</string>
-    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Дата на възстановяване на цикъла за използване"</string>
+    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Дата на нулиране на цикъла за използване"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Дата от всеки месец:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Задаване"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Задаване на предупреждение за ползване на данни"</string>
@@ -3275,7 +3275,7 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Когато режимът „Не безпокойте“ е включен, съобщенията, напомнянията и събитията ще бъдат спрени – това не се отнася за елементите, разрешени от вас по-горе. Можете да коригирате настройките за съобщенията, за да разрешите на близки и приятели и други контакти да се свързват с вас."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Готово"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Настройки"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Без визуално прекъсване или звук от известията"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Без звук или визуално прекъсване от известията"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Без звук от известията"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Няма да виждате, нито да чувате известията. Обажданията от контактите със звезда и повторно обаждащите се са разрешени."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Текуща настройка)"</string>
@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Подобряване на живота на батерията на телефона"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Предотвратяване на звъненето"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Натиснете заедно бутоните за захранване и увеличаване на силата на звука за"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Натиснете заедно бутона за вкл./изкл. и този за увеличаване на силата на звука за"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Пряк път за предотвратяване на звъненето"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Вибриране"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Заглушаване"</string>

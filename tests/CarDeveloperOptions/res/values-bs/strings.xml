@@ -2113,7 +2113,7 @@
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"Ako koristite miš, kursor možete podesiti tako da automatski preuzme radnju kada se prestane kretati određeno vrijeme."</string>
     <string name="accessibility_autoclick_delay_preference_title" msgid="8303022510942147049">"Odgoda prije klika"</string>
     <string name="accessibility_vibration_settings_title" msgid="1902649657883159406">"Vibracija"</string>
-    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Vibracija obavještenja"</string>
+    <string name="accessibility_notification_vibration_title" msgid="1005799039440510298">"Vibracija pri obavještenjima"</string>
     <string name="accessibility_ring_vibration_title" msgid="7943341443551359985">"Vibracija pri zvonu"</string>
     <string name="accessibility_touch_vibration_title" msgid="285890135612038092">"Vibracija pri dodiru"</string>
     <string name="accessibility_service_master_switch_title" msgid="2734791644475782924">"Koristi uslugu"</string>
@@ -2793,7 +2793,7 @@
     <string name="vpn_password" msgid="5325943601523662246">"Lozinka"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"Sačuvajte informacije o računu"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(ne koristi se)"</string>
-    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ne verifikuj server)"</string>
+    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ne potvrđuj server)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(primljeno od servera)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"Ova vrsta VPN-a ne može biti stalno povezana"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Uvijek aktivni VPN podržava samo numeričke adrese servera"</string>
@@ -3177,7 +3177,7 @@
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Jačina zvuka zvona je na 80%"</string>
     <string name="media_volume_option_title" msgid="3553411883305505682">"Jačina zvuka medija"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Jačina zvuka emitiranja"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"Jačina zvuka tokom poziva"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"Jačina zvuka poziva"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Jačina zvuka alarma"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Jačina zvuka zvona"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Jačina zvuka za obavještenja"</string>
@@ -3238,18 +3238,18 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Dozvolite vizualnu signalizaciju"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"Kada je uključena funkcija Ne ometaj"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Ograničite obavještenja"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Obavještenja bez zvuka"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Bez zvuka obavještenja"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Obavještenja ćete vidjeti na ekranu"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Telefon neće zvoniti ili vibrirati kada stignu nova obavještenja."</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Obavještenja bez vizuelnih elemenata ili zvuka"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Bez vizuelnih elemenata ili zvuka obavještenja"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Obavještenja nećete vidjeti niti čuti"</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"U slučaju novih ili postojećih obavještenja, vaš telefon ih neće prikazivati, neće vibrirati niti zvoniti. Imajte na umu da će se kritična obavještenja o aktivnosti i statusu telefona i dalje pojavljivati.\n\nKada isključite funkciju Ne ometaj, propuštena obavještenja ćete pronaći prevlačenjem s vrha ekrana prema dolje."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Prilagođeno"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Omogući prilagođenu postavku"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Ukloni prilagođenu postavku"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Obavještenja bez zvuka"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Bez zvuka obavještenja"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Djelimično skriveno"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Obavještenja bez vizuelnih elemenata ili zvuka"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Bez vizuelnih elemenata ili zvuka obavještenja"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Prilagođena ograničenja"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Kada je ekran uključen"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Kada je ekran isključen"</string>
@@ -3319,8 +3319,8 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Kada je uključen način rada Ne ometaj, zvuk poruka, podsjetnika i događaja će se isključiti, osim za stavke kojim dozvolite iznad. Postavke poruka možete podesiti da omogućite prijateljima, porodici ili drugim kontaktima da vas kontaktiraju."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Gotovo"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Postavke"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Obavještenja bez vizuelnih elemenata ili zvuka"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Obavještenja bez zvuka"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Bez vizuelnih elemenata ili zvuka obavještenja"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Bez zvuka obavještenja"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Obavještenja nećete vidjeti ili čuti. Dozvoljeni su pozivi od kontakata označenih zvjezdicom i ponovljenih pozivalaca."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Trenutna postavka)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Promijeniti postavke obavještenja načina rada Ne ometaj?"</string>
@@ -4548,7 +4548,7 @@
     <string name="force_desktop_mode" msgid="6973100177551040740">"Nametni način rada na računaru"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Nametanje eksperimentalnog načina rada na računaru na sekundarnim ekranima"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Nadjačaj nametanje tamne teme"</string>
-    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Nadjačava funkciju nametanja tamne teme tako da je uvijek uključena"</string>
+    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Nadjačava nametanje uvijek uključene tamne teme"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Privatnost"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Odobrenja, aktivnost računa, lični podaci"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Ukloni"</string>

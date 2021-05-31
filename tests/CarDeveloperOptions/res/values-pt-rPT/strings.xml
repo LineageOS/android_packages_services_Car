@@ -1113,7 +1113,7 @@
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Endereço de emergência"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Utilizado como a sua localização quando efetuar chamadas de emergência através de Wi‑Fi."</string>
-    <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"Saiba mais"</annotation>" acerca das funcionalidades de DNS privado."</string>
+    <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"Saiba mais"</annotation>" acerca das funcionalidades de DNS privado"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"Definição gerida pelo operador."</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Ativar Chamadas Wi-Fi"</string>
     <string name="wifi_calling_turn_on" msgid="1212277809455062043">"Ativar Chamadas Wi-Fi"</string>
@@ -3469,7 +3469,7 @@
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Nenhum"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Todos os dias"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"O alarme pode substituir a hora de fim"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"O horário desliga-se quando um alarme toca."</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"O horário desliga-se quando um alarme toca"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Não incomodar"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Utilizar predefinições"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Criar definições personalizadas para este horário"</string>
@@ -4289,7 +4289,7 @@
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"Nenhuma aplicação compatível com o ANGLE definida."</string>
     <string name="angle_enabled_app_set" msgid="7313088703610569320">"Aplicação compatível com o ANGLE: <xliff:g id="APP_NAME">%1$s</xliff:g>"</string>
     <string name="game_driver_dashboard_title" msgid="219443350404091201">"Preferências da placa gráfica de jogos"</string>
-    <string name="game_driver_dashboard_summary" msgid="1500674075618790528">"Modifique as definições da placa gráfica de jogos."</string>
+    <string name="game_driver_dashboard_summary" msgid="1500674075618790528">"Modifique as definições da placa gráfica de jogos"</string>
     <string name="game_driver_footer_text" msgid="1540158284161797913">"Quando a placa gráfica de jogos está ativada, pode optar por utilizar o controlador da placa gráfica atualizado para as aplicações instaladas no dispositivo."</string>
     <string name="game_driver_all_apps_preference_title" msgid="2453795714218707495">"Ative para todas as aplicações"</string>
     <string name="game_driver_app_preference_title" msgid="7732401084883356004">"Selecione a placa gráfica"</string>

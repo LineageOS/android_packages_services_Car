@@ -766,7 +766,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"ขั้นสูง"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"บลูทูธขั้นสูง"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"เมื่อเปิดบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธที่อยู่ใกล้ๆ ได้"</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"เมื่อเปิดใช้งานบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธเครื่องอื่นในบริเวณใกล้เคียงได้\n\nเพื่อปรับปรุงประสบการณ์การใช้งานอุปกรณ์ แอปและบริการต่างๆ จะยังคงสแกนหาอุปกรณ์ใกล้เคียงตลอดเวลาแม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่ คุณสามารถเปลี่ยนแปลงการตั้งค่านี้ได้ใน"<annotation id="link">"การตั้งค่าการสแกน"</annotation>"."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"เมื่อเปิดใช้งานบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธเครื่องอื่นในบริเวณใกล้เคียงได้\n\nเพื่อปรับปรุงประสบการณ์การใช้งานอุปกรณ์ แอปและบริการต่างๆ จะยังคงสแกนหาอุปกรณ์ใกล้เคียงตลอดเวลาแม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่ คุณสามารถเปลี่ยนแปลงการตั้งค่านี้ได้ใน"<annotation id="link">"การตั้งค่าการสแกน"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"แอปและบริการของระบบจะยังสามารถตรวจหาอุปกรณ์บลูทูธได้อยู่เพื่อปรับปรุงความแม่นยำของตำแหน่ง คุณสามารถเปลี่ยนแปลงฟีเจอร์นี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"ไม่สามารถเชื่อมต่อ โปรดลองอีกครั้ง"</string>
     <string name="device_details_title" msgid="726517818032923222">"รายละเอียดอุปกรณ์"</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"เลือกผู้ให้บริการจัดอันดับเครือข่ายเพื่อใช้งาน"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"เลือกผู้ให้บริการจัดอันดับเครือข่ายที่ใช้งานร่วมกันได้เพื่อใช้งาน"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"ติดตั้งใบรับรอง"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"เพื่อปรับปรุงความแม่นยำของตำแหน่ง แอปและบริการต่างๆ จะยังคงสแกนหาเครือข่าย Wi‑Fi ได้ทุกเมื่อ แม้ว่า Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่ คุณเปลี่ยนแปลงการตั้งค่านี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"เพื่อปรับปรุงความแม่นยำของตำแหน่ง แอปและบริการต่างๆ จะยังคงสแกนหาเครือข่าย Wi‑Fi ได้ทุกเมื่อ แม้ว่า Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่ คุณเปลี่ยนแปลงการตั้งค่านี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"เปิดการสแกนหา Wi-Fi ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>เพื่อปรับปรุงความแม่นยำของตำแหน่ง"</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"ไม่ต้องแสดงข้อความนี้อีก"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"เปิด WiFi ขณะอยู่ในโหมดสลีป"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"การตั้งค่าอัตโนมัติ (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"เปิดการสแกนหา Wi-Fi ไหม"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"คุณต้องเปิดการสแกนหา Wi-Fi ก่อนจึงจะเปิด Wi-Fi โดยอัตโนมัติได้"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"การสแกนหา Wi-Fi อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"การสแกนหา Wi-Fi อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"เปิด"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"เปิดการสแกนหา Wi-Fi แล้ว"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"ตัวเลือกขั้นสูง"</string>
@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"ใช้แบตเตอรี่น้อย"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"การสแกนหา Wi‑Fi และบลูทูธ"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"การสแกนหา Wi‑Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"การสแกนหาบลูทูธ"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"อนุญาตให้แอปและบริการต่างๆ สแกนหาอุปกรณ์ใกล้เคียงตลอดเวลา แม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"อนุญาตให้แอปและบริการต่างๆ สแกนหาอุปกรณ์ใกล้เคียงตลอดเวลา แม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"บริการตำแหน่งสำหรับการทำงาน"</string>
     <string name="location_network_based" msgid="1535812159327454835">"ตำแหน่ง WiFi และเครือข่าย"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"ให้แอปต่างๆ ใช้บริการระบุตำแหน่งของ Google เพื่อระบุตำแหน่งโดยประมาณของคุณรวดเร็วยิ่งขึ้น โดยจะมีการรวบรวมและส่งข้อมูลตำแหน่งที่ไม่ระบุชื่อให้ Google"</string>
@@ -3557,8 +3557,8 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"การตรึงหน้าจอ"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"เมื่อเปิดการตั้งค่านี้ คุณจะใช้การปักหมุดหน้าจอเพื่อให้หน้าจอปัจจุบันอยู่ในมุมมองตลอดได้จนกว่าจะเลิกปักหมุด\n\nวิธีใช้การปักหมุดหน้าจอ\n\n1. ดูว่าคุณเปิดใช้การปักหมุดหน้าจอแล้ว\n\n2. เปิด \"ภาพรวม\"\n\n3. แตะไอคอนแอปที่ด้านบนของหน้าจอ แล้วแตะ \"ปักหมุด\""</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"ขอรูปแบบการปลดล็อกก่อนเลิกปักหมุด"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"ขอ PIN ก่อนเลิกตรึง"</string>
-    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"ขอรหัสผ่านก่อนเลิกตรึง"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"ขอ PIN ก่อนเลิกปักหมุด"</string>
+    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"ขอรหัสผ่านก่อนเลิกปักหมุด"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ล็อกอุปกรณ์เมื่อเลิกปักหมุด"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"โปรไฟล์งานนี้ได้รับการจัดการโดย:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"จัดการโดย <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>

@@ -771,7 +771,7 @@
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Échec de la connexion. Réessayez."</string>
     <string name="device_details_title" msgid="726517818032923222">"Détails de l\'appareil"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Adresse Bluetooth de l\'appareil : <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Oubliez l\'appareil?"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Oublier l\'appareil?"</string>
     <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Votre téléphone ne sera plus associé avec <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Votre tablette ne sera plus associée à <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Votre appareil ne sera plus associé avec <xliff:g id="DEVICE_NAME">%1$s</xliff:g>"</string>
@@ -880,7 +880,7 @@
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"Le Wi-Fi ne se réactive pas automatiquement"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"Réseaux Wi-Fi"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"Plus d\'options"</string>
-    <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi Direct"</string>
+    <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi-Fi direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"Scanner"</string>
     <string name="wifi_menu_advanced" msgid="5984484498045511072">"Paramètres avancés"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"Configurer"</string>
@@ -1040,7 +1040,7 @@
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"Passerelle"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Longueur préfixe réseau"</string>
-    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi-Fi Direct"</string>
+    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi-Fi direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"Données relatives à l\'appareil utilisé"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Mémoriser cette connexion"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"Rechercher des appareils"</string>

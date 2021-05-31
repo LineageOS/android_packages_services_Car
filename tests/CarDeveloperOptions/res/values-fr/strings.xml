@@ -2758,7 +2758,7 @@
     <string name="vpn_save_login" msgid="6215503139606646915">"Enregistrer les informations de compte"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(non utilisé)"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ne pas valider le serveur)"</string>
-    <string name="vpn_no_server_cert" msgid="679622228649855629">"(certificat reçu du serveur)"</string>
+    <string name="vpn_no_server_cert" msgid="679622228649855629">"(reçu du serveur)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"Ce type de VPN ne peut pas rester connecté en permanence"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Le VPN permanent n\'accepte que les adresses de serveur composées de chiffres"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Vous devez spécifier un serveur DNS pour le VPN permanent"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"À la réception de notifications, votre téléphone n\'émet aucun son et ne vibre pas."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Aucune notification visuelle ni sonore"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Vous ne recevrez aucune notification visuelle ni sonore"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Votre téléphone n\'affichera rien, ne vibrera pas et n\'émettra aucun signal sonore pour les notifications nouvelles et existantes. N\'oubliez pas que les notifications importantes concernant l\'activité et l\'état du téléphone apparaîtront toujours.\n\nLorsque vous désactiverez la fonctionnalité Ne pas déranger, vous pourrez retrouver les notifications manquées en balayant l\'écran de haut en bas."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Votre téléphone n\'affichera rien à l\'écran, ne vibrera pas et n\'émettra aucun son pour les notifications nouvelles ou déjà reçues. Les notifications importantes concernant l\'activité et l\'état du téléphone continueront d\'apparaître.\n\nLorsque vous désactiverez le mode Ne pas déranger, vous pourrez retrouver les notifications manquées en balayant l\'écran de haut en bas."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Personnalisé"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Activer le paramètre personnalisé"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Supprimer le paramètre personnalisé"</string>
@@ -3284,9 +3284,9 @@
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utiliser les sons du profil perso"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Les sons des profils professionnel et personnel sont identiques"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone pro"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son des notifications pro"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son par défaut des notifications pro"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonnerie par défaut du réveil pro"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Mêmes sons que pour le profil professionnel"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Pareil que pour le profil perso"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Remplacer des sons ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Remplacer"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Les sons de votre profil personnel seront utilisés pour votre profil professionnel"</string>
@@ -3990,7 +3990,7 @@
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Les données en arrière-plan sont désactivées."</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Activé"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Désactivé"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Utiliser l\'économiseur de données"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Utiliser l\'Économiseur de données"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Conso données non restreinte"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Autoriser l\'accès non restreint aux données lorsque l\'économiseur de données est activé"</string>
     <string name="home_app" msgid="3695063566006954160">"Application sur la page d\'accueil"</string>

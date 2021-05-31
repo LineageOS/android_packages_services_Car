@@ -1532,13 +1532,13 @@
     <string name="apn_name" msgid="8431432886706852226">"အမည်"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"ပရောက်စီ"</string>
-    <string name="apn_http_port" msgid="5789193688960075486">"ပို့ နံပါတ်"</string>
+    <string name="apn_http_port" msgid="5789193688960075486">"ပို့တ်"</string>
     <string name="apn_user" msgid="6979724587671704006">"သုံးစွဲသူ အမည်"</string>
     <string name="apn_password" msgid="7140724726108226386">"စကားဝှက်"</string>
     <string name="apn_server" msgid="625116221513279678">"ဆာဗာ"</string>
     <string name="apn_mmsc" msgid="4621771343217824216">"MMSC"</string>
-    <string name="apn_mms_proxy" msgid="636948562860444714">"MMSပရောက်စီ"</string>
-    <string name="apn_mms_port" msgid="6606572282014819299">"MMSပို့နံပါတ်"</string>
+    <string name="apn_mms_proxy" msgid="636948562860444714">"MMS ပရောက်စီ"</string>
+    <string name="apn_mms_port" msgid="6606572282014819299">"MMS ပို့တ်"</string>
     <string name="apn_mcc" msgid="9138301167194779180">"MCC"</string>
     <string name="apn_mnc" msgid="1276161191283274976">"MNC"</string>
     <string name="apn_auth_type" msgid="4286147728662523362">"စစ်မှန်ကြောင်းအတည်ပြုရန်အမျိုးအစား"</string>
@@ -1546,7 +1546,7 @@
     <string name="apn_auth_type_pap" msgid="6155876141679480864">"PAP"</string>
     <string name="apn_auth_type_chap" msgid="5484031368454788686">"CHAP"</string>
     <string name="apn_auth_type_pap_chap" msgid="2977833804460109203">"PAP သို့မဟုတ် CHAP"</string>
-    <string name="apn_type" msgid="6725346490902871146">"APNအမျိုးအစား"</string>
+    <string name="apn_type" msgid="6725346490902871146">"APN အမျိုးအစား"</string>
     <string name="apn_protocol" msgid="1240197323563960912">"APN ပရိုတိုကောလ်"</string>
     <string name="apn_roaming_protocol" msgid="6913336248771263497">"APN ကွန်ယက်ပြင်ပဒေတာအသုံးပြုခြင်း လုပ်ထုံးလုပ်နည်း"</string>
     <string name="carrier_enabled" msgid="1819916725305365581">"APN ရရှိနိုင်ခြင်း/မရရှိနိုင်ခြင်း"</string>
@@ -1956,7 +1956,7 @@
     <string name="auto_caps" msgid="5566082723106296847">"အော်တိုစာလုံးကြီးပြောင်း"</string>
     <string name="auto_caps_summary" msgid="8505254799874525084">"စာကြောင်း၏ပထမစာလုံးအား အကြီးပြုလုပ်ရန်"</string>
     <string name="auto_punctuate" msgid="8386007107100525931">"ပုဒ်ဖြတ် ပုဒ်မ အလိုအလျောက်ပြင်ခြင်း"</string>
-    <string name="hardkeyboard_category" msgid="5937171470391551627">"ခလုတ်ပါဝင်သောကီးဘုတ်ဆက်တင်များ"</string>
+    <string name="hardkeyboard_category" msgid="5937171470391551627">"စက်၏ ကီးဘုတ် ဆက်တင်များ"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Space key အားနှစ်ခါနှိပ်ပါက  \".\" အား ထည့်မည်"</string>
     <string name="show_password" msgid="620964020348073739">"စကားဝှက်များကို ပြရန်"</string>
     <string name="show_password_summary" msgid="1403805089582258620">"စာရိုက်သည့်အခါ အက္ခရာများကို ခဏတာပြရန်"</string>
@@ -1968,9 +1968,9 @@
     <string name="available_virtual_keyboard_category" msgid="2211375533762470875">"ရနိုင်သည့် ပကတိအသွင်ကီးဘုတ်"</string>
     <string name="add_virtual_keyboard" msgid="490638727157806209">"ကီးဘုတ်များကို စီမံခန့်ခွဲပါ"</string>
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"ကီးဘုတ် အကူ"</string>
-    <string name="physical_keyboard_title" msgid="3508591962962814313">"ကီးဘုတ် ခလုတ်ခုံ"</string>
+    <string name="physical_keyboard_title" msgid="3508591962962814313">"စက်၏ ကီးဘုတ်"</string>
     <string name="show_ime" msgid="7322620473198763563">"ပကတိအသွင်ကီးဘုတ်ပြပါ"</string>
-    <string name="show_ime_summary" msgid="3246628154011464373">"ခလုတ်ခုံကီးဘုတ်ဖွင့်ထားစဉ်တွင် ၎င်းကိုမျက်နှာပြင်ပေါ်တွင် ဆက်လက်ထားရှိပါ"</string>
+    <string name="show_ime_summary" msgid="3246628154011464373">"စက်၏ ကီးဘုတ် ဖွင့်ထားစဉ်တွင် ၎င်းကိုမျက်နှာပြင်ပေါ်တွင် ဆက်လက်ထားရှိပါ"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"ကီးဘုတ်ဖြတ်လမ်း အကူအညီ"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"ရနိုင်သည့် ဖြတ်လမ်းများကို ဖော်ပြပါ"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"အလုပ်ပရိုဖိုင် လက်ကွက်နှင့် တူးလ်များ"</string>
@@ -2021,8 +2021,8 @@
     <string name="input_methods_settings_label_format" msgid="5927400388781960176">"<xliff:g id="IME_NAME">%1$s</xliff:g>ဆက်တင်များ"</string>
     <string name="input_methods_and_subtype_enabler_title" msgid="75557930915149416">"ရရှိနိုင်သောထည့်သွင်းရန်နည်းလမ်းများ"</string>
     <string name="onscreen_keyboard_settings_summary" msgid="148763210673670769">"ဖန်မျက်နှာပြင်ပေါ်ရှိကီးဘုတ် ဆက်တင်များ"</string>
-    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"ခလုတ်ပါရှိသောကီးဘုတ်"</string>
-    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"ခလုတ်ပါဝင်သောကီးဘုတ်ဆက်တင်များ"</string>
+    <string name="builtin_keyboard_settings_title" msgid="3683883402326039724">"စက်၏ ကီးဘုတ်"</string>
+    <string name="builtin_keyboard_settings_summary" msgid="6498739864479285932">"စက်၏ ကီးဘုတ် ဆက်တင်များ"</string>
     <string name="gadget_picker_title" msgid="9146981887780645322">"ဂါဂျစ်အား ရွေးချယ်မည်"</string>
     <string name="widget_picker_title" msgid="5424689728810684439">"ဝဒ်ဂျစ်အား ရွေးရန်"</string>
     <string name="allow_bind_app_widget_activity_allow_bind_title" msgid="8168110035319637326">"ဝဒ်ဂျက်ဖန်တီး၍ သုံးစွဲခွင့်ပြုမည်လား ?"</string>
@@ -2749,7 +2749,7 @@
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSecအသုံးပြုသူလက်မှတ်"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA အသိအမှတ်ပြုလက်မှတ်"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec ဆာဗာအသိအမှတ်ပြုလက်မှတ်"</string>
-    <string name="vpn_show_options" msgid="7672984921872882859">"အဆင့်မြင့်ရွေးချယ်မှု ပြရန်"</string>
+    <string name="vpn_show_options" msgid="7672984921872882859">"အဆင့်မြင့်ရွေးစရာများ ပြရန်"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS ရှာဖွေမှု ဒိုမိန်းများ"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"DNS ဆာဗာများ (e.g. 8.8.8.8)"</string>
     <string name="vpn_routes" msgid="3393989650778663742">"တစ်ဆင့်ပို့လမ်းကြောင်း (ဥပမာ 10.0.0.0/8)"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"အခြား ငွေပေးချေရေး အက်ပ်ပွင့်နေချိန်မှအပ"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"တို့ထိပြီးပေးရန် နေရာတွင် အောက်ပါနည်းဖြင့် ပေးပါ-"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"ငွေချေစက်တွင် ငွေပေးချေခြင်း"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ငွေပေးချေရေး အက်ပ်ကို သတ်မှတ်ပါ။ ၎င်းနောက် သင့်ဖုန်း၏ ကျောဘက်ကို ချိတ်ဆက်ရန် မလိုသင်္ကေတပါ ငွေချေစက် တစ်ခုဆီသို့ ကပ်လိုက်ပါ။"</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"ငွေပေးချေရေး အက်ပ်ကို သတ်မှတ်ပါ။ ၎င်းနောက် သင့်ဖုန်း၏ ကျောဘက်ကို ထိတွေ့မှုမဲ့ သင်္ကေတပါ ငွေချေစက် တစ်ခုဆီသို့ ကပ်လိုက်ပါ။"</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"ရပါပြီ"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"နောက်ထပ်..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"သင်၏ ဦးစားပေးချက်များ သတ်မှတ်မည်လား?"</string>
@@ -2959,7 +2959,7 @@
     <string name="enhanced_4g_lte_mode_title_4g_calling" msgid="1262729135500839141">"4G ခေါ်ဆိုမှု"</string>
     <string name="enhanced_4g_lte_mode_summary" msgid="4515503153340557170">"အသံခေါ်ဆိုမှုနှင့် အခြားဆက်သွယ်ရေးများ ပိုကောင်းစေရန် LTE ဝန်ဆောင်မှုများ အသုံးပြုပါ (အကြံပြုထားသည်)"</string>
     <string name="enhanced_4g_lte_mode_summary_4g_calling" msgid="1006226172299077404">"အသံခေါ်ဆိုမှုနှင့် အခြားဆက်သွယ်ရေးများ ပိုကောင်းစေရန် 4G ဝန်ဆောင်မှုများ အသုံးပြုပါ (အကြံပြုထားသည်)"</string>
-    <string name="preferred_network_type_title" msgid="1980819233332592332">"ပိုနှစ်သက်သော ကွန်ရက်အမျိုးအစား"</string>
+    <string name="preferred_network_type_title" msgid="1980819233332592332">"ဦးစားပေး ကွန်ရက်အမျိုးအစား"</string>
     <string name="preferred_network_type_summary" msgid="8828375904939960006">"LTE (အကြံပြုထား)"</string>
     <string name="work_sim_title" msgid="2885654516046971985">"အလုပ် ဆင်းမ်"</string>
     <string name="user_restrictions_title" msgid="6454305007320972740">"အက်ပ်&amp; အကြောင်းအရာ ရယူသုံးရန်"</string>
@@ -3145,7 +3145,7 @@
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"အက်ပ်ကပံ့ပိုးပေးသော အသံ"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"မူရင်းအကြောင်းကြားသံ"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"မူရင်းနှိုးစက်သံ"</string>
-    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"ခေါ်ဆိုမှုများအတွက် တုန်ခါပါ"</string>
+    <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"ခေါ်ဆိုမှုများအတွက် တုန်ခါခြင်း"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"အခြားအသံများ"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"ဖုန်းဒိုင်ခွက် အသံ"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"စခရင်ပိတ်သံ"</string>
@@ -3210,12 +3210,12 @@
     <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"အကြောင်းကြားချက်များအတွက် ရုပ်ပုံ သို့မဟုတ် အသံ မဖွင့်ရန်"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"စိတ်ကြိုက် ကန့်သတ်ချက်များ"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"မျက်နှာပြင် ဖွင့်ထားချိန်"</string>
-    <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"မျက်နှာပြင် ပိတ်ထားချိန်"</string>
+    <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"ဖန်သားပြင် ပိတ်ထားချိန်"</string>
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"အသံနှင့် တုန်ခါမှု ပိတ်ရန်"</string>
-    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"မျက်နှာပြင် မဖွင့်ပါနှင့်"</string>
+    <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"ဖန်သားပြင် မဖွင့်ပါနှင့်"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"မီးမှိတ်တုတ်မှိတ်တုတ် မလုပ်ပါနှင့်"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"မျက်နှာပြင်ပေါ်တွင် အကြောင်းကြားချက်များ မဖော်ပြပါနှင့်"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"မျက်နှာပြင်ထိပ်ပိုင်းရှိ အခြေအနေပြဘား သင်္ကေတများ ဖျောက်ရန်"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"ဖန်သားပြင်ပေါ်တွင် အကြောင်းကြားချက်များ မပြပါနှင့်"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"ဖန်သားပြင်ထိပ်ပိုင်းရှိ အခြေအနေပြဘား သင်္ကေတများ ဖျောက်ရန်"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"အက်ပ်သင်္ကေတပေါ်ရှိ အကြောင်းကြားချက် အစက်များ ဖျောက်ရန်"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"အကြောင်းကြားချက်အတွက် မနှိုးပါနှင့်"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"အကြောင်းကြားချက်များ စာရင်းမှ ဖျောက်ရန်"</string>
@@ -3225,7 +3225,7 @@
     <string name="zen_mode_block_effect_summary_sound" msgid="4907185880913861880">"အသံနှင့် တုန်ခါမှု"</string>
     <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"အကြောင်းကြားချက်များအတွက် အသံ၊ တုန်ခါမှုနှင့် မြင်ရသည့် အချက်ပြမှုအချို့"</string>
     <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"အကြောင်းကြားချက်များအတွက် အသံ၊ တုန်ခါမှုနှင့် မြင်ရသည့် အချက်ပြမှုများ"</string>
-    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"အခြေခံ ဖုန်းလုပ်ဆောင်ချက်အတွက် အကြောင်းကြားချက်များ လိုအပ်ပြီး အခြေအနေပြခြင်းကို မည်သည့်အခါမျှ ဖျောက်ထားမည်မဟုတ်ပါ"</string>
+    <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"အခြေခံ ဖုန်းလုပ်ဆောင်ချက်အတွက် လိုအပ်သော အကြောင်းကြားချက်နှင့် အခြေအနေကို မည်သည့်အခါမှ ဖျောက်မထားပါ။"</string>
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"မရှိ"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"အခြားရွေးချယ်စရာများ"</string>
     <string name="zen_mode_add" msgid="2533484377786927366">"ထည့်ရန်"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(လက်ရှိ ဆက်တင်)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\'မနှောင့်ယှက်ရ\' အကြောင်းကြားချက် ဆက်တင်များ ပြောင်းမလား။"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"အလုပ်ပရိုဖိုင်ဆိုင်ရာ အသံများ"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ကိုယ်ရေးပရိုဖိုင်အသံကို သုံးပါ"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ကိုယ်ပိုင်ပရိုဖိုင်အသံများ သုံးပါ"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"အသံများသည် အလုပ်နှင့် ကိုယ်ပိုင်ပရိုဖိုင်များအတွက် အတူတူပင် ဖြစ်သည်"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"အလုပ်ဖုန်းမြည်သံ"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"မူရင်း အလုပ်အကြောင်းကြားသံ"</string>
@@ -3545,7 +3545,7 @@
     <string name="zen_mode_summary_always" msgid="2703276042913200837">"အမြဲတမ်း ကြားဖြတ်ရန်သို့ ပြောင်းမည်"</string>
     <string name="zen_mode_screen_on" msgid="7098470659072167219">"မျက်နှာပြင် ဖွင့်ထားချိန်"</string>
     <string name="zen_mode_screen_on_summary" msgid="8275416649295357524">"\'မနှောင့်ယှက်ရ\' အကွက်ဖြင့် အကြောင်းကြားချက်များကို အသံတိတ်ခွင့်ပြုပြီး အခြေအနေဘား သင်္ကေတပြခွင့်ပြုပါ"</string>
-    <string name="zen_mode_screen_off" msgid="84211490206459038">"မျက်နှာပြင် ပိတ်ထားချိန်"</string>
+    <string name="zen_mode_screen_off" msgid="84211490206459038">"ဖန်သားပြင် ပိတ်ထားချိန်"</string>
     <string name="zen_mode_screen_off_summary" msgid="8592179073243001267">"\"မနှောင့်ယှက်ရ\" က ပိတ်ထားသော အကြောင်းကြားချက်များကို မျက်နှာပြင်ကိုဖွင့်၍ မီးမှိတ်တုတ်ပြခွင့်ပေးပါ"</string>
     <string name="zen_mode_screen_off_summary_no_led" msgid="7255874108150630145">"\"မနှောင့်ယှက်ရ\" က ပိတ်ထားသော အကြောင်းကြားချက်များကို မျက်နှာပြင်ကိုဖွင့်ခွင့်ပေးပါ"</string>
     <string name="notification_app_settings_button" msgid="3651180424198580907">"အကြောင်းကြားချက် ဆက်တင်များ"</string>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"အချိန်၊ အကြောင်းကြားချက်များနှင့် အခြားအချက်အလက်များကို စစ်ရန် သင့်ဖုန်းကို မ လိုက်ပါ။"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"အချိန်၊ အကြောင်းကြားချက်များနှင့် အခြားအချက်အလက်များကို စစ်ရန် သင့်တက်ဘလက်ကို မ လိုက်ပါ။"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"အချိန်၊ အကြောင်းကြားချက်များနှင့် အခြားအချက်အလက်များကို စစ်ရန် သင့်စက်ပစ္စည်းကို မ လိုက်ပါ။"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ဖုန်းကို စစ်ဆေးရန် တို့ပါ"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"ဖုန်းစစ်ရန် တို့ခြင်း"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"တက်ဘလက်ကို စစ်ဆေးရန် တို့ပါ"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"စက်ပစ္စည်းကို စစ်ဆေးရန် တို့ပါ"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"အချိန်၊ အကြောင်းကြားချက်များနှင့် အခြားအချက်အလက်များကို စစ်ဆေးရန် သင့်ဖန်သားပြင်ကို တို့ပါ။"</string>
@@ -4248,7 +4248,7 @@
     <string name="launch_instant_app" msgid="5251693061228352333">"ဖွင့်ရန်"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"ဂိမ်းများ"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"အသံဖိုင်များ"</string>
-    <string name="app_info_storage_title" msgid="6643391804949509308">"သိုလှောင်ခန်း အသုံးပြုမှု"</string>
+    <string name="app_info_storage_title" msgid="6643391804949509308">"သိုလှောင်နေရာ အသုံးပြုမှု"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(အသုံးပြုသူ <xliff:g id="USER">%s</xliff:g> အတွက် ဖြုတ်ထားသည်)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(အသုံးပြုသူ <xliff:g id="USER">%s</xliff:g> အတွက် ပိတ်ထားသည်)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"အော်တိုဖြည့် ဝန်ဆောင်မှု"</string>
@@ -4423,9 +4423,9 @@
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"ဆင်းမ်ကတ် ဖျက်နေသည်…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"ဆင်းမ်ကတ်ကို ဖျက်၍မရပါ"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"အမှားအယွင်းရှိနေသောကြောင့် ဤဆင်းမ်ကတ်ကို ဖျက်၍မရပါ။\n\nသင့်စက်ပစ္စည်းကို ပြန်စပြီး ထပ်စမ်းကြည့်ပါ။"</string>
-    <string name="preferred_network_mode_title" msgid="8324526359482124770">"အသုံးပြုလိုသော ကွန်ရက် အမျိုးအစား"</string>
+    <string name="preferred_network_mode_title" msgid="8324526359482124770">"ဦးစားပေး ကွန်ရက်အမျိုးအစား"</string>
     <string name="preferred_network_mode_summary" msgid="388957154320426335">"ကွန်ရက် လုပ်ဆောင်မှုစနစ်ကို ပြောင်းပါ"</string>
-    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"အသုံးပြုလိုသော ကွန်ရက် အမျိုးအစား"</string>
+    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"ဦးစားပေး ကွန်ရက်အမျိုးအစား"</string>
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"ဝန်ဆောင်မှုပေးသူ"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"ဆက်တင်ဗားရှင်း"</string>
     <string name="call_category" msgid="3418535202893644015">"ခေါ်ဆိုနေသည်"</string>
