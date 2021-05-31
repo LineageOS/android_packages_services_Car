@@ -165,7 +165,7 @@
   </string-array>
   <string-array name="wifi_ip_settings">
     <item msgid="2717196390555072244">"DHCP"</item>
-    <item msgid="4377002609760712163">"స్థిరం"</item>
+    <item msgid="4377002609760712163">"స్టాటిక్"</item>
   </string-array>
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"ఏదీ వద్దు"</item>
