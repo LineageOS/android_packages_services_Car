@@ -2744,7 +2744,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"Sve promene koje unesete na naloge na vebu će automatski biti kopirane na telefon.\n\nNeki nalozi mogu i automatski da kopiraju na veb sve promene koje unesete na telefonu. Tako funkcioniše Google nalog."</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Isključujete auto-sinh. podataka?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"To će se smanjiti potrošnju podataka i baterije, ali biće potrebno da ručno sinhronizujete svaki nalog da biste prikupili nedavne informacije. Nećete primati ni obaveštenja kada dođe do ažuriranja."</string>
-    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Datum vraćanja ciklusa potrošnje na početne vrednosti"</string>
+    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Datum resetovanja ciklusa potrošnje"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Datum svakog meseca:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Podesi"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Podešavanje upozorenja o korišćenju podataka"</string>
@@ -3220,7 +3220,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Bez zvuka osim za: <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Bez zvuka, osim alarma i medija"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Rasporedi"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Izbrišite rasporede"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Izbriši rasporede"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Izbriši"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Izmeni"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Rasporedi"</string>
@@ -3996,7 +3996,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Automatska ažuriranja sistema"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Primenjuje ispravke kad se uređaj ponovo pokrene"</string>
     <string name="usage" msgid="9172908720164431622">"Potrošnja"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Potrošnja mobil. podataka"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Potrošnja mobilnih podataka"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Korišćenje podataka aplikacije"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Potrošnja WiFi podataka"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Potrošnja podataka na eternetu"</string>
@@ -4325,7 +4325,7 @@
     <string name="launch_instant_app" msgid="5251693061228352333">"Otvori"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Igre"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"Audio datoteke"</string>
-    <string name="app_info_storage_title" msgid="6643391804949509308">"Iskorišćen prostor"</string>
+    <string name="app_info_storage_title" msgid="6643391804949509308">"Prostor u upotrebi"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(deinstalirano za korisnika <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(onemogućeno za korisnika <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"Usluga automatskog popunjavanja"</string>

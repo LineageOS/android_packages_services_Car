@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Ingen tidsplan"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Baseret på din rutine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Baseret på procent"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Batterisparefunktion aktiveres, hvis dit batteri ser ud til at løbe tør inden det tidspunkt, hvor du normalt oplader det."</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Batterisparefunktion aktiveres, hvis dit batteri ser ud til at løbe tør inden det tidspunkt, hvor du normalt oplader det"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Aktiveres ved <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Angiv en tidsplan"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Deaktiver, når enheden er opladet"</string>

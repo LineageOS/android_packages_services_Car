@@ -3726,7 +3726,7 @@
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"正在与您的 IT 管理员分享这份错误报告。要了解详情，请与对方联系。"</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"分享"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"拒绝"</string>
-    <string name="usb_use_charging_only" msgid="2344625733377110164">"不进行数据传输"</string>
+    <string name="usb_use_charging_only" msgid="2344625733377110164">"不用于数据传输"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"仅为此设备充电"</string>
     <string name="usb_use_power_only" msgid="6595783381323810697">"为连接的设备充电"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"文件传输"</string>

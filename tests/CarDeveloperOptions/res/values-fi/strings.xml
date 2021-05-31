@@ -3252,8 +3252,8 @@
     </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> minuuttia (paitsi jos se käynnistyy automaattisesti)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
-      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> aikataulua voi käynnistyä automaattisesti</item>
-      <item quantity="one">1 aikataulu voi käynnistyä automaattisesti</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> aikataulua voi käynnistää automaattisesti</item>
+      <item quantity="one">1 aikataulu voi käynnistää automaattisesti</item>
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"Mykistä laite, mutta salli poikkeukset"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Poikkeukset"</string>
@@ -4278,7 +4278,7 @@
     <string name="disabled_feature" msgid="3747549387387702365">"Ominaisuus ei ole käytettävissä"</string>
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Se hidastaa puhelinta"</string>
     <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Pakota täydet GNSS-mitat"</string>
-    <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Seuraa kaikkia GNSS-kuvioita ja ‑taajuuksia, joissa ei ole pulssisuhdetta."</string>
+    <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Seuraa kaikkia GNSS-kuvioita ja ‑taajuuksia, joissa ei ole pulssisuhdetta"</string>
     <string name="enable_user_switch_message" msgid="8613014373053051092">"Käyttäjän vaihdon virheenkorjaus"</string>
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Näytä yksityiskohtaiset tiedot käyttäjän vaihdon aikana"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Taustatoiminnan salliminen alkaa"</string>

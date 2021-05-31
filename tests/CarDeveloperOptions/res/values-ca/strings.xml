@@ -908,8 +908,8 @@
     <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Si el teu encaminador no emet cap identificador de xarxa, però vols connectar-t\'hi més endavant, pots configurar la xarxa com a oculta.\n\nAixò pot crear un risc de seguretat perquè el telèfon emetrà el senyal de manera regular per trobar la xarxa.\n\nConfigurar la xarxa com a oculta no canviarà la configuració del teu encaminador."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Intensitat del senyal"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Estat"</string>
-    <string name="tx_wifi_speed" msgid="2571810085003261073">"Transmet la velocitat de l\'enllaç"</string>
-    <string name="rx_wifi_speed" msgid="7392873246110937187">"Rep la velocitat de l\'enllaç"</string>
+    <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocitat d\'enllaç de transmissió"</string>
+    <string name="rx_wifi_speed" msgid="7392873246110937187">"Velocitat d\'enllaç de recepció"</string>
     <string name="wifi_frequency" msgid="6132852924995724246">"Freqüència"</string>
     <string name="wifi_ip_address" msgid="5572539114989914831">"Adreça IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Desada mitjançant"</string>
@@ -931,7 +931,7 @@
     <string name="wifi_ap_2G" msgid="5793110086517338494">"2,4 GHz"</string>
     <string name="wifi_ap_5G" msgid="4584892544393675403">"5,0 GHz"</string>
     <string name="wifi_ap_band_select_one" msgid="4409754936554360355">"Tria almenys una banda per al punt d\'accés Wi-Fi:"</string>
-    <string name="wifi_ip_settings" msgid="4636102290236116946">"Configuració IP"</string>
+    <string name="wifi_ip_settings" msgid="4636102290236116946">"Configuració d\'IP"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Privadesa"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Adreça MAC aleatòria"</string>
     <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Afegeix un dispositiu"</string>
@@ -1028,7 +1028,7 @@
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"Subscripcions"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
-    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"Configuració IP"</string>
+    <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"Configuració d\'IP"</string>
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"La configuració avançada de la Wi‑Fi no està disponible per a aquest usuari"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"Desa"</string>
     <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"Cancel·la"</string>
@@ -1039,7 +1039,7 @@
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"Passarel·la"</string>
-    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Longitud de prefix de xarxa"</string>
+    <string name="wifi_network_prefix_length" msgid="1941206966133010633">"Longitud del prefix de xarxa"</string>
     <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi-Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"Informació del dispositiu"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"Recorda aquesta connexió"</string>
@@ -3320,13 +3320,13 @@
     <string name="swipe_direction_rtl" msgid="4521416787262888813">"Llisca cap a l\'esquerra per ignorar o cap a la dreta per mostrar el menú"</string>
     <string name="notification_pulse_title" msgid="4861418327614907116">"Llum intermitent"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"A la pantalla de bloqueig"</string>
-    <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Si perfil de treball bloquejat"</string>
+    <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Amb el perfil de treball bloquejat"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Mostra tot el contingut de les notificacions"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Amaga el contingut sensible"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"No mostris les notificacions"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Com vols que es mostrin les notificacions quan el dispositiu estigui bloquejat?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"Notificacions"</string>
-    <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"Mostra tot el contingut de notific. professionals"</string>
+    <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"Mostra tot el contingut de notificacions de feina"</string>
     <string name="lock_screen_notifications_summary_hide_profile" msgid="7898086300511010591">"Amaga el contingut de feina confidencial"</string>
     <string name="lock_screen_notifications_interstitial_message_profile" msgid="3324187664458600354">"Com vols que es mostrin les notificacions del perfil quan el dispositiu estigui bloquejat?"</string>
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"Notificacions del perfil"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Predeterminat)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Sistema)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Opció predeterminada del sistema)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Emmagatzematge d\'apps"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Emmagatzematge d\'aplicacions"</string>
     <string name="usage_access" msgid="2023443456361489516">"Accés a dades d\'ús"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Permet l\'accés a dades d\'ús"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Preferències d\'ús de les aplicacions"</string>

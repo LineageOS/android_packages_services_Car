@@ -275,7 +275,7 @@
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"使用介面的文字會切換成另一種語言。"</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"無法移除所有語言"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"請保留至少一種偏好語言"</string>
-    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不提供支援"</string>
+    <string name="locale_not_translated" msgid="7943669576006420058">"某些應用程式可能不支援這個語言"</string>
     <string name="action_drag_label_move_up" msgid="2074064283966078352">"向上移"</string>
     <string name="action_drag_label_move_down" msgid="1367989732445492291">"向下移"</string>
     <string name="action_drag_label_move_top" msgid="2033098833739345957">"移至頂端"</string>

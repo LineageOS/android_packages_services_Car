@@ -207,8 +207,8 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"Atakaren eremua bete behar duzu."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"Ataka eremuak hutsik egon behar du Ostalaria eremua ere hutsik badago."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"Idatzi duzun ataka ez da baliozkoa."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Arakatzaileak HTTP proxya erabiltzen du, baina ezin dute beste aplikazioek erabili."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"Proxya auto. konf. URLa: "</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"Arakatzaileak HTTP proxya erabiltzen du; beste aplikazioek, ordea, agian ezingo dute erabili."</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"Proxya auto. konfiguratzeko URLa: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Deskargatzeko banda-zabalera (Kb/s):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Kargen banda-zabalera (Kb/s):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Sare mugikorraren kokapenaren informazioa (zaharkitua):"</string>
@@ -348,7 +348,7 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Ordua"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Blokeatu automatikoki"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> inaktibo ezarri ondoren"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Inaktibo ezarri ondoren, <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> fidagarritasun-agenteak desblokeatuta duenean izan ezik"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Inaktibo ezarri ondoren, <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> fidagarritasun-agenteak desblokeatuta mantentzen duenean izan ezik"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> inaktibo egon ondoren, <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g> fidagarritasun-agenteak desblokeatuta mantentzen duenean izan ezik"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Erakutsi jabearen informazioa pantaila blokeatuan"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Pantaila blokeatuaren mezua"</string>
@@ -439,9 +439,9 @@
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
     <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"Desblokeatu hatz-marka bidez"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"Erabili hatz-marka"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Sakatu hatz-marken sentsorea telefonoa desblokeatzeko, erosketak baimentzeko edo aplikazioetan saioa hasteko. Kontuz aukeratu noren hatz-markak gehitzen dituzun. Hatz-marka bakar bat gehituta ere gauza daitezke aipatutako ekintzak.\n\nOharra: baliteke hatz-markak ez izatea eredu edo PIN kode konplexuak bezain seguruak."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"Sakatu hatz-marken sentsorea telefonoa desblokeatzeko, erosketak baimentzeko edo aplikazioetan saioa hasteko. Kontuz aukeratu noren hatz-markak gehitzen dituzun. Hatz-marka bakar bat gehituta ere gauza daitezke aipatutako ekintzak.\n\nOharra: baliteke hatz-markak ez izatea eredu edo PIN konplexuak bezain seguruak."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Erabili hatz-marka telefonoa desblokeatzeko eta erosketak onartzeko.\n\nOharra: ezin duzu erabili hatz-marka gailu hau desblokeatzeko. Informazio gehiago lortzeko, jarri zure erakundearen administratzailearekin harremanetan."</string>
-    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Erabili hatz-marka telefonoa desblokeatzeko eta erosketak onartzeko.\n\nOharra: baliteke hatz-markak ez izatea eredu edo PIN kode konplexuak bezain seguruak."</string>
+    <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Erabili hatz-marka telefonoa desblokeatzeko eta erosketak onartzeko.\n\nOharra: baliteke hatz-markak ez izatea eredu edo PIN konplexuak bezain seguruak."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Utzi"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Jarraitu"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Saltatu"</string>
@@ -474,12 +474,12 @@
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Geroago"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"Hatz-markaren konfigurazioa saltatu?"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"Hatz-marka erabiltzea aukeratu duzu telefonoa desblokeatzeko modu bat gisa. Urratsa saltatzen baduzu, geroago konfiguratu beharko duzu. Minutu bat inguru baino ez duzu beharko konfiguratzeko."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN kode bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da hatz-marka konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Babestu tableta pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Babestu gailua pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Babestu telefonoa pantailaren blokeoarekin, inork ez dezan izan hura erabiltzeko aukerarik galtzen baduzu edo lapurtzen badizute. Halaber, pantailaren blokeoa ezinbestekoa da aurpegi bidezko autentifikazioa konfiguratzeko. Sakatu Utzi eta, ondoren, ezarri PIN bat edo hautatu pantailaren beste blokeo-aukera bat."</string>
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PINaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Pasahitzaren konfigurazioa saltatu nahi duzu?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Ereduaren konfigurazioa saltatu nahi duzu?"</string>
@@ -508,14 +508,14 @@
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Enkriptatu tableta"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"Enkriptatu telefonoa"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"Enkriptatuta"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Kontuak, ezarpenak, deskargatutako aplikazioak eta euren datuak, multimedia-edukia eta bestelako fitxategiak enkripta ditzakezu. Tableta enkriptatu ondoren, pantaila blokeatzeko aukera konfiguratu baduzu, tableta pizten duzun bakoitzean pantaila desblokeatu beharko duzu (eredu bat marraztuta edo PIN kode bat edo pasahitz bat idatzita) gailuko edukia desenkriptatzeko. Desenkriptatzeko dagoen beste modu bakarra jatorrizko datuak berrezartzea da, ordura arte bildutako datu guztiak ezabatuta.\n\nDatuak enkriptatzeko ordubete behar da gutxienez. Prozesuak dirauen bitartean, bateriak kargatuta egon behar du eta tabletak entxufatuta. Prozesua eteten baduzu, datu batzuk edo guztiak galduko dituzu."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Kontuak, ezarpenak, deskargatutako aplikazioak eta haien datuak, multimedia-edukia eta bestelako fitxategiak enkripta ditzakezu. Telefonoa enkriptatu ondoren, pantaila blokeatzeko aukera konfiguratu baduzu, telefonoa pizten duzun bakoitzean pantaila desblokeatu beharko duzu (eredu bat marraztuta edo PIN kode bat edo pasahitz bat idatzita) gailuko edukia desenkriptatzeko. Desenkriptatzeko dagoen beste modu bakarra jatorrizko datuak berrezartzea da, ordura arte bildutako datu guztiak ezabatuta.\n\nDatuak enkriptatzeko ordubete behar da gutxienez. Prozesuak dirauen bitartean, bateriak kargatuta egon behar du eta telefonoak entxufatuta. Prozesua eteten baduzu, datu batzuk edo guztiak galduko dituzu."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"Kontuak, ezarpenak, deskargatutako aplikazioak eta euren datuak, multimedia-edukia eta bestelako fitxategiak enkripta ditzakezu. Tableta enkriptatu ondoren, pantaila blokeatzeko aukera konfiguratu baduzu, tableta pizten duzun bakoitzean pantaila desblokeatu beharko duzu (eredu bat marraztuta edo PIN bat edo pasahitz bat idatzita) gailuko edukia desenkriptatzeko. Desenkriptatzeko dagoen beste modu bakarra jatorrizko datuak berrezartzea da, ordura arte bildutako datu guztiak ezabatuta.\n\nDatuak enkriptatzeko ordubete behar da gutxienez. Prozesuak dirauen bitartean, bateriak kargatuta egon behar du eta tabletak entxufatuta. Prozesua eteten baduzu, datu batzuk edo guztiak galduko dituzu."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"Kontuak, ezarpenak, deskargatutako aplikazioak eta haien datuak, multimedia-edukia eta bestelako fitxategiak enkripta ditzakezu. Telefonoa enkriptatu ondoren, pantaila blokeatzeko aukera konfiguratu baduzu, telefonoa pizten duzun bakoitzean pantaila desblokeatu beharko duzu (eredu bat marraztuta edo PIN bat edo pasahitz bat idatzita) gailuko edukia desenkriptatzeko. Desenkriptatzeko dagoen beste modu bakarra jatorrizko datuak berrezartzea da, ordura arte bildutako datu guztiak ezabatuta.\n\nDatuak enkriptatzeko ordubete behar da gutxienez. Prozesuak dirauen bitartean, bateriak kargatuta egon behar du eta telefonoak entxufatuta. Prozesua eteten baduzu, datu batzuk edo guztiak galduko dituzu."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"Enkriptatu tableta"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"Enkriptatu telefonoa"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"Kargatu bateria eta saiatu berriro."</string>
     <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"Entxufatu kargagailua eta saiatu berriro."</string>
     <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"Pantaila desblokeatzeko PIN koderik edo pasahitzik ez"</string>
-    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"Enkriptatzen hasi aurretik, pantaila desblokeatzeko PIN kode edo pasahitz bat zehaztu behar duzu."</string>
+    <string name="crypt_keeper_dialog_need_password_message" msgid="1341590897367808702">"Enkriptatzen hasi aurretik, pantaila desblokeatzeko PIN edo pasahitz bat zehaztu behar duzu."</string>
     <string name="crypt_keeper_confirm_title" msgid="8884417036062084547">"Enkriptatu nahi duzu?"</string>
     <string name="crypt_keeper_final_desc" product="tablet" msgid="2713708841024805586">"Enkriptatze-eragiketa atzeraezina da eta eteten baduzu, datuak galduko dituzu. Enkriptatzeko ordubete edo gehiago behar izaten da eta, prozesuak dirauen bitartean, tableta hainbat aldiz berrabiaraziko da."</string>
     <string name="crypt_keeper_final_desc" product="default" msgid="2483549885938505746">"Enkriptatze-eragiketa atzeraezina da eta eteten baduzu, datuak galduko dituzu. Enkriptatzeko ordubete edo gehiago behar izaten da eta, prozesuak dirauen bitartean, telefonoa hainbat aldiz berrabiaraziko da."</string>
@@ -631,9 +631,9 @@
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"Aldatu desblokeatzeko eredua"</string>
     <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"Aldatu desblokeo PINa"</string>
     <string name="unlock_change_lock_password_title" msgid="7886432065775170719">"Aldatu desblokeatzeko pasahitza"</string>
-    <string name="unlock_footer_high_complexity_requested" msgid="8016987143669762130">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak PIN kode edo pasahitz seguru bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
-    <string name="unlock_footer_medium_complexity_requested" msgid="5004825329461874633">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak beste PIN kode edo pasahitz bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
-    <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak beste eredu, PIN kode edo pasahitz bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
+    <string name="unlock_footer_high_complexity_requested" msgid="8016987143669762130">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak PIN edo pasahitz seguru bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
+    <string name="unlock_footer_medium_complexity_requested" msgid="5004825329461874633">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak beste PIN edo pasahitz bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
+    <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak beste eredu, PIN edo pasahitz bat erabiltzea gomendatzen du, eta baliteke ez funtzionatzea behar bezala halakorik gabe"</string>
     <string name="unlock_footer_none_complexity_requested" msgid="1669550050597044896">"<xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak pantailaren beste blokeo bat erabiltzea gomendatzen du"</string>
     <string name="lock_failed_attempts_before_wipe" msgid="7565412834122130877">"Saiatu berriro. <xliff:g id="CURRENT_ATTEMPTS">%1$d</xliff:g>/<xliff:g id="TOTAL_ATTEMPTS">%2$d</xliff:g> saiakera."</string>
     <string name="lock_last_attempt_before_wipe_warning_title" msgid="7853820095898368793">"Datuak ezabatu egingo dira"</string>
@@ -667,7 +667,7 @@
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> digitu baino gutxiago izan behar ditu</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> digitu baino gutxiago izan behar du</item>
     </plurals>
-    <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Gailuaren administratzaileak ez du eman beste PIN kode bat erabiltzeko baimenik"</string>
+    <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"Gailuaren administratzaileak ez du eman beste PIN bat erabiltzeko baimenik"</string>
     <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"IKT saileko administratzaileak blokeatu egiten ditu asmatzen errazak diren PIN kodeak. Erabili beste PIN bat."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"Ezin da erabili onartzen ez den karaktererik"</string>
     <string name="lockpassword_password_requires_alpha" msgid="7017799931349816346">"Hizki bat eduki behar du gutxienez"</string>
@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Idatzi SSIDa"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Segurtasuna"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Sare ezkutua"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Bideratzaileak ez badu igortzen sarearen IDrik, baina etorkizunean harekin konektatu nahi baduzu, ezkutuko gisa ezar dezakezu sarea.\n\nHorrek segurtasuna arriskuan jar dezake, telefonoak aldian-aldian igorriko baitu seinalea sarea aurkitzeko.\n\nSarea ezkutuko gisa ezartzeak ez ditu aldatuko bideratzailearen ezarpenak."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Bideratzaileak ez badu igortzen sarearen IDrik baina etorkizunean harekin konektatu nahi baduzu, ezkutuko gisa ezar dezakezu sarea.\n\nHorrek segurtasuna arriskuan jar dezake, telefonoak aldian-aldian igorriko baitu seinalea sarea aurkitzeko.\n\nSarea ezkutuko gisa ezartzeak ez ditu aldatuko bideratzailearen ezarpenak."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Seinalearen indarra"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Egoera"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Transmititzeko lotura-abiadura"</string>
@@ -1057,7 +1057,7 @@
     <string name="wifi_p2p_cancel_connect_message" msgid="3752679335020392154">"<xliff:g id="PEER_NAME">%1$s</xliff:g> gailura konektatzeko gonbidapena bertan behera utzi nahi duzu?"</string>
     <string name="wifi_p2p_delete_group_message" msgid="3206660449067701089">"Taldea ahaztu?"</string>
     <string name="wifi_hotspot_checkbox_text" msgid="12062341344410520">"Wifi-gunea"</string>
-    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Ez zara ari partekatzen ez Interneteko konexiorik ez edukirik beste gailuekin"</string>
+    <string name="wifi_hotspot_off_subtext" msgid="6177054857136221058">"Ez zara ez Interneteko konexiorik ez edukirik partekatzen ari beste gailuekin"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="tablet" msgid="71421730039785897">"Tabletaren Interneteko konexioa partekatzen ari zara wifi-gunearen bidez"</string>
     <string name="wifi_hotspot_tethering_on_subtext" product="default" msgid="8914285514605049879">"Telefonoaren Interneteko konexioa partekatzen ari zara wifi-gunearen bidez"</string>
     <string name="wifi_hotspot_on_local_only_subtext" msgid="7415381343846704553">"Edukia partekatzen ari da aplikazioa. Interneteko konexioa partekatzeko, desaktibatu eta aktibatu berriro wifi-gunea"</string>
@@ -1715,7 +1715,7 @@
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Babestuta egoteko, ezarri eredu bat"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"Idatzi berriro pasahitza"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"Berretsi eredua"</string>
-    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Idatzi berriro PIN kodea"</string>
+    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"Idatzi berriro PINa"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Pasahitzak ez datoz bat"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PINak ez datoz bat"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Marraztu berriro eredua"</string>
@@ -2531,7 +2531,7 @@
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Kendu ziurtagiri guztiak"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Kredentzial fidagarriak"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Bistaratu CA fidagarrien ziurtagiriak"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"Erabiltzaile- kredentzialak"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"Erabiltzaile-kredentzialak"</string>
     <string name="user_credentials_summary" msgid="7350223899317423252">"Ikusi eta aldatu gordetako kredentzialak"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"Aurreratuak"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"Biltegiratze mota"</string>
@@ -2579,7 +2579,7 @@
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Gailua administratzeko aplikazioa aktibatu?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktibatu gailua administratzeko aplikazioa"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Gailuaren administratzailea"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"Gailua administratzeko aplikazio hau aktibatzen baduzu, <xliff:g id="APP_NAME">%1$s</xliff:g> izeneko aplikazioak eragiketa hauek egiteko baimena izango du:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"Gailua administratzeko aplikazio hau aktibatzen baduzu, <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioak eragiketa hauek egiteko baimena izango du:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Gailua administratzeko aplikazio hau aktibo dago eta eragiketa hauek egiteko baimena ematen dio <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Profil-kudeatzailea aktibatu nahi duzu?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Aurrera eginez gero, administratzaileak kudeatuko dizu erabiltzaile-kontua, eta erlazionatutako datuak gorde ahal izango ditu zure datu pertsonalez gain.\n\nEra berean, erabiltzaile-kontu honekin erlazionatutako ezarpenak, sarbidea, aplikazioak eta datuak gainbegiratu eta kudeatu ahal izango ditu (esaterako, sareko jarduerak), baita gailuaren kokapen-informazioa ere."</string>
@@ -2915,7 +2915,7 @@
     <string name="apps_with_restrictions_header" msgid="8656739605673756176">"Murrizketak dituzten aplikazioak"</string>
     <string name="apps_with_restrictions_settings_button" msgid="5065896213467171744">"Zabaldu aplikazio-ezarpenak"</string>
     <string name="nfc_payment_settings_title" msgid="5070077706735415291">"Ukitu eta ordaindu"</string>
-    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Funtzionamendua"</string>
+    <string name="nfc_payment_how_it_works" msgid="7607901964687787177">"Nola funtzionatzen du?"</string>
     <string name="nfc_payment_no_apps" msgid="8844440783395420860">"Ordaindu telefonoarekin dendetan"</string>
     <string name="nfc_payment_default" msgid="7869273092463612271">"Ordaintzeko aplikazio lehenetsia"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Ezarri gabe"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Ordaintzeko beste aplikazio bat irekita badago izan ezik"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"\"Ukitu eta ordaindu\" terminalean, ordaindu honekin:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Terminalean ordaintzea"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazioa. Ondoren, jarri telefonoaren atzeko aldea kontakturik gabeko sistemaren ikurra duen terminal baten aurrean."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguratu ordaintzeko aplikazio bat. Ondoren, jarri telefonoaren atzeko aldea kontakturik gabeko sistemaren ikurra duen terminal baten aurrean."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Ados"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Gehiago…"</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Hobespen gisa ezarri nahi duzu?"</string>
@@ -3557,7 +3557,7 @@
     <string name="screen_pinning_title" msgid="578020318289781102">"Pantaila ainguratzeko aukera"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"Ezarpen hau aktibatzen baduzu, pantailak aingura ditzakezu, aukeratzen duzun ikuspegi hori egon dadin ikusgai harik eta aingura kentzen diozun arte.\n\nHorretarako:\n\n1. Aktibatu pantaila ainguratzeko aukera.\n\n2. Ireki Ikuspegi orokorra.\n\n3. Sakatu pantailaren goialdeko aplikazio-ikonoa, eta sakatu Ainguratu."</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"Eskatu desblokeatzeko eredua aingura kendu aurretik"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Eskatu PIN kodea aingura kendu aurretik"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Eskatu PINa aingura kendu aurretik"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Eskatu pasahitza aingura kendu aurretik"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Blokeatu gailua aingura kentzean"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Laneko profil hau honen bidez kudeatzen da:"</string>

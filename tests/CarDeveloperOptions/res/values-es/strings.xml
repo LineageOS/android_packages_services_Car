@@ -2715,7 +2715,7 @@
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Limita el uso de datos"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Limitar uso de datos"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"El tablet desactivará los datos móviles cuando se alcance el límite que configures.\n\nComo el uso de datos lo calcula el tablet y es posible que tu operador lo mida de forma diferente, se recomienda establecer un límite conservador."</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"El teléfono desactivará los datos móviles cuando se alcance el límite que configures.\n\nComo el uso de datos lo calcula el teléfono y es posible que tu operador lo mida de forma diferente, se recomienda establecer un límite conservador."</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Tu teléfono desactivará los datos móviles cuando se alcance el límite que configures.\n\nComo el uso de datos lo calcula el teléfono y es posible que tu operador lo mida de forma diferente, se recomienda establecer un límite conservador."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"¿Restringir datos en segundo plano?"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"Si restringes el uso de datos en segundo plano móviles, algunas aplicaciones y servicios no funcionarán si no tienes conexión a una red Wi‑Fi."</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Si restringes el uso de datos en segundo plano, algunas aplicaciones y servicios no funcionarán si no tienes conexión a una red Wi‑Fi.\n\nEsta configuración afecta a todos los usuarios del tablet."</string>
@@ -3957,15 +3957,15 @@
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> usados"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"Establecer advertencia de datos"</string>
     <string name="data_warning" msgid="2699207195535036240">"Advertencia de datos"</string>
-    <string name="data_warning_footnote" msgid="965724845580257305">"La advertencia y el límite de datos se basan en los cálculos del dispositivo, así que es posible que no coincidan con los datos del operador."</string>
+    <string name="data_warning_footnote" msgid="965724845580257305">"La advertencia y el límite de datos se basan en los cálculos del dispositivo, por lo que es posible que no coincidan con los datos del operador."</string>
     <string name="set_data_limit" msgid="5043770023229990674">"Establecer límite de datos"</string>
     <string name="data_limit" msgid="5793521160051596228">"Límite de datos"</string>
     <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> usados (<xliff:g id="ID_2">%2$s</xliff:g>)"</string>
     <string name="configure" msgid="8232696842838580549">"Configurar"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Otras aplicaciones incluidas en el uso"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplicaciones pueden usar datos sin restricción cuando el ahorro de datos está activado</item>
-      <item quantity="one">1 aplicación puede usar datos sin restricción cuando el ahorro de datos está activado</item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> aplicaciones pueden usar datos sin restricción cuando Ahorro de datos está activado</item>
+      <item quantity="one">1 aplicación puede usar datos sin restricción cuando Ahorro de datos está activado</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"Datos principales"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Datos Wi‑Fi"</string>
@@ -3990,7 +3990,7 @@
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Las datos en segundo plano están desactivadas"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Activado"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Desactivado"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar ahorro de datos"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Usar Ahorro de datos"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Uso de datos no restringido"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"No restringe datos si el ahorro de datos está activado"</string>
     <string name="home_app" msgid="3695063566006954160">"Aplicación de página principal"</string>

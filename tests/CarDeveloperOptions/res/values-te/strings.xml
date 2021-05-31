@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"స్వయంచాలక సెటప్ (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Wi‑Fi స్కానింగ్‌ను ఆన్ చేయాలా?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Wi‑Fiని ఆటోమేటిక్‌గా ఆన్ చేయడానికి, మీరు ముందుగా Wi‑Fi స్కానింగ్‌ని ఆన్ చేయాలి."</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi‑Fi ఆఫ్‌లో ఉన్నా కూడా, ఏ సమయంలోనైనా Wi‑Fi నెట్‌‍వర్క్‌లను స్కాన్ చేయడానికి యాప్‌లను మరియు సేవలను Wi‑Fi స్కానింగ్ అనుమతిస్తుంది. ఉదాహరణకు, ఇది స్థాన ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచడానికి ఉపయోగించబడుతుంది."</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi‑Fi ఆఫ్‌లో ఉన్నా కూడా, ఏ సమయంలోనైనా Wi‑Fi నెట్‌‍వర్క్‌లను స్కాన్ చేయడానికి యాప్‌లను, స‌ర్వీసుల‌ను Wi‑Fi స్కానింగ్ అనుమతిస్తుంది. ఉదాహరణకు, లొకేషన్ ఆధారిత ఫీచర్‌లను, స‌ర్వీసుల‌ను మెరుగుపరచడానికి దీనిని ఉపయోగించవచ్చు."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"ఆన్ చేయి"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi-Fi స్కానింగ్ ఆన్ చేయబడింది"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"అధునాతన ఎంపికలు"</string>
@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSIDని ఎంటర్ చేయండి"</string>
     <string name="wifi_security" msgid="9136702039496152831">"భద్రత"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"దాచబడిన నెట్‌వర్క్"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"మీ రూటర్ నెట్‌వర్క్ IDని ప్రసారం చేయకపోయినా, భవిష్యత్తులో దానితో కనెక్ట్ కావాలనుకున్నట్లయితే, నెట్‌వర్క్ దాచబడిందిగా సెచ్ చేయవచ్చు.\n\nమీ ఫోన్ నెట్‌వర్క్‌ను కనుగొనడానికి దాని సంకేతాన్ని క్రమం తప్పకుండా ప్రసారం చేస్తుంది కాబట్టి ఇది భద్రతా ప్రమాదాన్ని సృష్టించవచ్చు.\n\nనెట్‌వర్క్ దాచబడిందిగా సెట్ చేయడం ద్వారా మీ రూటర్ సెట్టింగ్‌లలో మార్చదు."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"నెట్‌వర్క్ IDని మీ రూటర్ ప్రసారం చేయకపోయినట్లయితే, భవిష్యత్తులో దానికి కనెక్ట్ కావాలనుకుంటే, నెట్‌వర్క్‌ను \'దాచబడింది\' అని సెట్ చేయవచ్చు.\n\nనెట్‌వర్క్‌ను కనుగొనడానికి, మీ ఫోన్ దాని సిగ్నల్‌ను క్రమం తప్పకుండా ప్రసారం చేస్తుంది కాబట్టి దీనివల్ల సెక్యూరిటీ రిస్క్‌ ఏర్పడవచ్చు.\n\nనెట్‌వర్క్‌ను \'దాచబడింది\' అని సెట్ చేయడం వల్ల మీ రూటర్‌లోని సెట్టింగ్‌లలో మార్పు రాదు."</string>
     <string name="wifi_signal" msgid="696548364467704808">"సిగ్నల్ సామర్థ్యం"</string>
     <string name="wifi_status" msgid="3439931558930689940">"స్థితి"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"ప్రసార లింక్ వేగం"</string>
@@ -2745,7 +2745,7 @@
     <string name="vpn_mppe" msgid="4027660356538086985">"PPP ఎన్‌క్రిప్షన్ (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP రహస్యం"</string>
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec ఐడెంటిఫైయర్"</string>
-    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec పూర్వ-భాగస్వామ్య కీ"</string>
+    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec ప్రీ-షేర్డ్ కీ"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec వినియోగదారు సర్టిఫికెట్"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA సర్టిఫికెట్"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec సర్వర్ సర్టిఫికెట్"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPNలో కేవలం సంఖ్యాత్మక సర్వర్ చిరునామాలకు మాత్రమే మద్దతు ఉంటుంది"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN కోసం DNS సర్వర్‌ని తప్పనిసరిగా పేర్కొనాలి"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN కోసం DNS సర్వర్ చిరునామాలు తప్పనిసరిగా సంఖ్యలు అయి ఉండాలి"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"నమోదు చేసిన సమాచారానికి ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN మద్దతివ్వదు"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"ఎంటర్ చేసిన సమాచారానికి ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN సపోర్ట్ చేయదు"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"రద్దు చేయి"</string>
     <string name="vpn_done" msgid="6314426362224527349">"తీసివేయి"</string>
     <string name="vpn_save" msgid="1332625259182278316">"సేవ్ చేయి"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"మరో పేమెంట్ యాప్ తెరిచి ఉన్నప్పుడు మినహా"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"నొక్కి &amp; చెల్లింపు చేయి విభాగంలో, దీనితో చెల్లించండి:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"టెర్మినల్ వద్ద పేమెంట్ చేయడం"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"పేమెంట్ యాప్‌ను సెటప్ చేయండి. ఆపై తాకకూడదనే చిహ్నం ఉండే ఏదైనా టెర్మినల్ వద్ద మీ ఫోన్ వెనుక భాగం పైకి ఉండేలా పట్టుకోండి."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"పేమెంట్ యాప్‌ను సెటప్ చేయండి. ఆపై స్పర్శరహిత చిహ్నం ఉండే ఏదైనా టెర్మినల్ వద్ద మీ ఫోన్ వెనుక భాగం ఉండేలా పట్టుకోండి."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"అర్థమైంది"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"మరిన్ని..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"మీ ప్రాధాన్యతగా సెట్ చేయాలా?"</string>
@@ -3149,9 +3149,9 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"ఇతర ధ్వనులు"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"డయల్ ప్యాడ్ టోన్‌లు"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"స్క్రీన్ లాకింగ్ ధ్వనులు"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"ఛార్జింగ్ ధ్వనులు &amp; వైబ్రేషన్‌"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"ఛార్జింగ్ సౌండ్స్ &amp; వైబ్రేషన్‌"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"డాక్ చేసేటప్పుడు వచ్చే ధ్వనులు"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"తాకినప్పుడు ధ్వనులు"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"టచ్ సౌండ్స్"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"స్పర్శ వైబ్రేషన్"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"ట్యాప్, కీబోర్డ్ మరియు మరిన్నింటి కోసం స్పర్శాపూర్వక ప్రతిస్పందన"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"డాక్ స్పీకర్‌ను ప్లే చేస్తోంది"</string>
@@ -3280,11 +3280,11 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"మీరు నోటిఫికేషన్‌లను చూడలేరు లేదా వినలేరు. నక్షత్రం గుర్తు ఉన్న పరిచయాల మరియు రిపీట్ కాలర్‌‌ల నుండి కాల్‌లు అనుమతించబడతాయి."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ప్రస్తుత సెట్టింగ్)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"అంతరాయం కలిగించవద్దు నోటిఫికేషన్‌ సెట్టింగ్‌లను మార్చాలా?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"ఆఫీస్‌ ప్రొఫైల్ శబ్దాలు"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"వ్యక్తిగత ప్రొఫైల్ శబ్దాలు ఉంచు"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"ఆఫీస్‌ ప్రొఫైల్ సౌండ్స్"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"వ్యక్తిగత ప్రొఫైల్ సౌండ్స్ ఉంచు"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"ఆఫీస్‌తో పాటు వ్యక్తిగత ప్రొఫైల్‌లకు ఒకే రకమైన ధ్వనులు ఉపయోగించబడతాయి"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"ఆఫీస్‌ ఫోన్ రింగ్‌టోన్"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ఆటోమేటిక్‌ ఆఫీస్‌ నోటిఫికేషన్ ధ్వని"</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ఆటోమేటిక్‌ ఆఫీస్‌ నోటిఫికేషన్ సౌండ్"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"ఆటోమేటిక్‌ ఆఫీస్‌ అలారం ధ్వని"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"వ్యక్తిగత ప్రొఫైల్‌లో వలె ఉంచబడతాయి"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ధ్వనులను భర్తీ చేయాలా?"</string>
@@ -3503,8 +3503,8 @@
     <string name="zen_mode_alarms_list" msgid="9162210238533665593">"అలారాలు"</string>
     <string name="zen_mode_media" msgid="3701280649874724055">"మీడియా శబ్దాలను ప్లే చేయి"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"మీడియా"</string>
-    <string name="zen_mode_system" msgid="597437265986355038">"తాకినప్పుడు ధ్వనులను అనుమతించు"</string>
-    <string name="zen_mode_system_list" msgid="480192458506838077">"తాకినప్పుడు ధ్వనులు"</string>
+    <string name="zen_mode_system" msgid="597437265986355038">"టచ్ సౌండ్స్ అనుమతించు"</string>
+    <string name="zen_mode_system_list" msgid="480192458506838077">"టచ్ సౌండ్స్"</string>
     <string name="zen_mode_reminders" msgid="7560664194610054038">"రిమైండర్‌లను అనుమతించు"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"రిమైండర్‌లు"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"ఈవెంట్‌లను అనుమతించు"</string>
@@ -3517,7 +3517,7 @@
     <string name="zen_mode_events_list" msgid="8578102701815684873">"ఈవెంట్‌లు"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"ఎవరైనా"</string>
     <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"పరిచయాలు"</string>
-    <string name="zen_mode_starred_callers" msgid="1317376207713013472">"నక్షత్రం గుర్తు ఉన్న పరిచయాలు"</string>
+    <string name="zen_mode_starred_callers" msgid="1317376207713013472">"స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌లు"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"పునరావృత కాలర్‌లను అనుమతించు"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"పునరావృత కాలర్‌లు"</string>
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"పునరావృత కాలర్‌లను అనుమతించు"</string>
@@ -3679,7 +3679,7 @@
     <string name="default_app" msgid="8861276008866619872">"(డిఫాల్ట్)"</string>
     <string name="system_app" msgid="4111402206594443265">"(సిస్టమ్)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(సిస్టమ్ డిఫాల్ట్)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"యాప్‌ల నిల్వ"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"యాప్‌ల స్టోరేజ్"</string>
     <string name="usage_access" msgid="2023443456361489516">"వినియోగ యాక్సెస్"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"వినియోగ ప్రాప్యతను అనుమతించు"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"యాప్ వినియోగ ప్రాధాన్యతలు"</string>

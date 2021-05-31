@@ -1229,7 +1229,7 @@
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"<xliff:g id="ID_1">%1$s</xliff:g> मा स्वतः निष्क्रिय हुनेछ"</string>
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"सूर्योदयको बेला स्वतः निष्क्रिय हुनेछ"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"अहिले नै सक्रिय गर्नुहोस्"</string>
-    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"अहिले नै अफ गर्नुहोस्"</string>
+    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"अहिले नै अफ गरियोस्"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"सूर्योदयसम्म सक्रिय गर्नुहोस्"</string>
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"सूर्यास्तसम्म निष्क्रिय पार्नुहोस्"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"<xliff:g id="ID_1">%1$s</xliff:g> सम्म सक्रिय गर्नुहोस्"</string>
@@ -1337,7 +1337,7 @@
     <string name="status_number_sim_slot" product="tablet" msgid="4518232285651165459">"MDN (sim को सल्ट %1$d)"</string>
     <string name="status_number_sim_slot" product="default" msgid="3660851494421332328">"फोन नम्बर (sim को सल्ट %1$d)"</string>
     <string name="status_number_sim_status" product="tablet" msgid="8069693515860290952">"SIM मा MDN"</string>
-    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"SIM मा फोन नम्बर"</string>
+    <string name="status_number_sim_status" product="default" msgid="6602562692270457610">"SIM को फोन नम्बर"</string>
     <string name="status_min_number" msgid="8346889546673707777">"मिनेट"</string>
     <string name="status_msid_number" msgid="7808175928664357661">"MSID"</string>
     <string name="status_prl_version" msgid="5634561205739199042">"PRL संस्करण"</string>
@@ -1805,7 +1805,7 @@
     <string name="screen_compatibility_label" msgid="3638271673726075815">"स्क्रिन कम्प्याटिबिलिटी"</string>
     <string name="permissions_label" msgid="7341733648403464213">"अनुमतिहरू"</string>
     <string name="cache_header_label" msgid="3202284481380361966">"क्यास"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"केस हटाउनुहोस्"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"केस मेटाउनुहोस्"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"केस"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="other">%d वस्तुहरू</item>
@@ -1835,8 +1835,8 @@
     <string name="ask_compatibility" msgid="6687958195768084807">"सुरु भइसकेपछि सोध्नुहोस्"</string>
     <string name="enable_compatibility" msgid="1754177974320410195">"स्केल एप"</string>
     <string name="unknown" msgid="2780743426415501227">"अज्ञात"</string>
-    <string name="sort_order_alpha" msgid="6689698854460261212">"नामबाट क्रमबद्ध गर्नुहोस्"</string>
-    <string name="sort_order_size" msgid="3167376197248713027">"आकारद्वारा क्रमबद्ध गर्नुहोस्"</string>
+    <string name="sort_order_alpha" msgid="6689698854460261212">"नामअनुसार क्रमबद्ध गरियोस्"</string>
+    <string name="sort_order_size" msgid="3167376197248713027">"आकारअनुसार क्रमबद्ध गरियोस्"</string>
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"नवीनतम"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"प्रायःजसो प्रयोग हुने"</string>
     <string name="show_running_services" msgid="1895994322704667543">"चालु सेवाहरू देखाउनुहोस्"</string>
@@ -2491,8 +2491,8 @@
     <string name="menu_duration_6h" msgid="6169009210638008417">"६ घन्टा"</string>
     <string name="menu_duration_12h" msgid="1435242738163843797">"१२ घन्टा"</string>
     <string name="menu_duration_1d" msgid="6476370834372352174">"१ दिन"</string>
-    <string name="menu_show_system" msgid="6315865548558708248">"सिस्टम देखाउनुहोस्"</string>
-    <string name="menu_hide_system" msgid="8457027118873733782">"सिस्टम लुकाउनुहोस्"</string>
+    <string name="menu_show_system" msgid="6315865548558708248">"सिस्टम देखाइयोस्"</string>
+    <string name="menu_hide_system" msgid="8457027118873733782">"सिस्टम लुकाइयोस्"</string>
     <string name="menu_show_percentage" msgid="6983272380729890884">"प्रतिशतको रूपमा देखाउनुहोस्"</string>
     <string name="menu_use_uss" msgid="3765054705208926803">"Uss प्रयोग गर्नुहोस्"</string>
     <string name="menu_proc_stats_type" msgid="2680179749566186247">"तथ्याङ्क प्रकार"</string>
@@ -2711,7 +2711,7 @@
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"खपत चक्र रिसेट गर्ने मिति"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"प्रत्येक महिनाको तारिख:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"सेट गर्नुहोस्"</string>
-    <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"कति डेटा प्रयोग हुँदा चेतावनी दिइयोस्"</string>
+    <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"यति डेटा प्रयोग हुँदा चेतावनी दिइयोस्"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"डेटा खपतको सीमा तोक्नुहोस्"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"डेटा खपतको सीमा तोक्दा"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"तपाईंको ट्याब्लेट तपाईंले सेट गर्नुभएको अधिकतम डेटा प्रयोगको सीमामा पुगेपछि यसले मोबाइल डेटालाई निष्क्रिय पार्नेछ।\n\nतपाईंको ट्याब्लेटले र तपाईंको सेवा प्रदायकले फरक तरिकाले डेटा प्रयोगको मापन गर्न सक्ने हुनाले विवेकपूर्ण तरिकाले यसको सीमा सेट गर्ने बारे विचार गर्नुहोस्।"</string>
@@ -2745,10 +2745,10 @@
     <string name="vpn_mppe" msgid="4027660356538086985">"PPP इन्क्रिप्सन (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP गोप्य"</string>
     <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec पहिचानकर्ता"</string>
-    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec पहिले नै साझेदारी गरिएको कि"</string>
+    <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec को अग्रिम रूपमा सेयर गरिएको कि"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec प्रयोगकर्ता सर्टिफिकेट"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA सर्टिफिकेट"</string>
-    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec सर्भर प्रमाणपत्र"</string>
+    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec सर्भर सर्टिफिकेट"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"उन्नत विकल्पहरू देखाइयोस्"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS सर्च डोमेन"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"DNS सर्भर (उदाहरण ८.८.८.८)"</string>
@@ -2757,13 +2757,13 @@
     <string name="vpn_password" msgid="5325943601523662246">"पासवर्ड:"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"खाता सम्बन्धी जानकारी सेभ गर्नुहोस्"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(प्रयोग गरिएको छैन)"</string>
-    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(सर्भर प्रमाणीकरण नगर्नुहोस्)"</string>
+    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(सर्भरको पुष्टि नगर्नुहोस्)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(सर्भरबाट प्राप्त)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"यस प्रकारको VPN सधैँ कनेक्ट गरिरहन मिल्दैन"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"सधैँ सक्रिय रहने VPN ले संख्यात्मक सर्भर ठेगानाहरूलाई मात्र समर्थन गर्छ"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"सधैँ सक्रिय रहने VPN का लागि DNS सर्भर निर्दिष्ट गरिएको हुनु पर्छ"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"सधैँ सक्रिय रहने VPN का लागि DNS ठेगानाहरू संख्यात्मक नै हुनु पर्छ"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"प्रविष्ट गरिएको जानकारीले सधैँ सक्रिय रहने VPN लाई समर्थन गर्दैन"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"हालिएको जानकारीको आधारमा \"VPN सधैँ खुला राख्नुहोस्\" प्रयोग गर्न मिल्दैन"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"रद्द गर्नुहोस्"</string>
     <string name="vpn_done" msgid="6314426362224527349">"खारेज गर्नुहोस्"</string>
     <string name="vpn_save" msgid="1332625259182278316">"सेभ गर्नुहोस्"</string>
@@ -3187,7 +3187,7 @@
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"तोकिएको समयमा फोनलाई मौन अवस्थामा राख्नुहोस्‌"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"बाधा नपुर्‍याउनुहोस् नामक मोडका नियमहरू सेट गर्नुहोस्"</string>
     <string name="zen_mode_schedule_title" msgid="5275268813192802631">"समयतालिका"</string>
-    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"समयतालिका प्रयोग गर्नुहोस्‌"</string>
+    <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"यो समयतालिका प्रयोग गरियोस्‌"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"प्राथमिकता दिइएको मात्र"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"अलार्महरू मात्र"</string>
     <string name="zen_mode_option_no_interruptions" msgid="4723700274519260852">"पूरै शान्त"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"सूचना आउँदा फोनको घन्टी बज्दैन वा भाइब्रेट हुँदैन।"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">" सूचना आउँदा भिजुअल वा साउन्ड नआओस्"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"तपाईं सूचनाहरू देख्न वा सुन्न सक्नु हुने छैन।"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"तपाईंको फोनमा नयाँ वा हालका सूचनाहरूका लागि सूचना देखिँदैन, भाइब्रेट हुँदैन वा घन्टी बज्दैन। तपाईं फोनको क्रियाकलाप वा स्थितिसम्बन्धी महत्त्वपूर्ण सूचनाहरू भने देखी नै रहनु हुने छ।\n\n \'बाधा नपुऱ्याउनुहोस्\' सुविधा अफ गरेका बेला तपाईं आफ्नो स्क्रिनको सिरानबाट फेदतर्फ स्क्रोल गरी छुटेका सूचनाहरू हेर्न सक्नुहुन्छ।"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"तपाईंको फोनमा नयाँ वा हालका सूचना जनाउने जानकारी देखिँदैन, भाइब्रेट हुँदैन वा घन्टी बज्दैन। तपाईं फोनको क्रियाकलाप वा स्थितिसम्बन्धी महत्त्वपूर्ण सूचनाहरू भने देखी नै रहनु हुने छ।\n\n \'बाधा नपुऱ्याउनुहोस्\' सुविधा अफ गरेका बेला तपाईं आफ्नो स्क्रिनको सिरानबाट फेदतर्फ स्क्रोल गरी छुटेका सूचनाहरू हेर्न सक्नुहुन्छ।"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"आफू अनुकूल"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"आफू अनुकूल सेटिङ सक्षम पार्नुहोस्‌"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"आफू अनुकूल सेटिङ हटाउनुहोस्‌"</string>
@@ -3231,7 +3231,7 @@
     <string name="zen_mode_add" msgid="2533484377786927366">"थप्नुहोस्"</string>
     <string name="zen_mode_enable_dialog_turn_on" msgid="6396050543542026184">"सक्रिय गर्नुहोस्"</string>
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"अहिले नै सक्रिय गर्नुहोस्"</string>
-    <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"अहिले नै अफ गर्नुहोस्"</string>
+    <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"अहिले नै अफ गरियोस्"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"<xliff:g id="FORMATTED_TIME">%s</xliff:g> सम्म बाधा नपुर्‍याउनुहोस् नामक मोड सक्रिय हुन्छ"</string>
     <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"तपाईंले अफ नगरेसम्म \'बाधा नपुर्‍याउनुहोस्\' मोड अन रहने छ"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"(<xliff:g id="RULE_NAME">%s</xliff:g>) नामक समयतालिकाले बाधा नपुर्‍याउनुहोस् नामक मोडलाई स्वतः सक्रिय गरेको थियो"</string>
@@ -3280,7 +3280,7 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"तपाईं सूचनाहरू देख्न वा सुन्न सक्नु हुने छैन। ताराङ्कित सम्पर्क ठेगाना तथा बारम्बार कल गर्ने व्यक्तिका कलहरू।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(हालको सेटिङ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"बाधा नपुर्याउनुहोस् नामक मोडका सूचनासम्बन्धी सेटिङहरू बदल्ने हो?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"कार्य प्रोफाइलसम्बन्धी साउन्ड"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"कार्य प्रोफाइलको साउन्ड"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"व्यक्तिगत प्रोफाइलका साउन्डहरूको प्रयोग गरियोस्"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"कार्य र व्यक्तिगत दुवै प्रोफाइलका लागि उही साउन्ड प्रयोग गरिएको छ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"कार्यको फोनको रिङटोन"</string>
@@ -3469,7 +3469,7 @@
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"कुनै पनि होइन"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"प्रत्येक दिन"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"अलार्म बज्दा समय तालिका खारेज हुन्छ"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"अलार्म बज्दा समयतालिका अफ हुन्छ"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"अलार्म बज्दा यो समयतालिका अफ हुन्छ"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\'बाधा नपुऱ्याउनुहोस्\' लागू हुने वा नहुने"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"डिफल्ट सेटिङ प्रयोग गरियोस्"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"यो समयतालिकाका सन्दर्भमा आफ्नै सेटिङहरू सिर्जना गर्न दिइयोस्"</string>
@@ -3990,7 +3990,7 @@
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"पृष्ठभूमिको डेटालाई निष्क्रिय पारियो"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"सक्रिय गर्नुहोस्"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"निष्क्रिय गर्नुहोस्"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"डेटा सेभर प्रयोग गर्नुहोस्"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"डेटा सेभर प्रयोग गरियोस्"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"असीमित डेटाको प्रयोग"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"डेटा सेभर अन हुँदा असीमित डेटा चलाउने अनुमति दिइयोस्"</string>
     <string name="home_app" msgid="3695063566006954160">"घरेलु एप"</string>
@@ -4005,7 +4005,7 @@
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g> मा अन हुने छ"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"निष्क्रिय"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"अहिले नै सक्रिय गर्नुहोस्"</string>
-    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"अहिले नै अफ गर्नुहोस्"</string>
+    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"अहिले नै अफ गरियोस्"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"ब्याट्रीको खपत न्युन गर्ने सेटिङ गरिएको छैन"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"यदि यन्त्रलाई लक गरिएको छ भने सूचनाहरूमा जवाफ वा अन्य पाठ टाइप गर्न रोक लगाउनुहोस्"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"डिफल्ट स्पेल चेकर"</string>

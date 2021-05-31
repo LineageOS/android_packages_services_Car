@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Alltid på-VPN støtter bare numeriske tjeneradresser"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"En DNS-tjener må spesifiseres for alltid på-VPN"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS-tjeneradressen må være numerisk for alltid på-VPN"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Informasjonen som er angitt, støtter ikke alltid på-VPN"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Informasjonen som er angitt, støtter ikke alltid-på-VPN"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Avbryt"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Fjern"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Lagre"</string>
@@ -3196,18 +3196,18 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Tillat visuelle signaler"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"Når «Ikke forstyrr» er på"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Begrens varsler"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Ingen lyd fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Ingen lydvarsling"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Du ser varsler på skjermen"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Når du mottar varsler, kommer ikke telefonen til å lage lyd eller vibrere."</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ingen lyd eller visuelle elementer fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ingen lyd- eller visuell varsling"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Du verken ser eller hører varsler"</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonen verken viser, vibrerer for eller lager lyd for nye eller eksisterende varsler. Husk at viktige varsler om telefonaktivitet og status fremdeles vises.\n\nNår du slår av «Ikke forstyrr», kan du finne varsler du gikk glipp av, ved å sveipe ned fra toppen av skjermen."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Tilpasset"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Slå på tilpasset innstilling"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fjern tilpasset innstilling"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Ingen lyd fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Ingen lydvarsling"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Delvis skjult"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Ingen lyd eller visuelle elementer fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Ingen lyd- eller visuell varsling"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Tilpassede begrensninger"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Når skjermen er på"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Når skjermen er av"</string>
@@ -3275,13 +3275,13 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Når «Ikke forstyrr» er på, ignoreres meldinger, påminnelser og aktiviteter, med unntak av elementene du tillater ovenfor. Du kan justere meldingsinnstillingene for å la venner, familie eller andre kontakter nå deg."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Ferdig"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Innstillinger"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ingen lyd eller visuelle elementer fra varsler"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ingen lyd fra varsler"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ingen lyd- eller visuell varsling"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ingen lydvarsling"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Du verken ser eller hører varsler. Anrop fra stjernemerkede kontakter og gjentatte oppringere tillates."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Gjeldende innstilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vil du endre innstillinger for varsler for «Ikke forstyrr»?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Lyder i jobbprofilen"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Bruk personlig profil-lyder"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Bruk lyder fra personlig profil"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Lydene er like for jobbprofilen og den personlige profilen"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Telefonringelyd for jobb"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standard varsellyd for jobb"</string>
@@ -3865,7 +3865,7 @@
     <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Stiler og bakgrunner, hvilemodus, skriftstørrelse"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Skriftstørrelse for hvilemodus"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Hvilemodus etter 10 minutter uten aktivitet"</string>
-    <string name="memory_summary" msgid="9121871336058042600">"Gjennomsnittlig er <xliff:g id="USED_MEMORY">%1$s</xliff:g> av <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> minne brukt"</string>
+    <string name="memory_summary" msgid="9121871336058042600">"I gjennomsnitt er <xliff:g id="USED_MEMORY">%1$s</xliff:g> av <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> minne brukt"</string>
     <string name="users_summary" msgid="6693338169439092387">"Logget på som <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> er angitt som standard"</string>
     <string name="backup_disabled" msgid="6941165814784765643">"Sikkerhetskopiering er slått av"</string>

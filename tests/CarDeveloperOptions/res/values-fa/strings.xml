@@ -3137,14 +3137,14 @@
     <string name="media_volume_option_title" msgid="3553411883305505682">"میزان صدای رسانه"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"میزان صدای محتوای ارسالی"</string>
     <string name="call_volume_option_title" msgid="5028003296631037334">"میزان صدای تماس"</string>
-    <string name="alarm_volume_option_title" msgid="3184076022438477047">"میزان صدای زنگ"</string>
+    <string name="alarm_volume_option_title" msgid="3184076022438477047">"میزان صدای زنگ ساعت"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"میزان صدای زنگ"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"میزان صدای اعلان"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"آهنگ زنگ تلفن"</string>
     <string name="notification_ringtone_title" msgid="2932960620843976285">"صدای اعلان پیش‌فرض"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"صدای ارائه‌شده توسط برنامه"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"صدای اعلان پیش‌فرض"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"صدای زنگ پیش‌فرض"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"صدای زنگ ساعت پیش‌فرض"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"لرزش برای تماس‌ها"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"سایر صداها"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"آهنگ‌های صفحه شماره‌گیری"</string>

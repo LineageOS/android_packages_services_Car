@@ -1971,7 +1971,7 @@
     <string name="physical_keyboard_title" msgid="3508591962962814313">"Физикалық пернетақта"</string>
     <string name="show_ime" msgid="7322620473198763563">"Виртуалды пернетақтаны көрсету"</string>
     <string name="show_ime_summary" msgid="3246628154011464373">"Физикалық пернетақта қосулы кезде оны экранға шығару"</string>
-    <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Пернелер тіркесімдері көмекшісі"</string>
+    <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Перне тіркесімдері көмекшісі"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Қолжетімді перне тіркесімдерін көрсету"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"Жұмыс профилі пернетақталары және құралдары"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"Жұмысқа арналған виртуалды пернетақта"</string>
@@ -2328,8 +2328,8 @@
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Батарея шығынын қадағалау функциясы батарея зарядын жылдам тауысатын қолданбаларды анықтайтын кезде, осы қолданбаларды шектейтін опция болады. Шектелген қолданбалар дұрыс жұмыс істемеуі және хабарландырулар кешігіп келуі мүмкін."</string>
     <string name="restricted_app_title" msgid="4957644700640127606">"Шектелген қолданбалар"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
-      <item quantity="other">Батарея %1$d қолданба үшін ғана қолданылады</item>
-      <item quantity="one">Батарея %1$d қолданба үшін ғана қолданылады</item>
+      <item quantity="other">Батарея %1$d қолданба үшін ғана қолданылады.</item>
+      <item quantity="one">Батарея %1$d қолданба үшін ғана қолданылады.</item>
     </plurals>
     <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> шектелген"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Бұл қолданбалар батареяны фондық режимде пайдаланып келуде. Шектелген қолданбалар дұрыс жұмыс істемеуі және хабарландырулар кешігіп келуі мүмкін."</string>
@@ -2744,10 +2744,10 @@
     <string name="vpn_server" msgid="5216559017318406820">"Сервер мекенжайы"</string>
     <string name="vpn_mppe" msgid="4027660356538086985">"PPP шифрлау (MPPE)"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP құпия"</string>
-    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec анықтағыш"</string>
+    <string name="vpn_ipsec_identifier" msgid="1230238784830362888">"IPSec идентификаторы"</string>
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec алдын ала берілген кілті"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec пайдаланушы сертификаты"</string>
-    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec РА сертификаты"</string>
+    <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA сертификаты"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec серверінің сертификаты"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Қосымша опцияларды көрсету"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS іздеу домендері"</string>
@@ -3134,9 +3134,9 @@
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"Қоңырау дірілдеу режиміне қойылған"</string>
     <string name="sound_settings_summary_silent" msgid="899823817462768876">"Қоңырау үнсіз режимге қойылған"</string>
     <string name="sound_settings_example_summary" msgid="2091822107298841827">"Қоңыраудың дыбыс деңгейі: 80%"</string>
-    <string name="media_volume_option_title" msgid="3553411883305505682">"Mультимeдиа дыбыс деңгейі"</string>
+    <string name="media_volume_option_title" msgid="3553411883305505682">"Mультимeдианың дыбыс деңгейі"</string>
     <string name="remote_media_volume_option_title" msgid="6355710054191873836">"Трансляцияның дыбыс деңгейі"</string>
-    <string name="call_volume_option_title" msgid="5028003296631037334">"Сөйлескендегі дыбыс деңгейі"</string>
+    <string name="call_volume_option_title" msgid="5028003296631037334">"Сөйлесу кезіндегі дыбыс деңгейі"</string>
     <string name="alarm_volume_option_title" msgid="3184076022438477047">"Оятқыштың дыбыс деңгейі"</string>
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Қоңыраудың дыбыс деңгейі"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Хабарландырудың дыбыс деңгейі"</string>
@@ -4387,8 +4387,8 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мобильдік деректер"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Интернетке мобильдік желі арқылы кіру"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефон байланыс аясында болған кезде, автоматты түрде осы операторға ауысады."</string>
-    <string name="calls_preference" msgid="2076353032705811243">"Қоңыраулар параметрі"</string>
-    <string name="sms_preference" msgid="8449270011976880">"SMS параметрі"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"Қоңыраулар үшін"</string>
+    <string name="sms_preference" msgid="8449270011976880">"SMS үшін"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Әрдайым сұрау"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Желі қосу"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">

@@ -552,8 +552,8 @@
     <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ແທັບເລັດນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ອຸປະກອນນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ໂທລະສັບນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
-    <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"ເລືອກວິ​ທີ​ລັອກ​ໜ້າ​ຈໍ​ການ​ສຳ​ຮອງ​ຂອງ​ທ່ານ"</string>
-    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"ເລືອກວິທີລັອກໜ້າຈໍການສຳຮອງຂອງທ່ານ"</string>
+    <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"ເລືອກວິ​ທີ​ລັອກ​ໜ້າ​ຈໍ​ສຳ​ຮອງ​ຂອງ​ທ່ານ"</string>
+    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"ເລືອກວິທີລັອກໜ້າຈໍສຳຮອງຂອງທ່ານ"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"ຕົວເລືອກໜ້າຈໍລັອກ"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"ຕົວເລືອກໜ້າຈໍລັອກ"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ການລັອກໜ້າຈໍ"</string>

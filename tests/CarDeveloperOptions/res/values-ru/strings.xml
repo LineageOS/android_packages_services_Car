@@ -2638,7 +2638,7 @@
     <string name="fullbackup_data_summary" msgid="406274198094268556">"Автоматически копируйте данные устройства (например, пароли сетей Wi-Fi и журнал звонков), а также сведения из приложений (например, настройки и файлы) в удаленное хранилище.\n\nПосле того как вы включите резервное копирование, информация будет периодически сохраняться в удаленном хранилище. Обратите внимание, что данные приложений могут включать конфиденциальную информацию: контакты, сообщения, фотографии и другие сведения, сохраненные приложением на устройстве согласно настройкам разработчика."</string>
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Настройки администратора устройства"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"Приложение администратора устройства"</string>
-    <string name="remove_device_admin" msgid="4413438593788336400">"Отключить приложение администратора устройства"</string>
+    <string name="remove_device_admin" msgid="4413438593788336400">"Отключить это приложение администратора"</string>
     <string name="uninstall_device_admin" msgid="9017499299961719830">"Удалить приложение"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Отключить и удалить"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Приложения администратора"</string>
@@ -2649,9 +2649,9 @@
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Доступ к SMS и списку вызовов есть только у приложений для звонков и обмена сообщениями, используемых по умолчанию"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Нет агентов доверия."</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Приложение администратора устройства"</string>
-    <string name="add_device_admin" msgid="1621152410207260584">"Активировать приложение администратора устройства"</string>
+    <string name="add_device_admin" msgid="1621152410207260584">"Активировать это приложение администратора"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Администратор устройства"</string>
-    <string name="device_admin_warning" msgid="4421817419326480449">"После активации приложения администратора приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет выполнять следующие операции:"</string>
+    <string name="device_admin_warning" msgid="4421817419326480449">"После того как вы активируете это приложение администратора, приложение \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" сможет выполнять следующие действия:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Приложение администратора активно и разрешает приложению \"<xliff:g id="APP_NAME">%1$s</xliff:g>\" выполнять следующие операции:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Включить менеджер профилей?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Администратор будет управлять этим профилем и сможет сохранять связанные с ним данные, а также вашу личную информацию.\n\nКроме того, администратор сможет контролировать и изменять настройки и параметры доступа, а также управлять приложениями и данными этого пользователя, в том числе получать сведения о действиях в сети и местоположении."</string>
@@ -3231,7 +3231,7 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Другие звуки"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Звук при наборе номера"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Звук блокировки экрана"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Звуки и вибрация при зарядке"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Сигналы зарядки"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Звуки через док-динамик"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Звук нажатия на экран"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Вибрация при касании"</string>
@@ -3369,7 +3369,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(выбрано)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Изменить настройки уведомлений в режиме \"Не беспокоить\"?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Сигналы в рабочем профиле"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Выбрать звуки личного профиля"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Использовать те же звуки, что и в личном профиле"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Одинаковые сигналы в рабочем и личном профиле"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Рингтон рабочего телефона"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Звук уведомления по умолчанию"</string>
@@ -3791,7 +3791,7 @@
     <string name="default_app" msgid="8861276008866619872">"(по умолчанию)"</string>
     <string name="system_app" msgid="4111402206594443265">"(системное)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(по умолчанию)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Хранилище приложений"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Приложения"</string>
     <string name="usage_access" msgid="2023443456361489516">"Доступ к данным об использовании"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Доступ к истории использования"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Настройки использования приложения"</string>
