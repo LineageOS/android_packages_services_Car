@@ -18,8 +18,6 @@ package com.android.car.power;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.anyBoolean;
-import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 
@@ -92,7 +90,6 @@ public final class SilentModeHandlerUnitTest {
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
 
         assertWithMessage("Silent mode in forced mode").that(handler.isSilentMode()).isTrue();
-        verify(mCarPowerManagementService, never()).notifySilentModeChange(anyBoolean());
     }
 
     @Test
@@ -107,7 +104,6 @@ public final class SilentModeHandlerUnitTest {
         writeStringToFile(mFileHwStateMonitoring.getFile(), VALUE_SILENT_MODE);
 
         assertWithMessage("Silent mode in forced mode").that(handler.isSilentMode()).isFalse();
-        verify(mCarPowerManagementService, never()).notifySilentModeChange(anyBoolean());
     }
 
     @Test
