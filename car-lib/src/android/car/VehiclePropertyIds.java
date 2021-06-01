@@ -195,8 +195,44 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_ENGINE_DETAILED)
     public static final int ENGINE_RPM = 291504901;
     /**
-     * Reports wheel ticks
-     * Requires permission: {@link Car#PERMISSION_SPEED}.
+     * Reports wheel ticks.
+     *
+     * <p>WHEEL_TICK property is {@link VehiclePropertyAccess#Read} access,
+     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a Long[] type
+     * value.
+     *
+     * <p>The first element in the array is a reset count.  A reset indicates
+     * previous tick counts are not comparable with this and future ones.  Some
+     * sort of discontinuity in tick counting has occurred.
+     *
+     * <p>The next four elements represent ticks for individual wheels in the
+     * following order: front left, front right, rear right, rear left.  All
+     * tick counts are cumulative.  Tick counts increment when the vehicle
+     * moves forward, and decrement when vehicles moves in reverse.  The ticks
+     * should be reset to 0 when the vehicle is started by the user.
+     *
+     * <ul>
+     *  <li>Long[0] = reset count
+     *  <li>Long[1] = front left ticks
+     *  <li>Long[2] = front right ticks
+     *  <li>Long[3] = rear right ticks
+     *  <li>Long[4] = rear left ticks
+     * </ul>
+     *
+     * <p>configArray is used to indicate the micrometers-per-wheel-tick value and
+     * which wheels are supported. configArray is set as follows:
+     *
+     * <ul>
+     *  <li>configArray[0], bits [0:3] = supported wheels.  Uses enum Wheel.
+     *  <li>configArray[1] = micrometers per front left wheel tick
+     *  <li>configArray[2] = micrometers per front right wheel tick
+     *  <li>configArray[3] = micrometers per rear right wheel tick
+     *  <li>configArray[4] = micrometers per rear left wheel tick
+     * </ul>
+     *
+     * <p>NOTE:  If a wheel is not supported, its value is always 0.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int WHEEL_TICK = 290521862;
