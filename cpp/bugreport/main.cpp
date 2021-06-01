@@ -18,7 +18,6 @@
 
 #include <android-base/errors.h>
 #include <android-base/file.h>
-#include <android-base/logging.h>
 #include <android-base/macros.h>
 #include <android-base/properties.h>
 #include <android-base/stringprintf.h>
@@ -131,7 +130,7 @@ void zipFilesToFd(const std::vector<std::string>& extra_files, int outfd) {
 
         error = writer->StartEntry(name.c_str(), 0);
         if (error) {
-            ALOGE("Failed to start entry %s", writer->ErrorCodeString(error));
+            ALOGE("Failed to start entry: [%d] %s", error, writer->ErrorCodeString(error));
             return;
         }
         android::base::unique_fd fd(
@@ -157,7 +156,7 @@ void zipFilesToFd(const std::vector<std::string>& extra_files, int outfd) {
             }
             error = writer->WriteBytes(buffer, bytes_read);
             if (error) {
-                ALOGE("WriteBytes() failed %s", ZipWriter::ErrorCodeString(error));
+                ALOGE("WriteBytes() failed: [%d] %s", error, ZipWriter::ErrorCodeString(error));
                 // fail immediately
                 return;
             }
@@ -165,13 +164,13 @@ void zipFilesToFd(const std::vector<std::string>& extra_files, int outfd) {
 
         error = writer->FinishEntry();
         if (error) {
-            ALOGE("failed to finish entry %s", writer->ErrorCodeString(error));
+            ALOGW("failed to finish entry: [%d] %s", error, writer->ErrorCodeString(error));
             continue;
         }
     }
     error = writer->Finish();
     if (error) {
-        ALOGE("failed to finish zip writer %s", writer->ErrorCodeString(error));
+        ALOGW("Failed to finish zip writer to: [%d] %s", error, writer->ErrorCodeString(error));
     }
 }
 
@@ -386,12 +385,12 @@ void takeScreenshotForDisplayId(PhysicalDisplayId id, const char* tmp_dir,
     ALOGI("capturing screen for display (%s) as %s", id_as_string.c_str(), filename.c_str());
     int status = runCommand(10, "/system/bin/screencap", args);
     if (status == 0) {
-        LOG(INFO) << "Screenshot saved for display:" << id_as_string;
+        ALOGI("Screenshot saved for display: %s", id_as_string.c_str());
     }
     // add the file regardless of the exit status of the screencap util.
     extra_files->push_back(filename);
 
-    LOG(ERROR) << "Failed to take screenshot for display:" << id_as_string;
+    ALOGW("Failed to take screenshot for display: %s", id_as_string.c_str());
 }
 
 void takeScreenshot(const char* tmp_dir, std::vector<std::string>* extra_files) {
