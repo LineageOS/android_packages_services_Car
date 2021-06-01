@@ -156,6 +156,9 @@
             </intent-filter>
         </activity>
 
+        <activity android:name=".insets.WindowInsetsTestActivity"
+                  android:label="@string/window_insets_test_activity"/>
+
         <meta-data android:name="android.car.application"
              android:resource="@xml/automotive_app_desc"/>
 
