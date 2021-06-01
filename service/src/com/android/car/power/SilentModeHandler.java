@@ -105,11 +105,14 @@ final class SilentModeHandler {
 
     void init() {
         boolean forcedMode;
+        boolean silentMode;
         synchronized (mLock) {
             forcedMode = mForcedMode;
+            silentMode = mSilentModeByHwState;
         }
         if (forcedMode) {
-            updateKernelSilentMode(mSilentModeByHwState);
+            updateKernelSilentMode(silentMode);
+            mService.notifySilentModeChange(silentMode);
             Slogf.i(TAG, "Now in forced mode: monitoring %s is disabled",
                     mHwStateMonitoringFileName);
         } else {
