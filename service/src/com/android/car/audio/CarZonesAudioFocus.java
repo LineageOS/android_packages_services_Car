@@ -46,7 +46,6 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private static final String TAG = CarLog.tagFor(CarZonesAudioFocus.class);
 
     private final CarFocusCallback mCarFocusCallback;
-    private final boolean mDelayedFocusEnabled;
     private CarAudioService mCarAudioService; // Dynamically assigned just after construction
     private AudioPolicy mAudioPolicy; // Dynamically assigned just after construction
 
@@ -56,7 +55,6 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             @NonNull PackageManager packageManager,
             @NonNull SparseArray<CarAudioZone> carAudioZones,
             @NonNull CarAudioSettings carAudioSettings,
-            boolean enableDelayedAudioFocus,
             CarFocusCallback carFocusCallback) {
         Objects.requireNonNull(audioManager, "AudioManager cannot be null");
         Objects.requireNonNull(packageManager, "PackageManager cannot be null");
@@ -74,18 +72,15 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             Slogf.d(TAG, "Adding new zone %d", audioZoneId);
             CarAudioFocus zoneFocusListener =
                     new CarAudioFocus(audioManager, packageManager,
-                            new FocusInteraction(carAudioSettings), enableDelayedAudioFocus);
+                            new FocusInteraction(carAudioSettings));
             audioFocusPerZone.put(audioZoneId, zoneFocusListener);
         }
-        return new CarZonesAudioFocus(audioFocusPerZone, enableDelayedAudioFocus, carFocusCallback);
+        return new CarZonesAudioFocus(audioFocusPerZone, carFocusCallback);
     }
 
     @VisibleForTesting
-    CarZonesAudioFocus(SparseArray<CarAudioFocus> focusZones,
-            boolean enableDelayedAudioFocus,
-            CarFocusCallback carFocusCallback) {
+    CarZonesAudioFocus(SparseArray<CarAudioFocus> focusZones, CarFocusCallback carFocusCallback) {
         mFocusZones = focusZones;
-        mDelayedFocusEnabled = enableDelayedAudioFocus;
         mCarFocusCallback = carFocusCallback;
     }
 
@@ -215,7 +210,6 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     void dump(IndentingPrintWriter writer) {
         writer.println("*CarZonesAudioFocus*");
         writer.increaseIndent();
-        writer.printf("Delayed Focus Enabled: %b\n", mDelayedFocusEnabled);
         writer.printf("Has Focus Callback: %b\n", mCarFocusCallback != null);
         writer.println("Car Zones Audio Focus Listeners:");
         writer.increaseIndent();

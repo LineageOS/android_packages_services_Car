@@ -80,8 +80,7 @@ public final class CarZonesAudioFocusUnitTest {
     public void newCarZonesAudioFocus_withNullAudioManager_throws() {
         assertThrows(NullPointerException.class,
                 () -> CarZonesAudioFocus.createCarZonesAudioFocus(null,
-                        mMockPackageManager, mMockZones, mCarAudioSettings, true,
-                        mMockCarFocusCallback)
+                        mMockPackageManager, mMockZones, mCarAudioSettings, mMockCarFocusCallback)
         );
     }
 
@@ -89,7 +88,7 @@ public final class CarZonesAudioFocusUnitTest {
     public void newCarZonesAudioFocus_withNullPackageManager_throws() {
         assertThrows(NullPointerException.class,
                 () -> CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
-                        null, mMockZones, mCarAudioSettings, true, mMockCarFocusCallback)
+                        null, mMockZones, mCarAudioSettings,  mMockCarFocusCallback)
         );
     }
 
@@ -97,7 +96,7 @@ public final class CarZonesAudioFocusUnitTest {
     public void newCarZonesAudioFocus_withNullCarAudioZones_throws() {
         assertThrows(NullPointerException.class,
                 () -> CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
-                        mMockPackageManager, null, mCarAudioSettings, true, mMockCarFocusCallback)
+                        mMockPackageManager, null, mCarAudioSettings, mMockCarFocusCallback)
         );
     }
 
@@ -105,7 +104,7 @@ public final class CarZonesAudioFocusUnitTest {
     public void newCarZonesAudioFocus_withEmptyCarAudioZones_throws() {
         assertThrows(IllegalArgumentException.class,
                 () -> CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
-                        mMockPackageManager, new SparseArray<>(), mCarAudioSettings, true,
+                        mMockPackageManager, new SparseArray<>(), mCarAudioSettings,
                         mMockCarFocusCallback)
         );
     }
@@ -114,14 +113,14 @@ public final class CarZonesAudioFocusUnitTest {
     public void newCarZonesAudioFocus_withNullCarAudioSettings_throws() {
         assertThrows(NullPointerException.class,
                 () -> CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager,
-                        mMockPackageManager, mMockZones, null, true, mMockCarFocusCallback)
+                        mMockPackageManager, mMockZones, null, mMockCarFocusCallback)
         );
     }
 
     @Test
     public void newCarZonesAudioFocus_withNullCarFocusCallback_succeeds() {
         CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager, mMockPackageManager,
-                mMockZones, mCarAudioSettings, true, null);
+                mMockZones, mCarAudioSettings, null);
     }
 
     @Test
@@ -243,8 +242,8 @@ public final class CarZonesAudioFocusUnitTest {
     }
 
     private CarZonesAudioFocus getCarZonesAudioFocus() {
-        CarZonesAudioFocus carZonesAudioFocus = new CarZonesAudioFocus(mFocusMocks, true,
-                mMockCarFocusCallback);
+        CarZonesAudioFocus carZonesAudioFocus =
+                new CarZonesAudioFocus(mFocusMocks, mMockCarFocusCallback);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
         return carZonesAudioFocus;

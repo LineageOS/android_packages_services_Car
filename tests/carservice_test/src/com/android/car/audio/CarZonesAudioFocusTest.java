@@ -61,7 +61,7 @@ public class CarZonesAudioFocusTest {
     private static final String NAVIGATION_CLIENT_ID = "nav-client-id";
     private static final String CALL_CLIENT_ID = "call-client-id";
     private static final String PACKAGE_NAME = "com.android.car.audio";
-    private static final int AUDIOFOCUS_FLAG = 0;
+    private static final int AUDIO_FOCUS_FLAG = 0;
     private static final int PRIMARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE;
     private static final int SECONDARY_ZONE_ID = CarAudioManager.PRIMARY_AUDIO_ZONE + 1;
     private static final int MEDIA_CLIENT_UID_1 = 1086753;
@@ -95,7 +95,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_withNoCurrentFocusHolder_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfo);
@@ -106,7 +106,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_forTwoDifferentZones_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfoClient1 = generateMediaRequestForPrimaryZone();
 
 
@@ -128,7 +128,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_forTwoDifferentZones_abandonInOne_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfoClient1 = generateMediaRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoClient1);
@@ -151,7 +151,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_withBundleFocusRequest_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
         Bundle bundle = new Bundle();
@@ -169,7 +169,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_repeatForSameZone_requestGranted() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfoMediaClient = generateMediaRequestForPrimaryZone();
 
         requestFocusAndAssertIfRequestNotGranted(carZonesAudioFocus, audioFocusInfoMediaClient);
@@ -193,7 +193,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_forNavigationWhileOnCall_rejectNavOnCall_requestFailed() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
         setUpRejectNavigationOnCallValue(true);
         carZonesAudioFocus.updateUserForZoneId(PRIMARY_ZONE_ID, TEST_USER_ID);
@@ -222,7 +222,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_forNavigationWhileOnCall_noRejectNavOnCall_requestSucceeds() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(false);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
         setUpRejectNavigationOnCallValue(false);
         carZonesAudioFocus.updateUserForZoneId(PRIMARY_ZONE_ID, TEST_USER_ID);
@@ -251,8 +251,8 @@ public class CarZonesAudioFocusTest {
     }
 
     @Test
-    public void onAudioFocusRequest_forMediaWhileOnCall_withDelayedEnable_delayedSucceeds() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(true);
+    public void onAudioFocusRequest_forMediaWithDelayedFocusWhileOnCall_delayedSucceeds() {
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         when(mCarAudioService.isAudioZoneIdValid(PRIMARY_ZONE_ID)).thenReturn(true);
 
         when(mCarAudioService.getZoneIdForUid(CALL_CLIENT_UID)).thenReturn(PRIMARY_ZONE_ID);
@@ -280,7 +280,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusRequest_notifiesFocusCallback() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(true);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone();
 
         carZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
@@ -294,7 +294,7 @@ public class CarZonesAudioFocusTest {
 
     @Test
     public void onAudioFocusAbandon_notifiesFocusCallback() {
-        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus(true);
+        CarZonesAudioFocus carZonesAudioFocus = getCarZonesAudioFocus();
         AudioFocusInfo audioFocusInfo = generateMediaRequestForPrimaryZone();
 
         carZonesAudioFocus.onAudioFocusAbandon(audioFocusInfo);
@@ -332,11 +332,11 @@ public class CarZonesAudioFocusTest {
         return zones;
     }
 
-    private CarZonesAudioFocus getCarZonesAudioFocus(boolean enableDelayedFocus) {
+    private CarZonesAudioFocus getCarZonesAudioFocus() {
         CarZonesAudioFocus carZonesAudioFocus =
                 CarZonesAudioFocus.createCarZonesAudioFocus(mMockAudioManager, mMockPackageManager,
                         mCarAudioZones,
-                        mCarAudioSettings, enableDelayedFocus, mMockCarFocusCallback);
+                        mCarAudioSettings, mMockCarFocusCallback);
         carZonesAudioFocus.setOwningPolicy(mCarAudioService, mAudioPolicy);
 
 
@@ -357,7 +357,7 @@ public class CarZonesAudioFocusTest {
         private String mPackageName = PACKAGE_NAME;
         private Bundle mBundle = null;
         private int mLossReceived = AudioManager.AUDIOFOCUS_NONE;
-        private int mFlags = AUDIOFOCUS_FLAG;
+        private int mFlags = AUDIO_FOCUS_FLAG;
         private int mSdk = Build.VERSION.SDK_INT;
         private boolean mDelayedFocusRequestEnabled = false;
 
