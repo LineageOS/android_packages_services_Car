@@ -18,6 +18,9 @@ package com.google.android.car.networking.preferenceupdater.components;
 import static android.net.NetworkStats.DEFAULT_NETWORK_ALL;
 import static android.net.NetworkStats.METERED_ALL;
 import static android.net.NetworkStats.ROAMING_ALL;
+import static android.provider.Settings.Global.NETSTATS_UID_BUCKET_DURATION;
+
+import static java.util.concurrent.TimeUnit.HOURS;
 
 import android.annotation.Nullable;
 import android.annotation.WorkerThread;
@@ -32,6 +35,7 @@ import android.net.NetworkTemplate;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.Message;
+import android.provider.Settings;
 import android.util.Log;
 import android.util.Pair;
 
@@ -76,7 +80,14 @@ public final class MetricDisplay {
         mConnectivityManager = context.getSystemService(ConnectivityManager.class);
         mNetStatsMan = context.getSystemService(NetworkStatsManager.class);
         mMetricMessageHandler = handler;
-        mStartTime = System.currentTimeMillis();
+
+        /* If the start time is set to the current time without accounting for bucket duration,
+           the reported rx/tx bytes will be inaccurate, since bucket sizes are on the order of
+           hours. This will manifest itself as the rx/tx values slowly climbing, even when there is
+           no network traffic. Setting the start time to one bucket duration prior to the current
+           time seems to fix this issue. */
+        mStartTime = System.currentTimeMillis() - Settings.Global.getLong(
+                mContext.getContentResolver(), NETSTATS_UID_BUCKET_DURATION, HOURS.toMillis(2));
 
         scanAndPrintOemNetworksIfExist();
     }
