@@ -301,11 +301,18 @@
     <install-in-user-type package="com.android.certinstaller">
         <install-in user-type="FULL" />
     </install-in-user-type>
+    <!-- TODO(b/189246976) STOPSHIP Remove for SYSTEM user since this package
+    is needed for SYSTEM user only if the device supports feature_device_admin
+    and it's used by some device owner APIs-->
     <install-in-user-type package="com.android.pacprocessor">
         <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
     </install-in-user-type>
+    <!-- TODO(b/189246976) STOPSHIP Remove for SYSTEM user same as previous
+    package -->
     <install-in-user-type package="com.android.proxyhandler">
         <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
     </install-in-user-type>
     <install-in-user-type package="com.android.vpndialogs">
         <install-in user-type="FULL" />
