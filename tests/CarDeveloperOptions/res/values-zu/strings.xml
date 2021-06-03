@@ -1313,7 +1313,7 @@
     <string name="security_patch" msgid="483709031051932208">"Ileveli yokuvikeleka ye-Android"</string>
     <string name="model_info" msgid="1729765474260797594">"Imodeli"</string>
     <string name="model_summary" msgid="8781425868254352168">"Imodeli: %1$s"</string>
-    <string name="hardware_info" msgid="174270144950621815">"Imodeli nezingxenyekazi zekhompuyutha"</string>
+    <string name="hardware_info" msgid="174270144950621815">"Imodeli nezingxenyekazi zekhompyutha"</string>
     <string name="hardware_revision" msgid="3315744162524354246">"Inguqulo yezingxenyekazi zekhompuyutha"</string>
     <string name="fcc_equipment_id" msgid="8681995718533066093">"I-ID yempahla"</string>
     <string name="baseband_version" msgid="9115560821840757786">"Inguqulo ye-Baseband"</string>

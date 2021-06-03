@@ -3120,7 +3120,7 @@
     <string name="keywords_storage_settings" msgid="6422454520424236476">"ਮੈਮੋਰੀ, ਕੈਸ਼ੇ, ਡਾਟਾ, ਮਿਟਾਓ, ਕਲੀਅਰ ਕਰੋ, ਖਾਲੀ, ਜਗ੍ਹਾ"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"ਕਨੈਕਟ ਕੀਤੇ, ਡੀਵਾਈਸ, ਹੈੱਡਫ਼ੋਨ, ਹੈੱਡਸੈੱਟ, ਸਪੀਕਰ, ਵਾਇਰਲੈੱਸ, ਜੋੜਾਬੱਧ, ਈਅਰਬੱਡ, ਸੰਗੀਤ, ਮੀਡੀਆ"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"ਬੈਕਗ੍ਰਾਊਂਡ, ਸਕ੍ਰੀਨ, ਲਾਕਸਕ੍ਰੀਨ, ਥੀਮ"</string>
-    <string name="keywords_assist_input" msgid="8392362788794886564">"ਪੂਰਵ-ਨਿਰਧਾਰਤ, ਸਹਾਇਕ"</string>
+    <string name="keywords_assist_input" msgid="8392362788794886564">"ਪੂਰਵ-ਨਿਰਧਾਰਿਤ, ਸਹਾਇਕ"</string>
     <string name="keywords_default_payment_app" msgid="845369409578423996">"ਭੁਗਤਾਨ, ਪੂਰਵ-ਨਿਰਧਾਰਤ"</string>
     <string name="keywords_ambient_display" msgid="8835182491798487184">"ਇਨਕਮਿੰਗ ਸੂਚਨਾ"</string>
     <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"USB ਟੈਦਰ, ਬਲੂਟੁੱਥ ਟੈਦਰ, ਵਾਈ-ਫਾਈ ਹੌਟਸਪੌਟ"</string>
@@ -3666,7 +3666,7 @@
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"ਸਹਾਇਕ ਅਤੇ ਅਵਾਜ਼ੀ ਇਨਪੁੱਟ"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"ਸਹਾਇਕ ਐਪ"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"ਕੀ <xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g> ਨੂੰ ਆਪਣਾ ਸਹਾਇਕ ਬਣਾਉਣਾ ਹੈ?"</string>
-    <string name="assistant_security_warning" msgid="1304057692847069938">"ਸਹਾਇਕ ਤੁਹਾਡੇ ਸਿਸਟਮ ਤੇ ਮੌਜੂਦ ਵਰਤੋਂ ਵਿੱਚ ਹੋਣ ਵਾਲੇ ਐਪਸ ਬਾਰੇ ਜਾਣਕਾਰੀ ਪੜ੍ਹਨ ਵਿੱਚ ਸਮਰੱਥ ਹੋਵੇਗਾ, ਤੁਹਾਡੀ ਸਕ੍ਰੀਨ ਤੇ ਦ੍ਰਿਸ਼ਮਾਨ ਜਾਂ ਐਪਸ ਵਿੱਚ ਪਹੁੰਚਯੋਗ ਜਾਣਕਾਰੀ ਸਮੇਤ।"</string>
+    <string name="assistant_security_warning" msgid="1304057692847069938">"Assistant ਤੁਹਾਡੇ ਸਿਸਟਮ ਤੇ ਮੌਜੂਦ ਵਰਤੋਂ ਵਿੱਚ ਹੋਣ ਵਾਲੇ ਐਪਾਂ ਬਾਰੇ ਜਾਣਕਾਰੀ ਪੜ੍ਹਨ ਵਿੱਚ ਸਮਰੱਥ ਹੋਵੇਗੀ, ਤੁਹਾਡੀ ਸਕ੍ਰੀਨ ਤੇ ਦਿਖਣਯੋਗ ਜਾਂ ਐਪਾਂ ਵਿੱਚ ਪਹੁੰਚਯੋਗ ਜਾਣਕਾਰੀ ਸਮੇਤ।"</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"ਸਹਿਮਤ"</string>
     <string name="assistant_security_warning_disagree" msgid="4217490999193100459">"ਅਸਹਿਮਤ"</string>
     <string name="choose_voice_input_title" msgid="5369311838580756359">"ਵੌਇਸ ਇਨਪੁਟ ਚੁਣੋ"</string>

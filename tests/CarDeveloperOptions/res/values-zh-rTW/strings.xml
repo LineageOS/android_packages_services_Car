@@ -1208,7 +1208,7 @@
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"螢幕感知"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"啟用/螢幕不會在你注視時關閉"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"關閉"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"避免螢幕在你注視時關閉。"</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"當你注視著手機時，螢幕不會關閉。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"螢幕感知功能會使用前置鏡頭，判斷是否有人正在注視螢幕。這項功能只會在裝置上運作，系統不會儲存相關圖像或將其傳送至 Google。"</string>
     <string name="night_display_title" msgid="1305002424893349814">"夜燈"</string>
     <string name="night_display_text" msgid="5330502493684652527">"夜燈功能會將你的螢幕色調改為琥珀色，讓你更輕鬆地在光線昏暗的環境中查看螢幕，也比較容易入睡。"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"設定"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"計入數據用量的其他應用程式"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">已允許 <xliff:g id="COUNT">%1$d</xliff:g> 個應用程式在數據節省模式開啟時無限量使用數據</item>
-      <item quantity="one">已允許 1 個應用程式在數據節省模式開啟時無限量使用數據</item>
+      <item quantity="other">已允許 <xliff:g id="COUNT">%1$d</xliff:g> 個應用程式在數據節省模式開啟時不受任何數據用量限制</item>
+      <item quantity="one">已允許 1 個應用程式在數據節省模式開啟時不受任何數據用量限制</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"主要數據"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi 數據"</string>

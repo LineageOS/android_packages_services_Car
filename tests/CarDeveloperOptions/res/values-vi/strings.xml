@@ -2326,7 +2326,7 @@
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Khi Trình quản lý pin phát hiện thấy các ứng dụng đang tiêu hao pin, bạn có thể hạn chế những ứng dụng này. Các ứng dụng bị hạn chế có thể không hoạt động bình thường và thông báo có thể bị chậm trễ."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Khi Trình quản lý pin phát hiện thấy các ứng dụng đang tiêu hao pin, bạn có thể hạn chế những ứng dụng này. Các ứng dụng bị hạn chế có thể không hoạt động bình thường và thông báo có thể bị chậm trễ."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Khi Trình quản lý pin phát hiện thấy các ứng dụng đang tiêu hao pin, bạn có thể hạn chế những ứng dụng này. Các ứng dụng bị hạn chế có thể không hoạt động bình thường và thông báo có thể bị chậm trễ."</string>
-    <string name="restricted_app_title" msgid="4957644700640127606">"Ứng dụng bị giới hạn"</string>
+    <string name="restricted_app_title" msgid="4957644700640127606">"Ứng dụng bị hạn chế"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">Giới hạn mức sử dụng pin đối với ứng dụng %1$d</item>
       <item quantity="one">Giới hạn mức sử dụng pin đối với ứng dụng %1$d</item>
@@ -2600,7 +2600,7 @@
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Hiện chưa có hồ sơ công việc"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Hồ sơ công việc"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Do tổ chức của bạn quản lý"</string>
-    <string name="work_mode_off_summary" msgid="1688885392211178315">"Ứng dụng và thông báo đã tắt"</string>
+    <string name="work_mode_off_summary" msgid="1688885392211178315">"Ứng dụng và thông báo đang tắt"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Xóa hồ sơ công việc"</string>
     <string name="background_data" msgid="8275750862371471171">"Dữ liệu nền"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Ứng dụng có thể đ.bộ hóa, gửi &amp; nhận dữ liệu bất kỳ lúc nào"</string>
@@ -2670,7 +2670,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"Thẻ SIM"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Tạm dừng khi đạt giới hạn"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Tự động đồng bộ hóa dữ liệu"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"T.động ĐB hóa dữ liệu cá nhân"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Tự động đồng bộ hóa dữ liệu cá nhân"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Tự động đồng bộ hóa dữ liệu công việc"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Thay đổi chu kỳ..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Ngày trong tháng để đặt lại chu kỳ sử dụng dữ liệu:"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"VPN luôn bật chỉ hỗ trợ địa chỉ máy chủ dạng số"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Máy chủ DNS phải được chỉ định cho VPN luôn bật"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"Địa chỉ máy chủ DNS phải có dạng số cho VPN luôn bật"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Thông tin được nhập không hỗ trợ VPN luôn bật"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Thông tin đã nhập không hỗ trợ tính năng VPN luôn bật"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Hủy"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Loại bỏ"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Lưu"</string>
@@ -3214,7 +3214,7 @@
     <string name="zen_mode_block_effect_sound" msgid="1499243540186357631">"Tắt âm thanh và rung"</string>
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Không bật màn hình"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Không nhấp nháy đèn"</string>
-    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Không hiển thị thông báo trên màn hình"</string>
+    <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Không hiện thông báo trên màn hình"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"Ẩn biểu tượng thanh trạng thái ở đầu màn hình"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Ẩn dấu chấm thông báo trên biểu tượng của ứng dụng"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Không đánh thức khi có thông báo"</string>
@@ -3378,7 +3378,7 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Tắt"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Hủy"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Dịch vụ trình trợ giúp thực tế ảo"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"Không có ứng dụng đã cài đặt nào yêu cầu được chạy dưới dạng dịch vụ trình trợ giúp VR."</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"Không có ứng dụng đã cài đặt nào yêu cầu được chạy dưới dạng dịch vụ trình trợ giúp thực tế ảo."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Cho phép quyền truy cập dịch vụ VR đối với <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> có thể chạy khi bạn đang sử dụng ứng dụng ở chế độ thực tế ảo."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Khi thiết bị ở chế độ thực tế ảo"</string>
@@ -3418,7 +3418,7 @@
     <string name="notification_toggle_off" msgid="5289843670514922751">"Tắt"</string>
     <string name="app_notification_block_title" msgid="7898269373875294367">"Chặn tất cả"</string>
     <string name="app_notification_block_summary" msgid="4502146897785692336">"Không bao giờ hiển thị các thông báo này"</string>
-    <string name="notification_content_block_title" msgid="2805138591864484587">"Hiển thị thông báo"</string>
+    <string name="notification_content_block_title" msgid="2805138591864484587">"Hiện thông báo"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Không bao giờ hiển thị thông báo trong ngăn thông báo hoặc trên thiết bị ngoại vi"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Cho phép dấu chấm thông báo"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Hiện dấu chấm thông báo"</string>
@@ -3480,7 +3480,7 @@
     <string name="zen_mode_calls" msgid="1844534357711539325">"Cho phép cuộc gọi"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"Cuộc gọi"</string>
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"Để đảm bảo các cuộc gọi đã cho phép sẽ phát ra âm thanh, hãy kiểm tra xem thiết bị của bạn được đặt ở chế độ đổ chuông, rung hay im lặng."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Đối với ‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’, các cuộc gọi đến đều bị chặn. Bạn có thể điều chỉnh các tùy chọn cài đặt để cho phép bạn bè, gia đình hoặc những người liên hệ khác liên lạc với bạn."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"Đối với lịch \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\", các cuộc gọi đến đều bị chặn. Bạn có thể điều chỉnh các chế độ cài đặt để cho phép bạn bè, gia đình hoặc những người liên hệ khác liên lạc với bạn."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"Người liên hệ có gắn dấu sao"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="other"><xliff:g id="NUM_PEOPLE">%d</xliff:g> người khác</item>
@@ -4082,7 +4082,7 @@
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Dấu vết Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Tắt cảm biến"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Cài đặt hồ sơ công việc"</string>
-    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Tìm kiếm người liên hệ"</string>
+    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Tìm người liên hệ"</string>
     <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Cho phép tìm kiếm người liên hệ theo tổ chức để xác định người gọi và liên hệ"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Lịch hồ sơ chéo"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Hiển thị sự kiện công việc trên lịch cá nhân"</string>
@@ -4283,7 +4283,7 @@
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Hiển thị thông tin chi tiết trong khi chuyển đổi người dùng"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Cho phép các lượt bắt đầu hoạt động trong nền"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Cho phép tất cả các lượt bắt đầu hoạt động trong nền"</string>
-    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Luôn hiển thị hộp thoại sự cố"</string>
+    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Luôn hiện hộp thoại sự cố"</string>
     <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Hiển thị hộp thoại mỗi khi ứng dụng gặp sự cố"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"Chọn ứng dụng hỗ trợ ANGLE"</string>
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"Chưa đặt ứng dụng hỗ trợ ANGLE nào"</string>

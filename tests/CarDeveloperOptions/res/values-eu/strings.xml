@@ -2331,7 +2331,7 @@
       <item quantity="other">%1$d aplikazioren bateria-erabilera mugatzen</item>
       <item quantity="one">%1$d aplikazioren bateria-erabilera mugatzen</item>
     </plurals>
-    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Mugatze-data: <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> mugatuta"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Aplikazio hauek bateria erabiltzen aritu dira atzeko planoan. Baliteke aplikazio mugatuek behar bezala ez funtzionatzea eta jakinarazpenak atzeratzea."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Erabili bateria-kudeatzailea"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Hauteman aplikazioak bateria agortzen ari direla"</string>
@@ -2608,7 +2608,7 @@
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Atzeko planoko datuak desgaitzen badituzu, bateriaren iraupena areagotuko da eta datuen erabilera murriztuko da. Hala ere, aplikazio batzuek atzeko planoko datuen konexioa erabil dezakete."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"Sinkronizatu auto. aplikazio-datuak"</string>
     <string name="sync_enabled" msgid="535172627223336983">"Sinkronizazioa AKTIBATUTA"</string>
-    <string name="sync_disabled" msgid="713721807204805062">"Sinkr. DESAKTIBATUTA"</string>
+    <string name="sync_disabled" msgid="713721807204805062">"Sinkronizazioa desaktibatuta"</string>
     <string name="sync_error" msgid="988155155932442765">"Sinkronizazio-errorea"</string>
     <string name="last_synced" msgid="4511434057768999129">"Azken sinkronizazioa: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"Sinkronizatzen…"</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Beti aktibatuta dagoen VPN sareak zenbakizko zerbitzari-helbideak soilik onartzen ditu"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"Beti aktibatuta dagoen VPN sarearen DNS zerbitzaria zehaztu egin behar da"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS zerbitzariaren helbideak zenbakizkoa izan behar du beti aktibatuta dagoen VPN sarerako"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Egindako aukerarekin ezin da erabili beti aktibatuta dagoen VPN sarea"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Egindako aukerarekin ezin da erabili beti aktibatuta dagoen VPNa"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Utzi"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Baztertu"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Gorde"</string>
@@ -2778,23 +2778,23 @@
     <string name="vpn_forget_long" msgid="8457511440635534478">"Ahaztu VPN konexioa"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"Dagoen VPN konexioa ordeztu nahi duzu?"</string>
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"VPNa beti aktibatuta egoteko aukera ezarri nahi duzu?"</string>
-    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"Ezarpen hau aktibatuta dagoenean, ez duzu izango Interneteko konexiorik VPN sarea behar bezala konektatu arte"</string>
-    <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"Lehendik duzun VPNa ordeztuko da eta ez duzu Interneteko konexiorik izango VPN sarea behar bezala konektatu arte"</string>
+    <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"Ezarpen hau aktibatuta dagoenean, ez duzu izango Interneteko konexiorik VPNa behar bezala konektatu arte"</string>
+    <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"Lehendik duzun VPNa ordeztuko da eta ez duzu Interneteko konexiorik izango VPNa behar bezala konektatu arte"</string>
     <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"Beti aktibatuta dagoen VPN sare batera konektatuta zaude dagoeneko. Beste VPN batera konektatzen bazara, lehendik duzuna ordeztuko da eta desaktibatu egingo da beti aktibatuta edukitzeko modua."</string>
     <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"Bazaude VPN sare batera konektatuta. Beste batera konektatzen bazara, daukazuna ordeztuko da."</string>
     <string name="vpn_turn_on" msgid="2334736319093953055">"Aktibatu"</string>
     <string name="vpn_cant_connect_title" msgid="5803347131129293771">"Ezin da konektatu <xliff:g id="VPN_NAME">%1$s</xliff:g>"</string>
-    <string name="vpn_cant_connect_message" msgid="7729125036551401236">"Aplikazio honek ez du onartzen beti aktibatuta dagoen VPN sarea"</string>
+    <string name="vpn_cant_connect_message" msgid="7729125036551401236">"Aplikazio honek ez du onartzen beti aktibatuta dagoen VPNa"</string>
     <string name="vpn_title" msgid="7801918186865029203">"VPN"</string>
     <string name="vpn_create" msgid="2477570636472897359">"Gehitu VPN profila"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"Editatu profila"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"Ezabatu profila"</string>
     <string name="vpn_menu_lockdown" msgid="6951452279924808089">"Beti aktibatuta dagoen VPNa"</string>
-    <string name="vpn_no_vpns_added" msgid="6616183541896197147">"Ez da gehitu VPN sarerik"</string>
+    <string name="vpn_no_vpns_added" msgid="6616183541896197147">"Ez da gehitu VPNrik"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"Egon konektatuta VPN sarera beti"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"Aplikazio honek ez du onartzen"</string>
     <string name="vpn_always_on_summary_active" msgid="8962619701962239088">"Aktibatuta dago \"Beti aktibatuta\" aukera"</string>
-    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokeatu VPN sarerik gabeko konexioak"</string>
+    <string name="vpn_require_connection" msgid="5413746839457797350">"Blokeatu VPNrik gabeko konexioak"</string>
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"VPN konexioak erabiltzera derrigortu?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"Hautatu beti konektatuta egoteko VPN profila. VPN horrekin konektatuta zaudenean soilik onartuko da sare-trafikoa."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"Bat ere ez"</string>
@@ -2977,7 +2977,7 @@
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Eman datuak trukatzeko baimena tabletak beste gailu bat ukitzean"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"Eman datuak trukatzeko baimena telefonoak beste gailu bat ukitzean"</string>
     <string name="restriction_location_enable_title" msgid="358506740636434856">"Kokapena"</string>
-    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"Eman kokapen-informazioa erabiltzeko baimena aplikazioei"</string>
+    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"Utzi kokapen-informazioa erabiltzen aplikazioei"</string>
     <string name="wizard_back" msgid="223654213898117594">"Atzera"</string>
     <string name="wizard_next" msgid="5239664512608113542">"Hurrengoa"</string>
     <string name="wizard_finish" msgid="3742102879981212094">"Amaitu"</string>
@@ -3280,13 +3280,13 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Ez duzu ikusi edo entzungo jakinarazpenik. Kontaktu izardunek eta berriro deitu dutenen deiak onartu egingo dira."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Oraingo ezarpena)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Ez molestatzeko moduaren jakinarazpen-ezarpenak aldatu nahi dituzu?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"Laneko profilaren soinuak"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Erabili profil pertsonalaren soinuak"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"Laneko profileko soinuak"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Erabili profil pertsonaleko soinuak"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Soinu berberak erabiltzen dira laneko profilean nahiz profil pertsonalean"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Laneko telefonoaren tonua"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Laneko jakinarazpenen soinu lehenetsia"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Laneko alarmaren soinu lehenetsia"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Profil pertsonalaren berberak"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Profil pertsonaleko berberak"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Soinuak ordeztu nahi dituzu?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Ordeztu"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Profil pertsonaleko soinuak erabiliko dira laneko profilekoen ordez"</string>
@@ -3310,7 +3310,7 @@
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"Atzitu bizkor aplikazioetako edukia lasterbide gainerakorrak erabilita"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"Jakinarazpen batzuk eta bestelako edukia burbuila gisa ager daitezke pantailan. Burbuilak irekitzeko, saka itzazu. Baztertzeko, ordea, arrasta itzazu pantailan behera."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"Burbuilak"</string>
-    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Baimendu <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari jakinarazpen batzuk burbuila gisa erakustea"</string>
+    <string name="bubbles_app_toggle_summary" msgid="7707611139796553855">"Eman jakinarazpen batzuk burbuila gisa erakusteko baimena <xliff:g id="APP_NAME">%1$s</xliff:g> aplikazioari"</string>
     <string name="bubbles_feature_disabled_dialog_title" msgid="3375452386012079293">"Aktibatu burbuilak"</string>
     <string name="bubbles_feature_disabled_dialog_text" msgid="326945485806386477">"Aplikazio honetan burbuilak aktibatu ahal izateko, gailuan aktibatu behar dituzu lehendabizi. Ekintza horrek eragina izango du burbuilak lehendik ere aktibatuta dauzkaten aplikazioetan."</string>
     <string name="bubbles_feature_disabled_button_approve" msgid="6661464849674493351">"Gailua pizteko"</string>
@@ -3350,7 +3350,7 @@
     <string name="notification_silence_title" msgid="6959637402003838093">"Erakutsi soinurik egin gabe"</string>
     <string name="notification_alert_title" msgid="750683027055192648">"Alerta"</string>
     <string name="allow_interruption" msgid="3548841026410702850">"Baimendu etenaldiak"</string>
-    <string name="allow_interruption_summary" msgid="5207637026831135377">"Baimendu aplikazioari soinuak edo dardara egitea, edota pantailan jakinarazpenak erakustea"</string>
+    <string name="allow_interruption_summary" msgid="5207637026831135377">"Utzi soinuak edo dardara egiten, edota pantailan jakinarazpenak erakusten aplikazioari"</string>
     <string name="notification_channel_summary_min" msgid="8646305539478179811">"Garrantzi txikikoa"</string>
     <string name="notification_channel_summary_low" msgid="7753266237705850510">"Garrantzi ertainekoa"</string>
     <string name="notification_channel_summary_default" msgid="7529537115678964164">"Garrantzi handikoa"</string>
@@ -3960,7 +3960,7 @@
     <string name="data_warning_footnote" msgid="965724845580257305">"Gailuak neurtzen du datuen erabilera eta datuen muga. Baliteke informazio hori bat ez etortzea operadoreak egindako datuen neurketarekin."</string>
     <string name="set_data_limit" msgid="5043770023229990674">"Ezarri datuen muga"</string>
     <string name="data_limit" msgid="5793521160051596228">"Datuen muga"</string>
-    <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> erabili dira <xliff:g id="ID_2">%2$s</xliff:g> artean"</string>
+    <string name="data_usage_template" msgid="6848274347956096882">"<xliff:g id="ID_1">%1$s</xliff:g> erabili dira (<xliff:g id="ID_2">%2$s</xliff:g>)"</string>
     <string name="configure" msgid="8232696842838580549">"Konfiguratu"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"Erabileran eragina duten beste aplikazio batzuk"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(<xliff:g id="USER">%s</xliff:g> - desgaituta)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"Betetze automatikoaren zerbitzua"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"bete, automatikoki, betetze automatiko"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Ziurtatu aplikazioa fidagarria dela&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; eginbideak pantailan dagoena erabiltzen du automatikoki bete daitekeena zehazteko."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Ziurtatu aplikazioa fidagarria dela&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; aplikazioak pantailan dagoena erabiltzen du automatikoki bete daitekeena zehazteko."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Betetze automatikoa"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Erregistratze-maila"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Saio bakoitzeko gehieneko eskaera kopurua"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Kontua"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Gailuaren izena"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wifi-konexioa kontrolatzeko aukera"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Baimendu aplikazioari Wi-Fi konexioa kontrolatzea"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Eman wifi-konexioa kontrolatzeko baimena aplikazioari"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Eman wifi-konexioa aktibatzeko edo desaktibatzeko, wifi-sareak bilatzeko eta haietara konektatzeko, sareak gehitzeko edo kentzeko, edota wifi-gune lokal bat sortzeko baimena aplikazioari"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Erreproduzitu multimedia-edukia hemen:"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Gailu hau"</string>
@@ -4407,18 +4407,18 @@
     <string name="mobile_network_list_add_more" msgid="65420172175416318">"Gehitu beste batzuk"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Aktibo / SIM txartela"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Inaktibo / SIM txartela"</string>
-    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Aktibo / Deskargatutako SIM txartela"</string>
-    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inaktibo / Deskargatutako SIM txartela"</string>
+    <string name="mobile_network_active_esim" msgid="2919290915755581140">"Aktibo / Deskargatutako SIMa"</string>
+    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inaktibo / Deskargatutako SIMa"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"SIM txartelaren izena"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Aldatu izena"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Erabili SIM txartela"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Erabili SIMa"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Desaktibatuta"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> operadorera aldatu nahi duzu?"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Deskargatutako SIM txartel bakarra aktiba daiteke aldiko.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> operadorera aldatuta ere, ez da bertan behera utziko <xliff:g id="CARRIER2">%2$s</xliff:g> operadorearen zerbitzua."</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Deskargatutako SIM bakarra aktiba daiteke aldiko.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> operadorera aldatuta ere, ez da bertan behera utziko <xliff:g id="CARRIER2">%2$s</xliff:g> operadorearen zerbitzua."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Aldatu (<xliff:g id="CARRIER">%1$s</xliff:g>)"</string>
-    <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Ezabatu SIM txarteleko eduki guztia"</string>
-    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Deskargatutako SIM txartel honetako eduki guztia ezabatu?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"SIM txartel honetako eduki guztia ezabatuz gero, <xliff:g id="CARRIER_0">%1$s</xliff:g> operadorearen zerbitzua kenduko da gailu honetatik.\n\nEz da utziko bertan behera <xliff:g id="CARRIER_1">%2$s</xliff:g> operadorearen zerbitzua."</string>
+    <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Ezabatu SIMeko eduki guztia"</string>
+    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Deskargatutako SIM honetako eduki guztia ezabatu?"</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"SIM honetako eduki guztia ezabatuz gero, <xliff:g id="CARRIER_0">%1$s</xliff:g> operadorearen zerbitzua kenduko da gailu honetatik.\n\nEz da utziko bertan behera <xliff:g id="CARRIER_1">%2$s</xliff:g> operadorearen zerbitzua."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Ezabatu eduki guztia"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM txarteleko eduki guztia ezabatzen…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Ezin da ezabatu SIM txartela"</string>

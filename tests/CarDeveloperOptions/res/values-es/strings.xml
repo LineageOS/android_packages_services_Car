@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"No ajustar en función de la luz ambiental"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Aumenta el uso de la batería"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Optimiza el brillo en función de la luz ambiental. Puedes ajustarlo temporalmente aunque actives esta función."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"El brillo de la pantalla se ajustará automáticamente según el entorno y lo que hagas. Puedes mover el control deslizante para que la función de brillo adaptativo reconozca tus preferencias."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"El brillo de la pantalla se ajustará automáticamente según el entorno y lo que hagas. Puedes mover el control deslizante para que la función Brillo adaptativo reconozca tus preferencias."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Balance de blancos de pantalla"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Modo privado"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Activado: la pantalla no se apagará si estás mirándola"</string>
@@ -3392,7 +3392,7 @@
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Permite que la aplicación cree una ventana imagen en imagen mientras esté abierta o después de que hayas salido de ella (por ejemplo, para seguir viendo un vídeo). La ventana se muestra sobre otras aplicaciones que estés utilizando."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Acceso a No molestar"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Permitir No molestar"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ninguna aplicación instalada ha solicitado acceso de No molestar"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ninguna aplicación instalada ha solicitado acceso a No molestar"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Cargando aplicaciones..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Por petición tuya, Android está bloqueando las notificaciones de esta aplicación para que no se muestren en el dispositivo"</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Por petición tuya, Android está bloqueando esta categoría de notificaciones para que no se muestren en el dispositivo"</string>
@@ -4067,7 +4067,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Todo"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Ayuda y consejos"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Ancho más pequeño"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Ninguna aplicación instalada ha solicitado acceso SMS premium"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Ninguna aplicación instalada ha solicitado acceso a SMS premium"</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"Es posible que el envío de SMS premium te cueste dinero y el importe correspondiente se sume a las facturas de tu operador. Si habilitas el permiso para una aplicación, puedes enviar SMS premium con ella."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Acceso a SMS premium"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Desactivado"</string>
@@ -4251,7 +4251,7 @@
     <string name="app_info_storage_title" msgid="6643391804949509308">"Espacio usado"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(opción desinstalada para <xliff:g id="USER">%s</xliff:g>)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(opción inhabilitada para <xliff:g id="USER">%s</xliff:g>)"</string>
-    <string name="autofill_app" msgid="3990765434980280073">"Autocompletar"</string>
+    <string name="autofill_app" msgid="3990765434980280073">"Servicio de autocompletar"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"automático, completar, autocompletar"</string>
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Asegúrate de que confías en esta aplicación&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Autocompletar de Google&gt;%1$s&lt;/xliff:g&gt; utiliza el contenido que se muestra en la pantalla para determinar el texto que se puede autocompletar."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Autocompletar"</string>
