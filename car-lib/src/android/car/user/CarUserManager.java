@@ -376,14 +376,7 @@ public final class CarUserManager extends CarManagerBase {
         return new AndroidAsyncFuture<>(future);
     }
 
-    /**
-     * Creates a new Android user.
-     *
-     * @hide
-     */
-    @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
-                        android.Manifest.permission.CREATE_USERS})
-    public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
+    private AsyncFuture<UserCreationResult> createUser(@Nullable String name,
             @NonNull String userType, @UserInfoFlag int flags) {
         int uid = myUid();
         try {

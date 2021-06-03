@@ -24,6 +24,7 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.ArgumentMatchers.notNull;
 import static org.mockito.ArgumentMatchers.same;
@@ -288,64 +289,13 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     @Test
-    public void testCreateUser_withType_success() throws Exception {
-        expectServiceCreateUserSucceeds("dude", "sweet", 42, UserCreationResult.STATUS_SUCCESSFUL,
-                108);
-
-        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
-
-        assertThat(future).isNotNull();
-        UserCreationResult result = getResult(future);
-        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
-        assertThat(result.isSuccess()).isTrue();
-        assertThat(result.getErrorMessage()).isNull();
-
-        UserInfo newUser = result.getUser();
-        assertThat(newUser).isNotNull();
-        assertThat(newUser.id).isEqualTo(108);
-        assertThat(newUser.name).isEqualTo("dude");
-        assertThat(newUser.userType).isEqualTo("sweet");
-        assertThat(newUser.flags).isEqualTo(42);
-    }
-
-    @Test
-    public void testCreateUser_withType_remoteException() throws Exception {
-        expectServiceCreateUserFails("dude", "sweet", 42);
-        mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
-
-        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
-
-        assertThat(future).isNotNull();
-        UserCreationResult result = getResult(future);
-        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
-        assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getErrorMessage()).isNull();
-        assertThat(result.getUser()).isNull();
-    }
-
-    @Test
-    public void testCreateUser_withType_runtimeException() throws Exception {
-        doThrow(new RuntimeException("D'OH!")).when(mService).createUser(eq("dude"), eq("sweet"),
-                eq(42), anyInt(), notNull());
-
-        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", "sweet", 42);
-
-        assertThat(future).isNotNull();
-        UserCreationResult result = getResult(future);
-        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
-        assertThat(result.isSuccess()).isFalse();
-        assertThat(result.getErrorMessage()).isNull();
-        assertThat(result.getUser()).isNull();
-    }
-
-    @Test
     public void testCreateUser_success() throws Exception {
         expectServiceCreateUserSucceeds("dude", UserManager.USER_TYPE_FULL_SECONDARY, 42,
                 UserCreationResult.STATUS_SUCCESSFUL, 108);
 
         AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
-
         assertThat(future).isNotNull();
+
         UserCreationResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
@@ -365,8 +315,23 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
-
         assertThat(future).isNotNull();
+
+        UserCreationResult result = getResult(future);
+        assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
+        assertThat(result.isSuccess()).isFalse();
+        assertThat(result.getErrorMessage()).isNull();
+        assertThat(result.getUser()).isNull();
+    }
+
+    @Test
+    public void testCreateUser_runtimeException() throws Exception {
+        doThrow(new RuntimeException("D'OH!")).when(mService).createUser(eq("dude"), anyString(),
+                eq(42), anyInt(), notNull());
+
+        AsyncFuture<UserCreationResult> future = mMgr.createUser("dude", 42);
+        assertThat(future).isNotNull();
+
         UserCreationResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         assertThat(result.isSuccess()).isFalse();
@@ -380,8 +345,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                 UserCreationResult.STATUS_SUCCESSFUL, 108);
 
         AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
-
         assertThat(future).isNotNull();
+
         UserCreationResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_SUCCESSFUL);
         assertThat(result.isSuccess()).isTrue();
@@ -401,8 +366,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         mockHandleRemoteExceptionFromCarServiceWithDefaultValue(mCar);
 
         AsyncFuture<UserCreationResult> future = mMgr.createGuest("dudeGuest");
-
         assertThat(future).isNotNull();
+
         UserCreationResult result = getResult(future);
         assertThat(result.getStatus()).isEqualTo(UserCreationResult.STATUS_HAL_INTERNAL_FAILURE);
         assertThat(result.isSuccess()).isFalse();
