@@ -26,7 +26,11 @@ import java.util.List;
  */
 public class DataBrokerImpl implements DataBroker {
 
-    public DataBrokerImpl() { }
+    private final ScriptResultListener mScriptResultListener;
+
+    public DataBrokerImpl(ScriptResultListener scriptResultListener) {
+        mScriptResultListener = scriptResultListener;
+    }
 
     @Override
     public void enablePublishers(List<TelemetryProto.Publisher.PublisherCase> allowedPublishers) {
