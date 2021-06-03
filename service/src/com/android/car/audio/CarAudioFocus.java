@@ -49,7 +49,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     private final FocusInteraction mFocusInteraction;
 
-    private final boolean mEnabledDelayedFocusRequest;
     private AudioFocusInfo mDelayedRequest;
 
 
@@ -73,12 +72,11 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private boolean mIsFocusRestricted;
 
     CarAudioFocus(AudioManager audioManager, PackageManager packageManager,
-            FocusInteraction focusInteraction, boolean enableDelayedFocusRequest) {
+            FocusInteraction focusInteraction) {
         mAudioManager = audioManager;
         mPackageManager = packageManager;
         mFocusEventLogger = new LocalLog(FOCUS_EVENT_LOGGER_QUEUE_SIZE);
         mFocusInteraction = focusInteraction;
-        mEnabledDelayedFocusRequest = enableDelayedFocusRequest;
     }
 
 
@@ -99,7 +97,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
     @GuardedBy("mLock")
     private void abandonNonCriticalFocusLocked() {
-        if (mEnabledDelayedFocusRequest && mDelayedRequest != null) {
+        if (mDelayedRequest != null) {
             int audioContext = CarAudioContext.getContextForAttributes(
                     mDelayedRequest.getAttributes());
 
@@ -193,7 +191,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         FocusEntry replacedCurrentEntry = null;
         FocusEntry replacedBlockedEntry = null;
 
-        boolean allowDelayedFocus = mEnabledDelayedFocusRequest && canReceiveDelayedFocus(afi);
+        boolean allowDelayedFocus = canReceiveDelayedFocus(afi);
 
         // We don't allow sharing listeners (client IDs) between two concurrent requests
         // (because the app would have no way to know to which request a later event applied)
@@ -411,7 +409,6 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
         int response;
         AudioPolicy policy;
-        AudioFocusInfo replacedDelayedAudioFocusInfo = null;
         synchronized (mLock) {
             policy = mAudioPolicy;
             response = evaluateFocusRequestLocked(afi);
@@ -502,7 +499,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     private void attemptToGainFocusForDelayedAudioFocusRequest() {
-        if (!mEnabledDelayedFocusRequest || mDelayedRequest == null) {
+        if (mDelayedRequest == null) {
             return;
         }
         int delayedFocusRequestResults = evaluateFocusRequestLocked(mDelayedRequest);

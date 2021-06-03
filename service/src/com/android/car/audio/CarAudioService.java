@@ -105,9 +105,6 @@ import java.util.stream.Collectors;
  */
 public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
-    // Enable to allowed for delayed audio focus in car audio service.
-    private static final boolean ENABLE_DELAYED_AUDIO_FOCUS = true;
-
     static final @AttributeUsage int DEFAULT_AUDIO_USAGE = AudioAttributes.USAGE_MEDIA;
     static final @AudioContext int DEFAULT_AUDIO_CONTEXT = CarAudioContext.getContextForUsage(
             CarAudioService.DEFAULT_AUDIO_USAGE);
@@ -630,7 +627,6 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 mContext.getPackageManager(),
                 mCarAudioZones,
                 mCarAudioSettings,
-                ENABLE_DELAYED_AUDIO_FOCUS,
                 mCarDucking);
         builder.setAudioPolicyFocusListener(mFocusHandler);
         builder.setIsAudioFocusPolicy(true);
