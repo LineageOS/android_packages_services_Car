@@ -216,7 +216,7 @@
     <item msgid="1102693344156734891">"Локација"</item>
     <item msgid="6842381562497597649">"Лични"</item>
     <item msgid="3966700236695683444">"Пораки"</item>
-    <item msgid="8563996233342430477">"Медиуми"</item>
+    <item msgid="8563996233342430477">"Аудиовизуелни содржини"</item>
     <item msgid="5323851085993963783">"Уред"</item>
   </string-array>
   <string-array name="app_ops_summaries">
@@ -490,7 +490,7 @@
   </string-array>
   <string-array name="autofill_logging_level_entries">
     <item msgid="6882729786516723474">"Исклучено"</item>
-    <item msgid="4072198137051566919">"Отстранување грешка"</item>
+    <item msgid="4072198137051566919">"Отстранување грешки"</item>
     <item msgid="2473005316958868509">"Опширно"</item>
   </string-array>
   <string-array name="cdma_system_select_choices">

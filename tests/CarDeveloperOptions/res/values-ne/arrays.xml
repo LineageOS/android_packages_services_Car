@@ -114,7 +114,7 @@
     <item msgid="5985477119043628504">"कहिल्यै समय सकिँदैन"</item>
   </string-array>
   <string-array name="bluetooth_max_connected_audio_devices">
-    <item msgid="3800257971619063588">"प्रणालीको डिफल्ट सेटिङ प्रयोग गर्नुहोस्: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
+    <item msgid="3800257971619063588">"सिस्टम डिफल्ट प्रयोग गर्ने एपको संख्या: <xliff:g id="DEFAULT_BLUETOOTH_MAX_CONNECTED_AUDIO_DEVICES">%1$d</xliff:g>"</item>
     <item msgid="8572230405241423895">"1"</item>
     <item msgid="5318020123964299318">"२"</item>
     <item msgid="6429260054182662738">"३"</item>
