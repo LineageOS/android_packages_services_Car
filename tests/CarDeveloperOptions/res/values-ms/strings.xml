@@ -3439,7 +3439,7 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Masukkan nama jadual"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Nama jadual sudah digunakan"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Tambah lagi"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Tambah jadual acara"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Tambahkan jadual acara"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Tambahkan jadual masa"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Padamkan jadual"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Pilih jenis jadual"</string>

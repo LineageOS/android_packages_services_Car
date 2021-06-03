@@ -1326,7 +1326,7 @@
     <string name="device_status_summary" product="tablet" msgid="8975790197766171710">"ស្ថានភាព​ថ្ម បណ្ដាញ និង​ព័ត៌មាន​ផ្សេងៗ"</string>
     <string name="device_status_summary" product="default" msgid="8282235230720651642">"លេខ​ទូរសព្ទ សញ្ញា ។ល។"</string>
     <string name="storage_settings" msgid="7009733301485139652">"ទំហំ​ផ្ទុក"</string>
-    <string name="storage_settings_for_app" msgid="3028887232073069965">"ទំហំផ្ទុក និង​ឃ្លាំងផ្ទុកទិន្នន័យ"</string>
+    <string name="storage_settings_for_app" msgid="3028887232073069965">"ទំហំផ្ទុក និង​ឃ្លាំងបម្រុង"</string>
     <string name="storage_usb_settings" msgid="4470138799276333403">"ទំហំ​ផ្ទុក"</string>
     <string name="storage_settings_title" msgid="7348362600789024415">"កំណត់​ការ​​ផ្ទុក"</string>
     <string name="storage_settings_summary" product="nosdcard" msgid="600267641559698394">"ផ្ដាច់​​ឧបករណ៍​ផ្ទុក​យូអេសប៊ី មើល​ទំហំ​ដែល​មាន"</string>
@@ -3286,7 +3286,7 @@
     <string name="work_ringtone_title" msgid="5499360583947410224">"សំឡេងរោទ៍ទូរសព្ទការងារ"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"សំឡេងការជូនដំណឹងការងារលំនាំដើម"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"សំឡេងម៉ោងរោទ៍ការងារលំនាំដើម"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ដូចគ្នានឹងប្រវត្តិរូបការងារ"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"ដូចគ្នានឹងកម្រងព័ត៌មានផ្ទាល់ខ្លួន"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"ប្តូរសំឡេង?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"ជំនួស"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"សំឡេងកម្រងព័ត៌មាន​ផ្ទាល់ខ្លួន​របស់អ្នកនឹង​ត្រូវបានប្រើ​សម្រាប់កម្រងព័ត៌មានការងាររបស់អ្នក"</string>
@@ -3326,7 +3326,7 @@
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"កុំ​បង្ហាញ​ការ​ជូនដំណឹង​ឱ្យសោះ"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"នៅ​ពេល​ឧបករណ៍​របស់​អ្នក​ជាប់​សោ តើ​អ្នក​ចង់​ឲ្យ​ការ​ជូន​ដំណឹង​បង្ហាញ​ដោយ​របៀប​ណា?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"ការជូនដំណឹង"</string>
-    <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"បង្ហាញមាតិកាការជូនដំណឹងការងារទាំងអស់"</string>
+    <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"បង្ហាញខ្លឹមសារនៃការជូនដំណឹងការងារទាំងអស់"</string>
     <string name="lock_screen_notifications_summary_hide_profile" msgid="7898086300511010591">"លាក់​ខ្លឹមសារ​ការងារ​រសើប"</string>
     <string name="lock_screen_notifications_interstitial_message_profile" msgid="3324187664458600354">"នៅពេលដែលឧបករណ៍របស់អ្នកជាប់សោ តើអ្នកចង់ឲ្យការជូនដំណឹងប្រវត្តិរូបបង្ហាញដោយរបៀបណា?"</string>
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"ការជូនដំណឹងប្រវត្តិរូប"</string>

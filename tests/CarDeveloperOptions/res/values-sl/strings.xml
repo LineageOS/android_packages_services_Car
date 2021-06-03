@@ -2401,7 +2401,7 @@
       <item quantity="few">Omejitev porabe energije akumulatorja za %1$d aplikacije</item>
       <item quantity="other">Omejitev porabe energije akumulatorja za %1$d aplikacij</item>
     </plurals>
-    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Omejeno ob <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Omejeno <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Te aplikacije so porabljale energijo akumulatorja v ozadju. Omejene aplikacije morda ne bodo delovale pravilno, obvestila pa bodo morda zakasnjena."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Uporaba varčevanja z energijo akumulatorja"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Zaznavanje, ko aplikacije porabljajo energijo akumulatorja"</string>
@@ -3317,7 +3317,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Vklopi zdaj"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Izklopi zdaj"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Način »ne moti« bo vklopljen do <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način »ne moti« bo ostal vklopljen, dokler ga ne izklopite"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način »Ne moti« bo ostal vklopljen, dokler ga ne izklopite"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Način »ne moti« je bil samodejno vklopljen na podlagi razporeda (<xliff:g id="RULE_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Način »ne moti« je samodejno vklopila aplikacija (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Način »ne moti« je vklopljen za <xliff:g id="RULE_NAMES">%s</xliff:g> z nastavitvami po meri."</string>

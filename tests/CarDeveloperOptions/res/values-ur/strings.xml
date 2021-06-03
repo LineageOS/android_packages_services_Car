@@ -1892,7 +1892,7 @@
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"اطلاعات آف کریں؟"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"اسٹور"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"ایپ کی تفصیلات"</string>
-    <string name="app_install_details_summary" msgid="6612222941121363940">"<xliff:g id="APP_STORE">%1$s</xliff:g> سے ایپ انسٹال ہو گئی"</string>
+    <string name="app_install_details_summary" msgid="6612222941121363940">"‫<xliff:g id="APP_STORE">%1$s</xliff:g> سے انسٹال کردہ ایپ"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g> پر مزید معلومات"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"چل رہا ہے"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(کبھی استعمال نہیں ہوا)"</string>

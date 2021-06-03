@@ -603,15 +603,15 @@
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint" msgid="8846957650251741548">"Funkcije za zaštitu uređaja neće raditi bez uzorka.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vaši sačuvani otisci prstiju također će se ukloniti iz ovog uređaja i nećete ih moći koristiti za otključavanje telefona, odobravanje kupovine ili prijavljivanje u aplikacije."</string>
-    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Funkcija zaštite uređaja neće raditi bez PIN-a."</string>
+    <string name="unlock_disable_frp_warning_content_pin" msgid="6760473271034592796">"Funkcije zaštite uređaja neće raditi bez PIN-a."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint" msgid="4384632309103635233">"Funkcije za zaštitu uređaja neće raditi bez PIN-a.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vaši sačuvani otisci prstiju također će se ukloniti iz ovog uređaja i nećete ih moći koristiti za otključavanje telefona, odobravanje kupovine ili prijavljivanje u aplikacije."</string>
-    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Funkcija zaštite uređaja neće raditi bez lozinke."</string>
+    <string name="unlock_disable_frp_warning_content_password" msgid="854665587186358170">"Funkcije zaštite uređaja neće raditi bez lozinke."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint" msgid="218143910981979545">"Funkcije za zaštitu uređaja neće raditi bez lozinke.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vaši sačuvani otisci prstiju također će se ukloniti iz ovog uređaja i nećete ih moći koristiti za otključavanje telefona, odobravanje kupovine ili prijavljivanje u aplikacije."</string>
-    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Funkcija zaštite uređaja neće raditi bez zaključavanja ekrana."</string>
+    <string name="unlock_disable_frp_warning_content_unknown" msgid="3570135744390201244">"Funkcije zaštite uređaja neće raditi bez zaključavanja ekrana."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint" msgid="5775815077478538855">"Funkcije za zaštitu uređaja neće raditi bez zaključavanja ekrana.<xliff:g id="EMPTY_LINE">
 
 </xliff:g>Vaši sačuvani otisci prstiju također će se ukloniti iz ovog uređaja i nećete ih moći koristiti za otključavanje telefona, odobravanje kupovine ili prijavljivanje u aplikacije."</string>
@@ -2010,7 +2010,7 @@
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"Lični rječnik za posao"</string>
     <string name="user_dict_settings_summary" msgid="3131259534814181196"></string>
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"Dodaj"</string>
-    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Dodaj u rječnik"</string>
+    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Dodajte u rječnik"</string>
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"Fraza"</string>
     <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Više opcija"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"Manje opcija"</string>
@@ -2665,8 +2665,8 @@
     <string name="remove_account_label" msgid="5885425720323823387">"Ukloni račun"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Dodajte račun"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"Ukloniti račun?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Uklanjanjem ovog računa će se izbrisati sve njegove poruke, kontakti i ostali podaci s tableta!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Uklanjanjem ovog računa će se izbrisati sve njegove poruke, kontakti i ostali podaci s telefona!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Uklanjanjem ovog računa izbrisat će se sve njegove poruke, kontakti i ostali podaci s tableta!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Uklanjanjem ovog računa izbrisat će se sve njegove poruke, kontakti i ostali podaci s telefona!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Uklanjanjem ovog računa izbrisat ćete sve njegove poruke, kontakte i druge podatke s uređaja!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"Vaš administrator ne dopušta ovu promjenu"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"Nije moguće ručno sinhronizovati"</string>
@@ -3628,7 +3628,7 @@
     <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"Osim otključavanja pomoću lica, uređaj možete dodatno zaštititi zahtjevom za unos lozinke prije pokretanja. Dok se uređaj ne pokrene, neće se moći primati pozivi, poruke ili obavještenja, uključujući i alarme.\n\nNa ovaj način se štite podaci na izgubljenim ili ukradenim uređajima. Zahtijevati lozinku za pokretanje uređaja?"</string>
     <string name="encryption_interstitial_yes" msgid="1839339586101502601">"Da"</string>
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"Ne"</string>
-    <string name="restricted_true_label" msgid="1545180379083441282">"Ograničena"</string>
+    <string name="restricted_true_label" msgid="1545180379083441282">"Ograničeno"</string>
     <string name="restricted_false_label" msgid="4512495920090068495">"Aplikacija može koristiti bateriju u pozadini"</string>
     <string name="encrypt_talkback_dialog_require_pin" msgid="2781758476498571031">"Zahtijevati PIN?"</string>
     <string name="encrypt_talkback_dialog_require_pattern" msgid="8705104812047332411">"Zahtijevati unos obrasca?"</string>

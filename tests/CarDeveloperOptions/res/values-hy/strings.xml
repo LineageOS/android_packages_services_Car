@@ -1529,19 +1529,19 @@
     <string name="apn_settings" msgid="8130776653826271664">"APN-ներ"</string>
     <string name="apn_edit" msgid="4350571070853305357">"Խմբագրել մուտքի կետը"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"Կարգավորված չէ"</string>
-    <string name="apn_name" msgid="8431432886706852226">"Անունը"</string>
+    <string name="apn_name" msgid="8431432886706852226">"Անուն"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
     <string name="apn_http_proxy" msgid="8816906767987944465">"Պրոքսի"</string>
     <string name="apn_http_port" msgid="5789193688960075486">"Միացք"</string>
-    <string name="apn_user" msgid="6979724587671704006">"Օգտանունը"</string>
-    <string name="apn_password" msgid="7140724726108226386">"Գաղտնաբառը"</string>
+    <string name="apn_user" msgid="6979724587671704006">"Օգտանուն"</string>
+    <string name="apn_password" msgid="7140724726108226386">"Գաղտնաբառ"</string>
     <string name="apn_server" msgid="625116221513279678">"Սերվեր"</string>
     <string name="apn_mmsc" msgid="4621771343217824216">"MMSC"</string>
     <string name="apn_mms_proxy" msgid="636948562860444714">"MMS պրոքսի"</string>
     <string name="apn_mms_port" msgid="6606572282014819299">"MMS միացք"</string>
     <string name="apn_mcc" msgid="9138301167194779180">"MCC"</string>
     <string name="apn_mnc" msgid="1276161191283274976">"MNC"</string>
-    <string name="apn_auth_type" msgid="4286147728662523362">"Նույնականացման տեսակը"</string>
+    <string name="apn_auth_type" msgid="4286147728662523362">"Իսկորոշման տեսակը"</string>
     <string name="apn_auth_type_none" msgid="3679273936413404046">"Ոչ մեկը"</string>
     <string name="apn_auth_type_pap" msgid="6155876141679480864">"PAP"</string>
     <string name="apn_auth_type_chap" msgid="5484031368454788686">"CHAP"</string>
@@ -1698,7 +1698,7 @@
     <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Արբանյակային պատկերների մատակարարներ՝\n©2014 CNES / Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"Ձեռքով"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"Ձեռնարկը բեռնելու խնդիր կա:"</string>
-    <string name="settings_license_activity_title" msgid="1099045216283677608">"Երրորդ կողմի արտոնագրեր"</string>
+    <string name="settings_license_activity_title" msgid="1099045216283677608">"Երրորդ կողմի լիցենզիաներ"</string>
     <string name="settings_license_activity_unavailable" msgid="1039356188263821287">"Խնդիր կա լիցենզիաները բեռնելիս:"</string>
     <string name="settings_license_activity_loading" msgid="7272151895113843742">"Բեռնում...."</string>
     <string name="settings_safetylegal_title" msgid="2681094772308772633">"Անվտանգության տեղեկատվություն"</string>
@@ -2235,7 +2235,7 @@
     <string name="power_charge_remaining" msgid="2730510256218879651">"<xliff:g id="UNTIL_CHARGED">%1$s</xliff:g> մինչև լիցաքավորվելը"</string>
     <string name="background_activity_title" msgid="7207836362312111483">"Ֆոնային ռեժիմում աշխատանքի սահմանափակում"</string>
     <string name="background_activity_summary" msgid="582372194738538145">"Թույլ տալ հավելվածին աշխատել ֆոնային ռեժիմում"</string>
-    <string name="background_activity_summary_disabled" msgid="457944930942085876">"Հավելվածին չի թույլատրվում աշխատել ֆոնում"</string>
+    <string name="background_activity_summary_disabled" msgid="457944930942085876">"Հավելվածին չի թույլատրվում աշխատել հետին պլանում"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"Ֆոնային ռեժիմում աշխատանքը հնարավոր չէ սահմանափակել"</string>
     <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"Սահմանափակե՞լ ֆոնային գործողությունները"</string>
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Հավելվածի ֆոնային գործողությունների սահմանափակումը կարող է ազդել վերջինիս աշխատանքի վրա"</string>
@@ -2698,7 +2698,7 @@
     <string name="data_usage_background_label" msgid="8460891123904985128">"Հետնաշերտում՝"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Ծրագրային կարգավորումներ"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Ֆոնային տվյալներ"</string>
-    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Թույլատրել բջջային ինտերնետի օգտագործումը ֆոնում"</string>
+    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Թույլատրել բջջային ինտերնետի օգտագործումը հետին պլանում"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Այս ծրագրի հետնաշերտի տվյալները սահմանափակելու համար առաջին հերթին կարգավորեք շարժական տվյալների սահմանափակումը:"</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Սահմանափակե՞լ հետնաշերտի տվյալները:"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Այս հատկությունը կարող է պատճառ հանդիսանալ հետնաշերտի տվյալներից կախված ծրագրի աշխատանքի դադարեցմանը, երբ միայն շարժական ցանցեր են հասանելի:\n\nԴուք ծրագրի հասանելի կարգավորումների մեջ կարող եք գտնել ավելի համապատասխան տվյալների օգտագործման կառավարներ:"</string>
@@ -2709,7 +2709,7 @@
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"Անջատե՞լ ինքնահամաժամացումը"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Դա կկրճատի թրաֆիկն ու մարտկոցի օգտագործման չափը, սակայն նոր տվյալներ հավաքելու համար անհրաժեշտ կլինի ձեռքով համաժամացնել յուրաքանչյուր հաշիվ։ Թարմացումների մասին ծանուցումներ չեն ցուցադրվի։"</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Վիճակագրության զրոյացում"</string>
-    <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Ամսվա օրը`"</string>
+    <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Ամսվա օրը՝"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Պահել"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Սահմանել տվյալների օգտագործման նախազգուշացում"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Թրաֆիկի օգտագործման սահմանը"</string>
@@ -2748,7 +2748,7 @@
     <string name="vpn_ipsec_secret" msgid="1531503910441962752">"IPSec նախորոշված բանալին"</string>
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec օգտատիրոջ վկայագիրը"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec CA հավաստագիր"</string>
-    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec սերվերի վկայական"</string>
+    <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec սերվերի հավաստագիր"</string>
     <string name="vpn_show_options" msgid="7672984921872882859">"Ցույց տալ լրացուցիչ ընտրանքները"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS որոնման տիրույթներ"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"DNS սերվերներ (օրինակ՝ 8.8.8.8)"</string>
@@ -3453,12 +3453,12 @@
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Ավտոմատ կարգավորված է միացնել «Չանհանգստացնել» ընտրանքը նշված ժամանակներում"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Միջոցառում"</string>
     <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Ավտոմատ կարգավորված է միացնել «Չանհանգստացնել» ընտրանքը նշված իրադարձությունների ժամանակ"</string>
-    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Հետևյալ միջոցառումների ընթացքում՝"</string>
+    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"Միջոցառումների ժամանակ"</string>
     <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"<xliff:g id="CALENDAR">%1$s</xliff:g>-ի իրադարձությունների ընթացքում"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"ցանկացած օրացույց"</string>
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Որտեղ պատասխանը <xliff:g id="REPLY">%1$s</xliff:g> է"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Ցանկացած օրացույց"</string>
-    <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"Որտեղ պատասխանն է՝"</string>
+    <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"Որտեղ պատասխանն է"</string>
     <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"Այո, Միգուցե կամ Առանց պատասխանի"</string>
     <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"Այո կամ Միգուցե"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"Այո"</string>

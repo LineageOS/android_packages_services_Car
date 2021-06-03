@@ -2466,7 +2466,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"ક્યારેય નહીં"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> બૅટરી પર"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"બૅટરીના ટકા"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"બૅટરીના ટકા સ્થિતિ બારમાં બતાવો"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"બૅટરીના ટકા સ્ટેટસ બારમાં બતાવો"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"પ્રક્રિયા આંકડા"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"ચાલુ પ્રક્રિયાઓ વિશેનાં અવ્યવસ્થિત આંકડાઓ"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"મેમરીનો ઉપયોગ"</string>
@@ -2698,7 +2698,7 @@
     <string name="data_usage_background_label" msgid="8460891123904985128">"બૅકગ્રાઉન્ડ"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"ઍપ્લિકેશન સેટિંગ્સ"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"બૅકગ્રાઉન્ડ ડેટા"</string>
-    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"પૃષ્ઠભૂમિમાં મોબાઇલ ડેટાના વપરાશને સક્ષમ કરો"</string>
+    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"બૅકગ્રાઉન્ડમાં મોબાઇલ ડેટાના વપરાશને ચાલુ કરો"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"આ ઍપ્લિકેશન માટે બૅકગ્રાઉન્ડ ડેટા પ્રતિબંધિત કરવા માટે, પહેલા મોબાઇલ ડેટા મર્યાદા સેટ કરો."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"બૅકગ્રાઉન્ડ ડેટાને નિયંત્રિત કરીએ?"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"આ સુવિધાને કારણે બૅકગ્રાઉન્ડ ડેટા પર આધારિત હોય તે ઍપ્લિકેશન ફક્ત મોબાઇલ નેટવર્કો ઉપલબ્ધ હોય ત્યારે કામ કરતી બંધ થઈ શકે છે.\n\nતમે ઍપ્લિકેશનમાં ઉપલબ્ધ સેટિગ્સમાં વધુ ઉચિત ડેટા વપરાશ નિયંત્રણો મેળવી શકો છો."</string>
@@ -4054,8 +4054,8 @@
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"ઓવરલે લાગુ કરવામાં નિષ્ફળ થયાં"</string>
     <string name="special_access" msgid="1453926335914696206">"વિશેષ ઍપનો ઍક્સેસ"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
-      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> ઍપ્લિકેશન અપ્રતિબંધિત ડેટાનો ઉપયોગ કરી શકે છે</item>
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ઍપ્લિકેશન અપ્રતિબંધિત ડેટાનો ઉપયોગ કરી શકે છે</item>
+      <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> ઍપ અપ્રતિબંધિત ડેટાનો ઉપયોગ કરી શકે છે</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> ઍપ અપ્રતિબંધિત ડેટાનો ઉપયોગ કરી શકે છે</item>
     </plurals>
     <string name="special_access_more" msgid="7086690625048471400">"વધુ જુઓ"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"ખરેખર વપરાશકર્તા ડેટાને સાફ કરીને ફાઇલ એન્ક્રિપ્શનમાં રૂપાંતરિત કરીએ?"</string>
@@ -4135,7 +4135,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"ટૅબ્લેટ ચેક કરવા માટે ટૅપ કરો"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"ડિવાઇસ ચેક કરવા માટે ટૅપ કરો"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"સમય, નોટિફિકેશન અને અન્ય માહિતી ચેક કરવા માટે, તમારી સ્ક્રીન પર ટૅપ કરો."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"નોટિફિકેશનો માટે ફિંગરપ્રિન્ટને સ્વાઇપ કરો"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"નોટિફિકેશન માટે ફિંગરપ્રિન્ટને સ્વાઇપ કરો"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"ફિંગરપ્રિન્ટને સ્વાઇપ કરો"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"તમારા નોટિફિકેશનને જોવા માટે, તમારા ફોનની પાછળની બાજુએ ફિંગરપ્રિન્ટ સેન્સર પર નીચે સ્વાઇપ કરો."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"તમારી સૂચનાઓને જોવા માટે, તમારા ટેબ્લેટની પાછળની બાજુએ ફિંગરપ્રિન્ટ સેન્સર પર નીચે સ્વાઇપ કરો."</string>

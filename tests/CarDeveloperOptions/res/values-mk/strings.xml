@@ -1131,7 +1131,7 @@
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"Користи јачина на звук на дојдовен повик за известувања"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"Не поддржува работни профили"</string>
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"Стандарден звук за известување"</string>
-    <string name="media_volume_title" msgid="1030438549497800914">"Медиуми"</string>
+    <string name="media_volume_title" msgid="1030438549497800914">"Аудиовизуелни содржини"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"Постави јачина на звук за музика и видеа"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"Аларм"</string>
     <string name="dock_settings_summary" msgid="3023630224867503210">"Поставки на аудио за прикачениот полнач"</string>
@@ -1370,7 +1370,7 @@
     <string name="memory_size" msgid="6637939229251056764">"Вкупна меморија"</string>
     <string name="memory_calculating_size" msgid="8407591625479256510">"Пресметување..."</string>
     <string name="memory_apps_usage" msgid="1886814780760368266">"Апликации и податоци на апликацијата"</string>
-    <string name="memory_media_usage" msgid="2744652206722240527">"Медиуми"</string>
+    <string name="memory_media_usage" msgid="2744652206722240527">"Аудиовизуелни содржини"</string>
     <string name="memory_downloads_usage" msgid="7039979723012065168">"Преземања"</string>
     <string name="memory_dcim_usage" msgid="599009211606524732">"Слики, видеа"</string>
     <string name="memory_music_usage" msgid="809605300042546279">"Аудио (музика, мелодии, поткасти, итн.)"</string>
@@ -2241,11 +2241,11 @@
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Апликацијата може да се однесува необично ако ја ограничите нејзината активност во заднина"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Апликацијава не е оптимизирана и не може да се ограничи.\n\nЗа да ја ограничите, прво вклучете оптимизација на батеријата."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"Користење на екранот по целосно полнење"</string>
-    <string name="power_usage_list_summary" msgid="4314438658308211057">"Искористеност на батеријата по целосното полнење"</string>
+    <string name="power_usage_list_summary" msgid="4314438658308211057">"Користење на батеријата по целосното полнење"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"Време на активен екран по целосно полнење"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"Искористеност на уредот по целосно полнење"</string>
-    <string name="battery_since_unplugged" msgid="6486555910264026856">"Искористеност на батеријата од исклучување"</string>
-    <string name="battery_since_reset" msgid="4747587791838336661">"Искористеност на батеријата од ресетирање"</string>
+    <string name="battery_since_unplugged" msgid="6486555910264026856">"Користење на батеријата по исклучувањето"</string>
+    <string name="battery_since_reset" msgid="4747587791838336661">"Користење на батеријата по ресетирањето"</string>
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"<xliff:g id="TIME">%1$s</xliff:g> на батерија"</string>
     <string name="battery_stats_duration" msgid="4867858933068728005">"<xliff:g id="TIME">%1$s</xliff:g> од исклучување"</string>
     <string name="battery_stats_charging_label" msgid="3156586822576998231">"Се полни"</string>
@@ -2261,9 +2261,9 @@
     <string name="awake" msgid="8956720170442161285">"Време на активност на уред"</string>
     <string name="wifi_on_time" msgid="2487820618265936068">"Wi-Fi на време"</string>
     <string name="bluetooth_on_time" msgid="6400569492287292639">"Wi-Fi на време"</string>
-    <string name="advanced_battery_title" msgid="5026866913848464170">"Искористеност на батеријата"</string>
+    <string name="advanced_battery_title" msgid="5026866913848464170">"Користење на батеријата"</string>
     <string name="history_details_title" msgid="8608193822257799936">"Детали на историја"</string>
-    <string name="battery_details_title" msgid="5358230551490703067">"Искористеност на батеријата"</string>
+    <string name="battery_details_title" msgid="5358230551490703067">"Користење на батеријата"</string>
     <string name="details_subtitle" msgid="7279638828004951382">"Користи детали"</string>
     <string name="controls_subtitle" msgid="6920199888882834620">"Приспособи употреба на струја"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"Вклучени пакети"</string>
@@ -2432,7 +2432,7 @@
     <string name="battery_footer_summary" msgid="4828444679643906943">"Податоците за батеријата се приближни и може да се менуваат зависно од користењето"</string>
     <string name="battery_detail_foreground" msgid="6616408559186553085">"Во активна употреба"</string>
     <string name="battery_detail_background" msgid="7938146832943604280">"Употреба во заднина"</string>
-    <string name="battery_detail_power_usage" msgid="3606930232257489212">"Искористеност на батеријата"</string>
+    <string name="battery_detail_power_usage" msgid="3606930232257489212">"Користење на батеријата"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Искористеност по целосно полнење"</string>
     <string name="battery_detail_manage_title" msgid="745194290572617507">"Управување со користењето на батеријата"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Проценката за преостанатата батерија се базира врз користењето на уредот"</string>
@@ -2602,7 +2602,7 @@
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Управувано од вашата организација"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Апликациите и известувањата се исклучени"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Отстрани го работниот профил"</string>
-    <string name="background_data" msgid="8275750862371471171">"Податоци во заднина"</string>
+    <string name="background_data" msgid="8275750862371471171">"Интернет во заднина"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Апл. може секогаш да се синхрон., праќаат и примаат податоци"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Оневозможи податоци во заднина?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Оневозможувањето податоци во заднина го продолжува траењето на батеријата и го намалува користењето податоци. Некои апликации сè уште може да ја користат врската со податоци во заднина."</string>
@@ -2697,7 +2697,7 @@
     <string name="data_usage_forground_label" msgid="8992577451178005406">"Преден план:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"Заднина:"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Поставки на апликација"</string>
-    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Податоци во заднина"</string>
+    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Интернет во заднина"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Овозможи користење мобилен интернет во заднина"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"За да ги ограничите податоците  во заднина за оваа апликација, прво поставете граница за мобилни податоци."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Ограничи податоци во заднина?"</string>
@@ -3286,7 +3286,7 @@
     <string name="work_ringtone_title" msgid="5499360583947410224">"Мелодија на работниот телефон"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Стандарден звук за службено известување"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Стандарден звук за службен аларм"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Исти како на личниот профил"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Исто како на личниот профил"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Да се заменат звуците?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Замени"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Ќе се користат звуците од личниот профил за работниот профил"</string>
@@ -3523,7 +3523,7 @@
     <string name="zen_mode_repeat_callers_title" msgid="7192952181541813487">"Дозволи повторни повикувачи"</string>
     <string name="zen_mode_calls_summary_one" msgid="8327371053236689649">"Дозволи од <xliff:g id="CALLER_TYPE">%1$s</xliff:g>"</string>
     <string name="zen_mode_calls_summary_two" msgid="9017678770532673578">"Дозволи од <xliff:g id="CALLER_TYPE">%1$s</xliff:g> и <xliff:g id="CALLERT_TPYE">%2$s</xliff:g>"</string>
-    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Доколку истото лице повикува по втор пат во период од <xliff:g id="MINUTES">%d</xliff:g> минути"</string>
+    <string name="zen_mode_repeat_callers_summary" msgid="1752513516040525545">"Ако истото лице повикува по втор пат во период од <xliff:g id="MINUTES">%d</xliff:g> минути"</string>
     <string name="zen_mode_behavior_summary_custom" msgid="3909532602640130841">"Приспособен"</string>
     <string name="zen_mode_when" msgid="7835420687948416255">"Вклучи автоматски"</string>
     <string name="zen_mode_when_never" msgid="4506296396609224524">"Никогаш"</string>
@@ -3780,8 +3780,8 @@
     <string name="free_memory" msgid="4758919141048544927">"Слободна"</string>
     <string name="memory_usage_apps" msgid="2839241373381152354">"Меморија искористена од апликации"</string>
     <plurals name="memory_usage_apps_summary" formatted="false" msgid="1235024908546944704">
-      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> апликација користеше меморија изминатите <xliff:g id="DURATION_1">%2$s</xliff:g></item>
-      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> апликации користеа меморија изминатите <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> апликација користеше меморија минатите <xliff:g id="DURATION_1">%2$s</xliff:g></item>
+      <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> апликации користеа меморија минатите <xliff:g id="DURATION_1">%2$s</xliff:g></item>
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Зачестеност"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Максимално користење"</string>
@@ -3811,7 +3811,7 @@
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_0">%1$d</xliff:g> од <xliff:g id="COUNT_1">%2$d</xliff:g> аплик. имаат дозвола за прикажување врз други апликации"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Апликации со дозвола"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Дозволено"</string>
-    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Не е дозволено"</string>
+    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Без дозвола"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"инсталирање апликации непознати извори"</string>
     <string name="write_settings" msgid="9009040811145552108">"Менување системски поставки"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"пишувај менувај поставки на системот"</string>
@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Изберете тема"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Поставкава важи и за апликации"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Поддржаните апликации исто така ќе се префрлат на темна тема"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Плочки на програмерот за брзи поставки"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Програмерски плочки за брзи поставки"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Трага од Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Сензорите се исклучени"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Поставки за работен профил"</string>
@@ -4469,7 +4469,7 @@
     <string name="force_desktop_mode" msgid="6973100177551040740">"Наметни режим на работна површина"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Наметнете го експерименталниот режим на работна површина на секундарните екрани"</string>
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Отфрли го наметнувањето темен режим"</string>
-    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Ја отфрла функцијата за наметнување темен режим за да биде постојано вклучена"</string>
+    <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Ја отфрла функцијата за наметнување постојано вклучен темен режим"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Приватност"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Дозволи, активност на сметка, лични податоци"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Отстрани"</string>

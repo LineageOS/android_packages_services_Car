@@ -4112,7 +4112,7 @@
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Бързи жестове за контролиране на таблета ви"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Бързи жестове за контролиране на устройството ви"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Бързо отваряне на камерата"</string>
-    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"За да отворите бързо камерата, натиснете два пъти бутона за захранване – това работи от всеки екран."</string>
+    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"За да отворите бързо камерата, натиснете два пъти бутона за включване/изключване – това работи от всеки екран."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Бързо отваряне на камерата"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Превключване на камерата със завъртане"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>

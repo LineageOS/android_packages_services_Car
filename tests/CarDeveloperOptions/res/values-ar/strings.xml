@@ -1976,7 +1976,7 @@
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"هل تريد إيقاف الإشعارات؟"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"المتجر"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"تفاصيل التطبيق"</string>
-    <string name="app_install_details_summary" msgid="6612222941121363940">"تم تثبيت التطبيق من <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
+    <string name="app_install_details_summary" msgid="6612222941121363940">"تم تثبيت التطبيق من <xliff:g id="APP_STORE">%1$s</xliff:g>."</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"المزيد من المعلومات على <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"جارية التنفيذ"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(لم يسبق الاستخدام مطلقًا)"</string>
@@ -2478,12 +2478,12 @@
     <string name="battery_manager_on" msgid="5626982529932239656">"تفعيل / الرصد عندما تستنزف تطبيقات شحن البطارية"</string>
     <string name="battery_manager_off" msgid="9114027524232450371">"إيقاف"</string>
     <plurals name="battery_manager_app_restricted" formatted="false" msgid="6721813588142691216">
-      <item quantity="zero">تم تقييد %1$d تطبيق</item>
-      <item quantity="two">تم تقييد تطبيقين (%1$d)</item>
-      <item quantity="few">تم تقييد %1$d تطبيقات</item>
-      <item quantity="many">تم تقييد %1$d تطبيقًا</item>
-      <item quantity="other">تم تقييد %1$d تطبيق</item>
-      <item quantity="one">تم تقييد تطبيق واحد (%1$d)</item>
+      <item quantity="zero">تم تقييد %1$d تطبيق.</item>
+      <item quantity="two">تم تقييد تطبيقين (%1$d).</item>
+      <item quantity="few">تم تقييد %1$d تطبيقات.</item>
+      <item quantity="many">تم تقييد %1$d تطبيقًا.</item>
+      <item quantity="other">تم تقييد %1$d تطبيق.</item>
+      <item quantity="one">تم تقييد تطبيق واحد (%1$d).</item>
     </plurals>
     <string name="battery_header_title_alternate" msgid="1161081105263761743">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">%</xliff:g>"</font></small>""</string>
     <string name="dialog_stop_title" msgid="4354544579084434590">"هل تريد إيقاف التطبيق؟"</string>
@@ -2752,7 +2752,7 @@
     <string name="background_data_dialog_message" msgid="8126774244911656527">"يؤدي إيقاف بيانات الخلفية إلى إطالة عمر البطارية وتقليل استخدام البيانات. قد يكون هناك بعض التطبيقات التي ما زالت تستخدم اتصال بيانات الخلفية."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"مزامنة تلقائية لبيانات"</string>
     <string name="sync_enabled" msgid="535172627223336983">"المزامنة قيد التفعيل"</string>
-    <string name="sync_disabled" msgid="713721807204805062">"المزامنة متوقفة"</string>
+    <string name="sync_disabled" msgid="713721807204805062">"المزامنة متوقفة."</string>
     <string name="sync_error" msgid="988155155932442765">"خطأ في المزامنة"</string>
     <string name="last_synced" msgid="4511434057768999129">"تاريخ آخر مزامنة: <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"تجري المزامنة الآن..."</string>
@@ -3949,7 +3949,7 @@
     <string name="high_power_desc" msgid="333756885680362741">"لا تستخدم تحسين البطارية، لأن ذلك قد يستنزف طاقة بطاريتك بسرعة."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"هل تريد السماح بتشغيل التطبيق في الخلفية دائمًا؟"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"قد يؤدي السماح بتشغيل تطبيق <xliff:g id="APP_NAME">%1$s</xliff:g> في الخلفية دائمًا إلى تقليل عمر البطارية. \n\nيمكنك تغيير هذا الإعداد لاحقًا من الإعدادات &gt; التطبيقات والإشعارات."</string>
-    <string name="battery_summary" msgid="4345690800899981339">"تم استخدام <xliff:g id="PERCENTAGE">%1$s</xliff:g> منذ آخر شحن كامل"</string>
+    <string name="battery_summary" msgid="4345690800899981339">"تم استخدام <xliff:g id="PERCENTAGE">%1$s</xliff:g> منذ آخر شحن كامل."</string>
     <string name="battery_power_management" msgid="2853925857548647969">"إدارة الطاقة"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"لم يتم استخدام البطارية منذ آخر شحن كامل"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"إعدادات التطبيقات"</string>
@@ -4025,7 +4025,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"معدل الاستخدام"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"الاستخدام الأقصى"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"لم يتم استخدام أي بيانات"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"لم يتم استخدام أي بيانات."</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"هل تسمح بوصول \"<xliff:g id="APP">%1$s</xliff:g>\" إلى إعداد \"عدم الإزعاج\"؟"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"سيكون التطبيق قادرًا على تفعيل/إيقاف ميزة \"عدم الإزعاج\" وإجراء تغييرات على الإعدادات ذات الصلة."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"يجب أن يظل قيد التفعيل نظرًا لأن الوصول إلى الإشعارات قيد التفعيل"</string>
@@ -4266,7 +4266,7 @@
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"إضافة بصمة إصبع أخرى"</string>
     <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"فتح القفل باستخدام إصبع مختلف"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"مفعّل"</string>
-    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"سيتم التفعيل تلقائيًا عند الوصول إلى <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
+    <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"سيتم التفعيل تلقائيًا عند الوصول إلى <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>."</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"غير مفعّل"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"التفعيل الآن"</string>
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"إيقاف الميزة الآن"</string>
@@ -4443,7 +4443,7 @@
     <string name="auto_sync_account_summary" msgid="6316230976974033772">"السماح للتطبيقات بتحديث البيانات تلقائيًا"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"مزامنة الحساب"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"تم تفعيل المزامنة لـ <xliff:g id="ID_1">%1$d</xliff:g> من إجمالي <xliff:g id="ID_2">%2$d</xliff:g> عنصر."</string>
-    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"تم تفعيل المزامنة لكل العناصر"</string>
+    <string name="account_sync_summary_all_on" msgid="3634161204232431700">"تم تفعيل المزامنة لكل العناصر."</string>
     <string name="account_sync_summary_all_off" msgid="1971584632343645602">"المزامنة متوقفة لكل العناصر"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"معلومات الجهاز المُدار"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"تتولى مؤسستك إدارة التغييرات والإعدادات."</string>
@@ -4794,7 +4794,7 @@
     <string name="contextual_card_removed_message" msgid="4047307820743366876">"تمت إزالة الاقتراح."</string>
     <string name="contextual_card_undo_dismissal_text" msgid="5009245286931852012">"تراجع"</string>
     <string name="low_storage_summary" msgid="4562224870189133400">"مساحة التخزين منخفضة. <xliff:g id="PERCENTAGE">%1$s</xliff:g> مُستخدَمة - <xliff:g id="FREE_SPACE">%2$s</xliff:g> فارغة"</string>
-    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"إرسال تعليقات"</string>
+    <string name="contextual_card_feedback_send" msgid="8698649023854350623">"إرسال ملاحظات"</string>
     <string name="contextual_card_feedback_confirm_message" msgid="3987973028353264878">"هل ترغب في إرسال تعليقات إلينا بشأن هذا الاقتراح؟"</string>
     <string name="copyable_slice_toast" msgid="1357518174923789947">"تمّ نسخ <xliff:g id="COPY_CONTENT">%1$s</xliff:g> إلى الحافظة."</string>
     <string name="search_bar_account_avatar_content_description" msgid="947628881535053409"></string>

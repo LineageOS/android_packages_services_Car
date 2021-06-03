@@ -1209,9 +1209,9 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Activat / La pantalla no s\'apagarà si estàs mirant-la"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Desactivat"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Evita que la pantalla s\'apagui si l\'estàs mirant."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen Aware fa servir la càmera frontal per detectar si algú està mirant la pantalla. Funciona al dispositiu i les imatges mai no s\'emmagatzemen ni s\'envien a Google."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Screen Aware fa servir la càmera frontal per detectar si algú està mirant la pantalla. Només funciona al dispositiu, i les imatges mai no s\'emmagatzemen ni s\'envien a Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Llum nocturna"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"La funció Llum nocturna dona un to ambre a la pantalla. D\'aquesta manera, és més fàcil veure la pantalla amb poca llum i adormir-se."</string>
+    <string name="night_display_text" msgid="5330502493684652527">"La funció Llum nocturna dona un to ambre a la pantalla. D\'aquesta manera, costa menys mirar-la o llegir-hi amb poca llum i és més fàcil adormir-se."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programació"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Cap"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"S\'activa a una hora personalitzada"</string>
@@ -1792,7 +1792,7 @@
     <string name="install_applications" msgid="7745902974984889179">"Fonts desconegudes"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"Permet totes les fonts d\'apl."</string>
     <string name="recent_app_category_title" msgid="7688788038277126727">"Aplicacions obertes fa poc"</string>
-    <string name="see_all_apps_title" msgid="6435061912110347474">"Mostra totes les aplicacions (<xliff:g id="COUNT">%1$d</xliff:g>)"</string>
+    <string name="see_all_apps_title" msgid="6435061912110347474">"Mostra les <xliff:g id="COUNT">%1$d</xliff:g> aplicacions"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"La tauleta i les dades personals són més vulnerables a atacs d\'aplicacions desconegudes. En instal·lar aplicacions d\'aquesta font, acceptes que ets responsable de qualsevol dany a la tauleta i qualsevol pèrdua de dades que es pugui produir per l\'ús d\'aquestes aplicacions."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"El telèfon i les dades personals són més vulnerables a atacs d\'aplicacions desconegudes. En instal·lar aplicacions d\'aquesta font, acceptes que ets responsable de qualsevol dany al telèfon i qualsevol pèrdua de dades que es pugui produir per l\'ús d\'aquestes aplicacions."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"El dispositiu i les dades personals són més vulnerables a atacs d\'aplicacions desconegudes. En instal·lar aplicacions d\'aquesta font, acceptes que ets responsable de qualsevol dany al dispositiu i de qualsevol pèrdua de dades que es pugui produir per l\'ús d\'aquestes aplicacions."</string>
@@ -2314,7 +2314,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Per estalviar bateria, impedeix que aquestes aplicacions consumeixin bateria en segon pla. És possible que les aplicacions restringides no funcionin correctament i que en rebis les notificacions amb retard.\n\nAplicacions:<xliff:g id="APP_LIST">%1$s</xliff:g>\n."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Restringeix"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Vols suprimir la restricció?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Aquesta aplicació podrà utilitzar bateria en segon pla, cosa que pot provocar que s\'esgoti abans del previst."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Aquesta aplicació podrà utilitzar la bateria en segon pla, cosa que pot provocar que s\'esgoti abans del previst."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Suprimeix"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Cancel·la"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Les teves aplicacions utilitzen una quantitat normal de bateria. Si n\'utilitzen massa, el telèfon et suggerirà mesures per evitar-ho.\n\nSi tens poca bateria, sempre pots activar l\'estalvi de bateria."</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Activa"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Utilitza el mode d\'estalvi de bateria"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Utilitza Estalvi de bateria"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Activa automàticament"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Mai"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"percentatge de bateria: <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3286,7 +3286,7 @@
     <string name="work_ringtone_title" msgid="5499360583947410224">"So de trucada del telèfon de la feina"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"So de notificació de la feina predeterminat"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"So d\'alarma de la feina predeterminat"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Igual que al perfil personal"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Igual que el perfil personal"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Vols substituir els sons?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Substitueix"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"S\'utilitzaran els sons del perfil personal per al perfil de treball"</string>
@@ -3439,7 +3439,7 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Nom de la programació"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Aquest nom de programació ja s\'està fent servir"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Afegeix-ne més"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Afegeix programació per a esdeveniment"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Afegeix programació d\'esdeveniment"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Afegeix programació horària"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Suprimeix la programació"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Tria el tipus de programació"</string>
@@ -3590,7 +3590,7 @@
     <string name="slot_number" msgid="785422579177068698">"(Ranura <xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Obre de manera predeterminada"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Obertura d\'enllaços"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Obrir els enllaços admesos"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Obre els enllaços admesos"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Obre sense demanar-ho"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Enllaços admesos"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Altres valors predeterminats"</string>
@@ -3713,7 +3713,7 @@
     <string name="high_power_desc" msgid="333756885680362741">"No s\'aplica l\'optimització de la bateria. És possible que es consumeixi més ràpidament."</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"Vols permetre que l\'aplicació s\'executi sempre en segon pla?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"Si permets que <xliff:g id="APP_NAME">%1$s</xliff:g> s\'executi sempre en segon pla, és possible que disminueixi la durada de la bateria. \n\nPots canviar-ho més tard a Configuració &gt; Aplicacions i notificacions."</string>
-    <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> utilitzats des de l\'última càrrega completa"</string>
+    <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> d\'ús des de l\'última càrrega completa"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Gestió de l\'energia"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"No s\'ha consumit bateria des de l\'última càrrega completa"</string>
     <string name="app_notification_preferences" msgid="5154466638524523201">"Configuració de l\'aplicació"</string>
@@ -4137,7 +4137,7 @@
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Per veure l\'hora, les notificacions i altres dades, toca la pantalla."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Fes lliscar l\'empremta digital per veure notificacions"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Fes lliscar l\'empremta digital"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Per consultar les notificacions, llisca cap avall al sensor d\'empremtes digitals de la part posterior del telèfon."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Per consultar les notificacions, llisca cap avall al sensor d\'empremtes digitals situat a la part posterior del telèfon."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Per consultar les notificacions, llisca cap avall al sensor d\'empremtes digitals situat a la part posterior de la tauleta."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Per consultar les notificacions, llisca cap avall al sensor d\'empremtes digitals situat a la part posterior del dispositiu"</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Consulta les notificacions més de pressa"</string>
@@ -4164,7 +4164,7 @@
     <string name="account_sync_title" msgid="1570164819114297154">"Sincronització del compte"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Sincronització activada per a <xliff:g id="ID_1">%1$d</xliff:g> de <xliff:g id="ID_2">%2$d</xliff:g> elements"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Sincronització activada per a tots els elements"</string>
-    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"La sincronització està desactivada per a tots els elements"</string>
+    <string name="account_sync_summary_all_off" msgid="1971584632343645602">"Sincronització desactivada per a tots els elements"</string>
     <string name="enterprise_privacy_settings" msgid="2777101678653072889">"Informació del dispositiu gestionat"</string>
     <string name="enterprise_privacy_settings_summary_generic" msgid="5557859169062703683">"La teva organització gestiona els canvis i la configuració"</string>
     <string name="enterprise_privacy_settings_summary_with_name" msgid="4884479123751308407">"<xliff:g id="ORGANIZATION_NAME">%s</xliff:g> gestiona els canvis i la configuració"</string>
@@ -4414,11 +4414,11 @@
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Utilitza la SIM"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Desactivat"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"Vols canviar a <xliff:g id="CARRIER">%1$s</xliff:g>?"</string>
-    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Només pot haver-hi una SIM baixada activa.\n\nSi canvies a <xliff:g id="CARRIER1">%1$s</xliff:g>, el teu servei <xliff:g id="CARRIER2">%2$s</xliff:g> no es cancel·larà."</string>
+    <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Només pot haver-hi una SIM baixada activa.\n\nSi canvies a <xliff:g id="CARRIER1">%1$s</xliff:g>, el teu servei amb <xliff:g id="CARRIER2">%2$s</xliff:g> no es cancel·larà."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Canvia a <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Esborra la targeta SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Vols esborrar la SIM que has baixat?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Si esborres aquesta targeta SIM, el servei <xliff:g id="CARRIER_0">%1$s</xliff:g> se suprimirà del dispositiu.\n\nEl servei <xliff:g id="CARRIER_1">%2$s</xliff:g> no es cancel·larà."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Si esborres aquesta targeta SIM, el servei de l\'operador <xliff:g id="CARRIER_0">%1$s</xliff:g> se suprimirà del dispositiu.\n\nEl servei de l\'operador <xliff:g id="CARRIER_1">%2$s</xliff:g> no es cancel·larà."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Esborra"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"S\'està esborrant la SIM…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"No es pot esborrar la SIM"</string>

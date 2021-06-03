@@ -1867,7 +1867,7 @@
     <string name="install_text" msgid="2798092278891807849">"Inštalovať"</string>
     <string name="disable_text" msgid="5065834603951474397">"Deaktivovať"</string>
     <string name="enable_text" msgid="7179141636849225884">"Povoliť"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať obsah úložiska"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať priestor"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"Odinštalovať aktualizácie"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Pre niektoré akcie ste sa rozhodli spúšťať túto aplikáciu ako predvolenú."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Tejto aplikácii ste povolili vytváranie miniaplikácií a pristupovanie k ich údajom."</string>
@@ -4276,7 +4276,7 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Klepnutím skontrolujete zariadenie"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Ak chcete zistiť čas, skontrolovať upozornenia a získať ďalšie informácie, klepnite na obrazovku."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Upozornenia odtlačkom prsta"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Potiahnutie prstom"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Potiahnuť po senzore"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane telefónu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane tabletu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane zariadenia."</string>
