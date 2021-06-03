@@ -29,4 +29,14 @@
     <color name="hvac_background_color">#282A2D</color>
     <color name="hvac_module_background_color">#3C4043</color>
     <color name="hvac_master_switch_color">@color/car_nav_icon_fill_color</color>
+    <color name="hvac_on_icon_fill_color">#FFFFFF</color>
+    <!-- TODO: Set this to #3C4043 (gray) when we have Day mode. -->
+    <color name="hvac_off_icon_fill_color">#FFFFFF</color>
+    <!-- Color used as part of the seat heater and steering heater.  -->
+    <color name="hvac_heat_off_fill_color">#BDC1C6</color>
+    <color name="hvac_on_cooling_background_color">#4285F4</color>
+    <color name="hvac_on_heating_background_color">#EB5757</color>
+    <!-- TODO: Set this to #F1F3F4 (gray) when we have Day mode. -->
+    <color name="hvac_off_background_color">#3C4043</color>
+
 </resources>
