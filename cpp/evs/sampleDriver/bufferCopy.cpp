@@ -16,6 +16,8 @@
 
 #include "bufferCopy.h"
 
+#include <android-base/logging.h>
+#include <libyuv.h>
 
 namespace android {
 namespace hardware {
@@ -33,35 +35,6 @@ int align(int value) {
 
     unsigned mask = alignment - 1;
     return (value + mask) & ~mask;
-}
-
-
-// Limit the given value to the provided range.  :)
-static inline float clamp(float v, float min, float max) {
-    if (v < min) return min;
-    if (v > max) return max;
-    return v;
-}
-
-
-static uint32_t yuvToRgbx(const unsigned char Y, const unsigned char Uin, const unsigned char Vin) {
-    // Don't use this if you want to see the best performance.  :)
-    // Better to do this in a pixel shader if we really have to, but on actual
-    // embedded hardware we expect to be able to texture directly from the YUV data
-    float U = Uin - 128.0f;
-    float V = Vin - 128.0f;
-
-    float Rf = Y + 1.140f*V;
-    float Gf = Y - 0.395f*U - 0.581f*V;
-    float Bf = Y + 2.032f*U;
-    unsigned char R = (unsigned char)clamp(Rf, 0.0f, 255.0f);
-    unsigned char G = (unsigned char)clamp(Gf, 0.0f, 255.0f);
-    unsigned char B = (unsigned char)clamp(Bf, 0.0f, 255.0f);
-
-    return ((R & 0xFF))       |
-           ((G & 0xFF) << 8)  |
-           ((B & 0xFF) << 16) |
-           0xFF000000;  // Fill the alpha channel with ones
 }
 
 
@@ -150,35 +123,14 @@ void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
 void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
         reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
-    unsigned width = pDesc->width;
-    unsigned height = pDesc->height;
-    uint32_t* src = (uint32_t*)imgData;
-    uint32_t* dst = (uint32_t*)tgt;
-    unsigned srcStridePixels = imgStride / 2;
-    unsigned dstStridePixels = pDesc->stride;
-
-    const int srcRowPadding32 = srcStridePixels/2 - width/2;  // 2 bytes per pixel, 4 bytes per word
-    const int dstRowPadding32 = dstStridePixels   - width;    // 4 bytes per pixel, 4 bytes per word
-
-    for (unsigned r=0; r<height; r++) {
-        for (unsigned c=0; c<width/2; c++) {
-            // Note:  we're walking two pixels at a time here (even/odd)
-            uint32_t srcPixel = *src++;
-
-            uint8_t Y1 = (srcPixel)       & 0xFF;
-            uint8_t U  = (srcPixel >> 8)  & 0xFF;
-            uint8_t Y2 = (srcPixel >> 16) & 0xFF;
-            uint8_t V  = (srcPixel >> 24) & 0xFF;
-
-            // On the RGB output, we're writing one pixel at a time
-            *(dst+0) = yuvToRgbx(Y1, U, V);
-            *(dst+1) = yuvToRgbx(Y2, U, V);
-            dst += 2;
-        }
-
-        // Skip over any extra data or end of row alignment padding
-        src += srcRowPadding32;
-        dst += dstRowPadding32;
+    auto result = libyuv::YUY2ToARGB((const uint8_t*)imgData,
+                                     imgStride,             // input stride in bytes
+                                     tgt,
+                                     (pDesc->stride << 2),  // output stride in bytes
+                                     pDesc->width,
+                                     pDesc->height);
+    if (result) {
+        LOG(ERROR) << "Failed to convert YUYV to ARGB.";
     }
 }
 
