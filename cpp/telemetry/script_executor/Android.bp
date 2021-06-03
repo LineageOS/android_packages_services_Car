@@ -16,13 +16,47 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_library {
-   name: "script_executor",
-   srcs: [
-       "src/LuaEngine.cpp",
-   ],
-   static_libs: [
-       "liblua",
-   ],
+cc_defaults {
+    name: "scriptexecutor_defaults",
+    cflags: [
+        "-Wno-unused-parameter",
+    ],
+    static_libs: [
+        "libbase",
+        "liblog",
+        "liblua",
+    ],
 }
 
+cc_library {
+    name: "libscriptexecutor",
+    defaults: [
+        "scriptexecutor_defaults",
+    ],
+    srcs: [
+        "src/JniUtils.cpp",
+        "src/LuaEngine.cpp",
+        "src/ScriptExecutorListener.cpp",
+    ],
+    shared_libs: [
+        "libnativehelper",
+    ],
+    // Allow dependents to use the header files.
+    export_include_dirs: [
+        "src",
+    ],
+}
+
+cc_library_shared {
+    name: "libscriptexecutorjniutils-test",
+    defaults: [
+        "scriptexecutor_defaults",
+    ],
+    srcs: [
+        "src/tests/JniUtilsTestHelper.cpp",
+    ],
+    shared_libs: [
+        "libnativehelper",
+        "libscriptexecutor",
+    ],
+}

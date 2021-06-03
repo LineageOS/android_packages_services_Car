@@ -28,14 +28,17 @@ namespace automotive {
 namespace telemetry {
 namespace script_executor {
 
-LuaEngine::LuaEngine(std::unique_ptr<ScriptExecutorListener> listener) :
-      mListener(std::move(listener)) {
+LuaEngine::LuaEngine() {
     mLuaState = luaL_newstate();
     luaL_openlibs(mLuaState);
 }
 
 LuaEngine::~LuaEngine() {
     lua_close(mLuaState);
+}
+
+lua_State* LuaEngine::GetLuaState() {
+    return mLuaState;
 }
 
 }  // namespace script_executor
