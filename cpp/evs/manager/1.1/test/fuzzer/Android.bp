@@ -49,6 +49,7 @@ cc_defaults {
     fuzz_config: {
         cc: [
             "changyeon@google.com",
+            "garysungang@google.com",
             "guodonghu@google.com",
             "smara@google.com",
             "zhaomingyin@google.com",
