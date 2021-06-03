@@ -21,8 +21,9 @@
           package="com.android.car.developeroptions"
           android:sharedUserId="android.uid.system">
 
-    <application android:label="@string/settings_label"
-                 tools:node="merge">
+    <application android:label="@string/development_settings_title"
+                 tools:node="merge"
+                 tools:replace="android:label">
 
         <activity
             android:name=".CarDevelopmentSettingsDashboardActivity"
@@ -554,6 +555,15 @@
 
         <activity
             android:name="com.android.settings.Settings$MyDeviceInfoActivity"
+            android:enabled="false"
+            android:exported="false"
+            tools:node="merge"
+            tools:replace="android:exported">
+            <intent-filter tools:node="removeAll"/>
+        </activity>
+
+        <activity
+            android:name="com.android.settings.Settings$LockScreenSettingsActivity"
             android:enabled="false"
             android:exported="false"
             tools:node="merge"
