@@ -137,7 +137,17 @@ public final class VehiclePropertyIds {
     public static final int PERF_ODOMETER = 291504644;
     /**
      * Speed of the vehicle in meters per second.
-     * Requires permission: {@link Car#PERMISSION_SPEED}.
+     *
+     * <p>PERF_VEHICLE_SPEED property is {@link VehiclePropertyAccess#READ} access, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, and returns a Float type value.
+     *
+     * <p>When the vehicle is moving forward, PERF_VEHICLE_SPEED is positive and negative when the
+     * vehicle is moving backward. Also, this value is independent of gear value (CURRENT_GEAR or
+     * GEAR_SELECTION). For example, if GEAR_SELECTION is GEAR_NEUTRAL, PERF_VEHICLE_SPEED is
+     * positive when the vehicle is moving forward, negative when moving backward, and zero when
+     * not moving.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int PERF_VEHICLE_SPEED = 291504647;
