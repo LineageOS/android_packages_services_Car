@@ -134,8 +134,8 @@ class GarageMode {
     private final Runnable mStartBackgroundUsers = new Runnable() {
         @Override
         public void run() {
-            ArrayList<Integer> startedUsers =
-                    CarLocalServices.getService(CarUserService.class).startAllBackgroundUsers();
+            ArrayList<Integer> startedUsers = CarLocalServices.getService(CarUserService.class)
+                    .startAllBackgroundUsersInGarageMode();
             Slogf.i(TAG, "Started background user during garage mode: %s", startedUsers);
             synchronized (mLock) {
                 // Stop stopping background users if there is any users left from last Garage mode,
@@ -157,8 +157,8 @@ class GarageMode {
             if (numberOfIdleJobsRunning() == 0) { // all jobs done or stopped.
                 // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
                 if (userToStop != UserHandle.USER_SYSTEM) {
-                    CarLocalServices.getService(CarUserService.class).stopBackgroundUser(
-                            userToStop);
+                    CarLocalServices.getService(CarUserService.class)
+                            .stopBackgroundUserInGagageMode(userToStop);
                     Slogf.i(TAG, "Stopping background user:%d remaining users:%d", userToStop,
                             mStartedBackgroundUsers.size() - 1);
                 }
