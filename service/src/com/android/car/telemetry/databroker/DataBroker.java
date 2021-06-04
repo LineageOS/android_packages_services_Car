@@ -16,12 +16,26 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.os.Bundle;
+
 import com.android.car.telemetry.TelemetryProto;
 
 import java.util.List;
 
 /** Interface for the data path. Handles data forwarding from publishers to subscribers */
 public interface DataBroker {
+
+    /**
+     * ScriptResultListener is the listener for script results.
+     */
+    public interface ScriptResultListener {
+        /**
+         * Notifies listener of script result.
+         *
+         * @param scriptResult the script result.
+         */
+        void onScriptResult(Bundle scriptResult);
+    }
 
     /**
      * Updates the set of publishers whose data can be consumed by subscribers.
