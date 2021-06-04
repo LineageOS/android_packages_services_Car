@@ -236,6 +236,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private boolean mUxRestricted;
 
     /**
+     * If {@code false}, garage mode operations (background users start at garage mode entry and
+     * background users stop at garage mode exit) will be skipped. Controlled using car shell
+     * command {@code adb shell set-start-bg-users-on-garage-mode [true|false]}
+     * Purpose: Garage mode testing and simulation
+     */
+    @GuardedBy("mLockUser")
+    private boolean mStartBackgroundUsersOnGarageMode = true;
+
+    /**
      * Callback to notify {@code CarServiceHelper} about driving safety changes (through
      * {@link ICarServiceHelper#setSafetyMode(boolean).
      *
@@ -357,6 +366,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 writer.println("FailedToCreateUserIds: " + mFailedToCreateUserIds);
             }
             writer.printf("Is UX restricted: %b\n", mUxRestricted);
+            writer.printf("Start Background Users On Garage Mode=%s\n",
+                    mStartBackgroundUsersOnGarageMode);
         }
 
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
@@ -1904,7 +1915,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @return list of background users started successfully.
      */
     @NonNull
-    public ArrayList<Integer> startAllBackgroundUsers() {
+    public ArrayList<Integer> startAllBackgroundUsersInGarageMode() {
+        synchronized (mLockUser) {
+            if (!mStartBackgroundUsersOnGarageMode) {
+                Slogf.i(TAG, "Background users are not started as mStartBackgroundUsersOnGarageMode"
+                        + " is false.");
+                return new ArrayList<>();
+            }
+        }
+
         ArrayList<Integer> users;
         synchronized (mLockUser) {
             users = new ArrayList<>(mBackgroundUsersToRestart);
@@ -2000,11 +2019,28 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
+     * Sets boolean to control background user operations during garage mode.
+     */
+    public void setStartBackgroundUsersOnGarageMode(boolean enable) {
+        synchronized (mLockUser) {
+            mStartBackgroundUsersOnGarageMode = enable;
+        }
+    }
+
+    /**
      * Stops a background user.
      *
      * @return whether stopping succeeds.
      */
-    public boolean stopBackgroundUser(@UserIdInt int userId) {
+    public boolean stopBackgroundUserInGagageMode(@UserIdInt int userId) {
+        synchronized (mLockUser) {
+            if (!mStartBackgroundUsersOnGarageMode) {
+                Slogf.i(TAG, "Background users are not stopped as mStartBackgroundUsersOnGarageMode"
+                        + " is false.");
+                return false;
+            }
+        }
+
         @UserStopResult.Status int userStopStatus = stopBackgroundUserInternal(userId);
         if (UserStopResult.isSuccess(userStopStatus)) {
             // Remove the stopped user from the mBackgroundUserRestartedHere list.
