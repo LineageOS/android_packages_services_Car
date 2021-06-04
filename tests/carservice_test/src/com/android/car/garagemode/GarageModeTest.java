@@ -96,7 +96,8 @@ public final class GarageModeTest {
     @Test
     public void test_backgroundUsersStopedOnGarageModeCancel() throws Exception {
         ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
-        when(mCarUserService.startAllBackgroundUsers()).thenReturn(userToStartInBackground);
+        when(mCarUserService.startAllBackgroundUsersInGarageMode())
+                .thenReturn(userToStartInBackground);
         mGarageMode.enterGarageMode(/* future= */ null);
         CountDownLatch latch = new CountDownLatch(3); // 3 for three users
         mockCarUserServiceStopUserCall(getEventListener(), latch);
@@ -104,10 +105,10 @@ public final class GarageModeTest {
         mGarageMode.cancel();
 
         waitForHandlerThreadToFinish(latch);
-        verify(mCarUserService).startAllBackgroundUsers();
-        verify(mCarUserService).stopBackgroundUser(101);
-        verify(mCarUserService).stopBackgroundUser(102);
-        verify(mCarUserService).stopBackgroundUser(103);
+        verify(mCarUserService).startAllBackgroundUsersInGarageMode();
+        verify(mCarUserService).stopBackgroundUserInGagageMode(101);
+        verify(mCarUserService).stopBackgroundUserInGagageMode(102);
+        verify(mCarUserService).stopBackgroundUserInGagageMode(103);
     }
 
     @Test
@@ -140,7 +141,7 @@ public final class GarageModeTest {
         doAnswer(inv -> {
             latch.countDown();
             return userToStartInBackground;
-        }).when(mCarUserService).startAllBackgroundUsers();
+        }).when(mCarUserService).startAllBackgroundUsersInGarageMode();
 
         return latch;
     }
@@ -161,7 +162,7 @@ public final class GarageModeTest {
             listener.onEvent(new UserLifecycleEvent(
                     CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED, userId));
             return null;
-        }).when(mCarUserService).stopBackgroundUser(anyInt());
+        }).when(mCarUserService).stopBackgroundUserInGagageMode(anyInt());
     }
 }
 
