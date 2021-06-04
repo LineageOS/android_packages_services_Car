@@ -550,15 +550,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         when(mMockedIActivityManager.startUserInBackground(user2)).thenReturn(true);
         when(mMockedIActivityManager.unlockUser(user2, null, null, null)).thenReturn(true);
-        assertThat(mCarUserService.startAllBackgroundUsers()).containsExactly(user2);
+        assertThat(mCarUserService.startAllBackgroundUsersInGarageMode()).containsExactly(user2);
         sendUserUnlockedEvent(user2);
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
         when(mMockedIActivityManager.stopUser(user2, true, null))
                 .thenReturn(ActivityManager.USER_OP_SUCCESS);
         // should not stop the current fg user
-        assertThat(mCarUserService.stopBackgroundUser(user3)).isFalse();
-        assertThat(mCarUserService.stopBackgroundUser(user2)).isTrue();
+        assertThat(mCarUserService.stopBackgroundUserInGagageMode(user3)).isFalse();
+        assertThat(mCarUserService.stopBackgroundUserInGagageMode(user2)).isTrue();
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
     }
@@ -647,7 +647,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockStopUserWithDelayedLocking(
                 UserHandle.USER_SYSTEM, ActivityManager.USER_OP_ERROR_IS_SYSTEM);
 
-        assertThat(mCarUserService.stopBackgroundUser(UserHandle.USER_SYSTEM)).isFalse();
+        assertThat(mCarUserService.stopBackgroundUserInGagageMode(UserHandle.USER_SYSTEM))
+                .isFalse();
     }
 
     @Test
@@ -655,7 +656,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int userId = 101;
         mockStopUserWithDelayedLocking(userId, ActivityManager.USER_OP_IS_CURRENT);
 
-        assertThat(mCarUserService.stopBackgroundUser(userId)).isFalse();
+        assertThat(mCarUserService.stopBackgroundUserInGagageMode(userId)).isFalse();
     }
 
     @Test

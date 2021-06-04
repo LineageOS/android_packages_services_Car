@@ -154,6 +154,8 @@ final class CarShellCommand extends ShellCommand {
             "get-user-auth-association";
     private static final String COMMAND_SET_USER_AUTH_ASSOCIATION =
             "set-user-auth-association";
+    private static final String COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE =
+            "set-start-bg-users-on-garage-mode";
     private static final String COMMAND_DEFINE_POWER_POLICY = "define-power-policy";
     private static final String COMMAND_APPLY_POWER_POLICY = "apply-power-policy";
     private static final String COMMAND_DEFINE_POWER_POLICY_GROUP = "define-power-policy-group";
@@ -190,7 +192,7 @@ final class CarShellCommand extends ShellCommand {
     // This map is looked up first, then USER_BUILD_COMMAND_TO_PERMISSION_MAP
     private static final ArrayMap<String, String[]> USER_BUILD_COMMAND_TO_PERMISSIONS_MAP;
     static {
-        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP = new ArrayMap<>(6);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP = new ArrayMap<>(7);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_INITIAL_USER_INFO,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SWITCH_USER,
@@ -202,6 +204,8 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_GET_USER_AUTH_ASSOCIATION,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
         USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_USER_AUTH_ASSOCIATION,
+                CREATE_OR_MANAGE_USERS_PERMISSIONS);
+        USER_BUILD_COMMAND_TO_PERMISSIONS_MAP.put(COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE,
                 CREATE_OR_MANAGE_USERS_PERMISSIONS);
     }
 
@@ -525,6 +529,11 @@ final class CarShellCommand extends ShellCommand {
                 + "UserHalService.");
         pw.printf("\t  %s\n", VALID_USER_AUTH_TYPES_HELP);
         pw.printf("\t  %s\n", VALID_USER_AUTH_SET_VALUES_HELP);
+
+        pw.printf("\t%s [true|false]\n", COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE);
+        pw.println("\t  Controls backgroud user start and stop during garage mode.");
+        pw.println("\t  If false, garage mode operations (background users start at garage mode"
+                + " entry and background users stop at garage mode exit) will be skipped.");
 
         pw.printf("\t  %s [%s|%s|%s|%s]\n", COMMAND_SILENT_MODE, SILENT_MODE_FORCED_SILENT,
                 SILENT_MODE_FORCED_NON_SILENT, SILENT_MODE_NON_FORCED, PARAM_QUERY_MODE);
@@ -856,6 +865,9 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_SET_USER_AUTH_ASSOCIATION:
                 setUserAuthAssociation(args, writer);
                 break;
+            case COMMAND_SET_START_BG_USERS_ON_GARAGE_MODE:
+                setStartBackgroundUsersOnGarageMode(args, writer);
+                break;
             case COMMAND_EMULATE_DRIVING_STATE:
                 emulateDrivingState(args, writer);
                 break;
@@ -877,6 +889,18 @@ final class CarShellCommand extends ShellCommand {
                 return RESULT_ERROR;
         }
         return RESULT_OK;
+    }
+
+    private void setStartBackgroundUsersOnGarageMode(String[] args, IndentingPrintWriter writer) {
+        if (args.length < 2) {
+            writer.println("Insufficient number of args");
+            return;
+        }
+
+        boolean enabled = Boolean.parseBoolean(args[1]);
+        Slog.d(TAG, "setStartBackgroundUsersOnGarageMode(): " + (enabled ? "enabled" : "disabled"));
+        mCarUserService.setStartBackgroundUsersOnGarageMode(enabled);
+        writer.printf("StartBackgroundUsersOnGarageMode set to %b\n", enabled);
     }
 
     private void startFixedActivity(String[] args, IndentingPrintWriter writer) {
