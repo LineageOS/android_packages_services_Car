@@ -16,6 +16,8 @@
 
 package android.car.apitest;
 
+import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
+
 import static com.android.compatibility.common.util.ShellUtils.runShellCommand;
 
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -26,6 +28,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.test.util.AndroidHelper;
+import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
@@ -58,8 +61,8 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     private static final String TAG = CarMultiUserTestBase.class.getSimpleName();
 
-    private static final long REMOVE_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(10_000);
-    private static final long SWITCH_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(10_000);
+    private static final long REMOVE_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(30_000);
+    private static final long SWITCH_USER_TIMEOUT_MS = TimeUnit.SECONDS.toMillis(30_000);
 
     private static final String PROP_STOP_BG_USERS_ON_SWITCH  = "fw.stop_bg_users_on_switch";
 
@@ -83,6 +86,9 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     public final void setMultiUserFixtures() throws Exception {
         Log.d(TAG, "setMultiUserFixtures() for " + mTestName.getMethodName());
 
+        // Make sure user doesn't stop on switch (otherwise test process would crash)
+        setSystemProperty(PROP_STOP_BG_USERS_ON_SWITCH, "0");
+
         mCarUserManager = getCarService(Car.CAR_USER_SERVICE);
         mUserManager = getContext().getSystemService(UserManager.class);
 
@@ -93,9 +99,6 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 mUserRemoveLatch.countDown();
             }
         }, filter);
-
-        // Make sure user doesn't stop on switch (otherwise test process would crash)
-        setSystemProperty(PROP_STOP_BG_USERS_ON_SWITCH, "0");
 
         List<UserInfo> users = mUserManager.getAliveUsers();
 
@@ -142,18 +145,15 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         mSetupFinished = true;
     }
 
-    @After
     public final void resetStopUserOnSwitch() throws Exception {
-        if (!mSetupFinished) return;
-
         setSystemProperty(PROP_STOP_BG_USERS_ON_SWITCH, "-1");
     }
 
     @After
     public final void cleanupUserState() throws Exception {
-        if (!mSetupFinished) return;
-
         try {
+            if (!mSetupFinished) return;
+
             int currentUserId = getCurrentUserId();
             int initialUserId = mInitialUser.id;
             if (currentUserId != initialUserId) {
@@ -176,6 +176,9 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
             // Must catch otherwise it would be the test failure, which could hide the real issue
             Log.e(TAG, "Caught exception on " + getTestName()
                     + " disconnectCarAndCleanupUserState()", e);
+        }
+        finally {
+            resetStopUserOnSwitch();
         }
     }
 
@@ -252,14 +255,36 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
     }
 
     protected void switchUser(@UserIdInt int userId) throws Exception {
-        Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
+        boolean waitForUserSwitchToComplete = true;
+        // If current user is the target user, no life cycle event is expected.
+        if (getCurrentUserId() == userId) waitForUserSwitchToComplete = false;
 
-        AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
-        UserSwitchResult result = future.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
-        Log.d(TAG, "Result: " + result);
+        Log.d(TAG, "registering listener for user switching");
+        BlockingUserLifecycleListener listener = BlockingUserLifecycleListener
+                .forSpecificEvents()
+                .forUser(userId)
+                .setTimeout(SWITCH_USER_TIMEOUT_MS)
+                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
+                .build();
+        mCarUserManager.addListener(Runnable::run, listener);
 
-        assertWithMessage("User %s switched in %sms. Result: %s", userId, SWITCH_USER_TIMEOUT_MS,
-                result).that(result.isSuccess()).isTrue();
+        try {
+            Log.i(TAG, "Switching to user " + userId + " using CarUserManager");
+            AsyncFuture<UserSwitchResult> future = mCarUserManager.switchUser(userId);
+            UserSwitchResult result = future.get(SWITCH_USER_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            Log.d(TAG, "Result: " + result);
+
+            assertWithMessage("User %s switched in %sms. Result: %s", userId,
+                    SWITCH_USER_TIMEOUT_MS, result).that(result.isSuccess()).isTrue();
+
+            if (waitForUserSwitchToComplete) {
+                listener.waitForEvents();
+            }
+        } finally {
+            mCarUserManager.removeListener(listener);
+        }
+
+        Log.d(TAG, "User switch complete. User id: " + userId);
     }
 
     protected void removeUser(@UserIdInt int userId) {
