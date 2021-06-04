@@ -849,7 +849,7 @@
     <string name="wifi_notify_open_networks" msgid="4782239203624619655">"Notifications de réseau ouvert"</string>
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"M\'avertir lorsqu\'un réseau public de haute qualité est disponible"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Activer automatiquement le Wi‑Fi"</string>
-    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Réactiver le Wi‑Fi à proximité des réseaux haute qualité déjà enregistrés, par exemple votre réseau domestique"</string>
+    <string name="wifi_wakeup_summary" msgid="1152699417411690">"Le Wi‑Fi se réactive à proximité des réseaux haute qualité enregistrés, comme votre réseau domestique"</string>
     <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Indisponible, car le service de localisation est désactivé. Activez la "<annotation id="link">"localisation"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Indisponible, car la recherche Wi‑Fi est désactivée"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Pour utiliser cette fonctionnalité, sélectionnez un fournisseur d\'évaluation de l\'état du réseau"</string>
@@ -1214,16 +1214,16 @@
     <string name="night_display_text" msgid="5330502493684652527">"Avec le mode Éclairage nocturne, votre écran prend une teinte ambrée. Il vous est ainsi plus facile de le regarder ou de lire lorsque l\'éclairage est faible, et vous pourrez vous endormir plus facilement."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programmer"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Non programmé"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Actif à une heure définie"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"S\'active à l\'heure choisie"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Actif toute la nuit"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Heure de début"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Heure de fin"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"État"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"Intensité"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"Désactivé - <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Ne jamais activer automatiquement"</string>
-    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"Activer automatiquement à <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"Activer automatiquement au coucher du soleil"</string>
+    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Ne s\'active jamais automatiquement"</string>
+    <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"S\'active automatiquement à <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"S\'active automatiquement au coucher du soleil"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"Activé - <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_on_auto_mode_never" msgid="5461580863060506687">"Ne jamais désactiver automatiquement"</string>
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"Désactiver automatiquement à <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -1633,7 +1633,7 @@
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Aide"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Réseau mobile"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Forfait mobile"</string>
-    <string name="sms_application_title" msgid="7815840568119334679">"Application de SMS"</string>
+    <string name="sms_application_title" msgid="7815840568119334679">"Appli de SMS"</string>
     <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"Changer d\'application pour les SMS ?"</string>
     <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"Utiliser <xliff:g id="NEW_APP">%1$s</xliff:g> au lieu de <xliff:g id="CURRENT_APP">%2$s</xliff:g> comme application SMS ?"</string>
     <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Utiliser <xliff:g id="NEW_APP">%s</xliff:g> comme application SMS ?"</string>
@@ -3331,7 +3331,7 @@
     <string name="lock_screen_notifications_interstitial_message_profile" msgid="3324187664458600354">"Lorsque votre appareil est verrouillé, comment voulez-vous que les notifications du profil s\'affichent ?"</string>
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"Notifications du profil"</string>
     <string name="notifications_title" msgid="8334011924253810654">"Notifications"</string>
-    <string name="app_notifications_title" msgid="1141791221581312325">"Notifications appli"</string>
+    <string name="app_notifications_title" msgid="1141791221581312325">"Notifications des applis"</string>
     <string name="notification_channel_title" msgid="6637705960909690229">"Catégorie de notifications"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"Groupe de notifications"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"Comportement"</string>
@@ -3371,9 +3371,9 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Aucun assistant"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Aucune demande d\'accès aux notifications n\'a été envoyée pour les applications installées."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Autoriser <xliff:g id="SERVICE">%1$s</xliff:g> à accéder aux notifications ?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des informations personnelles, telles que le nom des contacts et le texte des messages que vous recevez. Il pourra également fermer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nL\'application pourra aussi activer ou désactiver le mode Ne pas déranger, et modifier les paramètres associés."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"L\'appli <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des infos personnelles telles que le nom des contacts et le texte des messages que vous recevez. Elle pourra aussi fermer des notifications ou agir sur les boutons y figurant. \n\nL\'appli pourra aussi activer ou désactiver le mode Ne pas déranger, et modifier les paramètres associés."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Autoriser <xliff:g id="SERVICE">%1$s</xliff:g> à accéder aux notifications ?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des informations personnelles, telles que le nom des contacts et le texte des messages que vous recevez. Il pourra également fermer des notifications ou déclencher les boutons d\'action que celles-ci contiennent. \n\nL\'application pourra aussi activer ou désactiver le mode Ne pas déranger, et modifier les paramètres associés."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"L\'appli <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> pourra lire toutes les notifications, y compris des infos personnelles telles que le nom des contacts et le texte des messages que vous recevez. Elle pourra aussi fermer des notifications ou agir sur les boutons y figurant. \n\nL\'appli pourra aussi activer ou désactiver le mode Ne pas déranger, et modifier les paramètres associés."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Si vous désactivez l\'accès aux notifications pour <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, l\'accès au mode Ne pas déranger peut également être désactivé."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Désactiver"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Annuler"</string>
@@ -3670,9 +3670,9 @@
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"Accepter"</string>
     <string name="assistant_security_warning_disagree" msgid="4217490999193100459">"Refuser"</string>
     <string name="choose_voice_input_title" msgid="5369311838580756359">"Sélectionner la saisie vocale"</string>
-    <string name="default_browser_title" msgid="4933937500898014977">"Navigateur"</string>
+    <string name="default_browser_title" msgid="4933937500898014977">"Appli de navigateur"</string>
     <string name="default_browser_title_none" msgid="46431244274747124">"Aucun navigateur par défaut"</string>
-    <string name="default_phone_title" msgid="6038690021912575740">"Application de téléphone"</string>
+    <string name="default_phone_title" msgid="6038690021912575740">"Appli de téléphone"</string>
     <string name="roles_title" msgid="2825063787446244357">"Rôles"</string>
     <string name="default_app" msgid="8861276008866619872">"(Par défaut)"</string>
     <string name="system_app" msgid="4111402206594443265">"(Système)"</string>
@@ -4418,7 +4418,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Basculer vers le réseau <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Effacer une carte SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Effacer cette carte SIM téléchargée ?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Si vous effacez ce profil SIM, le service \"<xliff:g id="CARRIER_0">%1$s</xliff:g>\" sera supprimé de cet appareil.\n\nVotre forfait \"<xliff:g id="CARRIER_1">%2$s</xliff:g>\" ne sera pas résilié."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Si vous effacez ce profil SIM, le service \"<xliff:g id="CARRIER_0">%1$s</xliff:g>\" sera supprimé de cet appareil.\n\nVotre service \"<xliff:g id="CARRIER_1">%2$s</xliff:g>\" ne sera pas résilié."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Effacer"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Effacement de la carte SIM…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Impossible d\'effacer la carte SIM"</string>

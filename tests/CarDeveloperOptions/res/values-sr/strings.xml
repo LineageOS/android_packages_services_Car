@@ -1221,7 +1221,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Немој да прилагођаваш према доступном светлу"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Већа потрошња батерије"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Оптимизујте ниво осветљености према светлу. Можете привремено да подесите осветљеност и кад је ова опција укључена."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Осветљеност екрана ће се аутоматски прилагодити окружењу и активностима. Можете ручно да померате клизач да би прилагодљиво подешавање осветљености научило шта вам одговара."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Осветљеност екрана ће се аутоматски прилагођавати окружењу и активностима. Можете ручно да померате клизач да би прилагодљиво подешавање осветљености научило шта вам одговара."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Баланс беле екрана"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Свесни екран"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Укључено/екран се неће искључити ако гледате у њега"</string>
@@ -1273,7 +1273,7 @@
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Да бисте контролисали шта се дешава када је телефон на базној станици и/или у стању спавања, укључите чувар екрана."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Када да почне"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"Тренутни чувар екрана"</string>
-    <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Започни одмах"</string>
+    <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Започни"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Подешавања"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Аутоматски ниво осветљености"</string>
     <string name="lift_to_wake_title" msgid="5523752279947392868">"Подигни за активацију"</string>
@@ -1718,7 +1718,7 @@
     <string name="wallpaper_attributions_values" msgid="4461979853894606323">"Добављачи сателитских слика:\n©2014 CNES/Astrium, DigitalGlobe, Bluesky"</string>
     <string name="settings_manual_activity_title" msgid="7599911755054286789">"Упутство"</string>
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"Дошло је до проблема при учитавању упутства."</string>
-    <string name="settings_license_activity_title" msgid="1099045216283677608">"Лиценце треће стране"</string>
+    <string name="settings_license_activity_title" msgid="1099045216283677608">"Лиценце трећих страна"</string>
     <string name="settings_license_activity_unavailable" msgid="1039356188263821287">"Дошло је до проблема при учитавању лиценци."</string>
     <string name="settings_license_activity_loading" msgid="7272151895113843742">"Учитава се…"</string>
     <string name="settings_safetylegal_title" msgid="2681094772308772633">"Безбедносне информације"</string>
@@ -2314,9 +2314,9 @@
     <string name="battery_tip_high_usage_title" product="tablet" msgid="1019583260005768965">"Таблет сте користили дуже него обично"</string>
     <string name="battery_tip_high_usage_title" product="device" msgid="8304138287288309490">"Уређај сте користили дуже него обично"</string>
     <string name="battery_tip_high_usage_summary" msgid="5514749872957528189">"Батерија може да се испразни раније него обично"</string>
-    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Уређај сте користили дуже него обично. Батерија може да се испразни раније од очекиваног.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
-    <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Таблет сте користили дуже него обично. Батерија може да се испразни раније од очекиваног.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
-    <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Уређај сте користили дуже него обично. Батерија може да се испразни раније од очекиваног.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
+    <string name="battery_tip_dialog_message" product="default" msgid="8453700079047810964">"Уређај сте користили дуже него обично. Батерија може да се испразни раније него што је очекивано.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
+    <string name="battery_tip_dialog_message" product="tablet" msgid="6489981050645444068">"Таблет сте користили дуже него обично. Батерија може да се испразни раније него што је очекивано.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
+    <string name="battery_tip_dialog_message" product="device" msgid="6348123094674390337">"Уређај сте користили дуже него обично. Батерија може да се испразни раније него што је очекивано.\n\nНајвише коришћене апликације од потпуног пуњења:"</string>
     <string name="battery_tip_dialog_message_footer" msgid="1118827395267487197">"Укључује активности у позадини са великом потрошњом"</string>
     <plurals name="battery_tip_restrict_title" formatted="false" msgid="7140926804142734420">
       <item quantity="one">Ограничите %1$d апликацију</item>
@@ -2348,7 +2348,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"Да бисте уштедели батерију, онемогућите да ове апликације троше батерију у позадини. Ограничене апликације можда неће радити како треба и обавештења могу да касне.\n\nАпликације:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Ограничи"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Желите ли да уклоните ограничење?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Ова апликација ће моћи да користи батерију у позадини. Батерија може да се испразни раније од очекиваног."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Ова апликација ће моћи да користи батерију у позадини. Батерија може да се испразни раније него што је очекивано."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Уклони"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Откажи"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Апликације користе уобичајену количину батерије. Ако апликације користе превише батерије, телефон ће вам предложити радње које можете да предузмете.\n\nУвек можете да укључите Уштеду батерије ако вам је батерија при крају."</string>
@@ -2502,7 +2502,7 @@
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Никада"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"на <xliff:g id="PERCENT">%1$s</xliff:g> батерије"</string>
     <string name="battery_percentage" msgid="7782252476471033843">"Проценат напуњености батерије"</string>
-    <string name="battery_percentage_description" msgid="9219875229166700610">"Прикажи проценат напуњености батерије на статусној траци"</string>
+    <string name="battery_percentage_description" msgid="9219875229166700610">"Приказује проценат напуњености батерије на статусној траци"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Статистика процеса"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Штреберска статистика о активним процесима"</string>
     <string name="app_memory_use" msgid="5126237308545653706">"Искоришћеност меморије"</string>
@@ -3367,7 +3367,7 @@
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Када је пословни профил закључан"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Прикажи сав садржај обавештења"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Сакриј осетљив садржај"</string>
-    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Не приказуј никаква обавештења"</string>
+    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"Не приказуј уопште обавештења"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Када је уређај закључан, како желите да се обавештења приказују?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"Обавештења"</string>
     <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"Приказуј сав садржај обавештења о пословном профилу"</string>
@@ -4230,7 +4230,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Аутоматски синхронизуј податке"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Аутоматски синхронизуј личне податке"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Аутоматске синхронизуј пословне податке"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Омогући апликацијама да аутоматски освежавају податке"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Омогућава апликацијама да аутоматски освежавају податке"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Синхронизација налога"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Синхронизација је укључена за одређене ставке (<xliff:g id="ID_1">%1$d</xliff:g> од <xliff:g id="ID_2">%2$d</xliff:g>)"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Синхронизација је укључена за све ставке"</string>

@@ -3590,7 +3590,7 @@
     <string name="slot_number" msgid="785422579177068698">"(Rañura<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Abrir de forma predeterminada"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Apertura de ligazóns"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Abre ligazóns compatibles"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Abrir ligazóns compatibles"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Abrir sen preguntar"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Ligazóns compatibles"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Abrir predeterminados"</string>
@@ -3810,8 +3810,8 @@
     <string name="overlay_settings" msgid="3325154759946433666">"Superpor a aplicacións"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"Aplicacións con permiso para superpoñerse a outras: <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplicacións con permiso"</string>
-    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Permitido"</string>
-    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Non permitido"</string>
+    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Con permiso"</string>
+    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Sen permiso"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"instalar aplicacións fontes descoñecidas"</string>
     <string name="write_settings" msgid="9009040811145552108">"Modificar configuración"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"editar ou modificar axustes do sistema"</string>

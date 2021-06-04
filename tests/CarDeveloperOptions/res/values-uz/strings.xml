@@ -1229,7 +1229,7 @@
     <string name="night_display_summary_on_auto_mode_custom" msgid="2200631112239399233">"<xliff:g id="ID_1">%1$s</xliff:g> da avtomatik tugaydi"</string>
     <string name="night_display_summary_on_auto_mode_twilight" msgid="8386769601369289561">"Quyosh chiqishi bilan avtomatik tugaydi"</string>
     <string name="night_display_activation_on_manual" msgid="8379477527072027346">"Yoqish"</string>
-    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"O‘chirish"</string>
+    <string name="night_display_activation_off_manual" msgid="7776082151269794201">"Faolsizlantirish"</string>
     <string name="night_display_activation_on_twilight" msgid="5610294051700287249">"Quyosh chiqqunicha yoniq tursin"</string>
     <string name="night_display_activation_off_twilight" msgid="6846727701281556110">"Quyosh botguncha yoqilmasin"</string>
     <string name="night_display_activation_on_custom" msgid="4761140206778957611">"<xliff:g id="ID_1">%1$s</xliff:g> gacha yoniq tursin"</string>
@@ -2326,7 +2326,7 @@
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Battery Manager ilovalarning batareyani ortiqcha sarflayotganini aniqlasa, mazkur ilovalarni cheklashingiz mumkin. Cheklangan ilovalar xato ishlashi va bildirishnomalar kechikishi mumkin."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Battery Manager ilovalarning batareyani ortiqcha sarflayotganini aniqlasa, mazkur ilovalarni cheklashingiz mumkin. Cheklangan ilovalar xato ishlashi va bildirishnomalar kechikishi mumkin."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Battery Manager ilovalarning batareyani ortiqcha sarflayotganini aniqlasa, mazkur ilovalarni cheklashingiz mumkin. Cheklangan ilovalar xato ishlashi va bildirishnomalar kechikishi mumkin."</string>
-    <string name="restricted_app_title" msgid="4957644700640127606">"Cheklangan imkoniyatli ilovalar"</string>
+    <string name="restricted_app_title" msgid="4957644700640127606">"Cheklangan ilovalar"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">%1$d ta ilova uchun batareya sarfi cheklangan</item>
       <item quantity="one">%1$d ta ilova uchun batareya sarfi cheklangan</item>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Yoqish"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Quvvat tejash funksiyasidan foydalanish"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Quvvat tejashdan foydalanish"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Avtomatik yoqish"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Hech qachon"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"batareya quvvati: <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3149,9 +3149,9 @@
     <string name="other_sound_settings" msgid="5250376066099818676">"Boshqa ovozlar"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"Raqam terilgandagi tovush"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Ekran qulflangandagi tovush"</string>
-    <string name="charging_sounds_title" msgid="5070437987230894287">"Quvvat olishdagi tovush va tebranishlar"</string>
+    <string name="charging_sounds_title" msgid="5070437987230894287">"Quvvatlashdagi tovushlar va tebranish"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Taglik qurilma ovozlari"</string>
-    <string name="touch_sounds_title" msgid="165237488496165652">"Ekranga bosilgandagi tovush"</string>
+    <string name="touch_sounds_title" msgid="165237488496165652">"Teginish tovushlari"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Ekranga teginganda tebranish"</string>
     <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Tugma, klaviatura va boshqalar bosilgandagi tebranish"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Taglik karnay bilan ijro etish"</string>
@@ -3182,7 +3182,7 @@
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Oʻchirish"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Tahrirlash"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Jadvallar"</string>
-    <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Reja"</string>
+    <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Jadval"</string>
     <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Jadval"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Muayyan vaqtlarda ovozsiz qilish"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"Bezovta qilmaslik qoidalari"</string>
@@ -3252,8 +3252,8 @@
     </plurals>
     <string name="zen_mode_duration_summary_time_minutes" msgid="6988728116715208859">"<xliff:g id="NUM_MINUTES">%d</xliff:g> daqiqa (avtomatik yoqilguncha)"</string>
     <plurals name="zen_mode_sound_summary_summary_off_info" formatted="false" msgid="8527428833487709278">
-      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> ta rejani avtomatik tarzda yoqish mumkin</item>
-      <item quantity="one">1 ta rejani avtomatik tarzda yoqish mumkin</item>
+      <item quantity="other"><xliff:g id="ON_COUNT">%d</xliff:g> ta reja avtomatik yoqilishi mumkin</item>
+      <item quantity="one">1 ta reja avtomatik yoqilishi mumkin</item>
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"Tovushsiz (istisnolardan tashqari)"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"Istisnolar"</string>
@@ -3504,7 +3504,7 @@
     <string name="zen_mode_media" msgid="3701280649874724055">"Multimedia tovushlari"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"media"</string>
     <string name="zen_mode_system" msgid="597437265986355038">"Sensor tovushlari"</string>
-    <string name="zen_mode_system_list" msgid="480192458506838077">"ekranga bosilgandagi tovush"</string>
+    <string name="zen_mode_system_list" msgid="480192458506838077">"teginish tovushlari"</string>
     <string name="zen_mode_reminders" msgid="7560664194610054038">"Eslatmalar"</string>
     <string name="zen_mode_reminders_list" msgid="7347061314032326677">"eslatmalar"</string>
     <string name="zen_mode_events" msgid="5784076928339534984">"Tadbirlar"</string>
@@ -3878,7 +3878,7 @@
     <string name="disabled_by_policy_title_camera" msgid="3741138901926111197">"Kameraga ruxsat berilmagan"</string>
     <string name="disabled_by_policy_title_screen_capture" msgid="1856835333536274665">"Skrinshot olishga ruxsat berilmagan"</string>
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"Bu ilovani ochish imkonsiz"</string>
-    <string name="default_admin_support_msg" msgid="5789424433689798637">"Savollaringizga javob olish uchun AT administratoringizga murojaat qiling"</string>
+    <string name="default_admin_support_msg" msgid="5789424433689798637">"Savollaringizga javob olish uchun administratoringizga murojaat qiling."</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"Qo‘shimcha tafsilotlar"</string>
     <string name="admin_profile_owner_message" msgid="3199544166281052845">"Administratoringiz ishchi profilingiz bilan bog‘liq ilova va ma’lumotlarni, jumladan, sozlamalar, ruxsatnomalar, korporativ kirish huquqi, tarmoqdagi faollik va qurilmaning joylashuvi haqidagi ma’lumotlarni kuzatishi va boshqarishi mumkin."</string>
     <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"Administratoringiz bu foydalanuvchi bilan bog‘liq ilova va ma’lumotlarni, jumladan, sozlamalar, ruxsatnomalar, korporativ kirish huquqi, tarmoqdagi faollik va qurilmaning joylashuvi haqidagi ma’lumotlarni kuzatishi va boshqarishi mumkin."</string>
@@ -3990,7 +3990,7 @@
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Fondagi internet o‘chiq"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Yoniq"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Yoqilmagan"</string>
-    <string name="data_saver_switch_title" msgid="8244008132112735207">"Trafik tejash funksiyasini yoqish"</string>
+    <string name="data_saver_switch_title" msgid="8244008132112735207">"Trafik tejashni yoqish"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"Cheklanmagan internet-trafik"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Quvvat tejash rejimida internet-trafikdan cheklovsiz foydalanish"</string>
     <string name="home_app" msgid="3695063566006954160">"Bosh ekran ilovasi"</string>
@@ -4005,7 +4005,7 @@
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g> da yoqiladi"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Yoqilmagan"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Yoqish"</string>
-    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"O‘chirish"</string>
+    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Faolsizlantirish"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"Batareya quvvati tejalmayapti"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Qurilma qulflangan bo‘lsa, bildirishnomalarda matn kiritish taqiqlansin"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Birlamchi imlo tekshirgich"</string>
@@ -4253,7 +4253,7 @@
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(<xliff:g id="USER">%s</xliff:g> uchun o‘chirib qo‘yilgan)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"Avtomatik kiritish"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"avtomatik, to‘ldirish, avtomatik to‘ldirish"</string>
-    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Bu ilova ishonchli ekanini tekshiring&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; ekraningizda nimani avtomatik to‘ldirish kerakligini aniqlaydi."</string>
+    <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Bu ilova ishonchli ekanini tekshiring&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; ekraningizda nimani avtomatik kiritish kerakligini aniqlaydi."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Avtomatik kiritish"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Jurnal yuritish darajasi"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Bitta seansdagi maksimum talablar"</string>
@@ -4323,7 +4323,7 @@
     <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"Batareya quvvatini uzoqroq vaqtga yetkazing"</string>
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Batareya quvvatini uzoqroq vaqtga yetkazing"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
-    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Ovozsiz qilish"</string>
+    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Jiringlagichni ovozsiz qilish"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Quvvat va tovushni balandlatish tugmalari (bir vaqtda)"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Jiringlash tovushini tezkor oʻchirish"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Tebranish"</string>

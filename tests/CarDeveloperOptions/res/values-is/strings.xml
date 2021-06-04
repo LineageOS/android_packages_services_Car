@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Núverandi stilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Viltu breyta stillingum tilkynninga fyrir „Ónáðið ekki“?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Hljóð vinnuprófils"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Nota hljóð úr persónulegum prófíl"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Nota hljóð úr eigin sniði"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Hljóð vinnuprófíls eru þau sömu og í persónulegum prófíl"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Vinnuhringitónn"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sjálfgefið hljóð vinnutilkynninga"</string>
@@ -4404,7 +4404,7 @@
     <string name="subscription_available" msgid="1227974088365700952">"Í boði"</string>
     <string name="mobile_network_in_range" msgid="9205757267706176023">"Samband"</string>
     <string name="mobile_network_not_in_range" msgid="3772644769833809436">"Ekkert samband"</string>
-    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Bæta fleiri við"</string>
+    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Bæta fleirum við"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Virkt / SIM-kort"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Óvirkt / SIM-kort"</string>
     <string name="mobile_network_active_esim" msgid="2919290915755581140">"Virk / sótt SIM-kort"</string>

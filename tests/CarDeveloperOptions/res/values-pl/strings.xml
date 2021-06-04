@@ -4431,7 +4431,7 @@
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"Ta funkcja jest niedostępna na tym urządzeniu."</string>
     <string name="disabled_feature" msgid="3747549387387702365">"Ta funkcja jest niedostępna"</string>
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Spowoduje spowolnienie telefonu"</string>
-    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Wymuś pełną procedurę pomiarów GNSS"</string>
+    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Wymuszaj pełną procedurę pomiarów GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Śledź wszystkie konstelacje GNSS i częstotliwości bez uwzględniania współczynnika impulsu"</string>
     <string name="enable_user_switch_message" msgid="8613014373053051092">"Debugowanie podczas przełączania użytkownika"</string>
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Pokaż szczegółowe informacje podczas przełączania użytkownika"</string>

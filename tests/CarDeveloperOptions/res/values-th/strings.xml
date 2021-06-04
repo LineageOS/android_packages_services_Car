@@ -3178,7 +3178,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"ไม่มีเสียง ยกเว้น<xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"ไม่มีเสียง ยกเว้นการปลุกและสื่อ"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"กำหนดเวลา"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"ลบกำหนดเวลา"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"ลบกำหนดการ"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"ลบ"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"แก้ไข"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"กำหนดเวลา"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"เมื่อมีการแจ้งเตือนเข้ามา โทรศัพท์จะไม่ส่งเสียงหรือสั่น"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"ไม่แสดงภาพหรือเสียงเวลาแจ้งเตือน"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"คุณจะไม่เห็นหรือได้ยินเสียงการแจ้งเตือน"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"โทรศัพท์จะไม่แสดง สั่น หรือส่งเสียงเวลามีการแจ้งเตือน ไม่ว่าจะเป็นการแจ้งเตือนใหม่หรือเก่า อย่างไรก็ตาม หากเป็นข้อมูลสำคัญเกี่ยวกับกิจกรรมและสถานะของโทรศัพท์ คุณจะยังได้รับการแจ้งเตือนอยู่\n\nในขณะปิดโหมดห้ามรบกวน ถ้าต้องการดูการแจ้งเตือนที่ไม่ได้รับ ให้เลื่อนลงจากด้านบนของหน้าจอ"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"โทรศัพท์จะไม่แสดง สั่น หรือส่งเสียงเวลามีการแจ้งเตือน ไม่ว่าจะเป็นการแจ้งเตือนใหม่หรือเก่า อย่างไรก็ตาม หากเป็นข้อมูลสำคัญเกี่ยวกับกิจกรรมและสถานะของโทรศัพท์ คุณจะยังได้รับการแจ้งเตือนอยู่\n\nในขณะปิดโหมดห้ามรบกวน ถ้าต้องการดูการแจ้งเตือนที่ไม่ได้รับ ให้ปัดลงจากด้านบนของหน้าจอ"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"กำหนดเอง"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"เปิดใช้การตั้งค่าที่กำหนดเอง"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"นำการตั้งค่าที่กำหนดเองออก"</string>
@@ -3216,7 +3216,7 @@
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"อย่าเปิดไฟกะพริบ"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"อย่าแสดงการแจ้งเตือนบนหน้าจอ"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"ซ่อนไอคอนแถบสถานะที่ด้านบนของหน้าจอ"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ซ่อนจุดแสดงการแจ้งเตือนบนไอคอนแอป"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ซ่อนเครื่องหมายจุดแสดงการแจ้งเตือนบนไอคอนแอป"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"ไม่ต้องปลุกระบบเพื่อแสดงการแจ้งเตือน"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"ซ่อนจากรายการแจ้งเตือน"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ไม่เลย"</string>
@@ -3420,7 +3420,7 @@
     <string name="app_notification_block_summary" msgid="4502146897785692336">"ไม่ต้องแสดงการแจ้งเตือน"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"แสดงการแจ้งเตือน"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ไม่ต้องแสดงการแจ้งเตือนในแว่นตาหรืออุปกรณ์ต่อพ่วง"</string>
-    <string name="notification_badge_title" msgid="8989086619255666442">"อนุญาตให้ใช้จุดแจ้งเตือน"</string>
+    <string name="notification_badge_title" msgid="8989086619255666442">"อนุญาตให้ใช้เครื่องหมายจุดแสดงการแจ้งเตือน"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"แสดงจุดแจ้งเตือน"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"ลบล้าง \"ห้ามรบกวน\""</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"อนุญาตให้แสดงการแจ้งเตือนต่อไปเมื่อ \"ห้ามรบกวน\" เปิดอยู่"</string>
@@ -4136,8 +4136,8 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"แตะเพื่อดูอุปกรณ์"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"หากต้องการดูเวลา การแจ้งเตือน และข้อมูลอื่นๆ ให้แตะหน้าจอ"</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"ใช้ลายนิ้วมือแสดงการแจ้งเตือน"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"เลื่อนนิ้วสแกนลายนิ้วมือ"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังโทรศัพท์"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"ปัดสแกนลายนิ้วมือ"</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ในการตรวจสอบการแจ้งเตือน ให้ปัดนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังโทรศัพท์"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังแท็บเล็ต"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังอุปกรณ์"</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"ดูการแจ้งเตือนได้อย่างรวดเร็ว"</string>

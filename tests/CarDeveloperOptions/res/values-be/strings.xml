@@ -2785,7 +2785,7 @@
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Задаць"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Задаць папярэджанне аб выкарыстанні даных"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Задаць ліміт выкарыстання даных"</string>
-    <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Абмежаванне выкарыстання даных"</string>
+    <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Абмежаванне выкарыстання трафіка"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"Калі ліміт, які вы задалі, будзе дасягнуты, планшэт выключыць мабільную перадачу даных.\n\nПаколькі выкарыстанне даных можа ўлічвацца вашым тэлефонам і вашым аператарам па-рознаму, мы рэкамендуем задаць больш ці менш нізкі ліміт."</string>
     <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Пасля дасягнення вызначанага ліміту трафіка тэлефон выключыць мабільную перадачу даных.\n\nПаколькі метады разліку трафіка вашым тэлефонам і вашым аператарам могуць адрознівацца, мы рэкамендуем задаць заніжаны ліміт."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"Абмежаваць зыходныя даныя?"</string>
@@ -2861,7 +2861,7 @@
     <string name="vpn_create" msgid="2477570636472897359">"Дадаць профіль VPN"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"Рэдагаваць профiль"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"Выдаліць профіль"</string>
-    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"Заўсёды ўключаны VPN"</string>
+    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"Заўсёды ўключаная VPN"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"Сеткі VPN не дададзены"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"Заўсёды захоўваць падключэнне да VPN"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"Не падтрымліваецца гэтай праграмай"</string>
@@ -3371,7 +3371,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Гукі працоўнага профілю"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Выкар. гукі асабістага профілю"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"У працоўным і асабістым профілях гукі аднолькавыя"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Мелодыя тэлефона ў прац. проф."</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Рынгтон тэлефона ў працоўным профілі"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Стандартны гук апавяшчэння ў працоўным профілі"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Стандартны гук будзільніка ў працоўным профілі"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Такія ж, як у асабістым профілі"</string>
@@ -4059,7 +4059,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Аўтаматычныя абнаўленні сістэмы"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Ужыць абнаўленні падчас перазапуску прылады"</string>
     <string name="usage" msgid="9172908720164431622">"Выкарыстанне"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Выкарыстанне мабільнага трафіка"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Выкарыстанне мабільнай перадачы даных"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Выкарыстанне трафіка"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Выкарыстанне трафіка сеткай Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Выкарыстанне даных Ethernet"</string>
@@ -4275,7 +4275,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Націсніце, каб праверыць планшэт"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Націсніце, каб праверыць прыладу"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Каб праверыць час, апавяшчэнні і іншую інфармацыю, дакраніцеся да экрана."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Правядзіце пальцам, каб убачыць апавяшчэнні"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Правесці пальцам, каб убачыць апавяшчэнні"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Сканер адбіткаў"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Каб праверыць апавяшчэнні, правядзіце пальцам уніз па сканеры адбіткаў пальцаў на заднім боку тэлефона."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Каб праверыць апавяшчэнні, правядзіце пальцам уніз па сканеры адбіткаў пальцаў на заднім боку планшэта."</string>

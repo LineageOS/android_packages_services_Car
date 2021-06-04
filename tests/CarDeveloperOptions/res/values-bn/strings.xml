@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"নিয়ন্ত্রণগুলি"</string>
     <string name="force_stop" msgid="9213858124674772386">"জোর করে বন্ধ করুন"</string>
     <string name="total_size_label" msgid="3929917501176594692">"সর্বমোট"</string>
-    <string name="application_size_label" msgid="175357855490253032">"অ্যাপের মাপ"</string>
+    <string name="application_size_label" msgid="175357855490253032">"অ্যাপের সাইজ"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB স্টোরেজ অ্যাপ্লিকেশন"</string>
     <string name="data_size_label" msgid="7790201846922671662">"ব্যবহারকারীর ডেটা"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB স্টোরেজ ডেটা"</string>
@@ -2708,7 +2708,7 @@
     <string name="data_usage_auto_sync_on_dialog" product="default" msgid="5004823486046340090">"ওয়েবে আপনার অ্যাকাউন্টে আপনি যে পরিবর্তন করবেন সেটি অটোমেটিক আপনার ফোনে কপি করা হবে।\n\nকোনও কোনও অ্যাকাউন্ট আপনার ফোনে করা পরিবর্তনগুলি অটোমেটিক ওয়েবে কপি করতে পারবে। Google অ্যাকাউন্ট এভাবেই কাজ করে।"</string>
     <string name="data_usage_auto_sync_off_dialog_title" msgid="7105334544291643305">"ডেটা অটোমেটিক সিঙ্ক বন্ধ করবেন?"</string>
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"এটি ডেটা এবং ব্যাটারির খরচ বাঁচাবে, কিন্তু আপনাকে সাম্প্রতিক তথ্য সংগ্রহ করতে ম্যানুয়ালি প্রতিটি অ্যাকাউন্ট সিঙ্ক করতে হবে। আপডেট হলে আপনি তখন বিজ্ঞপ্তি পাবেন না।"</string>
-    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"ব্যবহার চক্র আবার সেট করার তারিখ"</string>
+    <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"ব্যবহার চক্র রিসেট করার তারিখ"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"প্রতিটি মাসের তারিখ:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"সেট করুন"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"ডেটা ব্যবহারের সতর্কতা সেট করুন"</string>
@@ -3010,7 +3010,7 @@
     <string name="color_orange" msgid="3159707916066563431">"কমলা"</string>
     <string name="color_purple" msgid="4391440966734810713">"বেগুনী"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"কোনো সিম কার্ড ঢোকানো নেই"</string>
-    <string name="sim_status_title" msgid="4483653750844520871">"সিম-এর স্ট্যাটাস"</string>
+    <string name="sim_status_title" msgid="4483653750844520871">"সিম কার্ডের স্টাটাস"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"সিম স্ট্যাটাস (সিম স্লট %1$d)"</string>
     <string name="sim_call_back_title" msgid="2497274034557717457">"ডিফল্ট সিম থেকে কল ব্যাক করুন"</string>
     <string name="sim_outgoing_call_title" msgid="4683645160838507363">"বহির্গামী কলের জন্য সিম"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(বর্তমান সেটিং)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"\"বিরক্ত করবে না\" মোডের বিজ্ঞপ্তির সেটিংস পরিবর্তন করবেন?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"অফিস প্রোফাইলের সাউন্ড"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ব্যক্তিগত প্রোফাইলের ধ্বনিগুলি ব্যবহার করুন"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ব্যক্তিগত প্রোফাইলের সাউন্ড ব্যবহার করুন"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"কাজ এবং ব্যক্তিগত প্রোফাইলের জন্য একই শব্দ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"অফিস ফোনের রিংটোন"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"ডিফল্ট কাজের বিজ্ঞপ্তির শব্দ"</string>

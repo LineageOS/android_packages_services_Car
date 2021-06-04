@@ -3905,7 +3905,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Як часто працює додаток"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Найбільше використання"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Дані не використовуються"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Трафік не споживався"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Надати додатку <xliff:g id="APP">%1$s</xliff:g> доступ до режиму \"Не турбувати\"?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Додаток зможе вмикати й вимикати режим \"Не турбувати\" та змінювати відповідні налаштування."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Має залишатися ввімкненим, оскільки доступ до сповіщень увімкнено"</string>
@@ -4275,7 +4275,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Торкніться, щоб перевірити планшет"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Торкніться, щоб перевірити пристрій"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Щоб перевірити час, сповіщення та іншу інформацію, торкніться екрана."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Використовувати відбиток для перегляду сповіщень"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Сканер відбитків для перегляду сповіщень"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Сканер відбитків"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Щоб переглянути сповіщення, проведіть пальцем униз по сканеру відбитків на задній панелі телефона."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Щоб переглянути сповіщення, проведіть пальцем униз по сканеру відбитків на задній панелі планшета."</string>
@@ -4541,7 +4541,7 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мобільне передавання даних"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Доступ до Інтернету через мобільну мережу"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефон автоматично перемикатиметься на цього оператора в зоні його покриття"</string>
-    <string name="calls_preference" msgid="2076353032705811243">"Параметри викликів"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"Налаштування викликів"</string>
     <string name="sms_preference" msgid="8449270011976880">"Налаштування SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Запитувати щоразу"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Додати мережу"</string>

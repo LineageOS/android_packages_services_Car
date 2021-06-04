@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Sistemi"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"Eksploro <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Përfshin po ashtu skedarët e ndarë që janë ruajtur nga aplikacionet, skedarët e shkarkuar nga interneti ose me Bluetooth, skedarët e Android e të tjera. \n\nPër të parë të gjitha përmbajtjet e dukshme në këtë <xliff:g id="NAME">^1</xliff:g>, trokit tek \"Eksploro\"."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Sistemi përfshin skedarët e përdorur për ekzekutimin e versionit <xliff:g id="VERSION">%s</xliff:g> të Android"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Sistemi përfshin skedarët që përdoren për ekzekutimin e versionit <xliff:g id="VERSION">%s</xliff:g> të Android"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> mund të ketë ruajtur fotografi, muzikë, aplikacione ose të dhëna të tjera, duke përdorur <xliff:g id="SIZE">^2</xliff:g> nga hapësira ruajtëse. \n\nPër të parë detajet, kalo te <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"Konfiguro <xliff:g id="NAME">^1</xliff:g>"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Përdore si hapësirë portative ruajtjeje"</string>
@@ -4112,7 +4112,7 @@
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Gjestet e shpejta për të kontrolluar tabletin"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Gjestet e shpejta për të kontrolluar pajisjen"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Kalo te kamera"</string>
-    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Për të hapur me shpejtësi kamerën, shtyp dy herë te butoni i energjisë. Funksionon nga çdo ekran."</string>
+    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Për të hapur me shpejtësi kamerën, shtyp dy herë butonin e energjisë. Funksionon nga çdo ekran."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Hap kamerën me shpejtësi"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Rrotullo kamerën"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>

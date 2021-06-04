@@ -1817,7 +1817,7 @@
     <string name="total_size_label" msgid="3929917501176594692">"Жалпы"</string>
     <string name="application_size_label" msgid="175357855490253032">"Колдонмонун көлөмү"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB сактагычтын колдонмосу"</string>
-    <string name="data_size_label" msgid="7790201846922671662">"Колдонуучунун дайындары"</string>
+    <string name="data_size_label" msgid="7790201846922671662">"Колдонуучунун нерселери"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB сактагычтын дайындары"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD карта"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"Чыгарып салуу"</string>
@@ -2241,11 +2241,11 @@
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"Колдонмонун фондогу аракеттери чектелсе, ал туура эмес иштеп калышы мүмкүн"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"Бул колдонмодо батареянын үнөмдөлүшү жөндөлбөгөндүктөн, аны чектөөгө болбойт.\n\nКолдонмону чектөө үчүн, адегенде Батареяны үнөмдөө режимин күйгүзүңүз."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"Толук кубатталгандан бери экран канча убакыт колдонулду"</string>
-    <string name="power_usage_list_summary" msgid="4314438658308211057">"Толук кубатталгандан бери батареянын колдонулушу"</string>
+    <string name="power_usage_list_summary" msgid="4314438658308211057">"Толук кубатталгандан бери батареянын керектелиши"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"Толук кубатталгандан бери экрандын күйүп турган убактысы"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"Толук кубатталгандан бери түзмөктүн колдонулушу"</string>
-    <string name="battery_since_unplugged" msgid="6486555910264026856">"Суурулгандан бери батареянын колдонулушу"</string>
-    <string name="battery_since_reset" msgid="4747587791838336661">"Баштапкы абалга келтирилгенден бери батареянын колдонулушу"</string>
+    <string name="battery_since_unplugged" msgid="6486555910264026856">"Суурулгандан бери батареянын керектелиши"</string>
+    <string name="battery_since_reset" msgid="4747587791838336661">"Баштапкы абалга келтирилгенден бери батареянын керектелиши"</string>
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"Батарея менен <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="battery_stats_duration" msgid="4867858933068728005">"Суурулгандан бери <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="battery_stats_charging_label" msgid="3156586822576998231">"Кубатталууда"</string>
@@ -4243,7 +4243,7 @@
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"колдонулду <xliff:g id="TOTAL">%1$s</xliff:g> ичинен"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"колдонулду"</string>
-    <string name="clear_instant_app_data" msgid="3673669086522890405">"Колдонмонун дайын-даректерин тазалоо"</string>
+    <string name="clear_instant_app_data" msgid="3673669086522890405">"Колдонмодогу нерселерди тазалоо"</string>
     <string name="clear_instant_app_confirmation" msgid="1778553115373698061">"Бул ыкчам ачылуучу колдонмо алынып салынсынбы?"</string>
     <string name="launch_instant_app" msgid="5251693061228352333">"Ачуу"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"Оюндар"</string>

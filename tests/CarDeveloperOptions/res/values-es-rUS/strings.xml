@@ -1215,7 +1215,7 @@
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Programa"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ninguno"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Activar a una hora personalizada"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Activar de atardecer a amanecer"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Activar del atardecer al amanecer"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Hora de inicio"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Hora de finalización"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Estado"</string>
@@ -1527,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"Estado de batería"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"Nivel de la batería"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APN"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"Editar pto. de acceso"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"Editar punto de acceso"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"Sin establecer"</string>
     <string name="apn_name" msgid="8431432886706852226">"Nombre"</string>
     <string name="apn_apn" msgid="190519449579357696">"APN"</string>
@@ -1800,7 +1800,7 @@
     <string name="advanced_settings_summary" msgid="5912237062506771716">"Activar más opciones de configuración"</string>
     <string name="application_info_label" msgid="3886253474964599105">"Info. de las apps"</string>
     <string name="storage_label" msgid="1109537840103290384">"Almacenamiento"</string>
-    <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predet."</string>
+    <string name="auto_launch_label" msgid="47089737922907379">"Abrir de forma predeterminada"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"Valores predeterminados"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Compatibilidad de la pantalla"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Permisos"</string>
@@ -2628,9 +2628,9 @@
     <string name="header_account_settings" msgid="8586173964125512219">"Configuración de la cuenta"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"Quitar cuenta"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"Agregar cuenta"</string>
-    <string name="really_remove_account_title" msgid="4166512362915154319">"¿Deseas eliminar la cuenta?"</string>
+    <string name="really_remove_account_title" msgid="4166512362915154319">"¿Deseas quitar la cuenta?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"Si eliminas esta cuenta, se borrarán todos sus mensajes, contactos y otros datos de la tablet."</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si eliminas esta cuenta, se borrarán todos sus mensajes, contactos y otros datos del dispositivo."</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"Si quitas esta cuenta, se borrarán todos sus mensajes, contactos y otros datos del dispositivo."</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"Si quitas esta cuenta, se borrarán todos sus mensajes, contactos y otros datos del dispositivo."</string>
     <string name="remove_account_failed" msgid="491458185327106966">"El administrador no permite este cambio"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"No se puede sincronizar manualmente"</string>
@@ -3141,7 +3141,7 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"Volumen de tono"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"Volumen de notificación"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"Tono de llamada"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"Sonido predeterminado"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"Sonido de notificación predeterminado"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"Sonido que proporcionó la app"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"Sonido de notificaciones predeterminado"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Alarma: sonido predet."</string>
@@ -3283,7 +3283,7 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"Sonidos del perfil de trabajo"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Usa los sonidos del perfil personal"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Los sonidos de los perfiles de trabajo y personal son iguales"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Tono del teléfono laboral"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Tono del teléfono de trabajo"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sonido predeterminado para notificaciones de trabajo"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonido predeterminado para alarmas de trabajo"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Igual al del perfil personal"</string>
@@ -3440,7 +3440,7 @@
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"El nombre ya está en uso"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Agregar más"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Agregar programa de eventos"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Agregar programa de tiempo"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Agregar programa de hora"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Borrar programa"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Elegir el tipo de programa"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"¿Quieres borrar la regla \"<xliff:g id="RULE">%1$s</xliff:g>\"?"</string>
@@ -3588,7 +3588,7 @@
     <string name="imei_information_title" msgid="7666097743700170757">"Información de IMEI"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"Información relacionada con IMEI"</string>
     <string name="slot_number" msgid="785422579177068698">"(Ranura <xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
-    <string name="launch_by_default" msgid="6106985160202769725">"Abrir de forma predet."</string>
+    <string name="launch_by_default" msgid="6106985160202769725">"Abrir de forma predeterminada"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Abrir vínculos"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Abrir vínculos admitidos"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Abrir sin preguntar"</string>
@@ -4283,7 +4283,7 @@
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Mostrar información detallada durante el cambio de usuario"</string>
     <string name="allow_background_activity_starts" msgid="6754016668813082728">"Permitir inicio de actividades en segundo plano"</string>
     <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"Permite que se inicien todas las actividades en segundo plano"</string>
-    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Mostrar siempre el cuadro de diálogo de bloqueos"</string>
+    <string name="show_first_crash_dialog" msgid="3682063068903692710">"Mostrar siempre el cuadro de diálogo de fallas"</string>
     <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"Mostrar el cuadro de diálogo cada vez que falle una app"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"Seleccionar app compatible con ANGLE"</string>
     <string name="angle_enabled_app_not_set" msgid="7428910515748621910">"No se estableció ninguna app compatible con ANGLE"</string>
