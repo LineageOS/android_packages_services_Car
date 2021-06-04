@@ -23,23 +23,22 @@ import android.annotation.Nullable;
 import android.annotation.RequiresPermission;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
-import android.car.annotation.RequiredFeature;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.annotation.RequiredFeature;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
 import android.util.Slog;
-import android.view.SurfaceHolder;
 
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.ref.WeakReference;
-import java.util.concurrent.Executor;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * Provides an application interface for interativing with the Extended View System service.
