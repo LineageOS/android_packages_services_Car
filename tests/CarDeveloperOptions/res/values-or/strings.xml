@@ -1688,8 +1688,8 @@
     <string name="legal_information" msgid="2374267257615182139">"ଆଇନ ସୂଚନା"</string>
     <string name="contributors_title" msgid="6800028420806884340">"ଅବଦାନକାରୀ"</string>
     <string name="manual" msgid="5431859421432581357">"ମାନୁଆଲ୍‌"</string>
-    <string name="regulatory_labels" msgid="380968489247381025">"ରେଗୁଲେଟରୀ ଲେବଲ୍ସ"</string>
-    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"ସୁରକ୍ଷା ଓ ନିୟାମକ ପୁସ୍ତିକା"</string>
+    <string name="regulatory_labels" msgid="380968489247381025">"ନିୟାମକ ଲେବଲଗୁଡ଼ିକ"</string>
+    <string name="safety_and_regulatory_info" msgid="7113766428000920132">"ସୁରକ୍ଷା ଓ ନିୟାମକ ମାନୁଆଲ"</string>
     <string name="copyright_title" msgid="3847703367689932190">"ସ୍ୱତ୍ୱାଧିକାର"</string>
     <string name="license_title" msgid="7582145947873528540">"ଲାଇସେନ୍ସ"</string>
     <string name="terms_title" msgid="1804549588198223771">"ନିୟମ ଓ ସର୍ତ୍ତାବଳୀ"</string>
@@ -2212,7 +2212,7 @@
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ସେବା ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ପ୍ରିଣ୍ଟର୍‌ ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
-    <string name="print_searching_for_printers" msgid="6538687129687642542">"ପ୍ରିଣ୍ଟର୍‌ ଖୋଜୁଛି"</string>
+    <string name="print_searching_for_printers" msgid="6538687129687642542">"ପ୍ରିଣ୍ଟରକୁ ସନ୍ଧାନ କରାଯାଉଛି"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ସେବା ବନ୍ଦ ଅଛି"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>
     <string name="print_print_job" msgid="6846889971435170443">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>
@@ -2602,7 +2602,7 @@
     <string name="work_mode_on_summary" msgid="1682781113156323592">"ଆପଣଙ୍କ ସଂସ୍ଥା ଦ୍ୱାରା ପରିଚାଳିତ"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ଆପ୍ସ ଓ ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକ ଅଫ୍ ଅଛି"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"ଅଫିସ୍‌ ପ୍ରୋଫାଇଲ୍‌ ଅପସାରଣ କରନ୍ତୁ"</string>
-    <string name="background_data" msgid="8275750862371471171">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟା"</string>
+    <string name="background_data" msgid="8275750862371471171">"ପୃଷ୍ଠପଟର ଡାଟା"</string>
     <string name="background_data_summary" msgid="799640633948841990">"ଆପସ୍‌ ଯେକୌଣସି ସମୟରେ ଡାଟା ସିଙ୍କ୍, ପ୍ରେରଣ ତଥା ପ୍ରାପ୍ତ କରିପାରିବ"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟା ଅକ୍ଷମ କରିବେ?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟାକୁ ଅକ୍ଷମ କଲେ, ତାହା ବ୍ୟାଟେରୀ ଜୀବନକୁ ବଢ଼ାଇଥାଏ ଏବଂ ଡାଟା ବ୍ୟବହାରକୁ କମାଇଥାଏ। ତଥାପି କିଛି ଆପ୍‌, ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟା ସଂଯୋଗକୁ ବ୍ୟବହାର କରିବେ।"</string>
@@ -2673,7 +2673,7 @@
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ବ୍ୟକ୍ତିଗତ ତଥ୍ୟ ନିଜକୁ ନିଜ ସିଙ୍କ କରେ"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ଆପେ ସିଙ୍କ ହେଉଥିବା କାର୍ଯ୍ୟ ଡାଟା"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"ଡାଟା ବ୍ୟବହାର ଚକ୍ର ପରିବର୍ତ୍ତନ କରନ୍ତୁ…"</string>
-    <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ଡାଟା ବ୍ୟବହାର ଚକ୍ର ରିସେଟ୍‌ କରିବା ପାଇଁ ମାସକୁ ଧାର୍ଯ୍ୟ କରିଥିବା ଦିନ:"</string>
+    <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ଡାଟା ବ୍ୟବହାର ସାଇକେଲ ରିସେଟ୍ କରିବା ପାଇଁ ମାସକୁ ଧାର୍ଯ୍ୟ କରିଥିବା ଦିନ:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"ଏହି ଅବଧିରେ କୌଣସି ଆପ୍‌ ଦ୍ୱାରା ଡାଟା ବ୍ୟବହାର ହୋଇନାହିଁ।"</string>
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"ଫୋର୍‌ଗ୍ରାଉଣ୍ଡ"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ"</string>
@@ -2697,7 +2697,7 @@
     <string name="data_usage_forground_label" msgid="8992577451178005406">"ଫୋର୍‌ଗ୍ରାଉଣ୍ଡ:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"ଆପ୍‌ ସେଟିଙ୍ଗ"</string>
-    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"ବ୍ୟାକଗ୍ରାଉଣ୍ଡ ତଥ୍ୟ"</string>
+    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"ପୃଷ୍ଠପଟର ଡାଟା"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡରେ ମୋବାଇଲ୍‌ ଡାଟାର ବ୍ୟବହାରକୁ ସକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"ଏହି ଆପ୍‌ ପାଇଁ ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟା ରୋକିବାକୁ, ପ୍ରଥମେ ମୋବାଇଲ୍‌ ଡାଟାର ଏକ ସୀମା ସେଟ୍‌ କରନ୍ତୁ।"</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"ବାଧିତ ବ୍ୟାକଗ୍ରାଉଣ୍ଡ ତଥ୍ୟ?"</string>
@@ -2715,7 +2715,7 @@
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"ଡାଟା ବ୍ୟବହାରର ସୀମା ଧାର୍ଯ୍ୟ କରନ୍ତୁ"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"ଡାଟାର ବ୍ୟବହାର ସୀମିତ କରିବା"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"ସେଟ୍‌ କରାଯାଇଥିବା ସୀମାରେ ପହଞ୍ଚିବା ପରେ ଆପଣଙ୍କ ଟାବ୍‌ଲେଟ୍‌, ମୋବାଇଲ୍‌ ଡାଟାକୁ ବନ୍ଦ‌ କରିଦେବ।\n\nଆପଣଙ୍କ ଟାବ୍‌ଲେଟ୍‌ ଓ ମୋବାଇଲ୍‌ ନେଟ୍‍ୱର୍କ ବାହକଙ୍କର ଡାଟା ବ୍ୟବହାର ଗଣନା ଭିନ୍ନ ହୋଇଥିବାରୁ, ଏକ ସଂକୁଚିତ ସୀମା ନିର୍ଦ୍ଧାରଣ କରନ୍ତୁ।"</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"ଡାଟାର ବ୍ୟବହାର ଆପଣ ସେଟ୍‌ କରିଥିବା ସୀମାରେ ପହଞ୍ଚିଗଲେ, ଆପଣଙ୍କ ଫୋନ୍‌ ମୋବାଇଲ୍‌ ଡାଟାକୁ ବନ୍ଦ କରିଦେବ।\n\nଯେହେତୁ ଆପଣଙ୍କ ଫୋନ୍‌ ଡାଟା ବ୍ୟବହାରର ହିସାବ ରଖିଥାଏ ଏବଂ ଆପଣଙ୍କ ମୋବାଇଲ୍‌ ସେବା ପ୍ରଦାତାଙ୍କ ହିସାବ ଭିନ୍ନ ହୋଇପାରେ, ତେଣୁ ମୋବାଇଲ୍‌ ଡାଟା ଯେମିତି ନିୟନ୍ତ୍ରିତ ଭାବେ ବ୍ୟବହାର କରିବେ, ସେମିତି ଏକ ସୀମା ସେଟ୍‌ କରନ୍ତୁ।"</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"ଡାଟାର ବ୍ୟବହାର ଆପଣ ସେଟ୍‌ କରିଥିବା ସୀମାରେ ପହଞ୍ଚିଗଲେ, ଆପଣଙ୍କ ଫୋନ୍‌ ମୋବାଇଲ୍‌ ଡାଟାକୁ ବନ୍ଦ କରିଦେବ।\n\nଯେହେତୁ ଡାଟା ବ୍ୟବହାରର ହିସାବ ଆପଣଙ୍କ ଫୋନ୍‌ ରଖିଥାଏ ଏବଂ ଆପଣଙ୍କ କ୍ୟାରିଅର୍ ଭିନ୍ନ ଭାବେ ଡାଟାର ବ୍ୟବହାରକୁ ଗଣନା କରିପାରେ, ତେଣୁ ଏକ କନଜାର୍ଭେଟିଭ୍ ସୀମା ସେଟ୍ କରିବା ବିଷୟରେ ବିଚାର କରନ୍ତୁ।"</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ଡାଟାକୁ ସୀମିତ କରିବେ?"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"ଯଦି ଆପଣ ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ମୋବାଇଲ୍‌ ଡାଟାକୁ ରୋକନ୍ତି, ତେବେ ୱାଇ-ଫାଇ ସହିତ ସଂଯୁକ୍ତ ନହେବା ପର୍ଯ୍ୟନ୍ତ କେତେକ ଆପ୍‍ ଓ ସେବା କାମ କରିବ ନାହିଁ।"</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"ଯଦି ଆପଣ ବ୍ୟାକ୍‌ଗ୍ରାଉଣ୍ଡ ମୋବାଇଲ୍‌ ଡାଟାକୁ ରୋକନ୍ତି, ତେବେ ୱାଇ-ଫାଇ ସହିତ ସଂଯୁକ୍ତ ନହେବା ପର୍ଯ୍ୟନ୍ତ କେତେକ ଆପ୍‍ ଓ ସେବା କାମ କରିବ ନାହିଁ।\n\nଏହି ସେଟିଙ୍ଗ, ଟାବଲେଟ୍‌ରେ ଥିବା ସମସ୍ତ ଉପଯୋଗକର୍ତ୍ତାଙ୍କୁ ପ୍ରଭାବିତ କରିବ।"</string>
@@ -2757,7 +2757,7 @@
     <string name="vpn_password" msgid="5325943601523662246">"ପାସ୍‌ୱର୍ଡ"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"ଆକାଉଣ୍ଟ ସୂଚନାକୁ ସେଭ୍‌ କରନ୍ତୁ"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(ବ୍ୟବହାର କରାଯାଇ ନାହିଁ)"</string>
-    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ସର୍ଭର୍‌କୁ ଯାଞ୍ଚ କରାନଯାଉ)"</string>
+    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ସର୍ଭର୍‌କୁ ଯାଞ୍ଚ କରନ୍ତୁନାହିଁ)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(ସର୍ଭରରୁ ଗ୍ରହଣ କରାଯାଇଛି)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"ଏହି VPN ପ୍ରକାର ସବୁବେଳେ ସଂଯୋଗ ରହିପାରିବ ନାହିଁ"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"ସର୍ବଦା-ଅନ୍‌ VPN କେବଳ ସଂଖ୍ୟା ବିଶିଷ୍ଟ ସର୍ଭର୍ ଠିକଣାକୁ ସପୋର୍ଟ କରେ"</string>
@@ -3217,7 +3217,7 @@
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"ସ୍କ୍ରିନ୍ ଉପରେ ବିଜ୍ଞପ୍ତି ଦେଖାନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"ସ୍କ୍ରିନ୍‌ର ଉପର ପାର୍ଶ୍ୱରେ ଦିଆଯାଇଥିବା ଷ୍ଟାଟସ୍‌ ବାର୍‌ ଆଇକନ୍‌ଗୁଡ଼ିକୁ ଲୁଚାନ୍ତୁ"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ଆପ୍‌ ଆଇକନ୍‌ଗୁଡ଼ିକରେ ବିଜ୍ଞପ୍ତି ବିନ୍ଦୁଗୁଡ଼ିକୁ ଲୁଚାନ୍ତୁ"</string>
-    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"ବିଜ୍ଞପ୍ତି ପାଇଁ ଜଗାନ୍ତୁ ନାହିଁ"</string>
+    <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"ବିଜ୍ଞପ୍ତିଗୁଡ଼ିକୁ ଚାଲୁ କରନ୍ତୁ ନାହିଁ"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"ବିଜ୍ଞପ୍ତି ତାଲିକାଠାରୁ ଲୁଚାନ୍ତୁ"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ଆଦୌ ନୁହେଁ"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"ଯେତେବେଳେ ସ୍କ୍ରୀନ୍‌ ବନ୍ଦ ଥାଏ"</string>
@@ -3280,7 +3280,7 @@
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"ଆପଣ ବିଜ୍ଞପ୍ତିକୁ ଦେଖି କିମ୍ବା ଶୁଣିପାରିବେ ନାହିଁ। ତାରାଙ୍କିତ ଯୋଗାଯୋଗରୁ ଆସିଥିବା କଲ୍ ଏବଂ ପୁଣି କଲ୍ କରୁଥିବା କଲର୍‍ଙ୍କୁ ଅନୁମତି ଦିଆଯାଇଛି।"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ସାମ୍ପ୍ରତିକ ସେଟିଙ୍ଗ)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"’ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ’ ବିଜ୍ଞପ୍ତି ସେଟିଙ୍ଗ ବଦଳାଇବେ?"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"କାର୍ଯ୍ୟ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"ୱାର୍କ୍ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ସାଉଣ୍ଡ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"କାର୍ଯ୍ୟ ଓ ବ୍ୟକ୍ତିଗତ ପ୍ରୋଫାଇଲ୍‌ ପାଇଁ ସାଉଣ୍ଡଗୁଡ଼ିକ ସମାନ ଅଟେ"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"ଅଫିସ୍‌ ଫୋନ୍‌ର ରିଙ୍ଗଟୋନ୍‌"</string>
@@ -3439,7 +3439,7 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"ସୂଚୀ ନାମ ଲେଖନ୍ତୁ"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"ସୂଚୀ ନାମ ପୂର୍ବରୁ ବ୍ୟବହାର କରାଯାଉଛି"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"ଅଧିକ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"ଇଭେଣ୍ଟ ସୂଚୀ ଯୋଗ କରନ୍ତୁ"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"ଇଭେଣ୍ଟର ସିଡୁଲ୍ ଯୋଗ କରନ୍ତୁ"</string>
     <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"ସମୟ ସୂଚୀ ଯୋଗ କରନ୍ତୁ"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"ସୂଚୀ ଡିଲିଟ୍‌ କରନ୍ତୁ"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"ସୂଚୀ ପ୍ରକାର ବାଛନ୍ତୁ"</string>

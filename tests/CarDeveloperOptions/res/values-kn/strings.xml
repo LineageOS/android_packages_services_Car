@@ -1860,7 +1860,7 @@
     <string name="no_applications" msgid="6811396016303576024">"ಯಾವುದೇ ಆ್ಯಪ್‍‍ಗಳಿಲ್ಲ."</string>
     <string name="internal_storage" msgid="7392373600013294853">"ಆಂತರಿಕ ಸಂಗ್ರಹಣೆ"</string>
     <string name="recompute_size" msgid="4290692197892743928">"ಗಾತ್ರವನ್ನು ಮರುಗಣನೆ ಮಾಡಲಾಗುತ್ತಿದೆ…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ಅಪ್ಲಿಕೇಶನ್ ಡೇಟಾ ಅಳಿಸುವುದೇ?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ಆ್ಯಪ್ ಡೇಟಾ ಅಳಿಸಬೇಕೇ?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"ಈ ಆ್ಯಪ್‍‍ನ ಎಲ್ಲಾ ಡೇಟಾವನ್ನು ಶಾಶ್ವತವಾಗಿ ಅಳಿಸಲಾಗುತ್ತದೆ. ಇದರಲ್ಲಿ ಎಲ್ಲಾ ಫೈಲ್‌ಗಳು, ಸೆಟ್ಟಿಂಗ್‌ಗಳು, ಖಾತೆಗಳು, ಡೇಟಾಬೇಸ್‌ಗಳು, ಇತ್ಯಾದಿಗಳು ಸೇರಿರುತ್ತವೆ."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ಸರಿ"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"ರದ್ದುಮಾಡಿ"</string>
@@ -2046,7 +2046,7 @@
     <string name="interaction_control_category_title" msgid="8775039211811947683">"ಸಂವಹನ ನಿಯಂತ್ರಣಗಳು"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"ಡೌನ್‌ಲೋಡ್ ಮಾಡಿದ ಸೇವೆಗಳು"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"ಪ್ರಾಯೋಗಿಕ"</string>
-    <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"ವೈಶಿಷ್ಟ್ಯ ಫ್ಲ್ಯಾಗ್‌ಗಳು"</string>
+    <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"ಫೀಚರ್ ಫ್ಲ್ಯಾಗ್‌ಗಳು"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"ಸ್ಕ್ರೀನ್‌ರೀಡರ್ ಮುಖ್ಯವಾಗಿ ದೃಷ್ಟಿಹೀನತೆ ಮತ್ತು ಕಡಿಮೆ ದೃಷ್ಟಿ ಹೊಂದಿರುವವರಿಗೆ ಸಹಾಯ ಮಾಡುತ್ತದೆ"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"ದೊಡ್ಡದಾಗಿ ಓದಲು ನಿಮ್ಮ ಸ್ಕ್ರೀನ್‌ ಮೇಲಿನ ಐಟಂಗಳನ್ನು ಟ್ಯಾಪ್ ಮಾಡಿ"</string>
@@ -2202,7 +2202,7 @@
       <item quantity="one"><xliff:g id="COUNT">%1$d</xliff:g> ಮುದ್ರಣ ಕಾರ್ಯಗಳು</item>
       <item quantity="other"><xliff:g id="COUNT">%1$d</xliff:g> ಮುದ್ರಣ ಕಾರ್ಯಗಳು</item>
     </plurals>
-    <string name="print_settings_title" msgid="2886445296786932763">"ಮುದ್ರಣ ಸೇವೆಗಳು"</string>
+    <string name="print_settings_title" msgid="2886445296786932763">"ಪ್ರಿಂಟ್ ಸೇವೆಗಳು"</string>
     <string name="print_no_services_installed" msgid="3387777739528003794">"ಯಾವುದೇ ಸೇವೆಗಳನ್ನು ಸ್ಥಾಪಿಸಿಲ್ಲ"</string>
     <string name="print_no_printers_found" msgid="5090925427392294881">"ಯಾವುದೇ ಮುದ್ರಕಗಳು ಕಂಡುಬಂದಿಲ್ಲ"</string>
     <string name="print_menu_item_settings" msgid="2654804159012579508">"ಸೆಟ್ಟಿಂಗ್‌ಗಳು"</string>
@@ -2326,7 +2326,7 @@
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"ಯಾವಾಗ ಬ್ಯಾಟರಿ ಮ್ಯಾನೇಜರ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಬ್ಯಾಟರಿಯನ್ನು ಬರಿದಾಗಿಸುತ್ತಿದೆ ಎಂದು ಪತ್ತೆ ಹಚ್ಚುತ್ತದೆಯೊ, ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವ ಆಯ್ಕೆಯನ್ನು ನೀವು ಹೊಂದಿರುತ್ತೀರಿ. ನಿರ್ಬಂಧಿತ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಸರಿಯಾಗಿ ಕೆಲಸ ಮಾಡದಿರಬಹುದು ಮತ್ತು ಅಧಿಸೂಚನೆಗಳು ವಿಳಂಬವಾಗಬಹುದು."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"ಯಾವಾಗ ಬ್ಯಾಟರಿ ಮ್ಯಾನೇಜರ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಬ್ಯಾಟರಿಯನ್ನು ಬರಿದಾಗಿಸುತ್ತಿದೆ ಎಂದು ಪತ್ತೆ ಹಚ್ಚುತ್ತದೆಯೊ, ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವ ಆಯ್ಕೆಯನ್ನು ನೀವು ಹೊಂದಿರುತ್ತೀರಿ. ನಿರ್ಬಂಧಿತ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಸರಿಯಾಗಿ ಕೆಲಸ ಮಾಡದಿರಬಹುದು ಮತ್ತು ಅಧಿಸೂಚನೆಗಳು ವಿಳಂಬವಾಗಬಹುದು."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"ಯಾವಾಗ ಬ್ಯಾಟರಿ ಮ್ಯಾನೇಜರ್ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಬ್ಯಾಟರಿಯನ್ನು ಬರಿದಾಗಿಸುತ್ತಿದೆ ಎಂದು ಪತ್ತೆ ಹಚ್ಚುತ್ತದೆಯೊ, ಈ ಅಪ್ಲಿಕೇಶನ್‌ಗಳನ್ನು ನಿರ್ಬಂಧಿಸುವ ಆಯ್ಕೆಯನ್ನು ನೀವು ಹೊಂದಿರುತ್ತೀರಿ. ನಿರ್ಬಂಧಿತ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು ಸರಿಯಾಗಿ ಕೆಲಸ ಮಾಡದಿರಬಹುದು ಮತ್ತು ಅಧಿಸೂಚನೆಗಳು ವಿಳಂಬವಾಗಬಹುದು."</string>
-    <string name="restricted_app_title" msgid="4957644700640127606">"ನಿರ್ಬಂಧಿತ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
+    <string name="restricted_app_title" msgid="4957644700640127606">"ನಿರ್ಬಂಧಿತ ಆ್ಯಪ್‍ಗಳು"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="one">%1$d ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಬ್ಯಾಟರಿ ಬಳಕೆಯನ್ನು ಸೀಮಿತಗೊಳಿಸಲಾಗಿದೆ</item>
       <item quantity="other">%1$d ಅಪ್ಲಿಕೇಶನ್‌ಗೆ ಬ್ಯಾಟರಿ ಬಳಕೆಯನ್ನು ಸೀಮಿತಗೊಳಿಸಲಾಗಿದೆ</item>
@@ -2711,7 +2711,7 @@
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"ಬಳಕೆಯ ಆವರ್ತನೆ ಮರುಹೊಂದಿಕೆ ಡೇಟಾ"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"ಪ್ರತಿ ತಿಂಗಳ ದಿನಾಂಕ:"</string>
     <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"ಹೊಂದಿಸಿ"</string>
-    <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"ಡೇಟಾ ಬಳಕೆ ಎಚ್ಚರಿಕೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
+    <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"ಡೇಟಾ ಬಳಕೆ ಎಚ್ಚರಿಕೆಯನ್ನು ಸೆಟ್ ಮಾಡಿ"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"ಡೇಟಾ ಬಳಕೆ ಮಿತಿಯನ್ನು ಹೊಂದಿಸಿ"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"ಡೇಟಾ ಬಳಕೆಯನ್ನು ಮಿತಿಗೊಳಿಸುವಿಕೆ"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"ನೀವು ಹೊಂದಿಸಿರುವ ಮಿತಿಯನ್ನು ತಲುಪಿದಾಗ, ಮೊಬೈಲ್ ಡೇಟಾವನ್ನು ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್ ಆಫ್ ಮಾಡುತ್ತದೆ.\n\nಡೇಟಾ ಬಳಕೆಯನ್ನು ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್ ಮೂಲಕ ಅಳೆಯಲಾಗುವ ಕಾರಣ ಮತ್ತು ನಿಮ್ಮ ವಾಹಕವು ಬಳಕೆಯನ್ನು ಬೇರೆ ರೀತಿಯಲ್ಲಿ ಪರಿಗಣಿಸಬಹುದಾದ ಕಾರಣ, ಸುರಕ್ಷಿತ ಮಿತಿಯನ್ನು ಹೊಂದಿಸುವುದು ಸೂಕ್ತ."</string>
@@ -2789,7 +2789,7 @@
     <string name="vpn_create" msgid="2477570636472897359">"VPN ಪ್ರೊಫೈಲ್ ಸೇರಿಸಿ"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"ಪ್ರೊಫೈಲ್ ಎಡಿಟ್ ಮಾಡಿ"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"ಪ್ರೊಫೈಲ್ ಅಳಿಸಿ"</string>
-    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"VPN ನಲ್ಲಿ ಆನ್‌ ಆಗಿರಿಸಿ"</string>
+    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"VPN ಆನ್‌ ಆಗಿರಿಸಿ"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"ಯಾವುದೇ VPN ಗಳನ್ನು ಸೇರಿಸಿಲ್ಲ"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"ಎಲ್ಲ ಸಮಯಗಳಲ್ಲೂ VPN ಜೊತೆ ಸಂಪರ್ಕದಲ್ಲಿರಿ"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"ಈ ಅಪ್ಲಿಕೇಶನ್‌ ಬೆಂಬಲಿಸುವುದಿಲ್ಲ"</string>
@@ -3458,7 +3458,7 @@
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"ಯಾವುದೇ ಕ್ಯಾಲೆಂಡರ್"</string>
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"ಪ್ರತ್ಯುತ್ತರ <xliff:g id="REPLY">%1$s</xliff:g> ಆಗಿದ್ದಲ್ಲಿ"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"ಯಾವುದೇ ಕ್ಯಾಲೆಂಡರ್"</string>
-    <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"ಪ್ರತ್ಯುತ್ತರ ಹೀಗಿದ್ದರೆ"</string>
+    <string name="zen_mode_event_rule_reply" msgid="9100941281268256319">"ಪ್ರತ್ಯುತ್ತರ ಈ ಕೆಳಗಿನಂತೆ ಇದ್ದರೆ"</string>
     <string name="zen_mode_event_rule_reply_any_except_no" msgid="3344044163641764449">"ಹೌದು, ಇರಬಹುದು, ಅಥವಾ ಪ್ರತ್ಯುತ್ತರಿಸಿಲ್ಲ"</string>
     <string name="zen_mode_event_rule_reply_yes_or_maybe" msgid="5042234361937256329">"ಹೌದು ಅಥವಾ ಇರಬಹುದು"</string>
     <string name="zen_mode_event_rule_reply_yes" msgid="7039756546321205552">"ಹೌದು"</string>
@@ -3470,7 +3470,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"ಪ್ರತಿ ದಿನ"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"ಅಲಾರಮ್ ಅಂತಿಮ ಸಮಯವನ್ನು ಅತಿಕ್ರಮಿಸಬಹುದು"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"ಅಲಾರಾಂ ರಿಂಗ್ ಆದಾಗ ವೇಳಾಪಟ್ಟಿಯು ಆಫ್ ಆಗುತ್ತದೆ"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"ಅಡಚಣೆ ಮಾಡಬೇಡಿ ವರ್ತನೆ"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"ಅಡಚಣೆ ಮಾಡಬೇಡಿ ಕುರಿತ ವರ್ತನೆ"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ಡೀಫಾಲ್ಟ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ಬಳಸಿ"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"ಈ ವೇಳಾಪಟ್ಟಿಗಾಗಿ ಕಸ್ಟಮ್ ಸೆಟ್ಟಿಂಗ್‌ಗಳನ್ನು ರಚಿಸಿ"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ ಗಾಗಿ"</string>
@@ -3955,7 +3955,7 @@
     </plurals>
     <string name="operator_warning" msgid="4676042739221117031">"ವಾಹಕ ಡೇಟಾ ಲೆಕ್ಕಾಚಾರವು ಸಾಧನ ಲೆಕ್ಕಾಚಾರಕ್ಕಿಂತ ಭಿನ್ನವಾಗಿರಬಹುದು"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> ಬಳಸಲಾಗಿದೆ"</string>
-    <string name="set_data_warning" msgid="8115980184415563941">"ಡೇಟಾ ಎಚ್ಚರಿಕೆಯನ್ನು ಹೊಂದಿಸಿ"</string>
+    <string name="set_data_warning" msgid="8115980184415563941">"ಡೇಟಾ ಎಚ್ಚರಿಕೆಯನ್ನು ಸೆಟ್ ಮಾಡಿ"</string>
     <string name="data_warning" msgid="2699207195535036240">"ಡೇಟಾ ಎಚ್ಚರಿಕೆ"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"ಡೇಟಾ ಎಚ್ಚರಿಕೆ ಮತ್ತು ಡೇಟಾ ಮಿತಿಯನ್ನು ನಿಮ್ಮ ಸಾಧನದಿಂದ ಅಳೆಯಲಾಗುತ್ತದೆ. ಇದು ವಾಹಕ ಡೇಟಾದಿಂದ ಭಿನ್ನವಾಗಿರಬಹುದು."</string>
     <string name="set_data_limit" msgid="5043770023229990674">"ಡೇಟಾ ಮಿತಿ ಹೊಂದಿಸಿ"</string>
@@ -4443,7 +4443,7 @@
     <string name="roaming_check_price_warning" msgid="5883499714594419439">"ಬೆಲೆ ನಿಗದಿಗಾಗಿ ನಿಮ್ಮ ನೆಟ್‌ವರ್ಕ್ ಪೂರೈಕೆದಾರರೊಂದಿಗೆ ಪರಿಶೀಲಿಸಿ."</string>
     <string name="mobile_data_usage_title" msgid="2376358672434990037">"ಆ್ಯಪ್ ಡೇಟಾ ಬಳಕೆ"</string>
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"ಅಮಾನ್ಯ ನೆಟ್‌ವರ್ಕ್‌ ಮೋಡ್‌ <xliff:g id="NETWORKMODEID">%1$d</xliff:g>. ನಿರ್ಲಕ್ಷಿಸಿ."</string>
-    <string name="mobile_network_apn_title" msgid="5628635067747404382">"ಪ್ರವೇಶಿಸುವಿಕೆ ಕೇಂದ್ರದ ಹೆಸರುಗಳು"</string>
+    <string name="mobile_network_apn_title" msgid="5628635067747404382">"ಆ್ಯಕ್ಸೆಸ್ ಪಾಯಿಂಟ್ ಹೆಸರುಗಳು"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"<xliff:g id="CARRIER">%1$s</xliff:g> ಗೆ ಸಂಪರ್ಕಿಸಿದಾಗ ಲಭ್ಯವಿರುವುದಿಲ್ಲ"</string>
     <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"ವೈದ್ಯಕೀಯ ಮಾಹಿತಿ, ತುರ್ತು ಸಂಪರ್ಕಗಳು"</string>
     <string name="see_more" msgid="7463940160389802632">"ಇನ್ನಷ್ಟು ನೋಡಿ"</string>
@@ -4468,7 +4468,7 @@
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"ಏರ್‌ಪ್ಲೇನ್ ಮೋಡ್‌ನಲ್ಲಿರುವಾಗ ಲಭ್ಯವಿರುವುದಿಲ್ಲ"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"ಡೆಸ್ಕ್‌ಟಾಪ್ ಮೋಡ್ ಅನ್ನು ಒತ್ತಾಯ ಮಾಡಿ"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"ಸೆಕೆಂಡರಿ ಡಿಸ್‌ಪ್ಲೇಗಳಲ್ಲಿ ಪ್ರಾಯೋಗಿಕ ಡೆಸ್ಕ್‌ಟಾಪ್ ಮೋಡ್ ಅನ್ನು ಒತ್ತಾಯ ಮಾಡಿ"</string>
-    <string name="hwui_force_dark_title" msgid="3744825212652331461">"ಫೋರ್ಸ್-ಡಾರ್ಕ್ ವೈಶಿಷ್ಟ್ಯ ಬಲಗೊಳಿಸಲು ಸೆಟ್ಟಿಂಗ್ ಅತಿಕ್ರಮಿಸಿ"</string>
+    <string name="hwui_force_dark_title" msgid="3744825212652331461">"ಫೋರ್ಸ್-ಡಾರ್ಕ್ ಅನ್ನು ಓವರ್‌ರೈಡ್ ಮಾಡಿ"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"ಫೋರ್ಸ್-ಡಾರ್ಕ್ ವೈಶಿಷ್ಟ್ಯವು ಆನ್ ಆಗಿರುವಂತೆ ಒತ್ತಾಯಿಸುತ್ತದೆ"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"ಗೌಪ್ಯತೆ"</string>
     <string name="privacy_dashboard_summary" msgid="7916431309860824945">"ಅನುಮತಿಗಳು, ಖಾತೆ ಚಟುವಟಿಕೆ, ವೈಯಕ್ತಿಕ ಡೇಟಾ"</string>

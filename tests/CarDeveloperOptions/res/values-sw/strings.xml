@@ -1216,8 +1216,8 @@
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Hamna"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Iwake wakati maalum"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Iwake usiku kucha"</string>
-    <string name="night_display_start_time_title" msgid="1069255169673371077">"Kuwaka"</string>
-    <string name="night_display_end_time_title" msgid="2760793157124245911">"Kuzima"</string>
+    <string name="night_display_start_time_title" msgid="1069255169673371077">"Kuanza"</string>
+    <string name="night_display_end_time_title" msgid="2760793157124245911">"Kuisha"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Hali"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"Ukolezaji"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"Imezimwa. <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -2331,7 +2331,7 @@
       <item quantity="other">Inadhibiti matumizi ya betri kwa programu %1$d</item>
       <item quantity="one">Inadhibiti matumizi ya betri kwa programu %1$d</item>
     </plurals>
-    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Muda wa kudhibitiwa <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Imedhibitiwa <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Programu hizi zimekuwa zikitumia chaji chinichini. Huenda programu ulizozuia zisifanye kazi vizuri na huenda arifa zikachelewa."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Tumia Kidhibiti cha Betri"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Tambua wakati programu zinatumia chaji sana"</string>
@@ -2573,8 +2573,8 @@
     <string name="no_device_admins" msgid="4129231900385977460">"Hakuna programu za msimamizi wa kifaa zinazopatikana"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Binafsi"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Kazini"</string>
-    <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Zuia ufikiaji wa rekodi ya nambari za simu na SMS"</string>
-    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Programu chaguomsingi za simu na za kutuma ujumbe ndizo tu zina ruhusa za kufikia SMS na rekodi ya nambari za simu"</string>
+    <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Zuia ufikiaji wa kumbukumbu za simu na SMS"</string>
+    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Programu chaguomsingi za simu na za kutuma ujumbe ndizo tu zina ruhusa za kufikia SMS na kumbukumbu za simu"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Hakuna madalali wa kuaminiwa wanaopatikana"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Ungependa kuanza kutumia programu ya msimamizi wa kifaa?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Anza kutumia programu ya msimamizi wa kifaa"</string>
@@ -3934,7 +3934,7 @@
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Weka masasisho kifaa kitakapozimwa na kuwashwa"</string>
     <string name="usage" msgid="9172908720164431622">"Matumizi"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Matumizi ya data ya mtandao wa simu"</string>
-    <string name="app_cellular_data_usage" msgid="8499761516172121957">"Matumizi ya data ya programu"</string>
+    <string name="app_cellular_data_usage" msgid="8499761516172121957">"Programu zinavyotumia data"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Matumizi ya data ya Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Matumizi ya data ya ethaneti"</string>
     <string name="wifi" msgid="1586738489862966138">"Wi-Fi"</string>
@@ -4442,7 +4442,7 @@
     <string name="register_automatically" msgid="1858081641661493109">"Usajili wa kiotomatiki…"</string>
     <string name="roaming_alert_title" msgid="1849237823113454475">"Data itumike kwenye mitandao ya ng\'ambo?"</string>
     <string name="roaming_check_price_warning" msgid="5883499714594419439">"Wasiliana na mtoa huduma za mtandao kwa maelezo kuhusu bei."</string>
-    <string name="mobile_data_usage_title" msgid="2376358672434990037">"Matumizi ya data ya programu"</string>
+    <string name="mobile_data_usage_title" msgid="2376358672434990037">"Programu zinavyotumia data"</string>
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"Hali ya Mtandao Isiyo sahihi <xliff:g id="NETWORKMODEID">%1$d</xliff:g>. Puuza"</string>
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"Majina ya Milango ya Mtandao"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Haipatikani inapounganishwa kwenye <xliff:g id="CARRIER">%1$s</xliff:g>"</string>

@@ -2314,7 +2314,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"বেটাৰিৰ চ্চাৰ্জ বচাবলৈ এই এপসমূহক নেপথ্য়ত বেটাৰি ব্য়ৱহাৰ কৰাৰপৰা বিৰত ৰাখক। সীমিত কৰা এপসমূহে ভালকৈ কাম নকৰিব পাৰে আৰু জাননীসমূহ পলমকৈ আহিব পাৰে।\n\nএপসমূহ:\n<xliff:g id="APP_LIST">%1$s</xliff:g>।"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"সীমিত কৰক"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"প্ৰতিবন্ধ আঁতৰাবনে?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"এই এপে নেপথ্য়ত বেটাৰি ব্যৱহাৰ কৰিব পাৰে। আপোনাৰ বেটাৰি অপেক্ষা কৰাতকৈ সোনকালে শেষ হ\'ব পাৰে।"</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"এই এপে নেপথ্য়ত বেটাৰী ব্যৱহাৰ কৰিব পাৰে। আপোনাৰ বেটাৰীৰ চাৰ্জ আশা কৰাতকৈ আগতেই শেষ হ\'ব পাৰে।"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"আঁতৰাওক"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"বাতিল কৰক"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"আপোনাৰ এপসমূহে বৰ্তমান সাধাৰণ পৰিমাণৰ বেটাৰি ব্যৱহাৰ কৰি আছে। যদিহে এপসমূহে অত্যধিক বেটাৰি ব্যৱহাৰ কৰে, তেন্তে আপোনাৰ ফ\'নটোৱে আপুনি ল\'ব পৰা কাৰ্যপন্থাৰ বিষয়ে আপোনাক পৰামৰ্শ দিব।\n\nবেটাৰি কমি গ\'লে আপুনি সদায় বেটাৰি সঞ্চয়কাৰী অন কৰিব পাৰে।"</string>
@@ -2434,7 +2434,7 @@
     <string name="battery_detail_background" msgid="7938146832943604280">"নেপথ্যত থাকোঁতে"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"বেটাৰিৰ ব্যৱহাৰ"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"সম্পূৰ্ণ চ্চাৰ্জ হোৱাৰ পিছত"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"বেটাৰি ব্যৱহাৰ পৰিচালনা কৰক"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"বেটাৰীৰ ব্যৱহাৰ পৰিচালনা কৰক"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"আপোনাৰ ডিভাইচৰ ব্যৱহাৰৰ ভিত্তিত বাকী থকা বেটাৰিৰ পৰিমাণ নিৰ্ণয় হয়"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"বাকী থকা মোটামুটি সময়"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"সম্পূৰ্ণৰূপে চ্চাৰ্জ নোহোৱা পৰ্যন্ত"</string>
@@ -2461,11 +2461,11 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"অন কৰক"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"বেটাৰি সঞ্চয়কাৰী ব্যৱহাৰ কৰক"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"বেটাৰী সঞ্চয়কাৰী ব্যৱহাৰ কৰক"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"স্বয়ংক্ৰিয়ভাবে অন কৰক"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"কেতিয়াও নকৰিব"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> বেটাৰি"</string>
-    <string name="battery_percentage" msgid="7782252476471033843">"বেটাৰিত থকা চ্চাৰ্জৰ শতাংশ"</string>
+    <string name="battery_percentage" msgid="7782252476471033843">"বেটাৰীত থকা চাৰ্জৰ শতাংশ"</string>
     <string name="battery_percentage_description" msgid="9219875229166700610">"স্থিতি বাৰত বেটাৰিৰ অনুপাত দেখুৱাওক"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"প্ৰক্ৰিয়া-বিষয়ক পৰিসংখ্যা"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"চলি থকা প্ৰক্ৰিয়াসমূহৰ বিষয়ে কাৰিকৰী পৰিসংখ্যা"</string>
@@ -2789,7 +2789,7 @@
     <string name="vpn_create" msgid="2477570636472897359">"ভিপিএন প্ৰ\'ফাইল যোগ কৰক"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"প্ৰ\'ফাইল সম্পাদনা কৰক"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"প্ৰ\'ফাইল মচক"</string>
-    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"যিকোনো সময়ত অন থকা ভিপিএন"</string>
+    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"সদায় অন থকা ভিপিএন"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"কোনো ভিপিএন যোগ কৰা হোৱা নাই"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"সকলো সময়তে VPNৰ সৈতে সংযুক্ত হৈ থাকক"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"এই এপটোৰ দ্বাৰা সমৰ্থিত নহয়"</string>
@@ -3813,7 +3813,7 @@
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"অনুমতি দিয়া হ’ল"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"অনুমতি দিয়া হোৱা নাই"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"অজ্ঞাত উৎসৰ পৰা লাভ কৰা এপ্ ইনষ্টল কৰক"</string>
-    <string name="write_settings" msgid="9009040811145552108">"ছিষ্টেমৰ ছেটিংসমূহ সংশোধন কৰক"</string>
+    <string name="write_settings" msgid="9009040811145552108">"ছিষ্টেমৰ ছেটিং সংশোধন কৰক"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"সলনি কৰা হোৱা ছিষ্টেম ছেটিংসমূহ লিখক"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g>ৰ ভিতৰত <xliff:g id="COUNT_0">%1$d</xliff:g>ক ছিষ্টেম ছেটিংসমূহ সংশোধন কৰিবলৈ অনুমতি দিয়া হৈছে"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"বিত্তীয় এপৰ দ্বাৰা এছএমএছ এক্সেছ"</string>
@@ -3956,7 +3956,7 @@
     <string name="operator_warning" msgid="4676042739221117031">"বাহকৰ ডেটা গণনা কাৰ্য ডিভাইচৰ গণনাতকৈ পৃথক হ’ব পাৰে"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> খৰচ কৰা হৈছে"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"ডেটা ব্যৱহাৰৰ সকীয়নি ছেট কৰক"</string>
-    <string name="data_warning" msgid="2699207195535036240">"ডেটা সকিয়নী"</string>
+    <string name="data_warning" msgid="2699207195535036240">"ডেটাৰ ব্য়ৱহাৰৰ সকীয়নি"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"আপোনাৰ ডিভাইচে ডেটাৰ ব্য়ৱহাৰ সম্পৰ্কীয় সকীয়নি আৰু ডেটাৰ সীমা ছেট কৰে। এইটো বাহকৰ ডেটাতকৈ বেলেগ হ\'ব পাৰে।"</string>
     <string name="set_data_limit" msgid="5043770023229990674">"ডেটা ব্যৱহাৰৰ সীমা ছেট কৰক"</string>
     <string name="data_limit" msgid="5793521160051596228">"ডেটাৰ সীমা"</string>

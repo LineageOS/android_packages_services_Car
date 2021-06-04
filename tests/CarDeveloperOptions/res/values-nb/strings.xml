@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Ikke juster etter omgivelsene"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Økt batteribruk"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Optimaliser lysstyrken etter omgivelsene. Når denne funksjonen er på, kan du fremdeles justere lysstyrken midlertidig."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Lysstyrken på skjermen justeres automatisk etter omgivelser og aktiviteter. Du kan flytte glidebryteren manuelt for få tilpasset lysstyrke til å registrere preferansene dine."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Lysstyrken på skjermen justeres automatisk etter omgivelser og aktiviteter. Du kan flytte glidebryteren manuelt for lære tilpasset lysstyrke om preferansene dine."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Vis hvitbalanse"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Skjermbevisst"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"På / skjermen slås ikke av hvis du ser på den"</string>
@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Innstillinger for fysisk tastatur"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Trykk mellomromstasten to ganger for å skrive punktum"</string>
     <string name="show_password" msgid="620964020348073739">"Vis passord"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Vis tegnene mens du skriver"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Vis tegnene et øyeblikk mens du skriver"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Denne stavekontrollen kan være i stand til å samle all tekst du skriver, herunder personlige opplysninger som passord og kredittkortnumre. Den kommer fra appen <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Vil du bruke denne stavekontrollen?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Innstillinger"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Språk"</string>

@@ -819,8 +819,8 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mbit/s"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> fordert die Berechtigung, das WLAN für dieses Gerät zu aktivieren"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> fordert die Berechtigung, das WLAN für dieses Gerät zu deaktivieren"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Bytecode von Debug-fähigen Apps prüfen"</string>
-    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ART die Überprüfung des Bytecodes für Debug-fähige Apps gestatten"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Bytecode von debug-fähigen Apps prüfen"</string>
+    <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"ART die Überprüfung des Bytecodes für debug-fähige Apps gestatten"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Datenaustausch bei Kontakt mit anderen Geräten zulassen"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Datenaustausch zulassen, wenn das Smartphone ein anderes Gerät berührt"</string>
@@ -3678,7 +3678,7 @@
     <string name="default_app" msgid="8861276008866619872">"(Standard)"</string>
     <string name="system_app" msgid="4111402206594443265">"(System)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(Systemstandardeinstellung)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"Apps-Speicher"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"Speicher für Apps"</string>
     <string name="usage_access" msgid="2023443456361489516">"Zugriff auf Nutzungsdaten"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Zugriff auf Nutzungsdaten gewähren"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"App-Nutzungseinstellungen"</string>
@@ -4121,9 +4121,9 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Wenn du auf der Startbildschirmtaste nach oben wischst, kannst du zwischen Apps wechseln. Wenn du wieder nach oben wischst, siehst du alle Apps. Dies funktioniert auf allen Displays. Es gibt rechts auf deinem Display keine Übersichtsschaltfläche mehr."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Neue Startbildschirmtaste ausprobieren"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Neue Touch-Geste zum Wechseln von Apps aktivieren"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Für Blick aufs Display doppeltippen"</string>
-    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Doppeltippen für schnellen Blick auf das Display des Tablets"</string>
-    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Doppeltippen für schnellen Blick auf das Display des Geräts"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Durch Doppeltippen auf das Display Display aktivieren"</string>
+    <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Durch Doppeltippen auf das Display Display aktivieren"</string>
+    <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Durch Doppeltippen auf das Display Display aktivieren"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Wenn du auf den Bildschirm doppeltippst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Beim Hochheben Display aktivieren"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Tablet hochnehmen, um das Display anzusehen"</string>
@@ -4132,11 +4132,11 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn du das Smartphone in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Wenn du das Tablet in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Wenn du das Gerät in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tippen, um Informationen auf dem Smartphone anzusehen"</string>
-    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tippen, um Informationen auf dem Tablet anzusehen"</string>
-    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tippen, um Informationen auf dem Gerät anzusehen"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Durch Tippen auf das Display Display aktivieren"</string>
+    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Durch Tippen auf das Display Display aktivieren"</string>
+    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Durch Tippen auf das Display Display aktivieren"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn du auf den Bildschirm tippst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Benachrichtigungen durch Wischen über Fingerabdrucksensor öffnen"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Benachrichtigungen durch Wischen über Fingerabdrucksensor einblenden"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Fingerabdrucksensor verwenden"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Zum Lesen von Benachrichtigungen über den Fingerabdrucksensor auf der Rückseite des Smartphones nach unten wischen"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Auf der Rückseite des Tablets über den Fingerabdrucksensor nach unten wischen, um Benachrichtigungen zu lesen."</string>

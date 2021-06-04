@@ -4112,7 +4112,7 @@
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Planşeti idarə etmək üçün cəld jestlər"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Cihazı idarə etmək üçün cəld jestlər"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Kameraya keçin"</string>
-    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Kameranı cəld açmaq üçün, enerji düyməsinə iki dəfə basın. İstənilən ekranda işləyir."</string>
+    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"İstənilən tətbiqdə kameranı düyməni iki dəfə basaraq açın."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Kameranı cəld açın"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Kameranı çevirin"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>

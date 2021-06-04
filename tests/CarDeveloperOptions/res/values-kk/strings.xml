@@ -324,9 +324,9 @@
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Күнін, уақытын, уақыт аймағын, форматтарды реттеу"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Желі уақытын пайдалану"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Желінің уақыт белдеуін пайдалану"</string>
-    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Жергілікті әдепкі параметрді пайдалану"</string>
+    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Жергілікті әдепкі формат"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"24 сағаттық формат"</string>
-    <string name="date_time_24hour" msgid="1265706705061608742">"24 сағаттық форматты қолдану"</string>
+    <string name="date_time_24hour" msgid="1265706705061608742">"24 сағаттық формат"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Уақыт"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"Уақыт форматы"</string>
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"Уақыт белдеуі"</string>
@@ -1861,7 +1861,7 @@
     <string name="internal_storage" msgid="7392373600013294853">"Ішкі жад"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Өлшемін қайта есептеуде…"</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"Қолданба деректері жойылсын ба?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Бұл қолданбаның барлық деректері мүлдем өшіріледі. Бұған барлық файлдар, параметрлер, есептік жазбалар, дерекқорлар және т.б. кіреді."</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"Бұл қолданбаның барлық дерегі біржола жойылады. Бұған барлық файл, параметр, есептік жазба, дерекқор және т.б. кіреді."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"Жарайды"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Бас тарту"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
@@ -3052,7 +3052,7 @@
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"Wi‑Fi хабарландыруы, wi-fi хабарландыруы"</string>
     <string name="keywords_auto_brightness" msgid="5007188989783072428">"Автоматты жарықтық"</string>
     <string name="keywords_vibrate_on_touch" msgid="3615173661462446877">"Дірілді тоқтату, түрту, пернетақта"</string>
-    <string name="keywords_time_format" msgid="8265826377023617424">"24 сағаттық форматты қолдану"</string>
+    <string name="keywords_time_format" msgid="8265826377023617424">"24 сағаттық формат"</string>
     <string name="keywords_storage_files" msgid="1995055540202216399">"Жүктеп алу"</string>
     <string name="keywords_app_default" msgid="1265502485415708667">"Ашатын қолданба"</string>
     <string name="keywords_applications_settings" msgid="2078776051110952597">"Қолданбалар"</string>
@@ -4137,9 +4137,9 @@
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Уақытты, хабарландыруларды және басқа ақпаратты көру үшін экранды түртіңіз."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Хабарландыруларды көру үшін саусақ ізін пайдалану"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Саусақ ізі сканері"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Хабарландыруларды көру үшін телефонның артындағы саусақ ізін оқу сканерін саусақпен төмен қарай сипап өтіңіз."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Хабарландыруларды көру үшін планшеттің артындағы саусақ ізін оқу сканерін саусақпен төмен қарай сипап өтіңіз."</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Хабарландыруларды көру үшін құрылғының артындағы саусақ ізін оқу сканерін саусақпен төмен қарай сипап өтіңіз."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Хабарландыруларды көру үшін телефонның артындағы саусақ ізін оқу сканерінде саусағыңызды төмен қарай жүргізіңіз."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Хабарландыруларды көру үшін планшеттің артындағы саусақ ізін оқу сканерінде саусағыңызды төмен қарай жүргізіңіз."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Хабарландыруларды көру үшін құрылғының артындағы саусақ ізін оқу сканерінде саусағыңызды төмен қарай жүргізіңіз."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Хабарландыруларды жылдам көру"</string>
     <string name="gesture_setting_on" msgid="7573680730101327866">"Қосулы"</string>
     <string name="gesture_setting_off" msgid="2540159841716890511">"Өшірулі"</string>
@@ -4256,7 +4256,7 @@
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;Осы қолданбаның қауіпсіз екеніне көз жеткізіңіз&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; экранда көрсетілгенді пайдаланып, нені автоматты түрде толтыруға болатынын анықтайды."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"Aвтотолтыру"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Тіркеу деңгейі"</string>
-    <string name="autofill_max_partitions" msgid="125269645910590057">"Бір сеансқа рұқсат етілетін максималды сұраулар саны"</string>
+    <string name="autofill_max_partitions" msgid="125269645910590057">"Бір сеанста жасалатын сұраудың максималды саны"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Көрсетілетін деректердің максималды көлемі"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Әдепкі мәндерге қайтару"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Автотолтыру бойынша Developer Options бастапқы күйіне қайтарылды"</string>

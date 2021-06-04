@@ -2649,7 +2649,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> av <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Markera alla"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Dataanvändning"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Mobildata och Wi‑Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Mobildata och wifi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Operatörens dataredovisning kan skilja sig från din enhets dataredovisning."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Appanvändning"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"APPINFO"</string>

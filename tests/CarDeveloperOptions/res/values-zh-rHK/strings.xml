@@ -3197,18 +3197,18 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"允許視覺訊號"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"開啟「請勿騷擾」模式時"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"限制通知"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"無音效通知"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"不發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"您會在螢幕上看到通知"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"手機收到通知時不會發出音效或震動。"</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"無顯示或音效通知"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"不顯示或發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"您不會看到或聽到通知"</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"您的手機不會顯示新通知或現有通知，亦不會為此震動或發出音效。請記住，有關手機活動和狀態的重要通知仍會顯示。\n\n關閉「請勿騷擾」後，您可以從螢幕頂部向下滑動以查看錯過的通知。"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"自訂"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"啟用自訂設定"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"移除自訂設定"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"無音效通知"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"不發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"隱藏部分通知"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"無顯示或音效通知"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"不顯示或發出音效通知"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"自訂限制"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"螢幕開啟時"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"螢幕關閉時"</string>
@@ -3276,8 +3276,8 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"開啟「請勿騷擾」模式時，除了您在上方允許的項目外，所有訊息、提醒和活動均會設為靜音。您可以調整訊息設定，讓好友、家人或其他聯絡人可以聯絡您。"</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"完成"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"設定"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"無顯示或音效通知"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"無音效通知"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"不顯示或發出音效通知"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"不發出音效通知"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"您不會看到或聽到通知，但允許顯示已加星號的聯絡人和重複來電者的來電。"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(目前設定)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"要變更「請勿騷擾」通知設定嗎？"</string>
@@ -3441,7 +3441,7 @@
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"日程表名稱已使用"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"加入更多"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"加入日程表活動"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表 (時間)"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表時間"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"刪除日程表"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"選擇時間表類型"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"要刪除規則「<xliff:g id="RULE">%1$s</xliff:g>」嗎？"</string>
