@@ -13,6 +13,9 @@ aidl_interface {
         "android.hardware.graphics.common-V2",
     ],
     stability: "vintf",
+    // Automotive has different platform schedule. We shouldn't need to
+    // freeze Auto interfaces when the mainline Android launches.
+    owner: "automotive",
     backend: {
         java: {
             enabled: false,
@@ -33,6 +36,9 @@ aidl_interface {
         "android/automotive/computepipe/*.aidl",
     ],
     stability: "vintf",
+    // Automotive has different platform schedule. We shouldn't need to
+    // freeze Auto interfaces when the mainline Android launches.
+    owner: "automotive",
     backend: {
         java: {
             enabled: false,
