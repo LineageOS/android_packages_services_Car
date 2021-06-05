@@ -18,35 +18,21 @@ package android.car.apitest;
 import static android.car.test.util.UserTestingHelper.clearUserLockCredentials;
 import static android.car.test.util.UserTestingHelper.setMaxSupportedUsers;
 import static android.car.test.util.UserTestingHelper.setUserLockCredentials;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STARTING;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING;
 import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKED;
-import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_UNLOCKING;
 
-import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.content.pm.UserInfo;
-import android.os.RemoteException;
 import android.os.UserManager;
 import android.util.Log;
-
-import androidx.test.filters.FlakyTest;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
 import org.junit.Test;
-
-import java.util.List;
-import java.util.concurrent.Executor;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
 
@@ -55,13 +41,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     private static final int PIN = 2345;
 
     private static final int SWITCH_TIMEOUT_MS = 70_000;
-    private static final int STOP_TIMEOUT_MS = 300_000;
-
-    /**
-     * Stopping the user takes a while, even when calling force stop - change it to {@code false}
-     * if {@code testLifecycleListener} becomes flaky.
-     */
-    private static final boolean TEST_STOP_EVENTS = true;
 
     private static final int sMaxNumberUsersBefore = UserManager.getMaxSupportedUsers();
     private static boolean sChangedMaxNumberUsers;
@@ -85,106 +64,10 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         }
     }
 
-    @FlakyTest //TODO(b/183519890): STOPSHIP switch is getting wrong previous id
-    @Test
-    public void testLifecycleListener() throws Exception {
-        int initialUserId = getCurrentUserId();
-        int newUserId = createUser().id;
-
-        BlockingUserLifecycleListener startListener = BlockingUserLifecycleListener
-                .forSpecificEvents()
-                .forUser(newUserId)
-                .setTimeout(SWITCH_TIMEOUT_MS)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STARTING)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_SWITCHING)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKING)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_UNLOCKED)
-                .build();
-
-        Log.d(TAG, "registering start listener: " + startListener);
-        AtomicBoolean executedRef = new AtomicBoolean();
-
-        Executor mExecutor = (r) -> {
-            executedRef.set(true);
-            r.run();
-        };
-        mCarUserManager.addListener(mExecutor, startListener);
-
-        // Switch while listener is registered
-        switchUser(newUserId);
-
-        List<UserLifecycleEvent> startEvents  = startListener.waitForEvents();
-        Log.d(TAG, "Received start events: " + startEvents);
-
-        // Make sure listener callback was executed in the proper threaqd
-        assertWithMessage("executed on executor").that(executedRef.get()).isTrue();
-
-        // Assert user ids
-        List<UserLifecycleEvent> expectedEvents = startListener.waitForEvents();
-        Log.d(TAG, "Received expected events: " + expectedEvents);
-        for (UserLifecycleEvent event : expectedEvents) {
-            assertWithMessage("userId on event %s", event)
-                .that(event.getUserId()).isEqualTo(newUserId);
-            assertWithMessage("userHandle on event %s", event)
-                .that(event.getUserHandle().getIdentifier()).isEqualTo(newUserId);
-            if (event.getEventType() == USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
-                assertWithMessage("previousUserId on event %s", event)
-                    .that(event.getPreviousUserId()).isEqualTo(initialUserId);
-                assertWithMessage("previousUserHandle on event %s", event)
-                    .that(event.getPreviousUserHandle().getIdentifier()).isEqualTo(initialUserId);
-            }
-        }
-
-        Log.d(TAG, "unregistering start listener: " + startListener);
-        mCarUserManager.removeListener(startListener);
-
-        BlockingUserLifecycleListener stopListener = BlockingUserLifecycleListener
-                .forSpecificEvents()
-                .forUser(newUserId)
-                .setTimeout(STOP_TIMEOUT_MS)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPING)
-                .addExpectedEvent(USER_LIFECYCLE_EVENT_TYPE_STOPPED)
-                .build();
-
-        Log.d(TAG, "registering stop listener: " + stopListener);
-        mCarUserManager.addListener(mExecutor, stopListener);
-
-        // Switch back to the initial user
-        switchUser(initialUserId);
-
-        if (TEST_STOP_EVENTS) {
-            // Must force stop the user, otherwise it can take minutes for its process to finish
-            forceStopUser(newUserId);
-
-            List<UserLifecycleEvent> stopEvents = stopListener.waitForEvents();
-            Log.d(TAG, "stopEvents: " + stopEvents + "; all events on stop listener: "
-                    + stopListener.getAllReceivedEvents());
-
-            // Assert user ids
-            for (UserLifecycleEvent event : stopEvents) {
-                assertWithMessage("userId on %s", event)
-                    .that(event.getUserId()).isEqualTo(newUserId);
-                assertWithMessage("wrong userHandle on %s", event)
-                    .that(event.getUserHandle().getIdentifier()).isEqualTo(newUserId);
-            }
-        } else {
-            Log.w(TAG, "NOT testing user stop events");
-        }
-
-        // Make sure unregistered listener didn't receive any more events
-        List<UserLifecycleEvent> allStartEvents = startListener.getAllReceivedEvents();
-        Log.d(TAG, "All start events: " + startEvents);
-        assertThat(allStartEvents).containsAtLeastElementsIn(startEvents).inOrder();
-
-        Log.d(TAG, "unregistering stop listener: " + stopListener);
-        mCarUserManager.removeListener(stopListener);
-    }
-
     /**
      * Tests resume behavior when current user is ephemeral guest, a new guest user should be
      * created and switched to.
      */
-    @FlakyTest //TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testGuestUserResumeToNewGuestUser() throws Exception {
         // Create new guest user
@@ -213,7 +96,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         mCarUserManager.addListener(Runnable::run, listener2);
 
         // Emulate suspend to RAM
-        suspendToRamAndResume();
+        suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
         UserLifecycleEvent event = listener2.waitForEvents().get(0);
 
         int newGuestId = event.getUserId();
@@ -233,7 +116,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * Tests resume behavior when current user is guest but with secured lock screen,
      * resume to same guest user.
      */
-    @FlakyTest //TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
@@ -257,7 +139,7 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         setUserLockCredentials(guestUserId, PIN);
         try {
             // Emulate suspend to RAM
-            suspendToRamAndResume();
+            suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
 
             assertWithMessage("current user remains guest user (%s)", guestUser)
                     .that(getCurrentUserId()).isEqualTo(guestUserId);
@@ -269,7 +151,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
     /**
      * Tests resume behavior when current user is persistent user.
      */
-    @FlakyTest // TODO(b/183519890): STOPSHIP often fails due to missing events or crashes
     @Test
     public void testPersistentUserResumeToUser() throws Exception {
         int newUserId = createUser().id;
@@ -284,18 +165,12 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         listener.waitForEvents();
 
         // Emulate suspend to RAM
-        suspendToRamAndResume();
+        suspendToRamAndResume(/* disableBackgroundUsersStart=*/ true);
 
         listener.waitForEvents();
         assertWithMessage("current user remains new user (%s)", newUserId)
                 .that(ActivityManager.getCurrentUser()).isEqualTo(newUserId);
 
         mCarUserManager.removeListener(listener);
-    }
-
-    private static void forceStopUser(@UserIdInt int userId) throws RemoteException {
-        Log.i(TAG, "Force-stopping user " + userId);
-        IActivityManager am = ActivityManager.getService();
-        am.stopUser(userId, /* force=*/ true, /* listener= */ null);
     }
 }
