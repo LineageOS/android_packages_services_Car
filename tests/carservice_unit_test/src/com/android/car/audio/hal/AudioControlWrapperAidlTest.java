@@ -182,7 +182,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
                 new ArrayList<>(), new int[0]);
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -195,7 +195,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
                 new ArrayList<>(), new int[]{USAGE_MEDIA, USAGE_NOTIFICATION});
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -212,7 +212,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID,
                 Arrays.asList(mediaAddress, navigationAddress), new ArrayList<>(), new int[0]);
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -228,7 +228,7 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
                 Arrays.asList(notificationAddress, callAddress), new int[0]);
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
@@ -242,12 +242,28 @@ public final class AudioControlWrapperAidlTest extends AbstractExtendedMockitoTe
         CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
                 new ArrayList<>(), new int[0]);
 
-        mAudioControlWrapperAidl.onDevicesToDuckChange(carDuckingInfo);
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo));
 
         ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
         verify(mAudioControl).onDevicesToDuckChange(captor.capture());
         DuckingInfo duckingInfo = captor.getValue()[0];
         assertThat(duckingInfo.zoneId).isEqualTo(ZONE_ID);
+    }
+
+    @Test
+    public void onDevicesToDuckChange_multipleZones_passesADuckingInfoPerZone() throws Exception {
+        CarDuckingInfo carDuckingInfo = new CarDuckingInfo(ZONE_ID, new ArrayList<>(),
+                new ArrayList<>(), new int[0]);
+        CarDuckingInfo secondaryCarDuckingInfo = new CarDuckingInfo(SECONDARY_ZONE_ID,
+                new ArrayList<>(), new ArrayList<>(), new int[0]);
+
+        mAudioControlWrapperAidl.onDevicesToDuckChange(List.of(carDuckingInfo,
+                secondaryCarDuckingInfo));
+
+        ArgumentCaptor<DuckingInfo[]> captor = ArgumentCaptor.forClass(DuckingInfo[].class);
+        verify(mAudioControl).onDevicesToDuckChange(captor.capture());
+        assertWithMessage("Number of ducking infos passed along")
+                .that(captor.getValue().length).isEqualTo(2);
     }
 
     @Test
