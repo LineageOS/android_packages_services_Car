@@ -39,6 +39,7 @@ import java.util.Objects;
  */
 /* package */ class CarAudioDeviceInfo {
 
+    public static final int DEFAULT_SAMPLE_RATE = 48000;
     private final AudioDeviceInfo mAudioDeviceInfo;
     private final int mSampleRate;
     private final int mEncodingFormat;
@@ -58,10 +59,10 @@ import java.util.Objects;
     CarAudioDeviceInfo(AudioDeviceInfo audioDeviceInfo) {
         mAudioDeviceInfo = audioDeviceInfo;
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
-        mEncodingFormat = getEncodingFormat(audioDeviceInfo);
+        mEncodingFormat = AudioFormat.ENCODING_PCM_16BIT;
         mChannelCount = getMaxChannels(audioDeviceInfo);
-        final AudioGain audioGain = Objects.requireNonNull(
-                getAudioGain(), "No audio gain on device port " + audioDeviceInfo);
+        AudioGain audioGain = Objects.requireNonNull(getAudioGain(audioDeviceInfo.getPort()),
+                "No audio gain on device port " + audioDeviceInfo);
         mDefaultGain = audioGain.defaultValue();
         mMaxGain = audioGain.maxValue();
         mMinGain = audioGain.minValue();
@@ -110,6 +111,15 @@ import java.util.Objects;
         return mStepValue;
     }
 
+    /**
+     * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}.
+     * This is useful for inspecting the configuration data associated with this gain controller
+     * (min/max/step/default).
+     */
+    AudioGain getAudioGain() {
+        return getAudioGain(getAudioDevicePort());
+    }
+
     // Input is in millibels
     void setCurrentGain(int gainInMillibels) {
         // Clamp the incoming value to our valid range.  Out of range values ARE legal input
@@ -148,10 +158,10 @@ import java.util.Objects;
         }
     }
 
-    private int getMaxSampleRate(AudioDeviceInfo info) {
+    private static int getMaxSampleRate(AudioDeviceInfo info) {
         int[] sampleRates = info.getSampleRates();
         if (sampleRates == null || sampleRates.length == 0) {
-            return 48000;
+            return DEFAULT_SAMPLE_RATE;
         }
         int sampleRate = sampleRates[0];
         for (int i = 1; i < sampleRates.length; i++) {
@@ -162,19 +172,7 @@ import java.util.Objects;
         return sampleRate;
     }
 
-    /** Always returns {@link AudioFormat#ENCODING_PCM_16BIT} as for now */
-    private int getEncodingFormat(AudioDeviceInfo info) {
-        return AudioFormat.ENCODING_PCM_16BIT;
-    }
-
-    /**
-     * Gets the maximum channel count for a given {@link AudioDeviceInfo}
-     *
-     * @param info {@link AudioDeviceInfo} instance to get maximum channel count for
-     * @return Maximum channel count for a given {@link AudioDeviceInfo},
-     * 1 (mono) if there is no channel masks configured
-     */
-    private int getMaxChannels(AudioDeviceInfo info) {
+    private static int getMaxChannels(AudioDeviceInfo info) {
         int numChannels = 1;
         int[] channelMasks = info.getChannelMasks();
         if (channelMasks == null) {
@@ -189,13 +187,7 @@ import java.util.Objects;
         return numChannels;
     }
 
-    /**
-     * @return {@link AudioGain} with {@link AudioGain#MODE_JOINT} on a given {@link AudioPort}.
-     * This is useful for inspecting the configuration data associated with this gain controller
-     * (min/max/step/default).
-     */
-    AudioGain getAudioGain() {
-        final AudioDevicePort audioPort = getAudioDevicePort();
+    private static AudioGain getAudioGain(AudioDevicePort audioPort) {
         if (audioPort != null && audioPort.gains().length > 0) {
             for (AudioGain audioGain : audioPort.gains()) {
                 if ((audioGain.mode() & AudioGain.MODE_JOINT) != 0) {
@@ -209,7 +201,7 @@ import java.util.Objects;
     /**
      * Constraints applied to gain configuration, see also audio_policy_configuration.xml
      */
-    private AudioGain checkAudioGainConfiguration(AudioGain audioGain) {
+    private static AudioGain checkAudioGainConfiguration(AudioGain audioGain) {
         Preconditions.checkArgument(audioGain.maxValue() >= audioGain.minValue());
         Preconditions.checkArgument((audioGain.defaultValue() >= audioGain.minValue())
                 && (audioGain.defaultValue() <= audioGain.maxValue()));
