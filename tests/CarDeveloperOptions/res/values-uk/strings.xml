@@ -1211,7 +1211,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Природні"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Яскраві"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Насичені"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптивний колір"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптивні"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Використовувати лише точно відтворені кольори"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Налаштуйте яскравість і точність відтворення кольорів"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Автомат. переключ. орієнтацію під час обертання пристрою"</string>

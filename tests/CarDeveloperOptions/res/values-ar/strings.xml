@@ -510,7 +510,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"التالي"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"بالإضافة إلى فتح قفل هاتفك، يمكنك أيضًا استخدام بصمة إصبعك للسماح بعمليات الشراء والوصول إلى التطبيق. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" تم إيقاف خيار قفل الشاشة. لمعرفة المزيد من المعلومات، اتصل بمشرف مؤسستك. "<annotation id="admin_details">"مزيد من التفاصيل"</annotation>\n\n"ما زال بإمكانك استخدام بصمة إصبعك للسماح بعمليات الشراء والوصول إلى التطبيقات. "<annotation id="url">"مزيد من المعلومات"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ارفع إصبعك ثم المس زر الاستشعار مرة أخرى"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ارفع إصبعك ثم المس زر الاستشعار مرة أخرى."</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"يمكنك إضافة ما يصل إلى <xliff:g id="COUNT">%d</xliff:g> بصمات الإصبع"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"لقد أضفت الحد الأقصى لعدد بصمات الإصبع"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"يتعذر إضافة مزيد من بصمات الإصبع"</string>
@@ -782,7 +782,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> تطبيق نشط</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"الوكلاء المعتمدون"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"لاستخدام هذه الميزة، عليك إعداد قفل الشاشة أوّلاً"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"لاستخدام هذه الميزة، عليك إعداد قفل الشاشة أولاً."</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"ليس هناك أي وكلاء معتمدين"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="zero"><xliff:g id="COUNT">%d</xliff:g> خدمة ناشطة لمنح الثقة</item>
@@ -1273,7 +1273,7 @@
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"مرتفع جدًا"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"مستوى السطوع المفضل بالنسبة لك"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"عدم ضبط السطوع بحسب الإضاءة المتاحة"</string>
-    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"يزيد استخدام البطارية"</string>
+    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"يزيد استخدام البطارية."</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"يمكنك تحسين مستوى السطوع حسب الإضاءة. وعند تفعيل هذه الميزة، سيظل بإمكانك ضبط السطوع مؤقتًا."</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"سيتم ضبط سطوع الشاشة تلقائيًا حسب البيئة المحيطة والأنشطة. ويمكنك تحريك شريط التمرير يدويًا لضبط السطوع التكيُّفي حسبما تفضّل."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"موازنة اللون الأبيض للشاشة"</string>
@@ -3854,7 +3854,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> إذن إضافي</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"لم يتم منح أي أذونات"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"لم يتم طلب أي أذونات"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"لم يتم طلب أي أذونات."</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"جميع التطبيقات"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"التطبيقات المثبَّتة"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"التطبيقات الفورية"</string>

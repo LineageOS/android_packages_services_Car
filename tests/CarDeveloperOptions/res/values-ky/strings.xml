@@ -2888,11 +2888,11 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Өзүңүздү жок кылалыбы?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Бул колдонуучуну өчүрөсүзбү?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Профилди алып салалыбы?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Жумуш профили алынып салынсынбы?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Жумуш профилин өчүрөсүзбү?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Сиз бул планшеттеги мейкиндигиңизди жана берилиштериңизди жоготосуз. Сиз муну артка кайтара албайсыз."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Сиз бул телефондогу мейкиндигиңизди жана берилиштериңизди жоготосуз. Сиз муну артка кайтара албайсыз."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Бардык колдонмолор жана алардагы нерселер жоголот."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Эгер улантсаңыз бул профилдеги колдонмолор менен дайындардын баары өчүрүлөт."</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Эгер улантсаңыз бул профилдеги колдонмолор жана алардын ичиндеги нерселердин баары өчүрүлөт."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Бардык колдонмолор жана алардагы нерселер жоголот."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"Жаңы колдонуучу кошулууда…"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"Колдонуучуну жок кылуу"</string>

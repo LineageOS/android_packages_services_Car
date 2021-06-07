@@ -2068,7 +2068,7 @@
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Текст с висок контраст"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Ниво на мащаба на екрана: Автоакт."</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Ниво на мащаба на екрана при преходи на прилож.: Актуал."</string>
-    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Край на обажд.: Бутон за захранване"</string>
+    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Край на обажд.: Бутон за вкл./изкл."</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Голям курсор на мишката"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Премахване на анимациите"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Монозвук"</string>
@@ -3331,7 +3331,7 @@
     <string name="lock_screen_notifications_interstitial_message_profile" msgid="3324187664458600354">"Как искате да се показват известията от потребителския профил, когато устройството ви е заключено?"</string>
     <string name="lock_screen_notifications_interstitial_title_profile" msgid="4043621508889929254">"Известия от потр. профил"</string>
     <string name="notifications_title" msgid="8334011924253810654">"Известия"</string>
-    <string name="app_notifications_title" msgid="1141791221581312325">"Известия за прилож."</string>
+    <string name="app_notifications_title" msgid="1141791221581312325">"Известия от прилож."</string>
     <string name="notification_channel_title" msgid="6637705960909690229">"Категория известия"</string>
     <string name="notification_group_title" msgid="6105337987437608590">"Група на категорията с известия"</string>
     <string name="notification_importance_title" msgid="4131979083408000545">"Поведение"</string>

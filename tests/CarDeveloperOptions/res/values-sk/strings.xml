@@ -2742,7 +2742,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM karty"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Pozastavené na limite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Autom. synchronizovať dáta"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autom. synchr. osobných údajov"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autom. synchr. osobné údaje"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autom. synchr. pracov. údajov"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Zmeniť cyklus..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Deň v mesiaci, kedy sa má resetovať cyklus spotreby:"</string>

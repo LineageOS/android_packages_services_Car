@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"সীমায় পৌঁছে বিরতি দেওয়া হয়েছে"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"ডেটা স্বতঃসিঙ্ক"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"ব্যক্তিগত ডেটা স্বতঃসিঙ্ক"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"কাজের ডেটা নিজে থেকে সিঙ্ক"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"অফিস ডেটা নিজে থেকে সিঙ্ক"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"চক্র পরিবর্তন করুন..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"ডেটা ব্যবহারের চক্র আবার সেট করতে মাসের দিন:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"এই সময়ের মধ্যে কোনো অ্যাপ্লিকেশান ডেট ব্যবহার করবে না।"</string>

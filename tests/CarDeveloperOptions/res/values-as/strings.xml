@@ -1214,7 +1214,7 @@
     <string name="night_display_text" msgid="5330502493684652527">"ৰাতিৰ পোহৰে আপোনাৰ স্ক্ৰীণখন মৌ-বৰণীয়া কৰি তোলে। এই কাৰ্যই আপোনাক স্ক্ৰীণখন চাবলৈ বা কম পোহৰতো পঢ়িবলৈ সুবিধা দিয়ে আৰু ই আপোনাক সহজে টোপনি যোৱাতো সহায় কৰিব পাৰে।"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"সূচী"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"নাই"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"কাষ্টম সময়ত অন হ’ব"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"কাষ্টম সময়ত অন হয়"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"সূৰ্যাস্তৰ পৰা সূৰ্যোদয়লৈ অন হয়"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"আৰম্ভ হোৱাৰ সময়"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"সমাপ্ত হোৱাৰ সময়"</string>

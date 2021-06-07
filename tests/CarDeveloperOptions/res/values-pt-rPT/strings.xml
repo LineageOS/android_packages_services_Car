@@ -343,7 +343,7 @@
     <string name="zone_time_type_dst" msgid="7812605402646684853">"Mudança de hora"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Hora padrão"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Selecionar por região"</string>
-    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Selec. por diferença para UTC"</string>
+    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Selecionar por diferença para UTC"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"Data"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"Hora"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Bloquear automaticamente"</string>

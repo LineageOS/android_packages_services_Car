@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"કુદરતી"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"બુસ્ટ કરેલ"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"સંતૃપ્ત"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"સુવિધાજનક"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"અડૅપ્ટિવ"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"માત્ર સચોટ રંગોનો જ ઉપયોગ કરો"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"આબેહૂબ અને સચોટ રંગો વચ્ચે સમાયોજિત કરો"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"ટૅબ્લેટને ફેરવતી વખતે ઓરિએન્ટેશનને ઑટોમૅટિક રીતે સ્વિચ કરો"</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"તાજેતરનો સ્થાન ઍક્સેસ"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"વિગતો જુઓ"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"હાલમાં કોઈ એપ્લિકેશને સ્થાન વિનંતી કરી નથી"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"હાલમાં કોઈ ઍપ્લિકેશને સ્થાન વિનંતી કરી નથી"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"હાલમાં કોઈ ઍપ દ્વારા સ્થાન ઍક્સેસ કરવામાં આવ્યું નથી"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"વધુ બૅટરી ઉપયોગ"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"ઓછો બૅટરી ઉપયોગ"</string>
@@ -1664,7 +1664,7 @@
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"વાઇ-ફાઇ સ્કૅનિંગ"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"જ્યારે વાઇ-ફાઇ બંધ હોય ત્યારે પણ ગમે ત્યારે ઍપ અને સેવાઓને વાઇ-ફાઇ નેટવર્ક સ્કૅન કરવાની મંજૂરી આપો. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"બ્લૂટૂથ સ્કૅનિંગ"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"જ્યારે બ્લૂટૂથ બંધ હોય ત્યારે પણ ગમે ત્યારે ઍપ અને સેવાઓને નજીકના ઉપકરણો સ્કૅન કરવાની મંજૂરી આપો. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"જ્યારે બ્લૂટૂથ બંધ હોય ત્યારે પણ ગમે ત્યારે ઍપ અને સેવાઓને નજીકના ડિવાઇસ સ્કૅન કરવાની મંજૂરી આપો. ઉદાહરણ તરીકે, આનો ઉપયોગ સ્થાન આધારિત સુવિધાઓ અને સેવાઓને બહેતર બનાવવા માટે કરી શકાય છે."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"કાર્ય માટે સ્થાનની સેવાઓ"</string>
     <string name="location_network_based" msgid="1535812159327454835">"વાઇ-ફાઇ અને મોબાઇલ નેટવર્ક સ્થાન"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"એપ્લિકેશન્સને તમારા સ્થાનનો વધુ ઝડપથી અંદાજ મેળવવા માટે Google ની સ્થાન સેવાનો ઉપયોગ કરવા દો. અનામી સ્થાન ડેટા એકત્રિત કરીને Google ને મોકલવામાં આવશે."</string>
@@ -1774,7 +1774,7 @@
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"એક અનલૉક પૅટર્ન કેવી રીતે દોરવી"</string>
     <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"ઘણા બધા ખોટા પ્રયત્નો. <xliff:g id="NUMBER">%d</xliff:g> સેકંડમાં ફરી પ્રયાસ કરો."</string>
     <string name="activity_not_found" msgid="3492413375341165453">"તમારા ફોન પર ઍપ્લિકેશન ઇન્સ્ટોલ કરેલ નથી."</string>
-    <string name="lock_settings_profile_title" msgid="3928992050074556160">"કાર્યાલયની પ્રોફાઇલની સુરક્ષા"</string>
+    <string name="lock_settings_profile_title" msgid="3928992050074556160">"ઑફિસની પ્રોફાઇલની સુરક્ષા"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"કાર્યાલયની પ્રોફાઇલનું સ્ક્રીન લૉક"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"એક લૉકનો ઉપયોગ કરો"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"તમારી ઑફિસની પ્રોફાઇલ અને ડિવાઇસની સ્ક્રીન પર એક લૉકનો ઉપયોગ કરો"</string>
@@ -1837,7 +1837,7 @@
     <string name="unknown" msgid="2780743426415501227">"અજાણ્યું"</string>
     <string name="sort_order_alpha" msgid="6689698854460261212">"નામ દ્વારા સૉર્ટ કરો"</string>
     <string name="sort_order_size" msgid="3167376197248713027">"કદ દ્વારા સૉર્ટ કરો"</string>
-    <string name="sort_order_recent_notification" msgid="5592496977404445941">"સૌથી તાજેતરનાં"</string>
+    <string name="sort_order_recent_notification" msgid="5592496977404445941">"સૌથી તાજેતરની"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"વારંવાર"</string>
     <string name="show_running_services" msgid="1895994322704667543">"ચાલુ સેવાઓ બતાવો"</string>
     <string name="show_background_processes" msgid="88012264528093617">"કેશ્ડ પ્રક્રિયાઓ બતાવો"</string>
@@ -1975,7 +1975,7 @@
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"ઉપલબ્ધ શૉર્ટકટ પ્રદર્શિત કરો"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"કાર્યાલયનું પ્રોફાઇલ અને સાધનો"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"કાર્ય માટે વર્ચ્યુઅલ કીબોર્ડ"</string>
-    <string name="default_keyboard_layout" msgid="9171704064451242230">"ડિફોલ્ટ"</string>
+    <string name="default_keyboard_layout" msgid="9171704064451242230">"ડિફૉલ્ટ"</string>
     <string name="pointer_speed" msgid="800691982011350432">"પૉઇન્ટરની ગતિ"</string>
     <string name="game_controller_settings_category" msgid="9066526500617769463">"રમત નિયંત્રક"</string>
     <string name="vibrate_input_devices" msgid="3584406079534121467">"વાઇબ્રેશનને રીડાયરેક્ટ કરો"</string>
@@ -1983,7 +1983,7 @@
     <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"કીબોર્ડ લેઆઉટ પસંદ કરો"</string>
     <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"કીબોર્ડ લેઆઉટ સેટ કરો"</string>
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"સ્વિચ કરવા માટે, Control-Spacebar દબાવો"</string>
-    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"ડિફોલ્ટ"</string>
+    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"ડિફૉલ્ટ"</string>
     <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"કીબોર્ડ લેઆઉટ્સ"</string>
     <string name="user_dict_settings_title" msgid="1415462066249818756">"વ્યક્તિગત શબ્દકોશ"</string>
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"કાર્ય માટેનો વ્યક્તિગત શબ્દકોશ"</string>
@@ -2164,9 +2164,9 @@
     <string name="captioning_typeface" msgid="7893208796949341767">"ફોન્ટ ફેમિલી"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"કૅપ્શન્સ આના જેવા દેખાશે"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
-    <string name="locale_default" msgid="910074908458214054">"ડિફોલ્ટ"</string>
+    <string name="locale_default" msgid="910074908458214054">"ડિફૉલ્ટ"</string>
     <string name="color_title" msgid="132875486061816584">"રંગ"</string>
-    <string name="color_unspecified" msgid="2081242275041140693">"ડિફોલ્ટ"</string>
+    <string name="color_unspecified" msgid="2081242275041140693">"ડિફૉલ્ટ"</string>
     <string name="color_none" msgid="6073562573637028315">"કોઈ નહીં"</string>
     <string name="color_white" msgid="8555090785520913738">"સફેદ"</string>
     <string name="color_gray" msgid="7625498522679305687">"ગ્રે"</string>
@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"ઑફિસની પ્રોફાઇલ"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"તમારી સંસ્થા દ્વારા મેનેજ કરેલ"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"ઍપ અને નોટિફિકેશન બંધ છે"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"ઑફિસની પ્રોફાઇલ દૂર કરો"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"ઑફિસની પ્રોફાઇલ કાઢી નાખો"</string>
     <string name="background_data" msgid="8275750862371471171">"બૅકગ્રાઉન્ડ ડેટા"</string>
     <string name="background_data_summary" msgid="799640633948841990">"ઍપ્લિકેશનો કોઈપણ સમયે ડેટાને સમન્વયિત, મોકલી અને પ્રાપ્ત કરી શકે છે"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"બૅકગ્રાઉન્ડ ડેટાને અક્ષમ કરીએ?"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"તમને પોતાને કાઢી નાખીએ?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"આ વપરાશકર્તા ડિલીટ કરીએ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"આ પ્રોફાઇલ દૂર કરીએ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"ઑફિસની પ્રોફાઇલ દૂર કરીએ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"ઑફિસની પ્રોફાઇલ કાઢી નાખીએ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"તમ તમારું સ્થાન અને ડેટા આ ટેબ્લેટ પરથી ગુમાવશો. તમે આ ક્રિયાને પૂર્વવત્ કરી શકતા નથી."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"તમે આ ફોન પરથી તમારું સ્થાન અને ડેટા ગુમાવશો. તમે આ ક્રિયાને પૂર્વવત્ કરી શકતા નથી."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"તમામ ઍપ્લિકેશનો અને ડેટા કાઢી નાખવામાં આવશે."</string>
@@ -3630,14 +3630,14 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> વધારાની પરવાનગીઓ</item>
     </plurals>
     <string name="runtime_permissions_summary_no_permissions_granted" msgid="3477934429220828771">"કોઈ પરવાનગીઓ આપેલ નથી"</string>
-    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"કોઈ પરવાનગીઓની વિનંતી કરેલ નથી"</string>
+    <string name="runtime_permissions_summary_no_permissions_requested" msgid="3901636077467389637">"કોઈ પરવાનગીઓની વિનંતી કરી નથી"</string>
     <string name="filter_all_apps" msgid="4042756539846043675">"બધી ઍપ્લિકેશનો"</string>
     <string name="filter_enabled_apps" msgid="5888459261768538489">"ઇન્સ્ટૉલ કરેલી ઍપ્લિકેશનો"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"ઝટપટ ઍપ્લિકેશનો"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"વ્યક્તિગત"</string>
     <string name="filter_work_apps" msgid="4202483998339465542">"ઑફિસ"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"ઍપ્લિકેશનો: તમામ"</string>
-    <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"બંધ કરેલી છે"</string>
+    <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"બંધ કરેલી"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"કૅટેગરી: તાત્કાલિક મહત્વની"</string>
     <string name="filter_notif_low_channels" msgid="6859599463135775287">"કૅટેગરી: ઓછી મહત્વની"</string>
     <string name="filter_notif_blocked_channels" msgid="6110799550327612670">"કૅટેગરી: બંધ કરી"</string>
@@ -3661,7 +3661,7 @@
     <string name="app_link_open_always" msgid="7723587434377688415">"આ એપ્લિકેશનમાં ખોલો"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"દર વખતે પૂછો"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"આ એપ્લિકેશનમાં ખોલશો નહીં"</string>
-    <string name="default_apps_title" msgid="3848048391400989931">"ડિફોલ્ટ"</string>
+    <string name="default_apps_title" msgid="3848048391400989931">"ડિફૉલ્ટ"</string>
     <string name="default_for_work" msgid="7290411716804495366">"કાર્ય માટે ડિફોલ્ટ"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"મદદ અને વૉઇસ ઇનપુટ"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"મદદરૂપ ઍપ"</string>
@@ -4039,7 +4039,7 @@
     <string name="notification_log_details_sound" msgid="4028782443557466322">"સાઉન્ડ"</string>
     <string name="notification_log_details_vibrate" msgid="8372400602058888072">"વાઇબ્રેટ"</string>
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"પૅટર્ન"</string>
-    <string name="notification_log_details_default" msgid="455451833359888182">"ડિફોલ્ટ"</string>
+    <string name="notification_log_details_default" msgid="455451833359888182">"ડિફૉલ્ટ"</string>
     <string name="notification_log_details_none" msgid="4294690532744821638">"કોઈ નહીં"</string>
     <string name="notification_log_details_ranking_null" msgid="3907234749871463339">"રેંકિંગ ઑબ્જેક્ટ ખૂટે છે."</string>
     <string name="notification_log_details_ranking_none" msgid="3687243721168608404">"રેંકિંગ ઑબ્જેક્ટમાં આ કી શામેલ નથી."</string>

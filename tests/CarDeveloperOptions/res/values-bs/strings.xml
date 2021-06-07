@@ -332,7 +332,7 @@
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Vrijeme"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"Format vremena"</string>
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"Vremenska zona"</string>
-    <string name="date_time_set_timezone" msgid="2763491683136582165">"Odabir vremenske zone"</string>
+    <string name="date_time_set_timezone" msgid="2763491683136582165">"Odaberite vremensku zonu"</string>
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Datum"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"Pretražite regiju"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Regija"</string>
@@ -2928,11 +2928,11 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Želite li izbrisati sebe?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Izbrisati ovog korisnika?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Ukloniti ovaj profil?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ukloniti profil za Work?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ukloniti radni profil?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Izgubit ćete svoj prostor i podatke sa ovog tableta. Ne možete poništiti ovu akciju."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Izgubit ćete svoj prostor i podatke sa ovog telefona. Ne možete poništiti ovu akciju."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Sve aplikacije i podaci će biti izbrisani."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Sve aplikacije i podaci sa ovog profila će biti izbrisani ako nastavite."</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Sve aplikacije i podaci s ovog profila će biti izbrisani ako nastavite."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Sve aplikacije i podaci će biti izbrisani."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"Dodavanje novog korisnika…"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"Izbriši korisnika"</string>
@@ -3612,7 +3612,7 @@
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Traži PIN prije poništavanja kačenja"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Traži lozinku prije poništavanja kačenja"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Zaključaj uređaj kada se ekran otkači"</string>
-    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Ovim profilom za Work upravlja:"</string>
+    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Ovim radnim profilom upravlja:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Profilom upravlja <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Eksperimentalno)"</string>
     <string name="encryption_interstitial_header" msgid="3298397268731647519">"Sigurno pokretanje"</string>

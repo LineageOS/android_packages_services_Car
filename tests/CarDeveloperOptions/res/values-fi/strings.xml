@@ -3394,16 +3394,16 @@
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Salli Älä häiritse ‑tila"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Yksikään asennettu sovellus ei ole pyytänyt Älä häiritse -tilan käyttöoikeutta."</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Ladataan sovelluksia…"</string>
-    <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android estää pyynnöstäsi tämän sovelluksen ilmoituksien näyttämisen tällä laitteella."</string>
-    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Android estää pyynnöstäsi tähän luokkaan kuuluvien ilmoituksien näyttämisen tällä laitteella."</string>
-    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Android estää pyynnöstäsi tähän ryhmään kuuluvien ilmoituksien näyttämisen tällä laitteella."</string>
+    <string name="app_notifications_off_desc" msgid="3904090905748895146">"Android estää pyynnöstäsi tämän sovelluksen ilmoituksien näyttämisen tällä laitteella"</string>
+    <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Android estää pyynnöstäsi tähän luokkaan kuuluvien ilmoituksien näyttämisen tällä laitteella"</string>
+    <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"Android estää pyynnöstäsi tähän ryhmään kuuluvien ilmoituksien näyttämisen tällä laitteella"</string>
     <string name="notification_channels" msgid="956764228116145956">"Luokat"</string>
     <string name="notification_channels_other" msgid="1615988645667411530">"Muut"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> luokkaa</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> luokka</item>
     </plurals>
-    <string name="no_channels" msgid="8884254729302501652">"Tämä sovellus ei ole lähettänyt ilmoituksia."</string>
+    <string name="no_channels" msgid="8884254729302501652">"Tämä sovellus ei ole lähettänyt ilmoituksia"</string>
     <string name="app_settings_link" msgid="8465287765715790984">"Lisäasetukset sovelluksessa"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Päällä kaikissa sovelluksissa"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
@@ -3594,7 +3594,7 @@
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Avaa kysymättä"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Tuetut linkit"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"Muut oletusarvot"</string>
-    <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="SIZE">%1$s</xliff:g> käytössä kohteessa <xliff:g id="STORAGE_TYPE">%2$s</xliff:g>"</string>
+    <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>: <xliff:g id="SIZE">%1$s</xliff:g> käytössä"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"Sisäinen tallennustila"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"Ulkoinen tallennustila"</string>
     <string name="data_summary_format" msgid="5022135392347814271">"<xliff:g id="SIZE">%1$s</xliff:g> käytetty <xliff:g id="DATE">%2$s</xliff:g> jälkeen"</string>

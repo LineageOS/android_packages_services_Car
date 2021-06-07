@@ -2069,7 +2069,7 @@
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Text mit hohem Kontrast"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Vergrößerung automatisch aktualisieren"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Vergrößerung bei App-Übergängen aktualisieren"</string>
-    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Ein/Aus beendet Anruf"</string>
+    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Ein/Aus-Taste beendet Anruf"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Großer Mauszeiger"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Animationen entfernen"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Mono-Audio"</string>

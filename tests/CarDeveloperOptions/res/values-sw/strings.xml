@@ -2601,7 +2601,7 @@
     <string name="work_mode_label" msgid="6845849194740195757">"Wasifu wa kazini"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Inasimamiwa na shirika lako"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Umezima vipengele vya programu na arifa"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ondoa wasifu wa kazi"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Ondoa wasifu wa kazini"</string>
     <string name="background_data" msgid="8275750862371471171">"Data ya maandhari nyuma"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Programu inaweza kusawazisha, kutuma, na kupokea data wakati wowote"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Lemaza data ya usuli?"</string>

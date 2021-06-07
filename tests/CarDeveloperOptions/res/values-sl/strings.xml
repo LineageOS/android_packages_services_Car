@@ -347,7 +347,7 @@
     <string name="zone_time_type_dst" msgid="7812605402646684853">"Poletni čas"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Standardni čas"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Izberi po regiji"</string>
-    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Izberi po zamiku glede na UTC"</string>
+    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Izbira po zamiku glede na UTC"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"Datum"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"Ura"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Samodejno zaklepanje"</string>

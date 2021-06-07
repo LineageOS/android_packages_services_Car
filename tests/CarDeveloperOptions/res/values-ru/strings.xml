@@ -82,7 +82,7 @@
     <string name="sdcard_format" product="default" msgid="4831611387627849108">"Очистить SD-карту"</string>
     <string name="preview_pager_content_description" msgid="5731599395893090038">"Просмотр"</string>
     <string name="preview_page_indicator_content_description" msgid="3192955679074998362">"Предпросмотр, страница <xliff:g id="CURRENT_PAGE">%1$d</xliff:g> из <xliff:g id="NUM_PAGES">%2$d</xliff:g>"</string>
-    <string name="font_size_summary" msgid="9120023206321191067">"Сделайте текст на экране мельче или крупнее."</string>
+    <string name="font_size_summary" msgid="9120023206321191067">"Выберите размер шрифта."</string>
     <string name="font_size_make_smaller_desc" msgid="5780829318985556969">"Уменьшить"</string>
     <string name="font_size_make_larger_desc" msgid="2907824418252785875">"Увеличить"</string>
     <string name="font_size_preview_text" msgid="360019784926073822">"Принесите мне, пожалуйста, чашку кофе."</string>
@@ -336,7 +336,7 @@
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"Часовой пояс"</string>
     <string name="date_time_set_timezone" msgid="2763491683136582165">"Часовой пояс"</string>
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Дата"</string>
-    <string name="date_time_search_region" msgid="3308475245895589430">"Поиск по региону"</string>
+    <string name="date_time_search_region" msgid="3308475245895589430">"Поиск по регионам"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Регион"</string>
     <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"Разница с UTC"</string>
     <string name="zone_change_to_from_dst" msgid="5772776596087610194">"<xliff:g id="TIME_TYPE">%1$s</xliff:g> с <xliff:g id="TRANSITION_DATE">%2$s</xliff:g>"</string>
@@ -1282,7 +1282,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Выберите обои для экрана"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Установка обоев"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Заставка"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Во время зарядки или при подключении к док-станции"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Во время зарядки и на док-станции"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Всегда"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Во время зарядки"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"На док-станции"</string>
@@ -2972,7 +2972,7 @@
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Ваши данные, сохраненные на этом устройстве, будут удалены без возможности восстановления."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Ваши данные, сохраненные на этом устройстве, будут удалены без возможности восстановления."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Все приложения и данные будут удалены."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Все приложения и данные, находящиеся в этом профиле, будут удалены. Продолжить?"</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Все приложения и данные, находящиеся в этом профиле, будут удалены."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Все приложения и данные будут удалены."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"Добавление…"</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"Удалить пользователя"</string>
@@ -3459,7 +3459,7 @@
     </plurals>
     <string name="notification_assistant_title" msgid="8216604031352764011">"Приложение для уведомлений"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Приложения нет"</string>
-    <string name="no_notification_listeners" msgid="1366386609506834717">"Установленные приложения не запрашивали доступ к уведомлениям"</string>
+    <string name="no_notification_listeners" msgid="1366386609506834717">"Установленные приложения не запрашивали доступ к уведомлениям."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Предоставить приложению \"<xliff:g id="SERVICE">%1$s</xliff:g>\" доступ к уведомлениям?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"Приложение <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> сможет читать все уведомления, в том числе содержащие личную информацию (например, имена контактов и сообщения). Кроме того, оно получит право изменять и закрывать уведомления, а также нажимать кнопки в них. \n\nПриложение сможет включать и отключать режим \"Не беспокоить\", а также менять его настройки."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Разрешить <xliff:g id="SERVICE">%1$s</xliff:g> доступ к уведомлениям?"</string>
@@ -3468,7 +3468,7 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Отключить"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Отмена"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Вспомогательные VR-сервисы"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"Установленные приложения не запрашивали доступ для работы в качестве вспомогательного VR-сервиса"</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"Установленные приложения не запрашивали доступ для работы в качестве вспомогательного VR-сервиса."</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Разрешить VR-сервису доступ к сервису \"<xliff:g id="SERVICE">%1$s</xliff:g>\"?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> сможет начать работу, когда вы будете использовать приложения в режиме виртуальной реальности."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Когда устройство в VR-режиме"</string>
@@ -3482,7 +3482,7 @@
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Когда приложение открыто или когда вы выходите из него, оно может создавать окно \"Картинка в картинке\". Так вы можете, например, продолжить просмотр видео. Это окно отображается поверх остальных приложений."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Доступ к функции \"Не беспокоить\""</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Разрешить доступ к режиму \"Не беспокоить\""</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Установленные приложения не запрашивали доступ к функции \"Не беспокоить\""</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Установленные приложения не запрашивали доступ к функции \"Не беспокоить\"."</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Загрузка..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Вы отключили уведомления от этого приложения."</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Вы отключили уведомления этой категории."</string>
@@ -3953,7 +3953,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"Масштаб изображения на экране"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Сделайте объекты на экране больше или меньше"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"разрешение экрана, масштаб, увеличение, уменьшение"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"Сделайте объекты на экране меньше или больше. Может измениться порядок значков приложений."</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"Выберите масштаб изображения на экране. Может измениться порядок значков приложений."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Просмотр"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"Уменьшить"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"Увеличить"</string>
@@ -4201,7 +4201,7 @@
     <string name="page_tab_title_summary" msgid="4824744863994538006">"Все"</string>
     <string name="page_tab_title_support" msgid="5569262185010367870">"Помощь и советы"</string>
     <string name="developer_smallest_width" msgid="2603134476228805075">"Минимальная ширина"</string>
-    <string name="premium_sms_none" msgid="940723020871007898">"Установленные приложения не запрашивали доступ к платным SMS"</string>
+    <string name="premium_sms_none" msgid="940723020871007898">"Установленные приложения не запрашивали доступ к платным SMS."</string>
     <string name="premium_sms_warning" msgid="7604011651486294515">"Обратите внимание, что такие SMS могут оплачиваться дополнительно. Предоставив разрешение приложению, вы сможете отправлять платные SMS с его помощью."</string>
     <string name="premium_sms_access" msgid="4550027460595822851">"Доступ к платным SMS"</string>
     <string name="bluetooth_disabled" msgid="6588102116819268238">"Отключено"</string>
@@ -4217,7 +4217,7 @@
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Датчики отключены"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Настройки рабочего профиля"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"Поиск контактов"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Разрешить поиск контактов в организации для определения вызывающих абонентов"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"Искать контакты и информацию о вызывающих абонентах в каталоге организации"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"Синхронизация календарей"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"Показывать рабочие мероприятия в личном календаре."</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"В вашей организации доступ к рабочему календарю для личных приложений запрещен."</string>

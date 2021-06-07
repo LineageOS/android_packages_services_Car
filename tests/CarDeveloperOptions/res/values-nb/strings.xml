@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Slett"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Berør sensoren"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Plassér fingeren på sensoren, og løft den når du kjenner en vibrasjon"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Legg fingeren på sensoren, og løft den når du kjenner en vibrasjon"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Løft fingeren og berør igjen"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Løft fingeren gjentatte ganger for å legge til de forskjellige delene av fingeravtrykket ditt"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingeravtrykket er lagt til"</string>
@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Neste"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"I tillegg til å låse opp telefonen din, kan du bruke fingeravtrykket ditt til å godkjenne kjøp og apptilgang. "<annotation id="url">"Finn ut mer"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Skjermlåsalternativet er slått av. Ta kontakt med administratoren i organisasjonen din for å finne ut mer. "<annotation id="admin_details">"Mer informasjon"</annotation>\n\n"Du kan fortsatt bruke fingeravtrykket ditt til å autorisere kjøp og apptilgang. "<annotation id="url">"Finn ut mer"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Løft fingeren og trykk på sensoren igjen"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Løft fingeren og legg den på sensoren igjen"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Du kan legge til opptil <xliff:g id="COUNT">%d</xliff:g> fingeravtrykk"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Du har lagt til maksimalt antall fingeravtrykk"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Kan ikke legge til flere fingeravtrykk"</string>
@@ -2597,11 +2597,11 @@
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Synkronisering"</string>
     <string name="sync_is_failing" msgid="8284618104132302644">"Det er midlertidige problemer med synkroniseringen. Vent litt."</string>
     <string name="add_account_label" msgid="4461298847239641874">"Legg til konto"</string>
-    <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Arbeidsprofilen er ikke tilgjengelig ennå"</string>
+    <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Jobbprofilen er ikke tilgjengelig ennå"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Jobbprofil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administreres av organisasjonen din"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Apper og varsler er slått av"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern jobbprofilen"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Slett jobbprofilen"</string>
     <string name="background_data" msgid="8275750862371471171">"Bakgrunnsdata"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apper kan når som helst synkronisere, sende og motta data"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Vil du deaktivere bakgrunnsdata?"</string>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM-kort"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Satt på pause ved grensen"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Synkroniser data automatisk"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Auto-synkr. av personlige data"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Auto-synkr. av arbeidsdata"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autosynkroniser persondata"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autosynkroniser jobbdata"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Endre syklus …"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Dag i måneden for å tilbakestille databruksyklusen:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Ingen apper brukte data i denne perioden."</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Vil du slette deg selv?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Vil du slette brukeren?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Fjerne denne profilen?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Fjern jobbprofilen?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Vil du slette jobbprofilen?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Lagringsplassen og dataene dine blir fjernet fra dette nettbrettet. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Lagringsplassen og dataene dine blir fjernet fra telefonen. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Alle apper og data slettes."</string>
@@ -3560,7 +3560,7 @@
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Krev PIN-kode for å løsne app"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Krev passord for å løsne apper"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Lås enheten når apper løsnes"</string>
-    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Denne arbeidsprofilen administreres av:"</string>
+    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Denne jobbprofilen administreres av:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Administrert av <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Eksperimentell)"</string>
     <string name="encryption_interstitial_header" msgid="3298397268731647519">"Trygg oppstart"</string>

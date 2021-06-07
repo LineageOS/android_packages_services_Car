@@ -2943,7 +2943,7 @@
     <string name="extreme_threats_summary" msgid="4967919167246852181">"รับการแจ้งเตือนภัยคุกคามต่อชีวิตและทรัพย์สินระดับสูงสุด"</string>
     <string name="severe_threats_title" msgid="1987698359027211862">"ภัยคุกคามที่ร้ายแรง"</string>
     <string name="severe_threats_summary" msgid="1148147804181873835">"รับการแจ้งเตือนภัยคุกคามที่ร้ายแรงต่อชีวิตและทรัพย์สิน"</string>
-    <string name="amber_alerts_title" msgid="8274651933750533271">"การแจ้งเตือน AMBER"</string>
+    <string name="amber_alerts_title" msgid="8274651933750533271">"การแจ้งเตือนเด็กหาย Amber Alert"</string>
     <string name="amber_alerts_summary" msgid="7570943549000256418">"รับกระดานข่าวสารเกี่ยวกับการลักพาตัวเด็ก"</string>
     <string name="repeat_title" msgid="507090203366188931">"เล่นซ้ำ"</string>
     <string name="call_manager_enable_title" msgid="6345443572463650308">"เปิดใช้ Call Manager"</string>
@@ -3421,7 +3421,7 @@
     <string name="notification_content_block_title" msgid="2805138591864484587">"แสดงการแจ้งเตือน"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ไม่ต้องแสดงการแจ้งเตือนในแว่นตาหรืออุปกรณ์ต่อพ่วง"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"อนุญาตให้ใช้เครื่องหมายจุดแสดงการแจ้งเตือน"</string>
-    <string name="notification_channel_badge_title" msgid="8228215248332054612">"แสดงจุดแจ้งเตือน"</string>
+    <string name="notification_channel_badge_title" msgid="8228215248332054612">"แสดงเครื่องหมายจุดแสดงการแจ้งเตือน"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"ลบล้าง \"ห้ามรบกวน\""</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"อนุญาตให้แสดงการแจ้งเตือนต่อไปเมื่อ \"ห้ามรบกวน\" เปิดอยู่"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"บนหน้าจอล็อก"</string>

@@ -324,7 +324,7 @@
     <string name="date_and_time_settings_summary" msgid="4617979434474713417">"Tarix, vaxt, vaxt zonası və formatları ayarlayın"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"Şəbəkə vaxtından istifadə edin"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"Şəbəkənin saat qurşağından istifadə edin"</string>
-    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Regional defolt ayarları istifadə edin"</string>
+    <string name="date_time_24hour_auto" msgid="7499659679134962547">"Regional defolt ayarlar tətbiq olunsun"</string>
     <string name="date_time_24hour_title" msgid="6209923858891621283">"24‑saat formatı"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"24 saat formatından istifadə et"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Vaxt"</string>
@@ -334,7 +334,7 @@
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Tarix"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"Bölgə axtarışı"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Region"</string>
-    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"UTC ofseti seçin"</string>
+    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"UTC ilə fərq"</string>
     <string name="zone_change_to_from_dst" msgid="5772776596087610194">"<xliff:g id="TIME_TYPE">%1$s</xliff:g> <xliff:g id="TRANSITION_DATE">%2$s</xliff:g> tarixindən başlayır."</string>
     <string name="zone_info_exemplar_location_and_offset" msgid="7264956350119098020">"<xliff:g id="EXEMPLAR_LOCATION">%1$s</xliff:g> (<xliff:g id="OFFSET">%2$s</xliff:g>)"</string>
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
@@ -863,7 +863,7 @@
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Sertifikatları quraşdırın"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Bu funksiya hətta Wi-Fi deaktiv olanda da tətbiqlərə və xidmətlərə Wi-Fi axtarmağa imkan yaradır. Bununla da məkan haqqında məlumata ehtiyacı olan funksiya və xidmətlərin iş keyfiyyəti artmış olur. Bunu <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>axtarış ayarlarında<xliff:g id="LINK_END_1">LINK_END</xliff:g> dəyişə bilərsiniz."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Məkan dəqiqliyini təkmilləşdirmək üçün <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>skan ayarlarından<xliff:g id="LINK_END_1">LINK_END</xliff:g> Wi-Fi skanını aktiv edin."</string>
-    <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Daha göstərmə"</string>
+    <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Göstərilməsin"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Yuxu zamanı Wi-Fi\'ı açıq saxlayın"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"Yuxu zamanı Wi-Fi aktiv olsun"</string>
     <string name="wifi_setting_sleep_policy_error" msgid="9029652631829560733">"Ayar dəyişdirilən zaman problem oldu"</string>
@@ -1170,7 +1170,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"Şəxsi hesab - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"Axtarış"</string>
     <string name="display_settings" msgid="1045535829232307190">"Göstər"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"Avtodönüşlü ekran"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"Ekranın avtomatik dönməsi"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"Rənglər"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Təbii"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Artan"</string>
@@ -1201,7 +1201,7 @@
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"Çox yüksək"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"Tərcih edilmiş parlaqlıq dərəcəsi"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Əlçatan işıq üçün tənzimləməyin"</string>
-    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Batareya istifadəsi artırıldı"</string>
+    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Enerji sərfiyyatı artacaq"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Əlçatan işıq üçün parlaqlığı optimallaşdırın. Bu funksiya aktiv olduqda parlaqlığı tənzimləyin."</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"Ekran parlaqlığı avtomatik olaraq ətraf mühitə və fəaliyyətlrinizə görə tənzimlənəcək. Ayarlana bilən parlaqlığın təcihlərinizi öyrənməsi üçün slayderi əlinizlə hərəkət etdirin."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Ağlıq balansını göstərin"</string>
@@ -1212,16 +1212,16 @@
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Ekran həssaslığı ekrana baxdığınızı bilmək üçün ön kameradan istifadə edir. Bu, cihazda işləyir və şəkillər heç vaxt Google\'da saxlanılmır, yaxud göndərilmir."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Gecə işığı"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Gecə İşığı kəhrəba rəngində olur. Bununla da ekrana və ya zəif işıqda qırmızıya baxmaq və yuxuya getmək daha asan olur."</string>
-    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Rutin"</string>
+    <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Rejim"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Heç biri"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Xüsusi vaxtda aktiv edir"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Seçilmiş vaxtda aktiv"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Gün çıxandan batana qədər aktiv edir"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Başlama vaxtı"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Bitmə tarixi"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>
     <string name="night_display_temperature_title" msgid="8375126629902616296">"İntensivlik"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"DEAKTİV / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Heç vaxt avtomatik aktiv etməyəcək"</string>
+    <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"Avtomatik aktivləşməyəcək"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"<xliff:g id="ID_1">%1$s</xliff:g> radələrində avtomatik aktiv edəcək"</string>
     <string name="night_display_summary_off_auto_mode_twilight" msgid="4071750976585359952">"Qürub vaxtı avtomatik aktiv edəcək"</string>
     <string name="night_display_summary_on" msgid="6580571388791426596">"AKTİV / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -1264,7 +1264,7 @@
     <string name="doze_title" msgid="235269029233857546">"Yeni bildiriş"</string>
     <string name="doze_summary" msgid="6762274282827831706">"Bildirişlər aldığınız zaman ekran oyansın"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Həmişə aktiv"</string>
-    <string name="doze_always_on_summary" msgid="7654436900436328950">"Vaxt, bildiriş ikonaları və digər məlumatı göstərin. Batareya istifadəsi artırıldı."</string>
+    <string name="doze_always_on_summary" msgid="7654436900436328950">"Vaxt, bildiriş ikonları və digər məlumatlar göstərilsin. Enerji sərfiyyatı artacaq."</string>
     <string name="title_font_size" msgid="5021464556860010851">"Şrift ölçüsü"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Mətni kiçildin və ya böyüdün"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"SIM kart kilid ayarları"</string>
@@ -1525,7 +1525,7 @@
     <string name="storage_wizard_ready_v2_internal_body" msgid="678829432420351228">"Kontenti <xliff:g id="NAME">^1</xliff:g> ünvanına köçürmək üçün "<b>"Ayarlar &gt; Yaddaş"</b>" ünvanına keçin"</string>
     <string name="storage_wizard_ready_v2_internal_moved_body" msgid="4133133596316768033">"Kontent <xliff:g id="NAME_0">^1</xliff:g> ünvanına köçürüldü. \n\n<xliff:g id="NAME_1">^2</xliff:g> ünvanını idarə etmək üçün, "<b>"Ayarlar &gt; Yaddaş"</b>" bölməsinə keçin."</string>
     <string name="battery_status_title" msgid="8731200319740671905">"Batareya statusu"</string>
-    <string name="battery_level_title" msgid="5207775387973771646">"Batareya səviyyəsi"</string>
+    <string name="battery_level_title" msgid="5207775387973771646">"Enerji səviyyəsi"</string>
     <string name="apn_settings" msgid="8130776653826271664">"APNs"</string>
     <string name="apn_edit" msgid="4350571070853305357">"Giriş nöqtəsinə düzəliş edin"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"Təyin edilməyib"</string>
@@ -1970,7 +1970,7 @@
     <string name="keyboard_assistance_category" msgid="2276351807419818125">"Klaviatura yardımı"</string>
     <string name="physical_keyboard_title" msgid="3508591962962814313">"Fiziki klaviatura"</string>
     <string name="show_ime" msgid="7322620473198763563">"Virtual klaviaturanı göstərin"</string>
-    <string name="show_ime_summary" msgid="3246628154011464373">"Fiziki klaviatura aktiv olduğu halda ekranda saxlayın"</string>
+    <string name="show_ime_summary" msgid="3246628154011464373">"Fiziki klaviatura aktiv olanda görünsün"</string>
     <string name="keyboard_shortcuts_helper" msgid="6574386807271399788">"Klaviatura qısa yolları köməkçisi"</string>
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"Əlçatan qısayolları göstərin"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"İş profili klaviaturaları və alətlər"</string>
@@ -1989,7 +1989,7 @@
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"İş üçün şəxsi lüğət"</string>
     <string name="user_dict_settings_summary" msgid="3131259534814181196"></string>
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"Əlavə edin"</string>
-    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Lüğətə əlavə et"</string>
+    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Lüğətə əlavə edin"</string>
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"İfadə"</string>
     <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Daha çox seçim"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"Daha az seçim"</string>
@@ -1997,7 +1997,7 @@
     <string name="user_dict_settings_add_word_option_name" msgid="5310204485783762787">"Söz:"</string>
     <string name="user_dict_settings_add_shortcut_option_name" msgid="1494012163016712256">"Qısayol:"</string>
     <string name="user_dict_settings_add_locale_option_name" msgid="6589803829089582686">"Dil:"</string>
-    <string name="user_dict_settings_add_word_hint" msgid="4184010899351180735">"Bir söz yazın"</string>
+    <string name="user_dict_settings_add_word_hint" msgid="4184010899351180735">"Söz yazın"</string>
     <string name="user_dict_settings_add_shortcut_hint" msgid="2212771507741334156">"Qısayol"</string>
     <string name="user_dict_settings_edit_dialog_title" msgid="6492621665762797309">"Sözə düzəliş edin"</string>
     <string name="user_dict_settings_context_menu_edit_title" msgid="4577283176672181497">"Düzəliş edin"</string>
@@ -2317,9 +2317,9 @@
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Bu tətbiq fon rejimində batareya enerjisi işlətdiyi üçün enerji tez qurtara bilər."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"Silin"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"Ləğv edin"</string>
-    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Tətbiqlər batareyadan normal istifadə edirlər. Tətbiqlər həddinən artıq çox batareya istifadə edərsə, telefon Sizin üçün tədbirlər təklif edəcək.\n\nTelefondan az batareya ilə istifadə edirsinizsə, Batareya Qənaətini aktiv edin."</string>
-    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Tətbiqlər batareyadan normal istifadə edirlər. Tətbiqlər həddinən artıq çox batareya istifadə edərsə, planşet Sizin üçün tədbirlər təklif edəcək.\n\nPlanşetdən az batareya ilə istifadə edirsinizsə, Batareya Qənaətini aktiv edin."</string>
-    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Tətbiqlər batareyadan normal istifadə edirlər. Tətbiqlər həddinən artıq çox batareya istifadə edərsə, cihaz Sizin üçün tədbirlər təklif edəcək.\n\nCihazdan az batareya ilə istifadə edirsinizsə, Batareya Qənaətini aktiv edin."</string>
+    <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"Tətbiqlər enerjini qaydası üzrə sərf edir. Enerji sərfiyyatı artanda sizə təkliflər ediləcək.\n\nEnerji qurtarırsa, enerjiyə qənaət rejiminə keçin."</string>
+    <string name="battery_tip_dialog_summary_message" product="tablet" msgid="1721081030632329647">"Tətbiqlər enerjini qaydası üzrə sərf edir. Enerji sərfiyyatı artanda sizə təkliflər ediləcək.\n\nEnerji qurtarırsa, enerjiyə qənaət rejiminə keçin."</string>
+    <string name="battery_tip_dialog_summary_message" product="device" msgid="146872407040848465">"Tətbiqlər enerjini qaydası üzrə sərf edir. Enerji sərfiyyatı artanda sizə təkliflər ediləcək.\n\nEnerji qurtarırsa, enerjiyə qənaət rejiminə keçin."</string>
     <string name="smart_battery_manager_title" msgid="5744035036663849515">"Batareya Meneceri"</string>
     <string name="smart_battery_title" msgid="4919670408532804351">"Tətbiqləri avtomatik idarə edin"</string>
     <string name="smart_battery_summary" msgid="640027046471198174">"Müntəzəm istifadə etmədiyiniz tətbiqlərin enerji istifadəsini məhdudlaşdırın"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Aktiv edin"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Enerji qənaəti rejimini istifadə edin"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Enerjiyə qənaət rejiminə keçin"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Avtomatik aktivləşdir"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Heç vaxt"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> batareya"</string>
@@ -3182,11 +3182,11 @@
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Silin"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Redaktə edin"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Cədvəllər"</string>
-    <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Rutin"</string>
-    <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Rutin"</string>
+    <string name="zen_mode_automatic_rule_settings_page_title" msgid="5272888746413504692">"Rejim"</string>
+    <string name="zen_mode_schedule_category_title" msgid="1936785755444711221">"Rejim"</string>
     <string name="zen_mode_automation_suggestion_title" msgid="4921779962633710347">"Müəyyən vaxtlarda telefonu səssiz edin"</string>
     <string name="zen_mode_automation_suggestion_summary" msgid="2709837472884371037">"\"Narahat etməyin\" qaydaları ayarlayın"</string>
-    <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Rutin"</string>
+    <string name="zen_mode_schedule_title" msgid="5275268813192802631">"Rejim"</string>
     <string name="zen_mode_use_automatic_rule" msgid="446326253915861824">"Rutin istifadə edin"</string>
     <string name="zen_mode_option_important_interruptions" msgid="5173944276846940149">"İcazəli şəxslər"</string>
     <string name="zen_mode_option_alarms" msgid="4843278125235203076">"Bildirişlər"</string>
@@ -3257,7 +3257,7 @@
     </plurals>
     <string name="zen_category_behavior" msgid="7695750848671443532">"İstisnalara icazə verməklə telefonu səssiz rejimə keçirin"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"İstisnalar"</string>
-    <string name="zen_category_schedule" msgid="989629666210114164">"Rutin"</string>
+    <string name="zen_category_schedule" msgid="989629666210114164">"Rejim"</string>
     <string name="zen_sound_title" msgid="3429086967245473870">"Bütün istisnalara baxın"</string>
     <string name="zen_sound_footer" msgid="1778673975517424878">"\"Narahat Etməyin\" rejimi aktiv olduğu zaman, yuxarıda icazə verdiyiniz elementlərdən başqa səs və vibrasiya susdurulacaq."</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"Hamısını susdurun"</string>
@@ -3711,7 +3711,7 @@
     <string name="high_power_off" msgid="5906679734326490426">"Batareya istifadəsi optimallaşdırılır"</string>
     <string name="high_power_system" msgid="739584574711292753">"Enerjiyə qənaət etmək olmur"</string>
     <string name="high_power_desc" msgid="333756885680362741">"Enerjiyə qənaət edilməsin. Enerji daha tez qurtara bilər."</string>
-    <string name="high_power_prompt_title" msgid="2805745781720454052">"Tətbiqə həmişə arxa fonda işləməyə icazə verilsin?"</string>
+    <string name="high_power_prompt_title" msgid="2805745781720454052">"Tətbiqə həmişə fonda işləmək icazəsi verilsin?"</string>
     <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> tətbiqinə həmişə arxa fonda işləmək icazəsi vermək batareya enerjisini azalda bilər. \n\nBunu daha sonra Ayarlar &gt;Tətbiqlər və bildirişlər bölməsindən dəyişə bilərsiniz."</string>
     <string name="battery_summary" msgid="4345690800899981339">"Tam şarjdan sonra <xliff:g id="PERCENTAGE">%1$s</xliff:g> enerji istifadəsi"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Enerji idarəetməsi"</string>
@@ -3833,7 +3833,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"Ekran ölçüsü"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Ekrandakı elementləri böyüdün və ya kiçildin"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"ekran yaxınlığı, ekran sıxlığı, miqyas, ölçmə"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"Ekrandakı elementləri kiçildin və ya böyüdün. Ekranınızdakı bəzi tətbiqlər mövqeyini dəyişə bilər."</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"Ekrandakıları kiçildin və ya böyüdün. Bəzi tətbiqlər pozisiyasını dəyişə bilər."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"Önizləmə"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"Kiçildin"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"Böyüdün"</string>
@@ -4120,10 +4120,10 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Tətbiqləri dəyişmək üçün Əsas Səhifə düyməsini yuxarı sürüşdürün. Bütün tətbiqlərə baxmaq üçün yenidən yuxarı sürüşdürün. Artıq ekranın sağ aşağı hissəsində İcmal düyməsi olmayacaq."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Yeni Əsas Səhifə düyməsini sınayın"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Tətbiqi dəyişmək üçün yeni işarəni aktiv edin"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Telefonu yoxlamaq üçün iki dəfə tıklayın"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Telefonu yoxlamaq üçün iki dəfə toxunun"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Planşeti yoxlamaq üçün iki dəfə tıklayın"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Cihazı yoxlamaq üçün iki dəfə tıklayın"</string>
-    <string name="ambient_display_summary" msgid="4882910328216411109">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün iki dəfə ekrana klikləyin."</string>
+    <string name="ambient_display_summary" msgid="4882910328216411109">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün ekrana iki dəfə toxunun."</string>
     <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Telefonu yoxlamaq üçün qaldırın"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Planşeti yoxlamaq üçün qaldırın"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Cihazı yoxlamaq üçün qaldırın"</string>
@@ -4131,10 +4131,10 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün telefonu götürün."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün planşeti götürün."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün cihazı götürün."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefonu yoxlamaq üçün klikləyin"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Telefonu yoxlamaq üçün toxunun"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Planşeti yoxlamaq üçün klikləyin"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Cihazı yoxlamaq üçün klikləyin"</string>
-    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün ekrana klikləyin."</string>
+    <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Vaxt, bildiriş və digər məlumatı yoxlamaq üçün ekrana toxunun."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Bildirişlər üçün barmağınızı sürüşdürün"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Barmağınızı sürüşdürün"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Bildirişləri yoxlamaq üçün, barmaq sensorunda aşağı sürüşdürün."</string>
@@ -4404,7 +4404,7 @@
     <string name="subscription_available" msgid="1227974088365700952">"Əlçatandır"</string>
     <string name="mobile_network_in_range" msgid="9205757267706176023">"Aralıqda"</string>
     <string name="mobile_network_not_in_range" msgid="3772644769833809436">"Aralıqda deyil"</string>
-    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Daha çoxunu əlavə edin"</string>
+    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Ardı gəlsin"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Aktiv / SIM"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Deaktiv / SIM"</string>
     <string name="mobile_network_active_esim" msgid="2919290915755581140">"Aktiv / Endirilən SIM"</string>
@@ -4417,7 +4417,7 @@
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Eyni vaxtda yalnız bir endirilmiş SIM aktiv ola bilər.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> operatoruna keçdikdə <xliff:g id="CARRIER2">%2$s</xliff:g> xidməti ləğv edilməyəcək."</string>
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> operatoruna keçin"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"SIM-i silin"</string>
-    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Endirilən SIM silinsin?"</string>
+    <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Endirilmiş SIM silinsin?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Bu SIM silindikdə <xliff:g id="CARRIER_0">%1$s</xliff:g> xidməti bu cihazdan silinir.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> üçün xidmət ləğv edilməyəcək."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Silin"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM silinir…"</string>

@@ -559,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Phương thức khóa màn hình"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / ngay sau khi chuyển sang chế độ ngủ"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> sau khi chuyển sang chế độ ngủ"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Khóa hồ sơ công việc"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Kiểu khóa hồ sơ công việc"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Thay đổi màn hình khóa"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Thay đổi hoặc vô hiệu hóa hình, mã PIN hoặc bảo mật mật khẩu"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Chọn phương thức khóa màn hình"</string>
@@ -1780,7 +1780,7 @@
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Sử dụng 1 kiểu khóa cho hồ sơ công việc và màn hình thiết bị"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Sử dụng 1 kiểu khóa?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Thiết bị của bạn sẽ sử dụng khóa màn hình hồ sơ công việc. Chính sách công việc sẽ được áp dụng cho cả hai khóa."</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Khóa hồ sơ công việc của bạn không đáp ứng yêu cầu bảo mật của tổ chức. Bạn có thể sử dụng cùng một khóa cho màn hình thiết bị và hồ sơ công việc của mình nhưng mọi chính sách khóa hồ sơ công việc sẽ được áp dụng."</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Kiểu khóa hồ sơ công việc của bạn không đáp ứng yêu cầu bảo mật của tổ chức. Bạn có thể sử dụng cùng một kiểu khóa cho màn hình thiết bị và hồ sơ công việc của mình nhưng mọi chính sách về kiểu khóa hồ sơ công việc sẽ được áp dụng."</string>
     <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"Sử dụng 1 kiểu khóa"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"Sử dụng 1 kiểu khóa"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"Giống như phương thức khóa màn hình thiết bị"</string>
@@ -3388,7 +3388,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Không có ứng dụng đã cài đặt nào hỗ trợ Ảnh trong ảnh"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"ảnh trong ảnh"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Hình trong hình"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Cho phép ảnh trong ảnh"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Cho phép chế độ hình trong hình"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Cho phép ứng dụng này tạo một cửa sổ hình trong hình khi ứng dụng đang mở hoặc sau khi bạn rời khỏi ứng dụng đó (chẳng hạn như để tiếp tục xem video). Cửa sổ này sẽ xuất hiện trên các ứng dụng khác mà bạn đang sử dụng."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Quyền truy cập chế độ Không làm phiền"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Cho phép tính năng Không làm phiền"</string>
@@ -3821,7 +3821,7 @@
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Có thể sửa đổi các chế độ cài đặt hệ thống"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Có thể sửa đổi các chế độ cài đặt hệ thống"</string>
     <string name="write_system_settings" msgid="20450765210832463">"Sửa đổi các chế độ cài đặt hệ thống"</string>
-    <string name="permit_write_settings" msgid="4198491281216818756">"Cho phép sửa đổi chế độ cài đặt hệ thống"</string>
+    <string name="permit_write_settings" msgid="4198491281216818756">"Cho phép sửa đổi các chế độ cài đặt hệ thống"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Quyền này cho phép ứng dụng sửa đổi các chế độ cài đặt hệ thống."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Có"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Không"</string>

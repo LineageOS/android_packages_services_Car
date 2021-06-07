@@ -343,7 +343,7 @@
     <string name="zone_time_type_dst" msgid="7812605402646684853">"Horario de verano"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Hora estándar"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Seleccionar por región"</string>
-    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Seleccionar por desplazamiento de UTC"</string>
+    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Seleccionar por compensación de UTC"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"Fecha"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"Hora"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Bloquear automáticamente"</string>
@@ -1570,7 +1570,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Se restableció la configuración predeterminada de APN."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Opciones de restablecimiento"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Se pueden restablecer las redes, las apps y los dispositivos"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Restablecer configuración de Wi-Fi, datos móviles y Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Restablecer Wi-Fi, datos móviles y Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Se restablecerán las opciones de configuración de todas las redes, incluidos:\n\n"<li>"Wi‑Fi"</li>\n<li>"Datos móviles"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Borrar tarjeta SIM descargada"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Para descargar tarjetas SIM de reemplazo, comunícate con tu proveedor. Esta acción no cancelará ningún plan de servicio móvil."</string>
@@ -1843,7 +1843,7 @@
     <string name="show_background_processes" msgid="88012264528093617">"Procesos en caché"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Aplicación de emergencia"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Restablecer preferencias de app"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"¿Restablecer preferencias?"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"¿Restablecer preferencias de apps?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Se restablecerán las preferencias de:\n\n "<li>"Apps inhabilitadas"</li>\n" "<li>"Notificaciones de apps inhabilitadas"</li>\n" "<li>"Apps predeterminadas para realizar acciones"</li>\n" "<li>"Restricciones de datos en segundo plano para apps"</li>\n" "<li>"Restricciones de permisos"</li>\n\n" No se perderán los datos de las apps."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Restablecer apps"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Administrar el espacio"</string>
@@ -3811,16 +3811,16 @@
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> apps que pueden mostrarse sobre otras apps"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Aplicaciones con permiso"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Permitida"</string>
-    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"No permitida"</string>
+    <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Sin permiso"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"instalar, apps, fuentes desconocidas"</string>
-    <string name="write_settings" msgid="9009040811145552108">"Modificar conf. sistema"</string>
+    <string name="write_settings" msgid="9009040811145552108">"Modificar config. del sistema"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"editar, modificar, sistema, configuración"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> aplicaciones pueden modificar la config. del sistema"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"Acceso a SMS para apps de finanzas"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"Puede instalar otras apps"</string>
     <string name="filter_write_settings_apps" msgid="6864144615530081121">"Puede modificar la configuración del sistema"</string>
     <string name="write_settings_title" msgid="5852614614193830632">"Puede modificar la configuración del sistema"</string>
-    <string name="write_system_settings" msgid="20450765210832463">"Modificar conf. sistema"</string>
+    <string name="write_system_settings" msgid="20450765210832463">"Modificar config. del sistema"</string>
     <string name="permit_write_settings" msgid="4198491281216818756">"Permitir cambios en configuración del sistema"</string>
     <string name="write_settings_description" msgid="2536706293042882500">"Este permiso admite que una aplicación modifique la configuración del sistema."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Sí"</string>

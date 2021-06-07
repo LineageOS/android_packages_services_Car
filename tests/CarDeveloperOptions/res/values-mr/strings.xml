@@ -2044,7 +2044,7 @@
     <string name="screen_reader_category_title" msgid="6300714148519645544">"स्क्रीन वाचक"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"ऑडिओ आणि स्क्रीनवरील मजकूर"</string>
     <string name="display_category_title" msgid="545168481672250195">"डिस्प्ले"</string>
-    <string name="interaction_control_category_title" msgid="8775039211811947683">"संवादात्मकता नियंत्रणे"</string>
+    <string name="interaction_control_category_title" msgid="8775039211811947683">"संवाद नियंत्रणे"</string>
     <string name="user_installed_services_category_title" msgid="4288689493753221319">"डाउनलोड केलेल्या सेवा"</string>
     <string name="experimental_category_title" msgid="3797000069740110717">"प्रायोगिक"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"वैशिष्‍ट्य फ्लॅग"</string>
@@ -3389,7 +3389,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"कोणतेही इंस्टॉल केलेली अ‍ॅप्स चित्रा मध्‍ये चित्रचे समर्थन करत नाहीत"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"चि. म. चि. चित्रामध्ये"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"चित्रा मध्‍ये चित्र"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"चित्रामध्‍ये चित्राची अनुमती द्या"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"चित्रात चित्राची अनुमती द्या"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"अ‍ॅप खुले असताना किंवा तुम्ही ते सोडल्यानंतर या अ‍ॅपला चित्रामध्ये चित्र विंडो तयार करण्याची परवानगी द्या (उदाहरणार्थ, व्हिडिओ पाहणे सुरू ठेवणे). ही विंडो तुम्ही वापरत असलेल्या इतर अ‍ॅप्सच्या वरती दिसते."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"व्यत्यय आणू नका अ‍ॅक्सेस"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"व्यत्यय आणू नका ची अनुमती द्या"</string>
@@ -4152,7 +4152,7 @@
     <string name="automatic_storage_manager_freed_bytes" msgid="7360443072390107772">"एकूण <xliff:g id="SIZE">%1$s</xliff:g> उपलब्ध केली \n\n<xliff:g id="DATE">%2$s</xliff:g> रोजी अंतिम चालविले"</string>
     <string name="web_action_enable_title" msgid="4462106633708675959">"इन्स्टंट अ‍ॅप्स"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"अ‍ॅप्समध्ये लिंक उघडा, ते इंस्टॉल केलेले नसले तरीही"</string>
-    <string name="web_action_section_title" msgid="5563229447734734662">"इन्स्टंट अ‍ॅप्स"</string>
+    <string name="web_action_section_title" msgid="5563229447734734662">"इंस्टंट अ‍ॅप्स"</string>
     <string name="instant_apps_settings" msgid="879003203555847537">"इंस्टंट अ‍ॅप्स प्राधान्ये"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"इंस्टॉल केलेली अ‍ॅप्स"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"तुमचा स्टोरेज आता स्टोरेज व्यवस्थापक व्यवस्थापित करत आहे"</string>

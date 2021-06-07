@@ -2136,7 +2136,7 @@
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Ne radi. Dodirnite da biste pročitali više informacija."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Ova usluga nije ispravna."</string>
     <string name="enable_quick_setting" msgid="1580451877998661255">"Prikaži u Brzim podešavanjima"</string>
-    <string name="daltonizer_type" msgid="6890356081036026791">"Režim ispravljanja"</string>
+    <string name="daltonizer_type" msgid="6890356081036026791">"Režim korekcije"</string>
     <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
       <item quantity="one">Izuzetno kratak period (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
       <item quantity="few">Izuzetno kratak period (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> ms)</item>
@@ -2201,7 +2201,7 @@
     <string name="color_red" msgid="7426040122729897596">"Crvena"</string>
     <string name="color_green" msgid="3432648781089648971">"Zelena"</string>
     <string name="color_blue" msgid="4055855996393833996">"Plava"</string>
-    <string name="color_cyan" msgid="7669317410901991453">"Cijan"</string>
+    <string name="color_cyan" msgid="7669317410901991453">"Tirkizna"</string>
     <string name="color_yellow" msgid="8847327436896180799">"Žuta"</string>
     <string name="color_magenta" msgid="721976999611563071">"Magenta"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"Želite li da koristite <xliff:g id="SERVICE">%1$s</xliff:g>?"</string>
@@ -2928,7 +2928,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Želite li da izbrišete sebe?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Brišete ovog korisnika?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Uklanjate ovaj profil?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Ukloniti poslovni profil?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Uklanjate poslovni profil?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Izgubićete prostor i podatke na ovom tabletu. Ne možete da opozovete ovu radnju."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Izgubićete prostor i podatke na ovom telefonu. Ne možete da opozovete ovu radnju."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Sve aplikacije i podaci će biti izbrisani."</string>

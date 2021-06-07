@@ -353,7 +353,7 @@
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"បង្ហាញ​ព័ត៌មាន​អំពី​ម្ចាស់​លើ​អេក្រង់​ចាក់​សោ"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"សារអេក្រង់ចាក់សោ"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"បើក​ធាតុ​ក្រាហ្វិក"</string>
-    <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"បិទដោយអ្នកគ្រប់គ្រង"</string>
+    <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"បានបិទដោយអ្នកគ្រប់គ្រង"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"បង្ហាញ​ជម្រើស​ចាក់សោ"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"បង្ហាញ​ជម្រើស​ប៊ូតុង​ថាមពល​ដែល​បិទ​ Smart Lock, ​ការ​ដោះ​សោដោយ​ប្រើ​ស្នាម​ម្រាមដៃ និង​ការ​ជូនដំណឹង​នៅលើ​អេក្រង់​ចាក់សោ"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"ការដោះសោ​បន្ថែម​សម្រាប់​ភ្នាក់ងារ​ទុកចិត្ត​ប៉ុណ្ណោះ"</string>
@@ -387,7 +387,7 @@
     <string name="security_settings_summary" msgid="5210109100643223686">"កំណត់​ទីតាំង​របស់​ខ្ញុំ ដោះ​សោ​អេក្រង់ ចាក់​សោ​ស៊ីម​កាត ចាក់​សោ​ការ​ផ្ទុក​ព័ត៌មាន​សម្ងាត់"</string>
     <string name="cdma_security_settings_summary" msgid="1783066617800041869">"កំណត់​ទីតាំង​ខ្ញុំ, ការ​ដោះ​សោ​អេក្រង់, សោ​ឧបករណ៍​ផ្ទុក​ព័ត៌មាន​សម្ងាត់"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"ឯកជនភាព"</string>
-    <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"បិទ​ដោយ​អ្នក​គ្រប់គ្រង"</string>
+    <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"បានបិទដោយអ្នកគ្រប់គ្រង"</string>
     <string name="security_status_title" msgid="1261960357751754428">"ស្ថានភាព​សុវត្ថិភាព"</string>
     <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ការចាក់សោអេក្រង់ ការដោះសោតាមទម្រង់មុខ"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ការចាក់សោអេក្រង់ ស្នាមម្រាមដៃ"</string>
@@ -1246,14 +1246,14 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"កំណត់អេក្រង់របស់អ្នកជាលក្ខណៈផ្ទាល់ខ្លួន"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"ជ្រើសរើស​ផ្ទាំង​រូបភាព​ពី"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"ធាតុរក្សាអេក្រង់"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"ខណៈពេលកំពុងសាក ឬបានភ្ជាប់"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"ពេលសាកថ្ម ឬភ្ជាប់"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"ទាំង​ពីរ"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"ពេលសាកថ្ម"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"ពេល​បាន​ភ្ជាប់"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"ពេល​​ភ្ជាប់"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"កុំឲ្យសោះ"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"បិទ"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"ដើម្បីគ្រប់គ្រងអ្វីដែលកើតឡើង នៅពេលទូរស័ព្ទត្រូវបានដោត និង/ឬកំពុងដេក សូមបើកធាតុរក្សាអេក្រង់។"</string>
-    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ពេលចាប់ផ្តើម"</string>
+    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ពេលដែលត្រូវចាប់ផ្តើម"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"ធាតុ​រក្សា​អេក្រង់​បច្ចុប្បន្ន"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"ចាប់ផ្ដើម​ឥឡូវ"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"ការ​កំណត់"</string>
@@ -2892,7 +2892,7 @@
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"អ្នក​នឹង​បាត់បង់​ទំហំ​ ព្រម​ទាំង​ទិន្នន័យ​របស់​អ្នក​លើ​កុំព្យូទ័រ​បន្ទះ​នេះ​។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"អ្នក​នឹង​បាត់បង់​ទំហំ និង​ទិន្នន័យ​របស់​អ្នក​លើ​ទូរស័ព្ទ​នេះ។ អ្នក​មិន​អាច​ធ្វើ​សកម្មភាព​នេះ​វិញ​បាន​ទេ។"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"កម្មវិធី និង​ទិន្នន័យ​ទាំងអស់​នឹង​ត្រូវ​បាន​លុប។"</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"កម្មវិធី និងទិន្នន័យទាំងអស់នៅក្នុងប្រវត្តិរូបនេះនឹងត្រូវលុប ប្រសិនបើអ្នកបន្ត។"</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"កម្មវិធី និងទិន្នន័យទាំងអស់នៅក្នុងកម្រងព័ត៌មាននេះនឹងត្រូវលុប ប្រសិនបើអ្នកបន្ត។"</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"កម្មវិធី និង​ទិន្នន័យ​ទាំងអស់​នឹង​ត្រូវ​បាន​លុប។"</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"កំពុង​បន្ថែម​អ្នក​ប្រើ​ថ្មី..."</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"លុប​អ្នក​ប្រើ"</string>
@@ -3560,7 +3560,7 @@
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"សួរ​រក​កូដ PIN មុន​ពេលដកខ្ទាស់"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"សួរ​រក​ពាក្យ​សម្ងាត់​មុន​ពេល​ផ្ដាច់"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ចាក់​សោ​ឧបករណ៍​ពេល​មិន​ខ្ទាស់"</string>
-    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"ប្រវត្តិរូបការងារនេះត្រូវបានគ្រប់គ្រងដោយ៖"</string>
+    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"កម្រងព័ត៌មានការងារនេះត្រូវបានគ្រប់គ្រងដោយ៖"</string>
     <string name="managing_admin" msgid="3212584016377581608">"គ្រប់គ្រងដោយ <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(ពិសោធន៍​)"</string>
     <string name="encryption_interstitial_header" msgid="3298397268731647519">"សុវត្ថិភាពពេលចាប់ផ្តើម"</string>
