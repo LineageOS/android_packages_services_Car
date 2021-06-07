@@ -20,6 +20,9 @@ import static android.media.AudioAttributes.USAGE_MEDIA;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.description;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
@@ -39,6 +42,7 @@ import android.util.SparseArray;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -178,7 +182,15 @@ public final class CarZonesAudioFocusUnitTest {
 
         mCarZonesAudioFocus.onAudioFocusRequest(audioFocusInfo, AUDIOFOCUS_REQUEST_GRANTED);
 
-        verify(mMockCarFocusCallback).onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        ArgumentCaptor<SparseArray<List<AudioFocusInfo>>> captor =
+                ArgumentCaptor.forClass(SparseArray.class);
+        verify(mMockCarFocusCallback)
+                .onFocusChange(eq(new int[]{PRIMARY_ZONE_ID}), captor.capture());
+        SparseArray<List<AudioFocusInfo>> results = captor.getValue();
+        assertWithMessage("Number of lists returned in sparse array")
+                .that(results.size()).isEqualTo(1);
+        assertWithMessage("Focus holders for primary zone")
+                .that(results.get(PRIMARY_ZONE_ID)).isEqualTo(focusHolders);
     }
 
     @Test
@@ -203,6 +215,18 @@ public final class CarZonesAudioFocusUnitTest {
         verify(mFocusMocks.get(SECONDARY_ZONE_ID),
                 description("Secondary zone's CarAudioFocus#setRestrictFocus wasn't passed false"))
                 .setRestrictFocus(false);
+    }
+
+    @Test
+    public void setRestrictFocus_notifiesFocusCallbackForAllZones() {
+        mCarZonesAudioFocus.setRestrictFocus(false);
+
+        ArgumentCaptor<SparseArray<List<AudioFocusInfo>>> captor =
+                ArgumentCaptor.forClass(SparseArray.class);
+        int[] expectedZoneIds = new int[]{PRIMARY_ZONE_ID, SECONDARY_ZONE_ID};
+        verify(mMockCarFocusCallback).onFocusChange(eq(expectedZoneIds), captor.capture());
+        assertWithMessage("Number of focus holder lists")
+                .that(captor.getValue().size()).isEqualTo(2);
     }
 
     private static SparseArray<CarAudioZone> generateAudioZones() {
