@@ -48,7 +48,7 @@ using tinyxml2::XMLElement;
 namespace {
 
 // Vendor power policy filename.
-constexpr const char* kVendorPolicyFile = "/vendor/etc/power_policy.xml";
+constexpr const char* kVendorPolicyFile = "/vendor/etc/automotive/power_policy.xml";
 
 // Tags and attributes in vendor power policy XML file.
 constexpr const char* kTagRoot = "powerPolicy";
