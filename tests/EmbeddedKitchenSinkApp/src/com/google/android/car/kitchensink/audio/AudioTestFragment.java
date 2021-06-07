@@ -641,9 +641,11 @@ public class AudioTestFragment extends Fragment {
         mViewPager = view.findViewById(R.id.zones_player_view_pager);
         mAudioPlayerZoneAdapter = new CarAudioZoneTabAdapter(getChildFragmentManager());
         mViewPager.setAdapter(mAudioPlayerZoneAdapter);
-        mAudioPlayerZoneAdapter
-                .addFragment(new AudioSystemPlayerFragment(mCarAudioManager, mAudioManager),
-                        "System Players");
+        mAudioPlayerZoneAdapter.addFragment(
+                new AudioSystemPlayerFragment(mCarAudioManager, mAudioManager),
+                "System Players");
+        mAudioPlayerZoneAdapter.addFragment(new AudioTransientPlayersFragment(),
+                "Transient Sound Players");
         mAudioPlayerZoneAdapter.notifyDataSetChanged();
         mPlayerTabLayout.setupWithViewPager(mViewPager);
     }
