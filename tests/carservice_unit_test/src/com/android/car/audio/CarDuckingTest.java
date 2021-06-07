@@ -50,6 +50,7 @@ import java.util.List;
 public final class CarDuckingTest {
     private static final int PRIMARY_ZONE_ID = 0;
     private static final int PASSENGER_ZONE_ID = 1;
+    private static final int[] ONE_ZONE_CHANGE = new int[]{PRIMARY_ZONE_ID};
     private static final int REAR_ZONE_ID = 2;
     private static final String PRIMARY_MEDIA_ADDRESS = "primary_media";
     private static final String PRIMARY_NAVIGATION_ADDRESS = "primary_navigation_address";
@@ -59,18 +60,22 @@ public final class CarDuckingTest {
     private final AudioFocusInfo mMediaFocusInfo = generateAudioFocusInfoForUsage(USAGE_MEDIA);
     private final AudioFocusInfo mNavigationFocusInfo =
             generateAudioFocusInfoForUsage(USAGE_ASSISTANCE_NAVIGATION_GUIDANCE);
+    private final SparseArray<List<AudioFocusInfo>> mMediaFocusHolders = new SparseArray<>();
+    private final SparseArray<List<AudioFocusInfo>> mMediaNavFocusHolders = new SparseArray<>();
 
     @Mock
     private AudioControlWrapper mMockAudioControlWrapper;
 
     @Captor
-    private ArgumentCaptor<CarDuckingInfo> mCarDuckingInfoCaptor;
+    private ArgumentCaptor<List<CarDuckingInfo>> mCarDuckingInfosCaptor;
 
     private CarDucking mCarDucking;
 
     @Before
     public void setUp() {
         mCarDucking = new CarDucking(mCarAudioZones, mMockAudioControlWrapper);
+        mMediaFocusHolders.put(PRIMARY_ZONE_ID, List.of(mMediaFocusInfo));
+        mMediaNavFocusHolders.put(PRIMARY_ZONE_ID, List.of(mMediaFocusInfo, mNavigationFocusInfo));
     }
 
     @Test
@@ -90,9 +95,7 @@ public final class CarDuckingTest {
 
     @Test
     public void onFocusChange_forPrimaryZone_updatesUsagesHoldingFocus() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo);
-
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
         assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mUsagesHoldingFocus)
@@ -101,9 +104,7 @@ public final class CarDuckingTest {
 
     @Test
     public void onFocusChange_forPrimaryZone_doesNotUpdateSecondaryZones() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo);
-
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
         assertThat(newDuckingInfo.get(PASSENGER_ZONE_ID).mUsagesHoldingFocus).isEmpty();
@@ -112,9 +113,7 @@ public final class CarDuckingTest {
 
     @Test
     public void onFocusChange_withMultipleFocusHolders_updatesAddressesToDuck() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo, mNavigationFocusInfo);
-
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
         assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToDuck)
@@ -123,11 +122,9 @@ public final class CarDuckingTest {
 
     @Test
     public void onFocusChange_withDuckedDevices_updatesAddressesToUnduck() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo, mNavigationFocusInfo);
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
-        List<AudioFocusInfo> updatedHolders = List.of(mMediaFocusInfo);
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, updatedHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         SparseArray<CarDuckingInfo> newDuckingInfo = mCarDucking.getCurrentDuckingInfo();
         assertThat(newDuckingInfo.get(PRIMARY_ZONE_ID).mAddressesToUnduck)
@@ -136,39 +133,46 @@ public final class CarDuckingTest {
 
     @Test
     public void onFocusChange_notifiesHalOfUsagesHoldingFocus() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
-
-        ArgumentCaptor<CarDuckingInfo> captor = ArgumentCaptor.forClass(CarDuckingInfo.class);
-        verify(mMockAudioControlWrapper).onDevicesToDuckChange(captor.capture());
-        int[] usagesHoldingFocus = captor.getValue().mUsagesHoldingFocus;
+        verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
+        int[] usagesHoldingFocus = mCarDuckingInfosCaptor.getValue().get(0).mUsagesHoldingFocus;
         assertThat(usagesHoldingFocus).asList().containsExactly(USAGE_MEDIA);
     }
 
     @Test
     public void onFocusChange_notifiesHalOfAddressesToDuck() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo, mNavigationFocusInfo);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
-
-        verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfoCaptor.capture());
-        List<String> addressesToDuck = mCarDuckingInfoCaptor.getValue().mAddressesToDuck;
+        verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
+        List<String> addressesToDuck = mCarDuckingInfosCaptor.getValue().get(0).mAddressesToDuck;
         assertThat(addressesToDuck).containsExactly(PRIMARY_MEDIA_ADDRESS);
     }
 
     @Test
     public void onFocusChange_notifiesHalOfAddressesToUnduck() {
-        List<AudioFocusInfo> focusHolders = List.of(mMediaFocusInfo, mNavigationFocusInfo);
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, focusHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaNavFocusHolders);
 
-        List<AudioFocusInfo> updatedHolders = List.of(mMediaFocusInfo);
-        mCarDucking.onFocusChange(PRIMARY_ZONE_ID, updatedHolders);
+        mCarDucking.onFocusChange(ONE_ZONE_CHANGE, mMediaFocusHolders);
 
         verify(mMockAudioControlWrapper, times(2))
-                .onDevicesToDuckChange(mCarDuckingInfoCaptor.capture());
-        List<String> addressesToUnduck = mCarDuckingInfoCaptor.getValue().mAddressesToUnduck;
+                .onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
+        List<String> addressesToUnduck = mCarDuckingInfosCaptor.getValue().get(0)
+                .mAddressesToUnduck;
         assertThat(addressesToUnduck).containsExactly(PRIMARY_MEDIA_ADDRESS);
+    }
+
+    @Test
+    public void onFocusChange_withMultipleZones_notifiesForEachZone() {
+        int[] zoneIds = new int[]{PRIMARY_ZONE_ID, PASSENGER_ZONE_ID};
+        SparseArray<List<AudioFocusInfo>> focusChanges = new SparseArray<>();
+        focusChanges.put(PRIMARY_ZONE_ID, List.of(mMediaFocusInfo));
+        focusChanges.put(PASSENGER_ZONE_ID, List.of(mNavigationFocusInfo));
+
+        mCarDucking.onFocusChange(zoneIds, focusChanges);
+
+        verify(mMockAudioControlWrapper).onDevicesToDuckChange(mCarDuckingInfosCaptor.capture());
+        assertThat(mCarDuckingInfosCaptor.getValue().size()).isEqualTo(zoneIds.length);
     }
 
     private AudioFocusInfo generateAudioFocusInfoForUsage(int usage) {
