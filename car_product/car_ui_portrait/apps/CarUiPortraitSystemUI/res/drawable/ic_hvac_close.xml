@@ -21,5 +21,5 @@
         android:viewportHeight="26">
     <path
         android:pathData="M25.8327 2.75199L23.2477 0.166992L12.9994 10.4153L2.75102 0.166992L0.166016 2.75199L10.4144 13.0003L0.166016 23.2487L2.75102 25.8337L12.9994 15.5853L23.2477 25.8337L25.8327 23.2487L15.5844 13.0003L25.8327 2.75199Z"
-        android:fillColor="@color/hvac_on_icon_fill_color" />
+        android:fillColor="@color/hvac_off_icon_fill_color" />
 </vector>

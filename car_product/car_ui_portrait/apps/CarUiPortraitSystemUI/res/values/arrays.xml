@@ -16,16 +16,28 @@
  -->
 
 <resources>
-    <array name="hvac_driver_heated_seat_icons">
-        <item>@drawable/hvac_driver_heated_seat_off</item>
-        <item>@drawable/hvac_driver_heated_seat_on_1</item>
-        <item>@drawable/hvac_driver_heated_seat_on_2</item>
-        <item>@drawable/hvac_driver_heated_seat_on_3</item>
+    <array name="hvac_driver_seat_heat_icons">
+        <item>@drawable/ic_driver_seat_heat_off</item>
+        <item>@drawable/ic_driver_seat_heat_low</item>
+        <item>@drawable/ic_driver_seat_heat_med</item>
+        <item>@drawable/ic_driver_seat_heat_high</item>
     </array>
-    <array name="hvac_passenger_heated_seat_icons">
-        <item>@drawable/hvac_passenger_heated_seat_off</item>
-        <item>@drawable/hvac_passenger_heated_seat_on_1</item>
-        <item>@drawable/hvac_passenger_heated_seat_on_2</item>
-        <item>@drawable/hvac_passenger_heated_seat_on_3</item>
+    <array name="hvac_passenger_seat_heat_icons">
+        <item>@drawable/ic_passenger_seat_heat_off</item>
+        <item>@drawable/ic_passenger_seat_heat_low</item>
+        <item>@drawable/ic_passenger_seat_heat_med</item>
+        <item>@drawable/ic_passenger_seat_heat_high</item>
+    </array>
+    <array name="hvac_driver_seat_cool_icons">
+        <item>@drawable/ic_driver_seat_cool_off</item>
+        <item>@drawable/ic_driver_seat_cool_low</item>
+        <item>@drawable/ic_driver_seat_cool_med</item>
+        <item>@drawable/ic_driver_seat_cool_high</item>
+    </array>
+    <array name="hvac_passenger_seat_cool_icons">
+        <item>@drawable/ic_passenger_seat_cool_off</item>
+        <item>@drawable/ic_passenger_seat_cool_low</item>
+        <item>@drawable/ic_passenger_seat_cool_med</item>
+        <item>@drawable/ic_passenger_seat_cool_high</item>
     </array>
 </resources>
