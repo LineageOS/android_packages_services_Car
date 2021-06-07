@@ -43,13 +43,15 @@
     <!-- List of system-wide disk I/O overuse alert thresholds. -->
     <systemWideThresholds>
       <!-- 1GiB written in 30 seconds -->
-      <param id="duration_seconds"> 30 </param>
-      <param id="written_bytes_per_second"> 35791394 </param>
-    </systemWideThresholds>
-    <systemWideThresholds>
+      <alertThreshold>
+        <param id="duration_seconds"> 30 </param>
+        <param id="written_bytes_per_second"> 35791394 </param>
+      </alertThreshold>
       <!-- 500MiB written in 10 seconds -->
-      <param id="duration_seconds"> 10 </param>
-      <param id="written_bytes_per_second"> 52428800 </param>
+      <alertThreshold>
+        <param id="duration_seconds"> 10 </param>
+        <param id="written_bytes_per_second"> 52428800 </param>
+      </alertThreshold>
     </systemWideThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>

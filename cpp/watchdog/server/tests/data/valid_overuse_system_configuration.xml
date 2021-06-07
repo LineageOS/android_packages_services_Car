@@ -38,27 +38,31 @@
     </componentLevelThresholds>
 
     <!-- Package specific thresholds. -->
-    <packageSpecificThresholds id="system.package.C">
-      <state id="foreground_mode"> 400 </state>
-      <state id="background_mode"> 100 </state>
-      <state id="garage_mode"> 200 </state>
-    </packageSpecificThresholds>
+    <packageSpecificThresholds>
+      <perStateThreshold id="system.package.C">
+        <state id="foreground_mode"> 400 </state>
+        <state id="background_mode"> 100 </state>
+        <state id="garage_mode"> 200 </state>
+      </perStateThreshold>
 
-    <packageSpecificThresholds id="system.package.D">
-      <state id="foreground_mode"> 1024 </state>
-      <state id="background_mode"> 500 </state>
-      <state id="garage_mode"> 2048 </state>
+      <perStateThreshold id="system.package.D">
+        <state id="foreground_mode"> 1024 </state>
+        <state id="background_mode"> 500 </state>
+        <state id="garage_mode"> 2048 </state>
+      </perStateThreshold>
     </packageSpecificThresholds>
 
     <!-- List of system-wide disk I/O overuse alert thresholds. -->
     <systemWideThresholds>
-      <param id="duration_seconds"> 10 </param>
-      <param id="written_bytes_per_second"> 200 </param>
-    </systemWideThresholds>
+      <alertThreshold>
+        <param id="duration_seconds"> 10 </param>
+        <param id="written_bytes_per_second"> 200 </param>
+      </alertThreshold>
 
-    <systemWideThresholds>
-      <param id="duration_seconds"> 5 </param>
-      <param id="written_bytes_per_second"> 50 </param>
+      <alertThreshold>
+        <param id="duration_seconds"> 5 </param>
+        <param id="written_bytes_per_second"> 50 </param>
+      </alertThreshold>
     </systemWideThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>

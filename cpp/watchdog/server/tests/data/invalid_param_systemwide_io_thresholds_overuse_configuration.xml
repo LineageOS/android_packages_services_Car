@@ -25,9 +25,11 @@
     </componentLevelThresholds>
 
     <systemWideThresholds>
-      <param id="duration_seconds"> 10 </param>
-      <param id="written_bytes_per_second"> 200 </param>
-      <param id="random_param"> 200 </param>
+      <alertThreshold>
+        <param id="duration_seconds"> 10 </param>
+        <param id="written_bytes_per_second"> 200 </param>
+        <param id="random_param"> 200 </param>
+      </alertThreshold>
     </systemWideThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>
