@@ -103,9 +103,10 @@ public interface AudioControlWrapper {
      * Notifies HAL of changes in usages holding focus and the corresponding ducking changes for a
      * given zone.
      *
-     * @param carDuckingInfo information about focus and addresses to duck to relay to the HAL.
+     * @param carDuckingInfos list of information about focus and addresses to duck for each
+     * impacted zone to relay to the HAL.
      */
-    void onDevicesToDuckChange(@NonNull CarDuckingInfo carDuckingInfo);
+    void onDevicesToDuckChange(@NonNull List<CarDuckingInfo> carDuckingInfos);
 
     /**
      * Notifies HAL of changes in muting changes for all audio zones.

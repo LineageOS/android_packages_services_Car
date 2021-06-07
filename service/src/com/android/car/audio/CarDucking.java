@@ -58,25 +58,43 @@ final class CarDucking implements CarFocusCallback {
         }
     }
 
-    public void onFocusChange(int audioZoneId, @NonNull List<AudioFocusInfo> focusHolders) {
+    @Override
+    public void onFocusChange(int[] audioZoneIds,
+            @NonNull SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId) {
         synchronized (mLock) {
-            CarDuckingInfo oldDuckingInfo = mCurrentDuckingInfo.get(audioZoneId);
-            CarDuckingInfo newDuckingInfo = generateNewDuckingInfoLocked(oldDuckingInfo,
-                    focusHolders);
-            mCurrentDuckingInfo.put(audioZoneId, newDuckingInfo);
-            mAudioControlWrapper.onDevicesToDuckChange(newDuckingInfo);
+            List<CarDuckingInfo> newDuckingInfos = new ArrayList<>(audioZoneIds.length);
+            for (int i = 0; i < audioZoneIds.length; i++) {
+                int zoneId = audioZoneIds[i];
+                List<AudioFocusInfo> focusHolders = focusHoldersByZoneId.get(zoneId);
+                CarDuckingInfo newDuckingInfo = updateDuckingForZoneIdLocked(zoneId, focusHolders);
+                newDuckingInfos.add(newDuckingInfo);
+            }
+            mAudioControlWrapper.onDevicesToDuckChange(newDuckingInfos);
         }
+    }
+
+    @GuardedBy("mLock")
+    private CarDuckingInfo updateDuckingForZoneIdLocked(int zoneId,
+            List<AudioFocusInfo> focusHolders) {
+        CarDuckingInfo oldDuckingInfo = mCurrentDuckingInfo.get(zoneId);
+        CarDuckingInfo newDuckingInfo = generateNewDuckingInfoLocked(oldDuckingInfo,
+                focusHolders);
+        mCurrentDuckingInfo.put(zoneId, newDuckingInfo);
+        return newDuckingInfo;
     }
 
     public void dump(IndentingPrintWriter writer) {
         writer.printf("*%s*\n", TAG);
         writer.increaseIndent();
-        for (int i = 0; i < mCurrentDuckingInfo.size(); i++) {
-            mCurrentDuckingInfo.valueAt(i).dump(writer);
+        synchronized (mLock) {
+            for (int i = 0; i < mCurrentDuckingInfo.size(); i++) {
+                mCurrentDuckingInfo.valueAt(i).dump(writer);
+            }
         }
         writer.decreaseIndent();
     }
 
+    @GuardedBy("mLock")
     private CarDuckingInfo generateNewDuckingInfoLocked(CarDuckingInfo oldDuckingInfo,
             List<AudioFocusInfo> focusHolders) {
         int zoneId = oldDuckingInfo.mZoneId;

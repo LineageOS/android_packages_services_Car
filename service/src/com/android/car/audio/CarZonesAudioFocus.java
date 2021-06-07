@@ -148,16 +148,19 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     }
 
     void setRestrictFocus(boolean isFocusRestricted) {
+        int[] zoneIds = new int[mFocusZones.size()];
         for (int i = 0; i < mFocusZones.size(); i++) {
+            zoneIds[i] = mFocusZones.keyAt(i);
             mFocusZones.valueAt(i).setRestrictFocus(isFocusRestricted);
         }
+        notifyFocusCallback(zoneIds);
     }
 
     @Override
     public void onAudioFocusRequest(AudioFocusInfo afi, int requestResult) {
         int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
         getCarAudioFocusForZoneId(zoneId).onAudioFocusRequest(afi, requestResult);
-        notifyFocusCallback(zoneId);
+        notifyFocusCallback(new int[]{zoneId});
     }
 
     /**
@@ -169,7 +172,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     public void onAudioFocusAbandon(AudioFocusInfo afi) {
         int zoneId = getAudioZoneIdForAudioFocusInfo(afi);
         getCarAudioFocusForZoneId(zoneId).onAudioFocusAbandon(afi);
-        notifyFocusCallback(zoneId);
+        notifyFocusCallback(new int[]{zoneId});
     }
 
     @NonNull
@@ -203,13 +206,18 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return zoneId;
     }
 
-    private void notifyFocusCallback(int audioZoneId) {
+    private void notifyFocusCallback(int[] zoneIds) {
         if (mCarFocusCallback == null) {
             return;
         }
+        SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId = new SparseArray<>();
+        for (int i = 0; i < zoneIds.length; i++) {
+            int zoneId = zoneIds[i];
+            List<AudioFocusInfo> focusHolders = mFocusZones.get(zoneId).getAudioFocusHolders();
+            focusHoldersByZoneId.put(zoneId, focusHolders);
+        }
 
-        List<AudioFocusInfo> focusHolders = mFocusZones.get(audioZoneId).getAudioFocusHolders();
-        mCarFocusCallback.onFocusChange(audioZoneId, focusHolders);
+        mCarFocusCallback.onFocusChange(zoneIds, focusHoldersByZoneId);
     }
 
     void dump(IndentingPrintWriter writer) {
@@ -242,9 +250,11 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         /**
          * Called after a focus request or abandon call is handled.
          *
-         * @param audioZoneId ID of the zone where the change took place
-         * @param focusHolders list of {@link AudioFocusInfo}s holding focus in specified audio zone
+         * @param audioZoneIds IDs of the zones where the changes took place
+         * @param focusHoldersByZoneId sparse array by zone ID, where each value is a list of
+         * {@link AudioFocusInfo}s holding focus in specified audio zone
          */
-        void onFocusChange(int audioZoneId, @NonNull List<AudioFocusInfo> focusHolders);
+        void onFocusChange(int[] audioZoneIds,
+                @NonNull SparseArray<List<AudioFocusInfo>> focusHoldersByZoneId);
     }
 }
