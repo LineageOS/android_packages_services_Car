@@ -417,14 +417,14 @@
     <string name="security_settings_face_enroll_finish_title" msgid="6800717857394410769">"सबै कुरा तयार छ। राम्रो देखिँदै छ।"</string>
     <string name="security_settings_face_enroll_done" msgid="5409739233373490971">"सम्पन्न भयो"</string>
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"निम्न प्रयोजनमा आफ्नो अनुहार प्रयोग गर्नु…"</string>
-    <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"तपाईंको यन्त्र अनलक गर्दै"</string>
+    <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"तपाईंको डिभाइस अनलक गर्दै"</string>
     <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"एपको साइन इन र भुक्तानी"</string>
     <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"अनलक गर्न आँखा खुल्ला छन्"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"अनुहारको प्रमाणीकरण प्रयोग गर्दा तपाईंका आँखा खुल्ला हुनै पर्छ"</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"सधैँ पुष्टि गर्न आवश्यक पर्छ"</string>
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"एपहरूमा प्रमाणीकरण गर्दा सधैँ पुष्टि गर्न आवश्यक पर्छ"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"अनुहारसम्बन्धी डेटा हटाउनुहोस्"</string>
-    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"तपाईंको यन्त्र अनलक गर्न र एपमाथि पहुँच राख्न तपाईंको अनुहार प्रयोग गर्न सकिन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
+    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"तपाईंको डिभाइस अनलक गर्न र एपमाथि पहुँच राख्न तपाईंको अनुहार प्रयोग गर्न सकिन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"अनुहारसम्बन्धी डेटा मेट्ने हो?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"फेस अनलक गर्ने सुविधामार्फत रेकर्ड गरिएको डेटा स्थायी रूपमा र सुरक्षित रूपमा मेटिने छ। हटाइसकेपछि, आफ्नो फोन अनलक गर्न, एपहरूमा साइन इन गर्न र भुक्तानी पुष्टि गर्न तपाईंसँग आफ्नो PIN, प्याटर्न वा पासवर्ड हुनु पर्ने छ।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"औंठाछाप"</string>
@@ -460,15 +460,15 @@
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"स्किप गर्नु"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"रद्द गर्नुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"सेन्सरमा छुनुहोस्"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"यो तपाईंको फोनको पछाडिको भागमा छ। आफ्नो चोर औंला प्रयोग गर्नुहोस्‌।"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"सेन्सर तपाईंको फोनको पछाडिको भागमा हुन्छ। आफ्नो चोर औंला प्रयोग गर्नुहोस्‌।"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"यन्त्र साथ चित्रण र फिंगरप्रिन्ट सेन्सर स्थान"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"नाम"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ठिक छ"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"मेटाउनुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"सेन्सरमा छुनुहोस्"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"सेन्सरमा आफ्नो औंला राख्नुहोस्  र तपाईंले भाइब्रेसन भएपछि उठाउनुहोस्"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"सेन्सरमा आफ्नो औंला राख्नुहोस् र भाइब्रेसन भएपछि उठाउनुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"औंला उठाई फेरि छुनुहोस्"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"तपाईंको फिंगरप्रिन्टका फरक-फरक भागहरू थप्न आफ्नो औंलालाई उठाउँदै राख्दै गर्नुहोस्"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"तपाईंको फिंगरप्रिन्टका फरक-फरक भागहरू हाल्न आफ्नो औंलालाई उठाउँदै राख्दै गर्नुहोस्"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"फिंगरप्रिन्ट हालियो"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"यो आइकन देख्दा आफ्नो पहिचान दिन वा खरिदहरूको अनुमोदन गर्न आफ्नो फिंगरप्रिन्ट प्रयोग गर्नुहोस्‌"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"यो काम पछि गर्नुहोस्‌"</string>
@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"अर्को"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"तपाईँले आफ्नो फोन खोल्नका अतिरिक्त खरिद र एप पहुँच प्राधिकरण गर्नाका लागि पनि आफ्नो फिंगरप्रिन्ट प्रयोग गर्न सक्नुहुन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" स्क्रिन लकको विकल्प असक्षम पारिएको छ। थप जान्नलाई आफ्नो सङ्गठनको प्रशासकलाई सम्पर्क गर्नुहोस्। "<annotation id="admin_details">"थप विवरणहरू"</annotation>\n\n"तपाईं खरिदहरूलाई अधिकार दिन र एपमाथि पहुँच पाउनका लागि आफ्नो फिंगरप्रिन्ट समेत प्रयोग गर्न सक्नुहुन्छ। "<annotation id="url">"थप जान्नुहोस्"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"औँला उठाई, फेरि सेंसर छुनुहोस्"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"औँला उठाएर फेरि सेंसर छुनुहोस्"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"तपाईं <xliff:g id="COUNT">%d</xliff:g> सम्म फिंगरप्रिन्टहरू थप्न सक्नुहुन्छ"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"तपाईंले अधिकतम संख्यामा फिंगरप्रिन्टहरू थप्नुभएको छ"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"थप फिंगरप्रिन्टहरू थप्न सकिँदैन"</string>
@@ -1776,13 +1776,13 @@
     <string name="activity_not_found" msgid="3492413375341165453">"एप तपाईँको फोनमा स्थापना गरिएको छैन।"</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"कार्य प्रोफाइलको सुरक्षा"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"कार्य प्रोफाइलको स्क्रिन लक"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"एउटै लकको प्रयोग गर्नुहोस्"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"एउटै लक प्रयोग गरियोस्"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"कार्य प्रोफाइल र डिभाइसको स्क्रिनमा एउटै लक प्रयोग गरियोस्"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"एउटै लकको प्रयोग गर्ने हो?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"तपाईंको यन्त्रले कार्य प्रोफाइल स्क्रिन लक प्रयोग गर्ने छ। दुवै लकमा कार्य सम्बन्धी नीतिहरू लागू हुनेछन्।"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"तपाईंको कार्य प्रोफाइलको लकले तपाईंको संगठनका सुरक्षा सम्बन्धी आवश्यकताहरूलाई पूरा गर्दैन। तपाईं आफ्नो यन्त्रको स्क्रिन र आफ्नो कार्य प्रोफाइल दुवैका लागि एउटै लकको प्रयोग गर्न सक्नुहुन्छ, तर कार्य प्रोफाइलको लक सम्बन्धी जुनसुकै नीतिहरू लागू हुनेछन्।"</string>
-    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"एउटै लकको प्रयोग गर्नुहोस्"</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"एउटै लकको प्रयोग गर्नुहोस्"</string>
+    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"एउटै लक प्रयोग गरियोस्"</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"एउटै लक प्रयोग गरियोस्"</string>
     <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"यन्त्रको स्क्रिन लक जस्तै"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"एपहरू व्यवस्थापन गर्नुहोस्"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"स्थापित एपहरू प्रबन्ध गर्नुहोस् र हटाउनुहोस्"</string>
@@ -2065,12 +2065,12 @@
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"सर्टकट सेवा"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"लक स्क्रिनबाट अनुमति दिनुहोस्"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"सर्टकट सक्रिय हुँदा पहुँचसम्बन्धी सुविधा सुरु गर्न तपाईं दुवै भोल्युम कुञ्जीहरूलाई ३ सेकेन्डसम्म थिच्न सक्नुहुन्छ।"</string>
-    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"हाइ कन्ट्रास्ट पाठ"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"हाइ कन्ट्रास्ट टेक्स्ट"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"स्क्रिन आवर्धन स्वतः अपडेट गर्नुहोस्"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"एप ट्रान्जिसनहरूमा स्क्रिन आवर्धन अपडेट गर्नुहोस्"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"पावर बटन थोच्दा फोन काटियोस्"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"ठुलो माउस पोइन्टर"</string>
-    <string name="accessibility_disable_animations" msgid="8378441317115710009">"एनिमेसनहरू हटाउनुहोस्"</string>
+    <string name="accessibility_disable_animations" msgid="8378441317115710009">"एनिमेसन हटाइयोस्"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"मोनो अडियो"</string>
     <string name="accessibility_toggle_master_mono_summary" msgid="3847052868469033235">"अडियो प्ले गर्दा च्यानलहरूलाई संयोजन गर्नुहोस्"</string>
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"अडियोको सन्तुलन"</string>
@@ -2086,7 +2086,7 @@
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"तपाईंले पढ्नु पर्ने तर अस्थायी रूपमा मात्र देखिने सन्देशहरू देखाइने समय छनौट गर्नुहोस्।\n\nयो सेटिङले सबै एपहरूमा काम गर्दैन।"</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"तपाईंलाई कारबाही गर्न लगाउने अस्थायी म्यासेज कति बेर देखाइनु पर्छ भन्ने कुरा छान्नुहोस्।\n\nयो सेटिङले सबै एपमा काम गर्दैन।"</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"टच एण्ड होल्डको ढिलाइ"</string>
-    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"रङ्ग उल्टाउनुहोस्"</string>
+    <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"रङ्ग उल्टाउने सुविधा"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"कार्यसम्पादनमा असर पार्न सक्छ"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"कुनै वस्तुमा कर्सर रहने अवधि"</string>
     <string name="accessibility_autoclick_description" msgid="5492414927846407499">"तपाईं माउस प्रयोग गर्दै हुनुहुन्छ भने कुनै स्थानमा निश्चित अवधिसम्मका लागि रोकिएको कर्सर स्वत: चल्न थाल्ने गरी सेट गर्न सक्नुहुन्छ।"</string>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM कार्डहरू"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"सीमामा रोकिएको"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"डेटा स्वत: सिंक गर्नुहोस्"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"व्यक्तिगत डेटा स्वतः सिंक गरियोस् सिंक"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"कार्यालयको डेटाको अटोसिंक सिंक"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"व्यक्तिगत डेटा स्वतः सिंक गरियोस्"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"कार्यसम्बन्धी डेटा अटोसिंक गरियोस्"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"साइकल परिवर्तन गर्नुहोस्..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"महिनाको दिनमा डेटाको प्रयोग चक्र रिसेट गर्ने:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"यस समयमा कुनै अनुप्रयोगले डेटाको प्रयोग गरेन।"</string>
@@ -2892,7 +2892,7 @@
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"तपाईं यस ट्याब्लेटमा आफ्नो ठाउँ र डेटा हराउनु हुने छ। तपाईं यो कार्यलाई अन्डु गर्न सक्नुहुन्न।"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"तपाईं यस फोनमा आफ्नो ठाउँ र डेटा गुमाउनु हुनेछ। तपाईं यो कार्य पूर्ववत गर्न हुन्न।"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"सबै एपहरू र डेटा मेटाइने छन्।"</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"यदि तपाईँले जारी राख्नुभयो भने यो प्रोफाइलका सबै एपहरू र डेटा मेटाइने छन्।"</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"तपाईंले जारी राख्नुभयो भने यो प्रोफाइलका सबै एपहरू र डेटा मेटाइने छन्।"</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"सबै एपहरू र डेटा मेटाइने छन्।"</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"नयाँ प्रयोगकर्ता थप गरिँदै..."</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"प्रयोगकर्ता मेटाउनुहोस्"</string>
@@ -3571,9 +3571,9 @@
     <string name="encryption_interstitial_message_pin_for_fingerprint" msgid="3706009740537484517">"आफ्नो यन्त्रलाई अनलक गर्नाका लागि फिंगरप्रिन्ट प्रयोग गर्नुका साथसाथै, यो डिभाइस खुल्नुअघि आफ्नो PIN चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसमा फोन उठाउन, सन्देश प्राप्त गर्न, वा अलार्म प्रयोग गर्ने लगायत सूचनाहरू प्राप्त गर्न सकिँदैन।\n\nयसले हराएका र चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्दछ। आफ्नो यन्त्र खोल्न PIN चाहिने बनाउने हो?"</string>
     <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"आफ्नो यन्त्रलाई अनलक गर्नाका लागि फिंगरप्रिन्ट प्रयोग गर्नुका साथसाथै, यो डिभाइस खुल्नुअघि आफ्नो प्याटर्न कोर्नु पर्ने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसमा फोन उठाउन, सन्देश प्राप्त गर्न, वा अलार्म प्रयोग गर्ने लगायत सूचनाहरू प्राप्त गर्न सकिँदैन।\n\nयसले हराएका र चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्दछ। आफ्नो यन्त्र खोल्न प्याटर्न कोर्नु पर्ने बनाउने हो?"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="8451977276748128814">"आफ्नो यन्त्रलाई अनलक गर्नाका लागि फिंगरप्रिन्ट प्रयोग गर्नुका साथसाथै, यो डिभाइस खुल्नुअघि आफ्नो पासवर्ड चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यन्त्रले कल, सन्देश वा अलार्म लगायताका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्दछ। आफ्नो यन्त्रलाई खोल्नको लागि पासवर्ड चाहिने बनाउने हो?"</string>
-    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"तपाईंको यन्त्र अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो PIN चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, सन्देश वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि PIN चाहिने बनाउने हो?"</string>
-    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"तपाईंको यन्त्र अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो प्याटर्न चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, म्यासेज वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि प्याटर्न चाहिने बनाउने हो?"</string>
-    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"तपाईंको यन्त्र अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो पासवर्ड चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, सन्देश वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि पासवर्ड चाहिने बनाउने हो?"</string>
+    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"तपाईंको डिभाइस अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो PIN चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, सन्देश वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि PIN चाहिने बनाउने हो?"</string>
+    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"तपाईंको डिभाइस अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो प्याटर्न चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, म्यासेज वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि प्याटर्न चाहिने बनाउने हो?"</string>
+    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"तपाईंको डिभाइस अनलक गर्न आफ्नो अनुहार प्रयोग गर्नुका साथसाथै यो डिभाइस खुल्नुअघि आफ्नो पासवर्ड चाहिने बनाएर तपाईं यस यन्त्रलाई थप सुरक्षित बनाउन सक्नुहुन्छ। यन्त्र नखुलेसम्म यसले कल, सन्देश वा अलार्मलगायतका सूचनाहरू प्राप्त गर्न सक्दैन।\n\nयसले हराएका वा चोरी भएका डिभाइसहरूको डेटा सुरक्षित राख्न मद्दत गर्छ। आफ्नो यन्त्र खोल्नका लागि पासवर्ड चाहिने बनाउने हो?"</string>
     <string name="encryption_interstitial_yes" msgid="1839339586101502601">"हो"</string>
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"होइन"</string>
     <string name="restricted_true_label" msgid="1545180379083441282">"प्रतिबन्धित"</string>
@@ -3712,7 +3712,7 @@
     <string name="high_power_system" msgid="739584574711292753">"ब्याट्री आफू अनुकूल उपलब्ध छैन"</string>
     <string name="high_power_desc" msgid="333756885680362741">"ब्याट्री आफू अनुकूल लागू नगर्नुहोस्। तपाईँको ब्याट्री निकै छिटो सिध्याउन सक्छ।"</string>
     <string name="high_power_prompt_title" msgid="2805745781720454052">"एपलाई सधैँ ब्याकग्राउन्डमा चल्न दिने हो?"</string>
-    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g> लाई सधैँ ब्याकग्राउन्डमा चल्न दिनुभयो भने ब्याट्रीको आयु घट्न सक्छ। \n\nयसलाई तपाईं पछि सेटिङ&gt; एपहरू&gt; सूचनाहरूमा गई हटाउन सक्नुहुन्छ।"</string>
+    <string name="high_power_prompt_body" msgid="8067395096053552289">"<xliff:g id="APP_NAME">%1$s</xliff:g>लाई सधैँ ब्याकग्राउन्डमा चल्न दिनुभयो भने ब्याट्रीको आयु घट्न सक्छ। \n\nयसलाई तपाईं पछि सेटिङ&gt; एपहरू&gt; सूचनाहरूमा गई हटाउन सक्नुहुन्छ।"</string>
     <string name="battery_summary" msgid="4345690800899981339">"<xliff:g id="PERCENTAGE">%1$s</xliff:g> पछिल्‍लो पटक पूरा चार्ज भएदेखिको प्रयोग"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"पावर व्यवस्थापन"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"पछिल्लो पूरा चार्ज देखि ब्याट्रीको खपत गरिएको छैन"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"डिस्प्ले कटआउट, नच"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"डिफल्ट डिभाइस"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"ओभरले लागू गर्न सकिएन"</string>
-    <string name="special_access" msgid="1453926335914696206">"विशेष एपको पहुँच"</string>
+    <string name="special_access" msgid="1453926335914696206">"एपलाई दिइएको विशेष पहुँच"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> एपले असीमित डेटा प्रयोग गर्न सक्छन्</item>
       <item quantity="one">१ एपले असीमित डेटा प्रयोग गर्न सक्छ</item>
@@ -4081,9 +4081,9 @@
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"द्रुत सेटिङसम्बन्धी विकासकर्ताका टाइलहरू"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope को ट्रेस"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"सेन्सरहरू निष्क्रिय पार्नु…"</string>
-    <string name="managed_profile_settings_title" msgid="4340409321523532402">"कार्यालयसम्बन्धी प्रोफाइलका सेटिङ"</string>
+    <string name="managed_profile_settings_title" msgid="4340409321523532402">"कार्यसम्बन्धी प्रोफाइलको सेटिङ"</string>
     <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"सम्पर्कको खोजी"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">" आफ्नो संगठनलाई कलर र सम्पर्क सूचीमा रहेका व्यक्तिको पहिचान गर्न सम्पर्क सूचीमा भएका व्यक्ति खोज्ने अनुमति दिनुहोस्"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"आफ्नो संगठनलाई कलर र सम्पर्क सूचीमा रहेका व्यक्तिको पहिचान गर्न सम्पर्क सूचीमा भएका व्यक्ति खोज्ने अनुमति दिनुहोस्"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"अन्तरप्रोफाइल पात्रो"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"व्यक्तिगत पात्रोमा कार्यस्थलसम्बन्धी कार्यक्रमहरू देखाउनुहोस्"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"तपाईंको सङ्गठनले निजी एपहरूलाई तपाईंको कार्यस्थलको पात्रोमाथि पहुँच गर्ने अनुमति दिँदैन"</string>
@@ -4307,7 +4307,7 @@
     <string name="unknown_unavailability_setting_summary" msgid="5785931810977403534">"सेटिङ उपलब्ध छैन"</string>
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"खाता"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"डिभाइसको नाम"</string>
-    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi को नियन्त्रण"</string>
+    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi कन्ट्रोल"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"एपलाई Wi-Fi नियन्त्रण गर्ने अनुमति दिनुहोस्"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"यो एपलाई Wi-Fi अन वा अफ गर्ने अनुमति दिनुहोस्, स्क्यान गरी Wi-Fi नेटवर्कमा कनेक्ट गर्नुहोस्, नेटवर्कहरू थप्नुहोस् वा हटाउनुहोस्, वा स्थानीय रूपमा मात्र प्रयोग गर्न मिल्ने हटस्पट सुरु गर्नुहोस्"</string>
     <string name="media_output_title" msgid="8710632337456601848">"मिडिया यसमा प्ले गर्नुहोस्"</string>

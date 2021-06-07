@@ -3810,7 +3810,7 @@
     <string name="overlay_settings" msgid="3325154759946433666">"Приказ врз други апликации"</string>
     <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_0">%1$d</xliff:g> од <xliff:g id="COUNT_1">%2$d</xliff:g> аплик. имаат дозвола за прикажување врз други апликации"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Апликации со дозвола"</string>
-    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Дозволено"</string>
+    <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Со дозвола"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Без дозвола"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"инсталирање апликации непознати извори"</string>
     <string name="write_settings" msgid="9009040811145552108">"Менување системски поставки"</string>
@@ -4160,7 +4160,7 @@
     <string name="auto_sync_account_title" msgid="2394463123733529506">"Автоматска синхронизација на податоци"</string>
     <string name="auto_sync_personal_account_title" msgid="6844465157916100655">"Автоматска синхронизација на лични податоци"</string>
     <string name="auto_sync_work_account_title" msgid="2403222633447522376">"Автоматска синхронизација на деловни податоци"</string>
-    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Дозволете им на апликациите автоматски да ги освежуваат податоците"</string>
+    <string name="auto_sync_account_summary" msgid="6316230976974033772">"Дозволи им на апликациите автоматски да ги освежуваат податоците"</string>
     <string name="account_sync_title" msgid="1570164819114297154">"Синхронизирање сметка"</string>
     <string name="account_sync_summary_some_on" msgid="1934556869158274053">"Синхронизацијата е вклучена за <xliff:g id="ID_1">%1$d</xliff:g> од <xliff:g id="ID_2">%2$d</xliff:g> ставки"</string>
     <string name="account_sync_summary_all_on" msgid="3634161204232431700">"Синхронизацијата е вклучена за сите ставки"</string>

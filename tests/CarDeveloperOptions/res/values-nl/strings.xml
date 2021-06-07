@@ -543,7 +543,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
-    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Schermvergrendeling kiezen"</string>
+    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Scherm­vergrendeling kiezen"</string>
     <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"Werkvergr. kiezen"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Je tablet beschermen"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Je apparaat beschermen"</string>

@@ -559,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"Bloqueo de pantalla"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / inmediatamente despois de entrar en suspensión"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/<xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> despois de entrar en suspensión"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Bloqueo perf. traballo"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"Bloqueo do perfil de traballo"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"Cambiar pant. bloqueo"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"Cambia/desactiva seguranza contrasinais, padrón, PIN"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"Escolle un método para bloquear a pantalla"</string>
@@ -2543,7 +2543,7 @@
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Queres eliminar todos os contidos?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"Almacenaxe credenciais borrada"</string>
     <string name="credentials_not_erased" msgid="9137227570738627637">"Imposible borrar almacen. credenciais"</string>
-    <string name="usage_access_title" msgid="7981321142726540574">"Apps con acceso de uso"</string>
+    <string name="usage_access_title" msgid="7981321142726540574">"Apps con acceso aos datos de uso"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Sinal de marcación de emerxencia"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"Define o comportamento cando se realiza unha chamada de emerxencia"</string>
     <string name="privacy_settings_title" msgid="3573891462732375772">"Copia de seguranza"</string>
@@ -3374,7 +3374,7 @@
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, como os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá modificar ou ignorar as notificacións e activar os botóns de acción que estas conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Queres permitir que <xliff:g id="SERVICE">%1$s</xliff:g> teña acceso ás notificacións?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> poderá ler todas as notificacións, incluída a información persoal, coma os nomes dos contactos e o texto das mensaxes que recibas. Tamén poderá ignorar notificacións ou activar os botóns de acción que estas conteñan. \n\nAdemais, poderá activar ou desactivar o modo Non molestar e cambiar a configuración asociada."</string>
-    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Se desactivas o acceso de <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ás notificacións, é posible que tamén se desactive o acceso en modo Non molestar."</string>
+    <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Se desactivas o acceso de <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> ás notificacións, é posible que tamén se desactive o acceso a Non molestar."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Desactivar"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Cancelar"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"Servizos do asistente de RV"</string>
@@ -3392,7 +3392,7 @@
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Permite que esta aplicación cree unha ventá de pantalla superposta mentres estea aberta ou despois de saír dela (por exemplo, para continuar visualizando un vídeo). A ventá móstrase sobre as demais aplicacións que esteas utilizando."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Acceso a Non molestar"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Permitir modo Non molestar"</string>
-    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ningunha aplicación instalada solicitou acceso en modo Non molestar"</string>
+    <string name="zen_access_empty_text" msgid="7667538993781607731">"Ningunha aplicación instalada solicitou acceso a Non molestar"</string>
     <string name="loading_notification_apps" msgid="1978345231934072091">"Cargando aplicacións..."</string>
     <string name="app_notifications_off_desc" msgid="3904090905748895146">"Segundo solicitaches, Android bloquea a visualización de notificacións desta aplicación neste dispositivo."</string>
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"Segundo solicitaches, Android bloquea a visualización desta categoría de notificacións neste dispositivo."</string>
@@ -3679,10 +3679,10 @@
     <string name="system_default_app" msgid="1454719098589351197">"(Opción predeterminada do sistema)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"Almacenamento de aplicacións"</string>
     <string name="usage_access" msgid="2023443456361489516">"Acceso a datos de uso"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"Permitir acceso ao uso"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"Permitir acceso aos datos de uso"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"Preferencias de uso da aplicación"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"Tempo diante da pantalla"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"O acceso ao uso permite que unha aplicación realice un seguimento das demais aplicacións que usas e de con que frecuencia as utilizas, así como do teu operador, da configuración do idioma e doutros detalles."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"O acceso aos datos de uso permite que unha aplicación realice un seguimento das demais aplicacións que usas e de con que frecuencia as utilizas, así como do teu operador, da configuración do idioma e doutros detalles."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"Memoria"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"Detalles da memoria"</string>
     <string name="always_running" msgid="5320183445080208766">"En execución sempre (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3797,7 +3797,7 @@
     <string name="ignore_optimizations_off_desc" msgid="5598702251817814289">"Recomendado para aumentar a duración da batería"</string>
     <string name="ignore_optimizations_title" msgid="7924345545276166305">"Queres permitir que <xliff:g id="APP">%s</xliff:g> ignore as optimizacións da batería?"</string>
     <string name="app_list_preference_none" msgid="7100409177446935028">"Ningún"</string>
-    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"A desactivación do acceso de uso desta aplicación non impide que o teu administrador realice o seguimento do uso de datos das aplicacións no teu perfil de traballo"</string>
+    <string name="work_profile_usage_access_warning" msgid="403208064382097510">"A desactivación do acceso aos datos de uso desta aplicación non impide que o teu administrador realice o seguimento do uso de datos das aplicacións no teu perfil de traballo"</string>
     <string name="accessibility_lock_screen_progress" msgid="8242917828598820049">"Uso de <xliff:g id="COUNT_0">%1$d</xliff:g> de <xliff:g id="COUNT_1">%2$d</xliff:g> caracteres"</string>
     <string name="draw_overlay" msgid="2878665072530660668">"Superpor a aplicacións"</string>
     <string name="system_alert_window_settings" msgid="3024330223417646567">"Mostrar sobre outras aplicacións"</string>

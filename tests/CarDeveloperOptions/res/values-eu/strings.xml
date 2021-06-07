@@ -796,8 +796,8 @@
     <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Bozgorailu gisa"</string>
     <string name="bluetooth_dock_settings_a2dp" msgid="6618893632901282661">"Musikarako eta multimedia-edukirako"</string>
     <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"Gogoratu ezarpenak"</string>
-    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Gehienez ere konekta daitezkeen Bluetooth audio-gailuak"</string>
-    <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Hautatu gehienez ere konekta daitezkeen Bluetooth audio-gailuak"</string>
+    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Gehienez ere konekta daitezkeen Bluetooth bidezko audio-gailuak"</string>
+    <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Hautatu gehienez ere konekta daitezkeen Bluetooth bidezko audio-gailuak"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Igorpena"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Gaitu hari gabeko bistaratzea"</string>
     <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Ez da gailurik aurkitu inguruan."</string>
@@ -2082,7 +2082,7 @@
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 minutu"</string>
     <string name="accessibility_timeout_2mins" msgid="4124259290444829477">"2 minutu"</string>
     <string name="accessibility_content_timeout_preference_title" msgid="5160746882250939464">"Irakurtzeko denbora"</string>
-    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Zerbait egiteko denbora"</string>
+    <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Zerbait egiteko ordua"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Aukeratu zenbat denboraz erakutsi behar diren mezuak, irakurri egin behar badituzu baina aldi baterako soilik badaude ikusgai.\n\nAplikazio guztiek ez dute onartzen ezarpen hau."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Aukeratu zenbat denboraz erakutsi behar diren mezuak, zerbait egiteko eskatzen badizute baina aldi baterako soilik badaude ikusgai.\n\nAplikazio guztiek ez dute onartzen ezarpen hau."</string>
     <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Sakatuta edukitzearen atzerapena"</string>

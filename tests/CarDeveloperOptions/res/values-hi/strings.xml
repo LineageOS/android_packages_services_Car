@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"खुद को मिटाएं?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"इस उपयोगकर्ता को हटाएं?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"इस प्रोफ़ाइल को निकालें?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"वर्क प्रोफ़ाइल निकालें?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"वर्क प्रोफ़ाइल हटाएं?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"आप इस टैबलेट पर जगह और डेटा को खो देंगे. आप इस कार्रवाई को पहले जैसा नहीं कर सकते."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"आप इस फ़ोन पर अपनी जगह और डेटा को खो देंगे. आप इस कार्रवाई को पहले जैसा नहीं कर सकते."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"सभी ऐप्लिकेशन और डेटा हटा दिए जाएंगे."</string>

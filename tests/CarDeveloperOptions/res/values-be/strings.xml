@@ -1211,7 +1211,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Натуральныя"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Яркія"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Насычаныя"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптыўны колер"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптыўныя"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Толькі натуральныя колеры"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Сярэдняе паміж насычанымі і натуральнымі колерамі"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Аўтаматычна змяняць арыентацыю экрана пры павароце планшэта"</string>
@@ -1282,10 +1282,10 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Персаналізуйце свой экран"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Выбраць шпалеры ў"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Экранная застаўка"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Пакуль прылада зараджаецца ці прыстыкавана"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Пакуль прылада зараджаецца ці падключана"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"У абодвух выпадках"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Падчас зарадкі"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Пры прыстыкоўцы"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Пры падключэнні"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Ніколі"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Выключана"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Каб кантраляваць тое, што адбываецца, калі тэлефон прыстыкаваны і/або знаходзіцца ў рэжыме сну, уключыце экранную застаўку."</string>
@@ -2972,7 +2972,7 @@
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Ваш раздзел і даныя будуць выдаленыя з гэтага планшэта. Гэта дзеянне нельга адмяніць."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Ваш раздзел і даныя будуць выдаленыя з гэтага тэлефона. Гэта дзеянне нельга адмяніць."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Усе праграмы і даныя будуць выдалены."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Калі вы працягнеце, усе дадаткі і даныя гэтага профілю будуць выдаленыя."</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"Калі вы працягнеце, усе праграмы і даныя гэтага профілю будуць выдалены."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"Усе праграмы і даныя будуць выдалены."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"Даданне новага карыстальніка..."</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"Выдалiць карыстальніка"</string>
@@ -4118,7 +4118,7 @@
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"Паглядзець тарыфны план"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"Праглядзець звесткі"</string>
     <string name="data_saver_title" msgid="7903308134514179256">"Эканомія трафіка"</string>
-    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Неабмежаваныя даныя"</string>
+    <string name="unrestricted_data_saver" msgid="9139401849550738720">"Неабмежаваная перадача даных"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"Фонавая перадача даных выключана"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"Уключана"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Выключана"</string>

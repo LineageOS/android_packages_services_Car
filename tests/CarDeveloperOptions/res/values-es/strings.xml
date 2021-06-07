@@ -1777,7 +1777,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Seguridad del perfil de trabajo"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Bloqueo de pantalla del perfil de trabajo"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Usar un único bloqueo"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Usar un único bloqueo para el perfil de trabajo y la pantalla del dispositivo"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Usa un único bloqueo para el perfil de trabajo y la pantalla del dispositivo"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"¿Usar un único bloqueo?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"El dispositivo utilizará el bloqueo de pantalla de tu perfil de trabajo. Las políticas de trabajo se aplicarán a ambos bloqueos."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"El bloqueo de tu perfil de trabajo no cumple los requisitos de seguridad de tu organización. Puedes utilizar el mismo bloqueo para la pantalla del dispositivo y el perfil de trabajo, pero se aplicarán las políticas del bloqueo de trabajo."</string>
@@ -2261,7 +2261,7 @@
     <string name="awake" msgid="8956720170442161285">"Tiempo de actividad del dispositivo"</string>
     <string name="wifi_on_time" msgid="2487820618265936068">"Tiempo de conexión Wi-Fi"</string>
     <string name="bluetooth_on_time" msgid="6400569492287292639">"Tiempo de conexión Wi-Fi"</string>
-    <string name="advanced_battery_title" msgid="5026866913848464170">"Uso de la batería"</string>
+    <string name="advanced_battery_title" msgid="5026866913848464170">"Uso de batería"</string>
     <string name="history_details_title" msgid="8608193822257799936">"Detalles del historial"</string>
     <string name="battery_details_title" msgid="5358230551490703067">"Uso de batería"</string>
     <string name="details_subtitle" msgid="7279638828004951382">"Detalles de uso"</string>
@@ -2455,9 +2455,9 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Se activará cuando llegue al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Establecer una programación"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desactivar con la carga al máximo"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"El modo Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"El modo Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
-    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"El modo Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Ahorro de batería se desactiva cuando el teléfono está al <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Activar"</string>

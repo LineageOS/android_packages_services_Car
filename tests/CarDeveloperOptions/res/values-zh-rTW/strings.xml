@@ -3378,7 +3378,7 @@
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"關閉"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"取消"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR 小幫手服務"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"沒有任何已安裝的應用程式要求透過 VR 小幫手服務來執行。"</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"沒有任何已安裝的應用程式要求以 VR 小幫手服務的形式執行。"</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"要允許 <xliff:g id="SERVICE">%1$s</xliff:g> 存取 VR 服務嗎？"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"你必須透過虛擬實境模式使用應用程式，才能執行「<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>」。"</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"當裝置處於 VR 模式時"</string>

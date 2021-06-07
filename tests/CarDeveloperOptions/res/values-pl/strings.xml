@@ -1289,7 +1289,7 @@
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Nigdy"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Wył."</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Włącz wygaszacz ekranu, by kontrolować to, co dzieje się, gdy telefon jest w stacji dokującej i/lub w trybie uśpienia."</string>
-    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Kiedy zacząć"</string>
+    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Kiedy włączać"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"Bieżący wygaszacz ekranu"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Zacznij teraz"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Ustawienia"</string>

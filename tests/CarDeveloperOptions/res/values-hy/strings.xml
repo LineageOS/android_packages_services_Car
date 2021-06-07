@@ -449,12 +449,12 @@
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Բաց թողնե՞լ"</string>
     <string name="setup_fingerprint_enroll_skip_after_adding_lock_text" msgid="8849928362049018680">"Մատնահետքի կարգավորումն ընդամենը մեկ-երկու րոպե է տևում: Եթե բաց թողնեք, ավելի ուշ կարող եք անցնել կարգավորումներ և ավելացնել ձեր մատնահետքը:"</string>
     <string name="lock_screen_intro_skip_title" msgid="5307431665496346914">"Բաց թողնե՞լ"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս պլանշետի օգտագործումը՝ այն կորցնելու, գողանալու կամ վերակայելու դեպքում:"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս սարքի օգտագործումը՝ այն կորցնելու, գողանալու կամ վերակայելու դեպքում:"</string>
-    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս հեռախոսի օգտագործումը՝ այն կորցնելու, գողանալու կամ վերակայելու դեպքում:"</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս պլանշետի օգտագործումը՝ այն կորցնելու կամ գողանալու դեպքում:"</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս սարքի օգտագործումը՝ այն կորցնելու կամ գողանալու դեպքում:"</string>
-    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս հեռախոսի օգտագործումը՝ այն կորցնելու կամ գողանալու դեպքում:"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="tablet" msgid="7553945981266845264">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս պլանշետի օգտագործումը, եթե այն կորչի, գողացվի կամ վերակայվի:"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="device" msgid="1378243257238015603">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս սարքի օգտագործումը, եթե այն կորչի, գողացվի կամ վերակայվի:"</string>
+    <string name="lock_screen_intro_skip_dialog_text_frp" product="default" msgid="8395540117461339748">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս հեռախոսի օգտագործումը, եթե այն կորչի, գողացվի կամ վերակայվի:"</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="tablet" msgid="7572334562915795226">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս պլանշետի օգտագործումը, եթե այն կորչի կամ գողացվի:"</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="device" msgid="3819285334459763813">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս սարքի օգտագործումը, եթե այն կորչի կամ գողացվի:"</string>
+    <string name="lock_screen_intro_skip_dialog_text" product="default" msgid="5361573789585652826">"Սարքի պաշտպանության գործառույթները չեն միացվելու: Դուք չեք կարողանա կանխել այլ անձանց կողմից այս հեռախոսի օգտագործումը, եթե այն կորչի կամ գողացվի:"</string>
     <string name="skip_anyway_button_label" msgid="4437815969645175429">"Բաց թողնել"</string>
     <string name="go_back_button_label" msgid="7310586887969860472">"Վերադառնալ"</string>
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Բաց թողնել"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Ջնջե՞լ ձեզ:"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Ջնջե՞լ օգտատիրոջը"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Հեռացնե՞լ այս պրոֆիլը:"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Հեռացնե՞լ աշխ. պրոֆիլը:"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Հեռացնե՞լ աշխ․ պրոֆիլը"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Դուք կկորցնեք ձեր պլանշետի տարածքը և տվյալները: Դուք կարող եք հետարկել այս գործողությունը:"</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Դուք կկորցնեք հեռախոսի վրա պահպանվող ձեր տարածքն ու տվյալները: Այս գործընթացն անշրջելի է:"</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Բոլոր հավելվածներն ու տվյալները կջնջվեն:"</string>

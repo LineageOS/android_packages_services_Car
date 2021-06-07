@@ -718,7 +718,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> applications actives</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Agents de confiance"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Pour utiliser cette option, vous devez d\'abord définir un écran de verrouillage"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Pour utiliser cette option, définissez d\'abord le verrouillage de l\'écran"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Aucun"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="one"><xliff:g id="COUNT">%d</xliff:g> agent de confiance actif</item>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Accès récent à votre position"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Afficher les détails"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"Aucune demande d\'accès à votre position n\'a récemment été envoyée pour une application."</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"Aucune appli n\'a demandé à accéder à votre position récemment"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"Aucune application n\'a récemment accédé à la position"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Forte utilisation de la batterie"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Faible utilisation de batterie"</string>
@@ -1776,14 +1776,14 @@
     <string name="activity_not_found" msgid="3492413375341165453">"L\'application n\'est pas installée sur votre téléphone."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Sécurité du profil professionnel"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Verrouillage de l\'écran du profil professionnel"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Utiliser une seule méthode de verrouillage"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Utiliser la même méthode pour verrouiller le profil professionnel et l\'écran de l\'appareil"</string>
-    <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Utiliser une seule méthode de verrouillage ?"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Utiliser un seul verrouillage"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Utiliser le même verrouillage pour le profil pro et l\'écran de l\'appareil"</string>
+    <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Utiliser un seul verrouillage ?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Le verrouillage de votre profil professionnel sera utilisé pour verrouiller l\'écran de votre appareil, et les règles de verrouillage du profil professionnel s\'appliqueront aux deux verrouillages de profil (professionnel et personnel)."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"Le verrouillage de votre profil professionnel ne correspond pas aux exigences de sécurité de votre organisation. Vous pouvez utiliser le même dispositif de verrouillage pour l\'écran de votre appareil et votre profil professionnel. Dans ce cas, les règles de verrouillage du profil professionnel seront applicables."</string>
-    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"Utiliser une seule méthode de verrouillage"</string>
-    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"Utiliser une seule méthode de verrouillage"</string>
-    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"Identique à la méthode de verrouillage utilisée pour l\'écran de l\'appareil"</string>
+    <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"Utiliser un seul verrouillage"</string>
+    <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"Utiliser un seul verrouillage"</string>
+    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"Comme pour verrouiller l\'écran de l\'appareil"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"Gérer les applications"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"Gérer et supprimer les applications installées"</string>
     <string name="applications_settings" msgid="368331725658793179">"Infos sur les applis"</string>
@@ -2085,7 +2085,7 @@
     <string name="accessibility_control_timeout_preference_title" msgid="2771808346038759474">"Délai d\'affichage"</string>
     <string name="accessibility_content_timeout_preference_summary" msgid="853829064617918179">"Choisissez la durée d\'affichage des messages que vous avez besoin de lire, mais dont la visibilité est temporaire.\n\nCertaines applications ne sont pas compatibles avec ce paramètre."</string>
     <string name="accessibility_control_timeout_preference_summary" msgid="8582212299606932160">"Choisissez la durée d\'affichage des messages qui vous demandent d\'effectuer une action, mais dont la visibilité est temporaire.\n\nCertaines applications ne sont pas compatibles avec ce paramètre."</string>
-    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Délai de pression"</string>
+    <string name="accessibility_long_press_timeout_preference_title" msgid="5029685114164868477">"Délai de l’appui prolongé"</string>
     <string name="accessibility_display_inversion_preference_title" msgid="3852635518618938998">"Inversion des couleurs"</string>
     <string name="accessibility_display_inversion_preference_subtitle" msgid="69291255322175323">"Peut affecter les performances"</string>
     <string name="accessibility_autoclick_preference_title" msgid="9164599088410340405">"Temps d\'interaction"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Supprimer cet utilisateur ?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Supprimer l\'utilisateur ?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Supprimer ce profil ?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Supprimer profil prof. ?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Supprimer le profil pro ?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Votre espace et vos données vont être supprimés de cette tablette. Cette action est irréversible."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Votre espace et vos données vont être supprimés de ce téléphone. Cette action est irréversible."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"L\'ensemble des applications et des données seront supprimées."</string>
@@ -3286,7 +3286,7 @@
     <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone pro"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son par défaut des notifications pro"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sonnerie par défaut du réveil pro"</string>
-    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Pareil que pour le profil perso"</string>
+    <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Comme pour le profil perso"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Remplacer des sons ?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"Remplacer"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"Les sons de votre profil personnel seront utilisés pour votre profil professionnel"</string>
@@ -3758,12 +3758,12 @@
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI et alimentation"</string>
     <string name="background_check_pref" msgid="664081406854758392">"Vérification en arrière-plan"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Accès complet à l\'arrière-plan"</string>
-    <string name="assist_access_context_title" msgid="2274614501747710439">"Utiliser le texte affiché à l\'écran"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"Autoriser l\'application d\'assistance à accéder au contenu affiché à l\'écran sous forme de texte"</string>
+    <string name="assist_access_context_title" msgid="2274614501747710439">"Utiliser le texte de l\'écran"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"Autoriser l\'appli d\'assistance à accéder au contenu textuel de l\'écran"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Utiliser une capture d\'écran"</string>
-    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Autoriser l\'application d\'assistance à accéder au contenu affiché à l\'écran sous forme d\'image"</string>
+    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Autoriser l\'appli d\'assistance à accéder à une image de l\'écran"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Faire clignoter l\'écran"</string>
-    <string name="assist_flash_summary" msgid="6697095786317559129">"Faire clignoter les bords de l\'écran quand l\'appli d\'assistance accède au texte de l\'écran ou de la capture"</string>
+    <string name="assist_flash_summary" msgid="6697095786317559129">"Faire clignoter les bords de l\'écran quand l\'appli d\'assistance accède au texte de l\'écran ou à la capture"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Les applis d\'assistance peuvent se servir des infos à l\'écran pour vous aider. Certaines sont compatibles à la fois avec le lanceur d\'applications et les services de saisie vocale pour vous fournir une assistance intégrée."</string>
     <string name="average_memory_use" msgid="5333366040118953945">"Utilisation mémoire (moyenne)"</string>
     <string name="maximum_memory_use" msgid="6509872438499846077">"Utilisation mémoire (maximale)"</string>
