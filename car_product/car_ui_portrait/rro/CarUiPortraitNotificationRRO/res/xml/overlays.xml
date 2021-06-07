@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+
+<overlay>
+    <item target="attr/isHeadsUp" value="@attr/isHeadsUp" />
+    <item target="attr/maxLines" value="@attr/maxLines" />
+    <item target="attr/showBigIcon" value="@attr/showBigIcon" />
+
+    <item target="bool/config_showHeadsUpNotificationOnBottom" value="@bool/config_showHeadsUpNotificationOnBottom" />
+
+    <item target="dimen/action_button_height" value="@dimen/action_button_height" />
+    <item target="dimen/action_button_radius" value="@dimen/action_button_radius" />
+    <item target="dimen/action_view_left_margin" value="@dimen/action_view_left_margin" />
+    <item target="dimen/action_view_right_margin" value="@dimen/action_view_right_margin" />
+    <item target="dimen/car_notification_card_inner_top_margin" value="@dimen/car_notification_card_inner_top_margin"/>
+    <item target="dimen/card_start_margin" value="@dimen/card_start_margin" />
+    <item target="dimen/card_body_margin_bottom" value="@dimen/card_body_margin_bottom" />
+    <item target="dimen/card_end_margin" value="@dimen/card_start_margin" />
+    <item target="dimen/card_header_margin_bottom" value="@dimen/card_header_margin_bottom" />
+    <item target="dimen/notification_card_radius" value="@dimen/notification_card_radius"/>
+    <item target="dimen/notification_headsup_card_margin_horizontal" value="@dimen/notification_headsup_card_margin_horizontal" />
+    <item target="dimen/notification_touch_target_size" value="@dimen/notification_touch_target_size"/>
+
+    <item target="id/action_1" value="@id/action_1" />
+    <item target="id/action_2" value="@id/action_2" />
+    <item target="id/action_3" value="@id/action_3" />
+    <item target="id/card_view" value="@id/card_view" />
+    <item target="id/headsup_content" value="@id/headsup_content"/>
+    <item target="id/inner_template_view" value="@id/inner_template_view" />
+    <item target="id/message_count" value="@id/message_count"/>
+    <item target="id/notification_actions" value="@id/notification_actions" />
+    <item target="id/notification_actions_wrapper" value="@id/notification_actions_wrapper" />
+    <item target="id/notification_body" value="@id/notification_body"/>
+    <item target="id/notification_body_icon" value="@id/notification_body_icon" />
+    <item target="id/notification_header" value="@id/notification_header"/>
+    <item target="id/notification_headsup" value="@id/notification_headsup"/>
+
+    <item target="layout/car_notification_actions_view" value="@layout/car_notification_actions_view"/>
+    <item target="layout/headsup_container_bottom" value="@layout/headsup_container_bottom"/>
+    <item target="layout/message_headsup_notification_template" value="@layout/message_headsup_notification_template" />
+
+    <item target="string/assist_action_play_label" value="@string/assist_action_play_label"/>
+    <item target="string/config_headsUpNotificationAnimationHelper" value="@string/config_headsUpNotificationAnimationHelper" />
+
+    <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
+    <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
+    <item target="style/NotificationBodContentText" value="@style/NotificationBodyContentText" />
+    <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
+
+</overlay>
