@@ -140,7 +140,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
-    public void onDevicesToDuckChange(CarDuckingInfo carDuckingInfo) {
+    public void onDevicesToDuckChange(List<CarDuckingInfo> carDuckingInfos) {
         throw new UnsupportedOperationException("HAL ducking is unsupported for IAudioControl@2.0");
     }
 
