@@ -322,10 +322,46 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_TIRES)
     public static final int CRITICALLY_LOW_TIRE_PRESSURE = 392168202;
     /**
-     * Currently selected gear
+     * Currently selected gear by user.
      *
-     * This is the gear selected by the user.
-     * Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     * <p>GEAR_SELECTION property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Integer type value.
+     *
+     * <p> See {@link VehicleGear} for gear value enum.
+     *
+     * <p>configArray represents the list of supported gears for the vehicle. For example,
+     * configArray for an EV vehicle is set as follows:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_PARK}
+     *  <li>configArray[2] = {@link VehicleGear#GEAR_DRIVE}
+     * </ul>
+     *
+     * <p>Example automatic transmission configArray:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[2] = {@link VehicleGear#GEAR_PARK}
+     *  <li>configArray[3] = {@link VehicleGear#GEAR_DRIVE}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_1}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_2}
+     *  <li>...
+     * </ul>
+     *
+     * <p>Example manual transmission configArray:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_1}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_2}
+     *  <li>...
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int GEAR_SELECTION = 289408000;
