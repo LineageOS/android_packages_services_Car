@@ -138,7 +138,8 @@ public final class VehiclePropertyIds {
     /**
      * Speed of the vehicle in meters per second.
      *
-     * <p>PERF_VEHICLE_SPEED property is {@link VehiclePropertyAccess#READ} access, {@link
+     * <p>PERF_VEHICLE_SPEED property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
      * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, and returns a Float type value.
      *
      * <p>When the vehicle is moving forward, PERF_VEHICLE_SPEED is positive and negative when the
@@ -207,9 +208,9 @@ public final class VehiclePropertyIds {
     /**
      * Reports wheel ticks.
      *
-     * <p>WHEEL_TICK property is {@link VehiclePropertyAccess#Read} access,
-     * {@link CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a Long[] type
-     * value.
+     * <p>WHEEL_TICK property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a Long[] type value.
      *
      * <p>The first element in the array is a reset count.  A reset indicates
      * previous tick counts are not comparable with this and future ones.  Some
