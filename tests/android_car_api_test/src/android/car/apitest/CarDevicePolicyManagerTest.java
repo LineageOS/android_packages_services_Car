@@ -176,12 +176,13 @@ public final class CarDevicePolicyManagerTest extends CarMultiUserTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 190417819)
     public void testLockNow_safe() throws Exception {
         lockNowTest(/* safe= */ true);
     }
 
     @Test
-    @FlakyTest(bugId = 178475817)
+    @FlakyTest(bugId = 190417819)
     public void testLockNow_unsafe() throws Exception {
         lockNowTest(/* safe= */ false);
     }
