@@ -51,7 +51,12 @@ public final class CarSensorManager extends CarManagerBase {
     public static final int SENSOR_TYPE_RESERVED1                   = 1;
     /**
      * This sensor represents vehicle speed in m/s.
-     * Sensor data in {@link CarSensorEvent} is a float which will be >= 0.
+     *
+     * <p>Sensor data in {@link CarSensorEvent} is a float. When the vehicle is moving forward,
+     * SENSOR_TYPE_CAR_SPEED is positive and negative when the vehicle is moving backward. Also,
+     * this value is independent of SENSOR_TYPE_GEAR. For example, if SENSOR_TYPE_GEAR is {@link
+     * CarSensorEvent#GEAR_NEUTRAL}, SENSOR_TYPE_CAR_SPEED is positive when the vehicle is moving
+     * forward, negative when moving backward, and zero when not moving.
      */
     public static final int SENSOR_TYPE_CAR_SPEED                   = 0x11600207;
     /**
