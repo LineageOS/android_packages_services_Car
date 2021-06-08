@@ -78,8 +78,7 @@ public:
             const android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor>&
                     monitor,
             int32_t pid);
-    virtual android::binder::Status notifyPowerCycleChange(
-            android::automotive::watchdog::internal::PowerCycle cycle);
+    virtual void setEnabled(bool isEnabled);
     virtual android::binder::Status notifyUserStateChange(
             userid_t userId, android::automotive::watchdog::internal::UserState state);
 
@@ -200,7 +199,6 @@ private:
     android::base::Result<void> dumpAndKillAllProcesses(
             const std::vector<int32_t>& processesNotResponding, bool reportToVhal);
     int32_t getNewSessionId();
-    bool isWatchdogEnabled();
     android::base::Result<void> updateVhal(
             const android::hardware::automotive::vehicle::V2_0::VehiclePropValue& value);
     android::base::Result<void> connectToVhalLocked();
@@ -234,7 +232,7 @@ private:
     std::unordered_set<userid_t> mStoppedUserIds GUARDED_BY(mMutex);
     android::sp<android::automotive::watchdog::internal::ICarWatchdogMonitor> mMonitor
             GUARDED_BY(mMutex);
-    bool mWatchdogEnabled GUARDED_BY(mMutex);
+    bool mIsEnabled GUARDED_BY(mMutex);
     // mLastSessionId is accessed only within main thread. No need for mutual-exclusion.
     int32_t mLastSessionId;
     bool mServiceStarted;

@@ -122,16 +122,14 @@ public:
         return {};
     }
 
-    // TODO(b/185498771): Forward WatchdogBinderMediator's notifySystemStateChange call to
-    //  WatchdogPerfService. On POWER_CYCLE_SHUTDOWN_PREPARE, switch to garage mode collection
-    //  and pass collection flag as a param in this API to indicate garage mode collection.
-    android::base::Result<void> onPeriodicCollection(time_t time,
+    android::base::Result<void> onPeriodicCollection(time_t time, SystemState systemState,
                                                      const android::wp<UidIoStats>& uidIoStats,
                                                      const android::wp<ProcStat>& procStat,
                                                      const android::wp<ProcPidStat>& procPidStat);
 
     android::base::Result<void> onCustomCollection(
-            time_t time, const std::unordered_set<std::string>& filterPackages,
+            time_t time, SystemState systemState,
+            const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat);
 
