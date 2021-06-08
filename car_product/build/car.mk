@@ -40,8 +40,6 @@ ifneq (,$(filter userdebug eng, $(TARGET_BUILD_VARIANT)))
 PRODUCT_PACKAGES += \
     DefaultStorageMonitoringCompanionApp \
     EmbeddedKitchenSinkApp \
-    DirectRenderingCluster \
-    ClusterHomeSample \
     GarageModeTestApp \
     ExperimentalCarService \
     BugReportApp \
@@ -51,6 +49,15 @@ PRODUCT_PACKAGES += \
 # SEPolicy for test apps / services
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
 endif
+
+# ClusterOsDouble is the testing app to test Cluster2 framework and it can handle Cluster VHAL
+# and do some Cluster OS role.
+ifeq ($(ENABLE_CLUSTER_OS_DOUBLE), true)
+PRODUCT_PACKAGES += ClusterHomeSample ClusterOsDouble
+else
+# DirectRenderingCluster is the sample app for the old Cluster framework.
+PRODUCT_PACKAGES += DirectRenderingCluster
+endif  # ENABLE_CLUSTER_OS_DOUBLE
 
 PRODUCT_COPY_FILES += \
     frameworks/av/media/libeffects/data/audio_effects.conf:system/etc/audio_effects.conf
