@@ -16,6 +16,8 @@
 
 package com.android.car.internal;
 
+import android.annotation.IntDef;
+
 import java.lang.annotation.ElementType;
 import java.lang.annotation.Target;
 
@@ -25,9 +27,40 @@ import java.lang.annotation.Target;
 @Target({ElementType.TYPE, ElementType.CONSTRUCTOR, ElementType.METHOD})
 public @interface ExcludeFromCodeCoverageGeneratedReport {
 
-    /**
-     * The user-readable reason why the annotated code must be excluded from the coverage report.
-     */
-    String reason() default "";
-}
+    // Reason annotation and its associated constant values
+    int DEPRECATED_CODE = 0;
+    int BOILERPLATE_CODE = 1;
+    int DUMP_INFO = 2;
+    int DEBUGGING_CODE = 3;
 
+    @IntDef(prefix = "REASON_", value = {
+            DEPRECATED_CODE,
+            BOILERPLATE_CODE,
+            DUMP_INFO,
+            DEBUGGING_CODE
+    })
+    @interface Reason { }
+
+    /**
+     * The reason explaining why the code is being excluded from the code coverage report.
+     * <p>
+     * Possible reasons to exclude code from coverage report are:
+     * <p><ul>
+     * <li>{@link ExcludeFromCodeCoverageGeneratedReport#DEPRECATED_CODE} to exclude deprecated
+     * code from coverage report
+     * <li>{@link ExcludeFromCodeCoverageGeneratedReport#BOILERPLATE_CODE} to exclude boilerplate
+     * code like {@link java.lang.Object} methods, {@link android.os.Parcel} methods, etc
+     * <li>{@link ExcludeFromCodeCoverageGeneratedReport#DUMP_INFO} to exclude dump info methods
+     * <li>{@link ExcludeFromCodeCoverageGeneratedReport#DEBUGGING_CODE} to exclude debugging
+     * purpose
+     * code
+     * </ul><p>
+     */
+    @Reason int reason();
+
+    /**
+     * Optional field used to provide extra details about the excluded code (e.g. it can be used to
+     * tag a follow up bug).
+     */
+    String details() default "";
+}
