@@ -16,14 +16,11 @@
 
 #include "IoOveruseConfigs.h"
 #include "OveruseConfigurationTestUtils.h"
-#include "OveruseConfigurationXmlHelper.h"
 
 #include <android-base/strings.h>
 #include <gmock/gmock.h>
 
 #include <inttypes.h>
-
-#include <unordered_map>
 
 namespace android {
 namespace automotive {
@@ -39,7 +36,6 @@ using ::android::automotive::watchdog::internal::PackageMetadata;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::ResourceSpecificConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
-using ::android::base::Error;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
 using ::testing::IsEmpty;
@@ -104,53 +100,7 @@ std::vector<Matcher<const ResourceOveruseConfiguration>> ResourceOveruseConfigur
     return matchers;
 }
 
-ResourceOveruseConfiguration sampleBuildSystemConfig() {
-    auto systemIoConfig = constructIoOveruseConfig(
-            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM,
-                                                            toPerStateBytes(1200, 1100, 1500)),
-            /*packageSpecific=*/
-            {toPerStateIoOveruseThreshold("systemPackageA", SYSTEM_PACKAGE_A_THRESHOLDS)},
-            /*categorySpecific=*/{},
-            /*systemWide=*/ALERT_THRESHOLDS);
-    return constructResourceOveruseConfig(ComponentType::SYSTEM,
-                                          /*safeToKill=*/{"systemPackageA"},
-                                          /*vendorPrefixes=*/{},
-                                          /*packageMetadata*/
-                                          {toPackageMetadata("systemPackageA",
-                                                             ApplicationCategoryType::MEDIA)},
-                                          systemIoConfig);
-}
-
-ResourceOveruseConfiguration sampleBuildVendorConfig() {
-    auto vendorIoConfig = constructIoOveruseConfig(
-            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR,
-                                                            toPerStateBytes(1100, 150, 1900)),
-            /*packageSpecific=*/
-            {toPerStateIoOveruseThreshold("vendorPackageA", VENDOR_PACKAGE_A_THRESHOLDS)},
-            /*categorySpecific=*/
-            {toPerStateIoOveruseThreshold("MEDIA", MEDIA_THRESHOLDS)},
-            /*systemWide=*/{});
-    return constructResourceOveruseConfig(ComponentType::VENDOR,
-                                          /*safeToKill=*/{},
-                                          /*vendorPrefixes=*/{"vendorPackage"},
-                                          /*packageMetadata=*/
-                                          {toPackageMetadata("vendorPackageA",
-                                                             ApplicationCategoryType::MEDIA)},
-                                          vendorIoConfig);
-}
-
-ResourceOveruseConfiguration sampleBuildThirdPartyConfig() {
-    auto thirdPartyIoConfig = constructIoOveruseConfig(
-            /*componentLevel=*/
-            toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY,
-                                         toPerStateBytes(1300, 1150, 2900)),
-            /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{});
-    return constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
-                                          /*vendorPrefixes=*/{}, /*packageMetadata=*/{},
-                                          thirdPartyIoConfig);
-}
-
-ResourceOveruseConfiguration sampleUpdateSystemConfig() {
+ResourceOveruseConfiguration sampleSystemConfig() {
     auto systemIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM,
                                                             SYSTEM_COMPONENT_LEVEL_THRESHOLDS),
@@ -169,7 +119,7 @@ ResourceOveruseConfiguration sampleUpdateSystemConfig() {
                                           systemIoConfig);
 }
 
-ResourceOveruseConfiguration sampleUpdateVendorConfig() {
+ResourceOveruseConfiguration sampleVendorConfig() {
     auto vendorIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR,
                                                             VENDOR_COMPONENT_LEVEL_THRESHOLDS),
@@ -191,7 +141,7 @@ ResourceOveruseConfiguration sampleUpdateVendorConfig() {
                                           vendorIoConfig);
 }
 
-ResourceOveruseConfiguration sampleUpdateThirdPartyConfig() {
+ResourceOveruseConfiguration sampleThirdPartyConfig() {
     auto thirdPartyIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/
             toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY,
@@ -204,198 +154,17 @@ ResourceOveruseConfiguration sampleUpdateThirdPartyConfig() {
 
 sp<IoOveruseConfigs> sampleIoOveruseConfigs() {
     sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
-    EXPECT_RESULT_OK(
-            ioOveruseConfigs->update({sampleUpdateSystemConfig(), sampleUpdateVendorConfig(),
-                                      sampleUpdateThirdPartyConfig()}));
+    EXPECT_RESULT_OK(ioOveruseConfigs->update(
+            {sampleSystemConfig(), sampleVendorConfig(), sampleThirdPartyConfig()}));
     return ioOveruseConfigs;
 }
 
 }  // namespace
 
-namespace internal {
-
-class IoOveruseConfigsPeer : public android::RefBase {
-public:
-    IoOveruseConfigsPeer() {
-        IoOveruseConfigs::sParseXmlFile =
-                [&](const char* filepath) -> android::base::Result<ResourceOveruseConfiguration> {
-            if (const auto it = configsByFilepaths.find(filepath); it != configsByFilepaths.end()) {
-                return it->second;
-            }
-            return Error() << "No configs available for the given filepath '" << filepath << "'";
-        };
-    }
-    ~IoOveruseConfigsPeer() {
-        IoOveruseConfigs::sParseXmlFile = &OveruseConfigurationXmlHelper::parseXmlFile;
-    }
-    std::unordered_map<std::string, ResourceOveruseConfiguration> configsByFilepaths;
-};
-
-}  // namespace internal
-
-class IoOveruseConfigsTest : public ::testing::Test {
-public:
-    virtual void SetUp() { mPeer = sp<internal::IoOveruseConfigsPeer>::make(); }
-    virtual void TearDown() { mPeer.clear(); }
-
-    sp<internal::IoOveruseConfigsPeer> mPeer;
-};
-
-TEST_F(IoOveruseConfigsTest, TestConstructWithBuildConfigs) {
-    auto buildSystemResourceConfig = sampleBuildSystemConfig();
-    auto buildVendorResourceConfig = sampleBuildVendorConfig();
-    const auto buildThirdPartyResourceConfig = sampleBuildThirdPartyConfig();
-
-    mPeer->configsByFilepaths = {{kBuildSystemConfigXmlPath, buildSystemResourceConfig},
-                                 {kBuildVendorConfigXmlPath, buildVendorResourceConfig},
-                                 {kBuildThirdPartyConfigXmlPath, buildThirdPartyResourceConfig}};
-
-    IoOveruseConfigs ioOveruseConfigs;
-
-    /* Package to app category mapping should be merged from both vendor and system configs. */
-    buildVendorResourceConfig.packageMetadata
-            .insert(buildVendorResourceConfig.packageMetadata.end(),
-                    buildSystemResourceConfig.packageMetadata.begin(),
-                    buildSystemResourceConfig.packageMetadata.end());
-    buildSystemResourceConfig.packageMetadata = buildVendorResourceConfig.packageMetadata;
-    std::vector<ResourceOveruseConfiguration> expected = {buildSystemResourceConfig,
-                                                          buildVendorResourceConfig,
-                                                          buildThirdPartyResourceConfig};
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
-            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
-}
-
-TEST_F(IoOveruseConfigsTest, TestConstructWithLatestConfigs) {
-    const auto latestSystemResourceConfig = sampleUpdateSystemConfig();
-    auto latestVendorResourceConfig = sampleUpdateVendorConfig();
-    const auto latestThirdPartyResourceConfig = sampleUpdateThirdPartyConfig();
-
-    mPeer->configsByFilepaths = {{kBuildSystemConfigXmlPath, sampleBuildSystemConfig()},
-                                 {kBuildVendorConfigXmlPath, sampleBuildVendorConfig()},
-                                 {kBuildThirdPartyConfigXmlPath, sampleBuildThirdPartyConfig()},
-                                 {kLatestSystemConfigXmlPath, latestSystemResourceConfig},
-                                 {kLatestVendorConfigXmlPath, latestVendorResourceConfig},
-                                 {kLatestThirdPartyConfigXmlPath, latestThirdPartyResourceConfig}};
-
-    IoOveruseConfigs ioOveruseConfigs;
-
-    latestVendorResourceConfig.vendorPackagePrefixes.push_back("vendorPkgB");
-    std::vector<ResourceOveruseConfiguration> expected = {latestSystemResourceConfig,
-                                                          latestVendorResourceConfig,
-                                                          latestThirdPartyResourceConfig};
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
-            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
-}
-
-TEST_F(IoOveruseConfigsTest, TestConstructWithOnlyBuildSystemConfig) {
-    const auto buildSystemResourceConfig = sampleBuildSystemConfig();
-
-    mPeer->configsByFilepaths = {{kBuildSystemConfigXmlPath, buildSystemResourceConfig}};
-
-    IoOveruseConfigs ioOveruseConfigs;
-
-    /*
-     * Vendor/Third-party component-level thresholds should be derived from system
-     * component-level thresholds when build configs for Vendor/Third-party components are not
-     * available.
-     */
-    const auto& defaultComponentLevelThresholds =
-            buildSystemResourceConfig.resourceSpecificConfigurations[0]
-                    .get<ResourceSpecificConfiguration::ioOveruseConfiguration>()
-                    .componentLevelThresholds.perStateWriteBytes;
-    const auto vendorResourceConfig = constructResourceOveruseConfig(
-            ComponentType::VENDOR, /*safeToKill=*/{}, /*vendorPrefixes=*/{},
-            /*packageMetadata=*/buildSystemResourceConfig.packageMetadata,
-            constructIoOveruseConfig(
-                    /*componentLevel=*/
-                    toPerStateIoOveruseThreshold(ComponentType::VENDOR,
-                                                 defaultComponentLevelThresholds),
-                    /*packageSpecific=*/{}, /*categorySpecific=*/{}, /*systemWide=*/{}));
-    const auto thirdPartyResourceConfig =
-            constructResourceOveruseConfig(ComponentType::THIRD_PARTY, /*safeToKill=*/{},
-                                           /*vendorPrefixes=*/{},
-                                           /*packageMetadata=*/{},
-                                           constructIoOveruseConfig(
-                                                   /*componentLevel=*/toPerStateIoOveruseThreshold(
-                                                           ComponentType::THIRD_PARTY,
-                                                           defaultComponentLevelThresholds),
-                                                   /*packageSpecific=*/{}, /*categorySpecific=*/{},
-                                                   /*systemWide=*/{}));
-
-    std::vector<ResourceOveruseConfiguration> expected = {buildSystemResourceConfig,
-                                                          vendorResourceConfig,
-                                                          thirdPartyResourceConfig};
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
-            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
-}
-
-TEST_F(IoOveruseConfigsTest, TestConstructWithBuildSystemConfigLatestVendorConfig) {
-    auto buildSystemResourceConfig = sampleBuildSystemConfig();
-    auto latestVendorResourceConfig = sampleUpdateVendorConfig();
-    const auto buildThirdPartyResourceConfig = sampleBuildThirdPartyConfig();
-
-    mPeer->configsByFilepaths = {{kBuildSystemConfigXmlPath, buildSystemResourceConfig},
-                                 {kBuildVendorConfigXmlPath, sampleBuildVendorConfig()},
-                                 {kBuildThirdPartyConfigXmlPath, buildThirdPartyResourceConfig},
-                                 {kLatestVendorConfigXmlPath, latestVendorResourceConfig}};
-
-    IoOveruseConfigs ioOveruseConfigs;
-
-    // Package to app category mapping from latest vendor configuration should be given priority.
-    buildSystemResourceConfig.packageMetadata = latestVendorResourceConfig.packageMetadata;
-    latestVendorResourceConfig.vendorPackagePrefixes.push_back("vendorPkgB");
-    std::vector<ResourceOveruseConfiguration> expected = {buildSystemResourceConfig,
-                                                          latestVendorResourceConfig,
-                                                          buildThirdPartyResourceConfig};
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
-            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
-}
-
-TEST_F(IoOveruseConfigsTest, TestConstructWithLatestSystemConfigBuildVendorConfig) {
-    const auto latestSystemResourceConfig = sampleUpdateSystemConfig();
-    auto buildVendorResourceConfig = sampleBuildVendorConfig();
-    const auto buildThirdPartyResourceConfig = sampleBuildThirdPartyConfig();
-
-    mPeer->configsByFilepaths = {{kBuildSystemConfigXmlPath, sampleBuildSystemConfig()},
-                                 {kBuildVendorConfigXmlPath, sampleBuildVendorConfig()},
-                                 {kBuildThirdPartyConfigXmlPath, buildThirdPartyResourceConfig},
-                                 {kLatestSystemConfigXmlPath, latestSystemResourceConfig}};
-
-    IoOveruseConfigs ioOveruseConfigs;
-
-    // Package to app category mapping from latest system configuration should be given priority.
-    buildVendorResourceConfig.packageMetadata = latestSystemResourceConfig.packageMetadata;
-    std::vector<ResourceOveruseConfiguration> expected = {latestSystemResourceConfig,
-                                                          buildVendorResourceConfig,
-                                                          buildThirdPartyResourceConfig};
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, UnorderedElementsAreArray(ResourceOveruseConfigurationsMatchers(expected)))
-            << "Expected: " << toString(expected) << "Actual:" << toString(actual);
-}
-
-TEST_F(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
-    auto systemResourceConfig = sampleUpdateSystemConfig();
-    auto vendorResourceConfig = sampleUpdateVendorConfig();
-    auto thirdPartyResourceConfig = sampleUpdateThirdPartyConfig();
+TEST(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
+    auto systemResourceConfig = sampleSystemConfig();
+    auto vendorResourceConfig = sampleVendorConfig();
+    auto thirdPartyResourceConfig = sampleThirdPartyConfig();
 
     IoOveruseConfigs ioOveruseConfigs;
     ASSERT_RESULT_OK(ioOveruseConfigs.update(
@@ -479,7 +248,7 @@ TEST_F(IoOveruseConfigsTest, TestUpdateWithValidConfigs) {
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
-TEST_F(IoOveruseConfigsTest, TestDefaultConfigWithoutUpdate) {
+TEST(IoOveruseConfigsTest, TestDefaultConfigWithoutUpdate) {
     PerStateBytes defaultPerStateBytes = defaultThreshold().perStateWriteBytes;
     IoOveruseConfigs ioOveruseConfigs;
 
@@ -512,7 +281,7 @@ TEST_F(IoOveruseConfigsTest, TestDefaultConfigWithoutUpdate) {
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentName) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentName) {
     IoOveruseConfiguration randomIoConfig;
     randomIoConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold("random name", 200, 100, 500);
@@ -539,32 +308,7 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentName) {
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnDuplicatePackageToAppCategoryMappings) {
-    IoOveruseConfiguration ioConfig;
-    ioConfig.componentLevelThresholds =
-            toPerStateIoOveruseThreshold(ComponentType::VENDOR, VENDOR_COMPONENT_LEVEL_THRESHOLDS);
-
-    IoOveruseConfigs ioOveruseConfigs;
-    EXPECT_FALSE(
-            ioOveruseConfigs
-                    .update({constructResourceOveruseConfig(
-                            ComponentType::VENDOR,
-                            /*safeToKill=*/{},
-                            /*vendorPrefixes=*/{"vendorPackage"},
-                            /*packageMetadata=*/
-                            {toPackageMetadata("vendorPackageA", ApplicationCategoryType::MEDIA),
-                             toPackageMetadata("vendorPackageA", ApplicationCategoryType::MAPS)},
-                            ioConfig)})
-                    .ok())
-            << "Should error on duplicate package to app category mapping";
-
-    std::vector<ResourceOveruseConfiguration> actual;
-    ioOveruseConfigs.get(&actual);
-
-    EXPECT_THAT(actual, IsEmpty());
-}
-
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentLevelThresholds) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentLevelThresholds) {
     IoOveruseConfiguration ioConfig;
     ioConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 0, 0, 0);
@@ -582,7 +326,7 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidComponentLevelThresholds) {
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidSystemWideAlertThresholds) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnInvalidSystemWideAlertThresholds) {
     IoOveruseConfiguration ioConfig;
     ioConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 100, 200, 300);
@@ -601,11 +345,9 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnInvalidSystemWideAlertThresholds) 
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnDuplicateConfigsForSameComponent) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnDuplicateConfigsForSameComponent) {
     IoOveruseConfigs ioOveruseConfigs;
-    EXPECT_FALSE(ioOveruseConfigs
-                         .update({sampleUpdateThirdPartyConfig(), sampleUpdateThirdPartyConfig()})
-                         .ok())
+    EXPECT_FALSE(ioOveruseConfigs.update({sampleThirdPartyConfig(), sampleThirdPartyConfig()}).ok())
             << "Should error on duplicate configs for the same component";
 
     std::vector<ResourceOveruseConfiguration> actual;
@@ -614,7 +356,7 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnDuplicateConfigsForSameComponent) 
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnNoIoOveruseConfiguration) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnNoIoOveruseConfiguration) {
     ResourceOveruseConfiguration resConfig;
     resConfig.componentType = ComponentType::THIRD_PARTY;
 
@@ -628,7 +370,7 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnNoIoOveruseConfiguration) {
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnMultipleIoOveruseConfigurations) {
+TEST(IoOveruseConfigsTest, TestFailsUpdateOnMultipleIoOveruseConfigurations) {
     IoOveruseConfiguration ioConfig;
     ioConfig.componentLevelThresholds =
             toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 100, 200, 300);
@@ -650,7 +392,7 @@ TEST_F(IoOveruseConfigsTest, TestFailsUpdateOnMultipleIoOveruseConfigurations) {
     EXPECT_THAT(actual, IsEmpty());
 }
 
-TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
+TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
     auto systemIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 200, 100, 500),
             /*packageSpecific=*/
@@ -685,7 +427,7 @@ TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsBySystemComponent) {
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
-TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
+TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
     auto vendorIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR, 100, 50, 900),
             /*packageSpecific=*/
@@ -724,7 +466,7 @@ TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByVendorComponent) {
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
-TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) {
+TEST(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent) {
     auto thirdPartyIoConfig = constructIoOveruseConfig(
             /*componentLevel=*/
             toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 300, 150, 1900),
@@ -763,7 +505,7 @@ TEST_F(IoOveruseConfigsTest, TestIgnoresNonUpdatableConfigsByThirdPartyComponent
             << "Expected: " << toString(expected) << "Actual:" << toString(actual);
 }
 
-TEST_F(IoOveruseConfigsTest, TestFetchThresholdForSystemPackages) {
+TEST(IoOveruseConfigsTest, TestFetchThresholdForSystemPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     auto actual = ioOveruseConfigs->fetchThreshold(
@@ -791,7 +533,7 @@ TEST_F(IoOveruseConfigsTest, TestFetchThresholdForSystemPackages) {
     EXPECT_THAT(actual, MEDIA_THRESHOLDS);
 }
 
-TEST_F(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
+TEST(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     auto actual = ioOveruseConfigs->fetchThreshold(
@@ -812,7 +554,7 @@ TEST_F(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
     EXPECT_THAT(actual, MAPS_THRESHOLDS);
 }
 
-TEST_F(IoOveruseConfigsTest, TestFetchThresholdForThirdPartyPackages) {
+TEST(IoOveruseConfigsTest, TestFetchThresholdForThirdPartyPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     auto actual = ioOveruseConfigs->fetchThreshold(
@@ -833,7 +575,7 @@ TEST_F(IoOveruseConfigsTest, TestFetchThresholdForThirdPartyPackages) {
     EXPECT_THAT(actual, MEDIA_THRESHOLDS);
 }
 
-TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSystemPackages) {
+TEST(IoOveruseConfigsTest, TestIsSafeToKillSystemPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
     EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(
             constructPackageInfo("systemPackageGeneric", ComponentType::SYSTEM)));
@@ -842,7 +584,7 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSystemPackages) {
             constructPackageInfo("systemPackageA", ComponentType::SYSTEM)));
 }
 
-TEST_F(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
+TEST(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
     EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(
             constructPackageInfo("vendorPackageGeneric", ComponentType::VENDOR)));
@@ -851,7 +593,7 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
             constructPackageInfo("vendorPackageA", ComponentType::VENDOR)));
 }
 
-TEST_F(IoOveruseConfigsTest, TestIsSafeToKillThirdPartyPackages) {
+TEST(IoOveruseConfigsTest, TestIsSafeToKillThirdPartyPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
     EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
             constructPackageInfo("vendorPackageGenericImpostor", ComponentType::THIRD_PARTY)));
@@ -861,7 +603,7 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillThirdPartyPackages) {
                                  ApplicationCategoryType::MAPS)));
 }
 
-TEST_F(IoOveruseConfigsTest, TestIsSafeToKillNativePackages) {
+TEST(IoOveruseConfigsTest, TestIsSafeToKillNativePackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     PackageInfo packageInfo;
@@ -876,23 +618,23 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillNativePackages) {
     EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(packageInfo));
 }
 
-TEST_F(IoOveruseConfigsTest, TestSystemWideAlertThresholds) {
+TEST(IoOveruseConfigsTest, TestSystemWideAlertThresholds) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     EXPECT_THAT(ioOveruseConfigs->systemWideAlertThresholds(),
                 UnorderedElementsAreArray(ALERT_THRESHOLDS));
 }
 
-TEST_F(IoOveruseConfigsTest, TestVendorPackagePrefixes) {
+TEST(IoOveruseConfigsTest, TestVendorPackagePrefixes) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
     EXPECT_THAT(ioOveruseConfigs->vendorPackagePrefixes(),
                 UnorderedElementsAre("vendorPackage", "vendorPkgB"));
 }
 
-TEST_F(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithSystemConfig) {
+TEST(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithSystemConfig) {
     IoOveruseConfigs ioOveruseConfigs;
-    const auto resourceOveruseConfig = sampleUpdateSystemConfig();
+    const auto resourceOveruseConfig = sampleSystemConfig();
 
     ASSERT_RESULT_OK(ioOveruseConfigs.update({resourceOveruseConfig}));
 
@@ -901,9 +643,9 @@ TEST_F(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithSystemConfig) {
                         toPackageToAppCategoryMappings(resourceOveruseConfig.packageMetadata)));
 }
 
-TEST_F(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithVendorConfig) {
+TEST(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithVendorConfig) {
     IoOveruseConfigs ioOveruseConfigs;
-    const auto resourceOveruseConfig = sampleUpdateVendorConfig();
+    const auto resourceOveruseConfig = sampleVendorConfig();
 
     ASSERT_RESULT_OK(ioOveruseConfigs.update({resourceOveruseConfig}));
 
