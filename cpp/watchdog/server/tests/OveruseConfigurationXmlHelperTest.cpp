@@ -72,10 +72,14 @@ std::string getTestFilePath(const char* filename) {
 
 TEST(OveruseConfigurationXmlHelperTest, TestValidSystemConfiguration) {
     auto ioConfig = constructIoOveruseConfig(
-            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM, 300, 150, 500),
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM,
+                                                            300 * kOneMegaByte, 150 * kOneMegaByte,
+                                                            500 * kOneMegaByte),
             /*packageSpecific=*/
-            {toPerStateIoOveruseThreshold("system.package.C", 400, 100, 200),
-             toPerStateIoOveruseThreshold("system.package.D", 1024, 500, 2048)},
+            {toPerStateIoOveruseThreshold("system.package.C", 400 * kOneMegaByte,
+                                          100 * kOneMegaByte, 200 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("system.package.D", 1024 * kOneMegaByte,
+                                          500 * kOneMegaByte, 2048 * kOneMegaByte)},
             /*categorySpecific=*/{},
             /*systemWide=*/{toIoOveruseAlertThreshold(10, 200), toIoOveruseAlertThreshold(5, 50)});
     ResourceOveruseConfiguration expected =
@@ -97,13 +101,19 @@ TEST(OveruseConfigurationXmlHelperTest, TestValidSystemConfiguration) {
 
 TEST(OveruseConfigurationXmlHelperTest, TestValidVendorConfiguration) {
     auto ioConfig = constructIoOveruseConfig(
-            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR, 1024, 512, 3072),
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR,
+                                                            1024 * kOneMegaByte, 512 * kOneMegaByte,
+                                                            3072 * kOneMegaByte),
             /*packageSpecific=*/
-            {toPerStateIoOveruseThreshold("com.vendor.package.C", 400, 100, 200),
-             toPerStateIoOveruseThreshold("com.vendor.package.D", 1024, 500, 2048)},
+            {toPerStateIoOveruseThreshold("com.vendor.package.C", 400 * kOneMegaByte,
+                                          100 * kOneMegaByte, 200 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("com.vendor.package.D", 1024 * kOneMegaByte,
+                                          500 * kOneMegaByte, 2048 * kOneMegaByte)},
             /*categorySpecific=*/
-            {toPerStateIoOveruseThreshold("MAPS", 800, 900, 2048),
-             toPerStateIoOveruseThreshold("MEDIA", 600, 700, 1024)},
+            {toPerStateIoOveruseThreshold("MAPS", 800 * kOneMegaByte, 900 * kOneMegaByte,
+                                          2048 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("MEDIA", 600 * kOneMegaByte, 700 * kOneMegaByte,
+                                          1024 * kOneMegaByte)},
             /*systemWide=*/{});
     ResourceOveruseConfiguration expected =
             constructResourceOveruseConfig(ComponentType::VENDOR,
@@ -129,8 +139,9 @@ TEST(OveruseConfigurationXmlHelperTest, TestValidVendorConfiguration) {
 
 TEST(OveruseConfigurationXmlHelperTest, TestValidThirdPartyConfiguration) {
     auto ioConfig = constructIoOveruseConfig(
-            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY, 300, 150,
-                                                            500),
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY,
+                                                            300 * kOneMegaByte, 150 * kOneMegaByte,
+                                                            500 * kOneMegaByte),
             /*packageSpecific=*/{},
             /*categorySpecific=*/{},
             /*systemWide=*/{});
