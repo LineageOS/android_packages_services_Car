@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.media.CarAudioManager;
@@ -29,6 +31,7 @@ import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.server.utils.Slogf;
@@ -220,6 +223,7 @@ final class CarZonesAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         mCarFocusCallback.onFocusChange(zoneIds, focusHoldersByZoneId);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.println("*CarZonesAudioFocus*");
         writer.increaseIndent();

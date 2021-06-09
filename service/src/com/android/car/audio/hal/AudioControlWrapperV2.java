@@ -16,6 +16,8 @@
 
 package com.android.car.audio.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.MutingInfo;
@@ -31,6 +33,7 @@ import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.List;
 import java.util.NoSuchElementException;
@@ -108,6 +111,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("*AudioControlWrapperV2*");
         writer.increaseIndent();
