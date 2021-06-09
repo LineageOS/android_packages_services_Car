@@ -165,4 +165,18 @@ public final class BluetoothUtils {
                 return false;
         }
     }
+
+    static boolean isAProfileAction(String action) {
+        return sProfileActions.containsKey(action);
+    }
+
+    static int[] getManagedProfilesIds() {
+        int[] profileIds = new int[sProfileActions.size()];
+        int i = 0;
+        for (HashMap.Entry record : sProfileActions.entrySet()) {
+            profileIds[i] = ((Integer) record.getValue()).intValue();
+            i += 1;
+        }
+        return profileIds;
+    }
 }

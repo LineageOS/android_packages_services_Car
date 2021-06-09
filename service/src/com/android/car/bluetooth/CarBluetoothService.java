@@ -93,6 +93,10 @@ public class CarBluetoothService implements CarServiceBase {
     @GuardedBy("mPerUserLock")
     private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy;
 
+    // Bluetooth Connection Retry Manager, updated on user switch
+    @GuardedBy("mPerUserLock")
+    private BluetoothConnectionRetryManager mConnectionRetryManager;
+
     // Listen for user switch events from the PerUserCarService
     @GuardedBy("mPerUserLock")
     private int mUserId;
@@ -200,6 +204,7 @@ public class CarBluetoothService implements CarServiceBase {
         createBluetoothDeviceManagerLocked();
         createBluetoothProfileInhibitManagerLocked();
         createBluetoothPowerPolicyLocked();
+        createBluetoothConnectionRetryManagerLocked();
 
         // Determine if we need to begin the default policy
         mBluetoothDeviceConnectionPolicy = null;
@@ -221,6 +226,7 @@ public class CarBluetoothService implements CarServiceBase {
             Slogf.d(TAG, "Destroying user %d", mUserId);
         }
         destroyBluetoothDeviceConnectionPolicyLocked();
+        destroyBluetoothConnectionRetryManagerLocked();
         destroyBluetoothPowerPolicyLocked();
         destroyBluetoothProfileInhibitManagerLocked();
         destroyBluetoothDeviceManagerLocked();
@@ -332,6 +338,56 @@ public class CarBluetoothService implements CarServiceBase {
         if (mInhibitManager == null) return;
         mInhibitManager.stop();
         mInhibitManager = null;
+    }
+
+    /**
+     * Creates an instance of {@link BluetoothConnectionRetryManager} for the current user.
+     * Clears out any existing manager from previous user.
+     */
+    @GuardedBy("mPerUserLock")
+    private void createBluetoothConnectionRetryManagerLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Creating connection retry manager");
+        }
+        if (mUserId == UserManagerHelper.USER_NULL) {
+            if (DBG) {
+                Slogf.d(TAG, "No foreground user, cannot create connection retry manager");
+            }
+            return;
+        }
+        if (mConnectionRetryManager != null) {
+            if (DBG) {
+                Slogf.d(TAG, "Removing existing connection retry manager first");
+            }
+            destroyBluetoothConnectionRetryManagerLocked();
+        }
+        mConnectionRetryManager = BluetoothConnectionRetryManager.create(mContext);
+        if (mConnectionRetryManager == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Failed to create connection retry manager");
+            }
+            return;
+        }
+        mConnectionRetryManager.init();
+        if (DBG) {
+            Slogf.d(TAG, "Created connection retry manager");
+        }
+    }
+
+    /**
+     * Releases and clears {@link BluetoothConnectionRetryManager}.
+     */
+    @GuardedBy("mPerUserLock")
+    private void destroyBluetoothConnectionRetryManagerLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Destroying connection retry manager");
+        }
+        if (mConnectionRetryManager == null) return;
+        mConnectionRetryManager.release();
+        mConnectionRetryManager = null;
+        if (DBG) {
+            Slogf.d(TAG, "Connection retry manager removed");
+        }
     }
 
     /**
