@@ -233,23 +233,22 @@ Result<PerStateBytes> readPerStateBytes(const XMLElement* rootElement) {
         if (seenStates.find(state) != seenStates.end()) {
             return Error() << "Duplicate threshold specified for state '" << state << "'";
         }
-        int64_t megaBytes = 0;
+        int64_t bytes = 0;
         if (const auto text = childElement->GetText(); text == nullptr) {
             return Error() << "Must specify non-empty threshold for state '" << state << "'";
-        } else if (const auto megaBytesStr = Trim(text);
-                   !ParseInt(megaBytesStr.c_str(), &megaBytes)) {
+        } else if (const auto bytesStr = Trim(text); !ParseInt(bytesStr.c_str(), &bytes)) {
             return Error() << "Failed to parse threshold for the state '" << state
-                           << "': Received threshold value '" << megaBytesStr << "'";
+                           << "': Received threshold value '" << bytesStr << "'";
         }
         if (!strcmp(state, kStateIdForegroundMode)) {
             seenStates.insert(kStateIdForegroundMode);
-            perStateBytes.foregroundBytes = megaBytes * kOneMegaByte;
+            perStateBytes.foregroundBytes = bytes;
         } else if (!strcmp(state, kStateIdBackgroundMode)) {
             seenStates.insert(kStateIdBackgroundMode);
-            perStateBytes.backgroundBytes = megaBytes * kOneMegaByte;
+            perStateBytes.backgroundBytes = bytes;
         } else if (!strcmp(state, kStateIdGarageMode)) {
             seenStates.insert(kStateIdGarageMode);
-            perStateBytes.garageModeBytes = megaBytes * kOneMegaByte;
+            perStateBytes.garageModeBytes = bytes;
         } else {
             return Error() << "Invalid state '" << state << "' in per-state bytes";
         }
