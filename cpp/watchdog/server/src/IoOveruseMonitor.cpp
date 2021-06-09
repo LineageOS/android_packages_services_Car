@@ -517,7 +517,7 @@ Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats)
     ioOveruseStats->startTime = startTime;
     ioOveruseStats->durationInSeconds = durationInSeconds;
     if (DEBUG) {
-        ALOGD("Returning I/O overuse listener for uid: %d", callingUid);
+        ALOGD("Returning I/O overuse stats for uid: %d", callingUid);
     }
     return {};
 }
