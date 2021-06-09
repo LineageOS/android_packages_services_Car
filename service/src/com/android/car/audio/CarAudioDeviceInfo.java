@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
@@ -26,6 +28,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;
@@ -223,6 +226,7 @@ import java.util.Objects;
                 + " minGain: " + mMinGain;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("CarAudioDeviceInfo Device(%s)\n", mAudioDeviceInfo.getAddress());
         writer.increaseIndent();
