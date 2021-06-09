@@ -16,10 +16,14 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.media.AudioAttributes;
 import android.util.IndentingPrintWriter;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.util.List;
 import java.util.Objects;
@@ -60,6 +64,7 @@ public final class CarDuckingInfo {
         return duckingInfo;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("Ducking Info for zone %d \n", mZoneId);
         writer.increaseIndent();

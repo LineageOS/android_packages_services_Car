@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.media.AudioFocusInfo;
 import android.util.IndentingPrintWriter;
@@ -23,6 +25,7 @@ import android.util.SparseArray;
 
 import com.android.car.audio.CarZonesAudioFocus.CarFocusCallback;
 import com.android.car.audio.hal.AudioControlWrapper;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -83,6 +86,7 @@ final class CarDucking implements CarFocusCallback {
         return newDuckingInfo;
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.printf("*%s*\n", TAG);
         writer.increaseIndent();

@@ -18,6 +18,7 @@ package com.android.car.audio;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 
 import static com.android.car.audio.CarAudioZonesHelper.LEGACY_CONTEXTS;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 
 import android.annotation.NonNull;
 import android.annotation.XmlRes;
@@ -33,6 +34,7 @@ import android.util.Xml;
 import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.audio.hal.AudioControlWrapperV1;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import org.xmlpull.v1.XmlPullParserException;
 
@@ -47,6 +49,7 @@ import java.util.Objects;
  * @deprecated This is replaced by {@link CarAudioZonesHelper}.
  */
 @Deprecated
+@ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
 class CarAudioZonesHelperLegacy {
     private static final String TAG_VOLUME_GROUPS = "volumeGroups";
     private static final String TAG_GROUP = "group";

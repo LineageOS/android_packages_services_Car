@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.car.media.CarAudioManager;
 import android.media.AudioDeviceAttributes;
@@ -24,6 +26,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
@@ -157,6 +160,7 @@ import java.util.Set;
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer) {
         writer.printf("CarAudioZone(%s:%d) isPrimary? %b\n", mName, mId, isPrimaryZone());
         writer.increaseIndent();
