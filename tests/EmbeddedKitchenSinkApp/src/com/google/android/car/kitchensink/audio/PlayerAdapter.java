@@ -16,7 +16,7 @@
 
 package com.google.android.car.kitchensink.audio;
 
-import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
+import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK;
 
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_COMPLETED;
 import static com.google.android.car.kitchensink.audio.AudioPlayer.PLAYER_STATE_DELAYED;
@@ -75,7 +75,7 @@ public final class PlayerAdapter extends RecyclerView.Adapter<PlayerAdapter.View
         }
 
         private void startPlayer() {
-            mPlayer.start(true, true, AUDIOFOCUS_GAIN_TRANSIENT, state -> {
+            mPlayer.start(true, true, AUDIOFOCUS_GAIN_TRANSIENT_MAY_DUCK, state -> {
                 handleStateChange(state);
             });
         }
