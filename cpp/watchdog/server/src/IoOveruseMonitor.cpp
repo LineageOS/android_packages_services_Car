@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -28,7 +28,6 @@
 #include <binder/IPCThreadState.h>
 #include <binder/Status.h>
 #include <cutils/multiuser.h>
-#include <log/log.h>
 
 #include <limits>
 
@@ -118,7 +117,7 @@ IoOveruseMonitor::IoOveruseMonitor(
       mIoOveruseWarnPercentage(0),
       mLastUserPackageIoMonitorTime(0),
       mOveruseListenersByUid({}),
-      mBinderDeathRecipient(sp<BinderDeathRecipient>::make(this)) {}
+      mBinderDeathRecipient(new BinderDeathRecipient(this)) {}
 
 Result<void> IoOveruseMonitor::init() {
     std::unique_lock writeLock(mRwMutex);
@@ -135,7 +134,17 @@ Result<void> IoOveruseMonitor::init() {
     }
     mIoOveruseWarnPercentage = static_cast<double>(
             sysprop::ioOveruseWarnPercentage().value_or(kDefaultIoOveruseWarnPercentage));
-    mIoOveruseConfigs = sp<IoOveruseConfigs>::make();
+    /*
+     * TODO(b/185287136): Read the latest I/O overuse config.
+     *  The latest I/O overuse config is read in this order:
+     *  1. From /data partition as this contains the latest config and any updates received from OEM
+     *    and system applications.
+     *  2. From /system and /vendor partitions as this contains the default configs shipped with the
+     *    the image.
+     */
+
+    mIoOveruseConfigs = new IoOveruseConfigs();
+    // TODO(b/185287136): Read the vendor package prefixes from disk before the below call.
     mPackageInfoResolver = PackageInfoResolver::getInstance();
     mPackageInfoResolver->setPackageConfigurations(mIoOveruseConfigs->vendorPackagePrefixes(),
                                                    mIoOveruseConfigs->packagesToAppCategories());
@@ -178,8 +187,10 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     gmtime_r(&time, &curGmt);
     if (prevGmt.tm_yday != curGmt.tm_yday || prevGmt.tm_year != curGmt.tm_year) {
         /*
-         * Date changed so reset the daily I/O usage cache. CarWatchdogService automatically handles
-         * date change on |CarWatchdogService.latestIoOveruseStats| call.
+         * Date changed so reset the daily I/O usage cache.
+         *
+         * TODO(b/185287136): Ping CarWatchdogService on date change so it can re-enable the daily
+         *  disabled packages. Also sync prev day's stats with CarWatchdogService.
          */
         mUserPackageDailyIoUsageById.clear();
     }
