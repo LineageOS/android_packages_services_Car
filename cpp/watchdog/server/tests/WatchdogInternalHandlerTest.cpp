@@ -30,7 +30,6 @@
 #include <binder/IPCThreadState.h>
 #include <gmock/gmock.h>
 #include <gtest/gtest.h>
-#include <log/log.h>
 #include <private/android_filesystem_config.h>
 #include <utils/RefBase.h>
 
