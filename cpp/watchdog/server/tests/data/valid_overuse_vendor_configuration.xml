@@ -45,31 +45,33 @@
     </componentLevelThresholds>
 
     <!-- Package specific thresholds. -->
-    <packageSpecificThresholds id="com.vendor.package.C">
-      <state id="foreground_mode"> 400 </state>
-      <state id="background_mode"> 100 </state>
-      <state id="garage_mode"> 200 </state>
-    </packageSpecificThresholds>
+    <packageSpecificThresholds>
+      <perStateThreshold id="com.vendor.package.C">
+        <state id="foreground_mode"> 400 </state>
+        <state id="background_mode"> 100 </state>
+        <state id="garage_mode"> 200 </state>
+      </perStateThreshold>
 
-    <packageSpecificThresholds id="com.vendor.package.D">
-      <state id="foreground_mode"> 1024 </state>
-      <state id="background_mode"> 500 </state>
-      <state id="garage_mode"> 2048 </state>
+      <perStateThreshold id="com.vendor.package.D">
+        <state id="foreground_mode"> 1024 </state>
+        <state id="background_mode"> 500 </state>
+        <state id="garage_mode"> 2048 </state>
+      </perStateThreshold>
     </packageSpecificThresholds>
 
     <!-- Application category specific thresholds. -->
     <appCategorySpecificThresholds>
-      <appCategoryThreshold id="MEDIA">
+      <perStateThreshold id="MEDIA">
         <state id="foreground_mode"> 600 </state>
         <state id="background_mode"> 700 </state>
         <state id="garage_mode"> 1024 </state>
-      </appCategoryThreshold>
+      </perStateThreshold>
 
-      <appCategoryThreshold id="MAPS">
+      <perStateThreshold id="MAPS">
         <state id="foreground_mode"> 800 </state>
         <state id="background_mode"> 900 </state>
         <state id="garage_mode"> 2048 </state>
-      </appCategoryThreshold>
+      </perStateThreshold>
     </appCategorySpecificThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>

@@ -25,11 +25,11 @@
     </componentLevelThresholds>
 
     <appCategorySpecificThresholds>
-      <appCategoryThreshold id="MEDIA">
+      <perStateThreshold id="MEDIA">
         <state id="foreground_mode"/>
         <state id="background_mode"> 700 </state>
         <state id="garage_mode"> 500 </state>
-      </appCategoryThreshold>
+      </perStateThreshold>
     </appCategorySpecificThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>

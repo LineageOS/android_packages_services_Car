@@ -24,9 +24,11 @@
       <state id="garage_mode"> 500 </state>
     </componentLevelThresholds>
 
-    <packageSpecificThresholds id="system.package.C">
-      <state id="foreground_mode"> 400 </state>
-      <state id="background_mode"> 100 </state>
+    <packageSpecificThresholds>
+      <perStateThreshold id="system.package.C">
+        <state id="foreground_mode"> 400 </state>
+        <state id="background_mode"> 100 </state>
+      </perStateThreshold>
     </packageSpecificThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>
