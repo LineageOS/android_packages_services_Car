@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -18,15 +18,12 @@
 
 #include "IoOveruseConfigs.h"
 
-#include "OveruseConfigurationXmlHelper.h"
 #include "PackageInfoResolver.h"
 
 #include <android-base/strings.h>
-#include <log/log.h>
 
 #include <inttypes.h>
 
-#include <filesystem>
 #include <limits>
 
 namespace android {
@@ -183,46 +180,7 @@ Result<int32_t> getComponentFilter(const ComponentType componentType) {
     }
 }
 
-Result<void> isValidResourceOveruseConfig(
-        const ResourceOveruseConfiguration& resourceOveruseConfig) {
-    const auto filter = getComponentFilter(resourceOveruseConfig.componentType);
-    if (!filter.ok()) {
-        return Error() << filter.error();
-    }
-    std::unordered_map<std::string, ApplicationCategoryType> seenCategoryMappings;
-    for (const auto& meta : resourceOveruseConfig.packageMetadata) {
-        if (const auto it = seenCategoryMappings.find(meta.packageName);
-            it != seenCategoryMappings.end() && it->second != meta.appCategoryType) {
-            return Error()
-                    << "Must provide exactly one application category mapping for the package "
-                    << meta.packageName << ": Provided mappings " << toString(meta.appCategoryType)
-                    << " and " << toString(it->second);
-        }
-        seenCategoryMappings[meta.packageName] = meta.appCategoryType;
-    }
-    if (resourceOveruseConfig.resourceSpecificConfigurations.size() != 1) {
-        return Error() << "Must provide exactly one I/O overuse configuration. Received "
-                       << resourceOveruseConfig.resourceSpecificConfigurations.size()
-                       << " configurations";
-    }
-    for (const auto& config : resourceOveruseConfig.resourceSpecificConfigurations) {
-        if (config.getTag() != ResourceSpecificConfiguration::ioOveruseConfiguration) {
-            return Error() << "Invalid resource type: " << config.getTag();
-        }
-        const auto& ioOveruseConfig =
-                config.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
-        if (auto result = isValidIoOveruseConfiguration(resourceOveruseConfig.componentType,
-                                                        *filter, ioOveruseConfig);
-            !result.ok()) {
-            return Error() << "Invalid I/O overuse configuration for component "
-                           << toString(resourceOveruseConfig.componentType).c_str() << ": "
-                           << result.error();
-        }
-    }
-    return {};
-}
-
-Result<void> isValidResourceOveruseConfigs(
+Result<void> isValidConfigs(
         const std::vector<ResourceOveruseConfiguration>& resourceOveruseConfigs) {
     std::unordered_set<ComponentType> seenComponentTypes;
     for (const auto& resourceOveruseConfig : resourceOveruseConfigs) {
@@ -230,18 +188,35 @@ Result<void> isValidResourceOveruseConfigs(
             return Error() << "Cannot provide duplicate configs for the same component type "
                            << toString(resourceOveruseConfig.componentType);
         }
-        if (const auto result = isValidResourceOveruseConfig(resourceOveruseConfig); !result.ok()) {
-            return result;
+        const auto filter = getComponentFilter(resourceOveruseConfig.componentType);
+        if (!filter.ok()) {
+            return Error() << filter.error();
         }
         seenComponentTypes.insert(resourceOveruseConfig.componentType);
+        if (resourceOveruseConfig.resourceSpecificConfigurations.size() != 1) {
+            return Error() << "Must provide exactly one I/O overuse configuration. Received "
+                           << resourceOveruseConfig.resourceSpecificConfigurations.size()
+                           << " configurations";
+        }
+        for (const auto& config : resourceOveruseConfig.resourceSpecificConfigurations) {
+            if (config.getTag() != ResourceSpecificConfiguration::ioOveruseConfiguration) {
+                return Error() << "Invalid resource type: " << config.getTag();
+            }
+            const auto& ioOveruseConfig =
+                    config.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+            if (auto result = isValidIoOveruseConfiguration(resourceOveruseConfig.componentType,
+                                                            *filter, ioOveruseConfig);
+                !result.ok()) {
+                return Error() << "Invalid config for component "
+                               << toString(resourceOveruseConfig.componentType).c_str()
+                               << result.error();
+            }
+        }
     }
     return {};
 }
 
 }  // namespace
-
-IoOveruseConfigs::ParseXmlFileFunction IoOveruseConfigs::sParseXmlFile =
-        &OveruseConfigurationXmlHelper::parseXmlFile;
 
 Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
         const std::vector<PerStateIoOveruseThreshold>& thresholds,
@@ -259,7 +234,7 @@ Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
         maybeAppendVendorPackagePrefixes(packageThreshold.name);
         if (auto result = containsValidThresholds(packageThreshold); !result.ok()) {
             StringAppendF(&errorMsgs,
-                          "\tSkipping invalid package specific thresholds for package '%s': %s\n",
+                          "\tSkipping invalid package specific thresholds for package %s: %s\n",
                           packageThreshold.name.c_str(), result.error().message().c_str());
             continue;
         }
@@ -292,54 +267,6 @@ Result<void> ComponentSpecificConfig::updateSafeToKillPackages(
     return errorMsgs.empty() ? Result<void>{} : Error() << errorMsgs;
 }
 
-IoOveruseConfigs::IoOveruseConfigs() :
-      mSystemConfig({}),
-      mVendorConfig({}),
-      mThirdPartyConfig({}),
-      mPackagesToAppCategories({}),
-      mPackagesToAppCategoryMappingUpdateMode(OVERWRITE),
-      mPerCategoryThresholds({}),
-      mVendorPackagePrefixes({}) {
-    const auto updateFromXmlPerType = [&](const char* filename, const char* configType) -> bool {
-        if (const auto result = this->updateFromXml(filename); !result.ok()) {
-            ALOGE("Failed to parse %s resource overuse configuration from '%s': %s", configType,
-                  filename, result.error().message().c_str());
-            return false;
-        }
-        ALOGI("Updated with %s resource overuse configuration from '%s'", configType, filename);
-        return true;
-    };
-    /*
-     * Package to app category mapping is common between system and vendor component configs. When
-     * the build system and vendor component configs are used, the mapping shouldn't be
-     * overwritten by either of the configs because the build configurations defined by the
-     * vendor or system components may not be aware of mappings included in other component's
-     * config. Ergo, the mapping from both the component configs should be merged together. When a
-     * latest config is used for either of the components, the latest mapping should be given higher
-     * priority.
-     */
-    bool isBuildSystemConfig = false;
-    if (!updateFromXmlPerType(kLatestSystemConfigXmlPath, "latest system")) {
-        isBuildSystemConfig = updateFromXmlPerType(kBuildSystemConfigXmlPath, "build system");
-    }
-    if (!updateFromXmlPerType(kLatestVendorConfigXmlPath, "latest vendor")) {
-        mPackagesToAppCategoryMappingUpdateMode = isBuildSystemConfig ? MERGE : NO_UPDATE;
-        if (!updateFromXmlPerType(kBuildVendorConfigXmlPath, "build vendor") &&
-            mSystemConfig.mGeneric.name != kDefaultThresholdName) {
-            mVendorConfig.mGeneric = mSystemConfig.mGeneric;
-            mVendorConfig.mGeneric.name = toString(ComponentType::VENDOR);
-        }
-        mPackagesToAppCategoryMappingUpdateMode = OVERWRITE;
-    }
-    if (!updateFromXmlPerType(kLatestThirdPartyConfigXmlPath, "latest third-party")) {
-        if (!updateFromXmlPerType(kBuildThirdPartyConfigXmlPath, "build third-party") &&
-            mSystemConfig.mGeneric.name != kDefaultThresholdName) {
-            mThirdPartyConfig.mGeneric = mSystemConfig.mGeneric;
-            mThirdPartyConfig.mGeneric.name = toString(ComponentType::THIRD_PARTY);
-        }
-    }
-}
-
 size_t IoOveruseConfigs::AlertThresholdHashByDuration::operator()(
         const IoOveruseAlertThreshold& threshold) const {
     return std::hash<std::string>{}(std::to_string(threshold.durationInSeconds));
@@ -359,13 +286,13 @@ Result<void> IoOveruseConfigs::updatePerCategoryThresholds(
     std::string errorMsgs;
     for (const auto& categoryThreshold : thresholds) {
         if (auto result = containsValidThresholds(categoryThreshold); !result.ok()) {
-            StringAppendF(&errorMsgs, "\tInvalid category specific thresholds: '%s'\n",
+            StringAppendF(&errorMsgs, "\tInvalid category specific thresholds: %s\n",
                           result.error().message().c_str());
             continue;
         }
         if (auto category = toApplicationCategoryType(categoryThreshold.name);
             category == ApplicationCategoryType::OTHERS) {
-            StringAppendF(&errorMsgs, "\tInvalid application category '%s'\n",
+            StringAppendF(&errorMsgs, "\tInvalid application category %s\n",
                           categoryThreshold.name.c_str());
         } else {
             if (const auto& it = mPerCategoryThresholds.find(category);
@@ -403,66 +330,50 @@ Result<void> IoOveruseConfigs::updateAlertThresholds(
 
 Result<void> IoOveruseConfigs::update(
         const std::vector<ResourceOveruseConfiguration>& resourceOveruseConfigs) {
-    if (const auto result = isValidResourceOveruseConfigs(resourceOveruseConfigs); !result.ok()) {
+    if (auto result = isValidConfigs(resourceOveruseConfigs); !result.ok()) {
         return Error(Status::EX_ILLEGAL_ARGUMENT) << result.error();
     }
+
     for (const auto& resourceOveruseConfig : resourceOveruseConfigs) {
-        updateFromAidlConfig(resourceOveruseConfig);
-    }
-    return {};
-}
+        ComponentSpecificConfig* targetComponentConfig;
+        int32_t updatableConfigsFilter = 0;
+        switch (resourceOveruseConfig.componentType) {
+            case ComponentType::SYSTEM:
+                targetComponentConfig = &mSystemConfig;
+                updatableConfigsFilter = kSystemComponentUpdatableConfigs;
+                break;
+            case ComponentType::VENDOR:
+                targetComponentConfig = &mVendorConfig;
+                updatableConfigsFilter = kVendorComponentUpdatableConfigs;
+                break;
+            case ComponentType::THIRD_PARTY:
+                targetComponentConfig = &mThirdPartyConfig;
+                updatableConfigsFilter = kThirdPartyComponentUpdatableConfigs;
+                break;
+            default:
+                // This case shouldn't execute as it is caught during validation.
+                continue;
+        }
 
-Result<void> IoOveruseConfigs::updateFromXml(const char* filename) {
-    const auto resourceOveruseConfig = sParseXmlFile(filename);
-    if (!resourceOveruseConfig.ok()) {
-        return Error() << "Failed to parse configuration: " << resourceOveruseConfig.error();
-    }
-    if (const auto result = isValidResourceOveruseConfig(*resourceOveruseConfig); !result.ok()) {
-        return result;
-    }
-    updateFromAidlConfig(*resourceOveruseConfig);
-    return {};
-}
-
-void IoOveruseConfigs::updateFromAidlConfig(
-        const ResourceOveruseConfiguration& resourceOveruseConfig) {
-    ComponentSpecificConfig* targetComponentConfig;
-    int32_t updatableConfigsFilter = 0;
-    switch (resourceOveruseConfig.componentType) {
-        case ComponentType::SYSTEM:
-            targetComponentConfig = &mSystemConfig;
-            updatableConfigsFilter = kSystemComponentUpdatableConfigs;
-            break;
-        case ComponentType::VENDOR:
-            targetComponentConfig = &mVendorConfig;
-            updatableConfigsFilter = kVendorComponentUpdatableConfigs;
-            break;
-        case ComponentType::THIRD_PARTY:
-            targetComponentConfig = &mThirdPartyConfig;
-            updatableConfigsFilter = kThirdPartyComponentUpdatableConfigs;
-            break;
-        default:
-            // This case shouldn't execute as it is caught during validation.
-            return;
-    }
-
-    const std::string componentTypeStr = toString(resourceOveruseConfig.componentType);
-    for (const auto& resourceSpecificConfig :
-         resourceOveruseConfig.resourceSpecificConfigurations) {
-        /*
-         * |resourceSpecificConfig| should contain only ioOveruseConfiguration as it is verified
-         * during validation.
-         */
-        const auto& ioOveruseConfig =
-                resourceSpecificConfig.get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
-        if (auto res = update(resourceOveruseConfig, ioOveruseConfig, updatableConfigsFilter,
-                              targetComponentConfig);
-            !res.ok()) {
-            ALOGE("Ignorable I/O overuse configuration errors for '%s' component:\n%s",
-                  componentTypeStr.c_str(), res.error().message().c_str());
+        const std::string componentTypeStr = toString(resourceOveruseConfig.componentType);
+        for (const auto& resourceSpecificConfig :
+             resourceOveruseConfig.resourceSpecificConfigurations) {
+            /*
+             * |resourceSpecificConfig| should contain only ioOveruseConfiguration as it is verified
+             * during validation.
+             */
+            const auto& ioOveruseConfig =
+                    resourceSpecificConfig
+                            .get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+            if (auto res = update(resourceOveruseConfig, ioOveruseConfig, updatableConfigsFilter,
+                                  targetComponentConfig);
+                !res.ok()) {
+                ALOGE("Invalid I/O overuse configurations received for %s component:\n%s",
+                      componentTypeStr.c_str(), res.error().message().c_str());
+            }
         }
     }
-    return;
+    return {};
 }
 
 Result<void> IoOveruseConfigs::update(
@@ -487,14 +398,10 @@ Result<void> IoOveruseConfigs::update(
     }
 
     if (updatableConfigsFilter & OveruseConfigEnum::PACKAGE_APP_CATEGORY_MAPPINGS) {
-        if (mPackagesToAppCategoryMappingUpdateMode == OVERWRITE) {
-            mPackagesToAppCategories.clear();
-        }
-        if (mPackagesToAppCategoryMappingUpdateMode != NO_UPDATE) {
-            for (const auto& meta : resourceOveruseConfiguration.packageMetadata) {
-                if (!meta.packageName.empty()) {
-                    mPackagesToAppCategories[meta.packageName] = meta.appCategoryType;
-                }
+        mPackagesToAppCategories.clear();
+        for (const auto& meta : resourceOveruseConfiguration.packageMetadata) {
+            if (!meta.packageName.empty()) {
+                mPackagesToAppCategories[meta.packageName] = meta.appCategoryType;
             }
         }
     } else if (!resourceOveruseConfiguration.packageMetadata.empty()) {
@@ -523,7 +430,7 @@ Result<void> IoOveruseConfigs::update(
                                                                        .packageSpecificThresholds,
                                                                maybeAppendVendorPackagePrefixes);
             !result.ok()) {
-            StringAppendF(&errorMsgs, "\t\t%s", result.error().message().c_str());
+            StringAppendF(&errorMsgs, "%s", result.error().message().c_str());
         }
     } else if (!ioOveruseConfiguration.packageSpecificThresholds.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%sper-package thresholds",
@@ -536,8 +443,7 @@ Result<void> IoOveruseConfigs::update(
                                                                      .safeToKillPackages,
                                                              maybeAppendVendorPackagePrefixes);
             !result.ok()) {
-            StringAppendF(&errorMsgs, "%s\t\t%s", !errorMsgs.empty() ? "\n" : "",
-                          result.error().message().c_str());
+            StringAppendF(&errorMsgs, "%s", result.error().message().c_str());
         }
     } else if (!resourceOveruseConfiguration.safeToKillPackages.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%ssafe-to-kill list",
@@ -548,8 +454,7 @@ Result<void> IoOveruseConfigs::update(
         if (auto result =
                     updatePerCategoryThresholds(ioOveruseConfiguration.categorySpecificThresholds);
             !result.ok()) {
-            StringAppendF(&errorMsgs, "%s\t\t%s", !errorMsgs.empty() ? "\n" : "",
-                          result.error().message().c_str());
+            StringAppendF(&errorMsgs, "%s", result.error().message().c_str());
         }
     } else if (!ioOveruseConfiguration.categorySpecificThresholds.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%scategory specific thresholds",
@@ -559,8 +464,7 @@ Result<void> IoOveruseConfigs::update(
     if (updatableConfigsFilter & OveruseConfigEnum::SYSTEM_WIDE_ALERT_THRESHOLDS) {
         if (auto result = updateAlertThresholds(ioOveruseConfiguration.systemWideThresholds);
             !result.ok()) {
-            StringAppendF(&errorMsgs, "%s\t\t%s", !errorMsgs.empty() ? "\n" : "",
-                          result.error().message().c_str());
+            StringAppendF(&errorMsgs, "%s", result.error().message().c_str());
         }
     } else if (!ioOveruseConfiguration.systemWideThresholds.empty()) {
         StringAppendF(&nonUpdatableConfigMsgs, "%ssystem-wide alert thresholds",
@@ -568,8 +472,8 @@ Result<void> IoOveruseConfigs::update(
     }
 
     if (!nonUpdatableConfigMsgs.empty()) {
-        StringAppendF(&errorMsgs, "%s\t\tReceived values for non-updatable configs: [%s]",
-                      !errorMsgs.empty() ? "\n" : "", nonUpdatableConfigMsgs.c_str());
+        StringAppendF(&errorMsgs, "\tReceived values for non-updatable configs: %s\n",
+                      nonUpdatableConfigMsgs.c_str());
     }
     if (!errorMsgs.empty()) {
         return Error() << errorMsgs.c_str();

@@ -1,4 +1,4 @@
-/*
+/**
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -32,24 +32,11 @@
 #include <string_view>
 #include <unordered_map>
 #include <unordered_set>
-#include <vector>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
-constexpr const char kBuildSystemConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/system_resource_overuse_configuration.xml";
-constexpr const char kBuildThirdPartyConfigXmlPath[] =
-        "/system/etc/automotive/watchdog/third_party_resource_overuse_configuration.xml";
-constexpr const char kBuildVendorConfigXmlPath[] =
-        "/vendor/etc/automotive/watchdog/resource_overuse_configuration.xml";
-constexpr const char kLatestSystemConfigXmlPath[] =
-        "/data/system/car/watchdog/system_resource_overuse_configuration.xml";
-constexpr const char kLatestVendorConfigXmlPath[] =
-        "/data/system/car/watchdog/vendor_resource_overuse_configuration.xml";
-constexpr const char kLatestThirdPartyConfigXmlPath[] =
-        "/data/system/car/watchdog/third_party_resource_overuse_configuration.xml";
-constexpr const char kDefaultThresholdName[] = "default";
+constexpr const char* kDefaultThresholdName = "default";
 
 inline const android::automotive::watchdog::internal::PerStateIoOveruseThreshold
 defaultThreshold() {
@@ -60,13 +47,6 @@ defaultThreshold() {
     threshold.perStateWriteBytes.garageModeBytes = std::numeric_limits<int64_t>::max();
     return threshold;
 }
-
-// Forward declaration for testing use only.
-namespace internal {
-
-class IoOveruseConfigsPeer;
-
-}  // namespace internal
 
 /*
  * Defines the methods that the I/O overuse configs module should implement.
@@ -179,7 +159,7 @@ private:
  */
 class IoOveruseConfigs final : public IIoOveruseConfigs {
 public:
-    IoOveruseConfigs();
+    IoOveruseConfigs() {}
     ~IoOveruseConfigs() {
         mPerCategoryThresholds.clear();
         mVendorPackagePrefixes.clear();
@@ -188,56 +168,36 @@ public:
 
     android::base::Result<void>
     update(const std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>&
-                   configs) override;
+                   configs);
 
     void get(std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
-                     resourceOveruseConfigs) override;
+                     resourceOveruseConfigs);
 
     PerStateBytes fetchThreshold(
-            const android::automotive::watchdog::internal::PackageInfo& packageInfo) const override;
+            const android::automotive::watchdog::internal::PackageInfo& packageInfo) const;
 
     bool isSafeToKill(
-            const android::automotive::watchdog::internal::PackageInfo& packageInfo) const override;
+            const android::automotive::watchdog::internal::PackageInfo& packageInfo) const;
 
-    const IoOveruseAlertThresholdSet& systemWideAlertThresholds() override {
-        return mAlertThresholds;
-    }
+    const IoOveruseAlertThresholdSet& systemWideAlertThresholds() { return mAlertThresholds; }
 
-    const std::unordered_set<std::string>& vendorPackagePrefixes() override {
+    const std::unordered_set<std::string>& vendorPackagePrefixes() {
         return mVendorPackagePrefixes;
     }
 
     const std::unordered_map<std::string,
                              android::automotive::watchdog::internal::ApplicationCategoryType>&
-    packagesToAppCategories() override {
+    packagesToAppCategories() {
         return mPackagesToAppCategories;
     }
 
 private:
-    enum ConfigUpdateMode {
-        OVERWRITE = 0,
-        MERGE,
-        NO_UPDATE,
-    };
-    android::base::Result<void> updateFromXml(const char* filename);
-
-    void updateFromAidlConfig(
-            const android::automotive::watchdog::internal::ResourceOveruseConfiguration&
-                    resourceOveruseConfig);
-
     android::base::Result<void> update(
             const android::automotive::watchdog::internal::ResourceOveruseConfiguration&
                     resourceOveruseConfiguration,
             const android::automotive::watchdog::internal::IoOveruseConfiguration&
                     ioOveruseConfiguration,
             int32_t updatableConfigsFilter, ComponentSpecificConfig* targetComponentConfig);
-
-    android::base::Result<void> updatePerCategoryThresholds(
-            const std::vector<android::automotive::watchdog::internal::PerStateIoOveruseThreshold>&
-                    thresholds);
-    android::base::Result<void> updateAlertThresholds(
-            const std::vector<android::automotive::watchdog::internal::IoOveruseAlertThreshold>&
-                    thresholds);
 
     std::optional<android::automotive::watchdog::internal::ResourceOveruseConfiguration> get(
             const ComponentSpecificConfig& componentSpecificConfig, const int32_t componentFilter);
@@ -252,7 +212,6 @@ private:
     std::unordered_map<std::string,
                        android::automotive::watchdog::internal::ApplicationCategoryType>
             mPackagesToAppCategories;
-    ConfigUpdateMode mPackagesToAppCategoryMappingUpdateMode;
     // I/O overuse thresholds per category.
     std::unordered_map<android::automotive::watchdog::internal::ApplicationCategoryType,
                        android::automotive::watchdog::internal::PerStateIoOveruseThreshold>
@@ -262,12 +221,12 @@ private:
     // System-wide disk I/O overuse alert thresholds.
     IoOveruseAlertThresholdSet mAlertThresholds;
 
-    // For unit tests.
-    using ParseXmlFileFunction = std::function<android::base::Result<
-            android::automotive::watchdog::internal::ResourceOveruseConfiguration>(const char*)>;
-    static ParseXmlFileFunction sParseXmlFile;
-
-    friend class internal::IoOveruseConfigsPeer;
+    android::base::Result<void> updatePerCategoryThresholds(
+            const std::vector<android::automotive::watchdog::internal::PerStateIoOveruseThreshold>&
+                    thresholds);
+    android::base::Result<void> updateAlertThresholds(
+            const std::vector<android::automotive::watchdog::internal::IoOveruseAlertThreshold>&
+                    thresholds);
 };
 
 }  // namespace watchdog

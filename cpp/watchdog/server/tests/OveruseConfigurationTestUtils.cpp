@@ -67,11 +67,6 @@ MATCHER_P(IsResourceSpecificConfiguration, config, "") {
     }
 }
 
-MATCHER_P(IsPackageMetadata, expected, "") {
-    return arg.packageName == expected.packageName &&
-            arg.appCategoryType == expected.appCategoryType;
-}
-
 }  // namespace
 
 ResourceOveruseConfiguration constructResourceOveruseConfig(
@@ -156,15 +151,9 @@ IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSecond
 
 Matcher<const ResourceOveruseConfiguration> ResourceOveruseConfigurationMatcher(
         const ResourceOveruseConfiguration& config) {
-    std::vector<Matcher<const ResourceSpecificConfiguration>> resourceSpecificConfigMatchers;
+    std::vector<Matcher<const ResourceSpecificConfiguration>> matchers;
     for (const auto& resourceSpecificConfig : config.resourceSpecificConfigurations) {
-        resourceSpecificConfigMatchers.push_back(
-                IsResourceSpecificConfiguration(resourceSpecificConfig));
-    }
-
-    std::vector<Matcher<const PackageMetadata>> metadataMatchers;
-    for (const auto& metadata : config.packageMetadata) {
-        metadataMatchers.push_back(IsPackageMetadata(metadata));
+        matchers.push_back(IsResourceSpecificConfiguration(resourceSpecificConfig));
     }
 
     return AllOf(Field(&ResourceOveruseConfiguration::componentType, config.componentType),
@@ -172,10 +161,8 @@ Matcher<const ResourceOveruseConfiguration> ResourceOveruseConfigurationMatcher(
                        UnorderedElementsAreArray(config.safeToKillPackages)),
                  Field(&ResourceOveruseConfiguration::vendorPackagePrefixes,
                        UnorderedElementsAreArray(config.vendorPackagePrefixes)),
-                 Field(&ResourceOveruseConfiguration::packageMetadata,
-                       UnorderedElementsAreArray(metadataMatchers)),
                  Field(&ResourceOveruseConfiguration::resourceSpecificConfigurations,
-                       UnorderedElementsAreArray(resourceSpecificConfigMatchers)));
+                       UnorderedElementsAreArray(matchers)));
 }
 
 }  // namespace watchdog
