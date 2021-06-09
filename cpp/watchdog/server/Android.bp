@@ -200,20 +200,4 @@ cc_binary {
       "libwatchdog_package_info_resolver",
     ],
     vintf_fragments: ["carwatchdogd.xml"],
-    required: [
-        "system_resource_overuse_configuration.xml",
-        "third_party_resource_overuse_configuration.xml",
-    ],
-}
-
-prebuilt_etc {
-    name: "system_resource_overuse_configuration.xml",
-    src: "data/system_resource_overuse_configuration.xml",
-    sub_dir: "automotive/watchdog/",
-}
-
-prebuilt_etc {
-    name: "third_party_resource_overuse_configuration.xml",
-    src: "data/third_party_resource_overuse_configuration.xml",
-    sub_dir: "automotive/watchdog/",
 }
