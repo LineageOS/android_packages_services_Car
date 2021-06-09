@@ -16,6 +16,8 @@
 
 package com.android.car.audio.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -24,6 +26,7 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.util.IndentingPrintWriter;
 
 import com.android.car.audio.CarDuckingInfo;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -83,6 +86,7 @@ public interface AudioControlWrapper {
      *
      * @param writer stream to write current state
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(IndentingPrintWriter writer);
 
     /**
