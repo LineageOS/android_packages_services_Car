@@ -30,6 +30,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.os.RemoteException;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
 import com.google.android.collect.Lists;
@@ -159,7 +160,15 @@ public class MockedVehicleHal extends IVehicle.Stub {
         if (handler == null) {
             cb.onValues(StatusCode.INVALID_ARG, null);
         } else {
-            cb.onValues(StatusCode.OK, handler.onPropertyGet(requestedPropValue));
+            try {
+                VehiclePropValue prop = handler.onPropertyGet(requestedPropValue);
+                cb.onValues(StatusCode.OK, prop);
+            } catch (ServiceSpecificException e) {
+                // Don't directly pass ServiceSpecificException through binder to client, pass
+                // status code similar to how the c++ server does.
+                cb.onValues(e.errorCode, null);
+            }
+
         }
     }
 
@@ -169,8 +178,14 @@ public class MockedVehicleHal extends IVehicle.Stub {
         if (handler == null) {
             return StatusCode.INVALID_ARG;
         } else {
-            handler.onPropertySet(propValue);
-            return StatusCode.OK;
+            try {
+                handler.onPropertySet(propValue);
+                return StatusCode.OK;
+            } catch (ServiceSpecificException e) {
+                // Don't directly pass ServiceSpecificException through binder to client, pass
+                // status code similar to how the c++ server does.
+                return e.errorCode;
+            }
         }
     }
 

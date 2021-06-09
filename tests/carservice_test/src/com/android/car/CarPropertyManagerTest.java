@@ -128,6 +128,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
             0x1107 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32
                     | VehicleArea.GLOBAL;
     private static final int FAKE_INT_PROPERTY_VALUE = 3;
+    // A property that always returns null to simulate an unavailable property.
+    private static final int NULL_VALUE_PROP =
+            0x1108 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32
+                    | VehicleArea.GLOBAL;
 
     // Vendor properties for testing exceptions.
     private static final int PROP_CAUSE_STATUS_CODE_TRY_AGAIN =
@@ -216,6 +220,7 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case INT_PROP_STATUS_UNAVAILABLE:
                 case FLOAT_PROP_STATUS_UNAVAILABLE:
                 case VehiclePropertyIds.INFO_VIN:
+                case NULL_VALUE_PROP:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
@@ -519,8 +524,13 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 ()->mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
 
+        assertThrows(IllegalStateException.class,
+                ()->mManager.getProperty(NULL_VALUE_PROP,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+
         Truth.assertThat(mManager.getProperty(PROP_CAUSE_STATUS_CODE_TRY_AGAIN,
                 VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL)).isNull();
+
     }
 
     @Test
@@ -534,7 +544,6 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThrows(PropertyAccessDeniedSecurityException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_ACCESS_DENIED,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
-
         assertThrows(IllegalArgumentException.class,
                 () -> mManager.getProperty(PROP_CAUSE_STATUS_CODE_INVALID_ARG,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
@@ -562,6 +571,10 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThrows(CarInternalErrorException.class,
                 () -> mManager.getIntProperty(PROP_CAUSE_STATUS_CODE_INTERNAL_ERROR,
                         VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
+
+        assertThrows(PropertyNotAvailableException.class,
+                ()->mManager.getProperty(NULL_VALUE_PROP,
+                    VehicleAreaType.VEHICLE_AREA_TYPE_GLOBAL));
     }
 
     @Test
@@ -624,6 +637,40 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThat((int) callback.getLastCarPropertyValue(CUSTOM_SEAT_INT_PROP_2).getValue())
                 .isEqualTo(4);
         assertThat(callback.getEventCounter()).isEqualTo(2);
+    }
+
+    @Test
+    public void testOnChangeEventInvalidPayload() throws Exception {
+        TestSequenceCallback callback = new TestSequenceCallback(0);
+        mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
+        callback.assertRegisterCompleted();
+
+        List<VehiclePropValue> props = new ArrayList<VehiclePropValue>();
+        VehiclePropValue emptyProp = new VehiclePropValue();
+        emptyProp.prop = CUSTOM_SEAT_INT_PROP_1;
+        props.add(emptyProp);
+
+        VehiclePropValue twoIntsProp = new VehiclePropValue();
+        twoIntsProp.prop = CUSTOM_SEAT_INT_PROP_1;
+        twoIntsProp.value.int32Values.add(0);
+        twoIntsProp.value.int32Values.add(1);
+        props.add(twoIntsProp);
+
+        VehiclePropValue propWithFloat = new VehiclePropValue();
+        propWithFloat.prop = CUSTOM_SEAT_INT_PROP_1;
+        propWithFloat.value.floatValues.add((float) 0.0);
+        props.add(propWithFloat);
+
+        VehiclePropValue propWithString = new VehiclePropValue();
+        propWithString.prop = CUSTOM_SEAT_INT_PROP_1;
+        propWithString.value.stringValue = "1234";
+        props.add(propWithString);
+
+        for (VehiclePropValue prop: props) {
+            // inject passenger event before driver event
+            getMockedVehicleHal().injectEvent(prop);
+            assertThat(callback.getEventCounter()).isEqualTo(0);
+        }
     }
 
     @Test
@@ -765,6 +812,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                                                         .addAreaConfig(PASSENGER_SIDE_AREA_ID);
         addProperty(CUSTOM_SEAT_INT_PROP_2, handler).addAreaConfig(DRIVER_SIDE_AREA_ID)
                                                         .addAreaConfig(PASSENGER_SIDE_AREA_ID);
+
+        addProperty(NULL_VALUE_PROP, handler);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {
@@ -773,11 +822,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         public synchronized void onPropertySet(VehiclePropValue value) {
             // Simulate HalClient.set() behavior.
             int statusCode = mapPropertyToVhalStatusCode(value.prop);
-            if (statusCode == VehicleHalStatusCode.STATUS_INVALID_ARG) {
-                throw new IllegalArgumentException();
-            }
-
             if (statusCode != VehicleHalStatusCode.STATUS_OK) {
+                // The ServiceSpecificException here would pass the statusCode back to caller.
                 throw new ServiceSpecificException(statusCode);
             }
 
@@ -788,15 +834,19 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
             // Simulate HalClient.get() behavior.
             int vhalStatusCode = mapPropertyToVhalStatusCode(value.prop);
-            if (vhalStatusCode == VehicleHalStatusCode.STATUS_INVALID_ARG) {
-                throw new IllegalArgumentException();
-            }
-
             if (vhalStatusCode != VehicleHalStatusCode.STATUS_OK) {
+                // The ServiceSpecificException here would pass the statusCode back to caller.
                 throw new ServiceSpecificException(vhalStatusCode);
             }
 
             int propertyStatus = mapPropertyToCarPropertyStatusCode(value.prop);
+            if (value.prop == NULL_VALUE_PROP) {
+                // Return null to simulate an unavailable property.
+                // HAL implementation should return STATUS_TRY_AGAIN when a property is unavailable,
+                // however, it may also return null with STATUS_OKAY and we want to handle this
+                // properly.
+                return null;
+            }
             VehiclePropValue currentValue = mMap.get(value.prop);
             if (currentValue == null) {
                 return value;
