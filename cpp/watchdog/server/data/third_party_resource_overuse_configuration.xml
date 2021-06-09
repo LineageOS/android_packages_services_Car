@@ -17,11 +17,12 @@
 <resourceOveruseConfiguration version="1.0">
   <componentType> THIRD_PARTY </componentType>
   <ioOveruseConfiguration>
-    <!-- Thresholds in MiB for all third-party packages. -->
+    <!-- Default thresholds in MiB for all third-party packages that don't have app category
+         specific thresholds. -->
     <componentLevelThresholds>
-      <state id="foreground_mode"> 300 </state>
-      <state id="background_mode"> 150 </state>
-      <state id="garage_mode"> 500 </state>
+      <state id="foreground_mode"> 3072 </state>
+      <state id="background_mode"> 2048 </state>
+      <state id="garage_mode"> 4096 </state>
     </componentLevelThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>
