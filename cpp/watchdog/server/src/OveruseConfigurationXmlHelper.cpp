@@ -78,16 +78,16 @@ constexpr const char kTagPackageAppCategory[] = "packageAppCategory";
 constexpr const char kTagIoOveruseConfiguration[] = "ioOveruseConfiguration";
 constexpr const char kTagComponentLevelThresholds[] = "componentLevelThresholds";
 constexpr const char kTagPackageSpecificThresholds[] = "packageSpecificThresholds";
+constexpr const char kTagAppCategorySpecificThresholds[] = "appCategorySpecificThresholds";
+constexpr const char kTagPerStateThreshold[] = "perStateThreshold";
 constexpr const char kTagState[] = "state";
 constexpr const char kStateIdForegroundMode[] = "foreground_mode";
 constexpr const char kStateIdBackgroundMode[] = "background_mode";
 constexpr const char kStateIdGarageMode[] = "garage_mode";
 constexpr int kNumStates = 3;
 
-constexpr const char kTagAppCategorySpecificThresholds[] = "appCategorySpecificThresholds";
-constexpr const char kTagAppCategoryThreshold[] = "appCategoryThreshold";
-
 constexpr const char kTagSystemWideThresholds[] = "systemWideThresholds";
+constexpr const char kTagAlertThreshold[] = "alertThreshold";
 constexpr const char kTagParam[] = "param";
 constexpr const char kParamIdDurationSeconds[] = "duration_seconds";
 constexpr const char kParamIdWrittenBytesPerSecond[] = "written_bytes_per_second";
@@ -282,6 +282,30 @@ Result<PerStateIoOveruseThreshold> readComponentLevelThresholds(ComponentType co
     return thresholds;
 }
 
+Result<std::vector<PerStateIoOveruseThreshold>> readPerStateThresholds(
+        const XMLElement* rootElement) {
+    std::vector<PerStateIoOveruseThreshold> thresholds;
+    for (const XMLElement* childElement = rootElement->FirstChildElement(kTagPerStateThreshold);
+         childElement != nullptr;
+         childElement = childElement->NextSiblingElement(kTagPerStateThreshold)) {
+        PerStateIoOveruseThreshold threshold;
+        if (const char* name = nullptr;
+            childElement->QueryStringAttribute(kAttrId, &name) != XML_SUCCESS) {
+            return Error() << "Failed to read '" << kAttrId << "' attribute";
+        } else if (threshold.name = name; threshold.name.empty()) {
+            return Error() << "Must provide non-empty value in '" << kAttrId << "' attribute";
+        }
+        if (const auto result = readPerStateBytes(childElement); result.ok()) {
+            threshold.perStateWriteBytes = *result;
+        } else {
+            return Error() << "Failed to read thresholds for id '" << threshold.name
+                           << "': " << result.error();
+        }
+        thresholds.push_back(threshold);
+    }
+    return thresholds;
+}
+
 Result<std::vector<PerStateIoOveruseThreshold>> readPackageSpecificThresholds(
         const XMLElement* rootElement) {
     std::vector<PerStateIoOveruseThreshold> thresholds;
@@ -289,22 +313,12 @@ Result<std::vector<PerStateIoOveruseThreshold>> readPackageSpecificThresholds(
                  rootElement->FirstChildElement(kTagPackageSpecificThresholds);
          childElement != nullptr;
          childElement = childElement->NextSiblingElement(kTagPackageSpecificThresholds)) {
-        PerStateIoOveruseThreshold threshold;
-        if (const char* name = nullptr;
-            childElement->QueryStringAttribute(kAttrId, &name) != XML_SUCCESS) {
-            return Error() << "Failed to read '" << kAttrId << "' attribute in '"
-                           << kTagPackageSpecificThresholds << "' tag";
-        } else if (threshold.name = name; threshold.name.empty()) {
-            return Error() << "Must provide non-empty package name in '" << kAttrId
-                           << "attribute in '" << kTagPackageSpecificThresholds << "' tag";
-        }
-        if (const auto result = readPerStateBytes(childElement); result.ok()) {
-            threshold.perStateWriteBytes = *result;
+        if (const auto result = readPerStateThresholds(childElement); result.ok()) {
+            thresholds.insert(thresholds.end(), result->begin(), result->end());
         } else {
-            return Error() << "Failed to read package specific thresholds for package '"
-                           << threshold.name << "': " << result.error();
+            return Error() << "Failed to read package specific thresholds from tag'"
+                           << kTagPackageSpecificThresholds << "': " << result.error();
         }
-        thresholds.push_back(threshold);
     }
     return thresholds;
 }
@@ -312,31 +326,55 @@ Result<std::vector<PerStateIoOveruseThreshold>> readPackageSpecificThresholds(
 Result<std::vector<PerStateIoOveruseThreshold>> readAppCategorySpecificThresholds(
         const XMLElement* rootElement) {
     std::vector<PerStateIoOveruseThreshold> thresholds;
-    for (const XMLElement* outerElement =
+    for (const XMLElement* childElement =
                  rootElement->FirstChildElement(kTagAppCategorySpecificThresholds);
-         outerElement != nullptr;
-         outerElement = outerElement->NextSiblingElement(kTagAppCategorySpecificThresholds)) {
-        for (const XMLElement* innerElement =
-                     outerElement->FirstChildElement(kTagAppCategoryThreshold);
-             innerElement != nullptr;
-             innerElement = innerElement->NextSiblingElement(kTagAppCategoryThreshold)) {
-            const char* name = nullptr;
-            if (innerElement->QueryStringAttribute(kAttrId, &name) != XML_SUCCESS) {
-                return Error() << "Failed to read '" << kAttrId << "' attribute in '"
-                               << kTagAppCategoryThreshold << "' tag";
-            }
-            PerStateIoOveruseThreshold threshold;
-            threshold.name = name;
-            if (const auto result = readPerStateBytes(innerElement); result.ok()) {
-                threshold.perStateWriteBytes = *result;
-            } else {
-                return Error() << "Failed to read app category specific thresholds for application "
-                               << "category '" << threshold.name << "': " << result.error();
-            }
-            thresholds.push_back(threshold);
+         childElement != nullptr;
+         childElement = childElement->NextSiblingElement(kTagAppCategorySpecificThresholds)) {
+        if (const auto result = readPerStateThresholds(childElement); result.ok()) {
+            thresholds.insert(thresholds.end(), result->begin(), result->end());
+        } else {
+            return Error() << "Failed to read app category specific thresholds from tag'"
+                           << kTagAppCategorySpecificThresholds << "': " << result.error();
         }
     }
     return thresholds;
+}
+
+Result<IoOveruseAlertThreshold> readIoOveruseAlertThreshold(const XMLElement* rootElement) {
+    IoOveruseAlertThreshold alertThreshold;
+    std::unordered_set<std::string> seenParams;
+    for (const XMLElement* childElement = rootElement->FirstChildElement(kTagParam);
+         childElement != nullptr; childElement = childElement->NextSiblingElement(kTagParam)) {
+        const char* param = nullptr;
+        if (childElement->QueryStringAttribute(kAttrId, &param) != XML_SUCCESS) {
+            return Error() << "Failed to read '" << kAttrId << "' attribute in '" << kTagParam
+                           << "' tag";
+        }
+        if (seenParams.find(param) != seenParams.end()) {
+            return Error() << "Duplicate threshold specified for param '" << param << "'";
+        }
+        int64_t value = 0;
+        if (const auto text = childElement->GetText(); text == nullptr) {
+            return Error() << "Must specify non-empty threshold for param '" << param << "'";
+        } else if (const auto valueStr = Trim(text); !ParseInt(valueStr.c_str(), &value)) {
+            return Error() << "Failed to parse threshold for the param '" << param
+                           << "': Received threshold value '" << valueStr << "'";
+        }
+        if (!strcmp(param, kParamIdDurationSeconds)) {
+            seenParams.insert(kParamIdDurationSeconds);
+            alertThreshold.durationInSeconds = value;
+        } else if (!strcmp(param, kParamIdWrittenBytesPerSecond)) {
+            seenParams.insert(kParamIdWrittenBytesPerSecond);
+            alertThreshold.writtenBytesPerSecond = value;
+        } else {
+            return Error() << "Invalid param '" << param << "' in I/O overuse alert thresholds";
+        }
+    }
+    if (seenParams.size() != kNumParams) {
+        return Error() << "Thresholds not specified for all params. Specified only for ["
+                       << Join(seenParams, ", ") << "] params";
+    }
+    return alertThreshold;
 }
 
 Result<std::vector<IoOveruseAlertThreshold>> readSystemWideThresholds(
@@ -345,40 +383,16 @@ Result<std::vector<IoOveruseAlertThreshold>> readSystemWideThresholds(
     for (const XMLElement* outerElement = rootElement->FirstChildElement(kTagSystemWideThresholds);
          outerElement != nullptr;
          outerElement = outerElement->NextSiblingElement(kTagSystemWideThresholds)) {
-        IoOveruseAlertThreshold alertThreshold;
-        std::unordered_set<std::string> seenParams;
-        for (const XMLElement* innerElement = outerElement->FirstChildElement(kTagParam);
-             innerElement != nullptr; innerElement = innerElement->NextSiblingElement(kTagParam)) {
-            const char* param = nullptr;
-            if (innerElement->QueryStringAttribute(kAttrId, &param) != XML_SUCCESS) {
-                return Error() << "Failed to read '" << kAttrId << "' attribute in '" << kTagParam
-                               << "' tag";
+        for (const XMLElement* innerElement = outerElement->FirstChildElement(kTagAlertThreshold);
+             innerElement != nullptr;
+             innerElement = innerElement->NextSiblingElement(kTagAlertThreshold)) {
+            const auto result = readIoOveruseAlertThreshold(innerElement);
+            if (!result.ok()) {
+                return Error() << "Failed to system wide thresholds from tag '"
+                               << kTagAlertThreshold << "': " << result.error();
             }
-            if (seenParams.find(param) != seenParams.end()) {
-                return Error() << "Duplicate threshold specified for param '" << param << "'";
-            }
-            int64_t value = 0;
-            if (const auto text = innerElement->GetText(); text == nullptr) {
-                return Error() << "Must specify non-empty threshold for param '" << param << "'";
-            } else if (const auto valueStr = Trim(text); !ParseInt(valueStr.c_str(), &value)) {
-                return Error() << "Failed to parse threshold for the param '" << param
-                               << "': Received threshold value '" << valueStr << "'";
-            }
-            if (!strcmp(param, kParamIdDurationSeconds)) {
-                seenParams.insert(kParamIdDurationSeconds);
-                alertThreshold.durationInSeconds = value;
-            } else if (!strcmp(param, kParamIdWrittenBytesPerSecond)) {
-                seenParams.insert(kParamIdWrittenBytesPerSecond);
-                alertThreshold.writtenBytesPerSecond = value;
-            } else {
-                return Error() << "Invalid param '" << param << "' in I/O overuse alert thresholds";
-            }
+            alertThresholds.push_back(*result);
         }
-        if (seenParams.size() != kNumParams) {
-            return Error() << "Thresholds not specified for all params. Specified only for ["
-                           << Join(seenParams, ", ") << "] params";
-        }
-        alertThresholds.push_back(alertThreshold);
     }
     return alertThresholds;
 }

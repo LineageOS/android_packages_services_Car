@@ -25,7 +25,9 @@
     </componentLevelThresholds>
 
     <systemWideThresholds>
-      <param id="written_bytes_per_second"> 200 </param>
+      <alertThreshold>
+        <param id="written_bytes_per_second"> 200 </param>
+      </alertThreshold>
     </systemWideThresholds>
   </ioOveruseConfiguration>
 </resourceOveruseConfiguration>
