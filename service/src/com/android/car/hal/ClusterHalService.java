@@ -182,10 +182,20 @@ public final class ClusterHalService extends HalServiceBase {
         for (VehiclePropValue value : values) {
             switch (value.prop) {
                 case CLUSTER_SWITCH_UI:
+                    if (value.value.int32Values.size() < 1) {
+                        Slogf.e(TAG, "received invalid CLUSTER_SWITCH_UI property from HAL, "
+                                + "expect at least 1 int value.");
+                        break;
+                    }
                     int uiType = value.value.int32Values.get(0);
                     callback.onSwitchUi(uiType);
                     break;
                 case CLUSTER_DISPLAY_STATE:
+                    if (value.value.int32Values.size() < 9) {
+                        Slogf.e(TAG, "received invalid CLUSTER_DISPLAY_STATE property from HAL, "
+                                + "expect at least 9 int value.");
+                        break;
+                    }
                     int onOff = value.value.int32Values.get(0);
                     Rect bounds = null;
                     if (hasNoDontCare(value.value.int32Values, 1, 4, "bounds")) {
@@ -277,7 +287,7 @@ public final class ClusterHalService extends HalServiceBase {
     private void send(VehiclePropValue request) {
         try {
             mHal.set(request);
-        } catch (ServiceSpecificException e) {
+        } catch (ServiceSpecificException | IllegalArgumentException e) {
             Slogf.e(TAG, "Failed to send request: " + request, e);
         }
     }
