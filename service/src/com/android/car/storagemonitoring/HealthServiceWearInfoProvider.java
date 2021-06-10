@@ -98,8 +98,8 @@ public class HealthServiceWearInfoProvider implements WearInformationProvider {
                     + "internal storage device");
             return null;
         } else {
-            return new WearInformation(lifetimeA.value, lifetimeB.value,
-                                      preEol.value);
+            return new WearInformation(convertLifetime(lifetimeA.value),
+                convertLifetime(lifetimeB.value), preEol.value);
         }
     }
 

@@ -139,7 +139,7 @@ public class CarStorageMonitoringTest {
         WearInformation wearInformation = wearInfoProvider.load();
 
         assertThat(wearInformation).isNotNull();
-        assertThat(wearInformation.lifetimeEstimateA).isEqualTo(storageInfo.lifetimeA);
+        assertThat(wearInformation.lifetimeEstimateA).isEqualTo(20);
         assertThat(wearInformation.lifetimeEstimateB).isEqualTo(storageInfo.lifetimeB);
         assertThat(wearInformation.preEolInfo).isEqualTo(storageInfo.eol);
     }
