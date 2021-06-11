@@ -18,6 +18,7 @@ package com.android.car.power;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -27,6 +28,7 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
 import androidx.test.annotation.UiThreadTest;
@@ -88,6 +90,41 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY,
                 VehicleApPowerStateReport.SHUTDOWN_START);
+    }
+
+    @Test
+    @UiThreadTest
+    public void testImmediateShutdownFromWaitForVhal_ErrorCodeFromVhal() throws Exception {
+        // The exceptions from VHAL should be handled in PowerHalService and not propagated.
+
+        assertWaitForVhal();
+
+        mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_TRY_AGAIN);
+
+        mPowerStateHandler.sendStateAndExpectNoResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+
+        mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_ACCESS_DENIED);
+
+        mPowerStateHandler.sendStateAndExpectNoResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+
+        mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_NOT_AVAILABLE);
+
+        mPowerStateHandler.sendStateAndExpectNoResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+
+        mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_INTERNAL_ERROR);
+
+        mPowerStateHandler.sendStateAndExpectNoResponse(
+                VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY);
+
+        // Clear status code.
+        mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_OK);
     }
 
     @Test
@@ -288,6 +325,21 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         assertResponseTransient(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, 0, true);
     }
 
+    @Test
+    @UiThreadTest
+    public void testInvalidPowerStateEvent() throws Exception {
+        assertWaitForVhal();
+
+        // No param in the event, should be ignored.
+        getMockedVehicleHal().injectEvent(
+                    VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
+                            .setTimestamp(SystemClock.elapsedRealtimeNanos())
+                            .addIntValue(0)
+                            .build());
+
+        assertEquals(mPowerStateHandler.getSetWaitSemaphore().availablePermits(), 0);
+    }
+
     // Check that 'expectedState' was reached and is the current state.
     private void assertResponse(int expectedState, int expectedParam, boolean checkParam)
             throws Exception {
@@ -370,13 +422,25 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         private int mPowerState = VehicleApPowerStateReq.ON;
         private int mPowerParam = 0;
+        private int mStatus = VehicleHalStatusCode.STATUS_OK;
 
         private final Semaphore mSubscriptionWaitSemaphore = new Semaphore(0);
         private final Semaphore mSetWaitSemaphore = new Semaphore(0);
         private LinkedList<int[]> mSetStates = new LinkedList<>();
 
+        public Semaphore getSetWaitSemaphore() {
+            return mSetWaitSemaphore;
+        }
+
+        public void setStatus(int status) {
+            mStatus = status;
+        }
+
         @Override
         public void onPropertySet(VehiclePropValue value) {
+            if (mStatus != VehicleHalStatusCode.STATUS_OK) {
+                throw new ServiceSpecificException(mStatus);
+            }
             ArrayList<Integer> v = value.value.int32Values;
             synchronized (this) {
                 mSetStates.add(new int[] {
@@ -389,6 +453,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         @Override
         public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            if (mStatus != VehicleHalStatusCode.STATUS_OK) {
+                throw new ServiceSpecificException(mStatus);
+            }
             return VehiclePropValueBuilder.newBuilder(VehicleProperty.AP_POWER_STATE_REQ)
                     .setTimestamp(SystemClock.elapsedRealtimeNanos())
                     .addIntValue(mPowerState, mPowerParam)
