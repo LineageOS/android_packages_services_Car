@@ -340,7 +340,12 @@ public final class VehiclePropertyIds {
     public static final int CURRENT_GEAR = 289408001;
     /**
      * Parking brake state.
-     * Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     *
+     * <p>PARKING_BRAKE_ON property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Boolean type value.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int PARKING_BRAKE_ON = 287310850;
