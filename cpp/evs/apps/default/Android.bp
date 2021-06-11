@@ -25,6 +25,7 @@ cc_binary {
     srcs: [
         "evs_app.cpp",
         "EvsStateControl.cpp",
+        "EvsStats.cpp",
         "RenderBase.cpp",
         "RenderDirectView.cpp",
         "RenderTopView.cpp",
@@ -50,10 +51,13 @@ cc_binary {
         "libhardware",
         "libpng",
         "libcamera_metadata",
+        "android.frameworks.automotive.telemetry-V1-ndk_platform",
         "android.hardware.camera.device@3.2",
         "android.hardware.automotive.evs@1.0",
         "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.vehicle@2.0",
+        "libcartelemetry-evs-proto",
+        "libprotobuf-cpp-lite",
     ],
 
     static_libs: [
@@ -79,6 +83,20 @@ cc_binary {
         "-Wunreachable-code",
     ],
 
+}
+
+cc_library {
+    name: "libcartelemetry-evs-proto",
+    srcs: [
+        ":cartelemetry-evs-proto-srcs",
+    ],
+    proto: {
+        export_proto_headers: true,
+        type: "lite",
+    },
+    shared_libs: [
+        "libprotobuf-cpp-lite",
+    ],
 }
 
 prebuilt_etc {
