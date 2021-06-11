@@ -320,6 +320,11 @@ public class DiagnosticHalService extends HalServiceBase {
             Slog.e(CarLog.TAG_DIAGNOSTIC,
                     "property not ready 0x" + toHexString(propConfig.prop), e);
             return null;
+        } catch (IllegalArgumentException e) {
+            Slog.e(CarLog.TAG_DIAGNOSTIC,
+                    "illegal argument trying to read property: 0x" + toHexString(propConfig.prop),
+                    e);
+            return null;
         }
 
     }

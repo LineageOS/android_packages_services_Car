@@ -277,6 +277,21 @@ public class MockedVehicleHal extends IVehicle.Stub {
         }
     }
 
+    public static class ErrorCodeHandler extends FailingPropertyHandler {
+        private int mStatus;
+        public void setStatus(int status) {
+            mStatus = status;
+        }
+        @Override
+        public synchronized VehiclePropValue onPropertyGet(VehiclePropValue value) {
+            throw new ServiceSpecificException(mStatus);
+        }
+        @Override
+        public void onPropertySet(VehiclePropValue value) {
+            throw new ServiceSpecificException(mStatus);
+        }
+    }
+
     public static class DefaultPropertyHandler implements VehicleHalPropertyHandler {
         private final VehiclePropConfig mConfig;
         private VehiclePropValue mValue;
