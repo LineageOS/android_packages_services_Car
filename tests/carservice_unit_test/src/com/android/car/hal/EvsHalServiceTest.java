@@ -18,22 +18,19 @@ package com.android.car.hal;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.reset;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
 import android.car.evs.CarEvsManager;
-import android.hardware.automotive.vehicle.V2_0.EvsServiceRequestIndex;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceState;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
-import android.util.Log;
 
 import com.android.car.vehiclehal.test.VehiclePropConfigBuilder;
 
@@ -119,6 +116,22 @@ public class EvsHalServiceTest {
 
         assertThat(events.get(0)).isEqualTo(CarEvsManager.SERVICE_TYPE_REARVIEW);
         assertThat(events.get(1)).isEqualTo(FALSE);
+    }
+
+    @Test
+    public void handleInvalidHalEvents() {
+        subscribeListener(ImmutableSet.of(EVS_SERVICE_REQUEST));
+        VehiclePropValue v = new VehiclePropValue();
+        v.prop = VehicleProperty.EVS_SERVICE_REQUEST;
+
+        // Not type, no state.
+        mEvsHalService.onHalEvents(ImmutableList.of(v));
+        verify(mListener, never()).onEvent(anyInt(), anyBoolean());
+
+        // Not state.
+        v.value.int32Values.add(EvsServiceType.REARVIEW);
+        mEvsHalService.onHalEvents(ImmutableList.of(v));
+        verify(mListener, never()).onEvent(anyInt(), anyBoolean());
     }
 
     // TODO(b/179029031): Adds more tests to verify the surround view service integration.
