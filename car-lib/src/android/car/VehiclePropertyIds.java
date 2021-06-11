@@ -357,8 +357,16 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int FUEL_LEVEL_LOW = 287310853;
     /**
-     * Night mode
-     * Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
+     * Night mode.
+     *
+     * <p>NIGHT_MODE property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Boolean type value.
+     *
+     * <p>True indicates that the night mode sensor has detected that the car cabin environment has
+     * low light.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_ENVIRONMENT)
     public static final int NIGHT_MODE = 287310855;
