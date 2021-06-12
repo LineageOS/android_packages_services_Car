@@ -93,7 +93,8 @@ final class HalClient {
         mVehicle.unsubscribe(mInternalCallback, prop);
     }
 
-    public void setValue(VehiclePropValue propValue) {
+    public void setValue(VehiclePropValue propValue)
+            throws IllegalArgumentException, ServiceSpecificException {
         int status = invokeRetriable(() -> {
             try {
                 return mVehicle.set(propValue);
@@ -126,7 +127,8 @@ final class HalClient {
                 status, StatusCode.toString(status));
     }
 
-    VehiclePropValue getValue(VehiclePropValue requestedPropValue) {
+    VehiclePropValue getValue(VehiclePropValue requestedPropValue)
+            throws IllegalArgumentException, ServiceSpecificException {
         final ObjectWrapper<VehiclePropValue> valueWrapper = new ObjectWrapper<>();
         int status = invokeRetriable(() -> {
             ValueResult res = internalGet(requestedPropValue);

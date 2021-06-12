@@ -477,7 +477,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Returns the property's {@link VehiclePropValue} for the property id and area id passed as
      * parameters.
      */
-    public VehiclePropValue get(int propertyId, int areaId) {
+    public VehiclePropValue get(int propertyId, int areaId)
+            throws IllegalArgumentException, ServiceSpecificException {
         if (DBG) {
             Slog.i(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
                     + toCarAreaLog(areaId));
@@ -506,7 +507,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * parameter.
      */
     @SuppressWarnings("unchecked")
-    public <T> T get(Class clazz, VehiclePropValue requestedPropValue) {
+    public <T> T get(Class clazz, VehiclePropValue requestedPropValue)
+            throws IllegalArgumentException, ServiceSpecificException {
         VehiclePropValue propValue;
         propValue = mHalClient.getValue(requestedPropValue);
 
@@ -539,7 +541,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Returns the vehicle's {@link VehiclePropValue} for the requested property value passed
      * as parameter.
      */
-    public VehiclePropValue get(VehiclePropValue requestedPropValue) {
+    public VehiclePropValue get(VehiclePropValue requestedPropValue)
+            throws IllegalArgumentException, ServiceSpecificException {
         return mHalClient.getValue(requestedPropValue);
     }
 
@@ -557,7 +560,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
     }
 
-    protected void set(VehiclePropValue propValue) {
+    protected void set(VehiclePropValue propValue)
+            throws IllegalArgumentException, ServiceSpecificException  {
         mHalClient.setValue(propValue);
     }
 
