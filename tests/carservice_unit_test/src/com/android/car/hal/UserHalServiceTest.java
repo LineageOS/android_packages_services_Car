@@ -1123,6 +1123,17 @@ public final class UserHalServiceTest {
     }
 
     @Test
+    public void testGetUserAssociation_ServiceExceptionFromHal() {
+        UserIdentificationGetRequest request =
+                replyToValidGetUserIdentificationRequestWithException(
+                        new ServiceSpecificException(VehicleHalStatusCode.STATUS_TRY_AGAIN));
+
+        assertThat(mUserHalService.getUserAssociation(request)).isNull();
+
+        verifyValidGetUserIdentificationRequestMade();
+    }
+
+    @Test
     public void testGetUserAssociation_wrongNumberOfAssociationsOnResponse() {
         VehiclePropValue propResponse = new VehiclePropValue();
         propResponse.prop = USER_IDENTIFICATION_ASSOCIATION;
@@ -1519,6 +1530,23 @@ public final class UserHalServiceTest {
                 DEFAULT_REQUEST_ID, DEFAULT_USER_ID, DEFAULT_USER_FLAGS,
                 /* numberAssociations= */ 1, KEY_FOB)))
             .thenReturn(response);
+
+        return request;
+    }
+
+    private UserIdentificationGetRequest replyToValidGetUserIdentificationRequestWithException(
+            Exception e) {
+        mockNextRequestId(DEFAULT_REQUEST_ID);
+
+        UserIdentificationGetRequest request = new UserIdentificationGetRequest();
+        request.userInfo.userId = DEFAULT_USER_ID;
+        request.userInfo.flags = DEFAULT_USER_FLAGS;
+        request.numberAssociationTypes = 1;
+        request.associationTypes.add(KEY_FOB);
+
+        when(mVehicleHal.get(isPropertyWithValues(USER_IDENTIFICATION_ASSOCIATION,
+                DEFAULT_REQUEST_ID, DEFAULT_USER_ID, DEFAULT_USER_FLAGS,
+                /* numberAssociations= */ 1, KEY_FOB))).thenThrow(e);
 
         return request;
     }

@@ -532,9 +532,6 @@ public final class UserHalService extends HalServiceBase {
      *
      * @return HAL response or {@code null} if it was invalid (for example, mismatch on the
      * requested number of associations).
-     *
-     * @throws IllegalArgumentException if request is invalid (mismatch on number of associations,
-     *   duplicated association, invalid association type values, etc).
      */
     @Nullable
     public UserIdentificationResponse getUserAssociation(
@@ -559,8 +556,13 @@ public final class UserHalService extends HalServiceBase {
 
         EventLog.writeEvent(EventLogTags.CAR_USER_HAL_GET_USER_AUTH_REQ,
                 requestAsPropValue.value.int32Values.toArray());
-
-        VehiclePropValue responseAsPropValue = mHal.get(requestAsPropValue);
+        VehiclePropValue responseAsPropValue;
+        try {
+            responseAsPropValue = mHal.get(requestAsPropValue);
+        } catch (ServiceSpecificException e) {
+            Slog.w(TAG, "HAL returned error for request " + requestAsPropValue, e);
+            return null;
+        }
         if (responseAsPropValue == null) {
             Slog.w(TAG, "HAL returned null for request " + requestAsPropValue);
             return null;
