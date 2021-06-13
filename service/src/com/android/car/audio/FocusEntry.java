@@ -106,13 +106,9 @@ final class FocusEntry {
                 == PackageManager.PERMISSION_GRANTED);
     }
 
-    String getUsageName() {
-        return mAudioFocusInfo.getAttributes().usageToString();
-    }
-
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        writer.printf("%s - %s\n", getClientId(), getUsageName());
+        writer.printf("%s - %s\n", getClientId(), mAudioFocusInfo.getAttributes().usageToString());
         writer.increaseIndent();
         // Prints in single line
         writer.printf("Receives Duck Events: %b, ", receivesDuckEvents());
