@@ -16,22 +16,23 @@
 
 package com.android.car.hal;
 
-import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_REARVIEW;
 import static android.car.evs.CarEvsManager.SERVICE_TYPE_SURROUNDVIEW;
+import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
+import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceRequestIndex;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceState;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceType;
-
-import android.car.evs.CarEvsManager;
-import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.util.Log;
 import android.util.Slog;
 import android.util.SparseArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;
@@ -189,6 +190,7 @@ public class EvsHalService extends HalServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*EVSHALSERVICE*");
         writer.printf("Use EVS_SERVICE_REQUEST: %b\n", isEvsServiceRequestSupported());
