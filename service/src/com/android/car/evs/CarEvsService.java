@@ -50,6 +50,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -150,6 +151,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     ", Timestamp = " + mTimestamp;
         }
     }
+
+    private static final String COMMAND_TO_USE_DEFAULT_CAMERA = "default";
 
     private final Context mContext;
     private final EvsHalService mEvsHalService;
@@ -522,6 +525,12 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     // This boolean flag is true if CarEvsService uses GEAR_SELECTION VHAL property instead of
     // EVS_SERVICE_REQUEST.
     private boolean mUseGearSelection = true;
+
+    // When this is set, CarEvsService will attempt to open a camera device the user sets.
+    private boolean mUseCameraIdOverride = false;
+
+    // This is a device name to be used when mUseCameraIdOverride is true.
+    private String mCameraIdOverride;
 
     private void setSessionToken(IBinder token) {
         synchronized (mLock) {
@@ -960,6 +969,54 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
     }
 
+    /**
+     * Sets a camera device for the rearview.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_USE_CAR_EVS_CAMERA} permissions to access.
+     *
+     * @param id A string identifier of a target camera device.
+     * @return This method return a false if this runs in a release build; otherwise, this returns
+     *         true.
+     */
+    public boolean setRearviewCameraIdFromCommand(@NonNull String id) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        Objects.requireNonNull(id);
+
+        if (!Build.IS_DEBUGGABLE) {
+            // This method is not allowed in the release build.
+            return false;
+        }
+
+        if (id.equalsIgnoreCase(COMMAND_TO_USE_DEFAULT_CAMERA)) {
+            mUseCameraIdOverride = false;
+            Slog.i(TAG_EVS, "CarEvsService is set to use the default device for the rearview.");
+        } else {
+            mCameraIdOverride = id;
+            mUseCameraIdOverride = true;
+            Slog.i(TAG_EVS, "CarEvsService is set to use " + id + " for the rearview.");
+        }
+
+        return true;
+    }
+
+    /**
+     * Gets an identifier of a current camera device for the rearview.
+     *
+     * <p>Requires {@link android.car.Car.PERMISSION_MONITOR_CAR_EVS_STATUS} permissions to
+     * access.
+     *
+     * @return A string identifier of current rearview camera device.
+     */
+    @NonNull
+    public String getRearviewCameraIdFromCommand() {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        if (mUseCameraIdOverride) {
+            return mCameraIdOverride;
+        } else {
+            return mContext.getString(R.string.config_evsRearviewCameraId);
+        }
+    }
+
     /** Handles client disconnections; may request to stop a video stream. */
     private void handleClientDisconnected(ICarEvsStreamCallback callback) {
         // If the last stream client is disconnected before it stops a video stream, request to stop
@@ -995,8 +1052,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return false;
         }
 
-        if (!nativeOpenCamera(mNativeEvsServiceObj,
-                mContext.getString(R.string.config_evsRearviewCameraId))) {
+        String cameraId;
+        if (mUseCameraIdOverride) {
+            cameraId = mCameraIdOverride;
+        } else {
+            cameraId = mContext.getString(R.string.config_evsRearviewCameraId);
+        }
+
+        if (!nativeOpenCamera(mNativeEvsServiceObj, cameraId)) {
             Slog.e(TAG_EVS, "Failed to open a target camera device");
             return false;
         }
