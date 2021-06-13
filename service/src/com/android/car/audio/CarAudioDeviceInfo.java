@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.media.AudioDeviceInfo;
@@ -216,6 +217,7 @@ import java.util.Objects;
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public String toString() {
         return "address: " + mAudioDeviceInfo.getAddress()
                 + " sampleRate: " + getSampleRate()
