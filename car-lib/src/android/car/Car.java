@@ -66,6 +66,7 @@ import android.content.ContextWrapper;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.pm.PackageManager;
+import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -97,6 +98,23 @@ import java.util.Objects;
  *   Calling this API on a device with no such feature will lead to an exception.
  */
 public final class Car {
+
+    /**
+     *  Represents the platform SDK_INT version with which this car API is developed.
+     *  <p>Note that new car APIs can be used in older platform releases and clients
+     *  should check both this and {@link android.os.Build.VERSION#SDK_INT} before using
+     *  an API added in a specific car API version.
+     */
+    public static final int API_VERSION_MAJOR_INT = 31;
+
+    /**
+     * Represents a minor version change for the same {@link #API_VERSION_MAJOR_INT}.
+     * <p>It will reset to {@code 0} whenever {@link #API_VERSION_MAJOR_INT} is updated and will
+     * increase by {@code 1} if car API is changed with the same {@link #API_VERSION_MAJOR_INT}.
+     * Client should check this version to use APIs which were added in a minor only version
+     * update.
+     */
+    public static final int API_VERSION_MINOR_INT = 0;
 
     /**
      * Binder service name of car service registered to service manager.
@@ -1139,6 +1157,64 @@ public final class Car {
     private final Handler mMainThreadEventHandler;
 
     private final CarFeatures mFeatures = new CarFeatures();
+
+    /**
+     * Checks if the current car API version is meeting the required version number.
+     *
+     * @param requiredApiVersionMajor Required major version number. Minor version is not checked.
+     * @return true if car API version in the system is same or newer than
+     *              {@code requiredApiVersionMajor}.
+     */
+    public static boolean isApiVersionAtLeast(int requiredApiVersionMajor) {
+        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor;
+    }
+
+    /**
+     * Checks if the current car API version is meeting the required version number.
+     *
+     * @param requiredApiVersionMajor Required major version number.
+     * @param requiredApiVersionMinor Required minor version number.
+     * @return true if car API version in the system is same or newer than
+     *              {@code requiredApiVersionMajor}.
+     */
+    public static boolean isApiVersionAtLeast(int requiredApiVersionMajor,
+            int requiredApiVersionMinor) {
+        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
+                && API_VERSION_MINOR_INT >= requiredApiVersionMinor;
+    }
+
+    /**
+     * Checks if the current car API version and platform version are meeting the required version
+     * numbers.
+     *
+     * @param requiredApiVersionMajor Required major version number. Minor version is not checked.
+     * @param minPlatformSdkInt Required platform version.
+     * @return true if car API version in the system is same or newer than
+     *              {@code requiredApiVersionMajor}.
+     */
+    public static boolean isApiAndPlatformVersionAtLeast(int requiredApiVersionMajor,
+            int minPlatformSdkInt) {
+        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
+                && Build.VERSION.SDK_INT >= minPlatformSdkInt;
+    }
+
+    /**
+     * Checks if the current car API version and platform version are meeting the required version
+     * numbers.
+     *
+     * @param requiredApiVersionMajor Required major version number.
+     * @param requiredApiVersionMinor Required minor version number.
+     * @param minPlatformSdkInt Required platform version.
+     * @return true if car API version in the system is same or newer than
+     *              {@code requiredApiVersionMajor}.
+     */
+    public static boolean isApiAndPlatformVersionAtLeast(int requiredApiVersionMajor,
+            int requiredApiVersionMinor,
+            int minPlatformSdkInt) {
+        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
+                && API_VERSION_MINOR_INT >= requiredApiVersionMinor
+                && Build.VERSION.SDK_INT >= minPlatformSdkInt;
+    }
 
     /**
      * A factory method that creates Car instance for all Car API access.
