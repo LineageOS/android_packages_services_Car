@@ -16,6 +16,7 @@
 package com.android.car.hal;
 
 import static com.android.car.CarServiceUtils.toByteArray;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
 import android.car.vms.VmsAssociatedLayer;
@@ -50,6 +51,7 @@ import android.util.Slog;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.vms.VmsBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -218,6 +220,7 @@ public class VmsHalService extends HalServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         synchronized (mLock) {
             writer.println("*VMS HAL*");
@@ -238,6 +241,7 @@ public class VmsHalService extends HalServiceBase {
      *
      * @param fd Dumpsys file descriptor to write client metrics to.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpMetrics(FileDescriptor fd) {
         if (mClientMetricsProperty == 0) {
             Slog.w(TAG, "Metrics collection is disabled");

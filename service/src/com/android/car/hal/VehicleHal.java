@@ -19,6 +19,7 @@ package com.android.car.hal;
 import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import static java.lang.Integer.toHexString;
 
@@ -48,6 +49,7 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -628,6 +630,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /**
      * Dumps HAL service info using the print writer passed as parameter.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("**dump HAL services**");
         for (HalServiceBase service: mAllServices) {
