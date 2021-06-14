@@ -3404,7 +3404,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> loại</item>
     </plurals>
     <string name="no_channels" msgid="8884254729302501652">"Ứng dụng này chưa đăng bất kỳ thông báo nào"</string>
-    <string name="app_settings_link" msgid="8465287765715790984">"Tùy chọn cài đặt bổ sung trong ứng dụng"</string>
+    <string name="app_settings_link" msgid="8465287765715790984">"Chế độ cài đặt bổ sung trong ứng dụng"</string>
     <string name="app_notification_listing_summary_zero" msgid="4047782719487686699">"Đang bật cho tất cả ứng dụng"</string>
     <plurals name="app_notification_listing_summary_others" formatted="false" msgid="1161774065480666519">
       <item quantity="other">Tắt cho <xliff:g id="COUNT_1">%d</xliff:g> ứng dụng</item>

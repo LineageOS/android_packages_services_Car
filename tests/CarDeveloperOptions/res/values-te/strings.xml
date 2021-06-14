@@ -354,7 +354,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"లాక్ స్క్రీన్ సందేశం"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"విడ్జెట్‌లను ప్రారంభించు"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"అడ్మిన్ డిజేబుల్ చేశారు"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"అన్నీ లాక్ చేయి ఎంపికను చూపు"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"లాక్‌డౌన్ ఆప్షన్‌ను చూపు చూపు"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Smart Lock, వేలిముద్ర అన్‌లాకింగ్ మరియు లాక్ స్క్రీన్‌లో నోటిఫికేషన్‌లను ఆఫ్ చేసే పవర్ బటన్ ఎంపికను ప్రదర్శించు"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"విశ్వ‌స‌నీయ ఏజెంట్లు మాత్ర‌మే అన్‌లాక్‌ను పొడిగిస్తాయి"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"ప్రారంభించబడితే, విశ్వసనీయ ఏజెంట్‌లు మీ పరికరాన్ని ఎక్కువ సమయం పాటు అన్‌లాక్ చేసి ఉంచుతాయి, కానీ లాక్ చేయబడిన పరికరాన్ని అన్‌లాక్ చేయలేవు."</string>
@@ -1656,7 +1656,7 @@
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"ఇటీవలి స్థాన యాక్సెస్"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"వివరాలను చూడండి"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల అభ్యర్థించలేదు"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల రిక్వెస్ట్ చేయలేదు"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"యాప్‌లు ఏవీ స్థానాన్ని ఇటీవల యాక్సెస్ చేయలేదు"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"అధిక బ్యాటరీ వినియోగం"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"తక్కువ బ్యాటరీ వినియోగం"</string>
@@ -1794,7 +1794,7 @@
     <string name="recent_app_category_title" msgid="7688788038277126727">"ఇటీవల తెరిచిన యాప్‌లు"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"మొత్తం <xliff:g id="COUNT">%1$d</xliff:g> యాప్‌లను చూడండి"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"మీ టాబ్లెట్ మరియు వ్యక్తిగత డేటా తెలియని మూలాల్లోని అనువర్తనాల ద్వారా దాడికి గురి కావడానికి ఎక్కువ అవకాశం ఉంటుంది. ఈ మూలం నుండి అనువర్తనాలను ఇన్‌స్టాల్ చేయడం ద్వారా, ఈ అనువర్తనాలను ఉపయోగించడం ద్వారా మీ టాబ్లెట్‌కు సంభవించే ఏదైనా నష్టానికి లేదా కోల్పోయే డేటాకి బాధ్యత వహించడానికి మీరు అంగీకరిస్తున్నారు."</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"మీ ఫోన్ మరియు వ్యక్తిగత డేటా తెలియని మూలాల్లోని అనువర్తనాల ద్వారా దాడికి గురి కావడానికి ఎక్కువ అవకాశం ఉంటుంది. ఈ మూలం నుండి అనువర్తనాలను ఇన్‌స్టాల్ చేయడం ద్వారా, ఈ అనువర్తనాలను ఉపయోగించడం వలన మీ ఫోన్‌కు సంభవించే ఏదైనా నష్టానికి లేదా కోల్పోయే డేటాకి బాధ్యత వహించడానికి మీరు అంగీకరిస్తున్నారు."</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"తెలియని యాప్‌లు మీ ఫోన్ పైన, వ్యక్తిగత డేటా పైన దాడి చేయడానికి ఎక్కువగా అవకాశం ఉంటుంది. ఈ సోర్స్ నుండి యాప్‌లను ఇన్‌స్టాల్ చేయడం ద్వారా, వాటి వినియోగంతో మీ ఫోన్‌కు ఏదైనా నష్టం జరిగితే లేదా మీ డేటాను కోల్పోతే అందుకు మీరే బాధ్యత వహిస్తారని అంగీకరిస్తున్నారు."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"మీ పరికరం మరియు వ్యక్తిగత డేటాపై తెలియని మూలాధారాల నుండి పొందిన యాప్‌లు దాడి చేసే అవకాశం ఎక్కువగా ఉంది. ఈ మూలాధారం నుండి పొందిన యాప్‌లను ఇన్‌స్టాల్ చేయడం ద్వారా, వాటి ఉపయోగం కారణంగా మీ పరికరానికి జరిగే హాని లేదా డేటాని కోల్పోవడం వంటి వాటికి మీరే పూర్తి బాధ్యత వహించడానికి మీరు అంగీకరించాలి."</string>
     <string name="advanced_settings" msgid="6282069364060968122">"అధునాతన సెట్టింగ్‌లు"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"మరిన్ని సెట్టింగ్‌ల ఎంపికలను ప్రారంభించు"</string>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"నోటిఫికేషన్‌లను ఎన్నడూ షేడ్‌లో లేదా అనుబంధ పరికరాల్లో చూపవద్దు"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"నోటిఫికేషన్ డాట్‌ను అనుమతించండి"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"నోటిఫికేషన్ డాట్‌ చూపించు"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'అంతరాయం కలిగించవద్దు\'ను అధిగ‌మించు"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"\'అంతరాయం కలిగించవద్దు\'ను ఓవర్‌రైడ్ చేయి"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"అంతరాయం కలిగించవద్దు ఫీచర్‌ ఆన్‌లో ఉన్నా కూడా, నోటిఫికేషన్‌ వచ్చిన సంగతిని తెలియజెప్పడానికి ఈ నోటిఫికేషన్‌లను అనుమతిస్తుంది"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"లాక్ స్క్రీన్‌లో"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"బ్లాక్ చేయబడింది"</string>
@@ -3684,7 +3684,7 @@
     <string name="permit_usage_access" msgid="3321727608629752758">"వినియోగ ప్రాప్యతను అనుమతించు"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"యాప్ వినియోగ ప్రాధాన్యతలు"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"స్క్రీన్ సమయం"</string>
-    <string name="usage_access_description" msgid="2178083292760305207">"వినియోగ యాక్సెస్‌తో ఒక యాప్ మీరు ఉపయోగించే ఇతర యాప్‌ల గురించి మరియు వాటిని ఎంత తరచుగా ఉపయోగిస్తున్నారనే దాని గురించి అలాగే మీ క్యారియర్, భాష సెట్టింగ్‌లు మరియు ఇతర వివరాలను ట్రాక్ చేయగలదు."</string>
+    <string name="usage_access_description" msgid="2178083292760305207">"\'వినియోగ యాక్సెస్‌\' ద్వారా యాప్ మీరు ఉపయోగించే ఇతర యాప్‌ల గురించి అలాగే వాటిని ఎంత తరచుగా ఉపయోగిస్తున్నారనే దాని గురించి అలాగే మీ క్యారియర్, భాష సెట్టింగ్‌లు మరియు ఇతర వివరాలను ట్రాక్ చేయగలదు."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"మెమరీ"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"మెమరీ వివరాలు"</string>
     <string name="always_running" msgid="5320183445080208766">"ఎల్లప్పుడూ అమలు చేయబడుతోంది (<xliff:g id="PERCENTAGE">%s</xliff:g>)"</string>
@@ -3805,7 +3805,7 @@
     <string name="system_alert_window_settings" msgid="3024330223417646567">"ఇతర యాప్‌ల ఎగువన ప్రదర్శన"</string>
     <string name="system_alert_window_apps_title" msgid="9188448296493699566">"యాప్‌లు"</string>
     <string name="system_alert_window_access_title" msgid="5187343732185369675">"ఇతర యాప్‌ల ఎగువన ప్రదర్శన"</string>
-    <string name="permit_draw_overlay" msgid="9039092257052422344">"ఇతర యాప్‌ల ఎగువన కనిపించడానికి అనుమతించు"</string>
+    <string name="permit_draw_overlay" msgid="9039092257052422344">"ఇతర యాప్‌ల ఎగువున కనిపించడానికి అనుమతించు"</string>
     <string name="allow_overlay_description" msgid="6669524816705082807">"మీరు ఉపయోగించే ఇతర అనువర్తనాలలో ఎగువ భాగంలో కనిపించడం కోసం ఈ యాప్‌ను అనుమతించండి. మీరు ఆ అనువర్తనాలను ఉపయోగించే సమయంలో ఇది అంతరాయం కలిగించవచ్చు లేదా అవి కనిపించే లేదా ప్రవర్తించే తీరును మార్చవచ్చు."</string>
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr వర్చువల్ రియాలిటీ పరిశీలన స్టీరియో సహాయకం సేవ"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"సిస్టమ్ హెచ్చరిక విండో డైలాగ్‌ని ఇతర అనువర్తనాల ఎగువన చూపు"</string>
@@ -3827,7 +3827,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"ఈ అనుమతి సిస్టమ్ సెట్టింగ్‌లను సవరించడానికి యాప్‌ను అనుమతిస్తుంది."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"అవును"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"లేదు"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"ఈ మూలాధారం నుండి అనుమతించండి"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"ఈ సోర్స్ నుండి అనుమతించండి"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"కెమెరా కోసం రెండు సార్లు తిప్పడం"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"మీ ఫోన్ పట్టుకున్న ముంజేతిని రెండు సార్లు తిప్పితే కెమెరా యాప్ తెరవబడుతుంది"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"కెమెరాకై పవర్ బటన్ రెండుసార్లు నొక్కండి"</string>
@@ -4154,7 +4154,7 @@
     <string name="web_action_enable_title" msgid="4462106633708675959">"ఇన్‌స్టంట్ యాప్‌లు"</string>
     <string name="web_action_enable_summary" msgid="1729016644691793085">"లింక్‌లను యాప్‌లలో తెరవండి, వాటిని ఇన్‌స్టాల్ చేయకపోయినా ఫర్వాలేదు"</string>
     <string name="web_action_section_title" msgid="5563229447734734662">"ఇన్‌స్టంట్ యాప్‌లు"</string>
-    <string name="instant_apps_settings" msgid="879003203555847537">"తక్షణ యాప్‌ల ప్రాధాన్యతలు"</string>
+    <string name="instant_apps_settings" msgid="879003203555847537">"ఇన్‌స్టంట్ యాప్‌ల ప్రాధాన్యతలు"</string>
     <string name="domain_url_section_title" msgid="206403507921518321">"ఇన్‌స్టాల్ చేయబడిన యాప్‌లు"</string>
     <string name="automatic_storage_manager_activation_warning" msgid="2630083316417707308">"మీ నిల్వ ఇప్పుడు నిల్వ నిర్వాహికి ద్వారా నిర్వహించబడుతోంది"</string>
     <string name="account_for_section_header" msgid="5975241715840642563">"<xliff:g id="USER_NAME">%1$s</xliff:g> యొక్క ఖాతాలు"</string>
@@ -4310,7 +4310,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"ఖాతా"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"పరికరం పేరు"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Wi-Fi కంట్రోల్‌"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Wi-Fiని నియంత్రించడానికి యాప్‌ని అనుమతించండి"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Wi-Fiని కంట్రోల్ చేయడానికి యాప్‌‌ను అనుమతించండి"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Wi-Fiని ఆన్ లేదా ఆఫ్ చేయడానికి, Wi-Fi నెట్‌వర్క్‌లను స్కాన్ చేసి, కనెక్ట్ కావడానికి, నెట్‌వర్క్‌లను జోడించడానికి లేదా తీసివేయడానికి లేదా స్థానికం-మాత్రమే హాట్‌స్పాట్‌ని ప్రారంభించడానికి ఈ యాప్‌ని అనుమతించండి"</string>
     <string name="media_output_title" msgid="8710632337456601848">"మీడియాను ప్లే చేయండి"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"ఈ పరికరం"</string>

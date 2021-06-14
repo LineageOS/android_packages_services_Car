@@ -468,7 +468,7 @@
     <string name="skip_lock_screen_dialog_button_label" msgid="6706047245716780006">"Пропустить"</string>
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Отмена"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Коснитесь сканера отпечатков"</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Сканер находится на задней панели устройства. Используйте указательный палец."</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Сканер находится на задней панели устройства. Приложите к нему указательный палец."</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"На этом рисунке показано, где находится сканер"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Название"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"ОК"</string>
@@ -2110,7 +2110,7 @@
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"Контрастный текст"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"Сохранять масштаб"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"Сохранять масштаб при переходе между приложениями"</string>
-    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Кн. питания завершает вызов"</string>
+    <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"Кнопка питания завершает вызов"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"Крупный указатель мыши"</string>
     <string name="accessibility_disable_animations" msgid="8378441317115710009">"Убрать анимации"</string>
     <string name="accessibility_toggle_master_mono_title" msgid="899550848196702565">"Монофонический звук"</string>
@@ -2581,7 +2581,7 @@
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Расширенный режим: управление с помощью голосовых команд"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Обычный режим: распознавание речи"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Эта служба голосового ввода сможет выполнять непрерывный мониторинг речи и управлять приложениями от вашего имени. Для ее работы необходимо установить приложение \"<xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g>\". Включить службу?"</string>
-    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Синтезатор по умолчанию"</string>
+    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Синтезатор речи по умолчанию"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Настройки синтеза"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"Скорость речи и тон"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Синтез речи"</string>

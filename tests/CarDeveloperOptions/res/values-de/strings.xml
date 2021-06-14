@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Widgets aktivieren"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Vom Administrator deaktiviert"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Option zum Sperren anzeigen"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Option für Ein-/Aus-Taste des Displays, durch die Smart Lock, das Entsperren per Fingerabdruck und Benachrichtigungen auf dem Sperrbildschirm deaktiviert werden"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Option für die Ein-/Aus-Taste anzeigen, durch die Smart Lock, das Entsperren per Fingerabdruck und Benachrichtigungen auf dem Sperrbildschirm deaktiviert werden"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Trust Agents können Entsperrung nur verlängern"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Wenn aktiviert, halten Trust Agents das Gerät länger entsperrt, sie können aber gesperrte Geräte nicht mehr entsperren"</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Bildschirm sperren, wenn nicht mehr vertrauenswürdig"</string>
@@ -1110,7 +1110,7 @@
     <string name="wifi_calling_mode_wifi_preferred_summary" msgid="8298294808362169798">"Mobilfunknetz nutzen, wenn WLAN nicht verfügbar ist"</string>
     <string name="wifi_calling_mode_cellular_preferred_summary" msgid="4906499810156794061">"Bei nicht verfügbarem Mobilfunknetz WLAN verwenden"</string>
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Anruf über WLAN. Bei Abbruch der WLAN-Verbindung endet der Anruf."</string>
-    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wenn die Option \"WLAN-Telefonie\" aktiviert ist, kann dein Smartphone abhängig von deiner Einstellung und von der Signalstärke Anrufe über WLANs oder über das Netz deines Mobilfunkanbieters übertragen. Bevor du diese Funktion aktivierst, solltest du dich bei deinem Mobilfunkanbieter nach den hierfür anfallenden Gebühren und anderen Voraussetzungen erkundigen.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
+    <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wenn die Option „WLAN-Telefonie“ aktiviert ist, kann dein Smartphone abhängig von deiner Einstellung und von der Signalstärke Anrufe über WLANs oder über das Netz deines Mobilfunkanbieters übertragen. Bevor du diese Funktion aktivierst, solltest du dich bei deinem Mobilfunkanbieter nach den hierfür anfallenden Gebühren und anderen Voraussetzungen erkundigen.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Notfalladresse"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Wird als dein Standort verwendet, wenn du einen Notruf über WLAN tätigst"</string>
@@ -1214,7 +1214,7 @@
     <string name="night_display_title" msgid="1305002424893349814">"Nachtlicht"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Die Funktion „Nachtlicht“ gibt der Displayanzeige eine gelbe Tönung. Das schont in dunklen Umgebungen die Augen und kann das Einschlafen erleichtern."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Zeitplan"</string>
-    <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Kein Zeitplan"</string>
+    <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Niemals"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Zu benutzerdefinierter Zeit"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Von Sonnenuntergang bis -aufgang"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Beginn"</string>
@@ -1663,9 +1663,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Geringer Akkuverbrauch"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"WLAN- und Bluetooth-Suche"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"WLAN-Suche"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Apps und Dienste dürfen immer nach WLANs suchen, auch wenn die WLAN-Funktion deaktiviert ist. Dadurch können beispielsweise standortbasierte Funktionen und Dienste verbessert werden."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wenn diese Funktion aktiviert ist, dürfen Apps und Dienste immer nach WLANs suchen, auch wenn die WLAN-Funktion deaktiviert ist. Dadurch können beispielsweise standortbasierte Funktionen und Dienste verbessert werden."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-Suche"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Apps und Dienste dürfen immer nach Geräten in der Nähe suchen, auch wenn Bluetooth deaktiviert ist. Dadurch können beispielsweise standortbasierte Funktionen und Dienste verbessert werden."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Wenn diese Funktion aktiviert ist, dürfen Apps und Dienste immer nach Geräten in der Nähe suchen, auch wenn Bluetooth deaktiviert ist. Dadurch können beispielsweise standortbasierte Funktionen und Dienste verbessert werden."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Standortdienste für die Arbeit"</string>
     <string name="location_network_based" msgid="1535812159327454835">"WLAN- &amp; Mobilfunknetz-Standort"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Apps dürfen meinen Standort mit dem Google-Standortdienst schneller bestimmen. Anonyme Standortdaten werden erfasst und an Google gesendet."</string>
@@ -3677,7 +3677,7 @@
     <string name="roles_title" msgid="2825063787446244357">"Rollen"</string>
     <string name="default_app" msgid="8861276008866619872">"(Standard)"</string>
     <string name="system_app" msgid="4111402206594443265">"(System)"</string>
-    <string name="system_default_app" msgid="1454719098589351197">"(Systemstandardeinstellung)"</string>
+    <string name="system_default_app" msgid="1454719098589351197">"(System-Standardeinstellung)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"Speicher für Apps"</string>
     <string name="usage_access" msgid="2023443456361489516">"Zugriff auf Nutzungsdaten"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"Zugriff auf Nutzungsdaten gewähren"</string>
@@ -4132,9 +4132,9 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Wenn du das Smartphone in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Wenn du das Tablet in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Wenn du das Gerät in die Hand nimmst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Durch Tippen auf das Display Display aktivieren"</string>
-    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Durch Tippen auf das Display Display aktivieren"</string>
-    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Durch Tippen auf das Display Display aktivieren"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Durch Tippen auf den Bildschirm Display aktivieren"</string>
+    <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Durch Tippen auf den Bildschirm Display aktivieren"</string>
+    <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Durch Tippen auf den Bildschirm Display aktivieren"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Wenn du auf den Bildschirm tippst, werden die Uhrzeit, Benachrichtigungen und andere Informationen angezeigt."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Benachrichtigungen durch Wischen über Fingerabdrucksensor einblenden"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Fingerabdrucksensor verwenden"</string>
@@ -4310,7 +4310,7 @@
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Gerätename"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"WLAN-Steuerung"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"App darf WLAN steuern"</string>
-    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Erlaubt der App das WLAN zu aktivieren oder zu deaktivieren, nach WLANs zu scannen und eine Verbindung zu ihnen herstellen, Netzwerke hinzuzufügen oder zu entfernen oder einen lokal beschränkten Hotspot zu starten"</string>
+    <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Erlaubt der App das WLAN zu aktivieren oder zu deaktivieren, nach WLANs zu scannen und eine Verbindung zu ihnen herzustellen, Netzwerke hinzuzufügen oder zu entfernen oder einen lokal beschränkten Hotspot zu starten"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Medien hier abspielen:"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Dieses Gerät"</string>
     <string name="media_output_summary" product="default" msgid="6294261435613551178">"Smartphone"</string>

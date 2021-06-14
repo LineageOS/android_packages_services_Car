@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"耗電量低"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi 和藍牙掃描"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"掃描 Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi-Fi 功能處於關閉狀態)。這麼做可以改善適地性功能和服務等等。"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi-Fi 功能處於關閉狀態)。這項設定有助於改善適地性相關功能和服務等等。"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"藍牙掃描"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃描附近裝置 (即使藍牙功能處於關閉狀態)。這麼做可以改善適地性功能和服務等等。"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃描附近裝置 (即使藍牙功能處於關閉狀態)。這項設定有助於改善適地性相關功能和服務等等。"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"工作用定位服務"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi 和行動網路位置"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"允許應用程式使用 Google 的定位服務加速判斷你的約略位置。系統會收集匿名的位置資料並傳送給 Google。"</string>
@@ -2995,7 +2995,7 @@
     <string name="sim_calls_always_use" msgid="5322696995795851734">"一律使用這張 SIM 卡通話"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"選擇數據連線 SIM 卡"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"選取要用於收發簡訊的 SIM 卡"</string>
-    <string name="data_switch_started" msgid="4517966162053949265">"正在切換行動數據連線 SIM 卡，這可能需要一點時間..."</string>
+    <string name="data_switch_started" msgid="4517966162053949265">"正在切換行動數據連線 SIM 卡，這最多可能需要一分鐘..."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"選擇通話 SIM 卡"</string>
     <string name="sim_select_card" msgid="5558215843972182767">"選取 SIM 卡"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>

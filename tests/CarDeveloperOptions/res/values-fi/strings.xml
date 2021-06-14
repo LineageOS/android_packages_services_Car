@@ -466,9 +466,9 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"Ok"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Poista"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Kosketa tunnistinta"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Aseta sormesi tunnistimelle ja nosta se, kun tunnet värähdyksen."</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Aseta sormesi tunnistimelle ja nosta se, kun tunnet värähdyksen"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Nosta sormi ja kosketa taas"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Kosketa tunnistinta toistuvasti, niin sormenjäljen eri osat lisätään."</string>
+    <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Kosketa tunnistinta toistuvasti, niin sormenjäljen eri osat lisätään"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Sormenjälki lisätty"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"Kun näet tämän kuvakkeen, voit tunnistautua tai vahvistaa ostoksia sormenjäljellä."</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"Tee myöhemmin"</string>
@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Seuraava"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Puhelimen lukituksen avaamisen lisäksi voit käyttää sormenjälkeä ostoksien ja sovelluksien käyttöoikeuksien vahvistamiseen. "<annotation id="url">"Lisätietoja"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Näytön lukitustapa on poistettu käytöstä. Kysy lisätietoja organisaatiosi järjestelmänvalvojalta. "<annotation id="admin_details">"Katso lisätietoja"</annotation>\n\n"Voit yhä valtuuttaa ostoksia ja käyttää sovelluksia sormenjälkesi avulla. "<annotation id="url">"Lisätietoja"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Nosta sormesi ja kosketa tunnistinta uudelleen."</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Nosta sormesi ja kosketa tunnistinta uudelleen"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Voit lisätä korkeintaan <xliff:g id="COUNT">%d</xliff:g> sormenjälkeä"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Et voi lisätä useampia sormenjälkiä."</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Enempää sormenjälkiä ei voi lisätä."</string>
@@ -2434,7 +2434,7 @@
     <string name="battery_detail_background" msgid="7938146832943604280">"Taustalla"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Akun käyttö"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Edellisen täyden latauksen jälkeen"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"Hallitse akun käyttöä"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"Rajaa akunkäyttöä"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Arvio akun kestosta perustuu aiempaan laitteen käyttöön."</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"Arvioitu jäljellä oleva aika"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"Täyteen lataukseen"</string>
@@ -3788,7 +3788,7 @@
     <string name="no_data_usage" msgid="903383745620135746">"Dataa ei ole käytetty"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Myönnetäänkö Älä häiritse -tilan käyttöoikeus sovellukselle <xliff:g id="APP">%1$s</xliff:g>?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Sovellus voi ottaa Älä häiritse -tilan käyttöön tai poistaa sen käytöstä sekä muokata siihen liittyviä asetuksia."</string>
-    <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Tämän täytyy olla käytössä, sillä ilmoitusten käyttöoikeus on myönnetty."</string>
+    <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Tämän täytyy olla käytössä, sillä ilmoitusten käyttöoikeus on myönnetty"</string>
     <string name="zen_access_revoke_warning_dialog_title" msgid="6850994585577513299">"Perutaanko sovellukselta <xliff:g id="APP">%1$s</xliff:g> Älä häiritse -tilan käyttöoikeus?"</string>
     <string name="zen_access_revoke_warning_dialog_summary" msgid="3487422193181311403">"Kaikki tämän sovelluksen luomat Älä häiritse -säännöt poistetaan."</string>
     <string name="ignore_optimizations_on" msgid="4373971641328943551">"Älä optimoi"</string>

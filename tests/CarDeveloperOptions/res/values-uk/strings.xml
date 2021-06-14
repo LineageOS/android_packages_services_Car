@@ -1608,7 +1608,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Налаштування за умовчанням відновлено."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Скинути параметри"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Можна скинути налаштування мережі, додатків або пристрою"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Скинути параметри Wi-Fi, мобільного передавання даних і Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Скинути параметри Wi-Fi, мобільного Інтернету й Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Буде скинуто всі налаштування мережі, зокрема \n\n"<li>"Wi‑Fi"</li>\n<li>"мобільний трафік"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Видалити завантажені SIM-карти"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Щоб завантажити нові SIM-карти, зв’яжіться з оператором. Мобільні тарифні плани не буде скасовано."</string>

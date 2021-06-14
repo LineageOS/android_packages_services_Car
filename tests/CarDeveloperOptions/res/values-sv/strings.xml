@@ -1661,7 +1661,7 @@
     <string name="location_high_battery_use" msgid="7177199869979522663">"Hög batterianvändning"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Låg batterianvändning"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Platssökning med Wi‑Fi och Bluetooth"</string>
-    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wi‑Fi-sökning"</string>
+    <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Wifi-sökning"</string>
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Tillåt att appar och tjänster söker efter Wi‑Fi-nätverk när som helst, även när Wi‑Fi är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-sökning"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Tillåt att appar och tjänster söker efter enheter i närheten när som helst, även när Bluetooth är inaktiverat. Funktionen kan till exempel användas till att förbättra platsbaserade funktioner och tjänster."</string>

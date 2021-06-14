@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ຕໍ່​ໄປ"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"ນອກ​ຈາກ​ການ​ປົດ​ລັອກ​ໂທ​ລະ​ສັບ​ຂອງ​ທ່ານ​ແລ້ວ, ທ່ານ​ສາ​ມາດ​ໃຊ້​ລາຍ​ນີ້​ມື​ຂອງ​ທ່ານ ​ເພື່ອ​ໃຊ້​ສິດ​ໃນ​ການ​ຊື້ ແລະ​ການ​ເຂົ້າ​ຫາ​ແອັບ​ໄດ້ນຳ​ອີກ "<annotation id="url">"ຮຽນ​ຮູ້​ເພີ່ມ​ເຕີມ"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" ຕົວເລືອກໜ້າຈໍລັອກຖືກປິດການນຳໃຊ້ໄວ້. ເພື່ອສຶກສາເພີ່ມເຕີມ, ໃຫ້ຕິດຕໍ່ຜູ້ເບິ່ງແຍງລະບົບອົງກອນຂອງທ່ານ. "<annotation id="admin_details">"ລາຍລະອຽດເພີ່ມເຕີມ"</annotation>\n\n"ທ່ານຍັງຄົງສາມາດໃຊ້ລາຍນິ້ວມືຂອງທ່ານເພື່ອອະນຸມັດການສັ່ງຊື້ແອັບ ແລະ ການເຂົ້າເຖິງແອັບໄດ້. "<annotation id="url">"ສຶກສາເພີ່ມເຕີມ"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ຍົກນິ້ວມືອອກ, ຈາກນັ້ນ ສຳພັດເຊັນເຊີອີກຄັ້ງ"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ຍົກນິ້ວມືອອກ, ຈາກນັ້ນ ສຳຜັດເຊັນເຊີອີກຄັ້ງ"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"ທ່ານ​ສາ​ມາດ​ເພີ່ມ​ບໍ່ເກີນ <xliff:g id="COUNT">%d</xliff:g> ລາຍ​ນີ້ວ​ມື​"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"You’ve added the maximum number of fingerprints"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Can’t add more fingerprints"</string>

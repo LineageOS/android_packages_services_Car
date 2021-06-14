@@ -498,7 +498,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Pots afegir un màxim de <xliff:g id="COUNT">%d</xliff:g> empremtes digitals"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Has afegit el nombre màxim d\'empremtes digitals"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"No es poden afegir més empremtes digitals"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Suprimir les empremtes digitals?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Vols suprimir totes les empremtes digitals?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Suprimeix <xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vols suprimir aquesta empremta digital?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"No podràs fer servir les empremtes digitals per desbloquejar el telèfon, autoritzar compres ni iniciar la sessió en aplicacions"</string>

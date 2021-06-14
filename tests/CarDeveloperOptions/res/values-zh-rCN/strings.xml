@@ -2261,7 +2261,7 @@
     <string name="awake" msgid="8956720170442161285">"设备唤醒时间"</string>
     <string name="wifi_on_time" msgid="2487820618265936068">"WLAN开启时间"</string>
     <string name="bluetooth_on_time" msgid="6400569492287292639">"WLAN开启时间"</string>
-    <string name="advanced_battery_title" msgid="5026866913848464170">"电池用量"</string>
+    <string name="advanced_battery_title" msgid="5026866913848464170">"电池使用情况"</string>
     <string name="history_details_title" msgid="8608193822257799936">"详细电量使用记录"</string>
     <string name="battery_details_title" msgid="5358230551490703067">"电池用量"</string>
     <string name="details_subtitle" msgid="7279638828004951382">"详细使用情况"</string>

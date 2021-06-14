@@ -498,7 +498,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Puoi aggiungere fino a <xliff:g id="COUNT">%d</xliff:g> impronte digitali"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Hai aggiunto il numero massimo di impronte digitali"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Impossibile aggiungere ulteriori impronte digitali"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Rimuovere tutte le impronte?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Vuoi rimuovere tutte le impronte?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Rimuovi \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vuoi eliminare questa impronta digitale?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Non potrai più utilizzare le impronte per sbloccare il telefono, autorizzare gli acquisti o accedere alle app."</string>
@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> app attiva</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Agenti di attendibilità"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Per l\'utilizzo, imposta prima un blocco schermo"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Per usare questa opzione, imposta prima un blocco schermo"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Nessuno"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> agenti di attendibilità attivi</item>
@@ -3759,7 +3759,7 @@
     <string name="background_check_pref" msgid="664081406854758392">"Controllo background"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Accesso completo in background"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Utilizza testo sullo schermo"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"Consenti all\'app di assistenza di accedere ai contenuti dello schermo come il testo"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"Consenti all\'app di assistenza di accedere ai contenuti testuali sullo schermo"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Utilizza screenshot"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Consenti all\'app di assistenza di accedere a un\'immagine sullo schermo"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Fai lampeggiare lo schermo"</string>
@@ -4124,14 +4124,14 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tocca due volte il tablet per controllare le notifiche"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tocca due volte il dispositivo per controllare le notifiche"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Per controllare l\'ora, le notifiche e altre informazioni, tocca due volte lo schermo."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Solleva per controllare il telefono"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Solleva per attivare"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Solleva il tablet per controllare le notifiche"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Solleva il dispositivo per controllare le notifiche"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Riattiva schermo"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il telefono."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il tablet."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il dispositivo."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocca per controllare il telefono"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocca per attivare"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tocca per selezionare le notifiche"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tocca per selezionare il dispositivo"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Per controllare l\'ora, le notifiche e altre informazioni, tocca lo schermo."</string>

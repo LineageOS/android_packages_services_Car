@@ -501,8 +501,8 @@
     <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Да се отстранат сите отпечатоци?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Отстранете го „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>“"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Дали сакате да го избришете отпечатоков?"</string>
-    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Нема да може да ги користите отпечатоците за да го отклучите телефонот, да одобрувате купувања или да се најавувате на апликации со нив"</string>
-    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Нема да може да ги користите отпечатоците за да го отклучите работниот профил, да одобрувате купувања или да се најавувате на апликациите за работа"</string>
+    <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Нема да може да ги користите отпечатоците за да го отклучувате телефонот, да одобрувате купувања или да се најавувате на апликации со нив"</string>
+    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"Нема да може да ги користите отпечатоците за да го отклучувате работниот профил, да одобрувате купувања или да се најавувате на апликациите за работа"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"Отстрани"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"Шифрирање"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"Шифрирај таблет"</string>
@@ -3388,7 +3388,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Ниту една од инсталираните апликации не поддржува слика во слика"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"PIP слика во"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Слика во слика"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Дозволете слика во слика"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Дозволи слика во слика"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Дозволете апликацијава да создава прозорец за слика во слика додека апликацијата е отворена или пак, откако ќе ја напуштите (на пр., за да продолжите со гледање видео). Прозорецот се прикажува врз другите апликации што ги користите."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Пристап до „Не вознемирувај“"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Дозволи „Не вознемирувај“"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Инсталирани апликации"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Инстант апликации"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Лични"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"Службени"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"За работа"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Апликации: сите"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Исклучени"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Категории: итна важност"</string>
@@ -3825,7 +3825,7 @@
     <string name="write_settings_description" msgid="2536706293042882500">"Оваа дозвола ѝ овозможува на апликацијата да менува системски поставки."</string>
     <string name="write_settings_on" msgid="7328986337962635118">"Да"</string>
     <string name="write_settings_off" msgid="5708257434958406202">"Не"</string>
-    <string name="external_source_switch_title" msgid="5947220058496373178">"Дозволете од изворов"</string>
+    <string name="external_source_switch_title" msgid="5947220058496373178">"Дозволи од изворов"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"Завртете двапати за камерата"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Завртете го зглобот двапати за да ја отворите апликација за камера"</string>
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Прит. копче за напој. двапати за камера"</string>
@@ -4308,7 +4308,7 @@
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Сметка"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Име на уредот"</string>
     <string name="change_wifi_state_title" msgid="5140754955787584174">"Контрола на Wi-Fi"</string>
-    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Дозволете апликацијата да контролира Wi-Fi"</string>
+    <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Дозволи апликацијата да контролира Wi-Fi"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Дозволете апликацијава да вклучува или исклучува Wi-Fi, да скенира и да се поврзува на Wi-Fi мрежи, да додава или отстранува мрежи или да започне локална точка на пристап"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Пуштај содржини на"</string>
     <string name="media_output_default_summary" msgid="3159237976830415584">"Овој уред"</string>

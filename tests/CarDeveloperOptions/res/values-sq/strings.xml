@@ -2922,10 +2922,10 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Përdor opsionin e parazgjedhur"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Gjithmonë"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Përveçse kur është i hapur një aplikacion tjetër pagese"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Përveçse kur është i hapur një aplikacion tjetër për pagesa"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Në terminalin \"Prek dhe paguaj\", paguaj me:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagesa në terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion pagese. Më pas thjesht mbaje pjesën e pasme të telefonit te një terminal me simbolin e pagesave pa kontakt."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Konfiguro një aplikacion për pagesa. Më pas thjesht mbaje pjesën e pasme të telefonit te një terminal me simbolin e pagesave pa kontakt."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"E kuptova"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Më shumë..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Të caktohet si preferencë?"</string>
@@ -4131,7 +4131,7 @@
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Për të kontrolluar orën, njoftimet dhe informacione të tjera, merre në duar telefonin tënd."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Për të kontrolluar orën, njoftimet dhe informacione të tjera, merre në duar tabletin tënd."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Për të kontrolluar orën, njoftimet dhe informacione të tjera, merre në duar pajisjen tënde."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Trokit për të kontrolluar telefonin"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Trokit për ta kontrolluar telefonin"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Trokit për të kontrolluar tabletin"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Trokit për të kontrolluar pajisjen"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Për të kontrolluar orën, njoftimet dhe informacione të tjera, trokit tek ekrani."</string>

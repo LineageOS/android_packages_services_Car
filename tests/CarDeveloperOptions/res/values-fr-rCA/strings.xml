@@ -28,7 +28,7 @@
     </plurals>
     <string name="show_dev_on" msgid="9075712234786224065">"Vous êtes désormais un développeur!"</string>
     <string name="show_dev_already" msgid="7665948832405148689">"Inutile, vous êtes déjà un développeur."</string>
-    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Veuillez d\'abord activer les options pour les concepteurs"</string>
+    <string name="dev_settings_disabled_warning" msgid="3198732189395396721">"Veuillez d\'abord activer les options pour les développeurs"</string>
     <string name="header_category_wireless_networks" msgid="8968405993937795898">"Sans fil et réseaux"</string>
     <string name="header_category_system" msgid="4045988717359334410">"Système"</string>
     <string name="radio_info_data_connection_enable" msgid="2554249462719717119">"Activer la connexion de données"</string>

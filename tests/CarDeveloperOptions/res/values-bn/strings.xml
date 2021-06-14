@@ -3046,7 +3046,7 @@
     <string name="account_dashboard_title" msgid="4734300939532555885">"অ্যাকাউন্ট"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"কোনও অ্যাকাউন্ট যোগ করা হয়নি"</string>
     <string name="app_default_dashboard_title" msgid="6575301028225232193">"ডিফল্ট অ্যাপ"</string>
-    <string name="system_dashboard_summary" msgid="6582464466735779394">"ভাষা, অঙ্গভঙ্গি, সময়, ব্যাক-আপ"</string>
+    <string name="system_dashboard_summary" msgid="6582464466735779394">"ভাষা, জেসচার, সময়, ব্যাক-আপ"</string>
     <string name="search_results_title" msgid="4160717656435503940">"সেটিংস"</string>
     <string name="keywords_wifi" msgid="8477688080895466846">"ওয়াই-ফাই, ওয়াই-ফাই, নেটওয়ার্ক কানেকশন, ইন্টারনেট, ওয়্যারলেস, ডেটা, ওয়াই-ফাই"</string>
     <string name="keywords_wifi_notify_open_networks" msgid="1031260564121854773">"ওয়াই-ফাই বিজ্ঞপ্তি, ওয়াই-ফাই বিজ্ঞপ্তি"</string>
@@ -3679,7 +3679,7 @@
     <string name="system_default_app" msgid="1454719098589351197">"(সিস্টেম ডিফল্ট)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"অ্যাপ স্টোরেজ"</string>
     <string name="usage_access" msgid="2023443456361489516">"ব্যবহারের তথ্যে অ্যাক্সেস"</string>
-    <string name="permit_usage_access" msgid="3321727608629752758">"ব্যবহার অ্যাক্সেসের অনুমতি"</string>
+    <string name="permit_usage_access" msgid="3321727608629752758">"ব্যবহারের তথ্য অ্যাক্সেসের অনুমতি"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"পছন্দের অ্যাপ্লিকেশানগুলির ব্যবহার"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"স্ক্রিন টাইম"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"কোনও অ্যাপ \'ব্যবহারের তথ্যে অ্যাক্সেস\' ফিচারের সাহায্যে আপনি অন্য কোন অ্যাপ কতবার ব্যবহার করছেন এবং আপনার পরিষেবা প্রদানকারী, ভাষার সেটিংস ও অন্যান্য বিবরণ জানতে পারে।"</string>
@@ -4323,7 +4323,7 @@
     <string name="battery_suggestion_title" product="device" msgid="765005476863631528">"ডিভাইসের ব্যাটারি আরও বেশিক্ষণ চালান"</string>
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"ফোনের ব্যাটারি আরও বেশিক্ষণ চালান"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
-    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"রিং হওয়া বন্ধ করুন"</string>
+    <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"রিং হওয়া বন্ধ করা"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"রিং হওয়া বন্ধ করতে পাওয়ার ও ভলিউম বাড়ানোর বোতাম একসাথে প্রেস করুন"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"রিংয়ের আরওয়াজ আটকানোর শর্টকাট"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"ভাইব্রেশন হতে দিন"</string>

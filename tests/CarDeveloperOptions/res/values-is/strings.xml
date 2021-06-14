@@ -3589,7 +3589,7 @@
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI-tengdar upplýsingar"</string>
     <string name="slot_number" msgid="785422579177068698">"(Rauf<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Opna sjálfgefið"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Opnar tengla"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Opnun tengla"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Opna studda tengla"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Opna án þess að spyrja"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Studdir tenglar"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"Forrit sem nota <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Ýta til að vekja"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Ýttu tvisvar hvar sem er á skjáinn til að vekja tækið."</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"Opnar tengla"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"Opnun tengla"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ekki opna studda tengla"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Opna „<xliff:g id="DOMAIN">%s</xliff:g>“"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Opna <xliff:g id="DOMAIN">%s</xliff:g> og aðrar vefslóðir"</string>
