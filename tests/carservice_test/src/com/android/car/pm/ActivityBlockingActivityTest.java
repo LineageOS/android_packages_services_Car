@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertNotNull;
 
@@ -57,6 +58,7 @@ public class ActivityBlockingActivityTest {
     private static final int UI_TIMEOUT_MS = 20_000;
     private static final int NOT_FOUND_UI_TIMEOUT_MS = 10_000;
     private static final long ACTIVITY_TIMEOUT_MS = 5000;
+    private static final int HOME_DISPLAYED_TIMEOUT_MS = 5_000;
 
     private CarDrivingStateManager mCarDrivingStateManager;
 
@@ -73,7 +75,7 @@ public class ActivityBlockingActivityTest {
         assertNotNull(mCarDrivingStateManager);
 
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
-
+        ensureHomeIsDisplayed();
         setDrivingStateMoving();
     }
 
@@ -174,6 +176,15 @@ public class ActivityBlockingActivityTest {
         getContext().startActivity(intent, options.toBundle());
     }
 
+    private void ensureHomeIsDisplayed() {
+        mDevice.pressHome();
+        final String launcherPackage = mDevice.getLauncherPackageName();
+        assertNotNull(launcherPackage);
+        assertWithMessage(
+                "Home is not displayed even after " + HOME_DISPLAYED_TIMEOUT_MS + "ms.").that(
+                mDevice.wait(Until.hasObject(By.pkg(launcherPackage).depth(0)),
+                        HOME_DISPLAYED_TIMEOUT_MS)).isTrue();
+    }
 
     private void setDrivingStateMoving() {
         mCarDrivingStateManager.injectDrivingState(CarDrivingStateEvent.DRIVING_STATE_MOVING);
