@@ -22,6 +22,8 @@ import static android.car.VehiclePropertyIds.CLUSTER_REPORT_STATE;
 import static android.car.VehiclePropertyIds.CLUSTER_REQUEST_DISPLAY;
 import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.NonNull;
 import android.graphics.Insets;
 import android.graphics.Rect;
@@ -31,6 +33,7 @@ import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.IntArray;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.server.utils.Slogf;
 
@@ -294,6 +297,7 @@ public final class ClusterHalService extends HalServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Cluster HAL*");
         writer.println("mIsCoreSupported:" + isCoreSupported());
