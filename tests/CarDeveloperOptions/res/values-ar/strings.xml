@@ -1857,7 +1857,7 @@
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"أمان الملف الشخصي للعمل"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"قفل الشاشة للملف الشخصي للعمل"</string>
     <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"استخدام قفل واحد"</string>
-    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"استخدم قفلاً واحدًا للملف الشخصي للعمل وشاشة الجهاز"</string>
+    <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"استخدام القفل نفسه لملف العمل وشاشة الجهاز"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"هل تريد استخدام قفل واحد؟"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"سيستخدم جهازك قفل الشاشة للملف الشخصي للعمل. وسيتم تطبيق سياسات العمل على كلا القفلين."</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"لا يتوافق قفل شاشة الملف الشخصي للعمل مع متطلبات الأمان في مؤسستك. يمكنك استخدام القفل ذاته لكل من شاشة جهازك وملفك الشخصي للعمل، ولكن ستنطبق أي سياسات متعلقة بقفل الملف الشخصي للعمل على قفل شاشة الجهاز أيضًا."</string>
@@ -2605,7 +2605,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"تفعيل"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استخدام الوضع \"توفير شحن البطارية\""</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"استخدام ميزة \"توفير شحن البطارية\""</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"التفعيل تلقائيًا"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"أبدًا"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"البطارية عند مستوى <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3205,7 +3205,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"بلوتوث وNFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"البلوتوث"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"التطبيقات والإشعارات"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"المساعد، التطبيقات المستخدمة مؤخرًا، التطبيقات التلقائية"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"\"مساعد Google\" والتطبيقات المُستخدمة مؤخرًا والتطبيقات التلقائية"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"لا تتوفر إمكانية الدخول إلى الإشعارات للتطبيقات في الملف الشخصي للعمل."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"الحسابات"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"لم تتم إضافة أي حسابات."</string>
@@ -3568,7 +3568,7 @@
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"لا تتيح أي من التطبيقات المثبَّتة عرض صورة داخل صورة"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"صورة، شاشة، صورة داخل صورة"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"صورة داخل صورة"</string>
-    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"السماح بنافذة صورة داخل صورة"</string>
+    <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"السماح بعرض نافذة ضمن النافذة"</string>
     <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"يمكنك السماح لهذا التطبيق بإنشاء نافذة صورة داخل صورة أثناء فتح التطبيق أو بعد مغادرته (على سبيل المثال، لمتابعة مشاهدة فيديو)، علمًا بأن هذه النافذة تظهر أمام التطبيقات الأخرى التي تستخدمها."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"الوصول إلى إعداد \"عدم الإزعاج\""</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"السماح بميزة \"عدم الإزعاج\""</string>

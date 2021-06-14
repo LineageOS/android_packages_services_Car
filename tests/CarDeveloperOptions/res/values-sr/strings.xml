@@ -1787,7 +1787,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"Учини шаблон видљивим"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Учини шаблон за профил видљивим"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Вибрирај при додиру"</string>
-    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Дугме за напајање одмах закључава"</string>
+    <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Дугме за укључивање одмах закључава"</string>
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Осим када га <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g> оставља откључаним"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Подешавање шаблона за откључавање"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Промени шаблон за откључавање"</string>
@@ -3434,7 +3434,7 @@
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"сус слика у"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"Слика у слици"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"Дозволи слику у слици"</string>
-    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Дозволите овој апликацији да прави прозор слике у слици док је отворена или када изађете из ње (на пример, да бисте наставили да гледате неки видео). Овај прозор се приказује преко других апликација које користите."</string>
+    <string name="picture_in_picture_app_detail_summary" msgid="918632751775525347">"Дозволите овој апликацији да прави прозор слике у слици док је отворена или када изађете из ње (на пример, да бисте наставили да гледате видео). Овај прозор се приказује преко других апликација које користите."</string>
     <string name="manage_zen_access_title" msgid="3058206309728524196">"Приступ опцији Не узнемиравај"</string>
     <string name="zen_access_detail_switch" msgid="8706332327904974500">"Дозволи режим Не узнемиравај"</string>
     <string name="zen_access_empty_text" msgid="7667538993781607731">"Ниједна инсталирана апликација није захтевала приступ опцији Не узнемиравај"</string>
@@ -3888,7 +3888,7 @@
     <string name="external_source_switch_title" msgid="5947220058496373178">"Дозволи из овог извора"</string>
     <string name="camera_gesture_title" msgid="899403310746415135">"Двапут заокрените за камеру"</string>
     <string name="camera_gesture_desc" msgid="7751841175916789527">"Отворите апликацију Камера тако што ћете двапут заокренути ручни зглоб"</string>
-    <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Притисните дугме за напајање двапут за камеру"</string>
+    <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"Притисните дугме за укључивање двапут за камеру"</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"Брзо отворите камеру без откључавања екрана"</string>
     <string name="screen_zoom_title" msgid="164369086350486104">"Величина приказа"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"Омогућава да ставке на екрану буду веће или мање"</string>
@@ -4182,7 +4182,7 @@
     <string name="gesture_preference_summary" product="tablet" msgid="8303793594714075580">"Брзи покрети за контролу таблета"</string>
     <string name="gesture_preference_summary" product="device" msgid="7792199669106960922">"Брзи покрети за контролу уређаја"</string>
     <string name="double_tap_power_for_camera_title" msgid="5480829329052517484">"Прелазак на камеру"</string>
-    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Да бисте брзо отворили камеру, двапут притисните дугме за напајање. Ово функционише на сваком екрану."</string>
+    <string name="double_tap_power_for_camera_summary" msgid="6591026425496323965">"Да бисте брзо отворили камеру, двапут притисните дугме за укључивање. Ово функционише на сваком екрану."</string>
     <string name="double_tap_power_for_camera_suggestion_title" msgid="509078029429865036">"Брзо отворите камеру"</string>
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Окретање камере"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
@@ -4401,7 +4401,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Продужите трајање батерије телефона"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Спречи звоњење"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Дугме за напајање и појачавање звука одједном:"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Дугме за укључивање и појачавање звука истовремено:"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Пречица за спречавање звоњења"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Вибрирај"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Искључи звук"</string>

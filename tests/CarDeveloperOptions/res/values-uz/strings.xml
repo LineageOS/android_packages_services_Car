@@ -1570,7 +1570,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Standart sozlamalar tiklandi."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Asliga qaytarish"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Tarmoq, ilova yoki qurilma sozlamalarini asliga qaytarishingiz mumkin"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi, mobil internet va Bluetooth sozlamalarini asliga qaytarish"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Asliga qaytarish: Wi-Fi, mobil internet va Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Bu barcha tarmoq sozlamalarini, jumladan, mazkur sozlamalarni asliga qaytaradi:\n\n"<li>"Wi‑Fi"</li>\n<li>"Mobil internet"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Yuklab olingan SIM kartalar axborotini tozalash"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Almashtiriladigan SIM kartalar yuklab olish uchun aloqa operatoringizga murojaat qiling. Bunda mobil xizmatning hech qaysi tarif rejasi bekor qilinmaydi."</string>
@@ -2509,7 +2509,7 @@
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Takomillashgan rejim: ovozli buyruqlar yordamida boshqarish"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Oddiy rejim: nutqni aniqlash"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Ushbu ovoz bilan yozish xizmati sizning nomingizdan ovozli buyruqlarni muntazam kuzatishi va ovozli buyruqlarni ishlatiladigan ilovalarni nazorat qilishi mumkin. Bu amallar <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g> ilovasi orqali bajariladi. Mazkur xizmatdan foydalanmoqchimisiz?"</string>
-    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Standart sintezator"</string>
+    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Asosiy vosita"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Sintezator sozlamalari"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"Nutq tezligi va ohang"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Nutq sintezatori"</string>

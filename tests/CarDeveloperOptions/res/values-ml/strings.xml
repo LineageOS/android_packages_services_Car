@@ -1783,7 +1783,7 @@
     <string name="lock_settings_profile_unification_dialog_uncompliant_body" msgid="1217609779267643474">"നിങ്ങളുടെ സ്ഥാപനത്തിന്റെ സുരക്ഷാ ആവശ്യകതകളെ നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈൽ ലോക്ക് പാലിക്കുന്നില്ല. ഉപകരണ സ്ക്രീനിനും നിങ്ങളുടെ ഔദ്യോഗിക പ്രൊഫൈലിനും നിങ്ങൾക്ക് ഒരേ ലോക്ക് സജ്ജമാക്കാവുന്നതാണ്, ഔദ്യോഗിക സ്‌ക്രീൻ ലോക്കിന് എന്തെങ്കിലും നയങ്ങളുണ്ടെങ്കിൽ നിങ്ങളുടെ ഉപകരണ സ്‌ക്രീൻ ലോക്കിനും അവ ബാധകമാവും."</string>
     <string name="lock_settings_profile_unification_dialog_confirm" msgid="888942752619181804">"ഒരു ലോക്ക് ഉപയോഗിക്കുക"</string>
     <string name="lock_settings_profile_unification_dialog_uncompliant_confirm" msgid="8046452284593057185">"ഒരു ലോക്ക് ഉപയോഗിക്കുക"</string>
-    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ഉപകരണ സ്‌ക്രീൻ ലോക്കിന് സമാനം"</string>
+    <string name="lock_settings_profile_unified_summary" msgid="5347244550751740962">"ഉപകരണത്തിന്റെ അതേ സ്‌ക്രീൻ ലോക്ക്"</string>
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"അപ്ലിക്കേഷനുകൾ നിയന്ത്രിക്കുക"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"ഇൻസ്റ്റാൾ ചെയ്‌ത അപ്ലിക്കേഷനുകൾ നിയന്ത്രിക്കുക, നീക്കംചെയ്യുക"</string>
     <string name="applications_settings" msgid="368331725658793179">"ആപ്പ് വിവരം"</string>
@@ -3306,7 +3306,7 @@
     <string name="hide_silent_icons_title" msgid="1070905516921542662">"നിശബ്‌ദ അറിയിപ്പ് സ്‌റ്റാറ്റസ് ചിഹ്നങ്ങൾ മറയ്ക്കുക"</string>
     <string name="hide_silent_icons_summary" msgid="2624346914488256888">"സ്‌റ്റാറ്റസ് ബാറിൽ നിശബ്‌ദ അറിയിപ്പുകൾക്കുള്ള ചിഹ്‌നങ്ങൾ മറയ്ക്കുക"</string>
     <string name="notification_badging_title" msgid="6311699476970264712">"അറിയിപ്പ് ഡോട്ടുകൾ അനുവദിക്കുക"</string>
-    <string name="notification_bubbles_title" msgid="9196562435741861317">"ബബ്ൾ"</string>
+    <string name="notification_bubbles_title" msgid="9196562435741861317">"ബബിൾ"</string>
     <string name="notification_bubbles_summary" msgid="4624512775901949578">"ഫ്ലോട്ടിംഗ് കുറുക്കുവഴികൾ ഉപയോഗിച്ച് ആപ്പിന്റെ ഉള്ളടക്കം എവിടെ നിന്നും എളുപ്പത്തിൽ ആക്‌സസ് ചെയ്യുക"</string>
     <string name="bubbles_feature_education" msgid="8979109826818881018">"ചില അറിയിപ്പുകളും മറ്റ് ഉള്ളടക്കവും സ്‌ക്രീനിൽ ബബിളുകളായി ദൃശ്യമാകുന്നതാണ്. ഒരു ബബ്‌ൾ തുറക്കാൻ അതിൽ ടാപ്പ് ചെയ്യുക. ഡിസ്‌മിസ് ചെയ്യാൻ അതിനെ സ്‌ക്രീനിന്റെ താഴേക്ക് വലിച്ചിടുക."</string>
     <string name="bubbles_app_toggle_title" msgid="6401217027603326439">"ബബിളുകൾ"</string>

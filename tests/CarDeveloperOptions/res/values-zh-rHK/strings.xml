@@ -3679,7 +3679,7 @@
     <string name="system_app" msgid="4111402206594443265">"(系統)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(系統預設)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"應用程式儲存空間"</string>
-    <string name="usage_access" msgid="2023443456361489516">"使用紀錄存取權"</string>
+    <string name="usage_access" msgid="2023443456361489516">"使用記錄存取權"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"允許使用記錄存取權"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"應用程式使用喜好"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"裝置使用時間"</string>

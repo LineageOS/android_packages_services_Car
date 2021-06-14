@@ -430,7 +430,7 @@
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ଆଙ୍ଗୁଠି ଚିହ୍ନ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ଆଙ୍ଗୁଠି ଚିହ୍ନଗୁଡ଼ିକର ପରିଚାଳନା କରନ୍ତୁ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ଏହା ପାଇଁ ଆଙ୍ଗୁଠି ଚିହ୍ନର ବ୍ୟବହାର କରନ୍ତୁ"</string>
-    <string name="fingerprint_add_title" msgid="6840343900784463856">"ଟିପଚିହ୍ନ ଯୋଡ଼ନ୍ତୁ"</string>
+    <string name="fingerprint_add_title" msgid="6840343900784463856">"ଟିପଚିହ୍ନ ଯୋଗ କରନ୍ତୁ"</string>
     <string name="fingerprint_enable_keyguard_toggle_title" msgid="8847663949921113437">"ସ୍କ୍ରୀନ୍‌ ଲକ୍‌"</string>
     <plurals name="security_settings_fingerprint_preference_summary" formatted="false" msgid="2033416761172877041">
       <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> ଆଙ୍ଗୁଠି ଚିହ୍ନଗୁଡ଼ିକର ସେଟ୍‌ ଅପ୍‌</item>
@@ -469,7 +469,7 @@
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"ନିଜ ଆଙ୍ଗୁଠିକୁ ସେନ୍ସର୍ ଉପରେ ରଖନ୍ତୁ ଏବଂ ଏକ କମ୍ପନ ଅନୁଭବ କରିବା ପରେ ଉଠାଇଦିଅନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ଉଠାନ୍ତୁ, ତା\'ପରେ ପୁଣି ଛୁଅଁନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"ନିଜ ଟିପଚିହ୍ନର ବିଭିନ୍ନ ଅଂଶ ଯୋଗ କରିବା ପାଇଁ ଆଙ୍ଗୁଠି ଉଠାଉଥାନ୍ତୁ"</string>
-    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"ଟିପଚିହ୍ନ ଯୋଗ କରାଗଲା"</string>
+    <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"ଟିପଚିହ୍ନ ଯୋଗ କରାଯାଇଛି"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"ଆପଣ ଯେତେବେଳେ ଏହି ଆଇକନ୍‌‌କୁ ଦେଖିବେ, ପରିଚୟ ପାଇଁ କିମ୍ବା କ୍ରୟଗୁଡିକର ମଞ୍ଜୁରୀ ଦେବା ପାଇଁ ଆପଣଙ୍କ ଟିପଚିହ୍ନ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"ଏହାକୁ ପରେ କରନ୍ତୁ"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"ଆଙ୍ଗୁଠି ଚିହ୍ନ ସେଟଅପ ଛାଡ଼ିଦେବେ?"</string>
@@ -3839,7 +3839,7 @@
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"ବଡ଼ କରନ୍ତୁ"</string>
     <string name="screen_zoom_conversation_icon_alex" msgid="2733983340094411661">"କ"</string>
     <string name="screen_zoom_conversation_icon_pete" msgid="4990733893088820204">"P"</string>
-    <string name="screen_zoom_conversation_message_1" msgid="7215516160541988278">"ହାଏ ପ୍ରକାଶ!"</string>
+    <string name="screen_zoom_conversation_message_1" msgid="7215516160541988278">"ନମସ୍କାର ପିଟ୍!"</string>
     <string name="screen_zoom_conversation_message_2" msgid="5409482621887655034">"ଆଜି କଫି ପିଇବାକୁ ଯିବାକି?"</string>
     <string name="screen_zoom_conversation_message_3" msgid="2471777953578052296">"ବଢ଼ିଆ। ମୁଁ ଏକ ଭଲ ଜାଗା ବିଷୟରେ ଜାଣେ ଯାହା ଏଠାରୁ ବେଶି ଦୂର ନୁହେଁ।"</string>
     <string name="screen_zoom_conversation_message_4" msgid="8258817329742550137">"ବହୁତ ବଢିଆ!"</string>

@@ -2993,7 +2993,7 @@
     <string name="sim_cellular_data_unavailable" msgid="1832472508352891641">"Los datos móviles no están disponibles"</string>
     <string name="sim_cellular_data_unavailable_summary" msgid="3093797406601964131">"Toca para seleccionar una SIM de datos"</string>
     <string name="sim_calls_always_use" msgid="5322696995795851734">"Usar siempre esta para llamadas"</string>
-    <string name="select_sim_for_data" msgid="2099705792885526394">"Selecciona una SIM de datos"</string>
+    <string name="select_sim_for_data" msgid="2099705792885526394">"Selecciona una SIM para datos"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"Selecciona una tarjeta SIM para los SMS"</string>
     <string name="data_switch_started" msgid="4517966162053949265">"Cambiando SIM de datos. Este proceso puede tardar hasta un minuto..."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"Llamar con"</string>
@@ -3020,7 +3020,7 @@
     <string name="preferred_network_offload_footer" msgid="7454087782004987490">"Si no emites el nombre de la red, los usuarios externos no podrá acceder a la información de tu red."</string>
     <string name="preferred_network_offload_popup" msgid="204626698006378960">"Si no emites el nombre de la red, los datos en segundo plano no podrán ocultar las redes."</string>
     <string name="sim_signal_strength" msgid="6426261068520364170">"<xliff:g id="DBM">%1$d</xliff:g> dBm <xliff:g id="ASU">%2$d</xliff:g> asu"</string>
-    <string name="sim_notification_title" msgid="2457890173055955672">"Tarjetas SIM cambiadas."</string>
+    <string name="sim_notification_title" msgid="2457890173055955672">"Se han cambiado las tarjetas SIM"</string>
     <string name="sim_notification_summary" msgid="6421556454979313850">"Toca para configurar"</string>
     <string name="sim_pref_divider" msgid="4967718397875240190">"SIM preferida para"</string>
     <string name="sim_calls_ask_first_prefs_title" msgid="8209265235625420102">"Preguntar siempre"</string>

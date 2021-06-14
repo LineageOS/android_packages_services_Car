@@ -860,7 +860,7 @@
     <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"Ավտոմատ միանալ լավ ազդանշանով բաց ցանցերին"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Օգտագործելու համար ընտրեք ցանցերի վարկանիշի մատակարարին"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Օգտագործելու համար ընտրեք ցանցերի վարկանիշի համատեղելի մատակարարի"</string>
-    <string name="wifi_install_credentials" msgid="5650088113710858289">"Հավաստագրերի տեղադրում"</string>
+    <string name="wifi_install_credentials" msgid="5650088113710858289">"Տեղադրել հավաստագրեր"</string>
     <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Տեղորոշման ճշգրտությունը բարելավելու նպատակով հավելվածներն ու ծառայությունները կորոնեն Wi‑Fi ցանցեր՝ նույնիսկ, երբ Wi‑Fi-ն անջատված է: Դա կարող է օգտագործվել, օրինակ, տեղորոշում օգտագործող գործառույթների ու ծառայությունների աշխատանքն օպտիմալացնելու համար։ Այս պարամետրը կարող եք փոխել <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>որոնման կարգավորումներում<xliff:g id="LINK_END_1">LINK_END</xliff:g>։"</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Տեղորոշման ճշգրտությունը բարելավելու համար միացրեք Wi-Fi ցանցերի որոնումը <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>որոնման կարգավորումներում<xliff:g id="LINK_END_1">LINK_END</xliff:g>։"</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Նորից ցույց չտալ"</string>
@@ -2509,7 +2509,7 @@
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Ամբողջական թեժ բառեր և շփում"</string>
     <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Խոսքից տեքստի պարզ տարբերակ"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Ձայնի ներածման այս ծառայությունը կկարողանա կատարել ձայնի մշտադիտարկում և ձեր անունից վերահսկել ձայնի հնարավորությամբ ծրագրերը: Դրա պատճառը <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g> ծրագիրն է: Միացնե՞լ այս ծառայությունը:"</string>
-    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Նախընտրելի համակարգը"</string>
+    <string name="tts_engine_preference_title" msgid="1183116842356275061">"Նախընտրելի մեխանիզմը"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Համակարգի կարգավորումները"</string>
     <string name="tts_sliders_title" msgid="1927481069989092278">"Խոսքի արագությունը և բարձրությունը"</string>
     <string name="tts_engine_section_title" msgid="7796486438271227076">"Համակարգ"</string>
@@ -2848,9 +2848,9 @@
       <item quantity="other">Ստուգել վկայականները</item>
     </plurals>
     <string name="user_settings_title" msgid="7917598650933179545">"Մի քանի օգտատեր"</string>
-    <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, ում ուզում եք հասանելի դարձնել ձեր սարքը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
-    <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, ում ուզում եք հասանելի դարձնել ձեր պլանշետը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
-    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, ում ուզում եք հասանելի դարձնել ձեր հեռախոսը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
+    <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, որոնց ուզում եք հասանելի դարձնել ձեր սարքը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
+    <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, որոնց ուզում եք հասանելի դարձնել ձեր պլանշետը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
+    <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"Ստեղծեք պրոֆիլ այն օգտատերերի համար, որոնց ուզում եք հասանելի դարձնել ձեր հեռախոսը։ Օգտատերերը կարող են ինքնուրույն կարգավորել հիմնական էկրանները, հաշիվները, հավելվածներն ու մյուս տարրերը։"</string>
     <string name="user_list_title" msgid="6670258645246192324">"Օգտատերեր &amp; պրոֆիլներ"</string>
     <string name="user_add_user_or_profile_menu" msgid="4220679989900149336">"Ավելացնել օգտատեր կամ պրոֆիլ"</string>
     <string name="user_add_user_menu" msgid="9006572936456324794">"Ավելացնել օգտատեր"</string>

@@ -502,7 +502,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Ďalej"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Okrem odomknutia svojho telefónu môžete pomocou odtlačku schvaľovať nákupy a prístup aplikácií. "<annotation id="url">"Ďalšie informácie"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Možnosť zámky obrazovky je zakázaná. Ďalšie informácie vám poskytne správca vašej organizácie. "<annotation id="admin_details">"Ďalšie podrobnosti"</annotation>\n\n"Naďalej môžete pomocou odtlačku prsta schvaľovať nákupy a prístup do aplikácií. "<annotation id="url">"Ďalšie informácie"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Nadvihnite prst, potom sa opäť dotknite senzora"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Zdvihnite prst, potom sa opäť dotknite senzora"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Môžete pridať ďalšie odtlačky (max. <xliff:g id="COUNT">%d</xliff:g>)"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Pridali ste maximálny počet odtlačkov prstov"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Nie je možné pridať ďalšie odtlačky prstov"</string>

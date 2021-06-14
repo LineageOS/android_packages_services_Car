@@ -2906,7 +2906,7 @@
     <string name="user_enable_calling_sms" msgid="3450252891736718793">"Aktifkan panggilan telepon &amp; SMS"</string>
     <string name="user_remove_user" msgid="3687544420125911166">"Hapus pengguna"</string>
     <string name="user_enable_calling_confirm_title" msgid="1141612415529158542">"Aktifkan panggilan telepon?"</string>
-    <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Histori panggilan akan dibagikan dengan pengguna ini."</string>
+    <string name="user_enable_calling_confirm_message" msgid="2490126715153125970">"Histori panggilan akan dibagikan kepada pengguna ini."</string>
     <string name="user_enable_calling_and_sms_confirm_title" msgid="4153856398523366976">"Aktifkan panggilan telepon &amp; SMS?"</string>
     <string name="user_enable_calling_and_sms_confirm_message" msgid="3278802798876095734">"Histori panggilan dan SMS akan dibagikan dengan pengguna ini."</string>
     <string name="emergency_info_title" msgid="1522609271881425375">"Informasi darurat"</string>

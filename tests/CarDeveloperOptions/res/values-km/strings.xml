@@ -1794,7 +1794,7 @@
     <string name="recent_app_category_title" msgid="7688788038277126727">"កម្មវិធីដែលទើបបើកថ្មីៗ"</string>
     <string name="see_all_apps_title" msgid="6435061912110347474">"មើលកម្មវិធី​ទាំង <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"ថេប្លេត និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ មានន័យថាអ្នកទទួលខុសត្រូវលើការខូចខាតណាមួយចំពោះទូរសព្ទ ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្តាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
-    <string name="install_all_warning" product="default" msgid="7445839116997296358">"ទូរសព្ទ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកកាន់តែងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ អ្នកយល់ព្រមថា អ្នកទទួលខុសត្រូវលើការខូចខាតទាំងឡាយមកលើទូរសព្ទរបស់អ្នក ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្ដាលមកពីការប្រើប្រាស់កម្មវិធីនេះ។"</string>
+    <string name="install_all_warning" product="default" msgid="7445839116997296358">"ទូរសព្ទ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកកាន់តែងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ អ្នកយល់ព្រមថា អ្នកទទួលខុសត្រូវលើការខូចខាតទាំងឡាយមកលើទូរសព្ទរបស់អ្នក ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្ដាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"ឧបករណ៍ និងទិន្នន័យផ្ទាល់ខ្លួនរបស់អ្នកងាយនឹងរងគ្រោះពីការវាយប្រហារពីកម្មវិធីដែលមិនស្គាល់។ ប្រសិនបើដំឡើងកម្មវិធីពីប្រភពនេះ មានន័យថាអ្នកទទួលខុសត្រូវលើការខូចខាតទាំងឡាយចំពោះឧបករណ៍ ឬការបាត់បង់ទិន្នន័យ ដែលអាចបណ្តាលមកពីការប្រើប្រាស់កម្មវិធីទាំងនោះ។"</string>
     <string name="advanced_settings" msgid="6282069364060968122">"ការ​កំណត់​កម្រិត​ខ្ពស់"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"បើក​ជម្រើស​កំណត់​ច្រើន​ទៀត"</string>
@@ -2151,7 +2151,7 @@
     <string name="captioning_standard_options_title" msgid="4124898413348084226">"ជម្រើស​ស្តង់​ដារ​"</string>
     <string name="captioning_locale" msgid="4734464353806207943">"ភាសា"</string>
     <string name="captioning_text_size" msgid="1707122517246408084">"ទំហំ​អក្សរ"</string>
-    <string name="captioning_preset" msgid="7429888317480872337">"រចនាប័ទ្ម​ចំណងជើង"</string>
+    <string name="captioning_preset" msgid="7429888317480872337">"រចនាប័ទ្ម​អក្សររត់"</string>
     <string name="captioning_custom_options_title" msgid="4530479671071326732">"ជម្រើស​តាម​តម្រូវ​ការ"</string>
     <string name="captioning_background_color" msgid="2434458880326292180">"ពណ៌​ផ្ទៃ​ខាងក្រោយ"</string>
     <string name="captioning_background_opacity" msgid="8178926599201811936">"ភាព​ស្រអាប់​ផ្ទៃ​ខាងក្រោយ"</string>
@@ -2162,7 +2162,7 @@
     <string name="captioning_edge_color" msgid="4330622137047993780">"ពណ៌​គែម"</string>
     <string name="captioning_edge_type" msgid="4414946407430588162">"ប្រភេទ​គែម"</string>
     <string name="captioning_typeface" msgid="7893208796949341767">"ក្រុម​ពុម្ពអក្សរ"</string>
-    <string name="captioning_preview_text" msgid="4877753964772618049">"ចំណងជើង​នឹង​​មាន​រូបរាង​ដូច​នេះ"</string>
+    <string name="captioning_preview_text" msgid="4877753964772618049">"អក្សររត់​នឹង​​មាន​រូបរាង​ដូច​នេះ"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
     <string name="locale_default" msgid="910074908458214054">"លំនាំដើម"</string>
     <string name="color_title" msgid="132875486061816584">"ពណ៌"</string>

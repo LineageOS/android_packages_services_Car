@@ -3488,7 +3488,7 @@
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
-    <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
+    <string name="notification_channels_other" msgid="1615988645667411530">"אחרות"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
       <item quantity="two"><xliff:g id="COUNT_1">%d</xliff:g> קטגוריות</item>
       <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> קטגוריות</item>

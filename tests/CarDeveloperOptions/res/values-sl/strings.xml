@@ -502,7 +502,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Naprej"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Prstni odtis lahko uporabljate za odklepanje zaslona ter potrjevanje nakupov in dostop do aplikacij. "<annotation id="url">"Več o tem"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Možnost zaklepanja zaslona je onemogočena. Če želite izvedeti več, se obrnite na skrbnika organizacije. "<annotation id="admin_details">"Več podrobnosti"</annotation>\n\n"Prstni odtis lahko še naprej uporabljate za potrjevanje nakupov in dostop do aplikacij. "<annotation id="url">"Več o tem"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Dvignite prst in se znova dotaknite tipala"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Dvignite prst in se znova dotaknite tipala."</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Dodate lahko do toliko prstnih odtisov: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Dodali ste največje dovoljeno število prstnih odtisov"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Prstnih odtisov ni več mogoče dodati"</string>

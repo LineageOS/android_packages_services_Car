@@ -1390,8 +1390,8 @@
     <string name="sd_format" product="default" msgid="1346245995138883960">"SD ਕਾਰਡ ਮਿਟਾਓ"</string>
     <string name="sd_format_summary" product="nosdcard" msgid="1179857727779521920">"ਅੰਦਰੂਨੀ USB ਸਟੋਰੇਜ ਦਾ ਸਾਰਾ ਡਾਟਾ ਮਿਟਾਉਂਦਾ ਹੈ, ਜਿਵੇਂ ਸੰਗੀਤ ਅਤੇ ਫ਼ੋਟੋਆਂ"</string>
     <string name="sd_format_summary" product="default" msgid="4284028411908176234">"SD ਕਾਰਡ ਦਾ ਸਾਰਾ  ਡਾਟਾ  ਮਿਟਾਉਂਦਾ ਹੈ, ਜਿਵੇਂ ਸੰਗੀਤ ਅਤੇ ਫ਼ੋਟੋਆਂ"</string>
-    <string name="memory_clear_cache_title" msgid="4306793268129306684">"ਕੀ ਕੈਚ ਕੀਤਾ  ਡਾਟਾ  ਹਟਾਉਣਾ ਹੈ?"</string>
-    <string name="memory_clear_cache_message" msgid="6723120398411410031">"ਇਹ ਸਾਰੇ ਐਪਸ ਲਈ ਕੈਚ ਕੀਤਾ  ਡਾਟਾ  ਹਟਾ ਦੇਵੇਗਾ।"</string>
+    <string name="memory_clear_cache_title" msgid="4306793268129306684">"ਕੀ ਕੈਸ਼ ਕੀਤਾ ਡਾਟਾ ਕਲੀਅਰ ਕਰਨਾ ਹੈ?"</string>
+    <string name="memory_clear_cache_message" msgid="6723120398411410031">"ਇਹ ਸਾਰੀਆਂ ਐਪਾਂ ਲਈ ਕੈਸ਼ੇ ਕੀਤਾ ਡਾਟਾ ਹਟਾ ਦੇਵੇਗਾ।"</string>
     <string name="mtp_ptp_mode_summary" msgid="6074099855478444183">"MTP ਜਾਂ PTP ਫੰਕਸ਼ਨ ਕਿਰਿਆਸ਼ੀਲ ਹੈ"</string>
     <string name="dlg_confirm_unmount_title" product="nosdcard" msgid="3843209947310774105">"ਕੀ USB ਸਟੋਰੇਜ ਨੂੰ ਅਨਮਾਉਂਟ ਕਰਨਾ ਹੈ?"</string>
     <string name="dlg_confirm_unmount_title" product="default" msgid="4400426555375434431">"ਕੀ SD ਕਾਰਡ ਨੂੰ  ਅਨਮਾਉਂਟ ਕਰਨਾ ਹੈ?"</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"ਬਲੂਟੁੱਥ, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"ਬਲੂਟੁੱਥ"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ਐਪਾਂ ਅਤੇ ਸੂਚਨਾਵਾਂ"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"ਅਸਿਸਟੈਂਟ, ਹਾਲੀਆ ਐਪਾਂ, ਪੂਰਵ-ਨਿਰਧਾਰਤ ਐਪਾਂ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, ਹਾਲੀਆ ਐਪਾਂ, ਪੂਰਵ-ਨਿਰਧਾਰਿਤ ਐਪਾਂ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"ਕਾਰਜ ਪ੍ਰੋਫਾਈਲ ਵਿੱਚ ਐਪਾਂ ਲਈ ਸੂਚਨਾ ਪਹੁੰਚ ਉਪਲਬਧ ਨਹੀਂ ਹੈ।"</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"ਖਾਤੇ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"ਕੋਈ ਖਾਤੇ ਸ਼ਾਮਲ ਨਹੀਂ ਕੀਤੇ ਗਏ"</string>
