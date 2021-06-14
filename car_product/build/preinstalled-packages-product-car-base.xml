@@ -138,8 +138,14 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
-    <!-- Required StorageManagerService to bind to the ExternalStorageService -->
+    <!-- Required by StorageManagerService to bind to the ExternalStorageService -->
     <install-in-user-type package="com.android.providers.media.module">
+        <install-in user-type="FULL" />
+        <install-in user-type="SYSTEM" />
+    </install-in-user-type>
+
+    <!-- Required by StorageManagerService  -->
+    <install-in-user-type package="com.android.externalstorage">
         <install-in user-type="FULL" />
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
@@ -315,9 +321,6 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
     <install-in-user-type package="com.android.vpndialogs">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.externalstorage">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.hotspot2.osulogin">
