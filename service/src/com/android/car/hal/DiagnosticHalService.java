@@ -16,6 +16,8 @@
 
 package com.android.car.hal;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
@@ -34,6 +36,7 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.internal.annotations.GuardedBy;
 
@@ -438,6 +441,7 @@ public class DiagnosticHalService extends HalServiceBase {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("*Diagnostic HAL*");
     }
