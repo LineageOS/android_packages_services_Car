@@ -16,7 +16,7 @@
 
 package com.android.car.developeroptions;
 
-import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +30,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -51,30 +52,50 @@ public class CarDeveloperOptionsIntentTest {
     public void testAvailableIntentActivities_onlyAllowlisted() {
         List<ResolveInfo> results = mPm.queryIntentActivities(createSettingsPackageIntent(),
                 PackageManager.MATCH_ALL);
+        List<String> nonMatchingItems = new ArrayList<>();
         for (ResolveInfo resolved : results) {
-            assertThat(ACTIVITY_ALLOWLIST).contains(resolved.getComponentInfo().name);
+            if (!ACTIVITY_ALLOWLIST.contains(resolved.getComponentInfo().name)) {
+                nonMatchingItems.add(resolved.getComponentInfo().name);
+            }
         }
+        assertWithMessage("Unexpected activities found: " + nonMatchingItems.toString())
+                .that(nonMatchingItems.size()).isEqualTo(0);
     }
 
     @Test
     public void testAvailableIntentServices_returnsZero() {
         List<ResolveInfo> results = mPm.queryIntentServices(createSettingsPackageIntent(),
                 PackageManager.MATCH_ALL);
-        assertThat(results.size()).isEqualTo(0);
+        List<String> nonMatchingItems = new ArrayList<>();
+        for (ResolveInfo resolved : results) {
+            nonMatchingItems.add(resolved.getComponentInfo().name);
+        }
+        assertWithMessage("Unexpected services found: " + nonMatchingItems.toString())
+                .that(nonMatchingItems.size()).isEqualTo(0);
     }
 
     @Test
     public void testAvailableBroadcastReceivers_returnsZero() {
         List<ResolveInfo> results = mPm.queryBroadcastReceivers(createSettingsPackageIntent(),
                 PackageManager.MATCH_ALL);
-        assertThat(results.size()).isEqualTo(0);
+        List<String> nonMatchingItems = new ArrayList<>();
+        for (ResolveInfo resolved : results) {
+            nonMatchingItems.add(resolved.getComponentInfo().name);
+        }
+        assertWithMessage("Unexpected broadcast receivers found: " + nonMatchingItems.toString())
+                .that(nonMatchingItems.size()).isEqualTo(0);
     }
 
     @Test
     public void testAvailableContentProviders_returnsZero() {
         List<ResolveInfo> results = mPm.queryIntentContentProviders(createSettingsPackageIntent(),
                 PackageManager.MATCH_ALL);
-        assertThat(results.size()).isEqualTo(0);
+        List<String> nonMatchingItems = new ArrayList<>();
+        for (ResolveInfo resolved : results) {
+            nonMatchingItems.add(resolved.getComponentInfo().name);
+        }
+        assertWithMessage("Unexpected content providers found: " + nonMatchingItems.toString())
+                .that(nonMatchingItems.size()).isEqualTo(0);
     }
 
     private Intent createSettingsPackageIntent() {
