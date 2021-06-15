@@ -83,6 +83,8 @@
     <uses-permission android:name="android.permission.CHANGE_NETWORK_STATE"/>
     <uses-permission android:name="android.permission.CHANGE_WIFI_STATE"/>
     <uses-permission android:name="android.permission.CONNECTIVITY_USE_RESTRICTED_NETWORKS"/>
+    <!-- Use for sensor access in Sensors fragment. -->
+    <uses-permission android:name="android.permission.HIGH_SAMPLING_RATE_SENSORS"/>
     <uses-permission android:name="android.permission.INJECT_EVENTS"/>
     <!-- use for CarServiceUnitTest and CarServiceTest -->
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS"/>
