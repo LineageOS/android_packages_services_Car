@@ -18,6 +18,8 @@ package com.android.car;
 
 import static com.android.car.CarService.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
 import static com.android.car.CarService.CAR_SERVICE_INIT_TIMING_TAG;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT;
 
 import android.annotation.MainThread;
@@ -60,6 +62,7 @@ import com.android.car.cluster.InstrumentClusterService;
 import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.ICarSystemServerClient;
 import com.android.car.internal.common.EventLogTags;
@@ -642,21 +645,9 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public int getCarConnectionType() {
         return Car.CONNECTION_TYPE_EMBEDDED;
-    }
-
-    public CarServiceBase getCarInternalService(String serviceName) {
-        switch (serviceName) {
-            case INTERNAL_INPUT_SERVICE:
-                return mCarInputService;
-            case INTERNAL_SYSTEM_ACTIVITY_MONITORING_SERVICE:
-                return mSystemActivityMonitoringService;
-            default:
-                Slog.w(CarLog.TAG_SERVICE, "getCarInternalService for unknown service:"
-                        + serviceName);
-                return null;
-        }
     }
 
     public static void assertVehicleHalMockPermission(Context context) {
@@ -739,6 +730,7 @@ public class ICarImpl extends ICar.Stub {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         if (mContext.checkCallingOrSelfPermission(android.Manifest.permission.DUMP)
                 != PackageManager.PERMISSION_GRANTED) {
@@ -753,6 +745,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpIndenting(FileDescriptor fd, IndentingPrintWriter writer, String[] args) {
         if (args == null || args.length == 0 || (args.length > 0 && "-a".equals(args[0]))) {
             writer.println("*Dump car service*");
@@ -797,6 +790,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllHals(IndentingPrintWriter writer) {
         writer.println("*Dump Vehicle HAL*");
         writer.println("Vehicle HAL Interface: " + mVehicleInterfaceName);
@@ -809,6 +803,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void showDumpHelp(IndentingPrintWriter writer) {
         writer.println("Car service dump usage:");
         writer.println("[NO ARG]");
@@ -852,12 +847,14 @@ public class ICarImpl extends ICar.Stub {
                 mGarageModeService, mCarUserService, mCarOccupantZoneService);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpListOfServices(IndentingPrintWriter writer) {
         for (CarServiceBase service : mAllServices) {
             writer.println(service.getClass().getName());
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpAllServices(IndentingPrintWriter writer) {
         writer.println("*Dump all services*");
         for (CarServiceBase service : mAllServices) {
@@ -868,6 +865,7 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpIndividualServices(IndentingPrintWriter writer, String... serviceNames) {
         for (String serviceName : serviceNames) {
             writer.printf("** Dumping %s\n\n", serviceName);
@@ -888,6 +886,7 @@ public class ICarImpl extends ICar.Stub {
                 .findFirst().orElse(null);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     private void dumpService(CarServiceBase service, IndentingPrintWriter writer) {
         try {
             service.dump(writer);
