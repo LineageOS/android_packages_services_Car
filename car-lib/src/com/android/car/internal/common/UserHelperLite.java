@@ -16,10 +16,14 @@
 
 package com.android.car.internal.common;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.os.UserHandle;
 import android.os.UserManager;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 /**
  * Provides user information related helper methods.
@@ -28,6 +32,8 @@ import android.os.UserManager;
  */
 public final class UserHelperLite {
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
+            details = "private constructor")
     private UserHelperLite() {
         throw new UnsupportedOperationException("contains only static methods");
     }
