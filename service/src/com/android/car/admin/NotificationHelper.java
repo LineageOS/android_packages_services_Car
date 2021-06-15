@@ -16,6 +16,8 @@
 
 package com.android.car.admin;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.app.Notification;
 import android.app.NotificationChannel;
@@ -24,18 +26,26 @@ import android.content.Context;
 import android.os.Bundle;
 
 import com.android.car.R;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.internal.annotations.VisibleForTesting;
 
-// TODO(b/171603586): STOPSHIP move this class to CarSettings
+import java.util.Objects;
+
+// TODO: move this class to CarSettings or at least to some common package (not admin)
+
 /**
  * Helper for notification-related tasks
  */
 public final class NotificationHelper {
 
     static final int FACTORY_RESET_NOTIFICATION_ID = 42;
-    public static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
 
-    static final String IMPORTANCE_DEFAULT_ID = "importance_default";
-    static final String IMPORTANCE_HIGH_ID = "importance_high";
+    static final int NEW_USER_DISCLAIMER_NOTIFICATION_ID = 108;
+
+    @VisibleForTesting
+    static final String CHANNEL_ID_DEFAULT = "channel_id_default";
+    @VisibleForTesting
+    static final String CHANNEL_ID_HIGH = "channel_id_high";
 
     /**
      * Creates a notification (and its notification channel) for the given importance type, setting
@@ -48,14 +58,16 @@ public final class NotificationHelper {
     @NonNull
     public static Notification.Builder newNotificationBuilder(Context context,
             @NotificationManager.Importance int importance) {
-        String importanceId, importanceName;
+        Objects.requireNonNull(context, "context cannot be null");
+
+        String channelId, importanceName;
         switch (importance) {
             case NotificationManager.IMPORTANCE_DEFAULT:
-                importanceId = IMPORTANCE_DEFAULT_ID;
+                channelId = CHANNEL_ID_DEFAULT;
                 importanceName = context.getString(R.string.importance_default);
                 break;
             case NotificationManager.IMPORTANCE_HIGH:
-                importanceId = IMPORTANCE_HIGH_ID;
+                channelId = CHANNEL_ID_HIGH;
                 importanceName = context.getString(R.string.importance_high);
                 break;
             default:
@@ -63,15 +75,17 @@ public final class NotificationHelper {
         }
         NotificationManager notificationMgr = context.getSystemService(NotificationManager.class);
         notificationMgr.createNotificationChannel(
-                new NotificationChannel(importanceId, importanceName, importance));
+                new NotificationChannel(channelId, importanceName, importance));
 
         Bundle extras = new Bundle();
         extras.putString(Notification.EXTRA_SUBSTITUTE_APP_NAME,
                 context.getString(com.android.internal.R.string.android_system_label));
 
-        return new Notification.Builder(context, importanceId).addExtras(extras);
+        return new Notification.Builder(context, channelId).addExtras(extras);
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
+            details = "private constructor")
     private NotificationHelper() {
         throw new UnsupportedOperationException("Contains only static methods");
     }
