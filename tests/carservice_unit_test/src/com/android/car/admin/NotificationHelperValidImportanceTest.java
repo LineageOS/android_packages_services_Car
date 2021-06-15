@@ -62,7 +62,7 @@ public final class NotificationHelperValidImportanceTest {
     @Rule
     public final MockitoRule mMockitoRule = MockitoJUnit.rule();
 
-    private Context mRealContext = InstrumentationRegistry.getInstrumentation().getContext();
+    private final Context mRealContext = InstrumentationRegistry.getInstrumentation().getContext();
 
     private Context mSpiedContext;
 
