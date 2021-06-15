@@ -65,6 +65,34 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
         }
     }
 
+    @Test
+    public void testCreateUser() throws Exception {
+        UserInfo newUser = createUser("DaNewUserInTheBlock");
+        assertWithMessage("(%s).isGuest()", newUser.toFullString()).that(newUser.isGuest())
+                .isFalse();
+
+        assertWithMessage("user(%s).name", newUser.toFullString()).that(newUser.name)
+                .contains("DaNewUserInTheBlock");
+
+        // Make sure the user exists
+        UserInfo loadedUser = getUser(newUser.id);
+        assertUserInfo(newUser, loadedUser);
+    }
+
+    @Test
+    public void testCreateGuest() throws Exception {
+        UserInfo newGuest = createGuest("DaNewGuestInTheBlock");
+        assertWithMessage("(%s).isGuest()", newGuest.toFullString()).that(newGuest.isGuest())
+                .isTrue();
+
+        assertWithMessage("guest(%s).name ", newGuest.toFullString()).that(newGuest.name)
+                .contains("DaNewGuestInTheBlock");
+
+        // Make sure the guest exists
+        UserInfo loadedGuest = getUser(newGuest.id);
+        assertUserInfo(newGuest, loadedGuest);
+    }
+
     /**
      * Tests resume behavior when current user is ephemeral guest, a new guest user should be
      * created and switched to.

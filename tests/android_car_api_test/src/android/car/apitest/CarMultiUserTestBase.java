@@ -189,12 +189,22 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     @NonNull
     protected UserInfo createUser() throws Exception {
-        return createUser("NonGuest", /* isGuest= */ false);
+        return createUser("NonGuest");
+    }
+
+    @NonNull
+    protected UserInfo createUser(String name) throws Exception {
+        return createUser(name, /* isGuest= */ false);
     }
 
     @NonNull
     protected UserInfo createGuest() throws Exception {
-        return createUser("Guest", /* isGuest= */ true);
+        return createGuest("Guest");
+    }
+
+    @NonNull
+    protected UserInfo createGuest(String name) throws Exception {
+        return createUser(name, /* isGuest= */ true);
     }
 
     @NonNull
@@ -321,6 +331,18 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
         // (so invokeWithShellPermissions() would not be enough)
         runShellCommand("setprop %s %s", property, value);
         Log.v(TAG, "Set: " + SystemProperties.get(property));
+    }
+
+
+    protected void assertUserInfo(UserInfo actualUser, UserInfo expectedUser) {
+        assertWithMessage("Wrong id for user %s", actualUser.toFullString())
+                .that(actualUser.id).isEqualTo(expectedUser.id);
+        assertWithMessage("Wrong name for user %s", actualUser.toFullString())
+                .that(actualUser.name).isEqualTo(expectedUser.name);
+        assertWithMessage("Wrong type for user %s", actualUser.toFullString())
+                .that(actualUser.userType).isEqualTo(expectedUser.userType);
+        assertWithMessage("Wrong flags for user %s", actualUser.toFullString())
+                .that(actualUser.flags).isEqualTo(expectedUser.flags);
     }
 
     private static boolean isUserCreatedByTheseTests(UserInfo user) {
