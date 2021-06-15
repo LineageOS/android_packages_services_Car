@@ -16,7 +16,11 @@
 
 package com.android.car.internal.common;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.IntDef;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -28,6 +32,7 @@ import java.lang.annotation.RetentionPolicy;
  */
 public final class CommonConstants {
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private CommonConstants() {
         throw new UnsupportedOperationException("contains only static constants");
     }
