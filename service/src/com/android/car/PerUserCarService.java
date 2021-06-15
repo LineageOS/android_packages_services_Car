@@ -76,7 +76,7 @@ public class PerUserCarService extends Service {
 
         if (context.getPackageManager().hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
             mPerUserCarDevicePolicyService = PerUserCarDevicePolicyService.getInstance(context);
-            mPerUserCarDevicePolicyService.registerBroadcastReceiver();
+            mPerUserCarDevicePolicyService.onCreate();
         } else if (DBG) {
             Slogf.d(TAG, "Not setting PerUserCarDevicePolicyService because device doesn't have %s",
                     PackageManager.FEATURE_DEVICE_ADMIN);
