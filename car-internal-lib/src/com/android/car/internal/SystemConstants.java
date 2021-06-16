@@ -15,6 +15,10 @@
  */
 package com.android.car.internal;
 
+import static com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
+import com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport;
+
 /**
  * Provides common constants for CarService, CarServiceHelperService and other packages.
  */
@@ -22,6 +26,8 @@ public final class SystemConstants {
 
     public static final String ICAR_SYSTEM_SERVER_CLIENT = "ICarSystemServerClient";
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
+            details = "private constructor")
     private SystemConstants() {
         throw new UnsupportedOperationException("contains only static constants");
     }
