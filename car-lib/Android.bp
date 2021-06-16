@@ -86,7 +86,8 @@ java_library {
     srcs: [
         "src/com/android/car/internal/common/**/*.java",
         "src/com/android/car/internal/common/EventLogTags.logtags",
-    ]
+        "src/com/android/car/internal/ExcludeFromCodeCoverageGeneratedReport.java",
+    ],
 }
 
 java_library {
