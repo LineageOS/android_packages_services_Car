@@ -50,9 +50,13 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import android.os.Process;
+import android.os.RemoteException;
+import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
@@ -73,9 +77,13 @@ import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import com.google.android.collect.Sets;
 
+import java.io.BufferedReader;
+import java.io.FileReader;
+import java.io.IOException;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -96,12 +104,14 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private static final String PACKAGE_DELIMITER = ",";
     private static final String PACKAGE_ACTIVITY_DELIMITER = "/";
     private static final int LOG_SIZE = 20;
+    private static final String[] WINDOW_DUMP_ARGUMENTS = new String[]{"windows"};
 
     private final Context mContext;
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
     private final PackageManager mPackageManager;
     private final ActivityManager mActivityManager;
     private final DisplayManager mDisplayManager;
+    private final IBinder mWindowManagerBinder;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
             getClass().getSimpleName());
@@ -142,6 +152,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
     private boolean mEnableActivityBlocking;
     private final ComponentName mActivityBlockingActivity;
+    private final boolean mPreventTemplatedAppsFromShowingDialog;
+    private final String mTemplateActivityClassName;
 
     private final ActivityLaunchListener mActivityLaunchListener = new ActivityLaunchListener();
 
@@ -204,6 +216,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mPackageManager = mContext.getPackageManager();
         mActivityManager = mContext.getSystemService(ActivityManager.class);
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
+        mWindowManagerBinder = ServiceManager.getService(Context.WINDOW_SERVICE);
         Resources res = context.getResources();
         mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);
         String blockingActivity = res.getString(R.string.activityBlockingActivity);
@@ -212,6 +225,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
                 res.getStringArray(R.array.allowedAppInstallSources));
         mVendorServiceController = new VendorServiceController(
                 mContext, mHandler.getLooper());
+        mPreventTemplatedAppsFromShowingDialog =
+                res.getBoolean(R.bool.config_preventTemplatedAppsFromShowingDialog);
+        mTemplateActivityClassName = res.getString(R.string.config_template_activity_class_name);
     }
 
 
@@ -997,6 +1013,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         synchronized (mLock) {
             writer.println("*CarPackageManagerService*");
             writer.println("mEnableActivityBlocking:" + mEnableActivityBlocking);
+            writer.println("mPreventTemplatedAppsFromShowingDialog"
+                    + mPreventTemplatedAppsFromShowingDialog);
+            writer.println("mTemplateActivityClassName" + mTemplateActivityClassName);
             List<String> restrictions = new ArrayList<>(mUxRestrictionsListeners.size());
             for (int i = 0; i < mUxRestrictionsListeners.size(); i++) {
                 int displayId = mUxRestrictionsListeners.keyAt(i);
@@ -1111,10 +1130,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (topTask.topActivity == null) {
             return;
         }
-
-        boolean allowed = isActivityDistractionOptimized(
-                topTask.topActivity.getPackageName(),
-                topTask.topActivity.getClassName());
+        boolean allowed = isActivityAllowed(topTask.topActivity);
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slog.d(TAG, "new activity:" + topTask.toString() + " allowed:" + allowed);
         }
@@ -1166,6 +1182,67 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         mBlockedActivityLogs.log(log);
         mSystemActivityMonitoringService.blockActivity(topTask, newActivityIntent);
+    }
+
+    private boolean isActivityAllowed(ComponentName activityName) {
+        boolean isDistractionOptimized = isActivityDistractionOptimized(
+                activityName.getPackageName(),
+                activityName.getClassName());
+        if (!isDistractionOptimized) {
+            return false;
+        }
+        return !(mPreventTemplatedAppsFromShowingDialog
+                && isTemplateActivity(activityName)
+                && isAppShowingADialog(activityName.getPackageName()));
+    }
+
+    private boolean isTemplateActivity(ComponentName activityName) {
+        // TODO(b/191263486): Finalise on how to detect the templated activities.
+        return activityName.getClassName().equals(mTemplateActivityClassName);
+    }
+
+    private boolean isAppShowingADialog(String activityPackageName) {
+        String output = dumpWindows();
+        List<WindowDumpParser.Window> appWindows =
+                WindowDumpParser.getParsedAppWindows(output, activityPackageName);
+        // TODO(b/192354699): Handle case where an activity can have multiple instances.
+        Map<String, Integer> appWindowsPerDisplay = new HashMap<>();
+        for (int i = 0; i < appWindows.size(); i++) {
+            WindowDumpParser.Window window = appWindows.get(i);
+            appWindowsPerDisplay.put(
+                    window.getDisplayId(),
+                    appWindowsPerDisplay.getOrDefault(window.getDisplayId(), 0) + 1);
+
+        }
+        Slogf.d(TAG, "Top activity package name =  " + activityPackageName);
+        Slogf.d(TAG, "Number of app widows per display = " + appWindowsPerDisplay);
+        for (Integer numberOfWindows : appWindowsPerDisplay.values()) {
+            if (numberOfWindows.intValue() > 1) {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private String dumpWindows() {
+        try {
+            ParcelFileDescriptor[] fileDescriptors = ParcelFileDescriptor.createSocketPair();
+            mWindowManagerBinder.dump(
+                    fileDescriptors[0].getFileDescriptor(), WINDOW_DUMP_ARGUMENTS);
+            fileDescriptors[0].close();
+            StringBuilder outputBuilder = new StringBuilder();
+            BufferedReader reader = new BufferedReader(
+                    new FileReader(fileDescriptors[1].getFileDescriptor()));
+            String line;
+            while ((line = reader.readLine()) != null) {
+                outputBuilder.append(line).append("\n");
+            }
+            reader.close();
+            fileDescriptors[1].close();
+            return outputBuilder.toString();
+        } catch (IOException | RemoteException e) {
+            throw new RuntimeException(e);
+        }
     }
 
     /**
@@ -1460,6 +1537,15 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             // a revisit as we test more.
             return false;
         }
+    }
+
+    /**
+     * Called when a window change event is received by the {@link CarSafetyAccessibilityService}.
+     */
+    @VisibleForTesting
+    void onWindowChangeEvent() {
+        Slogf.d(TAG, "onWindowChange event received");
+        mHandlerThread.getThreadHandler().post(() -> blockTopActivitiesIfNecessary());
     }
 
     /**

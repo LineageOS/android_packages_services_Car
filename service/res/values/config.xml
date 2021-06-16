@@ -422,4 +422,14 @@
     <!-- A configuration flag to adjust Wifi for suspend. -->
     <bool name="config_wifiAdjustmentForSuspend">false</bool>
 
+    <!-- A configuration flag to prevent the templated apps from showing dialogs. This is done in
+         the view of driver safety as templated apps can potentially show a dialog with custom UI
+         which can be a distraction hazard for the driver. -->
+    <bool name="config_preventTemplatedAppsFromShowingDialog">false</bool>
+
+    <!-- The class name of the templated activities. This is used to detect currently running
+         templated activity.-->
+    <string name="config_template_activity_class_name">
+        androidx.car.app.activity.CarAppActivity
+    </string>
 </resources>
