@@ -54,27 +54,10 @@ public class CarService extends Service {
 
     private static final boolean IS_USER_BUILD = "user".equals(Build.TYPE);
 
-    private CanBusErrorNotifier mCanBusErrorNotifier;
     private ICarImpl mICarImpl;
     private IVehicle mVehicle;
 
     private String mVehicleInterfaceName;
-
-    // If 10 crashes of Vehicle HAL occurred within 10 minutes then thrown an exception in
-    // Car Service.
-    private final CrashTracker mVhalCrashTracker = new CrashTracker(
-            10,  // Max crash count.
-            10 * 60 * 1000,  // 10 minutes - sliding time window.
-            () -> {
-                if (IS_USER_BUILD) {
-                    Slog.e(CarLog.TAG_SERVICE, "Vehicle HAL keeps crashing, notifying user...");
-                    mCanBusErrorNotifier.reportFailure(CarService.this);
-                } else {
-                    throw new RuntimeException(
-                            "Vehicle HAL crashed too many times in a given time frame");
-                }
-            }
-    );
 
     private final VehicleDeathRecipient mVehicleDeathRecipient = new VehicleDeathRecipient();
 
@@ -83,8 +66,6 @@ public class CarService extends Service {
         LimitedTimingsTraceLog initTiming = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
                 Trace.TRACE_TAG_SYSTEM_SERVER, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         initTiming.traceBegin("CarService.onCreate");
-
-        mCanBusErrorNotifier = new CanBusErrorNotifier(this /* context */);
 
         initTiming.traceBegin("getVehicle");
         mVehicle = getVehicle();
@@ -107,7 +88,6 @@ public class CarService extends Service {
         mICarImpl = new ICarImpl(this,
                 mVehicle,
                 SystemInterface.Builder.defaultSystemInterface(this).build(),
-                mCanBusErrorNotifier,
                 mVehicleInterfaceName);
         mICarImpl.init();
 
@@ -129,7 +109,6 @@ public class CarService extends Service {
         EventLog.writeEvent(EventLogTags.CAR_SERVICE_CREATE, mVehicle == null ? 0 : 1);
         Slog.i(CarLog.TAG_SERVICE, "Service onDestroy");
         mICarImpl.release();
-        mCanBusErrorNotifier.removeFailureReport(this);
 
         if (mVehicle != null) {
             try {
@@ -176,10 +155,6 @@ public class CarService extends Service {
             vehicle = getVehicle();
         }
 
-        if (vehicle != null) {
-            mCanBusErrorNotifier.removeFailureReport(this);
-        }
-
         return vehicle;
     }
 
@@ -202,34 +177,8 @@ public class CarService extends Service {
         @Override
         public void serviceDied(long cookie) {
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_VHAL_DIED, cookie);
-            if (RESTART_CAR_SERVICE_WHEN_VHAL_CRASH) {
-                Slog.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
-                Process.killProcess(Process.myPid());
-                return;
-            }
-
-            Slog.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died.***");
-
-            try {
-                mVehicle.unlinkToDeath(this);
-            } catch (RemoteException e) {
-                Slog.e(CarLog.TAG_SERVICE, "Failed to unlinkToDeath", e); // Log and continue.
-            }
-            mVehicle = null;
-
-            mVhalCrashTracker.crashDetected();
-
-            Slog.i(CarLog.TAG_SERVICE,
-                    "Trying to reconnect to Vehicle HAL: " + mVehicleInterfaceName);
-            mVehicle = getVehicleWithTimeout(WAIT_FOR_VEHICLE_HAL_TIMEOUT_MS);
-            if (mVehicle == null) {
-                throw new IllegalStateException("Failed to reconnect to Vehicle HAL");
-            }
-
-            linkToDeath(mVehicle, this);
-
-            Slog.i(CarLog.TAG_SERVICE, "Notifying car service Vehicle HAL reconnected...");
-            mICarImpl.vehicleHalReconnected(mVehicle);
+            Slog.wtf(CarLog.TAG_SERVICE, "***Vehicle HAL died. Car service will restart***");
+            Process.killProcess(Process.myPid());
         }
     }
 
