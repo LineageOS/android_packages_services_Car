@@ -35,6 +35,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
+import android.util.Slog;
 import android.util.SparseArray;
 import android.view.InputDevice;
 import android.view.KeyEvent;
@@ -239,14 +240,24 @@ public class InputHalService extends HalServiceBase {
     }
 
     private void dispatchKeyInput(InputListener listener, VehiclePropValue value) {
-        int action = (value.value.int32Values.get(0) == VehicleHwKeyInputAction.ACTION_DOWN)
-                ? KeyEvent.ACTION_DOWN
-                : KeyEvent.ACTION_UP;
-        int code = value.value.int32Values.get(1);
-        int vehicleDisplay = value.value.int32Values.get(2);
-        int indentsCount = value.value.int32Values.size() < 4 ? 1 : value.value.int32Values.get(3);
-        Slogf.d(TAG, "hal event code: %d, action: %d, display: %d, number of indents: %d",
-                code, action, vehicleDisplay, indentsCount);
+        int action;
+        int code;
+        int vehicleDisplay;
+        int indentsCount;
+        List<Integer> int32Values = value.value.int32Values;
+        try {
+            action = (int32Values.get(0) == VehicleHwKeyInputAction.ACTION_DOWN)
+                    ? KeyEvent.ACTION_DOWN
+                    : KeyEvent.ACTION_UP;
+            code = int32Values.get(1);
+            vehicleDisplay = int32Values.get(2);
+            indentsCount = int32Values.size() < 4 ? 1 : int32Values.get(3);
+            Slogf.d(TAG, "hal event code: %d, action: %d, display: %d, number of indents: %d",
+                    code, action, vehicleDisplay, indentsCount);
+        } catch (IndexOutOfBoundsException e) {
+            Slog.e(TAG, "Invalid hal key input event received, int32Values: " + int32Values, e);
+            return;
+        }
         while (indentsCount > 0) {
             indentsCount--;
             dispatchKeyEvent(listener, action, code, convertDisplayType(vehicleDisplay));
@@ -271,6 +282,10 @@ public class InputHalService extends HalServiceBase {
         if (detentCount == 0) { // at least there should be one event
             Slogf.e(TAG, "Zero detentCount from vhal, ignore the event");
             return;
+        }
+        // If count is Integer.MIN_VALUE, Math.abs(count) < 0.
+        if (detentCount < 0 || detentCount > Integer.MAX_VALUE - detentCount + 1) {
+            Slogf.e(TAG, "Invalid detentCount from vhal: %d, ignore the event", detentCount);
         }
         if (vehicleDisplay != VehicleDisplay.MAIN
                 && vehicleDisplay != VehicleDisplay.INSTRUMENT_CLUSTER) {
@@ -378,9 +393,17 @@ public class InputHalService extends HalServiceBase {
     private void dispatchCustomInput(InputListener listener, VehiclePropValue value) {
         Slogf.d(TAG, "Dispatching CustomInputEvent for listener: %d and value: %d",
                 listener, value);
-        int inputCode = value.value.int32Values.get(0);
-        int targetDisplayType = convertDisplayType(value.value.int32Values.get(1));
-        int repeatCounter = value.value.int32Values.get(2);
+        int inputCode;
+        int targetDisplayType;
+        int repeatCounter;
+        try {
+            inputCode = value.value.int32Values.get(0);
+            targetDisplayType = convertDisplayType(value.value.int32Values.get(1));
+            repeatCounter = value.value.int32Values.get(2);
+        } catch (IndexOutOfBoundsException e) {
+            Slog.e(TAG, "Invalid hal custom input event received", e);
+            return;
+        }
 
         if (inputCode < CUSTOM_EVENT_F1 || inputCode > CUSTOM_EVENT_F10) {
             Slogf.e(TAG, "Unknown custom input code: %d", inputCode);
