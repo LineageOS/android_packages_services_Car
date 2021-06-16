@@ -16,6 +16,7 @@
 <manifest version="1.0" type="framework">
     <hal format="aidl">
         <name>android.automotive.watchdog</name>
+        <version>3</version>
         <interface>
             <name>ICarWatchdog</name>
             <instance>default</instance>
