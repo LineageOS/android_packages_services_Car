@@ -28,5 +28,6 @@ java_library {
         "src/com/android/car/internal/SystemConstants.java",
         "src/com/android/car/internal/ICarServiceHelper.aidl",
         "src/com/android/car/internal/ICarSystemServerClient.aidl",
+        "src/com/android/car/internal/testing/ExcludeFromCodeCoverageGeneratedReport.java",
     ],
 }
