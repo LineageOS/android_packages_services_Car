@@ -439,8 +439,17 @@ public class PowerHalService extends HalServiceBase {
                     // Ignore this property event. It was generated inside of CarService.
                     break;
                 case AP_POWER_STATE_REQ:
-                    int state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
-                    int param = v.value.int32Values.get(VehicleApPowerStateReqIndex.ADDITIONAL);
+                    int state;
+                    int param;
+                    try {
+                        state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
+                        param = v.value.int32Values.get(VehicleApPowerStateReqIndex.ADDITIONAL);
+                    } catch (IndexOutOfBoundsException e) {
+                        Slog.e(CarLog.TAG_POWER,
+                                "Received invalid event, ignore, int32Values: "
+                                + v.value.int32Values, e);
+                        break;
+                    }
                     Slog.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ="
                             + powerStateReqName(state) + " param=" + param);
                     listener.onApPowerStateChange(new PowerState(state, param));
@@ -451,20 +460,28 @@ public class PowerHalService extends HalServiceBase {
                     synchronized (mLock) {
                         maxBrightness = mMaxDisplayBrightness;
                     }
-                    int brightness = v.value.int32Values.get(0) * MAX_BRIGHTNESS / maxBrightness;
+                    int brightness;
+                    try {
+                        brightness = v.value.int32Values.get(0) * MAX_BRIGHTNESS / maxBrightness;
+                    } catch (IndexOutOfBoundsException e) {
+                        Slog.e(CarLog.TAG_POWER,
+                                "Received invalid event, ignore, int32Values: "
+                                + v.value.int32Values, e);
+                        break;
+                    }
                     if (brightness < 0) {
                         Slog.e(CarLog.TAG_POWER, "invalid brightness: " + brightness
                                 + ", set to 0");
                         brightness = 0;
                     } else if (brightness > MAX_BRIGHTNESS) {
-                        Slog.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to "
-                                + MAX_BRIGHTNESS);
+                        Slog.e(CarLog.TAG_POWER, "invalid brightness: "
+                                + brightness + ", set to " + MAX_BRIGHTNESS);
                         brightness = MAX_BRIGHTNESS;
                     }
                     Slog.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
                     listener.onDisplayBrightnessChange(brightness);
-                }
                     break;
+                }
             }
         }
     }
