@@ -98,9 +98,11 @@ public final class GarageModeTest {
         ArrayList<Integer> userToStartInBackground = new ArrayList<>(Arrays.asList(101, 102, 103));
         when(mCarUserService.startAllBackgroundUsersInGarageMode())
                 .thenReturn(userToStartInBackground);
-        mGarageMode.enterGarageMode(/* future= */ null);
+
         CountDownLatch latch = new CountDownLatch(3); // 3 for three users
         mockCarUserServiceStopUserCall(getEventListener(), latch);
+
+        mGarageMode.enterGarageMode(/* future= */ null);
 
         mGarageMode.cancel();
 
