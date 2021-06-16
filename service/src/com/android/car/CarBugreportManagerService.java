@@ -42,6 +42,7 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
 import java.io.DataInputStream;
@@ -86,6 +87,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     private static final int SOCKET_CONNECTION_RETRY_DELAY_IN_MS = 5000;
 
     private final Context mContext;
+    private final boolean mIsUserBuild;
     private final Object mLock = new Object();
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -100,7 +102,14 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
      * @param context the context
      */
     public CarBugreportManagerService(Context context) {
+        // Per https://source.android.com/setup/develop/new-device, user builds are debuggable=0
+        this(context, !Build.IS_DEBUGGABLE);
+    }
+
+    @VisibleForTesting
+    CarBugreportManagerService(Context context, boolean isUserBuild) {
         mContext = context;
+        mIsUserBuild = isUserBuild;
     }
 
     @Override
@@ -186,8 +195,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
 
     /** Checks only on user builds. */
     private void ensureTheCallerIsDesignatedBugReportApp() {
-        if (Build.IS_DEBUGGABLE) {
-            // Per https://source.android.com/setup/develop/new-device, user builds are debuggable=0
+        if (!mIsUserBuild) {
             return;
         }
         String defaultAppPkgName = mContext.getString(R.string.config_car_bugreport_application);
