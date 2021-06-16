@@ -163,20 +163,27 @@ public class EvsHalService extends HalServiceBase {
         for (int i = 0; i < values.size(); ++i) {
             VehiclePropValue v = values.get(i);
             boolean on = false;
+            @CarEvsServiceType int type;
             switch (v.prop) {
                 case EVS_SERVICE_REQUEST:
                     // Sees
                     // android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVICE_REQUEST
-                    int rawServiceType =
-                            v.value.int32Values.get(EvsServiceRequestIndex.TYPE);
-                    @CarEvsServiceType int type = rawServiceType == EvsServiceType.REARVIEW ?
-                            SERVICE_TYPE_REARVIEW : SERVICE_TYPE_SURROUNDVIEW;
-                    on = v.value.int32Values.get(
-                            EvsServiceRequestIndex.STATE) == EvsServiceState.ON;
-                    if (DBG) {
-                        Slog.d(TAG, "Received EVS_SERVICE_REQUEST: type = " + type + " on = " + on);
+                    try {
+                        int rawServiceType =
+                                v.value.int32Values.get(EvsServiceRequestIndex.TYPE);
+                        type = rawServiceType == EvsServiceType.REARVIEW
+                                ? SERVICE_TYPE_REARVIEW : SERVICE_TYPE_SURROUNDVIEW;
+                        on = v.value.int32Values.get(
+                                EvsServiceRequestIndex.STATE) == EvsServiceState.ON;
+                        if (DBG) {
+                            Slog.d(TAG,
+                                    "Received EVS_SERVICE_REQUEST: type = " + type + " on = " + on);
+                        }
+                    } catch (IndexOutOfBoundsException e) {
+                        Slog.e(TAG, "Received invalid EVS_SERVICE_REQUEST, missing type or state,"
+                                + " int32Values: " + v.value.int32Values);
+                        break;
                     }
-
                     listener.onEvent(type, on);
                     break;
 
