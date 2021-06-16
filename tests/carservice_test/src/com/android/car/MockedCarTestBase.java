@@ -232,7 +232,7 @@ public class MockedCarTestBase {
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
         mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
-                /* errorNotifier= */ null , "MockedCar", mCarUserService, mCarWatchdogService,
+                "MockedCar", mCarUserService, mCarWatchdogService,
                 mPowerPolicyDaemon);
 
         spyOnBeforeCarImplInit();
