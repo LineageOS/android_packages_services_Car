@@ -859,10 +859,10 @@
          android:description="@string/car_permission_desc_set_car_vendor_category_10"/>
 
     <!-- Allows an application to receive Car input events.
-         <p>Protection level: signature
+         <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CAR_MONITOR_INPUT"
-                android:protectionLevel="signature"
+                android:protectionLevel="signature|privileged"
                 android:label="@string/car_permission_label_monitor_input"
                 android:description="@string/car_permission_desc_monitor_input"/>
 
