@@ -90,6 +90,7 @@ import android.view.KeyEvent;
 
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
+import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
@@ -178,6 +179,9 @@ final class CarShellCommand extends ShellCommand {
     private static final String DRIVING_STATE_DRIVE = "drive";
     private static final String DRIVING_STATE_PARK = "park";
     private static final String DRIVING_STATE_REVERSE = "reverse";
+
+    private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
+    private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -336,6 +340,7 @@ final class CarShellCommand extends ShellCommand {
     private final GarageModeService mGarageModeService;
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
+    private final CarEvsService mCarEvsService;
     private long mKeyDownTime;
 
     CarShellCommand(Context context,
@@ -351,7 +356,8 @@ final class CarShellCommand extends ShellCommand {
             SystemInterface systemInterface,
             GarageModeService garageModeService,
             CarUserService carUserService,
-            CarOccupantZoneService carOccupantZoneService) {
+            CarOccupantZoneService carOccupantZoneService,
+            CarEvsService carEvsService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -366,6 +372,7 @@ final class CarShellCommand extends ShellCommand {
         mGarageModeService = garageModeService;
         mCarUserService = carUserService;
         mCarOccupantZoneService = carOccupantZoneService;
+        mCarEvsService = carEvsService;
     }
 
     @Override
@@ -566,6 +573,15 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
                 POWER_OFF_SHUTDOWN);
         pw.println("\t  Powers off the car.");
+
+        pw.printf("\t%s <CAMERA_ID>\n", COMMAND_SET_REARVIEW_CAMERA_ID);
+        pw.println("\t  Configures a target camera device CarEvsService to use.");
+        pw.println("\t  If CAMEAR_ID is \"default\", this command will configure CarEvsService ");
+        pw.println("\t  to use its default camera device.");
+
+        pw.printf("\t%s\n", COMMAND_GET_REARVIEW_CAMERA_ID);
+        pw.println("\t  Gets the name of the camera device CarEvsService is using for " +
+                "the rearview.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -881,6 +897,12 @@ final class CarShellCommand extends ShellCommand {
                 return setPowerPolicyGroup(args, writer);
             case COMMAND_POWER_OFF:
                 powerOff(args, writer);
+                break;
+            case COMMAND_SET_REARVIEW_CAMERA_ID:
+                setRearviewCameraId(args, writer);
+                break;
+            case COMMAND_GET_REARVIEW_CAMERA_ID:
+                getRearviewCameraId(writer);
                 break;
 
             default:
@@ -2030,6 +2052,25 @@ final class CarShellCommand extends ShellCommand {
             showHelp(writer);
         }
 
+    }
+
+    // Set a target camera device for the rearview
+    private void setRearviewCameraId(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+
+        if (!mCarEvsService.setRearviewCameraIdFromCommand(args[1])) {
+            writer.println("Failed to set CarEvsService rearview camera device id.");
+        } else {
+            writer.printf("CarEvsService is set to use %s.\n", args[1]);
+        }
+    }
+
+    private void getRearviewCameraId(IndentingPrintWriter writer) {
+        writer.printf("CarEvsService is using %s for the rearview.\n",
+                mCarEvsService.getRearviewCameraIdFromCommand());
     }
 
     // Check if the given property is global
