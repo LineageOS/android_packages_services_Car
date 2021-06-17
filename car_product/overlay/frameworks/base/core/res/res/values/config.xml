@@ -22,6 +22,8 @@
 <resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <!-- Enable multi-user. -->
     <bool name="config_enableMultiUserUI">true</bool>
+    <!--  Maximum number of supported users -->
+    <integer name="config_multiuserMaximumUsers">4</integer>
     <!-- Maximum number of users we allow to be running at a time.
          For automotive, background user will be immediately stopped upon user switching but
          up to this many users can be running in garage mode.
