@@ -17,6 +17,8 @@ package com.android.car.user;
 
 import static android.car.userlib.UserHalHelper.userFlagsToString;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -39,6 +41,7 @@ import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -663,6 +666,7 @@ final class InitialUserSetter {
     /**
      * Dumps it state.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(@NonNull PrintWriter writer) {
         writer.println("InitialUserSetter");
         String indent = "  ";
