@@ -119,8 +119,13 @@ bool EvsServiceContext::openCamera(const char* id) {
     }
 
     if (isCameraOpened()) {
-        LOG(DEBUG) << "Camera " << id << " is has opened already.";
-        return true;
+        if (!strcmp(id, mCameraIdInUse)) {
+            LOG(DEBUG) << "Camera " << id << " is has opened already.";
+            return true;
+        } else {
+            // Close a current camera device.
+            mService->closeCamera(mCamera);
+        }
     }
 
     sp<IEvsCamera> camera = IEvsCamera::castFrom(mService->openCamera(id));
@@ -140,6 +145,7 @@ bool EvsServiceContext::openCamera(const char* id) {
         std::lock_guard<std::mutex> lock(mLock);
         mCamera = camera;
         mStreamHandler = streamHandler;
+        mCameraIdInUse = id;
     }
 
     return true;

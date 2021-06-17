@@ -169,6 +169,9 @@ private:
     // Bookkeeps descriptors of received frame buffers.
     std::map<int, hardware::automotive::evs::V1_1::BufferDesc> mBufferRecords GUARDED_BY(mLock);
 
+    // A name of the camera device currently in use.
+    const char* mCameraIdInUse;
+
     // Service name for EVS enumerator
     static const char* kServiceName;
 
