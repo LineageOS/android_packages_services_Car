@@ -17,6 +17,7 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
+import static android.car.input.CustomInputEvent.INPUT_CODE_F1;
 
 import static com.android.compatibility.common.util.SystemUtil.eventually;
 
@@ -36,6 +37,7 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.ignoreStubs;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -44,6 +46,10 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
+import android.car.input.CarInputManager;
+import android.car.input.CustomInputEvent;
+import android.car.input.ICarInputCallback;
+import android.car.input.RotaryEvent;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -57,7 +63,6 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
-import android.view.Display;
 import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
@@ -68,6 +73,7 @@ import com.android.internal.app.AssistUtils;
 
 import com.google.common.collect.Range;
 
+import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -118,6 +124,108 @@ public class CarInputServiceTest {
         doReturn(true).when(mHandler).sendMessageAtTime(any(), anyLong());
 
         when(mShouldCallButtonEndOngoingCallSupplier.getAsBoolean()).thenReturn(false);
+    }
+
+    @After
+    public void tearDown() {
+        if (mCarInputService != null) {
+            mCarInputService.release();
+        }
+    }
+
+    @Test
+    public void testOnRotaryEvent_injectingRotaryNavigationEvent() {
+        RotaryEvent event = new RotaryEvent(
+                /* inputType= */ CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
+                /* clockwise= */ true,
+                /* uptimeMillisForClicks= */ new long[]{1, 1});
+        when(mCaptureController.onRotaryEvent(
+                same(CarOccupantZoneManager.DISPLAY_TYPE_MAIN), same(event))).thenReturn(true);
+        when(mCaptureController.onKeyEvent(anyInt(), any(KeyEvent.class))).thenReturn(true);
+
+        mCarInputService.onRotaryEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        // Since mCaptureController processed RotaryEvent, then no KeyEvent was generated or
+        // processed
+        verify(mCarOccupantZoneService, never()).getDisplayIdForDriver(anyInt());
+        verify(mCaptureController, never()).onKeyEvent(anyInt(), any(KeyEvent.class));
+        verify(mDefaultMainListener, never()).onKeyEvent(any(KeyEvent.class));
+    }
+
+    @Test
+    public void testOnRotaryEvent_injectingRotaryVolumeEvent() {
+        RotaryEvent event = new RotaryEvent(
+                /* inputType= */ CarInputManager.INPUT_TYPE_ROTARY_VOLUME,
+                /* clockwise= */ true,
+                /* uptimeMillisForClicks= */ new long[]{1, 1});
+        when(mCaptureController.onRotaryEvent(
+                same(CarOccupantZoneManager.DISPLAY_TYPE_MAIN), same(event))).thenReturn(false);
+        when(mCaptureController.onKeyEvent(anyInt(), any(KeyEvent.class))).thenReturn(true);
+
+        mCarInputService.onRotaryEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        // Since mCaptureController processed RotaryEvent, then KeyEvent was generated or
+        // processed
+        int numberOfGeneratedKeyEvents = 4;
+        verify(mCarOccupantZoneService, times(numberOfGeneratedKeyEvents)).getDisplayIdForDriver(
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
+        verify(mCaptureController, times(numberOfGeneratedKeyEvents)).onKeyEvent(anyInt(),
+                any(KeyEvent.class));
+        verify(mDefaultMainListener, never()).onKeyEvent(any(KeyEvent.class));
+    }
+
+    @Test
+    public void testOnRotaryEvent_injectingRotaryNavigation_notConsumedByCaptureController() {
+        RotaryEvent event = new RotaryEvent(
+                /* inputType= */ CarInputManager.INPUT_TYPE_ROTARY_NAVIGATION,
+                /* clockwise= */ true,
+                /* uptimeMillisForClicks= */ new long[]{1, 1});
+        when(mCaptureController.onRotaryEvent(
+                same(CarOccupantZoneManager.DISPLAY_TYPE_MAIN), same(event))).thenReturn(false);
+
+        mCarInputService.onRotaryEvent(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        // Since mCaptureController processed RotaryEvent, then KeyEvent was generated or
+        // processed
+        int numberOfGeneratedKeyEvents = 4;
+        verify(mCarOccupantZoneService, times(numberOfGeneratedKeyEvents)).getDisplayIdForDriver(
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
+        verify(mCaptureController, times(numberOfGeneratedKeyEvents)).onKeyEvent(anyInt(),
+                any(KeyEvent.class));
+        verify(mDefaultMainListener, times(numberOfGeneratedKeyEvents)).onKeyEvent(
+                any(KeyEvent.class));
+    }
+
+    @Test
+    public void testRequestInputEventCapture_delegatesToCaptureController() {
+        ICarInputCallback callback = mock(ICarInputCallback.class);
+        int[] inputTypes = new int[]{CarInputManager.INPUT_TYPE_CUSTOM_INPUT_EVENT};
+        int requestFlags = CarInputManager.CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT;
+        mCarInputService.requestInputEventCapture(callback,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN, inputTypes, requestFlags);
+
+        verify(mCaptureController).requestInputEventCapture(same(callback),
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN), same(inputTypes), eq(requestFlags));
+    }
+
+    @Test
+    public void testOnCustomInputEvent_delegatesToCaptureController() {
+        CustomInputEvent event = new CustomInputEvent(INPUT_CODE_F1,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN, /* repeatCounter= */ 1);
+
+        mCarInputService.onCustomInputEvent(event);
+
+        verify(mCaptureController).onCustomInputEvent(same(event));
+    }
+
+    @Test
+    public void testReleaseInputEventCapture_delegatesToCaptureController() {
+        ICarInputCallback callback = mock(ICarInputCallback.class);
+        mCarInputService.releaseInputEventCapture(callback,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        verify(mCaptureController).releaseInputEventCapture(same(callback),
+                eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
     }
 
     @Test
@@ -570,7 +678,6 @@ public class CarInputServiceTest {
         KeyEvent event = new KeyEvent(/* downTime= */ currentTime,
                 /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER,
                 /* repeat= */ 0);
-
         event.setDisplayId(android.view.Display.INVALID_DISPLAY);
 
         injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
@@ -585,7 +692,7 @@ public class CarInputServiceTest {
         KeyEvent event = new KeyEvent(/* downTime= */ currentTime,
                 /* eventTime= */ currentTime, KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER,
                 /* repeat= */ 0);
-        event.setDisplayId(android.view.Display.DEFAULT_DISPLAY);
+        event.setDisplayId(android.view.Display.INVALID_DISPLAY);
 
         injectKeyEventAndVerify(event, CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
 
@@ -594,20 +701,17 @@ public class CarInputServiceTest {
     }
 
     private void injectKeyEventAndVerify(KeyEvent event, @DisplayTypeEnum int displayType) {
-        // Arrange
         doReturn(PackageManager.PERMISSION_GRANTED).when(mContext).checkCallingOrSelfPermission(
                 android.Manifest.permission.INJECT_EVENTS);
-
         int someDisplayId = Integer.MAX_VALUE;
         when(mCarOccupantZoneService.getDisplayIdForDriver(anyInt())).thenReturn(someDisplayId);
-
         assertThat(event.getDisplayId()).isNotEqualTo(someDisplayId);
 
-        // Act
         mCarInputService.injectKeyEvent(event, displayType);
 
-        // Assert display id was updated as expected
-        assertThat(event.getDisplayId()).isEqualTo(someDisplayId);
+        verify(mCarOccupantZoneService).getDisplayIdForDriver(displayType);
+        assertWithMessage("Event's display id not updated as expected").that(
+                event.getDisplayId()).isEqualTo(someDisplayId);
     }
 
     @Test
