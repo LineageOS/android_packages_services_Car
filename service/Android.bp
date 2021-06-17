@@ -106,6 +106,10 @@ java_library {
         "src/com/android/car/Utils.java",
     ],
 
+    static_libs: [
+        "com.android.car.internal.common",
+    ],
+
     product_variables: {
             pdk: {
                 enabled: false,
