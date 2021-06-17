@@ -16,6 +16,7 @@
 package com.android.car.admin;
 
 import static com.android.car.admin.CarDevicePolicyService.DEBUG;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
 import android.app.admin.DevicePolicyManager;
@@ -28,12 +29,14 @@ import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLog;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.Objects;
 
-// TODO(b/175057848) add unit tests
 /**
  * User-specific {@code CarDevicePolicyManagerService}.
  */
@@ -92,6 +95,8 @@ public final class PerUserCarDevicePolicyService {
      * Gests the singleton instance, creating it if necessary.
      */
     public static PerUserCarDevicePolicyService getInstance(Context context) {
+        Objects.requireNonNull(context, "context cannot be null");
+
         synchronized (SLOCK) {
             if (sInstance == null) {
                 sInstance = new PerUserCarDevicePolicyService(context.getApplicationContext());
@@ -102,14 +107,15 @@ public final class PerUserCarDevicePolicyService {
         }
     }
 
-    private PerUserCarDevicePolicyService(Context context) {
+    @VisibleForTesting
+    PerUserCarDevicePolicyService(Context context) {
         mContext = context;
     }
 
     /**
-     * Register a broadcast receiver to receive the proper events.
+     * Callback for when the service is created.
      */
-    public void registerBroadcastReceiver() {
+    public void onCreate() {
         if (DEBUG) Slog.d(TAG, "registering BroadcastReceiver");
 
         mContext.registerReceiver(mBroadcastReceiver, new IntentFilter(
@@ -130,6 +136,7 @@ public final class PerUserCarDevicePolicyService {
     /**
      * Dump its contents.
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter pw) {
         synchronized (SLOCK) {
             pw.printf("mNewUserDisclaimerStatus: %s\n",
@@ -166,7 +173,16 @@ public final class PerUserCarDevicePolicyService {
         }
     }
 
-    private String newUserDisclaimerStatusToString(@NewUserDisclaimerStatus int status) {
+    @VisibleForTesting
+    @NewUserDisclaimerStatus
+    int getNewUserDisclaimerStatus() {
+        synchronized (SLOCK) {
+            return mNewUserDisclaimerStatus;
+        }
+    }
+
+    @VisibleForTesting
+    static String newUserDisclaimerStatusToString(@NewUserDisclaimerStatus int status) {
         return DebugUtils.constantToString(PerUserCarDevicePolicyService.class,
                 PREFIX_NEW_USER_DISCLAIMER_STATUS, status);
     }

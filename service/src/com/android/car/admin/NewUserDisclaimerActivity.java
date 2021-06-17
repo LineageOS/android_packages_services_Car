@@ -30,6 +30,7 @@ import android.widget.Button;
 import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.car.admin.ui.ManagedDeviceTextView;
+import com.android.internal.annotations.VisibleForTesting;
 
 // TODO(b/171603586): STOPSHIP move UI related activities to CarSettings
 /**
@@ -65,6 +66,11 @@ public final class NewUserDisclaimerActivity extends Activity {
         // and/or integrate it with UserNoticeService
     }
 
+    @VisibleForTesting
+    Button getAcceptButton() {
+        return mAcceptButton;
+    }
+
     private void accept() {
         if (DEBUG) Slog.d(TAG, "user accepted");
 
@@ -72,13 +78,8 @@ public final class NewUserDisclaimerActivity extends Activity {
         finish();
     }
 
-    private static Intent newIntent(Context context) {
-        return new Intent(context, NewUserDisclaimerActivity.class);
-    }
-
     static void showNotification(Context context) {
-        PendingIntent pendingIntent = PendingIntent.getActivity(context, NOTIFICATION_ID,
-                newIntent(context), PendingIntent.FLAG_IMMUTABLE, null);
+        PendingIntent pendingIntent = getPendingIntent(context, /* extraFlags= */ 0);
 
         Notification notification = NotificationHelper
                 .newNotificationBuilder(context, NotificationManager.IMPORTANCE_DEFAULT)
@@ -104,7 +105,13 @@ public final class NewUserDisclaimerActivity extends Activity {
                     + context.getUserId());
         }
         context.getSystemService(NotificationManager.class).cancel(NOTIFICATION_ID);
-        PendingIntent.getActivity(context, NOTIFICATION_ID, newIntent(context),
-                PendingIntent.FLAG_IMMUTABLE | PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+        getPendingIntent(context, PendingIntent.FLAG_UPDATE_CURRENT).cancel();
+    }
+
+    @VisibleForTesting
+    static PendingIntent getPendingIntent(Context context, int extraFlags) {
+        return PendingIntent.getActivity(context, NOTIFICATION_ID,
+                new Intent(context, NewUserDisclaimerActivity.class),
+                PendingIntent.FLAG_IMMUTABLE | extraFlags);
     }
 }
