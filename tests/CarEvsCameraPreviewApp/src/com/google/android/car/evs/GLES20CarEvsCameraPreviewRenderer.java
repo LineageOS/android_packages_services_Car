@@ -30,6 +30,8 @@ import android.opengl.GLSurfaceView;
 import android.opengl.GLUtils;
 import android.util.Log;
 
+import androidx.annotation.GuardedBy;
+
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.nio.FloatBuffer;
@@ -87,8 +89,12 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         "    color = texel;                 \n" +
         "}                                  \n";
 
+    private final Object mLock = new Object();
+
     private CarEvsCameraPreviewActivity mActivity;
-    private CarEvsBufferDescriptor mBufferToRender = null;
+
+    @GuardedBy("mLock")
+    private CarEvsBufferDescriptor mBufferInUse = null;
 
     public GLES20CarEvsCameraPreviewRenderer(Context context,
             CarEvsCameraPreviewActivity activity) {
@@ -104,18 +110,41 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         mVertCarTex.put(sVertCarTexData).position(0);
     }
 
+    public void clearBuffer() {
+        CarEvsBufferDescriptor bufferToReturn = null;
+        synchronized (mLock) {
+            if (mBufferInUse == null) {
+                return;
+            }
+
+            bufferToReturn = mBufferInUse;
+            mBufferInUse = null;
+        }
+
+        // bufferToReturn is not null here.
+        mActivity.returnBuffer(bufferToReturn);
+    }
+
     @Override
     public void onDrawFrame(GL10 glUnused) {
         // Use the GLES20 class's static methods instead of a passed GL10 interface.
 
+        CarEvsBufferDescriptor bufferToRender = null;
+        CarEvsBufferDescriptor bufferToReturn = null;
         CarEvsBufferDescriptor newFrame = mActivity.getNewFrame();
-        if (newFrame != null) {
-            // If a new frame has not been delivered yet, we're using a previous frame.
-            if (mBufferToRender != null) {
-                mActivity.returnBuffer(mBufferToRender);
-                mBufferToRender = null;
+        synchronized (mLock) {
+            if (newFrame != null) {
+                // If a new frame has not been delivered yet, we're using a previous frame.
+                if (mBufferInUse != null) {
+                    bufferToReturn = mBufferInUse;
+                }
+                mBufferInUse = newFrame;
             }
-            mBufferToRender = newFrame;
+            bufferToRender = mBufferInUse;
+        }
+
+        if (bufferToReturn != null) {
+            mActivity.returnBuffer(bufferToReturn);
         }
 
         // Specify a shader program to use
@@ -128,12 +157,12 @@ public final class GLES20CarEvsCameraPreviewRenderer implements GLSurfaceView.Re
         }
         GLES20.glUniformMatrix4fv(matrix, 1, false, sIdentityMatrix, 0);
 
-        if (mBufferToRender == null) {
+        if (bufferToRender == null) {
             // Show the default screen
             drawDefaultScreen();
         } else {
             // Retrieve a hardware buffer from a descriptor and update the texture
-            HardwareBuffer buffer = mBufferToRender.getHardwareBuffer();
+            HardwareBuffer buffer = bufferToRender.getHardwareBuffer();
             if (buffer == null) {
                 Log.e(TAG, "HardwareBuffer is invalid.");
                 drawDefaultScreen();
