@@ -16,6 +16,10 @@
 
 package com.android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+
 /**
  * Helper class for class tags for CarService.
  */
@@ -48,5 +52,11 @@ public final class CarLog {
         // If class has a matcher, don't add prefix.
         if (tag.matches(MATCHER)) return tag;
         return PREFIX + tag;
+    }
+
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE,
+            details = "private constructor")
+    private CarLog() {
+        throw new UnsupportedOperationException("contains only static methods");
     }
 }
