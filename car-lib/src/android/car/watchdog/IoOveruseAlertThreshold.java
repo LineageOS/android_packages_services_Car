@@ -16,11 +16,14 @@
 
 package android.car.watchdog;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.SuppressLint;
 import android.annotation.SystemApi;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.DataClass;
 
 /**
@@ -166,6 +169,7 @@ public final class IoOveruseAlertThreshold implements Parcelable {
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseAlertThreshold.java",
             inputSignatures = "private @android.annotation.SuppressLint long mDurationInSeconds\nprivate  long mWrittenBytesPerSecond\nclass IoOveruseAlertThreshold extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true)")
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}
 
 
