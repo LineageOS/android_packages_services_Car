@@ -123,14 +123,27 @@ void fillNV21FromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, un
 void fillRGBAFromYUYV(const BufferDesc& tgtBuff, uint8_t* tgt, void* imgData, unsigned imgStride) {
     const AHardwareBuffer_Desc* pDesc =
         reinterpret_cast<const AHardwareBuffer_Desc*>(&tgtBuff.buffer.description);
+    // Converts YUY2ToARGB (little endian).  Please note that libyuv uses the
+    // little endian while we're using the big endian in RGB format names.
+    const auto dstStrideInBytes = pDesc->stride * 4;  // 4-byte per pixel
     auto result = libyuv::YUY2ToARGB((const uint8_t*)imgData,
                                      imgStride,             // input stride in bytes
                                      tgt,
-                                     (pDesc->stride << 2),  // output stride in bytes
+                                     dstStrideInBytes,      // output stride in bytes
                                      pDesc->width,
                                      pDesc->height);
     if (result) {
-        LOG(ERROR) << "Failed to convert YUYV to ARGB.";
+        LOG(ERROR) << "Failed to convert YUYV to BGRA.";
+        return;
+    }
+
+    // Swaps R and B pixels to convert BGRA to RGBA in place.
+    // TODO(b/190783702): Consider allocating an extra space to store ARGB data
+    //                    temporarily if below operation is too slow.
+    result = libyuv::ABGRToARGB(tgt, dstStrideInBytes, tgt, dstStrideInBytes,
+                                pDesc->width, pDesc->height);
+    if (result) {
+        LOG(ERROR) << "Failed to convert BGRA to RGBA.";
     }
 }
 
