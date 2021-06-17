@@ -21,6 +21,7 @@ import static android.content.Intent.ACTION_MAIN;
 import static com.android.car.hal.ClusterHalService.DISPLAY_OFF;
 import static com.android.car.hal.ClusterHalService.DISPLAY_ON;
 import static com.android.car.hal.ClusterHalService.DONT_CARE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.app.ActivityOptions;
 import android.car.Car;
@@ -54,6 +55,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.am.FixedActivityService;
 import com.android.car.hal.ClusterHalService;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.server.utils.Slogf;
 
 /**
@@ -173,6 +175,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         // TODO: record the latest states from both sides
     }
