@@ -40,6 +40,7 @@ import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.ICarWatchdogService;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdog.IResourceOveruseListener;
+import android.car.watchdog.IoOveruseAlertThreshold;
 import android.car.watchdog.IoOveruseConfiguration;
 import android.car.watchdog.IoOveruseStats;
 import android.car.watchdog.PackageKillableState;
@@ -68,6 +69,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collections;
+import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.Executor;
 
@@ -474,6 +476,80 @@ public class CarWatchdogManagerUnitTest {
 
         assertThat(mCarWatchdogManager.getResourceOveruseConfigurations(FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(null);
+    }
+
+    @Test
+    public void testIoOveruseAlertThresholdToStringAndDescribeContent() {
+        IoOveruseAlertThreshold ioOveruseAlertThreshold = new IoOveruseAlertThreshold(1, 2);
+        int content = ioOveruseAlertThreshold.describeContents();
+        String string = ioOveruseAlertThreshold.toString();
+
+        assertThat(content).isEqualTo(0);
+        assertThat(string).isEqualTo(
+                "IoOveruseAlertThreshold { durationInSeconds = 1, writtenBytesPerSecond = 2 }");
+    }
+
+    @Test
+    public void testIoOveruseConfigurationToStringAndDescribeContent() {
+        PerStateBytes expectedPerStateBytes = new PerStateBytes(6666666, 7777777, 8888888);
+        IoOveruseConfiguration ioOveruseConfiguration = new IoOveruseConfiguration.Builder(
+                expectedPerStateBytes,
+                new HashMap<>(), new HashMap<>(), new ArrayList<>()).build();
+        int content = ioOveruseConfiguration.describeContents();
+        String string = ioOveruseConfiguration.toString();
+
+        assertThat(content).isEqualTo(0);
+        assertThat(string)
+                .isEqualTo("IoOveruseConfiguration { componentLevelThresholds = "
+                        + expectedPerStateBytes
+                        + ", packageSpecificThresholds = {}, appCategorySpecificThresholds = {}, "
+                        + "systemWideThresholds = [] }");
+    }
+
+    @Test
+    public void testIoOveruseStatsDescribeContent() {
+        IoOveruseStats ioOveruseStats =
+                new IoOveruseStats.Builder(0, 10).setStartTime(1).setDurationInSeconds(5).build();
+        int content = ioOveruseStats.describeContents();
+
+        assertThat(content).isEqualTo(0);
+    }
+
+    @Test
+    public void testPackageKillableStateToStringAndDescribeContent() {
+        PackageKillableState packageKillableState = new PackageKillableState("packageName", 10, 1);
+        int content = packageKillableState.describeContents();
+        String string = packageKillableState.toString();
+
+        assertThat(content).isEqualTo(0);
+        assertThat(string).isEqualTo(
+                "PackageKillableState { packageName = packageName, userId = 10, "
+                        + "killableState = "
+                        + PackageKillableState.killableStateToString(1)
+                        + " }");
+    }
+
+    @Test
+    public void testResourceOveruseConfigurationToStringAndDescribeContent() {
+        ResourceOveruseConfiguration resourceOveruseConfiguration =
+                new ResourceOveruseConfiguration.Builder(
+                    ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM, new ArrayList<>(),
+                    new ArrayList<>(), new HashMap<>())
+                .addPackagesToAppCategoryTypes("key", "value")
+                .addSafeToKillPackages("safeToKillApp")
+                .addVendorPackagePrefixes("vendorPackagePrefix")
+                .build();
+        int content = resourceOveruseConfiguration.describeContents();
+        String string = resourceOveruseConfiguration.toString();
+
+        assertThat(content).isEqualTo(0);
+        assertThat(string)
+                .isEqualTo("ResourceOveruseConfiguration { componentType = "
+                        + ResourceOveruseConfiguration.componentTypeToString(
+                                ResourceOveruseConfiguration.COMPONENT_TYPE_SYSTEM)
+                        + ", safeToKillPackages = [safeToKillApp], vendorPackagePrefixes = "
+                        + "[vendorPackagePrefix], packagesToAppCategoryTypes = {key=value}, "
+                        + "ioOveruseConfiguration = null }");
     }
 
     private ICarWatchdogServiceCallback registerClient(
