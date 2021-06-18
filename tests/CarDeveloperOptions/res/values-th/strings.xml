@@ -559,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ล็อกหน้าจอ"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/ทันทีหลังจากเข้าสู่โหมดสลีป"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/หลังจากเข้าสู่โหมดสลีป <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g>"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ล็อกโปรไฟล์งาน"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ล็อกของโปรไฟล์งาน"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"เปลี่ยนหน้าจอล็อก"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"เปลี่ยนหรือปิดการใช้งานรูปแบบ, PIN หรือความปลอดภัยของรหัสผ่าน"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"เลือกวิธีที่จะล็อกหน้าจอ"</string>
@@ -1731,7 +1731,7 @@
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"ป้อนรหัสผ่านของอุปกรณ์เพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"ใช้รูปแบบของที่ทำงานเพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"ป้อน PIN ของที่ทำงานเพื่อดำเนินการต่อ"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"ป้อนรหัสผ่านที่ทำงานเพื่อดำเนินการต่อ"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"ป้อนรหัสผ่านของโปรไฟล์งานเพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"ใช้รูปแบบของอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"ป้อน PIN ของอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"ป้อนรหัสผ่านอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
@@ -3833,7 +3833,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"ขนาดการแสดงผล"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"ทำให้รายการบนหน้าจอมีขนาดใหญ่ขึ้นหรือเล็กลง"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"ความหนาแน่นในการแสดงผล, ซูมหน้าจอ, ระดับ, การปรับระดับ"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"ปรับขนาดข้อความบนหน้าจอให้เล็กลงหรือใหญ่ขึ้น แอปบางส่วนบนหน้าจออาจเปลี่ยนตำแหน่ง"</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"ปรับขนาดข้อความบนหน้าจอให้เล็กลงหรือใหญ่ขึ้น แ⁠อ⁠ปบางส่วนบนหน้าจออาจเปลี่ยนตำแหน่ง"</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"ดูตัวอย่าง"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"ทำให้เล็กลง"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"ทำให้ใหญ่ขึ้น"</string>

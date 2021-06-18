@@ -179,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Momenteel verbonden"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Opgeslagen apparaten"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth wordt ingeschakeld om te koppelen"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"Verbindingsvoorkeuren"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"Verbindings­voorkeuren"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Eerder verbonden apparaten"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Eerder verbonden"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth ingeschakeld"</string>

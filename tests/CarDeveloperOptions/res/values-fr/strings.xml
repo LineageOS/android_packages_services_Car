@@ -2326,7 +2326,7 @@
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Si le gestionnaire de batterie détecte que certaines applications déchargent la batterie, vous pouvez choisir de limiter ces applications. Les applications auxquelles une restriction est appliquée peuvent ne pas fonctionner correctement et leurs notifications risquent d\'être retardées."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Si le gestionnaire de batterie détecte que certaines applications déchargent la batterie, vous pouvez choisir de limiter ces applications. Les applications auxquelles une restriction est appliquée peuvent ne pas fonctionner correctement et leurs notifications risquent d\'être retardées."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Si le gestionnaire de batterie détecte que certaines applications déchargent la batterie, vous pouvez choisir de limiter ces applications. Les applications auxquelles une restriction est appliquée peuvent ne pas fonctionner correctement et leurs notifications risquent d\'être retardées."</string>
-    <string name="restricted_app_title" msgid="4957644700640127606">"Applications dont l\'accès est limité"</string>
+    <string name="restricted_app_title" msgid="4957644700640127606">"Applications soumises à des restrictions"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="one">Limitation de l\'utilisation de la batterie pour %1$d application</item>
       <item quantity="other">Limitation de l\'utilisation de la batterie pour %1$d applications</item>

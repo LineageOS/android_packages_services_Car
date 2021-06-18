@@ -1730,7 +1730,7 @@
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"Introduce el PIN del dispositivo para continuar"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"Introduce la contraseña del dispositivo para continuar"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Utiliza tu patrón del trabajo para continuar"</string>
-    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Introduce tu PIN del trabajo para continuar"</string>
+    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Introduce tu PIN de trabajo para continuar"</string>
     <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Introduce la contraseña de tu perfil de trabajo para continuar"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"Para mayor seguridad, utiliza el patrón del dispositivo"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"Para mayor seguridad, introduce el PIN del dispositivo"</string>

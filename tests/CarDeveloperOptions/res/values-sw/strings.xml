@@ -2326,7 +2326,7 @@
     <string name="smart_battery_footer" product="default" msgid="3971715848890205632">"Kidhibiti cha betri kikitambua kuwa programu zinatumia chaji sana, utakuwa na chaguo la kudhibiti programu hizi. Huenda programu zilizodhibitiwa zisifanye kazi vizuri na arifa zikachelewa."</string>
     <string name="smart_battery_footer" product="tablet" msgid="3971715848890205632">"Kidhibiti cha betri kikitambua kuwa programu zinatumia chaji sana, utakuwa na chaguo la kudhibiti programu hizi. Huenda programu zilizodhibitiwa zisifanye kazi vizuri na arifa zikachelewa."</string>
     <string name="smart_battery_footer" product="device" msgid="3971715848890205632">"Kidhibiti cha betri kikitambua kuwa programu zinatumia chaji sana, utakuwa na chaguo la kudhibiti programu hizi. Huenda programu zilizodhibitiwa zisifanye kazi vizuri na arifa zikachelewa."</string>
-    <string name="restricted_app_title" msgid="4957644700640127606">"Programu zilizodhibitiwa"</string>
+    <string name="restricted_app_title" msgid="4957644700640127606">"Programu zinazodhibitiwa"</string>
     <plurals name="restricted_app_summary" formatted="false" msgid="7609538735465186040">
       <item quantity="other">Inadhibiti matumizi ya betri kwa programu %1$d</item>
       <item quantity="one">Inadhibiti matumizi ya betri kwa programu %1$d</item>

@@ -544,7 +544,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
     <string name="lock_settings_picker_title" msgid="1034741644461982205">"स्‍क्रीन लॉक चुनें"</string>
-    <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"वर्क लॉक चुनें"</string>
+    <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"वर्क ऐप्लिकेशन के लिए लॉक चुनें"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"टैबलेट की सुरक्षा करें"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"डिवाइस की सुरक्षा करें"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"फ़ोन को सुरक्षित रखें"</string>
@@ -1731,7 +1731,7 @@
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"जारी रखने के लिए अपना डिवाइस पासवर्ड डालें"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"जारी रखने के लिए अपने काम पैटर्न का उपयोग करें"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"जारी रखने के लिए अपना दफ़्तर का पिन डालें"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"जारी रखने के लिए अपना दफ़्तर पासवर्ड डालें"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"जारी रखने की लिए, अपने वर्क प्रोफ़ाइल का पासवर्ड डालें"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"अतिरिक्त सुरक्षा के लिए, अपने पैटर्न का इस्तेमाल करें"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"अतिरिक्त सुरक्षा के लिए, अपना पिन डालें"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"अतिरिक्त सुरक्षा के लिए, अपना पासवर्ड डालें"</string>
