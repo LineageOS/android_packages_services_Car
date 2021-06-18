@@ -385,7 +385,7 @@
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"Affichage de l\'écran de verrouillage"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Éléments affichés"</string>
     <string name="security_settings_summary" msgid="5210109100643223686">"Définir les paramètres de l\'option Ma position et de verrouillage"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Définir les paramètres de la fonction Ma position, de déverrouillage de l\'écran et de verrouillage du stockage des authentifiants"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Définir les paramètres de la fonction Ma position, de déverrouillage de l\'écran et de verrouillage du stockage des identifiants"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"Confidentialité"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Désactivé par l\'administrateur"</string>
     <string name="security_status_title" msgid="1261960357751754428">"État de la sécurité"</string>
@@ -1614,7 +1614,7 @@
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"Point d\'accès Wi-Fi mobile"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Partage connexion Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Partage de connexion"</string>
-    <string name="tether_settings_title_all" msgid="6935843543433954181">"Point d\'accès et partage de connexion"</string>
+    <string name="tether_settings_title_all" msgid="6935843543433954181">"Partage de connexion"</string>
     <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Point d\'accès activé, partage de connexion"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Point d\'accès activé"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Partage de connexion"</string>
@@ -1843,7 +1843,7 @@
     <string name="show_background_processes" msgid="88012264528093617">"Afficher processus en cache"</string>
     <string name="default_emergency_app" msgid="286530070173495823">"Application d\'urgence"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"Réinitialiser préférences applis"</string>
-    <string name="reset_app_preferences_title" msgid="792909865493673598">"Réinitialiser les préférences relatives aux applis?"</string>
+    <string name="reset_app_preferences_title" msgid="792909865493673598">"Réinitialiser préférences applis?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Cette opération a pour effet de réinitialiser toutes les préférences relatives aux éléments suivants :\n\n "<li>"Applications désactivées"</li>\n" "<li>"Notifications associées aux applications désactivées"</li>\n" "<li>"Applications par défaut pour les actions"</li>\n" "<li>"Restrictions de données en arrière-plan pour les applications"</li>\n" "<li>"Toutes les restrictions d\'autorisations"</li>\n\n"Vous ne perdrez aucune donnée liée aux applications."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Réinitialiser applis"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"Gérer l\'espace"</string>
@@ -2522,12 +2522,12 @@
     <string name="tts_reset" msgid="8864073594540705579">"Réinitialiser"</string>
     <string name="tts_play" msgid="9023430029380675514">"Lire"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"RPV"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"Stockage des authentifiants"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"Stockage des identifiants"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"Installer à partir de la mémoire"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"Installer à partir de la carte SD"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"Installer les certificats à partir de la mémoire de stockage"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"Installer les certificats à partir de la carte SD"</string>
-    <string name="credentials_reset" msgid="355080737664731678">"Effacer les authentifiants"</string>
+    <string name="credentials_reset" msgid="355080737664731678">"Effacer les identifiants"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"Supprimer tous les certificats"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"Certificats de confiance"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"Afficher les certificats d\'autorité de confiance"</string>
@@ -2537,12 +2537,12 @@
     <string name="credential_storage_type" msgid="2585337320206095255">"Type de stockage"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"Intégré au matériel"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"Uniquement logiciel"</string>
-    <string name="credentials_settings_not_available" msgid="5490259681690183274">"Les authentifiants ne sont pas accessibles pour cet utilisateur"</string>
+    <string name="credentials_settings_not_available" msgid="5490259681690183274">"Les identifiants ne sont pas accessibles pour cet utilisateur"</string>
     <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"Installé pour le RPV et les applications"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"Installé pour le Wi-Fi"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"Supprimer l\'intégralité du contenu?"</string>
-    <string name="credentials_erased" msgid="7287088033523869085">"Les authentifiants sont effacés."</string>
-    <string name="credentials_not_erased" msgid="9137227570738627637">"Impossible eff. stockage authentifiants."</string>
+    <string name="credentials_erased" msgid="7287088033523869085">"Les identifiants sont effacés."</string>
+    <string name="credentials_not_erased" msgid="9137227570738627637">"Impossible eff. stockage identifiants."</string>
     <string name="usage_access_title" msgid="7981321142726540574">"Applis avec accès données"</string>
     <string name="emergency_tone_title" msgid="130211364025984428">"Signal de composition d\'urgence"</string>
     <string name="emergency_tone_summary" msgid="8035940153401622240">"Définir le comportement en cas d\'appel d\'urgence"</string>
@@ -2920,7 +2920,7 @@
     <string name="nfc_payment_default" msgid="7869273092463612271">"Mode de paiement par défaut"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"Non défini"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Utiliser l\'application par défaut"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"Valeur par défaut"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Toujours"</string>
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Sauf si une autre application de paiement est ouverte"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Application à utiliser aux terminaux de paiement sans contact :"</string>
@@ -3281,10 +3281,10 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Paramètre actuel)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Modifier les paramètres de notification du mode Ne pas déranger?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Sons du profil professionnel"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utiliser les sons du profil personnel"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Utiliser sons du profil perso"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Les sons du profil professionnel sont les mêmes que ceux du profil personnel"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie du téléphone professionnel"</string>
-    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son de notification par défaut du profil professionnel"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Sonnerie téléphone profess."</string>
+    <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Son de notification par défaut pour le profil professionnel"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Son de l\'alarme par défaut du profil professionnel"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Mêmes que le profil personnel"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"Remplacer les sons?"</string>
@@ -3933,7 +3933,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Mises à jour automatiques du système"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Appliquer les mises à jour au redémarrage de l\'appareil"</string>
     <string name="usage" msgid="9172908720164431622">"Utilisation"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Utilisation de données cellulaires"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Utilis. données cell."</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Utilisation des données des applications"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Utilisation des données Wi-Fi"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Utilisation de données Ethernet"</string>
@@ -4008,7 +4008,7 @@
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Désactiver maintenant"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"L\'optimisation de la pile n\'est pas utilisée"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Si l\'appareil est verrouillé, empêcher l\'entrée de réponses ou de texte dans les notifications"</string>
-    <string name="default_spell_checker" msgid="8636661093243189533">"Correcteur par défaut"</string>
+    <string name="default_spell_checker" msgid="8636661093243189533">"Correcteur ortho par défaut"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"Sélectionner correcteur ortho"</string>
     <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"Utiliser le vérificateur d\'orthographe"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"Non sélectionné"</string>

@@ -132,6 +132,10 @@ bool ReadSvConfig2d(const XMLElement* parent, SvConfig2d* sv2dConfig) {
             RETURN_IF_FALSE(ReadValue2dBlendType(blendingTypeElem, "LowQuality",
                                                  &sv2dParams->low_quality_blending));
         }
+
+        // GPU Acceleration enabled or not
+        RETURN_IF_FALSE(ReadValue(param2dElem, "GpuAccelerationEnabled",
+                                  &sv2dParams->gpu_acceleration_enabled));
     }
     return true;
 }

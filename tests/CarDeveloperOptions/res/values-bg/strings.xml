@@ -772,7 +772,7 @@
     <string name="device_details_title" msgid="726517818032923222">"Подробности за устройството"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Bluetooth адрес на устройството: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"Да се забрави ли устройството?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефонът ви вече няма да бъде сдвоен с(ъс) „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"Телефонът ви вече няма да бъде сдвоен с/ъс „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"Таблетът ви вече няма да бъде сдвоен с/ъс „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"Устройството ви вече няма да бъде сдвоено с/ъс „<xliff:g id="DEVICE_NAME">%1$s</xliff:g>“"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"Забравяне на устройството"</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Система"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g>: Разглеждане"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Категорията „Други“ включва споделените файлове, запазени от приложенията, файловете, изтеглени от интернет или през Bluetooth, тези на Android и др.\n\nЗа да прегледате видимото съдържание на това хранилище (<xliff:g id="NAME">^1</xliff:g>), докоснете „Разглеждане“."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Системата включва файлове, използвани за изпълняването на версия <xliff:g id="VERSION">%s</xliff:g> на Android"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"Категорията „Система Android“ включва файлове, използвани за изпълняването на версия <xliff:g id="VERSION">%s</xliff:g> на Android"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"<xliff:g id="USER_0">^1</xliff:g> може да има запазени снимки, музика, приложения или други данни, които заемат <xliff:g id="SIZE">^2</xliff:g> от хранилището.\n\nЗа да прегледате подробностите, превключете към <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"Настройте хранилището (<xliff:g id="NAME">^1</xliff:g>)"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Използване като преносимо хранилище"</string>
@@ -1571,7 +1571,7 @@
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Опции за нулиране"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Мрежата, приложенията или устройството могат да бъдат нулирани"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Нулиране на настройките за Wi-Fi, мобилни данни и Bluetooth"</string>
-    <string name="reset_network_desc" msgid="4982633363916261109">"Така ще нулирате всички мрежови настройки, включително тези за:\n\n"<li>"Wi‑Fi"</li>\n<li>"мобилни данни"</li>\n<li>"Bluetooth."</li></string>
+    <string name="reset_network_desc" msgid="4982633363916261109">"Така ще нулирате всички мрежови настройки, включително тези за:\n\n"<li>"Wi‑Fi;"</li>\n<li>"мобилни данни;"</li>\n<li>"Bluetooth."</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Изтриване на изтеглените SIM карти"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"За да изтеглите SIM карти за замяна, свържете се с оператора си. Плановете за мобилни услуги няма да бъдат анулирани."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Нулиране на настройките"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Предотвратяване на звъненето"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Натиснете заедно бутоните за захранване и увеличаване на силата на звука за"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Пряк път за предотвратяване на звъненето"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Пряк път към настройката за предотвратяване на звъненето"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Вибриране"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Заглушаване"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"Да не се прави нищо"</string>

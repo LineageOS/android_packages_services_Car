@@ -122,7 +122,7 @@
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"Penyiaran"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"Peranti Bluetooth tanpa nama"</string>
     <string name="progress_scanning" msgid="633923400401041181">"Mencari"</string>
-    <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Tiada peranti Bluetooth ditemukan."</string>
+    <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"Tiada peranti Bluetooth berdekatan ditemui."</string>
     <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"Permintaan menjadi pasangan Bluetooth"</string>
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"Permintaan pasangan"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"Sentuh untuk berpasangan dengan <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
@@ -169,7 +169,7 @@
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"Benarkan tablet anda berkomunikasi dengan peranti Bluetooth yang berdekatan"</string>
     <string name="bluetooth_pref_summary" product="device" msgid="2286727776570956969">"Benarkan peranti anda berkomunikasi dengan peranti Bluetooth yang berdekatan"</string>
     <string name="bluetooth_pref_summary" product="default" msgid="863659221858781186">"Benarkan telefon anda berkomunikasi dengan peranti Bluetooth yang berdekatan"</string>
-    <string name="bluetooth_disable_a2dp_hw_offload" msgid="293429878480958234">"Lumpuhkan lepas muatan perkakasan A2DP Bluetooth"</string>
+    <string name="bluetooth_disable_a2dp_hw_offload" msgid="293429878480958234">"Lmphkn lps mtn perkakasan A2DP Bluetooth"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_title" msgid="7362106962085861626">"Mulakan Sml Peranti?"</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_message" msgid="4837282201316413412">"Mulakan semula peranti untuk menukar tetapan ini."</string>
     <string name="bluetooth_disable_a2dp_hw_offload_dialog_confirm" msgid="9066883770039735632">"Mulakn sml"</string>
@@ -800,7 +800,7 @@
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Pilih bilangan maksimum peranti audio Bluetooth yang disambungkan"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Hantar"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Dayakan paparan wayarles"</string>
-    <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Tiada peranti berdekatan ditemukan."</string>
+    <string name="wifi_display_no_devices_found" msgid="186501729518830451">"Tiada peranti berdekatan ditemui."</string>
     <string name="wifi_display_status_connecting" msgid="3799827425457383349">"Menyambung"</string>
     <string name="wifi_display_status_connected" msgid="85692409327461403">"Bersambung"</string>
     <string name="wifi_display_status_in_use" msgid="7646114501132773174">"Sedang digunakan"</string>
@@ -1211,7 +1211,7 @@
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Menghalang skrin daripada dimatikan jika anda melihat pada skrin."</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Kesedaran skrin menggunakan kamera depan untuk melihat jika seseorang sedang memandang skrin. Ciri ini berfungsi pada peranti dan imej tidak sekali-kali disimpan atau dihantar kepada Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Cahaya Malam"</string>
-    <string name="night_display_text" msgid="5330502493684652527">"Cahaya Malam memberikan seri warna kuning jingga pada skrin anda. Ini memudahkan lagi anda melihat skrin atau membaca dalam cahaya malap dan mungkin dapat membantu anda tidur dengan lebih mudah."</string>
+    <string name="night_display_text" msgid="5330502493684652527">"Cahaya Malam memberi seri warna kuning jingga pada skrin anda. Ini memudahkan lagi anda melihat skrin atau membaca dalam cahaya malap dan mungkin dapat membantu anda tidur dengan lebih mudah."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Jadual"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Tiada"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Dihidupkan pada waktu tersuai"</string>
@@ -1587,7 +1587,7 @@
     <string name="master_clear_short_title" msgid="919098101581335101">"Padamkan semua data"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Tindakan ini akan memadamkan semua data daripada "<b>"storan dalaman"</b>" tablet anda, termasuk:\n\n"<li>"Akaun Google Anda"</li>\n<li>"Data serta tetapan sistem dan apl"</li>\n<li>"Apl yang telah dimuat turun"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Tindakan ini akan memadamkan semua data daripada "<b>"storan dalaman"</b>" telefon anda, termasuk:\n\n"<li>"Akaun Google Anda"</li>\n<li>"Data serta tetapan sistem dan apl"</li>\n<li>"Apl yang dimuat turun"</li></string>
-    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Anda dilog masuk ke dalam akaun berikut buat masa ini:\n"</string>
+    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Anda melog masuk ke dalam akaun berikut buat masa ini:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Terdapat pengguna lain pada peranti ini.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Muzik"</li>\n<li>"Foto"</li>\n<li>"Data pengguna yang lain"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIM"</li></string>
@@ -1989,7 +1989,7 @@
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"Kamus peribadi untuk kerja"</string>
     <string name="user_dict_settings_summary" msgid="3131259534814181196"></string>
     <string name="user_dict_settings_add_menu_title" msgid="1553743292556229909">"Tambah"</string>
-    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Tambahkan pada kamus"</string>
+    <string name="user_dict_settings_add_dialog_title" msgid="5447922936256448695">"Tambah ke kamus"</string>
     <string name="user_dict_settings_add_screen_title" msgid="8164998107273393830">"Frasa"</string>
     <string name="user_dict_settings_add_dialog_more_options" msgid="577584009496650183">"Lagi pilihan"</string>
     <string name="user_dict_settings_add_dialog_less_options" msgid="5678408488188525719">"Kurang pilihan"</string>

@@ -35,6 +35,7 @@ import android.content.res.Resources;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponseAction;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
+import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.net.wifi.WifiManager;
 import android.os.Build;
 import android.os.Handler;
@@ -94,9 +95,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private static final String WIFI_STATE_ORIGINAL = "original";
     // If Suspend to RAM fails, we retry with an exponential back-off:
     // The wait interval will be 10 msec, 20 msec, 40 msec, ...
-    // Once the wait interval goes beyond 1000 msec, it is fixed at 1000 msec.
+    // Once the wait interval goes beyond 100 msec, it is fixed at 100 msec.
     private static final long INITIAL_SUSPEND_RETRY_INTERVAL_MS = 10;
-    private static final long MAX_RETRY_INTERVAL_MS = 1000;
+    private static final long MAX_RETRY_INTERVAL_MS = 100;
     // Minimum and maximum wait duration before the system goes into Suspend to RAM.
     private static final long MIN_SUSPEND_WAIT_DURATION_MS = 0;
     private static final long MAX_SUSPEND_WAIT_DURATION_MS = 3 * 60 * 1000;
@@ -1425,6 +1426,31 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             handler = mHandler;
         }
         handler.handlePowerStateChange();
+    }
+
+    /**
+     * Powers off the device, considering the given options.
+     *
+     * <p>The final state can be "suspend-to-RAM" or "shutdown". Attempting to go to suspend-to-RAM
+     * on devices which do not support it may lead to an unexpected system state.
+     */
+    public void powerOffFromCommand(boolean skipGarageMode, boolean shutdown) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        int param = 0;
+        if (shutdown) {
+            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
+                    : VehicleApPowerStateShutdownParam.SHUTDOWN_ONLY;
+        } else {
+            param = skipGarageMode ? VehicleApPowerStateShutdownParam.SLEEP_IMMEDIATELY
+                    : VehicleApPowerStateShutdownParam.CAN_SLEEP;
+        }
+        PowerState state = new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE, param);
+        synchronized (mLock) {
+            mRebootAfterGarageMode = false;
+            mPendingPowerStates.addFirst(new CpmsState(state));
+            mLock.notify();
+        }
+        mHandler.handlePowerStateChange();
     }
 
     // In a real Deep Sleep, the hardware removes power from the CPU (but retains power

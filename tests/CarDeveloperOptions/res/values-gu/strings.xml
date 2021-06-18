@@ -1804,9 +1804,9 @@
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"ડિફૉલ્ટ્સ"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"સ્ક્રીન સુસંગતતા"</string>
     <string name="permissions_label" msgid="7341733648403464213">"પરવાનગીઓ"</string>
-    <string name="cache_header_label" msgid="3202284481380361966">"કૅશ"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"કૅશ મેમરી સાફ કરો"</string>
-    <string name="cache_size_label" msgid="6205173678102220499">"કૅશ"</string>
+    <string name="cache_header_label" msgid="3202284481380361966">"કેશ"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"કેશ સાફ કરો"</string>
+    <string name="cache_size_label" msgid="6205173678102220499">"કેશ"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="one">%d આઇટમ</item>
       <item quantity="other">%d આઇટમ</item>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"નિયંત્રણો"</string>
     <string name="force_stop" msgid="9213858124674772386">"ફરજિયાત બંધ કરો"</string>
     <string name="total_size_label" msgid="3929917501176594692">"કુલ"</string>
-    <string name="application_size_label" msgid="175357855490253032">"ઍપનું કદ"</string>
+    <string name="application_size_label" msgid="175357855490253032">"ઍપ્લિકેશનનું કદ"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB સ્ટોરેજ ઍપ્લિકેશન"</string>
     <string name="data_size_label" msgid="7790201846922671662">"વપરાશકર્તા ડેટા"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB સ્ટોરેજ ડેટા"</string>
@@ -1860,8 +1860,8 @@
     <string name="no_applications" msgid="6811396016303576024">"કોઈ ઍપ્લિકેશનો નથી."</string>
     <string name="internal_storage" msgid="7392373600013294853">"આંતરિક સ્ટોરેજ"</string>
     <string name="recompute_size" msgid="4290692197892743928">"કદની ફરીથી ગણના કરી રહ્યું છે…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ઍપનો ડેટા ડિલીટ કરીએ?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"આ તમામ ઍપનો ડેટા કાયમી રીતે ડિલીટ કરવામાં આવશે. આમાં તમામ ફાઇલો, સેટિંગ, એકાઉન્ટ, ડેટાબેઝ વગેરે શામેલ છે."</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ઍપ્લિકેશન ડેટા કાઢી નાખીએ?"</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"આ તમામ એપ્લિકેશનનો ડેટા કાયમી રીતે કાઢી નાંખવામાં આવશે. આમાં તમામ ફાઇલો, સેટિંગ્સ, એકાઉન્ટ્સ, ડેટાબેસેસ વગેરે શામેલ છે."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ઓકે"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"રદ કરો"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
@@ -2314,7 +2314,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"બૅટરી બચાવવા માટે, આ ઍપને બૅકગ્રાઉન્ડમાં બૅટરીનો ઉપયોગ કરવાથી અટકાવો. પ્રતિબંધિત ઍપ યોગ્ય રીતે કાર્ય નહીં કરી શકે અને નોટિફિકેશન વિલંબિત થઈ શકે છે.\n\nઍપ:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"પ્રતિબંધિત કરો"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"પ્રતિબંધ કાઢી નાખીએ?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"આ ઍપ બૅકગ્રાઉન્ડમાં બૅટરીનો વપરાશ કરી શકશે. તમારા ડિવાઇસની બૅટરી અપેક્ષા કરતાં વહેલા સમાપ્ત થઈ શકે છે."</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"આ ઍપ બૅકગ્રાઉન્ડમાં બૅટરીનો વપરાશ કરી શકશે. તમારા ઉપકરણની બૅટરી અપેક્ષા કરતાં વહેલા સમાપ્ત થઈ શકે છે."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"કાઢી નાખો"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"રદ કરો"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"તમારી બધી ઍપ બૅટરીનો વપરાશ સામાન્ય પ્રમાણમાં કરી રહી છે. જો તે બૅટરીનો ઘણો વધુ વપરાશ કરવા માંડશે, તો તમારો ફોન તમે શું ઍક્શન લઈ શકો તે સૂચવશે.\n\nજો તમારી પાસે બૅટરીમાં ચાર્જ ઓછો રહ્યો હોય, તો તમે કોઈપણ સમયે બૅટરી સેવર ચાલુ કરી શકો છો."</string>
@@ -2525,7 +2525,7 @@
     <string name="credentials_title" msgid="7119207354982673965">"ઓળખપત્ર સ્ટોરેજ"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"સંગ્રહમાંથી ઇન્સ્ટોલ કરો"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD કાર્ડથી ઇન્સ્ટોલ કરો"</string>
-    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"સ્ટોરેજમાંથી પ્રમાણપત્રો ઇન્સ્ટૉલ કરો"</string>
+    <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"સંગ્રહમાંથી પ્રમાણપત્રો ઇન્સ્ટોલ કરો"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD કાર્ડથી પ્રમાણપત્રો ઇન્સ્ટોલ કરો"</string>
     <string name="credentials_reset" msgid="355080737664731678">"ઓળખપત્રો સાફ કરો"</string>
     <string name="credentials_reset_summary" msgid="7622528359699428555">"બધા પ્રમાણપત્રોને દૂર કરો"</string>

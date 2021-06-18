@@ -34,7 +34,7 @@ namespace {
 
 TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
     AnimationConfig animationConfig;
-    EXPECT_EQ(ReadCarModelConfig("/vendor/automotive/sv/sv_sample_car_model_config.xml",
+    EXPECT_EQ(ReadCarModelConfig("/vendor/etc/automotive/sv/sv_sample_car_model_config.xml",
                                  &animationConfig),
               IOStatus::OK);
 
@@ -45,7 +45,7 @@ TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
     {
         AnimationInfo doorAnimation = animationConfig.animations.at(0);
         EXPECT_EQ(doorAnimation.partId, "door");
-        EXPECT_EQ(doorAnimation.childIds.size(), 2);
+        EXPECT_EQ(doorAnimation.childIds.size(), 1);
         EXPECT_EQ(doorAnimation.pose, gMat4Identity);
 
         EXPECT_EQ(doorAnimation.rotationOpsMap.size(), 1);

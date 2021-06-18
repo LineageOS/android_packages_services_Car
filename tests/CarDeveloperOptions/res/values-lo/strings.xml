@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"ການກວດສອບສິດທິໄລຍະທີ 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ໃບ​ຢັ້ງ​ຢືນ​ CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"ໂດເມນ"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ້ໃຊ້"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ່ໃຊ້"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"ການລະບຸໂຕຕົນ"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"ໂຕຕົນທີ່ບໍ່ລະບຸຊື່"</string>
     <string name="wifi_password" msgid="6942983531275177771">"ລະຫັດຜ່ານ"</string>
@@ -1173,7 +1173,7 @@
     <string name="accelerometer_title" msgid="2427487734964971453">"ໝຸນໜ້າຈໍອັດຕະໂນມັດ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ສີ"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"ທຳ​ມະ​ຊາດ"</string>
-    <string name="color_mode_option_boosted" msgid="453557938434778933">"ສີເຂັ້ມຂຶ້ນ"</string>
+    <string name="color_mode_option_boosted" msgid="453557938434778933">"ເລັ່ງແລ້ວ"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"ເພີ່ມສີແລ້ວ"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"ປັບປ່ຽນໄດ້"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"ໃຊ້ສີທີ່ຖືກຕ້ອງເທົ່ານັ້ນ"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"ປະຕິເສດ"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"ບໍ່ມີການໂອນຍ້າຍຂໍ້ມູນ"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ຫາ​ກໍ່​ສາກ​ອຸ​ປະ​ກອນ​ນີ້"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາກອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາດອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ການໂອນໄຟລ໌"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ໂອນຍ້າຍໄຟລ໌ໄປໃສ່ອຸປະກອນອື່ນ"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3964,7 +3964,7 @@
     <string name="configure" msgid="8232696842838580549">"ກຳນົດຄ່າ"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"ແອັບອື່ນໆແມ່ນຮວມໃນການນຳໃຊ້"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
+      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດຂໍ້ມູນເປີດຢູ່</item>
       <item quantity="one">ອະນຸຍາດໃຫ້ 1 ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນແບບບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"ຂໍ້ມູນຫຼັກ"</string>

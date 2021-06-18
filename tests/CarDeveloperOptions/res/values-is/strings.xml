@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Náttúrulegir"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Efldir"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Mettaðir"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegir"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegur"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Nota aðeins nákvæma liti"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Stilla á líflega eða nákvæma liti"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Snúa skjámynd sjálfkrafa þegar spjaldtölvu er snúið"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Þegar tilkynningar berast mun síminn hvorki gefa frá sér hljóð né titra."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Engin skilaboð á skjá eða hljóð frá tilkynningum"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Þú munt hvorki sjá né heyra tilkynningar"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Síminn hvorki sýnir, titrar né gefur frá sér hljóð fyrir nýjar eða fyrirliggjandi tilkynningar. Hafðu í huga að áríðandi tilkynningar um aðgerðir og stöðu símans birtast áfram.\n\nÞegar slökkt er á „Ónáðið ekki“ má sjá tilkynningar með því að strjúka niður frá toppi skjásins."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Síminn hvorki sýnir, titrar eða gefur frá sér hljóð fyrir nýjar eða fyrirliggjandi tilkynningar. Hafðu í huga að áríðandi tilkynningar um aðgerðir og stöðu símans birtast áfram.\n\nÞegar slökkt er á „Ónáðið ekki“ má sjá tilkynningar með því að strjúka niður frá toppi skjásins."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Sérsniðið"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Kveikja á sérstillingu"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fjarlægja sérstillingu"</string>

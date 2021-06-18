@@ -1209,7 +1209,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Be / A képernyő nem kapcsol majd ki, ha Ön épp azt nézi"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Ki"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Amíg Ön a képernyőt nézi, megakadályozza annak kikapcsolását."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"A Képernyőfigyelő az előlapi kamerát használja annak ellenőrzésére, hogy nézi-e valaki a képernyőt. A funkció az eszközön működik, és a fotókat sosem tárolja vagy küldi tovább a Google-nak."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"A Képernyőfigyelő az előlapi kamerát használja annak ellenőrzésére, hogy nézi-e felhasználó a képernyőt. A funkció az eszközön működik, és a fotókat sosem tárolja vagy küldi tovább a Google-nak."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Éjszakai fény"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Az Éjszakai fény borostyánsárga árnyalatúra színezi a képernyőt, hogy gyenge fény mellett se legyen kellemetlen a képernyőre nézni. Emellett az elalvást is megkönnyítheti."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Ütemezés"</string>
@@ -1458,7 +1458,7 @@
     <string name="storage_detail_system" msgid="6784247618772153283">"Rendszer"</string>
     <string name="storage_detail_explore" msgid="8206900269596580264">"<xliff:g id="NAME">^1</xliff:g> felfedezése"</string>
     <string name="storage_detail_dialog_other" msgid="5073511663616043370">"Az Egyéb kategóriába tartoznak az alkalmazások által mentett megosztott fájlok, az internetről, illetve Bluetooth-kapcsolaton keresztül letöltött fájlok, az androidos fájlok stb. \n\nA(z) <xliff:g id="NAME">^1</xliff:g> látható tartalmainak megtekintéséhez koppintson a Felfedezés lehetőségre."</string>
-    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer az Android <xliff:g id="VERSION">%s</xliff:g> verziójának futtatásához használt fájlokat tartalmaz"</string>
+    <string name="storage_detail_dialog_system" msgid="1472572861360014226">"A rendszer az Android <xliff:g id="VERSION">%s</xliff:g>. verziójának futtatásához használt fájlokat tartalmaz"</string>
     <string name="storage_detail_dialog_user" msgid="1663117417635010371">"Lehetséges, hogy <xliff:g id="USER_0">^1</xliff:g> felhasználó fotókat, zenét, alkalmazásokat vagy más adatokat mentett, amihez <xliff:g id="SIZE">^2</xliff:g> tárhelyet használt fel.\n\nA részleteket megtekintheti, ha átvált a következő felhasználóra: <xliff:g id="USER_1">^1</xliff:g>."</string>
     <string name="storage_wizard_init_title" msgid="3407283236421089014">"<xliff:g id="NAME">^1</xliff:g> – beállítás"</string>
     <string name="storage_wizard_init_external_title" msgid="6853250619674645478">"Használat hordozható tárolóként"</string>
@@ -3215,7 +3215,7 @@
     <string name="zen_mode_block_effect_intent" msgid="5666951244667422668">"Ne kapcsoljon be a képernyő"</string>
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"Ne legyen villogó fény"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"Ne jelenítsen meg értesítéseket a képernyőn"</string>
-    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"A képernyő tetején lévő állapotsor ikonjainak elrejtése"</string>
+    <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"A képernyő tetején lévő állapotsoron található ikonok elrejtése"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"Az alkalmazásikonokon lévő értesítési pöttyök elrejtése"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"Ne ébredjen fel az értesítéseknél"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"Elrejtés az értesítési listáról"</string>
@@ -3453,8 +3453,8 @@
     <string name="zen_schedule_rule_enabled_toast" msgid="1742354493045049048">"Automatikus szabály beállítva a „Ne zavarjanak” bekapcsolására adott időpontokban"</string>
     <string name="zen_event_rule_type_name" msgid="7467729997336583342">"Esemény"</string>
     <string name="zen_event_rule_enabled_toast" msgid="7087368268966855976">"Automatikus szabály beállítva a „Ne zavarjanak” bekapcsolására adott események közben"</string>
-    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"E naptár eseményeinél:"</string>
-    <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"E naptár eseményeinél: <xliff:g id="CALENDAR">%1$s</xliff:g>"</string>
+    <string name="zen_mode_event_rule_calendar" msgid="6088077103908487442">"A következő eseményekkor:"</string>
+    <string name="zen_mode_event_rule_summary_calendar_template" msgid="4027207992040792657">"A következő eseményekkor: <xliff:g id="CALENDAR">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_summary_any_calendar" msgid="7590085295784895885">"bármilyen naptár"</string>
     <string name="zen_mode_event_rule_summary_reply_template" msgid="3917497077674876311">"Ha a válasz a következő: <xliff:g id="REPLY">%1$s</xliff:g>"</string>
     <string name="zen_mode_event_rule_calendar_any" msgid="155915101132859764">"Bármilyen naptár"</string>

@@ -30,8 +30,7 @@ using CameraDesc_1_0 = ::android::hardware::automotive::evs::V1_0::CameraDesc;
 using CameraDesc_1_1 = ::android::hardware::automotive::evs::V1_1::CameraDesc;
 
 MockEvsEnumerator::MockEvsEnumerator() {
-    mConfigManager = ConfigManager::Create(
-            "/vendor/etc/automotive/evs/evs_sample_configuration.xml");
+    mConfigManager = ConfigManager::Create();
 }
 
 Return<void> MockEvsEnumerator::getCameraList(getCameraList_cb _hidl_cb) {

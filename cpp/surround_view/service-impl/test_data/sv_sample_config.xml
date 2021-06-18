@@ -11,22 +11,22 @@
             <Left>/dev/video63</Left>
         </EvsCameraIds>
         <Masks>
-            <Front>/vendor/mask_front.png</Front>
-            <Right>/vendor/mask_right.png</Right>
-            <Rear>/vendor/mask_rear.png</Rear>
-            <Left>/vendor/mask_left.png</Left>
+            <Front>/vendor/etc/automotive/sv/mask_front.png</Front>
+            <Right>/vendor/etc/automotive/sv/mask_right.png</Right>
+            <Rear>/vendor/etc/automotive/sv/mask_rear.png</Rear>
+            <Left>/vendor/etc/automotive/sv/mask_left.png</Left>
         </Masks>
     </CameraConfig>
 
     <Sv2dEnabled>true</Sv2dEnabled>
     <Sv2dParams>
         <OutputResolution>
-            <Width>1024</Width>
-            <Height>768</Height>
+            <Width>768</Width>
+            <Height>1024</Height>
         </OutputResolution>
         <GroundMapping>
-            <Width>8.0</Width>
-            <Height>6.0</Height>
+            <Width>9.0</Width>
+            <Height>12.0</Height>
             <Center>
                 <X>0.0</X>
                 <Y>0.0</Y>
@@ -44,6 +44,7 @@
             <HighQuality>multiband</HighQuality>
             <LowQuality>alpha</LowQuality>
         </BlendingType>
+        <GpuAccelerationEnabled>false</GpuAccelerationEnabled>
     </Sv2dParams>
 
     <Sv3dEnabled>true</Sv3dEnabled>
@@ -52,8 +53,8 @@
     <CarModelObjFile>/vendor/etc/automotive/sv/sample_car.obj</CarModelObjFile>
     <Sv3dParams>
         <OutputResolution>
-            <Width>1024</Width>
-            <Height>768</Height>
+            <Width>1920</Width>
+            <Height>1080</Height>
         </OutputResolution>
         <BowlParams>
             <PlaneRadius>8.0</PlaneRadius>
