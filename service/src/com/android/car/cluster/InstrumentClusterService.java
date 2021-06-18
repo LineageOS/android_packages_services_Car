@@ -18,6 +18,8 @@ package com.android.car.cluster;
 import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
 import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SERVICE;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
 import android.car.cluster.IInstrumentClusterManagerCallback;
@@ -52,6 +54,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.R;
 import com.android.car.am.FixedActivityService;
 import com.android.car.cluster.ClusterNavigationService.ContextOwner;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -296,6 +299,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("**" + getClass().getSimpleName() + "**");
         synchronized (mLock) {
