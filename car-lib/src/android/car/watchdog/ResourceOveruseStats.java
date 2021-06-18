@@ -16,11 +16,14 @@
 
 package android.car.watchdog;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.os.Parcelable;
 import android.os.UserHandle;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.DataClass;
 
 /**
@@ -256,6 +259,7 @@ public final class ResourceOveruseStats implements Parcelable {
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/ResourceOveruseStats.java",
             inputSignatures = "private @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate @android.annotation.Nullable android.car.watchdog.IoOveruseStats mIoOveruseStats\nclass ResourceOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}
 
 
