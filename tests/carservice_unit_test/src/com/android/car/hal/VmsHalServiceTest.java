@@ -204,6 +204,48 @@ public class VmsHalServiceTest {
     }
 
     @Test
+    public void testHandleInvalidEvent() {
+        VehiclePropValue message = new VehiclePropValue();
+        // Invalid message with no message type.
+        message.prop = VehicleProperty.VEHICLE_MAP_SERVICE;
+        message.value.stringValue = "1234";
+
+        sendHalMessage(message);
+        verify(mVmsClient, Mockito.never()).publishPacket(
+                Mockito.anyInt(), Mockito.any(), Mockito.any());
+
+        // Incomplete VmsLayer.
+        message.value.int32Values.add(VmsMessageType.DATA);
+        message.value.int32Values.add(LAYER_TYPE);
+        message.value.int32Values.add(LAYER_SUBTYPE);
+
+        sendHalMessage(message);
+        verify(mVmsClient, Mockito.never()).publishPacket(
+                Mockito.anyInt(), Mockito.any(), Mockito.any());
+
+        // No publisher ID.
+        message.value.int32Values.add(LAYER_VERSION);
+
+        sendHalMessage(message);
+        verify(mVmsClient, Mockito.never()).publishPacket(
+                Mockito.anyInt(), Mockito.any(), Mockito.any());
+
+        // No payload.
+        message.value.int32Values.add(PUBLISHER_ID);
+
+        sendHalMessage(message);
+        verify(mVmsClient, Mockito.never()).publishPacket(
+                Mockito.anyInt(), Mockito.any(), Mockito.any());
+
+        // No payload for publisherID event.
+        message.value.int32Values.set(0, VmsMessageType.PUBLISHER_ID_REQUEST);
+
+        sendHalMessage(message);
+        verify(mVmsClient, Mockito.never()).publishPacket(
+                Mockito.anyInt(), Mockito.any(), Mockito.any());
+    }
+
+    @Test
     public void testOnPacketReceivedEvent() throws Exception {
         VehiclePropValue message = createHalMessage(
                 VmsMessageType.DATA,                       // Message type

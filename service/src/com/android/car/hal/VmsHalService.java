@@ -279,7 +279,13 @@ public class VmsHalService extends HalServiceBase {
         if (DBG) Slog.d(TAG, "Handling a VMS property change");
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;
-            int messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+            int messageType;
+            try {
+                messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
+            } catch (IndexOutOfBoundsException e) {
+                Slog.e(TAG, "Invalid event, no message type", e);
+                continue;
+            }
 
             if (DBG) Slog.d(TAG, "Received " + VmsMessageType.toString(messageType) + " message");
             try {
@@ -412,6 +418,10 @@ public class VmsHalService extends HalServiceBase {
             Slog.d(TAG,
                     "Handling a data event for Layer: " + vmsLayer + " Publisher: " + publisherId);
         }
+        if (payload.length == 0) {
+            Slog.e(TAG, "Get 0 length payload while handling data event");
+            return;
+        }
         getVmsClient().publishPacket(publisherId, vmsLayer, payload);
     }
 
@@ -505,6 +515,10 @@ public class VmsHalService extends HalServiceBase {
     private void handlePublisherIdRequest(byte[] payload) {
         if (DBG) {
             Slog.d(TAG, "Handling a publisher id request event");
+        }
+        if (payload.length == 0) {
+            Slog.e(TAG, "Get 0 length payload while handling data event");
+            return;
         }
 
         VehiclePropValue vehicleProp = createVmsMessage(VmsMessageType.PUBLISHER_ID_RESPONSE);
