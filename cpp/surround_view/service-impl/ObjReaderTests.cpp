@@ -33,9 +33,9 @@ namespace V1_0 {
 namespace implementation {
 namespace {
 
-TEST(ObjParserTests, ReadCubeSuccess) {
+TEST(ObjParserTests, ReadObjFileSuccess) {
     std::map<std::string, CarPart> carPartsMap;
-    EXPECT_TRUE(ReadObjFromFile("/etc/automotive/sv/cube.obj", &carPartsMap));
+    EXPECT_TRUE(ReadObjFromFile("vendor/etc/automotive/sv/sample_car.obj", &carPartsMap));
     EXPECT_NE(carPartsMap.size(), 0);
 }
 

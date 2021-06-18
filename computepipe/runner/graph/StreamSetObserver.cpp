@@ -157,6 +157,9 @@ void StreamSetObserver::stopObservingStreams(bool stopImmediately) {
     std::unique_lock lock(mLock);
     if (mStopped) {
         // Separate thread is necessary here to avoid recursive locking.
+        if (mGraphTerminationThread.joinable()) {
+            mGraphTerminationThread.join();
+        }
         mGraphTerminationThread = std::thread([this]() {
             this->mStreamGraphInterface->dispatchGraphTerminationMessage(Status::SUCCESS, "");
         });

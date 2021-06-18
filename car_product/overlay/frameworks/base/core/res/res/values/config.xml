@@ -97,8 +97,6 @@
 
     <string name="config_dataUsageSummaryComponent">com.android.car.settings/com.android.car.settings.datausage.DataWarningAndLimitActivity</string>
 
-    <string name="config_defaultTrustAgent" translatable="false">com.android.car.companiondevicesupport/.feature.trust.TrustedDeviceAgentService</string>
-
     <!-- Controls whether system buttons use all caps for text -->
     <bool name="config_buttonTextAllCaps">false</bool>
 
@@ -125,5 +123,9 @@
     <string-array translatable="false" name="config_defaultFirstUserRestrictions">
         <item>"no_modify_accounts"</item>
     </string-array>
+
+    <!-- Use a car-specific activity resolver that supports rotary. -->
+    <string name="config_customResolverActivity" translatable="false"
+        >com.android.car.activityresolver/.CarResolverActivity</string>
 
 </resources>

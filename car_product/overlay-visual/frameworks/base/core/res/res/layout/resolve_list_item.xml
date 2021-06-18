@@ -23,7 +23,7 @@
               android:minHeight="?android:attr/listPreferredItemHeightLarge"
               android:paddingTop="4dp"
               android:paddingBottom="4dp"
-              android:background="?android:attr/activatedBackgroundIndicator">
+              android:background="@drawable/activated_item_background">
     <ImageView android:id="@*android:id/icon"
                android:layout_width="75dp"
                android:layout_height="75dp"

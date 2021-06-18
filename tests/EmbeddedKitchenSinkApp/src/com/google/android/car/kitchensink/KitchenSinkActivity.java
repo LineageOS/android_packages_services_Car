@@ -41,6 +41,7 @@ import androidx.fragment.app.FragmentActivity;
 import androidx.recyclerview.widget.GridLayoutManager;
 import androidx.recyclerview.widget.RecyclerView;
 
+import com.google.android.car.kitchensink.activityresolver.ActivityResolverFragment;
 import com.google.android.car.kitchensink.activityview.ActivityViewTestFragment;
 import com.google.android.car.kitchensink.alertdialog.AlertDialogTestFragment;
 import com.google.android.car.kitchensink.assistant.CarAssistantFragment;
@@ -166,6 +167,7 @@ public class KitchenSinkActivity extends FragmentActivity {
     }
 
     private final List<MenuEntry> mMenuEntries = Arrays.asList(
+            new FragmentMenuEntry("activity resolver", ActivityResolverFragment.class),
             new FragmentMenuEntry("activity view", ActivityViewTestFragment.class),
             new FragmentMenuEntry("alert window", AlertDialogTestFragment.class),
             new FragmentMenuEntry("assistant", CarAssistantFragment.class),

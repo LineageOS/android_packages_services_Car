@@ -412,6 +412,7 @@ public class CarMediaService extends ICarMedia.Stub implements CarServiceBase {
 
     @Override
     public List<ComponentName> getLastMediaSources(@CarMediaManager.MediaSourceMode int mode) {
+        ICarImpl.assertPermission(mContext, android.Manifest.permission.MEDIA_CONTENT_CONTROL);
         String key = getMediaSourceKey(mode);
         String serialized = mSharedPrefs.getString(key, "");
         return getComponentNameList(serialized).stream()

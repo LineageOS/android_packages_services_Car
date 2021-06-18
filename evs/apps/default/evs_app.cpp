@@ -42,6 +42,9 @@ using android::hardware::joinRpcThreadpool;
 
 namespace {
 
+const char* CONFIG_DEFAULT_PATH = "/system/etc/automotive/evs/config.json";
+const char* CONFIG_OVERRIDE_PATH = "/system/etc/automotive/evs/config_override.json";
+
 android::sp<IEvsEnumerator> pEvs;
 android::sp<IEvsDisplay> pDisplay;
 EvsStateControl *pStateController;
@@ -201,9 +204,11 @@ int main(int argc, char** argv)
 
     // Load our configuration information
     ConfigManager config;
-    if (!config.initialize("/system/etc/automotive/evs/config.json")) {
-        LOG(ERROR) << "Missing or improper configuration for the EVS application.  Exiting.";
-        return EXIT_FAILURE;
+    if (!config.initialize(CONFIG_OVERRIDE_PATH)) {
+        if (!config.initialize(CONFIG_DEFAULT_PATH)) {
+            LOG(ERROR) << "Missing or improper configuration for the EVS application.  Exiting.";
+            return EXIT_FAILURE;
+        }
     }
 
     // Set thread pool size to one to avoid concurrent events from the HAL.
