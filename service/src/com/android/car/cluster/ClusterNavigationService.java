@@ -15,9 +15,10 @@
  */
 package com.android.car.cluster;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.cluster.renderer.IInstrumentCluster;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
@@ -33,6 +34,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.ICarImpl;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Objects;
@@ -117,6 +119,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
         writer.println("**" + getClass().getSimpleName() + "**");
         synchronized (mLock) {
@@ -155,8 +158,6 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
         if (appType != CarAppFocusManager.APP_FOCUS_TYPE_NAVIGATION) {
             return;
         }
-
-        IInstrumentCluster service;
         ContextOwner requester = new ContextOwner(uid, pid);
         ContextOwner newOwner = acquire ? requester : NO_OWNER;
         ClusterNavigationServiceCallback callback;
