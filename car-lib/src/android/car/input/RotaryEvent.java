@@ -15,11 +15,14 @@
  */
 package android.car.input;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.util.DataClass;
 
 import java.util.Arrays;
@@ -80,6 +83,7 @@ public final class RotaryEvent implements Parcelable {
     }
 
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public String toString() {
         return new StringBuilder(128)
                 .append("RotaryEvent{")
@@ -170,6 +174,7 @@ public final class RotaryEvent implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public boolean equals(@android.annotation.Nullable Object o) {
         // You can override field equality logic by defining either of the methods like:
         // boolean fieldNameEquals(RotaryEvent other) { ... }
@@ -188,6 +193,7 @@ public final class RotaryEvent implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int hashCode() {
         // You can override field hashCode logic by defining methods like:
         // int fieldNameHashCode() { ... }
@@ -214,6 +220,7 @@ public final class RotaryEvent implements Parcelable {
 
     @Override
     @DataClass.Generated.Member
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public int describeContents() { return 0; }
 
     /** @hide */
@@ -259,6 +266,7 @@ public final class RotaryEvent implements Parcelable {
             sourceFile = "packages/services/Car/car-lib/src/android/car/input/RotaryEvent.java",
             inputSignatures = "private final @android.car.input.CarInputManager.InputTypeEnum int mInputType\nprivate final  boolean mClockwise\nprivate final @android.annotation.NonNull long[] mUptimeMillisForClicks\npublic  int getNumberOfClicks()\npublic  long getUptimeMillisForClick(int)\npublic @java.lang.Override java.lang.String toString()\nclass RotaryEvent extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genEqualsHashCode=true, genAidl=true)")
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}
 
 
