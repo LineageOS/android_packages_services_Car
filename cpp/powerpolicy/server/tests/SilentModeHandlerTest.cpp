@@ -93,6 +93,8 @@ public:
         return Trim(value);
     }
 
+    void updateKernelSilentMode(bool isSilent) { mHandler->updateKernelSilentMode(isSilent); }
+
 private:
     SilentModeHandler* mHandler;
     TemporaryFile mFileSilentModeHwState;
@@ -176,12 +178,12 @@ TEST_F(SilentModeHandlerTest, TestUpdateKernelSilentMode) {
     handlerPeer.injectBootReason(kBootReasonNormal);
     handlerPeer.init();
 
-    handler.updateKernelSilentMode(true);
+    handlerPeer.updateKernelSilentMode(true);
 
     ASSERT_EQ(handlerPeer.readKernelSilentMode(), kValueSilentMode)
             << "Kernel silent mode file should have 1";
 
-    handler.updateKernelSilentMode(false);
+    handlerPeer.updateKernelSilentMode(false);
 
     ASSERT_EQ(handlerPeer.readKernelSilentMode(), kValueNonSilentMode)
             << "Kernel silent mode file should have 0";
