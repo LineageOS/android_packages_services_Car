@@ -60,6 +60,15 @@ public class GarageModeServiceTest {
     }
 
     @Test
+    public void testInitAndRelease() {
+        mService.init();
+        mService.release();
+
+        verify(mMockController).init();
+        verify(mMockController).release();
+    }
+
+    @Test
     public void testDump_shouldSucceed() {
         when(mMockController.isGarageModeActive()).thenReturn(true);
 
@@ -68,4 +77,33 @@ public class GarageModeServiceTest {
         List<String> strings = mCaptorString.getAllValues();
         assertThat(strings.get(0)).isEqualTo("GarageModeInProgress true");
     }
+
+    @Test
+    public void testIsGarageModeActive_true() {
+        when(mMockController.isGarageModeActive()).thenReturn(true);
+
+        assertThat(mService.isGarageModeActive()).isTrue();
+    }
+
+    @Test
+    public void testIsGarageModeActive_false() {
+        when(mMockController.isGarageModeActive()).thenReturn(false);
+
+        assertThat(mService.isGarageModeActive()).isFalse();
+    }
+
+    @Test
+    public void testForceStartGarageMode() {
+        mService.forceStartGarageMode();
+
+        verify(mMockController).initiateGarageMode(null);
+    }
+
+    @Test
+    public void testStopAndResetGarageMode() {
+        mService.stopAndResetGarageMode();
+
+        verify(mMockController).resetGarageMode();
+    }
+
 }
