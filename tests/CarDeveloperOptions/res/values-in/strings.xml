@@ -1729,9 +1729,9 @@
     <string name="lockpassword_confirm_your_pattern_generic" msgid="6146545393074070916">"Gunakan pola perangkat untuk melanjutkan"</string>
     <string name="lockpassword_confirm_your_pin_generic" msgid="8732268389177735264">"Masukkan PIN perangkat untuk melanjutkan"</string>
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"Masukkan sandi perangkat untuk melanjutkan"</string>
-    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Gunakan pola kerja untuk melanjutkan"</string>
-    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Masukkan PIN kerja untuk melanjutkan"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Masukkan sandi kerja untuk melanjutkan"</string>
+    <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"Gunakan pola profil kerja untuk melanjutkan"</string>
+    <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"Masukkan PIN profil kerja untuk melanjutkan"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"Masukkan sandi profil kerja untuk melanjutkan"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"Untuk tambahan keamanan, gunakan pola perangkat"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"Untuk tambahan keamanan, masukkan PIN perangkat"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"Untuk tambahan keamanan, masukkan sandi perangkat"</string>
@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Keamanan perangkat"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Ubah pola pembuka kunci"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Ubah PIN pembuka kunci"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Buat pola pembuka kunci"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Gambar pola pembuka kunci"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Tekan Menu untuk bantuan."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Angkat jari ketika selesai"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Hubungkan setidaknya <xliff:g id="NUMBER">%d</xliff:g> titik. Coba lagi."</string>
@@ -1771,7 +1771,7 @@
     <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Kecuali jika tetap tidak dikunci oleh <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Setel pola pembuka kunci"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Ubah pola pembuka kunci"</string>
-    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Cara membuat pola pembuka kunci"</string>
+    <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Cara menggambar pola pembuka kunci"</string>
     <string name="lockpattern_too_many_failed_confirmation_attempts" msgid="3043127997770535921">"Terlalu banyak kesalahan pola. Coba kembali dalam <xliff:g id="NUMBER">%d</xliff:g> detik."</string>
     <string name="activity_not_found" msgid="3492413375341165453">"Aplikasi tidak dipasang pada ponsel Anda."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Keamanan profil kerja"</string>
@@ -2434,7 +2434,7 @@
     <string name="battery_detail_background" msgid="7938146832943604280">"Saat di latar belakang"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"Penggunaan baterai"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"Sejak baterai terisi penuh"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"Mengelola penggunaan baterai"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"Kelola penggunaan baterai"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"Perkiraan sisa baterai berdasarkan pada penggunaan perangkat"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"Perkiraan sisa waktu"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"Sampai terisi penuh"</string>

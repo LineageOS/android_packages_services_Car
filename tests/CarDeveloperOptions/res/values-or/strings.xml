@@ -1309,7 +1309,7 @@
     <string name="pin_failed" msgid="4877356137480446727">"ସିମ୍‌ ପିନ୍‌ କାମ ବିଫଳ ହେଲା!"</string>
     <string name="system_update_settings_list_item_title" msgid="1907497454722790033">"ସିଷ୍ଟମ୍‌ ଅପଡେଟ୍‌‍"</string>
     <string name="system_update_settings_list_item_summary" msgid="3497456690691907873"></string>
-    <string name="firmware_version" msgid="547095584029938749">"Android ଭର୍ସନ୍‌"</string>
+    <string name="firmware_version" msgid="547095584029938749">"Android ସଂସ୍କରଣ"</string>
     <string name="security_patch" msgid="483709031051932208">"Android ସୁରକ୍ଷା ପାଚ୍‌ ସ୍ତର"</string>
     <string name="model_info" msgid="1729765474260797594">"ମଡେଲ୍‌"</string>
     <string name="model_summary" msgid="8781425868254352168">"ମଡେଲ୍‌: %1$s"</string>

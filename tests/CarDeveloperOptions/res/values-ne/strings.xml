@@ -1209,7 +1209,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"सक्रिय / तपाईं स्क्रिनमा हेर्दै हुनुहुन्छ भने यो बन्द हुने छैन"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"निष्क्रिय"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"स्क्रिनमा हेरिरहेका बेला स्क्रिन अफ हँदैन"</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"कुनै व्यक्तिले स्क्रिनमा हेरिरहेको छ या छैन भन्ने कुरा पत्ता लगाउन स्क्रिनसम्बन्धी ज्ञान नामक सुविधाले अगाडिको क्यामेरा प्रयोग गर्दछ। यसले यो डिभाइसभित्रै मात्र काम गर्छ र छविहरू कहिल्यै पनि भण्डारण गरिँदैन वा Google मा पठाइँदैन।"</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"कुनै व्यक्तिले स्क्रिनमा हेरिरहेको छ या छैन भन्ने कुरा पत्ता लगाउन स्क्रिनसम्बन्धी ज्ञान नामक सुविधाले अगाडिको क्यामेरा प्रयोग गर्दछ। यसले यो डिभाइसभित्रै मात्र काम गर्छ र फोटो कहिल्यै पनि भण्डारण गरिँदैन वा Google मा पठाइँदैन।"</string>
     <string name="night_display_title" msgid="1305002424893349814">"Night Light"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Night Light ले डिभाइसको स्क्रिन हल्का एम्बर रङको बनाउँछ। यसले मधुरो प्रकाशमा डिभाइसको स्क्रिन हेर्न र पढ्न सजिलो बनाउँछ तथा तपाईंलाई अझ सजिलैसँग निदाउन मद्दत गर्न सक्छ।"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"समय निर्धारण गर्नुहोस्"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> भुल्नुभयो?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"यो <xliff:g id="NAME">^1</xliff:g> मा भण्डारण गरिएका सबै एपहरू, फोटोहरू, र डेटा सधैंका लागि नष्ट हुनेछन्।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"एपहरू"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"छविहरू"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"फोटो"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"भिडियोहरू"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"अडियो"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"क्यास गरेको डेटा"</string>

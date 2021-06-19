@@ -3877,9 +3877,9 @@
     <string name="background_check_pref" msgid="664081406854758392">"Фоновая проверка"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Полный доступ в фоновом режиме"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Использовать текст с экрана"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"Разрешить приложению-помощнику доступ к тексту на экране"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"Разрешить просматривать содержимое экрана в виде текста"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Использовать скриншот"</string>
-    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Разрешить приложению-помощнику доступ к изображению на экране"</string>
+    <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Разрешить приложению-помощнику доступ к изображению экрана"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Подсвечивать экран"</string>
     <string name="assist_flash_summary" msgid="6697095786317559129">"Подсвечивать края экрана, когда приложение-помощник получает доступ к тексту или скриншоту"</string>
     <string name="assist_footer" msgid="7030121180457472165">"Приложения-помощники могут использовать информацию на экране. Для большего удобства некоторые из них поддерживают запуск других приложений и голосовой ввод."</string>

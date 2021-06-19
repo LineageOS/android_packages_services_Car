@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Nessuna pianificazione"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"In base alla tua routine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"In base alla percentuale"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"La funzionalità Risparmio energetico viene attivata se è probabile che la batteria si scarichi prima della successiva ricarica abituale"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Il risparmio energetico viene attivato se è probabile che la batteria si scarichi prima della successiva ricarica abituale"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Si attiva quando la batteria raggiunge <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Imposta una pianificazione"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Disattiva quando la ricarica è completa"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Attiva"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Usa Risparmio energetico"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Usa risparmio energetico"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Attiva automaticamente"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Mai"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"al seguente livello di carica: <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ritaglio display, tacca"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Predefinita dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Applicazione dell\'overlay non riuscita"</string>
-    <string name="special_access" msgid="1453926335914696206">"App con accesso speciale"</string>
+    <string name="special_access" msgid="1453926335914696206">"Accesso speciale per le app"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> app possono usare dati senza limitazioni</item>
       <item quantity="one">1 app può usare dati senza limitazioni</item>
@@ -4128,7 +4128,7 @@
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Solleva il tablet per controllare le notifiche"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Solleva il dispositivo per controllare le notifiche"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Riattiva schermo"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il telefono."</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il telefono"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il tablet."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il dispositivo."</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocca per attivare"</string>
