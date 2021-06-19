@@ -96,7 +96,9 @@ public final class CarEvsManagerTest extends MockedCarTestBase {
 
     @After
     public void tearDown() throws Exception {
-        mEvsManager.stopVideoStream();
+        if (mEvsManager != null) {
+            mEvsManager.stopVideoStream();
+        }
     }
 
     @Test
