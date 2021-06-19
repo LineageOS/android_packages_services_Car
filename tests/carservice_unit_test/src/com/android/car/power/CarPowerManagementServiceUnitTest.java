@@ -560,6 +560,29 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         assertThat(listenerAudio.getCurrentPowerPolicy()).isNull();
     }
 
+    /**
+     * This test case increases the code coverage to cover methods
+     * {@code describeContents()} and {@code newArray()}. They are public APIs
+     * can not be marked out as BOILERPLATE_CODE.
+     */
+    @Test
+    public void testParcelableCreation() throws Exception {
+        grantPowerPolicyPermission();
+
+        CarPowerPolicy policy = mService.getCurrentPowerPolicy();
+        assertThat(policy.describeContents()).isEqualTo(0);
+
+        CarPowerPolicy[] policies = CarPowerPolicy.CREATOR.newArray(1);
+        assertThat(policies.length).isEqualTo(1);
+
+        CarPowerPolicyFilter filterAudio = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.AUDIO).build();
+        assertThat(filterAudio.describeContents()).isEqualTo(0);
+
+        CarPowerPolicyFilter[] filters = CarPowerPolicyFilter.CREATOR.newArray(1);
+        assertThat(filters.length).isEqualTo(1);
+    }
+
     private void suspendAndResume() throws Exception {
         Log.d(TAG, "suspend()");
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
