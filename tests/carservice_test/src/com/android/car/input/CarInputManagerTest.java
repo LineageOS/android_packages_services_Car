@@ -34,6 +34,7 @@ import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
+import android.os.SystemClock;
 import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
@@ -50,6 +51,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.LinkedList;
 import java.util.List;
 import java.util.concurrent.Executor;
@@ -261,6 +263,50 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     private CarInputManager createAnotherCarInputManager() {
         return (CarInputManager) createNewCar().getCarManager(Car.CAR_INPUT_SERVICE);
+    }
+
+    @Test
+    public void testInjectKeyEvent_mainDisplay() throws Exception {
+        int r = mCarInputManager.requestInputEventCapture(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
+                CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY, mCallback0);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+
+        KeyEvent keyEvent = newKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+
+        mCarInputManager.injectKeyEvent(keyEvent, CarOccupantZoneManager.DISPLAY_TYPE_MAIN);
+
+        mCallback0.waitForKeyEvent();
+        assertThat(mCallback0.getkeyEvents()).containsExactly(
+                new Pair<>(CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                        Collections.singletonList(keyEvent)));
+    }
+
+    @Test
+    public void testInjectKeyEvent_instrumentClusterDisplay() throws Exception {
+        int r = mCarInputManager.requestInputEventCapture(
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
+                CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY, mCallback0);
+        assertThat(r).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+
+        KeyEvent keyEvent = newKeyEvent(KeyEvent.ACTION_DOWN, KeyEvent.KEYCODE_ENTER);
+
+        mCarInputManager.injectKeyEvent(keyEvent,
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
+
+        mCallback0.waitForKeyEvent();
+        assertThat(mCallback0.getkeyEvents()).containsExactly(
+                new Pair<>(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                        Collections.singletonList(keyEvent)));
+    }
+
+    private static KeyEvent newKeyEvent(int action, int code) {
+        long currentTime = SystemClock.uptimeMillis();
+        return new KeyEvent(/* downTime= */ currentTime,
+                /* eventTime= */ currentTime, action, code,
+                /* repeat= */ 0);
     }
 
     @Test
