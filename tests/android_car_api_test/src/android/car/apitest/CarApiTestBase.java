@@ -55,7 +55,7 @@ import java.io.InputStreamReader;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-abstract class CarApiTestBase {
+public abstract class CarApiTestBase {
 
     private static final String TAG = CarApiTestBase.class.getSimpleName();
 
