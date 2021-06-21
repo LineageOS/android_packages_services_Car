@@ -48,4 +48,10 @@ public interface DataBroker {
      * @param callback script finished callback.
      */
     void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback);
+
+    /**
+     * Invoked by controller to indicate system health state and which subscribers can be consumed.
+     * A smaller priority number indicates higher priority. Range 1 - 100.
+     */
+    void setTaskExecutionPriority(int priority);
 }
