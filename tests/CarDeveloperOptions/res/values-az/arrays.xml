@@ -461,9 +461,9 @@
     <item msgid="5642914536624000094">"Qırmızı"</item>
   </string-array>
   <string-array name="automatic_storage_management_days">
-    <item msgid="2860293514533486236">"30 gündən köhnədir"</item>
-    <item msgid="8699273238891265610">"60 gündən köhnədir"</item>
-    <item msgid="8346279419423837266">"90 gündən köhnədir"</item>
+    <item msgid="2860293514533486236">"30 gündən köhnə"</item>
+    <item msgid="8699273238891265610">"60 gündən köhnə"</item>
+    <item msgid="8346279419423837266">"90 gündən köhnə"</item>
   </string-array>
     <!-- no translation found for swipe_direction_titles:0 (6583090603341402282) -->
     <!-- no translation found for swipe_direction_titles:1 (4965730704403236310) -->
