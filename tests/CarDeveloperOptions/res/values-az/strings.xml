@@ -1173,7 +1173,7 @@
     <string name="accelerometer_title" msgid="2427487734964971453">"Ekranın avtomatik dönməsi"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"Rənglər"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Təbii"</string>
-    <string name="color_mode_option_boosted" msgid="453557938434778933">"Artan"</string>
+    <string name="color_mode_option_boosted" msgid="453557938434778933">"Dolğun"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Dolğun"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"Adaptiv"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Yalnız doğru rənglərdən istifadə edin"</string>
@@ -1215,7 +1215,7 @@
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Rejim"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Heç biri"</string>
     <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Seçilmiş vaxtda aktiv"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Gün çıxandan batana qədər aktiv edir"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Gün çıxandan batanadək"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Başlama vaxtı"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Bitmə tarixi"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>
@@ -1246,10 +1246,10 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Ekranınızı fərdiləşdirin"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Divar kağızı seçin"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Ekran qoruyucu"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Enerji doldurulan və ya bərkidilən zaman"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Şarj ərzində və ya dok-stansiyada"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Hər ikisi"</string>
-    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Enerji doldurulan zaman"</string>
-    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Bərkidilərkən"</string>
+    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Şarj ərzində"</string>
+    <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Dok-stansiyada"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Heç vaxt"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Qapalı"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Telefon doklanmış və/və ya yatan zaman baş verənlərə nəzarət edin, ekran qoruyucunu aktiv edin."</string>
