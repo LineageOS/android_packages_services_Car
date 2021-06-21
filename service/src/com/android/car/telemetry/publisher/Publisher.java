@@ -16,30 +16,30 @@
 
 package com.android.car.telemetry.publisher;
 
-import com.android.car.telemetry.Channel;
+import com.android.car.telemetry.databroker.DataSubscriber;
 
 /**
- * Interface for publishers. It's implemented per data source, data is sent to {@link Channel}.
- * Publisher stops itself when there are no channels.
+ * Interface for publishers. It's implemented per data source, data is sent to
+ * {@link DataSubscriber}. Publisher stops itself when there are no subscribers.
  *
  * <p>Note that it doesn't map 1-1 to {@link TelemetryProto.Publisher} configuration. Single
  * publisher instance can send data as several {@link TelemetryProto.Publisher} to subscribers.
  */
 public interface Publisher {
+    /** Adds a subscriber that listens for data produced by this publisher. */
     /**
-     * Adds a channel to the publisher. Publisher will immediately start pushing
-     * data to the channel.
-     *
-     * @param channel a channel to publish data.
-     *
-     * @throws IllegalArgumentException if the channel was added before.
+     * Adds a subscriber that listens for data produced by this publisher.
+     * @param dataSubscriber a subscriber to receive data
+     * @throws IllegalArgumentException if the subscriber was added before.
      */
-    void addChannel(Channel channel);
+    void addSubscriber(DataSubscriber dataSubscriber);
 
+    /**  */
     /**
-     * Removes the channel from the publisher.
+     * Removes a subscriber from the publisher.
      *
-     * @throws IllegalArgumentException if the channel was not found.
+     * @param dataSubscriber to be removed
+     * @throws IllegalArgumentException if the subscriber was not found.
      */
-    void removeChannel(Channel channel);
+    void removeSubscriber(DataSubscriber dataSubscriber);
 }
