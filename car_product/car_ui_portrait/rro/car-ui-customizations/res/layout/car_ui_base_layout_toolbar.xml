@@ -35,6 +35,8 @@
         android:id="@+id/car_ui_base_layout_content_container"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
+        android:paddingStart="24dp"
+        android:paddingEnd="24dp"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
@@ -46,7 +48,7 @@
         android:layout_height="wrap_content">
         <androidx.constraintlayout.widget.ConstraintLayout
             android:layout_width="match_parent"
-            android:layout_height="92dp"
+            android:layout_height="90dp"
             android:background="?android:attr/colorBackground"
             android:tag="car_ui_top_inset"
             app:layout_constraintTop_toTopOf="parent">
@@ -60,7 +62,7 @@
 
             <FrameLayout
                 android:id="@+id/car_ui_toolbar_nav_icon_container"
-                android:layout_width="92dp"
+                android:layout_width="90dp"
                 android:layout_height="0dp"
                 android:layout_marginStart="88dp"
                 app:layout_constraintBottom_toBottomOf="parent"
