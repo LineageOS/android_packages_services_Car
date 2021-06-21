@@ -23,6 +23,8 @@
     <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA" />
     <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS" />
 
+    <uses-permission android:name="android.permission.INTERNAL_SYSTEM_WINDOW" />
+
     <application android:label="@string/app_name"
             android:icon="@drawable/rearview"
             android:hardwareAccelerated="true"
@@ -31,11 +33,10 @@
         <activity android:name=".CarEvsCameraPreviewActivity"
                 android:exported="true"
                 android:label="@string/app_name"
-                android:launchMode="singleTask"
                 android:resizeableActivity="false"
                 android:screenOrientation="landscape"
                 android:showForAllUsers="true"
-                android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
+                android:theme="@style/Theme.Transparent"
                 android:turnScreenOn="true">
         </activity>
 

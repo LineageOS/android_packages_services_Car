@@ -413,7 +413,11 @@
     <integer name="config_maxSuspendWaitDuration">180000</integer>
 
     <!-- A name of a camera device that provides the rearview through EVS service -->
-    <string name="config_evsRearviewCameraId">/dev/video10</string>
+    <string name="config_evsRearviewCameraId" translatable="false">/dev/video10</string>
+
+    <!-- The camera Activity name for EVS, if defined, the Activity will be launched by
+         CarEvsService. -->
+    <string name="config_evsCameraActivity" translatable="false"></string>
 
     <!-- A configuration flag to adjust Wifi for suspend. -->
     <bool name="config_wifiAdjustmentForSuspend">false</bool>
