@@ -17,18 +17,33 @@
 package com.android.car.telemetry.databroker;
 
 import android.os.Bundle;
+import android.os.SystemClock;
 
 import com.android.car.telemetry.TelemetryProto;
 
 /**
- * Subscriber class that receive published data and schedules tasks for execution on the data.
+ * Subscriber class that receives published data and schedules tasks for execution.
+ * The class is thread-safe as long as
+ * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} does not change during runtime.
+ * TODO(b/187743369): thread-safety can change if priority can be updated in runtime. Update
+ *                    javadoc once priority is concretely defined.
  */
 public class DataSubscriber {
+
+    private final int mPriority;
+    private final DataBroker mDataBroker;
+    private final TelemetryProto.MetricsConfig mMetricsConfig;
     private final TelemetryProto.Subscriber mSubscriber;
 
-    public DataSubscriber(TelemetryProto.MetricsConfig metricsConfig,
-            TelemetryProto.Subscriber subscriber) {
+    public DataSubscriber(
+            DataBroker dataBroker,
+            TelemetryProto.MetricsConfig metricsConfig,
+            TelemetryProto.Subscriber subscriber,
+            int priority) {
+        mDataBroker = dataBroker;
+        mMetricsConfig = metricsConfig;
         mSubscriber = subscriber;
+        mPriority = priority;
     }
 
     /**
@@ -39,8 +54,25 @@ public class DataSubscriber {
         return mSubscriber.getPublisher();
     }
 
-    /** Pushes data to the subscriber. */
+    /**
+     * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
+     * will be pending execution.
+     * This method is thread-safe because {@link DataBroker#addTaskToQueue(ScriptExecutionTask)} is
+     * thread-safe.
+     */
     public void push(Bundle data) {
-        // TODO(b/187743369): implement
+        ScriptExecutionTask task = new ScriptExecutionTask(this, data,
+                SystemClock.elapsedRealtime());
+        mDataBroker.addTaskToQueue(task); // thread-safe
+    }
+
+    /** Returns the {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}. */
+    public TelemetryProto.MetricsConfig getMetricsConfig() {
+        return mMetricsConfig;
+    }
+
+    /** Returns the priority of subscriber. */
+    public int getPriority() {
+        return mPriority;
     }
 }
