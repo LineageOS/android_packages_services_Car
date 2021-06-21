@@ -26,6 +26,8 @@ import java.util.regex.Pattern;
  * A utility class to parse the window dump.
  */
 class WindowDumpParser {
+    private static final String WINDOW_TYPE_APPLICATION_STARTING =  "APPLICATION_STARTING";
+
     /**
      * Parses the provided window dump and returns the list of windows only for a particular app.
      *
@@ -36,12 +38,19 @@ class WindowDumpParser {
      * @return a list of parsed {@link Window} objects.
      */
     public static List<Window> getParsedAppWindows(String dump, String appPackageName) {
-        Pattern p = Pattern.compile("Window #\\d*.*\\n.*mDisplayId=(\\S*).*\\n.*package=(\\S*)");
+        Pattern p = Pattern.compile("Window #\\d*.*\\n"
+                + ".*mDisplayId=(\\S*).*\\n"
+                + ".*package=(\\S*).*\\n"
+                + ".*ty=(\\S*)");
         Matcher m = p.matcher(dump);
         List<Window> windows = new ArrayList<>();
         while (m.find()) {
-            if (Objects.equals(m.group(2), appPackageName)) {
-                windows.add(new Window(m.group(2), m.group(1)));
+            // Only consider windows for the given appPackageName which are not the splash screen
+            // windows.
+            // TODO(b/192355798): Revisit this logic as window type can be changed.
+            if (Objects.equals(m.group(2), appPackageName)
+                    && !Objects.equals(m.group(3), WINDOW_TYPE_APPLICATION_STARTING)) {
+                windows.add(new Window(m.group(2), Integer.parseInt(m.group(1))));
             }
         }
         return windows;
@@ -52,9 +61,9 @@ class WindowDumpParser {
      */
     static class Window {
         private final String mPackageName;
-        private final String mDisplayId;
+        private final int mDisplayId;
 
-        Window(String packageName, String displayId) {
+        Window(String packageName, int displayId) {
             mPackageName = packageName;
             mDisplayId = displayId;
         }
@@ -63,7 +72,7 @@ class WindowDumpParser {
             return mPackageName;
         }
 
-        public String getDisplayId() {
+        public int getDisplayId() {
             return mDisplayId;
         }
 
@@ -73,7 +82,7 @@ class WindowDumpParser {
             if (!(o instanceof Window)) return false;
             Window window = (Window) o;
             return mPackageName.equals(window.mPackageName)
-                    && mDisplayId.equals(window.mDisplayId);
+                    && mDisplayId == window.mDisplayId;
         }
 
         @Override
