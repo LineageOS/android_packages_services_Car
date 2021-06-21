@@ -28,7 +28,7 @@ public interface DataBroker {
     /**
      * ScriptResultListener is the listener for script results.
      */
-    public interface ScriptResultListener {
+    interface ScriptResultListener {
         /**
          * Notifies listener of script result.
          *
@@ -50,13 +50,22 @@ public interface DataBroker {
 
     /**
      * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
-     * execution.
+     * execution. When updating the MetricsConfig to a newer version, the caller must call
+     * {@link #removeMetricsConfiguration(TelemetryProto.MetricsConfig)} first to clear the old
+     * MetricsConfig.
+     * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
+     *
+     * @param metricsConfig to be added and queued for execution.
+     * @return true for success, false for failure.
      */
-    void addMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    boolean addMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
 
     /**
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
+     *
+     * @param metricsConfig to be removed from DataBroker.
+     * @return true for success, false for failure.
      */
-    void removeMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    boolean removeMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
 }

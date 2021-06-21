@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry.publisher;
 
-import com.android.car.telemetry.Channel;
+import com.android.car.telemetry.databroker.DataSubscriber;
 
 /**
  * Publisher for Android logs (adb logcat).
@@ -24,13 +24,13 @@ import com.android.car.telemetry.Channel;
  * TODO(b/187525360): Move the logic from LogcatReader here.
  */
 public class LogcatPublisher implements Publisher {
-    /** See {@link Publisher#addChannel()} for details. */
-    public void addChannel(Channel channel) {
+    @Override
+    public void addSubscriber(DataSubscriber dataSubscriber) {
         // TODO(b/187525360): implement
     }
 
-    /** See {@link Publisher#removeChannel()} for details. */
-    public void removeChannel(Channel channel) {
+    @Override
+    public void removeSubscriber(DataSubscriber dataSubscriber) {
         // TODO(b/187525360): implement
     }
 }
