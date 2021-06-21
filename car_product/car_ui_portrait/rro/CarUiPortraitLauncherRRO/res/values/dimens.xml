@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,10 +14,17 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <!-- Number of buttons shown for the media playback controls bar -->
-    <integer name="playback_controls_bar_columns">3</integer>
-    <!--  Entry/exit animation transition speed in milliseconds.  This is the animation of foreground DA.-->
-    <integer name="enter_exit_animation_foreground_display_area_duration_ms">500</integer>
-</resources>
 
+<resources>
+    <dimen name="card_icon_margin_start">24dp</dimen>
+    <dimen name="card_content_margin_start">32dp</dimen>
+
+    <dimen name="descriptive_text_vertical_margin">22dp</dimen>
+
+    <dimen name="control_bar_image_size">56dp</dimen>
+
+    <dimen name="control_bar_action_icon_size">56dp</dimen>
+
+    <!-- Percent transparency of the scrim applied to the image used for the card's background as a float between 0 and 1, where 0 applies no darkening scrim-->
+    <dimen name="card_background_scrim_alpha" format="float">0.72</dimen>
+</resources>
