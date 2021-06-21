@@ -259,7 +259,7 @@ public final class CarTelemetryManager extends CarManagerBase {
      * The {@link ManifestKey} is used to uniquely identify a manifest. If a manifest of the same
      * name already exists in {@link com.android.car.telemetry.CarTelemetryService}, then the
      * version will be compared. If the version is strictly higher, the existing manifest will be
-     * replaced by the new one.
+     * replaced by the new one. All cache and intermediate results will be cleared if replaced.
      * TODO(b/185420981): Update javadoc after CarTelemetryService has concrete implementation.
      *
      * @param key      the unique key to identify the manifest.
