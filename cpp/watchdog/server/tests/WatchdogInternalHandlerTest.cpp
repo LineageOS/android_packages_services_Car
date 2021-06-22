@@ -44,6 +44,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageResourceOveruseAction;
+using aawi::PowerCycle;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
 using ::android::String16;
@@ -58,7 +59,7 @@ namespace {
 class MockWatchdogBinderMediator : public WatchdogBinderMediator {
 public:
     MockWatchdogBinderMediator(const android::sp<WatchdogProcessService>& watchdogProcessService,
-                               const android::sp<WatchdogPerfService>& watchdogPerfService,
+                               const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
                                const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) :
           WatchdogBinderMediator(watchdogProcessService, watchdogPerfService, watchdogServiceHelper,
                                  [](const char*, const android::sp<android::IBinder>&)
@@ -99,17 +100,19 @@ private:
 class WatchdogInternalHandlerTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mMockWatchdogProcessService = new MockWatchdogProcessService();
-        mMockWatchdogPerfService = new MockWatchdogPerfService();
-        mMockWatchdogServiceHelper = new MockWatchdogServiceHelper();
-        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
-        mMockWatchdogBinderMediator = new MockWatchdogBinderMediator(mMockWatchdogProcessService,
-                                                                     mMockWatchdogPerfService,
-                                                                     mMockWatchdogServiceHelper);
+        mMockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
+        mMockWatchdogPerfService = sp<MockWatchdogPerfService>::make();
+        mMockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
+        mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
+        mMockWatchdogBinderMediator =
+                sp<MockWatchdogBinderMediator>::make(mMockWatchdogProcessService,
+                                                     mMockWatchdogPerfService,
+                                                     mMockWatchdogServiceHelper);
         mWatchdogInternalHandler =
-                new WatchdogInternalHandler(mMockWatchdogBinderMediator, mMockWatchdogServiceHelper,
-                                            mMockWatchdogProcessService, mMockWatchdogPerfService,
-                                            mMockIoOveruseMonitor);
+                sp<WatchdogInternalHandler>::make(mMockWatchdogBinderMediator,
+                                                  mMockWatchdogServiceHelper,
+                                                  mMockWatchdogProcessService,
+                                                  mMockWatchdogPerfService, mMockIoOveruseMonitor);
     }
     virtual void TearDown() {
         mMockWatchdogBinderMediator.clear();
@@ -122,7 +125,9 @@ protected:
     }
 
     // Sets calling UID to imitate System's process.
-    void setSystemCallingUid() { mScopedChangeCallingUid = new ScopedChangeCallingUid(AID_SYSTEM); }
+    void setSystemCallingUid() {
+        mScopedChangeCallingUid = sp<ScopedChangeCallingUid>::make(AID_SYSTEM);
+    }
 
     sp<MockWatchdogBinderMediator> mMockWatchdogBinderMediator;
     sp<MockWatchdogServiceHelper> mMockWatchdogServiceHelper;
@@ -156,7 +161,7 @@ TEST_F(WatchdogInternalHandlerTest, TestDump) {
 
 TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
     setSystemCallingUid();
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::ok()));
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
@@ -168,7 +173,7 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterCarWatchdogService) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNonSystemCallingUid) {
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(_)).Times(0);
 
     Status status = mWatchdogInternalHandler->registerCarWatchdogService(service);
@@ -179,7 +184,7 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterCarWatchdogServiceWithNon
 TEST_F(WatchdogInternalHandlerTest,
        TestErrorOnRegisterCarWatchdogServiceWithWatchdogServiceHelperError) {
     setSystemCallingUid();
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, registerService(service))
             .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
 
@@ -190,7 +195,7 @@ TEST_F(WatchdogInternalHandlerTest,
 
 TEST_F(WatchdogInternalHandlerTest, TestUnregisterCarWatchdogService) {
     setSystemCallingUid();
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
@@ -199,7 +204,7 @@ TEST_F(WatchdogInternalHandlerTest, TestUnregisterCarWatchdogService) {
 
 TEST_F(WatchdogInternalHandlerTest,
        TestErrorOnUnregisterCarWatchdogServiceWithNonSystemCallingUid) {
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service)).Times(0);
     Status status = mWatchdogInternalHandler->unregisterCarWatchdogService(service);
     ASSERT_FALSE(status.isOk()) << status;
@@ -207,7 +212,7 @@ TEST_F(WatchdogInternalHandlerTest,
 TEST_F(WatchdogInternalHandlerTest,
        TestErrorOnUnregisterCarWatchdogServiceWithWatchdogServiceHelperError) {
     setSystemCallingUid();
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     EXPECT_CALL(*mMockWatchdogServiceHelper, unregisterService(service))
             .WillOnce(Return(
                     Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT, "Illegal argument")));
@@ -217,7 +222,7 @@ TEST_F(WatchdogInternalHandlerTest,
 
 TEST_F(WatchdogInternalHandlerTest, TestRegisterMonitor) {
     setSystemCallingUid();
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, registerMonitor(monitor))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->registerMonitor(monitor);
@@ -225,7 +230,7 @@ TEST_F(WatchdogInternalHandlerTest, TestRegisterMonitor) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterMonitorWithNonSystemCallingUid) {
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, registerMonitor(monitor)).Times(0);
     Status status = mWatchdogInternalHandler->registerMonitor(monitor);
     ASSERT_FALSE(status.isOk()) << status;
@@ -233,7 +238,7 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnRegisterMonitorWithNonSystemCalli
 
 TEST_F(WatchdogInternalHandlerTest, TestUnregisterMonitor) {
     setSystemCallingUid();
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterMonitor(monitor))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->unregisterMonitor(monitor);
@@ -241,7 +246,7 @@ TEST_F(WatchdogInternalHandlerTest, TestUnregisterMonitor) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnUnregisterMonitorWithNonSystemCallingUid) {
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterMonitor(monitor)).Times(0);
     Status status = mWatchdogInternalHandler->unregisterMonitor(monitor);
     ASSERT_FALSE(status.isOk()) << status;
@@ -249,7 +254,7 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnUnregisterMonitorWithNonSystemCal
 
 TEST_F(WatchdogInternalHandlerTest, TestCarWatchdogServiceAlive) {
     setSystemCallingUid();
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     std::vector clientsNotResponding = {123};
     EXPECT_CALL(*mMockWatchdogProcessService,
                 tellCarWatchdogServiceAlive(service, clientsNotResponding, 456))
@@ -261,7 +266,7 @@ TEST_F(WatchdogInternalHandlerTest, TestCarWatchdogServiceAlive) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnCarWatchdogServiceWithNonSystemCallingUid) {
-    sp<ICarWatchdogServiceForSystem> service = new ICarWatchdogServiceForSystemDefault();
+    sp<ICarWatchdogServiceForSystem> service = sp<ICarWatchdogServiceForSystemDefault>::make();
     std::vector clientsNotResponding = {123};
     EXPECT_CALL(*mMockWatchdogProcessService, tellCarWatchdogServiceAlive(_, _, _)).Times(0);
     Status status =
@@ -272,7 +277,7 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnCarWatchdogServiceWithNonSystemCa
 
 TEST_F(WatchdogInternalHandlerTest, TestTellDumpFinished) {
     setSystemCallingUid();
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(monitor, 456))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, 456);
@@ -280,29 +285,51 @@ TEST_F(WatchdogInternalHandlerTest, TestTellDumpFinished) {
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnTellDumpFinishedWithNonSystemCallingUid) {
-    sp<aawi::ICarWatchdogMonitor> monitor = new aawi::ICarWatchdogMonitorDefault();
+    sp<aawi::ICarWatchdogMonitor> monitor = sp<aawi::ICarWatchdogMonitorDefault>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, tellDumpFinished(_, _)).Times(0);
     Status status = mWatchdogInternalHandler->tellDumpFinished(monitor, 456);
     ASSERT_FALSE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChange) {
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToSuspend) {
     setSystemCallingUid();
-    aawi::StateType type = aawi::StateType::POWER_CYCLE;
-    EXPECT_CALL(*mMockWatchdogProcessService,
-                notifyPowerCycleChange(aawi::PowerCycle::POWER_CYCLE_SUSPEND))
-            .WillOnce(Return(Status::ok()));
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/false)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::GARAGE_MODE)).Times(1);
     Status status =
             mWatchdogInternalHandler
-                    ->notifySystemStateChange(type,
-                                              static_cast<int32_t>(
-                                                      aawi::PowerCycle::POWER_CYCLE_SUSPEND),
+                    ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
+                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
+                                              -1);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdown) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/false)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
+    Status status = mWatchdogInternalHandler
+                            ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
+                                                      static_cast<int32_t>(
+                                                              PowerCycle::POWER_CYCLE_SHUTDOWN),
+                                                      -1);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToResume) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/true)).Times(1);
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::NORMAL_MODE)).Times(1);
+    Status status =
+            mWatchdogInternalHandler
+                    ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
+                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_RESUME),
                                               -1);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifyPowerCycleChangeWithInvalidArgs) {
-    EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
     aawi::StateType type = aawi::StateType::POWER_CYCLE;
 
     Status status = mWatchdogInternalHandler->notifySystemStateChange(type, -1, -1);
@@ -358,12 +385,12 @@ TEST_F(WatchdogInternalHandlerTest, TestNotifyBootPhaseChangeWithNonBootComplete
 
 TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifySystemStateChangeWithNonSystemCallingUid) {
     aawi::StateType type = aawi::StateType::POWER_CYCLE;
-    EXPECT_CALL(*mMockWatchdogProcessService, notifyPowerCycleChange(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
     Status status =
             mWatchdogInternalHandler
                     ->notifySystemStateChange(type,
-                                              static_cast<int32_t>(
-                                                      aawi::PowerCycle::POWER_CYCLE_SUSPEND),
+                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
                                               -1);
     ASSERT_FALSE(status.isOk()) << status;
 }

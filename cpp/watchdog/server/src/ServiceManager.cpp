@@ -26,13 +26,11 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::sp;
-using ::android::automotive::watchdog::WatchdogPerfService;
-using ::android::automotive::watchdog::WatchdogProcessService;
 using ::android::base::Error;
 using ::android::base::Result;
 
 sp<WatchdogProcessService> ServiceManager::sWatchdogProcessService = nullptr;
-sp<WatchdogPerfService> ServiceManager::sWatchdogPerfService = nullptr;
+sp<WatchdogPerfServiceInterface> ServiceManager::sWatchdogPerfService = nullptr;
 sp<WatchdogBinderMediator> ServiceManager::sWatchdogBinderMediator = nullptr;
 sp<IWatchdogServiceHelper> ServiceManager::sWatchdogServiceHelper = nullptr;
 
@@ -54,7 +52,7 @@ Result<void> ServiceManager::startServices(const sp<Looper>& looper) {
     if (const auto result = startPerfService(); !result.ok()) {
         return result;
     }
-    sWatchdogServiceHelper = new WatchdogServiceHelper();
+    sWatchdogServiceHelper = sp<WatchdogServiceHelper>::make();
     if (const auto result = sWatchdogServiceHelper->init(sWatchdogProcessService); !result.ok()) {
         return Error() << "Failed to initialize watchdog service helper: " << result.error();
     }
@@ -86,7 +84,7 @@ void ServiceManager::terminateServices() {
 }
 
 Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
-    sp<WatchdogProcessService> service = new WatchdogProcessService(looper);
+    sp<WatchdogProcessService> service = sp<WatchdogProcessService>::make(looper);
     if (const auto result = service->start(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to start watchdog process monitoring: " << result.error();
@@ -96,8 +94,9 @@ Result<void> ServiceManager::startProcessAnrMonitor(const sp<Looper>& looper) {
 }
 
 Result<void> ServiceManager::startPerfService() {
-    sp<WatchdogPerfService> service = new WatchdogPerfService();
-    if (const auto result = service->registerDataProcessor(new IoPerfCollection()); !result.ok()) {
+    sp<WatchdogPerfService> service = sp<WatchdogPerfService>::make();
+    if (const auto result = service->registerDataProcessor(sp<IoPerfCollection>::make());
+        !result.ok()) {
         return Error() << "Failed to register I/O perf collection: " << result.error();
     }
     if (const auto result = service->start(); !result.ok()) {
@@ -110,8 +109,8 @@ Result<void> ServiceManager::startPerfService() {
 
 Result<void> ServiceManager::startBinderMediator() {
     sWatchdogBinderMediator =
-            new WatchdogBinderMediator(sWatchdogProcessService, sWatchdogPerfService,
-                                       sWatchdogServiceHelper);
+            sp<WatchdogBinderMediator>::make(sWatchdogProcessService, sWatchdogPerfService,
+                                             sWatchdogServiceHelper);
     if (const auto result = sWatchdogBinderMediator->init(); !result.ok()) {
         return Error(result.error().code())
                 << "Failed to initialize watchdog binder mediator: " << result.error();

@@ -37,10 +37,11 @@ public:
                 (time_t, const wp<UidIoStats>&, const wp<ProcStat>&, const wp<ProcPidStat>&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onPeriodicCollection,
-                (time_t, const wp<UidIoStats>&, const wp<ProcStat>&, const wp<ProcPidStat>&),
+                (time_t, SystemState, const wp<UidIoStats>&, const wp<ProcStat>&,
+                 const wp<ProcPidStat>&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onCustomCollection,
-                (time_t, const std::unordered_set<std::string>&, const wp<UidIoStats>&,
+                (time_t, SystemState, const std::unordered_set<std::string>&, const wp<UidIoStats>&,
                  const wp<ProcStat>&, const wp<ProcPidStat>&),
                 (override));
     MOCK_METHOD(android::base::Result<void>, onPeriodicMonitor,
