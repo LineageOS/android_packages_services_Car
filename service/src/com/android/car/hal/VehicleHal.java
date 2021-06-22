@@ -19,7 +19,7 @@ package com.android.car.hal;
 import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.CarServiceUtils.toFloatArray;
 import static com.android.car.CarServiceUtils.toIntArray;
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import static java.lang.Integer.toHexString;
 
@@ -440,15 +440,18 @@ public class VehicleHal extends IVehicleCallback.Stub {
             return null;
         }
         VehiclePropValue value;
+        Exception lastException = null;
         for (int i = 0; i < numberOfRetries; i++) {
             try {
                 return get(propertyId);
-            } catch (ServiceSpecificException e) {
+            } catch (Exception e) {
                 Slog.e(CarLog.TAG_HAL, "Cannot get " + toCarPropertyLog(propertyId), e);
+                lastException = e;
             }
         }
         throw new IllegalStateException("Cannot get property: 0x" + toHexString(propertyId)
-                + " after " + numberOfRetries + " retries");
+                + " after " + numberOfRetries + " retries" + ", last exception: "
+                + lastException);
     }
 
     /**
@@ -490,15 +493,17 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Returns the property object value for the class and property id passed as parameter and
      * no area specified.
      */
-    public <T> T get(Class clazz, int propertyId) {
-        return get(clazz, createPropValue(propertyId, NO_AREA));
+    public <T> T get(Class clazz, int propertyId)
+            throws IllegalArgumentException, ServiceSpecificException {
+        return get(clazz, propertyId, NO_AREA);
     }
 
     /**
      * Returns the property object value for the class, property id, and area id passed as
      * parameter.
      */
-    public <T> T get(Class clazz, int propertyId, int areaId) {
+    public <T> T get(Class clazz, int propertyId, int areaId)
+            throws IllegalArgumentException, ServiceSpecificException {
         return get(clazz, createPropValue(propertyId, areaId));
     }
 
@@ -567,7 +572,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
 
     @CheckResult
     VehiclePropValueSetter set(int propId) {
-        return new VehiclePropValueSetter(mHalClient, propId, NO_AREA);
+        return set(propId, NO_AREA);
     }
 
     @CheckResult
@@ -613,6 +618,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         mServicesToDispatch.clear();
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     @Override
     public void onPropertySet(VehiclePropValue value) {
         // No need to handle on-property-set events in HAL service yet.
@@ -634,7 +640,6 @@ public class VehicleHal extends IVehicleCallback.Stub {
     /**
      * Dumps HAL service info using the print writer passed as parameter.
      */
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
         writer.println("**dump HAL services**");
         for (HalServiceBase service: mAllServices) {
@@ -690,7 +695,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * @param areaId areaId of the property, dump the property for all areaIds in the config
      * if it is empty string.
      */
-    public void dumpPropertyValueByCommend(PrintWriter writer, int propId, int areaId) {
+    public void dumpPropertyValueByCommand(PrintWriter writer, int propId, int areaId) {
         if (propId == -1) {
             writer.println("**All property values**");
             for (VehiclePropConfig config : mAllProperties.values()) {
@@ -968,6 +973,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 VehiclePropertyIds.toString(propId));
     }
 
+    @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private static String toCarAreaLog(int areaId) {
         return String.format("areaId: %d // 0x%x", areaId, areaId);
     }

@@ -759,7 +759,7 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_GET_PROPERTY_VALUE:
                 String propId = args.length < 2 ? PARAM_ALL_PROPERTIES_OR_AREA : args[1];
                 String areaId = args.length < 3 ? PARAM_ALL_PROPERTIES_OR_AREA : args[2];
-                mHal.dumpPropertyValueByCommend(writer, Integer.decode(propId),
+                mHal.dumpPropertyValueByCommand(writer, Integer.decode(propId),
                         Integer.decode(areaId));
                 break;
             case COMMAND_PROJECTION_UI_MODE:
