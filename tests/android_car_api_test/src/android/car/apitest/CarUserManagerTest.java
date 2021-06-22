@@ -32,7 +32,6 @@ import android.util.Log;
 
 import org.junit.AfterClass;
 import org.junit.BeforeClass;
-import org.junit.Ignore;
 import org.junit.Test;
 
 public final class CarUserManagerTest extends CarMultiUserTestBase {
@@ -146,7 +145,6 @@ public final class CarUserManagerTest extends CarMultiUserTestBase {
      * resume to same guest user.
      */
     @Test
-    @Ignore("b/190865475")
     public void testSecuredGuestUserResumeToSameUser() throws Exception {
         // Create new guest user
         UserInfo guestUser = createGuest();
