@@ -10,21 +10,18 @@
      See the License for the specific language governing permissions and
      limitations under the License.
 -->
-<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+              android:id="@+id/evs_preview_container"
+              android:layout_width="match_parent"
+              android:layout_height="match_parent"
+              android:background="@android:color/transparent"
+              android:orientation="vertical">
+    <Button
+        android:id="@+id/close_button"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:orientation="horizontal">
-      <TextureView
-        android:id="@+id/texture"
-        android:layout_width="match_parent"
-        android:layout_height="match_parent"
-        android:layout_alignParentTop="true" />
-      <SeekBar
-        android:id="@+id/saturationAdjustBar"
-        android:layout_width="600dp"
         android:layout_height="wrap_content"
-        android:layout_gravity="bottom|center_horizontal"
-        android:layout_marginBottom="100dp"
-        android:max="100"
-        android:progress="50"/>
-</FrameLayout>
+        android:text="@string/close_button_text"
+        android:textColor="@color/button_text"
+        android:background="@color/button_background"
+        android:textSize="@dimen/close_button_text_size"/>
+</LinearLayout>
