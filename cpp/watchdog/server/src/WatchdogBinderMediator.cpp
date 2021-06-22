@@ -79,7 +79,7 @@ Result<void> addToServiceManager(const char* serviceName, sp<IBinder> service) {
 
 WatchdogBinderMediator::WatchdogBinderMediator(
         const android::sp<WatchdogProcessService>& watchdogProcessService,
-        const android::sp<WatchdogPerfService>& watchdogPerfService,
+        const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
         const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper,
         const AddServiceFunction& addServiceHandler) :
       mWatchdogProcessService(watchdogProcessService),
@@ -89,10 +89,11 @@ WatchdogBinderMediator::WatchdogBinderMediator(
         mAddServiceHandler = &addToServiceManager;
     }
     if (watchdogServiceHelper != nullptr) {
-        mIoOveruseMonitor = new IoOveruseMonitor(watchdogServiceHelper);
+        mIoOveruseMonitor = sp<IoOveruseMonitor>::make(watchdogServiceHelper);
         mWatchdogInternalHandler =
-                new WatchdogInternalHandler(this, watchdogServiceHelper, mWatchdogProcessService,
-                                            mWatchdogPerfService, mIoOveruseMonitor);
+                sp<WatchdogInternalHandler>::make(this, watchdogServiceHelper,
+                                                  mWatchdogProcessService, mWatchdogPerfService,
+                                                  mIoOveruseMonitor);
     }
 }
 

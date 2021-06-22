@@ -36,6 +36,7 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::base::Error;
 using ::android::base::ReadFdToString;
 using ::android::base::Result;
@@ -286,8 +287,8 @@ TEST(IoPerfCollectionTest, TestPeriodicCollection) {
     collectorPeer.injectUidToPackageNameMapping({{1009, "mount"}});
 
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(
-            collector->onPeriodicCollection(now, mockUidIoStats, mockProcStat, mockProcPidStat));
+    ASSERT_RESULT_OK(collector->onPeriodicCollection(now, SystemState::NORMAL_MODE, mockUidIoStats,
+                                                     mockProcStat, mockProcPidStat));
 
     const CollectionInfo& collectionInfo = collectorPeer.getPeriodicCollectionInfo();
 
@@ -392,7 +393,8 @@ TEST(IoPerfCollectionTest, TestCustomCollection) {
     });
 
     time_t now = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
-    ASSERT_RESULT_OK(collector->onCustomCollection(now, {"android.car.cts", "system_server"},
+    ASSERT_RESULT_OK(collector->onCustomCollection(now, SystemState::NORMAL_MODE,
+                                                   {"android.car.cts", "system_server"},
                                                    mockUidIoStats, mockProcStat, mockProcPidStat));
 
     const CollectionInfo& collectionInfo = collectorPeer.getCustomCollectionInfo();
