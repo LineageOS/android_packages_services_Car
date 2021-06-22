@@ -37,6 +37,7 @@ namespace automotive {
 namespace watchdog {
 
 using ::android::IPCThreadState;
+using ::android::sp;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
@@ -165,7 +166,7 @@ void IoOveruseMonitor::terminate() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_t time, const android::wp<UidIoStats>& uidIoStats,
+        time_t time, SystemState systemState, const android::wp<UidIoStats>& uidIoStats,
         [[maybe_unused]] const android::wp<ProcStat>& procStat,
         [[maybe_unused]] const android::wp<ProcPidStat>& procPidStat) {
     if (uidIoStats == nullptr) {
@@ -209,6 +210,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     }
     const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
     std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
+    bool isGarageModeActive = systemState == SystemState::GARAGE_MODE;
     for (const auto& [uid, uidIoStats] : perUidIoUsage) {
         const auto& packageInfo = packageInfosByUid.find(uid);
         if (packageInfo == packageInfosByUid.end()) {
@@ -218,8 +220,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
          * TODO(b/185498771): Derive the garage mode status from the collection flag, which will
          *  be added to the |onPeriodicCollection| API.
          */
-        UserPackageIoUsage curUsage(packageInfo->second, uidIoStats.ios,
-                                    /*isGarageModeActive=*/false);
+        UserPackageIoUsage curUsage(packageInfo->second, uidIoStats.ios, isGarageModeActive);
         UserPackageIoUsage* dailyIoUsage;
         if (auto cachedUsage = mUserPackageDailyIoUsageById.find(curUsage.id());
             cachedUsage != mUserPackageDailyIoUsageById.end()) {
@@ -318,11 +319,12 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 }
 
 Result<void> IoOveruseMonitor::onCustomCollection(
-        time_t time, [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
+        time_t time, SystemState systemState,
+        [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
         const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
         const android::wp<ProcPidStat>& procPidStat) {
     // Nothing special for custom collection.
-    return onPeriodicCollection(time, uidIoStats, procStat, procPidStat);
+    return onPeriodicCollection(time, systemState, uidIoStats, procStat, procPidStat);
 }
 
 Result<void> IoOveruseMonitor::onPeriodicMonitor(

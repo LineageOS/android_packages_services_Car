@@ -35,6 +35,7 @@ namespace aawi = ::android::automotive::watchdog::internal;
 using aawi::ComponentType;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::PackageResourceOveruseAction;
+using aawi::PowerCycle;
 using aawi::ResourceOveruseConfiguration;
 using ::android::sp;
 using ::android::String16;
@@ -163,13 +164,12 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
     }
     switch (type) {
         case aawi::StateType::POWER_CYCLE: {
-            aawi::PowerCycle powerCycle =
-                    static_cast<aawi::PowerCycle>(static_cast<uint32_t>(arg1));
-            if (powerCycle >= aawi::PowerCycle::NUM_POWER_CYLES) {
+            PowerCycle powerCycle = static_cast<PowerCycle>(static_cast<uint32_t>(arg1));
+            if (powerCycle >= PowerCycle::NUM_POWER_CYLES) {
                 return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                                          StringPrintf("Invalid power cycle %d", powerCycle));
             }
-            return mWatchdogProcessService->notifyPowerCycleChange(powerCycle);
+            return handlePowerCycleChange(powerCycle);
         }
         case aawi::StateType::USER_STATE: {
             userid_t userId = static_cast<userid_t>(arg1);
@@ -192,6 +192,30 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
     }
     return fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
                              StringPrintf("Invalid state change type %d", type));
+}
+
+Status WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCycle) {
+    switch (powerCycle) {
+        case PowerCycle::POWER_CYCLE_SHUTDOWN:
+            ALOGI("Received SHUTDOWN power cycle");
+            mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            break;
+        case PowerCycle::POWER_CYCLE_SUSPEND:
+            ALOGI("Received SUSPEND power cycle");
+            mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            mWatchdogPerfService->setSystemState(SystemState::GARAGE_MODE);
+            break;
+        case PowerCycle::POWER_CYCLE_RESUME:
+            ALOGI("Received RESUME power cycle");
+            mWatchdogProcessService->setEnabled(/*isEnabled=*/true);
+            mWatchdogPerfService->setSystemState(SystemState::NORMAL_MODE);
+            break;
+        default:
+            ALOGW("Unsupported power cycle: %d", powerCycle);
+            return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
+                                             "Unsupported power cycle");
+    }
+    return Status::ok();
 }
 
 Status WatchdogInternalHandler::updateResourceOveruseConfigurations(
