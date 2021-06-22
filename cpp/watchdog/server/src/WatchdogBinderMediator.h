@@ -57,7 +57,7 @@ class WatchdogBinderMediatorPeer;
 class WatchdogBinderMediator : public BnCarWatchdog {
 public:
     WatchdogBinderMediator(const android::sp<WatchdogProcessService>& watchdogProcessService,
-                           const android::sp<WatchdogPerfService>& watchdogPerfService,
+                           const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
                            const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper,
                            const std::function<android::base::Result<void>(
                                    const char*, const android::sp<android::IBinder>&)>&
@@ -116,7 +116,7 @@ private:
     status_t dumpHelpText(const int fd, const std::string& errorMsg);
 
     android::sp<WatchdogProcessService> mWatchdogProcessService;
-    android::sp<WatchdogPerfService> mWatchdogPerfService;
+    android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     android::sp<IIoOveruseMonitor> mIoOveruseMonitor;
     android::sp<WatchdogInternalHandler> mWatchdogInternalHandler;
 

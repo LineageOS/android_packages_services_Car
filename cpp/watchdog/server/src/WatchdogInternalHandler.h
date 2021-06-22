@@ -47,7 +47,7 @@ public:
             const android::sp<WatchdogBinderMediator>& binderMediator,
             const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper,
             const android::sp<WatchdogProcessService>& watchdogProcessService,
-            const android::sp<WatchdogPerfService>& watchdogPerfService,
+            const android::sp<WatchdogPerfServiceInterface>& watchdogPerfService,
             const android::sp<IIoOveruseMonitor>& ioOveruseMonitor) :
           mBinderMediator(binderMediator),
           mWatchdogServiceHelper(watchdogServiceHelper),
@@ -106,10 +106,13 @@ protected:
 private:
     void checkAndRegisterIoOveruseMonitor();
 
+    android::binder::Status handlePowerCycleChange(
+            android::automotive::watchdog::internal::PowerCycle powerCycle);
+
     android::sp<WatchdogBinderMediator> mBinderMediator;
     android::sp<IWatchdogServiceHelper> mWatchdogServiceHelper;
     android::sp<WatchdogProcessService> mWatchdogProcessService;
-    android::sp<WatchdogPerfService> mWatchdogPerfService;
+    android::sp<WatchdogPerfServiceInterface> mWatchdogPerfService;
     android::sp<IIoOveruseMonitor> mIoOveruseMonitor;
 
     friend class WatchdogBinderMediator;

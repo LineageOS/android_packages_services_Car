@@ -36,8 +36,10 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+using ::android::sp;
 using ::android::String16;
 using ::android::String8;
+using ::android::automotive::watchdog::internal::PowerCycle;
 using ::android::base::Error;
 using ::android::base::Join;
 using ::android::base::ParseUint;
@@ -117,6 +119,17 @@ constexpr const char* toString(std::variant<EventType, SwitchMessage> what) {
             what);
 }
 
+constexpr const char* toString(SystemState systemState) {
+    switch (systemState) {
+        case SystemState::NORMAL_MODE:
+            return "NORMAL_MODE";
+        case SystemState::GARAGE_MODE:
+            return "GARAGE_MODE";
+        default:
+            return "UNKNOWN MODE";
+    }
+}
+
 }  // namespace
 
 std::string WatchdogPerfService::EventMetadata::toString() const {
@@ -131,8 +144,7 @@ std::string WatchdogPerfService::EventMetadata::toString() const {
     return buffer;
 }
 
-Result<void> WatchdogPerfService::registerDataProcessor(
-        android::sp<IDataProcessorInterface> processor) {
+Result<void> WatchdogPerfService::registerDataProcessor(sp<IDataProcessorInterface> processor) {
     if (processor == nullptr) {
         return Error() << "Must provide a valid data processor";
     }
@@ -250,6 +262,15 @@ void WatchdogPerfService::terminate() {
             ALOGD("%s collection thread terminated", kServiceName);
         }
     }
+}
+
+void WatchdogPerfService::setSystemState(SystemState systemState) {
+    Mutex::Autolock lock(mMutex);
+    if (mSystemState != systemState) {
+        ALOGI("%s switching from %s to %s", kServiceName, toString(mSystemState),
+              toString(systemState));
+    }
+    mSystemState = systemState;
 }
 
 Result<void> WatchdogPerfService::onBootFinished() {
@@ -630,11 +651,12 @@ Result<void> WatchdogPerfService::collectLocked(WatchdogPerfService::EventMetada
                 result = processor->onBoottimeCollection(now, mUidIoStats, mProcStat, mProcPidStat);
                 break;
             case EventType::PERIODIC_COLLECTION:
-                result = processor->onPeriodicCollection(now, mUidIoStats, mProcStat, mProcPidStat);
+                result = processor->onPeriodicCollection(now, mSystemState, mUidIoStats, mProcStat,
+                                                         mProcPidStat);
                 break;
             case EventType::CUSTOM_COLLECTION:
-                result = processor->onCustomCollection(now, metadata->filterPackages, mUidIoStats,
-                                                       mProcStat, mProcPidStat);
+                result = processor->onCustomCollection(now, mSystemState, metadata->filterPackages,
+                                                       mUidIoStats, mProcStat, mProcPidStat);
                 break;
             default:
                 result = Error() << "Invalid collection event " << toString(mCurrCollectionEvent);
@@ -702,6 +724,13 @@ Result<void> WatchdogPerfService::processMonitorEvent(
         }
     }
     metadata->lastUptime += metadata->interval.count();
+    if (metadata->lastUptime == currCollectionMetadata->lastUptime) {
+        /*
+         * If the |PERIODIC_MONITOR| and  *_COLLECTION events overlap, skip the |PERIODIC_MONITOR|
+         * event.
+         */
+        metadata->lastUptime += metadata->interval.count();
+    }
     mHandlerLooper->sendMessageAtTime(metadata->lastUptime, this, metadata->eventType);
     return {};
 }

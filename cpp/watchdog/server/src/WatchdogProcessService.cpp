@@ -88,7 +88,8 @@ const int32_t MSG_VHAL_HEALTH_CHECK = MSG_VHAL_WATCHDOG_ALIVE + 1;
 constexpr std::chrono::nanoseconds kVhalHealthCheckDelayNs = 4s;
 constexpr int64_t kVhalHeartBeatIntervalMs = 3000;
 
-constexpr const char* kVhalInterfaceName = "android.hardware.automotive.vehicle@2.0::IVehicle";
+constexpr const char kServiceName[] = "WatchdogProcessService";
+constexpr const char kVhalInterfaceName[] = "android.hardware.automotive.vehicle@2.0::IVehicle";
 
 std::chrono::nanoseconds timeoutToDurationNs(const TimeoutLength& timeout) {
     switch (timeout) {
@@ -126,14 +127,14 @@ bool isSystemShuttingDown() {
 
 WatchdogProcessService::WatchdogProcessService(const sp<Looper>& handlerLooper) :
       mHandlerLooper(handlerLooper),
+      mIsEnabled(true),
       mLastSessionId(0),
       mServiceStarted(false),
       mVhalService(nullptr) {
-    mMessageHandler = new MessageHandlerImpl(this);
-    mWatchdogEnabled = true;
-    mBinderDeathRecipient = new BinderDeathRecipient(this);
-    mHidlDeathRecipient = new HidlDeathRecipient(this);
-    mPropertyChangeListener = new PropertyChangeListener(this);
+    mMessageHandler = sp<MessageHandlerImpl>::make(this);
+    mBinderDeathRecipient = sp<BinderDeathRecipient>::make(this);
+    mHidlDeathRecipient = sp<HidlDeathRecipient>::make(this);
+    mPropertyChangeListener = sp<PropertyChangeListener>::make(this);
     for (const auto& timeout : kTimeouts) {
         mClients.insert(std::make_pair(timeout, std::vector<ClientInfo>()));
         mPingedClients.insert(std::make_pair(timeout, PingedClientMap()));
@@ -268,36 +269,17 @@ Status WatchdogProcessService::tellDumpFinished(const sp<aawi::ICarWatchdogMonit
     return Status::ok();
 }
 
-Status WatchdogProcessService::notifyPowerCycleChange(aawi::PowerCycle cycle) {
-    std::string buffer;
+void WatchdogProcessService::setEnabled(bool isEnabled) {
     Mutex::Autolock lock(mMutex);
-    bool oldStatus = mWatchdogEnabled;
-    switch (cycle) {
-        case aawi::PowerCycle::POWER_CYCLE_SHUTDOWN:
-            mWatchdogEnabled = false;
-            buffer = "SHUTDOWN power cycle";
-            break;
-        case aawi::PowerCycle::POWER_CYCLE_SUSPEND:
-            mWatchdogEnabled = false;
-            buffer = "SUSPEND power cycle";
-            break;
-        case aawi::PowerCycle::POWER_CYCLE_RESUME:
-            mWatchdogEnabled = true;
-            for (const auto& timeout : kTimeouts) {
-                startHealthCheckingLocked(timeout);
-            }
-            buffer = "RESUME power cycle";
-            break;
-        default:
-            ALOGW("Unsupported power cycle: %d", cycle);
-            return Status::fromExceptionCode(Status::EX_ILLEGAL_ARGUMENT,
-                                             "Unsupported power cycle");
+    if (mIsEnabled != isEnabled) {
+        ALOGI("%s is %s", kServiceName, isEnabled ? "enabled" : "disabled");
     }
-    ALOGI("Received %s", buffer.c_str());
-    if (oldStatus != mWatchdogEnabled) {
-        ALOGI("Car watchdog is %s", mWatchdogEnabled ? "enabled" : "disabled");
+    mIsEnabled = isEnabled;
+    if (mIsEnabled) {
+        for (const auto& timeout : kTimeouts) {
+            startHealthCheckingLocked(timeout);
+        }
     }
-    return Status::ok();
 }
 
 Status WatchdogProcessService::notifyUserStateChange(userid_t userId, aawi::UserState state) {
@@ -326,8 +308,8 @@ Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args
     const char* doubleIndent = "    ";
     std::string buffer;
     WriteStringToFd("CAR WATCHDOG PROCESS SERVICE\n", fd);
-    WriteStringToFd(StringPrintf("%sWatchdog enabled: %s\n", indent,
-                                 mWatchdogEnabled ? "true" : "false"),
+    WriteStringToFd(StringPrintf("%s%s enabled: %s\n", indent, kServiceName,
+                                 mIsEnabled ? "true" : "false"),
                     fd);
     WriteStringToFd(StringPrintf("%sRegistered clients\n", indent), fd);
     int count = 1;
@@ -361,7 +343,7 @@ Result<void> WatchdogProcessService::dump(int fd, const Vector<String16>& /*args
 
 void WatchdogProcessService::doHealthCheck(int what) {
     mHandlerLooper->removeMessages(mMessageHandler, what);
-    if (!isWatchdogEnabled()) {
+    if (Mutex::Autolock lock(mMutex); !mIsEnabled) {
         return;
     }
     const TimeoutLength timeout = static_cast<TimeoutLength>(what);
@@ -791,11 +773,6 @@ int32_t WatchdogProcessService::getNewSessionId() {
         mLastSessionId = 1;
     }
     return mLastSessionId;
-}
-
-bool WatchdogProcessService::isWatchdogEnabled() {
-    Mutex::Autolock lock(mMutex);
-    return mWatchdogEnabled;
 }
 
 void WatchdogProcessService::updateVhalHeartBeat(int64_t value) {

@@ -21,8 +21,9 @@
 #include <WatchdogProperties.sysprop.h>
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
-#include <inttypes.h>
 #include <log/log.h>
+
+#include <inttypes.h>
 
 #include <iomanip>
 #include <limits>
@@ -361,7 +362,9 @@ Result<void> IoPerfCollection::onBoottimeCollection(time_t time, const wp<UidIoS
                          &mBoottimeCollection);
 }
 
-Result<void> IoPerfCollection::onPeriodicCollection(time_t time, const wp<UidIoStats>& uidIoStats,
+Result<void> IoPerfCollection::onPeriodicCollection(time_t time,
+                                                    [[maybe_unused]] SystemState systemState,
+                                                    const wp<UidIoStats>& uidIoStats,
                                                     const wp<ProcStat>& procStat,
                                                     const wp<ProcPidStat>& procPidStat) {
     auto result = checkDataCollectors(uidIoStats, procStat, procPidStat);
@@ -374,9 +377,9 @@ Result<void> IoPerfCollection::onPeriodicCollection(time_t time, const wp<UidIoS
 }
 
 Result<void> IoPerfCollection::onCustomCollection(
-        time_t time, const std::unordered_set<std::string>& filterPackages,
-        const wp<UidIoStats>& uidIoStats, const wp<ProcStat>& procStat,
-        const wp<ProcPidStat>& procPidStat) {
+        time_t time, [[maybe_unused]] SystemState systemState,
+        const std::unordered_set<std::string>& filterPackages, const wp<UidIoStats>& uidIoStats,
+        const wp<ProcStat>& procStat, const wp<ProcPidStat>& procPidStat) {
     auto result = checkDataCollectors(uidIoStats, procStat, procPidStat);
     if (!result.ok()) {
         return result;
