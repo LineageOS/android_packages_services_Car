@@ -567,7 +567,6 @@ void CarPowerPolicyServer::notifySilentModeChange(const bool isSilent) {
     if (!ret.ok()) {
         ALOGW("Failed to apply power policy: %s", ret.error().message().c_str());
     }
-    mSilentModeHandler.updateKernelSilentMode(isSilent);
 }
 
 bool CarPowerPolicyServer::isRegisteredLocked(const sp<ICarPowerPolicyChangeCallback>& callback) {

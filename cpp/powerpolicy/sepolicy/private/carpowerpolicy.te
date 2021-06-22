@@ -19,3 +19,7 @@ allow carpowerpolicyd carservice_service:service_manager find;
 
 # Allow reading and writing /sys/power/
 allow carpowerpolicyd sysfs_power:file rw_file_perms;
+
+# Allow updating properties to control boot animation
+set_prop(carpowerpolicyd, debug_prop)
+set_prop(carpowerpolicyd, bootanim_system_prop)
