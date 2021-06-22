@@ -194,8 +194,6 @@
             </intent-filter>
         </activity>
 
-        <activity android:name=".activityview.ActivityViewTestFragment"/>
-
         <service android:name=".vendorservice.LogLifecycleService"
              android:exported="false"
              android:directBootAware="true">
