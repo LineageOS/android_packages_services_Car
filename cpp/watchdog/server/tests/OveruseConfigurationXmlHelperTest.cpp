@@ -165,6 +165,138 @@ TEST(OveruseConfigurationXmlHelperTest, TestInvalidOveruseConfigurations) {
     }
 }
 
+TEST(OveruseConfigurationXmlHelperTest, TestWriteXmlFileWithSystemConfiguration) {
+    auto ioConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::SYSTEM,
+                                                            300 * kOneMegaByte, 150 * kOneMegaByte,
+                                                            500 * kOneMegaByte),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("system.package.C", 400 * kOneMegaByte,
+                                          100 * kOneMegaByte, 200 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("system.package.D", 1024 * kOneMegaByte,
+                                          500 * kOneMegaByte, 2048 * kOneMegaByte)},
+            /*categorySpecific=*/{},
+            /*systemWide=*/{toIoOveruseAlertThreshold(10, 200), toIoOveruseAlertThreshold(5, 50)});
+    ResourceOveruseConfiguration expected =
+            constructResourceOveruseConfig(ComponentType::SYSTEM,
+                                           /*safeToKill=*/{"system.package.A", "system.package.B"},
+                                           /*vendorPrefixes=*/{},
+                                           /*packageMetadata=*/
+                                           {toPackageMetadata("system.package.A",
+                                                              ApplicationCategoryType::MEDIA),
+                                            toPackageMetadata("system.package.B",
+                                                              ApplicationCategoryType::MAPS)},
+                                           ioConfig);
+    TemporaryFile temporaryFile;
+    ASSERT_NE(temporaryFile.fd, -1);
+
+    ASSERT_RESULT_OK(OveruseConfigurationXmlHelper::writeXmlFile(expected, temporaryFile.path));
+
+    ALOGW("Wrote to file: %s", temporaryFile.path);
+
+    auto actual = OveruseConfigurationXmlHelper::parseXmlFile(temporaryFile.path);
+
+    ASSERT_RESULT_OK(actual);
+
+    EXPECT_THAT(*actual, ResourceOveruseConfigurationMatcher(expected))
+            << "Expected: " << expected.toString() << "\nActual: " << actual->toString();
+
+    temporaryFile.release();
+}
+
+TEST(OveruseConfigurationXmlHelperTest, TestWriteXmlFileWithVendorConfiguration) {
+    auto ioConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::VENDOR,
+                                                            1024 * kOneMegaByte, 512 * kOneMegaByte,
+                                                            3072 * kOneMegaByte),
+            /*packageSpecific=*/
+            {toPerStateIoOveruseThreshold("com.vendor.package.C", 400 * kOneMegaByte,
+                                          100 * kOneMegaByte, 200 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("com.vendor.package.D", 1024 * kOneMegaByte,
+                                          500 * kOneMegaByte, 2048 * kOneMegaByte)},
+            /*categorySpecific=*/
+            {toPerStateIoOveruseThreshold("MAPS", 800 * kOneMegaByte, 900 * kOneMegaByte,
+                                          2048 * kOneMegaByte),
+             toPerStateIoOveruseThreshold("MEDIA", 600 * kOneMegaByte, 700 * kOneMegaByte,
+                                          1024 * kOneMegaByte)},
+            /*systemWide=*/{});
+    ResourceOveruseConfiguration expected =
+            constructResourceOveruseConfig(ComponentType::VENDOR,
+                                           /*safeToKill=*/
+                                           {"com.vendor.package.A", "com.vendor.package.B"},
+                                           /*vendorPrefixes=*/{"com.vendor.package"},
+                                           /*packageMetadata=*/
+                                           {toPackageMetadata("com.vendor.package.A",
+                                                              ApplicationCategoryType::MEDIA),
+                                            toPackageMetadata("com.vendor.package.B",
+                                                              ApplicationCategoryType::MAPS),
+                                            toPackageMetadata("com.third.party.package.C",
+                                                              ApplicationCategoryType::MEDIA),
+                                            toPackageMetadata("system.package.D",
+                                                              ApplicationCategoryType::MAPS)},
+                                           ioConfig);
+    TemporaryFile temporaryFile;
+    ASSERT_NE(temporaryFile.fd, -1);
+
+    ASSERT_RESULT_OK(OveruseConfigurationXmlHelper::writeXmlFile(expected, temporaryFile.path));
+
+    ALOGW("Wrote to file: %s", temporaryFile.path);
+
+    auto actual = OveruseConfigurationXmlHelper::parseXmlFile(temporaryFile.path);
+
+    ASSERT_RESULT_OK(actual);
+
+    EXPECT_THAT(*actual, ResourceOveruseConfigurationMatcher(expected))
+            << "Expected: " << expected.toString() << "\nActual: " << actual->toString();
+
+    temporaryFile.release();
+}
+
+TEST(OveruseConfigurationXmlHelperTest, TestWriteXmlFileWithThirdPartyConfiguration) {
+    auto ioConfig = constructIoOveruseConfig(
+            /*componentLevel=*/toPerStateIoOveruseThreshold(ComponentType::THIRD_PARTY,
+                                                            300 * kOneMegaByte, 150 * kOneMegaByte,
+                                                            500 * kOneMegaByte),
+            /*packageSpecific=*/{},
+            /*categorySpecific=*/{},
+            /*systemWide=*/{});
+    ResourceOveruseConfiguration expected =
+            constructResourceOveruseConfig(ComponentType::THIRD_PARTY,
+                                           /*safeToKill=*/{},
+                                           /*vendorPrefixes=*/{},
+                                           /*packageMetadata=*/{}, ioConfig);
+    TemporaryFile temporaryFile;
+    ASSERT_NE(temporaryFile.fd, -1);
+
+    ASSERT_RESULT_OK(OveruseConfigurationXmlHelper::writeXmlFile(expected, temporaryFile.path));
+
+    ALOGW("Wrote to file: %s", temporaryFile.path);
+
+    auto actual = OveruseConfigurationXmlHelper::parseXmlFile(temporaryFile.path);
+
+    ASSERT_RESULT_OK(actual);
+
+    EXPECT_THAT(*actual, ResourceOveruseConfigurationMatcher(expected))
+            << "Expected: " << expected.toString() << "\nActual: " << actual->toString();
+
+    temporaryFile.release();
+}
+
+TEST(OveruseConfigurationXmlHelperTest, TestFailsWriteXmlFileWithInvalidConfig) {
+    ResourceOveruseConfiguration resourceOveruseConfig;
+    resourceOveruseConfig.componentType = ComponentType::THIRD_PARTY;
+
+    TemporaryFile temporaryFile;
+    ASSERT_NE(temporaryFile.fd, -1);
+
+    ASSERT_FALSE(
+            OveruseConfigurationXmlHelper::writeXmlFile(resourceOveruseConfig, temporaryFile.path)
+                    .ok())
+            << "Should fail to write invalid config";
+
+    temporaryFile.release();
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
