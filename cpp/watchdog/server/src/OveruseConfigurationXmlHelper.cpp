@@ -59,6 +59,7 @@ using ::android::base::StringPrintf;
 using ::android::base::Trim;
 using ::android::binder::Status;
 using ::tinyxml2::XML_SUCCESS;
+using ::tinyxml2::XMLDeclaration;
 using ::tinyxml2::XMLDocument;
 using ::tinyxml2::XMLElement;
 
@@ -95,6 +96,8 @@ constexpr int kNumParams = 2;
 
 constexpr const char kAttrId[] = "id";
 constexpr const char kAttrType[] = "type";
+constexpr const char kAttrVersion[] = "version";
+constexpr const char kVersionNumber[] = "1.0";
 
 Result<const XMLElement*> readExactlyOneElement(const char* tag, const XMLElement* rootElement) {
     const XMLElement* element = rootElement->FirstChildElement(tag);
@@ -432,6 +435,249 @@ Result<IoOveruseConfiguration> readIoOveruseConfiguration(ComponentType componen
     return configuration;
 }
 
+Result<void> writeComponentType(ComponentType componentType, XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagComponentType);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '" << kTagComponentType
+                       << "'";
+    }
+    childElement->SetText(toString(componentType).c_str());
+    return {};
+}
+
+Result<void> writeSafeToKillPackages(const std::vector<std::string>& safeToKillPackages,
+                                     XMLElement* rootElement) {
+    if (safeToKillPackages.empty()) {
+        return {};
+    }
+    XMLElement* outerElement = rootElement->InsertNewChildElement(kTagSafeToKillPackages);
+    if (!outerElement) {
+        return Error() << "Failed to insert new child element with tag '" << kTagSafeToKillPackages
+                       << "'";
+    }
+    for (const auto& package : safeToKillPackages) {
+        XMLElement* innerElement = outerElement->InsertNewChildElement(kTagPackage);
+        if (!innerElement) {
+            return Error() << "Failed to insert new child element with tag '" << kTagPackage << "'";
+        }
+        innerElement->SetText(package.c_str());
+    }
+    return {};
+}
+
+Result<void> writeVendorPackagePrefixes(const std::vector<std::string>& vendorPackagePrefixes,
+                                        XMLElement* rootElement) {
+    if (vendorPackagePrefixes.empty()) {
+        return {};
+    }
+    XMLElement* outerElement = rootElement->InsertNewChildElement(kTagVendorPackagePrefixes);
+    if (!outerElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagVendorPackagePrefixes << "'";
+    }
+    for (const auto& packagePrefix : vendorPackagePrefixes) {
+        XMLElement* innerElement = outerElement->InsertNewChildElement(kTagPackagePrefix);
+        if (!innerElement) {
+            return Error() << "Failed to insert new child element with tag '" << kTagPackagePrefix
+                           << "'";
+        }
+        innerElement->SetText(packagePrefix.c_str());
+    }
+    return {};
+}
+
+Result<void> writePackageToAppCategoryTypes(const std::vector<PackageMetadata>& packageMetadata,
+                                            XMLElement* rootElement) {
+    if (packageMetadata.empty()) {
+        return {};
+    }
+    XMLElement* outerElement = rootElement->InsertNewChildElement(kTagPackageToAppCategoryTypes);
+    if (!outerElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagPackageToAppCategoryTypes << "'";
+    }
+    for (const auto& meta : packageMetadata) {
+        XMLElement* innerElement = outerElement->InsertNewChildElement(kTagPackageAppCategory);
+        if (!innerElement) {
+            return Error() << "Failed to insert new child element with tag '"
+                           << kTagPackageAppCategory << "'";
+        }
+        innerElement->SetAttribute(kAttrType, toString(meta.appCategoryType).c_str());
+        innerElement->SetText(meta.packageName.c_str());
+    }
+    return {};
+}
+
+Result<void> writePerStateBytes(const PerStateBytes& perStateBytes, XMLElement* rootElement) {
+    const auto writeStateElement = [&](const char* state, int64_t value) -> Result<void> {
+        XMLElement* childElement = rootElement->InsertNewChildElement(kTagState);
+        if (!childElement) {
+            return Error() << "Failed to insert new child element with tag '" << kTagState << "'";
+        }
+        childElement->SetAttribute(kAttrId, state);
+        childElement->SetText(value);
+        return {};
+    };
+    if (const auto result = writeStateElement(kStateIdForegroundMode,
+                                              perStateBytes.foregroundBytes / kOneMegaByte);
+        !result.ok()) {
+        return Error() << "Failed to write bytes for state '" << kStateIdForegroundMode
+                       << "': " << result.error();
+    }
+    if (const auto result = writeStateElement(kStateIdBackgroundMode,
+                                              perStateBytes.backgroundBytes / kOneMegaByte);
+        !result.ok()) {
+        return Error() << "Failed to write bytes for state '" << kStateIdBackgroundMode
+                       << "': " << result.error();
+    }
+    if (const auto result =
+                writeStateElement(kStateIdGarageMode, perStateBytes.garageModeBytes / kOneMegaByte);
+        !result.ok()) {
+        return Error() << "Failed to write bytes for state '" << kStateIdGarageMode
+                       << "': " << result.error();
+    }
+    return {};
+}
+
+Result<void> writeComponentLevelThresholds(const PerStateIoOveruseThreshold& thresholds,
+                                           XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagComponentLevelThresholds);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagComponentLevelThresholds << "'";
+    }
+    if (const auto result = writePerStateBytes(thresholds.perStateWriteBytes, childElement);
+        !result.ok()) {
+        return Error() << "Failed to write per-state bytes: " << result.error();
+    }
+    return {};
+}
+
+Result<void> writePerStateThresholds(const PerStateIoOveruseThreshold& thresholds,
+                                     XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagPerStateThreshold);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '" << kTagPerStateThreshold
+                       << "'";
+    }
+    childElement->SetAttribute(kAttrId, thresholds.name.c_str());
+    if (const auto result = writePerStateBytes(thresholds.perStateWriteBytes, childElement);
+        !result.ok()) {
+        return Error() << "Failed to write per-state bytes: " << result.error();
+    }
+    return {};
+}
+
+Result<void> writePackageSpecificThresholds(
+        const std::vector<PerStateIoOveruseThreshold>& thresholds, XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagPackageSpecificThresholds);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagPackageSpecificThresholds << "'";
+    }
+    for (const auto threshold : thresholds) {
+        if (const auto result = writePerStateThresholds(threshold, childElement); !result.ok()) {
+            return Error() << "Failed to write per-state thresholds for '" << threshold.name
+                           << "': " << result.error();
+        }
+    }
+    return {};
+}
+
+Result<void> writeAppCategorySpecificThresholds(
+        const std::vector<PerStateIoOveruseThreshold>& thresholds, XMLElement* rootElement) {
+    XMLElement* childElement =
+            rootElement->InsertNewChildElement(kTagAppCategorySpecificThresholds);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagAppCategorySpecificThresholds << "'";
+    }
+    for (const auto threshold : thresholds) {
+        if (const auto result = writePerStateThresholds(threshold, childElement); !result.ok()) {
+            return Error() << "Failed to write per-state thresholds for '" << threshold.name
+                           << "': " << result.error();
+        }
+    }
+    return {};
+}
+
+Result<void> writeAlertThresholds(const IoOveruseAlertThreshold& alertThresholds,
+                                  XMLElement* rootElement) {
+    XMLElement* outerElement = rootElement->InsertNewChildElement(kTagAlertThreshold);
+    if (!outerElement) {
+        return Error() << "Failed to insert new child element with tag '" << kTagAlertThreshold
+                       << "'";
+    }
+    const auto writeParamElement = [&](const char* param, int64_t value) -> Result<void> {
+        XMLElement* innerElement = outerElement->InsertNewChildElement(kTagParam);
+        if (!innerElement) {
+            return Error() << "Failed to insert new child element with tag '" << kTagParam << "'";
+        }
+        innerElement->SetAttribute(kAttrId, param);
+        innerElement->SetText(value);
+        return {};
+    };
+    if (const auto result =
+                writeParamElement(kParamIdDurationSeconds, alertThresholds.durationInSeconds);
+        !result.ok()) {
+        return Error() << "Failed to write duration for param '" << kParamIdDurationSeconds
+                       << "': " << result.error();
+    }
+    if (const auto result = writeParamElement(kParamIdWrittenBytesPerSecond,
+                                              alertThresholds.writtenBytesPerSecond);
+        !result.ok()) {
+        return Error() << "Failed to write bps for param '" << kParamIdWrittenBytesPerSecond
+                       << "': " << result.error();
+    }
+    return {};
+}
+
+Result<void> writeSystemWideThresholds(const std::vector<IoOveruseAlertThreshold>& thresholds,
+                                       XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagSystemWideThresholds);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagSystemWideThresholds << "'";
+    }
+    for (const auto threshold : thresholds) {
+        if (const auto result = writeAlertThresholds(threshold, childElement); !result.ok()) {
+            return Error() << "Failed to write I/O overuse alert thresholds:" << result.error();
+        }
+    }
+    return {};
+}
+
+Result<void> writeIoOveruseConfiguration(const IoOveruseConfiguration& configuration,
+                                         XMLElement* rootElement) {
+    XMLElement* childElement = rootElement->InsertNewChildElement(kTagIoOveruseConfiguration);
+    if (!childElement) {
+        return Error() << "Failed to insert new child element with tag '"
+                       << kTagIoOveruseConfiguration << "'";
+    }
+    if (const auto result =
+                writeComponentLevelThresholds(configuration.componentLevelThresholds, childElement);
+        !result.ok()) {
+        return Error() << "Failed to write component-wide thresholds: " << result.error();
+    }
+    if (const auto result = writePackageSpecificThresholds(configuration.packageSpecificThresholds,
+                                                           childElement);
+        !result.ok()) {
+        return Error() << "Failed to write package specific thresholds: " << result.error();
+    }
+    if (const auto result =
+                writeAppCategorySpecificThresholds(configuration.categorySpecificThresholds,
+                                                   childElement);
+        !result.ok()) {
+        return Error() << "Failed to write app category specific thresholds: " << result.error();
+    }
+    if (const auto result =
+                writeSystemWideThresholds(configuration.systemWideThresholds, childElement);
+        !result.ok()) {
+        return Error() << "Failed to write system-wide thresholds: " << result.error();
+    }
+    return {};
+}
+
 }  // namespace
 
 Result<ResourceOveruseConfiguration> OveruseConfigurationXmlHelper::parseXmlFile(
@@ -478,9 +724,54 @@ Result<ResourceOveruseConfiguration> OveruseConfigurationXmlHelper::parseXmlFile
 }
 
 Result<void> OveruseConfigurationXmlHelper::writeXmlFile(
-        [[maybe_unused]] const ResourceOveruseConfiguration& configuration,
-        [[maybe_unused]] const char* filePath) {
-    // TODO(b/185287136): Write the configuration to file.
+        const ResourceOveruseConfiguration& configuration, const char* filePath) {
+    XMLDocument xmlDoc;
+    if (XMLDeclaration* declaration = xmlDoc.NewDeclaration(); declaration) {
+        xmlDoc.InsertEndChild(declaration);
+    } else {
+        return Error() << "Failed to create new xml declaration";
+    }
+    XMLElement* rootElement = xmlDoc.NewElement(kTagResourceOveruseConfiguration);
+    if (!rootElement) {
+        return Error() << "Failed to create new xml element for tag '"
+                       << kTagResourceOveruseConfiguration << "'";
+    }
+    rootElement->SetAttribute(kAttrVersion, kVersionNumber);
+    xmlDoc.InsertEndChild(rootElement);
+    if (const auto result = writeComponentType(configuration.componentType, rootElement);
+        !result.ok()) {
+        return Error() << "Failed to write component type: " << result.error();
+    }
+    if (const auto result = writeSafeToKillPackages(configuration.safeToKillPackages, rootElement);
+        !result.ok()) {
+        return Error() << "Failed to write safe-to-kill packages: " << result.error();
+    }
+    if (const auto result =
+                writeVendorPackagePrefixes(configuration.vendorPackagePrefixes, rootElement);
+        !result.ok()) {
+        return Error() << "Failed to write vendor package prefixes: " << result.error();
+    }
+    if (const auto result =
+                writePackageToAppCategoryTypes(configuration.packageMetadata, rootElement);
+        !result.ok()) {
+        return Error() << "Failed to write package to app category types: " << result.error();
+    }
+    if (configuration.resourceSpecificConfigurations.size() != 1 ||
+        configuration.resourceSpecificConfigurations[0].getTag() !=
+                ResourceSpecificConfiguration::ioOveruseConfiguration) {
+        return Error() << "Must provide exactly one I/O overuse configuration";
+    }
+    IoOveruseConfiguration ioOveruseConfig =
+            configuration.resourceSpecificConfigurations[0]
+                    .get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+    if (const auto result = writeIoOveruseConfiguration(ioOveruseConfig, rootElement);
+        !result.ok()) {
+        return Error() << "Failed to write I/O overuse configuration: " << result.error();
+    }
+    if (const auto xmlError = xmlDoc.SaveFile(filePath); xmlError != XML_SUCCESS) {
+        return Error() << "Failed to write XML configuration to file '" << filePath
+                       << "': " << XMLDocument::ErrorIDToName(xmlError);
+    }
     return {};
 }
 
