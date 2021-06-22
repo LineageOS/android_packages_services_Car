@@ -40,10 +40,12 @@
     -->
     <string-array name="config_network_preference_oem_paid_apps" translatable="false">
         <!-- <item>full.package.name</item> -->
+        <item>com.android.car.settings</item>
         <item>com.android.vending</item>
         <item>com.google.android.apps.automotive.inputmethod</item>
         <item>com.google.android.apps.maps</item>
         <item>com.google.android.car.setupwizard</item>
+        <item>com.google.android.carassistant</item>
         <item>com.google.android.configupdater</item>
         <item>com.google.android.ext.services</item>
         <item>com.google.android.ext.shared</item>
