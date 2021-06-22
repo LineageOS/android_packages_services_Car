@@ -39,6 +39,7 @@ using ::android::base::Error;
 using ::android::base::GetProperty;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
+using ::android::base::SetProperty;
 using ::android::base::StringPrintf;
 using ::android::base::Trim;
 using ::android::base::unique_fd;
@@ -46,9 +47,13 @@ using ::android::base::WriteStringToFd;
 
 namespace {
 
-constexpr const char* kPropertySystemBootReason = "sys.boot.reason";
-constexpr const char* kSilentModeHwStateFilename = "/sys/power/pm_silentmode_hw_state";
-constexpr const char* kKernelSilentModeFilename = "/sys/power/pm_silentmode_kernel";
+constexpr const char kPropertySystemBootReason[] = "sys.boot.reason";
+constexpr const char kSilentModeHwStateFilename[] = "/sys/power/pm_silentmode_hw_state";
+constexpr const char kKernelSilentModeFilename[] = "/sys/power/pm_silentmode_kernel";
+// To prevent boot animation from being started.
+constexpr const char kPropertyNoBootAnimation[] = "debug.sf.nobootanimation";
+// To stop boot animation while it is being played.
+constexpr const char kPropertyBootAnimationExit[] = "service.bootanim.exit";
 constexpr int kEventBufferSize = 512;
 
 bool fileExists(const char* filename) {
@@ -76,9 +81,7 @@ void SilentModeHandler::init() {
         mSilentModeByHwState = false;
     }
     if (mForcedMode) {
-        if (auto ret = updateKernelSilentModeInternal(mSilentModeByHwState); !ret.ok()) {
-            ALOGW("Failed to update kernel silent mode: %s", ret.error().message().c_str());
-        }
+        handleSilentModeChange(mSilentModeByHwState);
         mSilentModeChangeHandler->notifySilentModeChange(mSilentModeByHwState);
         ALOGI("Now in forced mode: monitoring %s is disabled", kSilentModeHwStateFilename);
     } else {
@@ -93,27 +96,6 @@ void SilentModeHandler::release() {
 bool SilentModeHandler::isSilentMode() {
     Mutex::Autolock lock(mMutex);
     return mSilentModeByHwState;
-}
-
-Result<void> SilentModeHandler::updateKernelSilentMode(bool silent) {
-    if (mForcedMode) {
-        return Error() << "Cannot update " << mKernelSilentModeFilename << " in forced mode";
-    }
-    return updateKernelSilentModeInternal(silent);
-}
-
-Result<void> SilentModeHandler::updateKernelSilentModeInternal(bool silent) {
-    int fd = open(mKernelSilentModeFilename.c_str(), O_WRONLY | O_NONBLOCK);
-    if (fd < 0) {
-        return Error() << "Failed to open " << mKernelSilentModeFilename;
-    }
-    Result<void> status = {};
-    if (const auto& value = silent ? kValueSilentMode : kValueNonSilentMode;
-        !WriteStringToFd(value, fd)) {
-        status = Error() << "Failed to write " << value << " to fd " << fd;
-    }
-    close(fd);
-    return status;
 }
 
 void SilentModeHandler::stopMonitoringSilentModeHwState(bool shouldWaitThread) {
@@ -226,8 +208,47 @@ void SilentModeHandler::handleSilentModeHwStateChange() {
     if (newSilentMode != oldSilentMode) {
         ALOGI("%s is set to %s", mSilentModeHwStateFilename.c_str(),
               newSilentMode ? "silent" : "non-silent");
+        handleSilentModeChange(newSilentMode);
         mSilentModeChangeHandler->notifySilentModeChange(newSilentMode);
     }
+}
+
+void SilentModeHandler::handleSilentModeChange(bool silent) {
+    if (auto ret = updateKernelSilentMode(silent); !ret.ok()) {
+        ALOGW("Failed to update kernel silent mode: %s", ret.error().message().c_str());
+    }
+    if (auto ret = enableBootAnimation(!silent); !ret.ok()) {
+        ALOGW("Failed to %s boot animation: %s", mSilentModeByHwState ? "disabling" : "enabling",
+              ret.error().message().c_str());
+    }
+}
+
+Result<void> SilentModeHandler::enableBootAnimation(bool enabled) {
+    const std::string value = enabled ? "0" : "1";
+    if (!SetProperty(kPropertyNoBootAnimation, value)) {
+        return Error() << "Failed to set " << kPropertyNoBootAnimation << " property to " << value;
+    }
+    if (!enabled) {
+        if (!SetProperty(kPropertyBootAnimationExit, value)) {
+            return Error() << "Failed to set " << kPropertyBootAnimationExit << " property to "
+                           << value;
+        }
+    }
+    return {};
+}
+
+Result<void> SilentModeHandler::updateKernelSilentMode(bool silent) {
+    int fd = open(mKernelSilentModeFilename.c_str(), O_WRONLY | O_NONBLOCK);
+    if (fd < 0) {
+        return Error() << "Failed to open " << mKernelSilentModeFilename;
+    }
+    Result<void> status = {};
+    if (const auto& value = silent ? kValueSilentMode : kValueNonSilentMode;
+        !WriteStringToFd(value, fd)) {
+        status = Error() << "Failed to write " << value << " to fd " << fd;
+    }
+    close(fd);
+    return status;
 }
 
 }  // namespace powerpolicy
