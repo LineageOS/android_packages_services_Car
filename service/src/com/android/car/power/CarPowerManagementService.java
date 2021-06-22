@@ -1139,7 +1139,6 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     void notifySilentModeChange(boolean silent) {
         Slogf.i(TAG, "Silent mode is set to %b", silent);
-        mSilentModeHandler.updateKernelSilentMode(silent);
         if (silent) {
             applyPreemptivePowerPolicy(PolicyReader.POWER_POLICY_ID_NO_USER_INTERACTION);
         } else {
