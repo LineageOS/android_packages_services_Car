@@ -72,8 +72,7 @@ public:
                          monitor,
                  int32_t pid),
                 (override));
-    MOCK_METHOD(android::binder::Status, notifyPowerCycleChange,
-                (android::automotive::watchdog::internal::PowerCycle cycle), (override));
+    MOCK_METHOD(void, setEnabled, (bool), (override));
     MOCK_METHOD(android::binder::Status, notifyUserStateChange,
                 (userid_t userId, android::automotive::watchdog::internal::UserState state),
                 (override));

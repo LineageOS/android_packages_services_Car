@@ -42,7 +42,7 @@ private:
     static android::base::Result<void> startPerfService();
 
     static android::sp<WatchdogProcessService> sWatchdogProcessService;
-    static android::sp<WatchdogPerfService> sWatchdogPerfService;
+    static android::sp<WatchdogPerfServiceInterface> sWatchdogPerfService;
     static android::sp<WatchdogBinderMediator> sWatchdogBinderMediator;
     static android::sp<IWatchdogServiceHelper> sWatchdogServiceHelper;
 };

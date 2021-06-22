@@ -94,14 +94,15 @@ private:
 class WatchdogBinderMediatorTest : public ::testing::Test {
 protected:
     virtual void SetUp() {
-        mMockWatchdogProcessService = new MockWatchdogProcessService();
-        mMockWatchdogPerfService = new MockWatchdogPerfService();
+        mMockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
+        mMockWatchdogPerfService = sp<MockWatchdogPerfService>::make();
         mWatchdogBinderMediator =
-                new WatchdogBinderMediator(mMockWatchdogProcessService, mMockWatchdogPerfService,
-                                           new MockWatchdogServiceHelper(),
-                                           kAddServiceFunctionStub);
+                sp<WatchdogBinderMediator>::make(mMockWatchdogProcessService,
+                                                 mMockWatchdogPerfService,
+                                                 sp<MockWatchdogServiceHelper>::make(),
+                                                 kAddServiceFunctionStub);
         internal::WatchdogBinderMediatorPeer mediatorPeer(mWatchdogBinderMediator);
-        mMockIoOveruseMonitor = new MockIoOveruseMonitor();
+        mMockIoOveruseMonitor = sp<MockIoOveruseMonitor>::make();
         ASSERT_RESULT_OK(mediatorPeer.init(mMockIoOveruseMonitor));
     }
     virtual void TearDown() {
@@ -119,9 +120,10 @@ protected:
 
 TEST_F(WatchdogBinderMediatorTest, TestInit) {
     sp<WatchdogBinderMediator> mediator =
-            new WatchdogBinderMediator(new MockWatchdogProcessService(),
-                                       new MockWatchdogPerfService(),
-                                       new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+            sp<WatchdogBinderMediator>::make(sp<MockWatchdogProcessService>::make(),
+                                             sp<MockWatchdogPerfService>::make(),
+                                             sp<MockWatchdogServiceHelper>::make(),
+                                             kAddServiceFunctionStub);
 
     ASSERT_RESULT_OK(mediator->init());
 
@@ -132,27 +134,29 @@ TEST_F(WatchdogBinderMediatorTest, TestInit) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorOnInitWithNullServiceInstances) {
+    auto mockWatchdogProcessService = sp<MockWatchdogProcessService>::make();
+    auto mockWatchdogPerfservice = sp<MockWatchdogPerfService>::make();
+    auto mockWatchdogServiceHelper = sp<MockWatchdogServiceHelper>::make();
     sp<WatchdogBinderMediator> mediator =
-            new WatchdogBinderMediator(nullptr, new MockWatchdogPerfService(),
-                                       new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+            sp<WatchdogBinderMediator>::make(nullptr, mockWatchdogPerfservice,
+                                             mockWatchdogServiceHelper, kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog process service";
     mediator.clear();
 
-    mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(), nullptr,
-                                          new MockWatchdogServiceHelper(), kAddServiceFunctionStub);
+    mediator = sp<WatchdogBinderMediator>::make(mockWatchdogProcessService, nullptr,
+                                                mockWatchdogServiceHelper, kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog perf service";
     mediator.clear();
 
-    mediator = new WatchdogBinderMediator(new MockWatchdogProcessService(),
-                                          new MockWatchdogPerfService(), nullptr,
-                                          kAddServiceFunctionStub);
+    mediator = sp<WatchdogBinderMediator>::make(mockWatchdogProcessService, mockWatchdogPerfservice,
+                                                nullptr, kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on nullptr watchdog service helper";
     mediator.clear();
 
-    mediator = new WatchdogBinderMediator(nullptr, nullptr, nullptr, kAddServiceFunctionStub);
+    mediator = sp<WatchdogBinderMediator>::make(nullptr, nullptr, nullptr, kAddServiceFunctionStub);
 
     EXPECT_FALSE(mediator->init().ok()) << "No error returned on null services";
     mediator.clear();
@@ -229,7 +233,7 @@ TEST_F(WatchdogBinderMediatorTest, TestDumpWithInvalidDumpArgs) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRegisterClient) {
-    sp<ICarWatchdogClient> client = new MockICarWatchdogClient();
+    sp<ICarWatchdogClient> client = sp<MockICarWatchdogClient>::make();
     TimeoutLength timeout = TimeoutLength::TIMEOUT_MODERATE;
     EXPECT_CALL(*mMockWatchdogProcessService, registerClient(client, timeout))
             .WillOnce(Return(Status::ok()));
@@ -238,7 +242,7 @@ TEST_F(WatchdogBinderMediatorTest, TestRegisterClient) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestUnregisterClient) {
-    sp<ICarWatchdogClient> client = new MockICarWatchdogClient();
+    sp<ICarWatchdogClient> client = sp<MockICarWatchdogClient>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, unregisterClient(client))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogBinderMediator->unregisterClient(client);
@@ -246,7 +250,7 @@ TEST_F(WatchdogBinderMediatorTest, TestUnregisterClient) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
-    sp<ICarWatchdogClient> client = new MockICarWatchdogClient();
+    sp<ICarWatchdogClient> client = sp<MockICarWatchdogClient>::make();
     EXPECT_CALL(*mMockWatchdogProcessService, tellClientAlive(client, 456))
             .WillOnce(Return(Status::ok()));
     Status status = mWatchdogBinderMediator->tellClientAlive(client, 456);
@@ -254,7 +258,7 @@ TEST_F(WatchdogBinderMediatorTest, TestTellClientAlive) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestAddResourceOveruseListener) {
-    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    sp<IResourceOveruseListener> listener = sp<MockResourceOveruseListener>::make();
     EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener))
             .WillOnce(Return(Result<void>{}));
 
@@ -264,7 +268,7 @@ TEST_F(WatchdogBinderMediatorTest, TestAddResourceOveruseListener) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorsAddResourceOveruseListenerOnInvalidArgs) {
-    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    sp<IResourceOveruseListener> listener = sp<MockResourceOveruseListener>::make();
     EXPECT_CALL(*mMockIoOveruseMonitor, addIoOveruseListener(listener)).Times(0);
 
     ASSERT_FALSE(mWatchdogBinderMediator->addResourceOveruseListener({}, listener).isOk())
@@ -276,7 +280,7 @@ TEST_F(WatchdogBinderMediatorTest, TestErrorsAddResourceOveruseListenerOnInvalid
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestRemoveResourceOveruseListener) {
-    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    sp<IResourceOveruseListener> listener = sp<MockResourceOveruseListener>::make();
     EXPECT_CALL(*mMockIoOveruseMonitor, removeIoOveruseListener(listener))
             .WillOnce(Return(Result<void>{}));
 
@@ -306,7 +310,7 @@ TEST_F(WatchdogBinderMediatorTest, TestGetResourceOveruseStats) {
 }
 
 TEST_F(WatchdogBinderMediatorTest, TestErrorsGetResourceOveruseStatsOnInvalidArgs) {
-    sp<IResourceOveruseListener> listener = new MockResourceOveruseListener();
+    sp<IResourceOveruseListener> listener = sp<MockResourceOveruseListener>::make();
     EXPECT_CALL(*mMockIoOveruseMonitor, getIoOveruseStats(_)).Times(0);
 
     std::vector<ResourceOveruseStats> actual;

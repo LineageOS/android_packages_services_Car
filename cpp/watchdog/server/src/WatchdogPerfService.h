@@ -25,6 +25,7 @@
 
 #include <android-base/chrono_utils.h>
 #include <android-base/result.h>
+#include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <cutils/multiuser.h>
 #include <gtest/gtest_prod.h>
 #include <utils/Errors.h>
@@ -58,11 +59,16 @@ constexpr const char* kIntervalFlag = "--interval";
 constexpr const char* kMaxDurationFlag = "--max_duration";
 constexpr const char* kFilterPackagesFlag = "--filter_packages";
 
+enum SystemState {
+    NORMAL_MODE = 0,
+    GARAGE_MODE = 1,
+};
+
 /*
  * DataProcessor defines methods that must be implemented in order to process the data collected
  * by |WatchdogPerfService|.
  */
-class IDataProcessorInterface : public RefBase {
+class IDataProcessorInterface : public android::RefBase {
 public:
     IDataProcessorInterface() {}
     virtual ~IDataProcessorInterface() {}
@@ -78,14 +84,15 @@ public:
             const android::wp<ProcStat>& procStat, const android::wp<ProcPidStat>& procPidStat) = 0;
     // Callback to process the data collected periodically post boot complete.
     virtual android::base::Result<void> onPeriodicCollection(
-            time_t time, const android::wp<UidIoStats>& uidIoStats,
+            time_t time, SystemState systemState, const android::wp<UidIoStats>& uidIoStats,
             const android::wp<ProcStat>& procStat, const android::wp<ProcPidStat>& procPidStat) = 0;
     /*
      * Callback to process the data collected on custom collection and filter the results only to
      * the specified |filterPackages|.
      */
     virtual android::base::Result<void> onCustomCollection(
-            time_t time, const std::unordered_set<std::string>& filterPackages,
+            time_t time, SystemState systemState,
+            const std::unordered_set<std::string>& filterPackages,
             const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
             const android::wp<ProcPidStat>& procPidStat) = 0;
     /*
@@ -133,52 +140,76 @@ enum SwitchMessage {
     END_CUSTOM_COLLECTION,
 };
 
-// WatchdogPerfService collects performance data during boot-time and periodically post boot
-// complete. It exposes APIs that the main thread and binder service can call to start a collection,
-// switch the collection type, and generate collection dumps.
-class WatchdogPerfService : public MessageHandler {
+/*
+ * WatchdogPerfServiceInterface collects performance data during boot-time and periodically post
+ * boot complete. It exposes APIs that the main thread and binder service can call to start a
+ * collection, switch the collection type, and generate collection dumps.
+ */
+class WatchdogPerfServiceInterface : public MessageHandler {
+public:
+    // Register a data processor to process the data collected by |WatchdogPerfService|.
+    virtual android::base::Result<void> registerDataProcessor(
+            android::sp<IDataProcessorInterface> processor) = 0;
+    /*
+     * Starts the boot-time collection in the looper handler on a new thread and returns
+     * immediately. Must be called only once. Otherwise, returns an error.
+     */
+    virtual android::base::Result<void> start() = 0;
+    // Terminates the collection thread and returns.
+    virtual void terminate() = 0;
+    // Sets the system state.
+    virtual void setSystemState(SystemState systemState) = 0;
+    // Ends the boot-time collection by switching to periodic collection and returns immediately.
+    virtual android::base::Result<void> onBootFinished() = 0;
+    /*
+     * Depending on the arguments, it either:
+     * 1. Starts a custom collection.
+     * 2. Or ends the current custom collection and dumps the collected data.
+     * Returns any error observed during the dump generation.
+     */
+    virtual android::base::Result<void> onCustomCollection(
+            int fd, const Vector<android::String16>& args) = 0;
+    // Generates a dump from the boot-time and periodic collection events.
+    virtual android::base::Result<void> onDump(int fd) = 0;
+    // Dumps the help text.
+    virtual bool dumpHelpText(int fd) = 0;
+};
+
+class WatchdogPerfService final : public WatchdogPerfServiceInterface {
 public:
     WatchdogPerfService() :
-          mHandlerLooper(new LooperWrapper()),
+          mHandlerLooper(android::sp<LooperWrapper>::make()),
+          mSystemState(NORMAL_MODE),
           mBoottimeCollection({}),
           mPeriodicCollection({}),
           mCustomCollection({}),
           mPeriodicMonitor({}),
           mCurrCollectionEvent(EventType::INIT),
-          mUidIoStats(new UidIoStats()),
-          mProcStat(new ProcStat()),
-          mProcPidStat(new ProcPidStat()),
-          mProcDiskStats(new ProcDiskStats()),
+          mUidIoStats(android::sp<UidIoStats>::make()),
+          mProcStat(android::sp<ProcStat>::make()),
+          mProcPidStat(android::sp<ProcPidStat>::make()),
+          mProcDiskStats(android::sp<ProcDiskStats>::make()),
           mDataProcessors({}) {}
 
     ~WatchdogPerfService() { terminate(); }
 
-    // Register a data processor to process the data collected by |WatchdogPerfService|.
     android::base::Result<void> registerDataProcessor(
-            android::sp<IDataProcessorInterface> processor);
+            android::sp<IDataProcessorInterface> processor) override;
 
-    // Starts the boot-time collection in the looper handler on a new thread and returns
-    // immediately. Must be called only once. Otherwise, returns an error.
-    virtual android::base::Result<void> start();
+    android::base::Result<void> start() override;
 
-    // Terminates the collection thread and returns.
-    virtual void terminate();
+    void terminate() override;
 
-    // Ends the boot-time collection by switching to periodic collection and returns immediately.
-    virtual android::base::Result<void> onBootFinished();
+    void setSystemState(SystemState systemState) override;
 
-    // Depending on the arguments, it either:
-    // 1. Starts a custom collection.
-    // 2. Or ends the current custom collection and dumps the collected data.
-    // Returns any error observed during the dump generation.
-    virtual android::base::Result<void> onCustomCollection(int fd,
-                                                           const Vector<android::String16>& args);
+    android::base::Result<void> onBootFinished() override;
 
-    // Generates a dump from the boot-time and periodic collection events.
-    virtual android::base::Result<void> onDump(int fd);
+    android::base::Result<void> onCustomCollection(int fd,
+                                                   const Vector<android::String16>& args) override;
 
-    // Dumps the help text.
-    bool dumpHelpText(int fd);
+    android::base::Result<void> onDump(int fd) override;
+
+    bool dumpHelpText(int fd) override;
 
 private:
     struct EventMetadata {
@@ -197,22 +228,26 @@ private:
     // Dumps the collectors' status when they are disabled.
     android::base::Result<void> dumpCollectorsStatusLocked(int fd);
 
-    // Starts a custom collection on the looper handler, temporarily stops the periodic collection
-    // (won't discard the collected data), and returns immediately. Returns any error observed
-    // during this process.
-    // The custom collection happens once every |interval| seconds. When the |maxDuration| is
-    // reached, the looper receives a message to end the collection, discards the collected data,
-    // and starts the periodic collection. This is needed to ensure the custom collection doesn't
-    // run forever when a subsequent |endCustomCollection| call is not received.
-    // When |kFilterPackagesFlag| value specified, the results are filtered only to the specified
-    // package names.
+    /*
+     * Starts a custom collection on the looper handler, temporarily stops the periodic collection
+     * (won't discard the collected data), and returns immediately. Returns any error observed
+     * during this process.
+     * The custom collection happens once every |interval| seconds. When the |maxDuration| is
+     * reached, the looper receives a message to end the collection, discards the collected data,
+     * and starts the periodic collection. This is needed to ensure the custom collection doesn't
+     * run forever when a subsequent |endCustomCollection| call is not received.
+     * When |kFilterPackagesFlag| value specified, the results are filtered only to the specified
+     * package names.
+     */
     android::base::Result<void> startCustomCollection(
             std::chrono::nanoseconds interval, std::chrono::nanoseconds maxDuration,
             const std::unordered_set<std::string>& filterPackages);
 
-    // Ends the current custom collection, generates a dump, sends a looper message to start the
-    // periodic collection, and returns immediately. Returns an error when there is no custom
-    // collection running or when a dump couldn't be generated from the custom collection.
+    /*
+     * Ends the current custom collection, generates a dump, sends a looper message to start the
+     * periodic collection, and returns immediately. Returns an error when there is no custom
+     * collection running or when a dump couldn't be generated from the custom collection.
+     */
     android::base::Result<void> endCustomCollection(int fd);
 
     // Handles the messages received by the lopper.
@@ -227,8 +262,10 @@ private:
     // Processes the monitor events received by |handleMessage|.
     android::base::Result<void> processMonitorEvent(EventMetadata* metadata);
 
-    // Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
-    // nullptr on invalid collection event.
+    /*
+     * Returns the metadata for the current collection based on |mCurrCollectionEvent|. Returns
+     * nullptr on invalid collection event.
+     */
     EventMetadata* currCollectionMetadataLocked();
 
     // Thread on which the actual collection happens.
@@ -240,21 +277,28 @@ private:
     // Handler lopper to execute different collection events on the collection thread.
     android::sp<LooperWrapper> mHandlerLooper GUARDED_BY(mMutex);
 
+    // Current system state.
+    SystemState mSystemState GUARDED_BY(mMutex);
+
     // Info for the |CollectionEvent::BOOT_TIME| collection event.
     EventMetadata mBoottimeCollection GUARDED_BY(mMutex);
 
     // Info for the |CollectionEvent::PERIODIC| collection event.
     EventMetadata mPeriodicCollection GUARDED_BY(mMutex);
 
-    // Info for the |CollectionEvent::CUSTOM| collection event. The info is cleared at the end of
-    // every custom collection.
+    /*
+     * Info for the |CollectionEvent::CUSTOM| collection event. The info is cleared at the end of
+     * every custom collection.
+     */
     EventMetadata mCustomCollection GUARDED_BY(mMutex);
 
     // Info for the |EventType::PERIODIC| monitor event.
     EventMetadata mPeriodicMonitor GUARDED_BY(mMutex);
 
-    // Tracks either the WatchdogPerfService's state or current collection event. Updated on
-    // |start|, |onBootComplete|, |startCustomCollection|, |endCustomCollection|, and |terminate|.
+    /*
+     * Tracks either the WatchdogPerfService's state or current collection event. Updated on
+     * |start|, |onBootComplete|, |startCustomCollection|, |endCustomCollection|, and |terminate|.
+     */
     EventType mCurrCollectionEvent GUARDED_BY(mMutex);
 
     // Collector/parser for `/proc/uid_io/stats`.
