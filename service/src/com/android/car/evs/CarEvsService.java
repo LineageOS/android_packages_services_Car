@@ -23,6 +23,7 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_ACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_INACTIVE;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_REQUESTED;
 import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
+import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 
 import static com.android.car.CarLog.TAG_EVS;
 import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
@@ -30,9 +31,6 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.hardware.CarPropertyValue;
-import android.car.hardware.property.CarPropertyEvent;
-import android.car.hardware.property.ICarPropertyEventListener;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsError;
@@ -42,8 +40,12 @@ import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 import android.car.evs.CarEvsStatus;
 import android.car.evs.ICarEvsStatusListener;
 import android.car.evs.ICarEvsStreamCallback;
+import android.car.hardware.CarPropertyValue;
+import android.car.hardware.property.CarPropertyEvent;
+import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.ComponentName;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.hardware.HardwareBuffer;
 import android.hardware.automotive.vehicle.V2_0.VehicleArea;
@@ -158,6 +160,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private final EvsHalService mEvsHalService;
     private final CarPropertyService mPropertyService;
     private final Object mLock = new Object();
+
+    private final ComponentName mEvsCameraActivity;
 
     // This handler is to monitor the client sends a video stream request within a given time
     // after a state transition to the REQUESTED state.
@@ -427,8 +431,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         // was transited to the ACTIVE state by a request that has the same priority
                         // with current request.
                         return ERROR_NONE;
+                    } else {
+                        // Stop stream on all lower priority clients.
+                        processStreamEvent(STREAM_EVENT_STREAM_STOPPED);
                     }
-
                     break;
 
                 default:
@@ -443,6 +449,20 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             mState = SERVICE_STATE_REQUESTED;
             mServiceType = service;
             mLastRequestPriority = priority;
+
+            if (mEvsCameraActivity != null) {
+                Intent evsIntent = new Intent(Intent.ACTION_MAIN)
+                        .setComponent(mEvsCameraActivity)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NEW_DOCUMENT)
+                        .addFlags(Intent.FLAG_ACTIVITY_MULTIPLE_TASK)
+                        .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
+                if (priority == REQUEST_PRIORITY_HIGH) {
+                    mSessionToken = new Binder();
+                    evsIntent.putExtra(CarEvsManager.EXTRA_SESSION_TOKEN, mSessionToken);
+                }
+                mContext.startActivity(evsIntent);
+            }
             return ERROR_NONE;
         }
 
@@ -466,7 +486,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
                 case SERVICE_STATE_REQUESTED:
                     // CarEvsService is reserved for higher priority clients.
-                    if (!isSessionToken(token)) {
+                    if (priority == REQUEST_PRIORITY_HIGH && !isSessionToken(token)) {
                         // Declines a request with an expired token.
                         return ERROR_BUSY;
                     }
@@ -612,6 +632,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         mContext = context;
         mPropertyService = propertyService;
         mEvsHalService = halService;
+
+        String activityName = mContext.getResources().getString(R.string.config_evsCameraActivity);
+        if (!activityName.isEmpty()) {
+            mEvsCameraActivity = ComponentName.unflattenFromString(activityName);
+        } else {
+            mEvsCameraActivity = null;
+        }
+        if (DBG) Slog.d(TAG_EVS, "evsCameraActivity=" + mEvsCameraActivity);
     }
 
     /** Implements EvsHalService.EvsHalEventListener to monitor VHAL properties. */
