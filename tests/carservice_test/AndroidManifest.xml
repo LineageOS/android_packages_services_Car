@@ -51,7 +51,6 @@
             </intent-filter>
         </service>
 
-        <activity android:name="com.android.car.CarUxRestrictionsManagerServiceTest$ActivityViewTestActivity"/>
         <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoNoHistoryActivity"
              android:noHistory="true"/>
         <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoActivity"/>
