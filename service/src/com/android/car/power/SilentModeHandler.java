@@ -246,6 +246,7 @@ final class SilentModeHandler {
                     newSilentMode = mSilentModeByHwState;
                 }
                 if (newSilentMode != oldSilentMode) {
+                    updateKernelSilentMode(newSilentMode);
                     mService.notifySilentModeChange(newSilentMode);
                 }
             }

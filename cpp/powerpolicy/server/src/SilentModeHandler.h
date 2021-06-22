@@ -60,17 +60,17 @@ public:
     void release();
     // Returns the current Silent Mode.
     bool isSilentMode();
-    // Write the value corresponding to the given silent state to /sys/power/pm_silentmode_kernel.
-    android::base::Result<void> updateKernelSilentMode(bool silent);
     // Stops monitoring the change on /sys/power/pm_silentmode_hw_state.
     void stopMonitoringSilentModeHwState(bool shouldWaitThread);
     // Dumps the internal state.
     android::base::Result<void> dump(int fd, const Vector<String16>& args);
 
 private:
-    android::base::Result<void> updateKernelSilentModeInternal(bool silent);
+    android::base::Result<void> updateKernelSilentMode(bool silent);
     void startMonitoringSilentModeHwState();
     void handleSilentModeHwStateChange();
+    void handleSilentModeChange(bool silent);
+    android::base::Result<void> enableBootAnimation(bool enabled);
 
     android::Mutex mMutex;
     bool mSilentModeByHwState GUARDED_BY(mMutex);
