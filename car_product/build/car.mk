@@ -45,6 +45,7 @@ PRODUCT_PACKAGES += \
     BugReportApp \
     NetworkPreferenceApp \
     SampleCustomInputService \
+    AdasLocationTestApp \
 
 # SEPolicy for test apps / services
 BOARD_SEPOLICY_DIRS += packages/services/Car/car_product/sepolicy/test
