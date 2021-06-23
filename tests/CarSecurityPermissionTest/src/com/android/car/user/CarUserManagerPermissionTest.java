@@ -125,7 +125,6 @@ public final class CarUserManagerPermissionTest {
 
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.addListener(Runnable::run, listener));
-
         assertThat(e.getMessage()).contains(INTERACT_ACROSS_USERS);
         assertThat(e.getMessage()).contains(INTERACT_ACROSS_USERS_FULL);
     }
@@ -138,7 +137,6 @@ public final class CarUserManagerPermissionTest {
 
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarUserManager.removeListener(listener));
-
         assertThat(e.getMessage()).contains(INTERACT_ACROSS_USERS);
         assertThat(e.getMessage()).contains(INTERACT_ACROSS_USERS_FULL);
     }
@@ -167,8 +165,10 @@ public final class CarUserManagerPermissionTest {
 
     @Test
     public void testSetUserSwitchUiCallback() {
+        CarUserManager.UserSwitchUiCallback callback = (u)-> { };
+
         Exception e = expectThrows(SecurityException.class,
-                () -> mCarUserManager.getUserIdentificationAssociation(CUSTOM_1));
+                () -> mCarUserManager.setUserSwitchUiCallback(callback));
         assertThat(e.getMessage()).contains(MANAGE_USERS);
     }
 }

@@ -2208,6 +2208,15 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    @ExpectWtf
+    public void testSetInitialUser_nullUser() throws Exception {
+        mCarUserService.setInitialUser(null);
+
+        mockInteractAcrossUsersPermission(true);
+        assertThat(mCarUserService.getInitialUser()).isNull();
+    }
+
+    @Test
     public void testOnSuspend_replace() throws Exception {
         mockExistingUsersAndCurrentUser(mGuestUser);
         when(mInitialUserSetter.canReplaceGuestUser(any())).thenReturn(true);
@@ -2672,13 +2681,22 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         }).when(mUserHal).setUserAssociation(eq(mAsyncCallTimeoutMs), notNull(), notNull());
     }
 
+    private void mockInteractAcrossUsersPermission(boolean granted) {
+        int result = granted ? android.content.pm.PackageManager.PERMISSION_GRANTED
+                : android.content.pm.PackageManager.PERMISSION_DENIED;
+
+        doReturn(result).when(() -> ActivityManager.checkComponentPermission(
+                eq(android.Manifest.permission.INTERACT_ACROSS_USERS),
+                anyInt(), anyInt(), eq(true)));
+        doReturn(result).when(() -> ActivityManager.checkComponentPermission(
+                eq(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL),
+                anyInt(), anyInt(), eq(true)));
+    }
+
     private void mockManageUsersPermission(String permission, boolean granted) {
-        int result;
-        if (granted) {
-            result = android.content.pm.PackageManager.PERMISSION_GRANTED;
-        } else {
-            result = android.content.pm.PackageManager.PERMISSION_DENIED;
-        }
+        int result = granted ? android.content.pm.PackageManager.PERMISSION_GRANTED
+                : android.content.pm.PackageManager.PERMISSION_DENIED;
+
         doReturn(result).when(() -> ActivityManager.checkComponentPermission(eq(permission),
                 anyInt(), anyInt(), eq(true)));
     }
