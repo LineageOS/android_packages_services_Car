@@ -18,8 +18,6 @@ package com.android.car.telemetry.databroker;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Bundle;
-
 import com.android.car.telemetry.TelemetryProto;
 
 import org.junit.Test;
@@ -28,7 +26,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBrokerUnitTest {
-    private final DataBrokerImpl mDataBroker = new DataBrokerImpl(new ScriptResultListenerImpl());
+    private final DataBrokerImpl mDataBroker = new DataBrokerImpl();
     private static final TelemetryProto.VehiclePropertyPublisher
             VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION =
             TelemetryProto.VehiclePropertyPublisher.newBuilder().setReadRate(
@@ -96,12 +94,5 @@ public class DataBrokerUnitTest {
         boolean status = mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
 
         assertThat(status).isFalse();
-    }
-
-    private static class ScriptResultListenerImpl implements DataBroker.ScriptResultListener {
-        @Override
-        public void onScriptResult(Bundle scriptResult) {
-            // nothing to do
-        }
     }
 }

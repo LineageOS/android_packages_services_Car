@@ -16,12 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
-import android.os.Bundle;
-
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
-import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
-
-import java.util.ArrayList;
 
 /**
  * DataBrokerController instantiates the DataBroker and manages what Publishers
@@ -31,21 +26,34 @@ public class DataBrokerController {
 
     private MetricsConfig mMetricsConfig;
     private final DataBroker mDataBroker;
-    private final ArrayList<PublisherCase> mAllowedPublishers = new ArrayList<>();
 
-    public DataBrokerController() {
-        mDataBroker = new DataBrokerImpl(this::onScriptResult);
-        mAllowedPublishers.add(PublisherCase.VEHICLE_PROPERTY);
-        mDataBroker.enablePublishers(mAllowedPublishers);
+    /**
+     * Interface for receiving notification that script finished.
+     */
+    public interface ScriptFinishedCallback {
+        /**
+         * Listens to script finished event.
+         *
+         * @param configName the name of the config whose script finished.
+         */
+        void onScriptFinished(String configName);
     }
 
     /**
-     * Listens to script result from {@link DataBroker}.
-     *
-     * @param scriptResult the script result.
+     * Interface for receiving notification about metric config changes.
      */
-    public void onScriptResult(Bundle scriptResult) {
-        // TODO(b/187744195)
+    public interface MetricsConfigCallback {
+        /**
+         * Listens to new metrics config event.
+         *
+         * @param metricsConfig the new metrics config.
+         */
+        void onNewMetricsConfig(MetricsConfig metricsConfig);
+    }
+
+    public DataBrokerController(DataBroker dataBroker) {
+        mDataBroker = dataBroker;
+        mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
     }
 
     /**
@@ -56,5 +64,14 @@ public class DataBrokerController {
     public void onNewMetricsConfig(MetricsConfig metricsConfig) {
         mMetricsConfig = metricsConfig;
         mDataBroker.addMetricsConfiguration(mMetricsConfig);
+    }
+
+    /**
+     * Listens to script finished event from {@link DataBroker}.
+     *
+     * @param configName the name of the config of the finished script.
+     */
+    public void onScriptFinished(String configName) {
+        // TODO(b/187744195): remove finished config from config store
     }
 }
