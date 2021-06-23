@@ -22,6 +22,7 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETU
 
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -475,6 +476,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @see ExperimentalCarUserManager.createDriver
      */
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
+            details = "TODO(b/172262561) remove annotation after refactoring")
     public AndroidFuture<UserCreationResult> createDriver(@NonNull String name, boolean admin) {
         checkManageUsersPermission("createDriver");
         Objects.requireNonNull(name, "name cannot be null");
@@ -510,6 +513,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     @Nullable
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
+            details = "TODO(b/172262561) remove annotation after refactoring")
     public UserInfo createPassenger(@NonNull String name, @UserIdInt int driverId) {
         checkManageUsersPermission("createPassenger");
         Objects.requireNonNull(name, "name cannot be null");
@@ -540,6 +545,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * @see ExperimentalCarUserManager.switchDriver
      */
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
+            details = "TODO(b/172262561) remove annotation after refactoring")
     public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
         checkManageUsersPermission("switchDriver");
         if (UserHelperLite.isHeadlessSystemUser(driverId)) {
