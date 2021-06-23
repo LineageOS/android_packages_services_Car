@@ -34,8 +34,6 @@ import java.util.Map;
  */
 public class DataBrokerImpl implements DataBroker {
 
-    private final ScriptResultListener mScriptResultListener;
-
     // Publisher is created per data source type. Publishers are kept alive once created. This map
     // is used to check if a publisher already exists for a given type to prevent duplicate
     // instantiation.
@@ -46,14 +44,7 @@ public class DataBrokerImpl implements DataBroker {
     // MetricsConfig.
     private final Map<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
 
-    public DataBrokerImpl(ScriptResultListener scriptResultListener) {
-        mScriptResultListener = scriptResultListener;
-    }
-
-    @Override
-    public void enablePublishers(List<TelemetryProto.Publisher.PublisherCase> allowedPublishers) {
-        // TODO(b/187743369): implement
-    }
+    private DataBrokerController.ScriptFinishedCallback mScriptFinishedCallback;
 
     @Override
     public boolean addMetricsConfiguration(MetricsConfig metricsConfig) {
@@ -93,6 +84,11 @@ public class DataBrokerImpl implements DataBroker {
             // TODO(b/187743369): remove related tasks from the queue
         }
         return true;
+    }
+
+    @Override
+    public void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback) {
+        mScriptFinishedCallback = callback;
     }
 
     /**
