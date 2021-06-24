@@ -93,10 +93,14 @@ public final class CarFeatureController implements CarServiceBase {
             Car.OCCUPANT_AWARENESS_SERVICE,
             Car.STORAGE_MONITORING_SERVICE,
             Car.VEHICLE_MAP_SERVICE,
-            Car.CAR_EVS_SERVICE,
             Car.CAR_TELEMETRY_SERVICE,
             // All items below here are deprecated, but still could be supported
             Car.CAR_INSTRUMENT_CLUSTER_SERVICE
+    ));
+
+    // This is a feature still under development and cannot be enabled in user build.
+    private static final HashSet<String> NON_USER_ONLY_FEATURES = new HashSet<>(Arrays.asList(
+            Car.CAR_EVS_SERVICE
     ));
 
     // Features that depend on another feature being enabled (i.e. legacy API support).
@@ -140,6 +144,9 @@ public final class CarFeatureController implements CarServiceBase {
     public CarFeatureController(@NonNull Context context,
             @NonNull String[] defaultEnabledFeaturesFromConfig,
             @NonNull String[] disabledFeaturesFromVhal, @NonNull File dataDir) {
+        if (!Build.IS_USER) {
+            OPTIONAL_FEATURES.addAll(NON_USER_ONLY_FEATURES);
+        }
         mContext = context;
         mDefaultEnabledFeaturesFromConfig = Arrays.asList(defaultEnabledFeaturesFromConfig);
         mDisabledFeaturesFromVhal = Arrays.asList(disabledFeaturesFromVhal);
@@ -454,15 +461,20 @@ public final class CarFeatureController implements CarServiceBase {
 
     private void parseDefaultConfig() {
         for (String feature : mDefaultEnabledFeaturesFromConfig) {
-            if (!OPTIONAL_FEATURES.contains(feature)) {
+            if (mDisabledFeaturesFromVhal.contains(feature)) {
+                continue;
+            }
+            if (OPTIONAL_FEATURES.contains(feature)) {
+                mEnabledFeatures.add(feature);
+            } else if (NON_USER_ONLY_FEATURES.contains(feature)) {
+                Slog.e(TAG,
+                        "config_default_enabled_optional_car_features including "
+                                + "user build only feature, will be ignored:" + feature);
+            } else {
                 throw new IllegalArgumentException(
                         "config_default_enabled_optional_car_features include non-optional "
                                 + "features:" + feature);
             }
-            if (mDisabledFeaturesFromVhal.contains(feature)) {
-                continue;
-            }
-            mEnabledFeatures.add(feature);
         }
         Slog.i(TAG, "Loaded default features:" + mEnabledFeatures);
     }
