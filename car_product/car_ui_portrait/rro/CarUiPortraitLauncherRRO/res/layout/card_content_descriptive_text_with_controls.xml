@@ -16,38 +16,55 @@
   -->
 
 <!-- Layout for a DescriptiveTextWithControlsView. Required by HomeCardFragment, but currently not used by the CarUiPortrait launcher. -->
-<RelativeLayout
+<LinearLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:layout_height="match_parent"
     android:layout_width="match_parent">
 
     <include layout="@layout/descriptive_text"
              android:layout_height="match_parent"
-             android:layout_width="wrap_content"/>
+             android:layout_width="0dp"
+             android:layout_weight="1"
+             android:layout_gravity="start|center_vertical"/>
 
     <LinearLayout
+        android:id="@+id/button_trio"
         android:gravity="center"
         android:layout_height="match_parent"
-        android:layout_width="wrap_content"
+        android:layout_width="0dp"
+        android:layout_weight="1"
         android:orientation="horizontal"
-        android:id="@+id/button_trio">
+        android:layout_gravity="end|center_vertical">
 
-    <ImageButton
-        android:id="@+id/button_left"
-        android:layout_height="@dimen/control_bar_action_icon_size"
-        android:layout_width="@dimen/control_bar_action_icon_size"
-        android:scaleType="fitCenter"/>
+        <ImageButton
+            android:id="@+id/button_left"
+            android:layout_height="@dimen/control_bar_action_icon_size"
+            android:layout_width="@dimen/control_bar_action_icon_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"/>
 
-    <ImageButton
-        android:id="@+id/button_center"
-        android:layout_height="@dimen/control_bar_action_icon_size"
-        android:layout_width="@dimen/control_bar_action_icon_size"
-        android:scaleType="fitCenter"/>
+        <Space
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"/>
 
-    <ImageButton
-        android:id="@+id/button_right"
-        android:layout_height="@dimen/control_bar_action_icon_size"
-        android:layout_width="@dimen/control_bar_action_icon_size"
-        android:scaleType="fitCenter"/>
+        <ImageButton
+            android:id="@+id/button_center"
+            android:layout_height="@dimen/control_bar_action_icon_size"
+            android:layout_width="@dimen/control_bar_action_icon_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"/>
+
+        <Space
+            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_weight="1"/>
+
+        <ImageButton
+            android:id="@+id/button_right"
+            android:layout_height="@dimen/control_bar_action_icon_size"
+            android:layout_width="@dimen/control_bar_action_icon_size"
+            android:background="@android:color/transparent"
+            android:scaleType="centerInside"/>
     </LinearLayout>
-</RelativeLayout>
+</LinearLayout>
