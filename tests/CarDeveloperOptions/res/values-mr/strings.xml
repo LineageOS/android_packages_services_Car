@@ -3721,10 +3721,10 @@
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI ट्यूनर दर्शवा"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"अतिरिक्त परवानग्या"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"<xliff:g id="COUNT">%1$d</xliff:g> अधिक"</string>
-    <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"बग रीपोर्ट शेअर करायचा?"</string>
-    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"आपल्या IT प्रशासकाने या डिव्हाइसच्या समस्येचे निवारण करण्यात मदत करण्यासाठी दोष अहवालाची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात."</string>
-    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"तुमच्या IT प्रशासकाने या डिव्हाइस च्या समस्येचे निवारण करण्यात मदत करण्यासाठी एका दोष अहवालाची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात आणि तुमचे डिव्हाइस तात्पुरते धीमे होऊ शकते."</string>
-    <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"हा बग रीपोर्ट आपल्या IT प्रशासकासह शेअर केला जात आहे. अधिक तपशीलांसाठी त्यांच्याशी संपर्क साधा."</string>
+    <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"बग रिपोर्ट शेअर करायचा का?"</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"तुमच्या IT अ‍ॅडमिनने या डिव्हाइसच्या समस्येचे निवारण करण्यात मदत करण्यासाठी बग रिपोर्टची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"तुमच्या IT अ‍ॅडमिनने या डिव्हाइसच्या समस्येचे निवारण करण्यात मदत करण्यासाठी बग रिपोर्टची विनंती केली. अ‍ॅप्स आणि डेटा शेअर केले जाऊ शकतात तसेच, तुमचे डिव्हाइस तात्पुरते धीमे होऊ शकते."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"हा बग रिपोर्ट तुमच्या IT अ‍ॅडमिनसह शेअर केला जात आहे. अधिक तपशिलांसाठी त्यांच्याशी संपर्क साधा."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"शेअर करा"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"नकार द्या"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"डेटा ट्रान्सफर नाही"</string>
@@ -4177,7 +4177,7 @@
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"आपल्या डिव्हाइसवरील अ‍ॅप्सची सूची"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"प्रत्येक अ‍ॅपमध्ये वापरलेला वेळ आणि डेटा यांचे प्रमाण"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"सर्वात अलीकडील नेटवर्क रहदारी लॉग"</string>
-    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"सर्वात अलीकडील बग रीपोर्ट"</string>
+    <string name="enterprise_privacy_bug_reports" msgid="283443567328836380">"सर्वात अलीकडील बग रिपोर्ट"</string>
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"सर्वात अलीकडील सुरक्षा लॉग"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"काहीही नाही"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"इंस्टॉल केलेली अ‍ॅप्स"</string>

@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM पहुँच अनुरोध"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> ले तपाईँको SIM कार्ड पहुँच गर्न चाहन्छ। डिभाइसमा SIM कार्ड पहुँच प्रदान गर्दा जडान अवधिको समयमा तपाईँको डेटा जडान निष्क्रिय हुनेछ। <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> लाई पहुँच प्रदान गर्नुहोस्"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"अन्य डिभाइसमा <xliff:g id="DEVICE_NAME">^1</xliff:g> को रूपमा देखिन्छ"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"अन्य डिभाइसमा जडान गर्न ब्लुटुथ अन गर्नुहोस्‌।"</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"अन्य डिभाइससँग कनेक्ट गर्न ब्लुटुथ अन गर्नुहोस्‌।"</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"तपाईंका यन्त्रहरू"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"नयाँ डिभाइससँग कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"आफ्नो ट्याब्लेटलाई वरपरका ब्लुटुथ यन्त्रहरूसँग सञ्चार गर्न दिनुहोस्"</string>
@@ -178,11 +178,11 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"कल गर्ने सुविधा भएका उपलब्ध डिभाइस"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"हाल जडान अवस्थामा छ"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"सुरक्षित गरिएका यन्त्रहरू"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"जोडा बनाउनका लागि ब्लुटुथ सक्रिय हुने छ"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"कनेक्ट गर्नका लागि ब्लुटुथ अन हुने छ"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"कनेक्सनका प्राथमिकताहरू"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"यसअघि कनेक्ट गरिएका डिभाइस"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"यसअघि कनेक्ट गरिएका डिभाइस"</string>
-    <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ब्लुटुथ सक्रिय गरियो"</string>
+    <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ब्लुटुथ अन गरियो"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"सबै हेर्नुहोस्"</string>
     <string name="date_and_time" msgid="2957463607025909857">"मिति र समय"</string>
     <string name="choose_timezone" msgid="8215332993926818147">"प्रामाणिक समय चयन गर्नुहोस्"</string>
@@ -354,7 +354,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"स्क्रिन सन्देश लक गर्नुहोस्"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"विजेटहरू सक्षम पार्नुहोस्"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"एडमिनले अफ गरेको छ"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"लकडाउन गर्ने विकल्प देखाउनुहोस्"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"लकडाउन विकल्प देखाइयोस्"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Smart Lock, फिङ्गरप्रिन्टमार्फत अनलक गर्ने र लक स्क्रिनसम्बन्धी सूचनाहरू दिने सेवा निस्क्रिय पार्ने पावर बटनसम्बन्धी विकल्प देखाउनुहोस्"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"विश्वस्त एजेन्टहरूले अनलक मोडको विकल्पलाई मात्र विस्तार गर्छन्"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"सक्षम परिएका खण्डमा विश्वस्त एजेन्टहरूले तपाईंको यन्त्र धेरै बेरसम्म अनलक रूपमा राख्छन् तर लक भएको यन्त्रलाई भने अब उप्रान्त अनलक गर्न सक्दैनन्।"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"स्वचालित सेटअप (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Wi‑Fi स्क्यान गर्ने सुविधा सक्रिय गर्ने हो?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Wi‑Fi स्वतः सक्रिय गर्न तपाईंले सर्वप्रथम Wi‑Fi स्क्यान गर्ने सुविधालाई सक्रिय गर्नु पर्ने हुन्छ।"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi-Fi स्क्यान गर्ने सुविधाले एप र सेवाहरूलाई Wi‑Fi निष्क्रिय भएको बेलालगायत जुनसुकै बेला वरपरका Wi-Fi नेटवर्कहरू स्क्यान गर्ने अनुमति दिन्छ। उदाहरणका लागि यसलाई स्थानमा आधारित सुविधा तथा सेवाहरूको सुधार गर्नका लागि प्रयोग गर्न सकिन्छ।"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi-Fi स्क्यान गर्ने सुविधाले एप र सेवाहरूलाई Wi‑Fi अफ भएको बेला र अरू बेला वरपरका Wi-Fi नेटवर्कहरू स्क्यान गर्ने अनुमति दिन्छ। उदाहरणका लागि यसलाई लोकोसेन सर्भिस सुधार गर्न प्रयोग गर्न सकिन्छ।"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"सक्रिय गर्नुहोस्"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi‑Fi स्क्यान गर्ने सेवा सक्रिय छ"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"उन्नत विकल्पहरू"</string>
@@ -1657,7 +1657,7 @@
     <string name="location_category_recent_location_access" msgid="286059523360285026">"हालसालै राखिएको स्थानमाथिको पहुँच"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"विवरणहरू हेर्नुहोस्"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"अहिले कुनै पनि एपहरूले लोकेसन मागेका छैनन्"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"कुनै पनि अनुप्रयोगले हाल स्थानमाथि पहुँच गरेको छैन"</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"कुनै पनि एपले हालसालै लोकेसन प्रयोग गरेको छैन"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"उच्च ब्याट्री प्रयोग"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"कम ब्याट्री प्रयोग"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi तथा ब्लुटुथ स्क्यान गर्दै"</string>
@@ -1665,7 +1665,7 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"एप र सेवाहरूलाई जुनसुकै बेला (Wi‑Fi अफ भएको बेलामा पनि) वरपरका Wi-Fi नेटवर्क खोज्ने अनुमति दिनुहोस्। यसलाई लोकेसनमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नाका लागि प्रयोग गर्न सकिन्छ।"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"ब्लुटुथको खोजी"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"एप तथा सेवाहरूलाई जुनसुकै बेला (ब्लुटुथ अफ भएको बेलामा पनि) वरपरका डिभाइस खोज्ने अनुमति दिनुहोस्‌। यसलाई लोकेसनमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नाका लागि प्रयोग गर्न सकिन्छ।"</string>
-    <string name="managed_profile_location_services" msgid="224925483299159541">"कार्यस्थलका लागि लोकेसनमा आधारित सेवाहरू"</string>
+    <string name="managed_profile_location_services" msgid="224925483299159541">"कार्यस्थलका लागि लोकेसन सर्भिस"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi; मोबाइल नेटवर्क स्थान"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"तपाईँको स्थानलाई सीघ्र अनुमान गर्न एपहरूलाई Google लोकेसन सर्भिस प्रयोग गर्ने अनुमति दिनुहोस्। बेनामी स्थान डेटा भेला गरिने छ र Googleमा पठाइने छ।"</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"वाइ-फाइद्वारा निर्धारित स्थान"</string>
@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"एपका प्राथमिकताहरू रिसेट गर्ने हो?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"यसले सबै  प्राथमिकताहरूलाई रिसेट गर्ने छ:\n\n "<li>"असक्षम पारिएका एपहरू"</li>\n" "<li>"असक्षम पारिएका एप सूचनाहरू"</li>\n" "<li>"कार्यका लागि डिफल्ट एपहरू"</li>\n" "<li>"एपहरूको लागि ब्याकग्राउन्ड डेटा प्रतिबन्धहरू"</li>\n" "<li>"कुनै अनुमति प्रतिबन्धहरू"</li>\n\n" तपाईँले कुनै पनि एप डेटा गुमाउनु हुने छैन।"</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"एपहरू रिसेट गर्नुहोस्"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"ठाउँको प्रबन्ध गर्नुहोस्"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"उपलब्ध भण्डारणको व्यवस्थापन गर्नुहोस्"</string>
     <string name="filter" msgid="2426943916212457962">"फिल्टर गर्नुहोस्"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"फिल्टर विकल्पहरू छान्नुहोस्"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"सबै एपहरू"</string>
@@ -2248,7 +2248,7 @@
     <string name="battery_since_reset" msgid="4747587791838336661">"रिसेट गरेदेखि ब्याट्री प्रयोग"</string>
     <string name="battery_stats_on_battery" msgid="2644055304085279716">"<xliff:g id="TIME">%1$s</xliff:g> ब्याट्रिमा"</string>
     <string name="battery_stats_duration" msgid="4867858933068728005">"<xliff:g id="TIME">%1$s</xliff:g> प्लग छुटाइएपछि"</string>
-    <string name="battery_stats_charging_label" msgid="3156586822576998231">"चार्ज हुँदै"</string>
+    <string name="battery_stats_charging_label" msgid="3156586822576998231">"चार्ज हुँदै छ"</string>
     <string name="battery_stats_screen_on_label" msgid="1223495366609581497">"स्क्रिन खुला"</string>
     <string name="battery_stats_gps_on_label" msgid="3944533098574423359">"GPS मा"</string>
     <string name="battery_stats_camera_on_label" msgid="557892808497848886">"क्यामेरा सक्रिय"</string>

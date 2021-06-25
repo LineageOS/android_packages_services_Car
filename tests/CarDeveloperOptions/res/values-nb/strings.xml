@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Vil du tilbakestille app-innstillingene?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Dette tilbakestiller alle innstillinger for\n\n"<li>"avslåtte apper"</li>\n<li>"avslåtte appvarsler"</li>\n<li>"standardapper for handlinger"</li>\n<li>"begrensninger på bakgrunnsdata for apper"</li>\n<li>"begrensninger på tillatelser"</li>\n\n" Du mister ingen appdata."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Tilbakestill apper"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"Styr plass"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"Styr lagring"</string>
     <string name="filter" msgid="2426943916212457962">"Filter"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Velg filteralternativer"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"Alle apper"</string>
