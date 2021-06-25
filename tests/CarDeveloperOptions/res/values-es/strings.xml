@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"¿Recuperar preferencias de las aplicaciones?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Se recuperarán todas las preferencias de:\n\n "<li>"Aplicaciones inhabilitadas"</li>\n" "<li>"Notificaciones de aplicaciones inhabilitadas"</li>\n" "<li>"Aplicaciones predeterminadas"</li>\n" "<li>"Restricciones de datos móviles de aplicaciones"</li>\n" "<li>"Restricciones de permisos"</li>\n\n"No se perderán los datos de las aplicaciones."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Recuperar aplicaciones"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"Administrar espacio"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"Gestionar espacio"</string>
     <string name="filter" msgid="2426943916212457962">"Filtrar"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Seleccionar opciones de filtrado"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"Todas las aplicaciones"</string>

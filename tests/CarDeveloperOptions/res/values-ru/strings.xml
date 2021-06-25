@@ -368,8 +368,8 @@
     <string name="owner_info_settings_status" msgid="8049975536717685126">"<xliff:g id="COUNT_0">%1$d</xliff:g> из <xliff:g id="COUNT_1">%2$d</xliff:g>"</string>
     <string name="owner_info_settings_edit_text_hint" msgid="2250029417257939706">"Например, Android Саши"</string>
     <string name="user_info_settings_title" msgid="1125111518759995748">"Сведения о пользователе"</string>
-    <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Показывать информацию профиля на заблокированном экране"</string>
-    <string name="profile_info_settings_title" msgid="4855892878512562551">"Информация о профиле"</string>
+    <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Показывать данные профиля на заблокированном экране"</string>
+    <string name="profile_info_settings_title" msgid="4855892878512562551">"Данные профиля"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Аккаунты"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"Местоположение"</string>
     <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Определять местоположение"</string>
