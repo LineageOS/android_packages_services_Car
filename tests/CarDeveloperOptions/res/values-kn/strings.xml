@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"ಸಿಮ್ ಪ್ರವೇಶ ವಿನಂತಿ"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> ನಿಮ್ಮ ಸಿಮ್ ಕಾರ್ಡ್ ಪ್ರವೇಶಿಸಲು ಬಯಸುತ್ತದೆ. ಸಿಮ್ ಕಾರ್ಡ್‌ಗೆ ಪ್ರವೇಶವನ್ನು ನೀಡಿದರೆ, ಸಂಪರ್ಕಪಡಿಸುವ ಸಂದರ್ಭದಲ್ಲಿ ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ ಡೇಟಾ ಸಂಪರ್ಕಪಡಿಸುವಿಕೆಯನ್ನು ನಿಷ್ಕ್ರಿಯಗೊಳಿಸುತ್ತದೆ. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> ಗೆ ಪ್ರವೇಶ ನೀಡಿ"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"ಇತರ ಸಾಧನಗಳಿಗೆ “<xliff:g id="DEVICE_NAME">^1</xliff:g>” ಎಂದು ಗೋಚರಿಸುತ್ತದೆ"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"ಇತರ ಸಾಧನಗಳೊಂದಿಗೆ ಸಂಪರ್ಕಿಸಲು ಬ್ಲೂಟೂತ್ ಆನ್ ಮಾಡಿ."</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"ಇತರ ಸಾಧನಗಳಿಗೆ ಕನೆಕ್ಟ್ ಆಗಲು ಬ್ಲೂಟೂತ್ ಆನ್ ಮಾಡಿ."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"ನಿಮ್ಮ ಸಾಧನಗಳು"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"ಹೊಸ ಸಾಧನವನ್ನು ಜೋಡಿಸಿ"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"ಸಮೀಪದ ಬ್ಲೂಟೂತ್ ಸಾಧನಗಳೊಂದಿಗೆ ಸಂವಹನ ನಡೆಸಲು ನಿಮ್ಮ ಟ್ಯಾಬ್ಲೆಟ್ ಅನ್ನು ಅನುಮತಿಸಿ"</string>

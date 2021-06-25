@@ -113,7 +113,7 @@
     <string name="bluetooth_disconnect_all_profiles" product="device" msgid="4707569949253450208">"このデバイスと <xliff:g id="DEVICE_NAME">%1$s</xliff:g> との接続を解除します。"</string>
     <string name="bluetooth_disconnect_dialog_ok" msgid="4183522987246110145">"接続を解除"</string>
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"Bluetooth設定を変更する権限がありません。"</string>
-    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"新しいデバイスとペア設定する"</string>
+    <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"新しいデバイスとペア設定"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"Bluetooth設定を開いている間は、<xliff:g id="DEVICE_NAME">%1$s</xliff:g>は付近のデバイスに表示されています。"</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"スマートフォンの Bluetooth アドレス: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"タブレットの Bluetooth アドレス: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"プロファイル情報"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"アカウント"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"位置情報"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"位置情報の使用"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"位置情報を使用"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"OFF"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">ON - <xliff:g id="COUNT_1">%1$d</xliff:g> 個のアプリが位置情報にアクセスできます</item>
@@ -1219,7 +1219,7 @@
     <string name="night_display_start_time_title" msgid="1069255169673371077">"開始時間"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"終了時間"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"ステータス"</string>
-    <string name="night_display_temperature_title" msgid="8375126629902616296">"輝度"</string>
+    <string name="night_display_temperature_title" msgid="8375126629902616296">"黄味の強さ"</string>
     <string name="night_display_summary_off" msgid="8850539785332228069">"OFF / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
     <string name="night_display_summary_off_auto_mode_never" msgid="8618824386434992487">"自動で ON にしない"</string>
     <string name="night_display_summary_off_auto_mode_custom" msgid="596847003171394411">"自動的に ON: <xliff:g id="ID_1">%1$s</xliff:g>"</string>

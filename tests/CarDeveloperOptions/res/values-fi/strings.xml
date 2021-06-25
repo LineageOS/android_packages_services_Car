@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Käytettävissä olevat soittolaitteet"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Yhdistetty tällä hetkellä"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Tallennetut laitteet"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth käynnistetään parinmuodostusta varten."</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth käynnistetään parinmuodostusta varten"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Yhteysasetukset"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Aiemmin yhdistetyt laitteet"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Aiemmin liitetyt"</string>
@@ -1649,7 +1649,7 @@
     <string name="location_title" msgid="8664674161765477168">"Oma sijainti"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Työprofiilin sijainti"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Sovelluksen käyttöoikeus"</string>
-    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Sijainti on poissa käytöstä."</string>
+    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Sijainti on poissa käytöstä"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="other"><xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> sovelluksella on rajattomat käyttöoikeudet</item>
       <item quantity="one"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_0">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_1">%2$d</xliff:g> sovelluksella on rajattomat käyttöoikeudet</item>
