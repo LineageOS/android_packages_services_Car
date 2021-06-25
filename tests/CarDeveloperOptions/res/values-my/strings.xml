@@ -163,7 +163,7 @@
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM ကတ် သုံးခွင့် တောင်းဆိုမှု"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> သည် သင့် SIM ကဒ်အား ဝင်ရောက်သုံးလို၏။ SIM ကဒ်အား ဝင်ရောက်သုံးခွင့်ပြုပါက ချိတ်ဆက်နေစဉ်ကာလအတွင်း သင့် စက်ကိရိယာ၏ ဒေတာချိတ်ဆက်မှုအား ပိတ်ထားလိမ့်မည်။ <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> အား ဝင်ရောက်သုံးခွင့်ပြုရန်"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"အခြားစက်ပစ္စည်းများက \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' အဖြစ် မြင်ရပါမည်"</string>
-    <string name="bluetooth_off_footer" msgid="7658444560543730571">"အခြားစက်များသို့ ချိတ်ဆက်ရန် \'ဘလူးတုသ်\' ကို ဖွင့်ပါ။"</string>
+    <string name="bluetooth_off_footer" msgid="7658444560543730571">"အခြားစက်များသို့ ချိတ်ဆက်ရန် ဘလူးတုသ်ဖွင့်ပါ။"</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"သင်၏ စက်ပစ္စည်းများ"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"စက်အသစ် တွဲချိတ်ရန်"</string>
     <string name="bluetooth_pref_summary" product="tablet" msgid="3601662966604648212">"သင့်တက်ဘလက်အား အနီးအနားရှိ \'ဘလူးတုသ်\' စက်ပစ္စည်းများနှင့် ချိတ်ဆက်ခွင့်ပေးသည်"</string>
@@ -1657,7 +1657,7 @@
     <string name="location_category_recent_location_access" msgid="286059523360285026">"မကြာသေးမီက တည်နေရာအသုံးပြုခွင့်"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"အသေးစိတ်ကြည့်ရန်"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"လတ်တလောတွင် မည်သည့်အပလီကေးရှင်းမှ တည်နေရာကို တောင်းခံမှုမရှိပါ။"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"မည်သည့်အက်ပ်မျှ တည်နေရာကို လတ်တလော ဝင်သုံးမထားပါ"</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"မည်သည့်အက်ပ်မျှ တည်နေရာကို အခုတလော ဝင်သုံးမထားပါ"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"ဘက်ထရီအသုံးပြုမှုမြင့်သော"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"ဘက်ထရီအသုံးပြုမှုနိမ့်သော"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi နှင့် ဘလူးတုသ် ရှာဖွေခြင်း"</string>

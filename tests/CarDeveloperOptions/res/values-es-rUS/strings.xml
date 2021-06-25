@@ -1585,7 +1585,7 @@
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"No es posible borrar las tarjetas SIM descargadas debido a un error.\n\nReinicia el dispositivo y vuelve a intentarlo."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Borrar todos los datos (restablecer la configuración de fábrica)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Borrar todos los datos"</string>
-    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu tablet, como\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
+    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Esta acción borrará todos los datos del "<b>"almacenamiento interno"</b>" de tu tablet, por ejemplo:\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Se borrarán todos los datos del "<b>"almacenamiento interno"</b>" del teléfono, por ejemplo:\n\n"<li>"Tu Cuenta de Google"</li>\n<li>"Los datos y la configuración del sistema y de las apps"</li>\n<li>"Las apps descargadas"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Accediste a las siguientes cuentas:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Hay otros usuarios presentes en este dispositivo.\n"</string>

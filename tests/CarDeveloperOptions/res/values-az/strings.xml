@@ -1820,7 +1820,7 @@
     <string name="data_size_label" msgid="7790201846922671662">"İstifadəçi datası"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB yaddaş tətbiqi"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD kart"</string>
-    <string name="uninstall_text" msgid="4859715815689705801">"Aradan qaldırın"</string>
+    <string name="uninstall_text" msgid="4859715815689705801">"Sistemdən silin"</string>
     <string name="uninstall_all_users_text" msgid="2620518509352561416">"bütün istifadəçilər üçün aradan qaldırın"</string>
     <string name="install_text" msgid="2798092278891807849">"Quraşdır"</string>
     <string name="disable_text" msgid="5065834603951474397">"Deaktiv edin"</string>
@@ -2185,7 +2185,7 @@
     <string name="enable_service_pattern_reason" msgid="7415969807374459848">"<xliff:g id="SERVICE">%1$s</xliff:g> xidmətinin aktiv edilməsi şifrələnməyə təsir etdiyi üçün modelinizi təsdiq etməlisiniz."</string>
     <string name="enable_service_pin_reason" msgid="2899057249007636608">"<xliff:g id="SERVICE">%1$s</xliff:g> xidmətinin aktiv edilməsi şifrələnməyə təsir etdiyi üçün PIN kodunu təsdiq etməlisiniz."</string>
     <string name="enable_service_password_reason" msgid="5210815233227388083">"<xliff:g id="SERVICE">%1$s</xliff:g> xidmətinin aktiv edilməsi şifrələnməyə təsir etdiyi üçün parolunuzu təsdiq etməlisiniz."</string>
-    <string name="accessibility_service_warning" msgid="345702253188068806">"<xliff:g id="SERVICE">%1$s</xliff:g> bu cihaza tam nəzarət tələb edir. Xidmət ekranı oxuya və girişi olmayan istifadəçilərin əvəzinə əməliyyat icra edə bilər. Nəzarətin bu səviyyəsi əksər tətbiqlər üçün uyğun deyil."</string>
+    <string name="accessibility_service_warning" msgid="345702253188068806">"<xliff:g id="SERVICE">%1$s</xliff:g> cihaza tam nəzarət istəyir. Məlumatları ekrandan oxuya, xüsusi imkanlara ehtiyacı olan istifadəçilərin adından iş görə bilər. Tətbiqlərin çoxuna bu səviyyədə icazə vermək tövsiyə olunmur."</string>
     <string name="disable_service_title" msgid="6234243399949005825">"<xliff:g id="SERVICE">%1$s</xliff:g> dayandırılsın?"</string>
     <string name="disable_service_message" msgid="4250593674885651779">"OK basmaqla <xliff:g id="SERVICE">%1$s</xliff:g> dayandırılacaq."</string>
     <string name="accessibility_no_services_installed" msgid="6979918129976547334">"Heç bir xidmət quraşdırılmayıb"</string>
