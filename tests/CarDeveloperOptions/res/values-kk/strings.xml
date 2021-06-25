@@ -1201,7 +1201,7 @@
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"Өте жоғары"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"Сіз таңдаған жарық деңгейі"</string>
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Қолжетімді жарықтандыруға сәйкес реттемеу"</string>
-    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Батарея заряды тезірек таусылады"</string>
+    <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Батарея заряды тезірек таусылады."</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Қолжетімді жарықтандыруға сәйкес жарық деңгейін оңтайландырыңыз. Бұл функция қосулы кезде, жарық деңгейін уақытша реттей аласыз."</string>
     <string name="auto_brightness_description" msgid="8209140379089535411">"Экран жарықтығы қоршаған ортаға және әрекеттерге автоматты түрде бейімделеді. Жүгірткіні қолмен жылжытуыңызға болады."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Дисплейдің ақ түс балансы"</string>
@@ -1892,7 +1892,7 @@
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Хабарлар өшірілісін бе?"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Дүкен"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"Қолданба сипаттамасы"</string>
-    <string name="app_install_details_summary" msgid="6612222941121363940">"Қолданба <xliff:g id="APP_STORE">%1$s</xliff:g> дүкенінен орнатылды"</string>
+    <string name="app_install_details_summary" msgid="6612222941121363940">"Қолданба <xliff:g id="APP_STORE">%1$s</xliff:g> дүкенінен орнатылды."</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"Қосымша ақпарат: <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"Қосылған"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(Ешқашан қолданылмаған)"</string>
@@ -3785,7 +3785,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Жиілік"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Ең көп пайдалануы"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Деректер пайдаланылмаған"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Деректер пайдаланылмаған."</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"<xliff:g id="APP">%1$s</xliff:g> қолданбасына «Мазаламау» режиміне кіруге бола ма?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Қолданба «Мазаламау» режимін қосуы/өшіруі және қатысты параметрлерге өзгерістер енгізуі мүмкін."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Хабарландыру параметрі қосулы болғандықтан, міндетті түрде қосулы болуы тиіс"</string>

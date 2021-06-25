@@ -1756,7 +1756,7 @@
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"حداقل <xliff:g id="NUMBER">%d</xliff:g> نقطه را به یکدیگر متصل کنید. دوباره امتحان کنید."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"الگو ضبط شد"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"برای تأیید، دوباره الگو را بکشید"</string>
-    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"الگوی جدید بازگشایی قفلتان"</string>
+    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"الگوی جدید بازگشایی قفل"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"تأیید"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"کشیدن مجدد"</string>
     <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"پاک کردن"</string>
@@ -3556,7 +3556,7 @@
     <string name="switch_off_text" msgid="3539551289454353555">"خاموش"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"سنجاق کردن صفحه"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"وقتی این تنظیم روشن است، می‌توانید از ویژگی سنجاق کردن صفحه برای حفظ صفحه کنونی در زاویه دید (تا وقتی پین آن را لغو می‌کنید) استفاده کنید.\n\nبرای استفاده از سنجاق کردن صفحه:\n\n۱. مطمئن شوید ویژگی سنجاق کردن روشن است\n\n۲. نمای کلی را باز کنید\n\n۳. روی نماد برنامه در بالای صفحه، سپس «سنجاق کردن» ضربه بزنید"</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"درخواست الگوی باز کردن قفل قبل از برداشتن سنجاق"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"درخواست الگوی بازگشایی قفل قبل‌از برداشتن سنجاق"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"درخواست کد پین قبل از برداشتن سنجاق"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"درخواست گذرواژه قبل از برداشتن سنجاق"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"قفل کردن دستگاه هنگام برداشتن سنجاق"</string>
