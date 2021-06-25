@@ -1170,7 +1170,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ကိုယ်ရေးကိုယ်တာ အကောင့်ကို - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"ရှာဖွေခြင်း"</string>
     <string name="display_settings" msgid="1045535829232307190">"ဖန်သားပြင်"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"မျက်နှာပြင်ကို အော်တိုလှည့်ရန်"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"ဖန်သားပြင် အလိုအလျောက်လှည့်ခြင်း"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"အရောင်များ"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"သဘာဝ"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"အရောင်တင်ထားသည်"</string>

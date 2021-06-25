@@ -4471,7 +4471,7 @@
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Anulo detyrimin e errësimit"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Anulon funksionin e detyrimit të errësimit që të jetë gjithmonë aktiv"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Privatësia"</string>
-    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Autorizimet, aktiviteti i llogarisë, të dhënat personale"</string>
+    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Lejet, aktiviteti i llogarisë, të dhënat personale"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Hiq"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Mbaj"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Të hiqet ky sugjerim?"</string>

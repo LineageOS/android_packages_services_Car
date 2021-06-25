@@ -115,7 +115,7 @@
     <string name="bluetooth_empty_list_user_restricted" msgid="3616298363281495777">"మీకు బ్లూటూత్ సెట్టింగ్‌లను మార్చడానికి అనుమతి లేదు."</string>
     <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"కొత్త పరికరాన్ని పెయిర్ చేయండి"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"బ్లూటూత్ సెట్టింగ్‌లను తెరిచి ఉన్నప్పుడు <xliff:g id="DEVICE_NAME">%1$s</xliff:g> సమీప పరికరాలకు కనిపిస్తుంది."</string>
-    <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"ఫోన్ యొక్క బ్లూటూత్ చిరునామా: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"ఫోన్ బ్లూటూత్ అడ్రస్: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"టాబ్లెట్ యొక్క బ్లూటూత్ చిరునామా: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"పరికర బ్లూటూత్ అడ్రస్: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>ను డిస్‌కనెక్ట్ చేయాలా?"</string>
@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"అందుబాటులో ఉన్న కాల్ పరికరాలు"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"ప్రస్తుతం కనెక్ట్ చేయబడింది"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"సేవ్ చేసిన పరికరాలు"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"జత చేయడం కోసం బ్లూటూత్ ఆన్ చేయబడుతుంది"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"పెయిర్ చేయడం కోసం బ్లూటూత్ ఆన్ చేయబడుతుంది"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"కనెక్షన్ ప్రాధాన్యతలు"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"మునుపు కనెక్ట్ చేసిన పరికరాలు"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"ఇంతకు మునుపు కనెక్ట్ చేయబడినవి"</string>
@@ -1657,7 +1657,7 @@
     <string name="location_category_recent_location_access" msgid="286059523360285026">"ఇటీవలి స్థాన యాక్సెస్"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"వివరాలను చూడండి"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల రిక్వెస్ట్ చేయలేదు"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"యాప్‌లు ఏవీ స్థానాన్ని ఇటీవల యాక్సెస్ చేయలేదు"</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల యాక్సెస్ చేయలేదు"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"అధిక బ్యాటరీ వినియోగం"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"తక్కువ బ్యాటరీ వినియోగం"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi, బ్లూటూత్‌ స్కానింగ్‌"</string>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"నియంత్రణలు"</string>
     <string name="force_stop" msgid="9213858124674772386">"ఫోర్స్ స్టాప్"</string>
     <string name="total_size_label" msgid="3929917501176594692">"మొత్తం"</string>
-    <string name="application_size_label" msgid="175357855490253032">"యాప్ పరిమాణం"</string>
+    <string name="application_size_label" msgid="175357855490253032">"యాప్ సైజ్"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB నిల్వ యాప్"</string>
     <string name="data_size_label" msgid="7790201846922671662">"యూజర్ డేటా"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB నిల్వ డేటా"</string>
@@ -2620,7 +2620,7 @@
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
-    <string name="sync_contacts" msgid="5687434785723746534">"పరిచయాలు"</string>
+    <string name="sync_contacts" msgid="5687434785723746534">"కాంటాక్ట్‌లు"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సమకాలీకరణకు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ పరిచయాలు, నియామకాలు మరియు మరిన్నింటికి ప్రాప్యతను అనుమతించడం కోసం డేటాను సమకాలీకరించడానికి Google అవలంబించే విధానం."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"అనువర్తన సమకాలీకరణ సెట్టింగ్‌లు"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"డేటా &amp; సమకాలీకరణ"</string>
@@ -3516,7 +3516,7 @@
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"ఈవెంట్‌లు"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"ఎవరైనా"</string>
-    <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"పరిచయాలు"</string>
+    <string name="zen_mode_contacts_callers" msgid="3116829245339716399">"కాంటాక్ట్‌లు"</string>
     <string name="zen_mode_starred_callers" msgid="1317376207713013472">"స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌లు"</string>
     <string name="zen_mode_repeat_callers" msgid="1435309867554692340">"పునరావృత కాలర్‌లను అనుమతించు"</string>
     <string name="zen_mode_repeat_callers_list" msgid="2750270907597457279">"పునరావృత కాలర్‌లు"</string>
@@ -4250,7 +4250,7 @@
     <string name="launch_instant_app" msgid="5251693061228352333">"తెరువు"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"గేమ్‌లు"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"ఆడియో ఫైల్‌లు"</string>
-    <string name="app_info_storage_title" msgid="6643391804949509308">"ఉపయోగించబడిన నిల్వ"</string>
+    <string name="app_info_storage_title" msgid="6643391804949509308">"ఉపయోగించిన స్పేస్"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(<xliff:g id="USER">%s</xliff:g>కు అన్ఇన్‌స్టాల్ చేయబడింది)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(<xliff:g id="USER">%s</xliff:g>కు నిలిపివేయబడింది)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"ఆటోఫిల్‌ సేవ"</string>

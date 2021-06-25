@@ -106,7 +106,7 @@
     <string name="bluetooth_name_not_set" msgid="1886067683138385142">"Атау реттелмеген, есептік жазба атауын қолдануда"</string>
     <string name="bluetooth_scan_for_devices" msgid="3215740768422735880">"Құрылғыларды скандау"</string>
     <string name="bluetooth_rename_device" msgid="7862992396452800566">"Осы құрылғының атауын өзгерту"</string>
-    <string name="bluetooth_rename_button" msgid="8946904845821073267">"Атауын өзгерту"</string>
+    <string name="bluetooth_rename_button" msgid="8946904845821073267">"Атын өзгерту"</string>
     <string name="bluetooth_disconnect_title" msgid="2689706557852333780">"Құрылғы ажыратылсын ба?"</string>
     <string name="bluetooth_disconnect_all_profiles" product="default" msgid="8920448151607060442">"Бұл телефон <xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысынан ажыратылды."</string>
     <string name="bluetooth_disconnect_all_profiles" product="tablet" msgid="7322773998151831579">"Бұл планшет <xliff:g id="DEVICE_NAME">%1$s</xliff:g> құрылғысынан ажыратылды."</string>
@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Қолжетімді қоңырау шалу құрылғылары"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Қазір жалғанып тұрғандар"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Сақталған құрылғылар"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth жұптау үшін қосылады"</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth қосылады."</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Байланыс параметрлері"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Бұрын жалғанған құрылғылар"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Бұрын жалғанған"</string>
@@ -787,7 +787,7 @@
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"Жалғау"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"Bluetooth құрылғысына жалғау"</string>
     <string name="bluetooth_device_advanced_profile_header_title" msgid="1414487572426490659">"Келесі үшін пайдалану"</string>
-    <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"Атауын өзгерту"</string>
+    <string name="bluetooth_device_advanced_rename_device" msgid="2270087843175307865">"Атын өзгерту"</string>
     <string name="bluetooth_device_advanced_enable_opp_title" msgid="8258863155491651198">"Келген файлдарды жіберуге рұқсат беру"</string>
     <string name="bluetooth_pan_user_profile_summary_connected" msgid="5934228955175911807">"Интернетке кіру үшін құрылғымен байланыстырылған"</string>
     <string name="bluetooth_pan_nap_profile_summary_connected" msgid="3103296701913705646">"Жергілікті интернет байланысын құрылғымен бөлісуде"</string>
@@ -1407,7 +1407,7 @@
     <string name="sd_ejecting_summary" msgid="5708943172014003213">"Шығару әрекеті орныдалуда"</string>
     <string name="storage_low_title" msgid="6957178208426099592">"Жад кеңістігі азайып барады"</string>
     <string name="storage_low_summary" msgid="4475275204869514141">"Синхрондау сияқты кейбір жүйе функциялары дұрыс жұмыс істемеуі мүмкін. Қолданбалар немесе медиа мазмұны сияқты нәрселерді алып, орын босатып көріңіз."</string>
-    <string name="storage_menu_rename" msgid="3731682449294417745">"Атауын өзгерту"</string>
+    <string name="storage_menu_rename" msgid="3731682449294417745">"Атын өзгерту"</string>
     <string name="storage_menu_mount" msgid="6395893560780365473">"мазмұнды картадан жүктеу"</string>
     <string name="storage_menu_unmount" msgid="5041360076873514189">"Шығару"</string>
     <string name="storage_menu_format" msgid="4285487419855632896">"Пішімдеу"</string>
@@ -1649,15 +1649,15 @@
     <string name="location_title" msgid="8664674161765477168">"Mенің аймағым"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Жұмыс профилінің орны"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Қолданба рұқсаты"</string>
-    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"\"Орналасу\" функциясы өшірулі"</string>
+    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Локация өшірулі"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="other"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> қолданбаның шексіз мүмкіндігі бар.</item>
       <item quantity="one"> <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_0">%1$d</xliff:g>/<xliff:g id="TOTAL_LOCATION_APP_COUNT_1">%2$d</xliff:g> қолданбаның шексіз мүмкіндігі бар.</item>
     </plurals>
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Геодеректерге соңғы кіру"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Мәліметтерді көру"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"Жуықта ешқандай қолданба аймақ туралы өтініш жасамаған"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Геодеректерді жақын арада ешқандай қолданба пайдаланбаған."</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"Жақында ешбір қолданба локацияны сұрамаған."</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Жақында ешбір қолданба локацияны пайдаланбаған."</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Жоғары деңгейде батарея қолдану"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Батарея шығыны аз"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi желілері мен Bluetooth сигналын іздеу"</string>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"Басқарулар"</string>
     <string name="force_stop" msgid="9213858124674772386">"Күштеп тоқтату"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Барлығы"</string>
-    <string name="application_size_label" msgid="175357855490253032">"Қолданба өлшемі"</string>
+    <string name="application_size_label" msgid="175357855490253032">"Қолданба көлемі"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"USB жады қолданбасы"</string>
     <string name="data_size_label" msgid="7790201846922671662">"Пайдаланушы деректері"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"USB жады дерекқоры"</string>
@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Қолданба параметрлері бастапқы күйге қайтарылсын ба?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Төмендегі реттеулер бастапқы күйге қайтарылады: \n\n "<li>"Өшірілген қолданбалар"</li>\n" "<li>"Өшірілген қолданба хабарландырулары"</li>\n" "<li>"Әрекеттерге арналған әдепкі қолданбалар"</li>\n" "<li>"Фондық режимдегі дерек тасымалын шектеу"</li>\n" "<li>"Қандай да бір рұқсат шектеулері"</li>\n\n" Қолданба деректері жоғалмайды."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Бастапқы күйге қайтару"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"Кеңістікті басқару"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"Орынды басқару"</string>
     <string name="filter" msgid="2426943916212457962">"Сүзгі"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Сүзгі опцияларын таңдау"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"Барлық қолданба"</string>
@@ -2698,7 +2698,7 @@
     <string name="data_usage_background_label" msgid="8460891123904985128">"Фон:"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Қолданба параметрлері"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Фондық деректер"</string>
-    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Мобильдік деректерді фондық режимде пайдалануды қосу"</string>
+    <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Мобильдік деректерді фондық режимде пайдалану"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Бұл қолданба үшін жалпы мағлұматты шектеу үшін алдымен ұялы дерекқор шектеуін орнату қажет."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Фондық деректер шектелсін бе?"</string>
     <string name="data_usage_app_restrict_dialog" msgid="4022530391896478031">"Ұял желілер ғана қол жетімді болғанда бұл функция жалпы ақпаратқа тәуелді қолданбалардың жұмысын тоқтатады.\n\nДерекқорды дұрыс қолдануды басқарудың басқа мүмкіндіктерін қолданбаның параметрлері арқылы табуға болады."</string>
@@ -3434,7 +3434,7 @@
     <string name="notification_vibrate_title" msgid="8221718258793835282">"Діріл"</string>
     <string name="notification_channel_sound_title" msgid="7635366839003304745">"Дыбыс"</string>
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"Жою"</string>
-    <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"Атауын өзгерту"</string>
+    <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"Атын өзгерту"</string>
     <string name="zen_mode_rule_name" msgid="8583652780885724670">"Кесте атауы"</string>
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Кесте атауын енгізіңіз"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Кесте атауы әлдеқашан пайдаланылуда"</string>

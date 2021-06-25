@@ -1805,7 +1805,7 @@
     <string name="screen_compatibility_label" msgid="3638271673726075815">"Compatibilitat de la pantalla"</string>
     <string name="permissions_label" msgid="7341733648403464213">"Permisos"</string>
     <string name="cache_header_label" msgid="3202284481380361966">"Memòria cau"</string>
-    <string name="clear_cache_btn_text" msgid="107507684844780651">"Esborra memòria cau"</string>
+    <string name="clear_cache_btn_text" msgid="107507684844780651">"Esborra la memòria cau"</string>
     <string name="cache_size_label" msgid="6205173678102220499">"Memòria cau"</string>
     <plurals name="uri_permissions_text" formatted="false" msgid="8938478333743197020">
       <item quantity="other">%d elements</item>

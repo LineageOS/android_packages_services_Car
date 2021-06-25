@@ -359,7 +359,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Omogoči pripomočke"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Onemogočil skrbnik"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Prikaz možnosti za zaklep"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Prikaz možnosti gumba za vklop, s katero izklopite funkcijo Smart Lock, odklepanje s prstnimi odtisi in obvestila na zaklenjenem zaslonu"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Prikaz možnosti gumba za vklop, s katerim izklopite funkcijo Smart Lock, odklepanje s prstnimi odtisi in obvestila na zaklenjenem zaslonu."</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Posredniki zaupanja le podaljšajo čas odklenjenosti"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Če je ta možnost omogočena, posredniki zaupanja poskrbijo, da naprava ostane odklenjena dalj časa, vendar ne more več odkleniti zaklenjene naprave."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Zakleni zaslon ob izgubljenem zaupanju"</string>
