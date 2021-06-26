@@ -16,6 +16,7 @@
 package com.android.car;
 
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
+import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -49,6 +50,10 @@ import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.car.util.concurrent.AsyncFuture;
+import android.car.watchdog.CarWatchdogManager;
+import android.car.watchdog.IoOveruseConfiguration;
+import android.car.watchdog.PerStateBytes;
+import android.car.watchdog.ResourceOveruseConfiguration;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -77,6 +82,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
+import android.os.RemoteException;
 import android.os.ShellCommand;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -99,11 +105,14 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
+import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.ExecutionException;
 import java.util.concurrent.TimeUnit;
@@ -183,6 +192,11 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
 
+    private static final String COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES =
+            "watchdog-io-set-3p-foreground-bytes";
+    private static final String COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES =
+            "watchdog-io-get-3p-foreground-bytes";
+
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
             android.Manifest.permission.MANAGE_USERS
@@ -248,6 +262,10 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_ROTARY,
                 android.Manifest.permission.INJECT_EVENTS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES,
+                PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES,
+                PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -341,6 +359,7 @@ final class CarShellCommand extends ShellCommand {
     private final CarUserService mCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarEvsService mCarEvsService;
+    private final CarWatchdogService mCarWatchdogService;
     private long mKeyDownTime;
 
     CarShellCommand(Context context,
@@ -357,7 +376,8 @@ final class CarShellCommand extends ShellCommand {
             GarageModeService garageModeService,
             CarUserService carUserService,
             CarOccupantZoneService carOccupantZoneService,
-            CarEvsService carEvsService) {
+            CarEvsService carEvsService,
+            CarWatchdogService carWatchdogService) {
         mContext = context;
         mHal = hal;
         mCarAudioService = carAudioService;
@@ -373,6 +393,7 @@ final class CarShellCommand extends ShellCommand {
         mCarUserService = carUserService;
         mCarOccupantZoneService = carOccupantZoneService;
         mCarEvsService = carEvsService;
+        mCarWatchdogService = carWatchdogService;
     }
 
     @Override
@@ -582,6 +603,12 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s\n", COMMAND_GET_REARVIEW_CAMERA_ID);
         pw.println("\t  Gets the name of the camera device CarEvsService is using for " +
                 "the rearview.");
+
+        pw.printf("\t%s <FOREGROUND_MODE_BYTES>\n", COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES);
+        pw.println("\t  Sets third-party apps foreground I/O overuse threshold");
+
+        pw.printf("\t%s\n", COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES);
+        pw.println("\t  Gets third-party apps foreground I/O overuse threshold");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -903,6 +930,12 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_GET_REARVIEW_CAMERA_ID:
                 getRearviewCameraId(writer);
+                break;
+            case COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES:
+                setWatchdogIoThirdPartyForegroundBytes(args, writer);
+                break;
+            case COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES:
+                getWatchdogIoThirdPartyForegroundBytes(writer);
                 break;
 
             default:
@@ -2068,6 +2101,100 @@ final class CarShellCommand extends ShellCommand {
     private void getRearviewCameraId(IndentingPrintWriter writer) {
         writer.printf("CarEvsService is using %s for the rearview.\n",
                 mCarEvsService.getRearviewCameraIdFromCommand());
+    }
+
+    // Set third-party foreground I/O threshold for car watchdog
+    private void setWatchdogIoThirdPartyForegroundBytes(String[] args,
+            IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        try {
+            long newForegroundModeBytes = Long.parseLong(args[1]);
+            ResourceOveruseConfiguration configuration =
+                    getThirdPartyResourceOveruseConfiguration(
+                            CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+            if (configuration == null) {
+                writer.println("Failed to get third-party resource overuse configurations.");
+                return;
+            }
+            ResourceOveruseConfiguration newConfiguration = setComponentLevelForegroundIoBytes(
+                    configuration, newForegroundModeBytes);
+            int result = mCarWatchdogService.setResourceOveruseConfigurations(
+                    Collections.singletonList(newConfiguration),
+                    CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+            if (result == CarWatchdogManager.RETURN_CODE_SUCCESS) {
+                writer.printf(
+                        "Successfully set third-party I/O overuse foreground threshold. { "
+                                + "foregroundModeBytes = %d } \n",
+                        newForegroundModeBytes);
+            } else {
+                writer.println("Failed to set third-party I/O overuse foreground threshold.");
+            }
+        } catch (NumberFormatException e) {
+            writer.println("The argument provided does not contain a parsable long.");
+            writer.println("Failed to set third-party I/O overuse foreground threshold.");
+        } catch (RemoteException e) {
+            writer.printf("Failed to set third-party I/O overuse foreground threshold: %s",
+                    e.getMessage());
+        }
+    }
+
+    private void getWatchdogIoThirdPartyForegroundBytes(IndentingPrintWriter writer) {
+        ResourceOveruseConfiguration configuration =
+                getThirdPartyResourceOveruseConfiguration(
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO);
+        try {
+            IoOveruseConfiguration ioOveruseConfiguration = Objects.requireNonNull(
+                    configuration).getIoOveruseConfiguration();
+            PerStateBytes componentLevelThresholds = Objects.requireNonNull(ioOveruseConfiguration)
+                    .getComponentLevelThresholds();
+            long foregroundBytes = Objects.requireNonNull(
+                    componentLevelThresholds).getForegroundModeBytes();
+            writer.printf("foregroundModeBytes = %d \n", foregroundBytes);
+        } catch (NullPointerException e) {
+            writer.println("Failed to get third-party I/O overuse foreground threshold.");
+        }
+    }
+
+    private ResourceOveruseConfiguration getThirdPartyResourceOveruseConfiguration(
+            int resourceOveruseFlag) {
+        for (ResourceOveruseConfiguration configuration :
+                mCarWatchdogService.getResourceOveruseConfigurations(resourceOveruseFlag)) {
+            if (configuration.getComponentType()
+                    == ResourceOveruseConfiguration.COMPONENT_TYPE_THIRD_PARTY) {
+                return configuration;
+            }
+        }
+        return null;
+    }
+
+    private ResourceOveruseConfiguration setComponentLevelForegroundIoBytes(
+            ResourceOveruseConfiguration configuration, long foregroundModeBytes) {
+        IoOveruseConfiguration ioOveruseConfiguration = configuration.getIoOveruseConfiguration();
+        PerStateBytes componentLevelThresholds =
+                ioOveruseConfiguration.getComponentLevelThresholds();
+        return constructResourceOveruseConfigurationBuilder(
+                configuration).setIoOveruseConfiguration(
+                new IoOveruseConfiguration.Builder(
+                        new PerStateBytes(foregroundModeBytes,
+                                componentLevelThresholds.getBackgroundModeBytes(),
+                                componentLevelThresholds.getGarageModeBytes()),
+                        ioOveruseConfiguration.getPackageSpecificThresholds(),
+                        ioOveruseConfiguration.getAppCategorySpecificThresholds(),
+                        ioOveruseConfiguration.getSystemWideThresholds())
+                        .build())
+                .build();
+    }
+
+    private ResourceOveruseConfiguration.Builder constructResourceOveruseConfigurationBuilder(
+            ResourceOveruseConfiguration configuration) {
+        return new ResourceOveruseConfiguration.Builder(configuration.getComponentType(),
+                configuration.getSafeToKillPackages(),
+                configuration.getVendorPackagePrefixes(),
+                configuration.getPackagesToAppCategoryTypes())
+                .setIoOveruseConfiguration(configuration.getIoOveruseConfiguration());
     }
 
     // Check if the given property is global
