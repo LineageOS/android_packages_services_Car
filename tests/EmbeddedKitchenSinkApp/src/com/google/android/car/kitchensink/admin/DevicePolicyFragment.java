@@ -15,6 +15,8 @@
  */
 package com.google.android.car.kitchensink.admin;
 
+import static android.app.admin.DeviceAdminReceiver.ACTION_DEVICE_ADMIN_ENABLED;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.AlertDialog;
@@ -25,6 +27,10 @@ import android.car.admin.CreateUserResult;
 import android.car.admin.RemoveUserResult;
 import android.car.admin.StartUserInBackgroundResult;
 import android.car.admin.StopUserResult;
+import android.content.ComponentName;
+import android.content.Intent;
+import android.content.pm.PackageManager;
+import android.content.pm.ResolveInfo;
 import android.content.pm.UserInfo;
 import android.os.Bundle;
 import android.os.UserHandle;
@@ -35,9 +41,11 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.CheckBox;
 import android.widget.EditText;
+import android.widget.Spinner;
 
 import androidx.fragment.app.Fragment;
 
@@ -45,6 +53,9 @@ import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
 import com.google.android.car.kitchensink.users.ExistingUsersView;
 import com.google.android.car.kitchensink.users.UserInfoView;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * Test UI for {@link CarDevicePolicyManager}.
@@ -82,9 +93,15 @@ public final class DevicePolicyFragment extends Fragment {
     private EditText mWipeDataFlagsText;
     private Button mWipeDataButton;
 
+    // Lock tasks
     private Button mCheckLockTasksButton;
     private Button mStartLockTasksButton;
     private Button mStopLockTasksButton;
+
+    // Set device admin
+    private final List<DeviceAdminApp> mDeviceAdminApps = new ArrayList<>();
+    private Spinner mDeviceAdminAppsSpinner;
+    private Button mSetDeviceAdminAppButton;
 
     @Nullable
     @Override
@@ -137,6 +154,10 @@ public final class DevicePolicyFragment extends Fragment {
         mStopLockTasksButton = view.findViewById(R.id.stop_lock_tasks);
         mStopLockTasksButton.setOnClickListener((v) -> stopLockTasks());
 
+        mDeviceAdminAppsSpinner = view.findViewById(R.id.device_admin_apps);
+        mSetDeviceAdminAppButton = view.findViewById(R.id.set_device_admin_app);
+        mSetDeviceAdminAppButton.setOnClickListener((v) -> launchSetDeviceAdminIntent());
+
         updateState();
     }
 
@@ -149,6 +170,34 @@ public final class DevicePolicyFragment extends Fragment {
 
         // Existing users
         mCurrentUsers.updateState();
+
+        setAdminApps();
+    }
+
+    private void setAdminApps() {
+        mDeviceAdminApps.clear();
+
+        PackageManager pm = getContext().getPackageManager();
+
+        List<ResolveInfo> receivers = pm.queryBroadcastReceivers(
+                new Intent(ACTION_DEVICE_ADMIN_ENABLED), /* flags= */ 0);
+        if (receivers.isEmpty()) {
+            Log.i(TAG, "setDeviceAdminApps(): no receivers for " + ACTION_DEVICE_ADMIN_ENABLED);
+            return;
+        }
+        Log.i(TAG, receivers.size() + " receivers for " + ACTION_DEVICE_ADMIN_ENABLED);
+
+        String[] entries = new String[receivers.size()];
+        int i = 0;
+        for (ResolveInfo receiver : receivers) {
+            DeviceAdminApp adminApp = new DeviceAdminApp(receiver, pm);
+            Log.d(TAG, "Adding " + adminApp);
+            mDeviceAdminApps.add(adminApp);
+            entries[i++] = adminApp.name;
+        }
+        mDeviceAdminAppsSpinner.setAdapter(
+                new ArrayAdapter<String>(getContext(), android.R.layout.simple_spinner_item,
+                        entries));
     }
 
     private void removeUser() {
@@ -265,6 +314,33 @@ public final class DevicePolicyFragment extends Fragment {
         }
     }
 
+    private void launchSetDeviceAdminIntent() {
+        if (mDeviceAdminApps.isEmpty()) {
+            // Should be disabled
+            Log.e(TAG, "setAdminApp(): no admin");
+            return;
+        }
+        int index = mDeviceAdminAppsSpinner.getSelectedItemPosition();
+        DeviceAdminApp app;
+        try {
+            app = mDeviceAdminApps.get(index);
+        } catch (Exception e) {
+            Log.e(TAG, "Could not get app at index " + index, e);
+            return;
+        }
+        Log.v(TAG, "setAdminApp(): index=" + index + ",size=" + mDeviceAdminApps.size() + ",app="
+                + app);
+        // TODO(188585303): use ACTION_ADD_DEVICE_ADMIN
+//        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
+//                .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, app.admin);
+        Intent intent = new Intent()
+                .setComponent(new ComponentName("com.android.car.settings",
+                        "com.android.car.settings.enterprise.DeviceAdminAddActivity"))
+                .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, app.admin);
+        Log.i(TAG, "launching intent " + intent + " for " + app);
+        getActivity().startActivity(intent);
+    }
+
     private void selfDestruct() {
         int flags = 0;
         String flagsText = mWipeDataFlagsText.getText().toString();
@@ -309,5 +385,26 @@ public final class DevicePolicyFragment extends Fragment {
         String message = String.format(pattern, args);
         Log.e(TAG, "showError(): " + message, e);
         new AlertDialog.Builder(getContext()).setMessage(message).show();
+    }
+
+    private static final class DeviceAdminApp {
+        public final ComponentName admin;
+        public final String name;
+
+        DeviceAdminApp(ResolveInfo resolveInfo, PackageManager pm) {
+            admin = resolveInfo.getComponentInfo().getComponentName();
+            CharSequence label = resolveInfo.loadLabel(pm);
+            if (TextUtils.isEmpty(label)) {
+                name = resolveInfo.getComponentInfo().name;
+                Log.v(TAG, "no label for " + admin.flattenToShortString() + "; using " + name);
+            } else {
+                name = label.toString();
+            }
+        }
+
+        @Override
+        public String toString() {
+            return "AdminApp[name=" + name + ", admin=" + admin.flattenToShortString() + ']';
+        }
     }
 }
