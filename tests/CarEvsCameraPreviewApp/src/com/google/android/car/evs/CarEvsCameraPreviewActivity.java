@@ -280,6 +280,14 @@ public class CarEvsCameraPreviewActivity extends Activity {
             Log.d(TAG, "Request to stop a video stream");
             mEvsManager.stopVideoStream();
             mStreamRunning = false;
+
+            // We already stopped an active video stream so are safe to drop all buffer references.
+            synchronized (mBufferQueue) {
+                mBufferQueue.clear();
+            }
+
+            // Clear a buffer reference CarEvsCameraGLSurfaceView holds.
+            mEvsView.clearBuffer();
         }
     }
 
