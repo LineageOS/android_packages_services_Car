@@ -48,4 +48,8 @@ public final class CarEvsCameraGLSurfaceView extends GLSurfaceView {
 
         return true;
     }
+
+    public void clearBuffer() {
+        mRenderer.clearBuffer();
+    }
 }
