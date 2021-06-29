@@ -2331,7 +2331,7 @@
       <item quantity="other">%1$d tətbiq üçün batareya istifadəsinin məhdudlaşdırılması</item>
       <item quantity="one">%1$d tətbiq üçün batareya istifadəsinin məhdudlaşdırılması</item>
     </plurals>
-    <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> məhdudlaşdırılıb"</string>
+    <string name="restricted_app_time_summary" msgid="5205881852523135226">"<xliff:g id="TIME">%1$s</xliff:g> məhdudlaşdırıldı"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Bu tətbiqlər arxa fonda batareyadan istifadə edə bilər. Məhdudlaşdırılmış tətbiqlər düzgün işləməyə və bildirişlər gecikə bilər."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Batareya Menecerindən istifadə edin"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Batareyadan çox istifadə edən tətbiqlər aşkarlansın"</string>
@@ -2677,7 +2677,7 @@
     <string name="data_usage_empty" msgid="7981405723435034032">"Bu dövrdə heç bir tətbiq data istifadə etməyib."</string>
     <string name="data_usage_label_foreground" msgid="2471091128648754601">"Ön plan"</string>
     <string name="data_usage_label_background" msgid="1618794447370396845">"Arxa plan"</string>
-    <string name="data_usage_app_restricted" msgid="7569077654579299326">"məhdudlaşdırılmış"</string>
+    <string name="data_usage_app_restricted" msgid="7569077654579299326">"giriş məhduddur"</string>
     <string name="data_usage_disable_mobile" msgid="4125335076749119451">"Mobil data söndürülsün?"</string>
     <string name="data_usage_disable_mobile_limit" msgid="1937796699758613667">"Mobil data limiti ayarlayın"</string>
     <string name="data_usage_disable_4g_limit" msgid="7131367986548147266">"4G data limiti ayarlayın"</string>
@@ -3178,7 +3178,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"<xliff:g id="CATEGORIES">%1$s</xliff:g> istisna olmaqla səs yoxdur"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Zəngli saat və mediadan başqa səs yoxdur"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Cədvəllər"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Cədvəlləri silin"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Rejimləri silin"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Silin"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Redaktə edin"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Cədvəllər"</string>
@@ -3469,7 +3469,7 @@
     <string name="zen_mode_schedule_rule_days_none" msgid="6011716195119389956">"Heç bir"</string>
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"Hər gün"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"Zəngli saat bitmə vaxtını əvəzləyə bilər"</string>
-    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Zəngli saat çalınanda rutin deaktiv edilir"</string>
+    <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Zəngli saat çalınanda rejim deaktiv edilir"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"Narahat Etməyin\" funksiyası"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Defolt ayarları istifadə edin"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Bu plan üçün fərdi ayarlar yaradın"</string>
@@ -3576,7 +3576,7 @@
     <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"Cihazı kiliddən çıxarmaq üçün barmaq izi istifadə etməkdən əlavə, cihazı işə salmadan öncə parol tələb edərək onu qoruya bilərsiniz. Cihaz işə salınmadan öncə siqnallar da daxil olmaqla zəng, mesaj və ya bildiriş qəbul edə bilməz.\n\nBu, itirilmiş və ya oğurlanmış cihazlarda datanı qorumağa yardım edir. Cihazı işə salmaq üçün parol tələb edilsin?"</string>
     <string name="encryption_interstitial_yes" msgid="1839339586101502601">"Bəli"</string>
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"Xeyr"</string>
-    <string name="restricted_true_label" msgid="1545180379083441282">"Məhdudlaşdırılmış"</string>
+    <string name="restricted_true_label" msgid="1545180379083441282">"Məhdud"</string>
     <string name="restricted_false_label" msgid="4512495920090068495">"Tətbiq arxa fonda batareyadan istifadə edə bilər"</string>
     <string name="encrypt_talkback_dialog_require_pin" msgid="2781758476498571031">"PİN  tələb edirsiniz?"</string>
     <string name="encrypt_talkback_dialog_require_pattern" msgid="8705104812047332411">"Model tələb edirsiniz?"</string>

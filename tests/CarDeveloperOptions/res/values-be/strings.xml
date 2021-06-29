@@ -800,7 +800,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Пашыраныя налады"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Пашыраны Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Калі Bluetooth уключаны, ваша прылада можа звязвацца з іншымі прыладамі з Bluetooth, якія знаходзяцца побач."</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Калі Bluetooth уключаны, прылада можа абменьвацца данымі з іншымі прыладамі Bluetooth паблізу.\n\nПраграмы і сэрвісы будуць шукаць прылады паблізу, нават калі Bluetooth выключаны. Гэту функцыю можна выкарыстоўваць для паляпшэння працы прылады, напрыклад, для больш дакладнага вызначэння месцазнаходжання. Вы можаце змяніць гэта ў "<annotation id="link">"наладах сканіравання"</annotation>"."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Калі Bluetooth уключаны, прылада можа абменьвацца данымі з іншымі прыладамі Bluetooth паблізу.\n\nПраграмы і сэрвісы будуць шукаць прылады паблізу, нават калі Bluetooth выключаны. Гэту функцыю можна выкарыстоўваць для паляпшэння працы прылады, напрыклад для больш дакладнага вызначэння месцазнаходжання. Вы можаце змяніць гэта ў "<annotation id="link">"наладах пошуку"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Для паляпшэння дакладнасці вызначэння месцазнаходжання сістэмныя праграмы і службы могуць знаходзіць прылады Bluetooth. Вы можаце змяніць гэта ў <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>наладах сканіравання<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Не атрымалася ўсталяваць злучэнне. Паўтарыце спробу."</string>
     <string name="device_details_title" msgid="726517818032923222">"Звесткі пра прыладу"</string>
@@ -2674,7 +2674,7 @@
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Пад кіраваннем вашай арганізацыі"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Праграмы і апавяшчэнні выключаны"</string>
     <string name="remove_managed_profile_label" msgid="4625542553784793536">"Выдаліць рабочы профіль"</string>
-    <string name="background_data" msgid="8275750862371471171">"Зыходныя дадзеныя"</string>
+    <string name="background_data" msgid="8275750862371471171">"Фонавая перадача даных"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Прыкладанні ў любы час могуць сінхранізаваць, адпраўляць і атрымлiваць дадзеныя"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Адключыць фонавыя дадзеныя?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"Адключэнне перадачы дадзеных у фоне падаўжае час аўтаномнай працы і памяншае выкарыстанне дадзеных. Некаторыя прыкладанні могуць па-ранейшаму выкарыстоўваць падключэнне для перадачы дадзеных у фоне."</string>
@@ -2721,7 +2721,7 @@
     <string name="misc_files_selected_count_bytes" msgid="3752262902203465861">"<xliff:g id="NUMBER">%1$s</xliff:g> з <xliff:g id="TOTAL">%2$s</xliff:g>"</string>
     <string name="select_all" msgid="452240217913675728">"Выбраць усё"</string>
     <string name="data_usage_summary_title" msgid="7288431048564861043">"Выкарыстанне трафіка"</string>
-    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Мабільныя даныя і Wi‑Fi"</string>
+    <string name="data_usage_app_summary_title" msgid="8277327968906074983">"Мабільная перадача даных і Wi‑Fi"</string>
     <string name="data_usage_accounting" msgid="4681642832010140640">"Улік даных аператара можа адрознівацца ад уліку вашай прылады."</string>
     <string name="data_usage_app" msgid="4995297799363021198">"Выкарыстанне памяці"</string>
     <string name="data_usage_app_info_label" msgid="5358288895158910477">"ЗВЕСТКІ ПРА ПРАГРАМЫ"</string>
@@ -2769,7 +2769,7 @@
     <string name="data_usage_forground_label" msgid="8992577451178005406">"На пярэднім плане:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"Фонавае"</string>
     <string name="data_usage_app_settings" msgid="3276444867375694809">"Налады праграмы"</string>
-    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Фонавы трафік"</string>
+    <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Фонавая перадача даных"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Уключыць выкарыстанне мабільнай перадачы даных у фоне"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Каб абмежаваць зыходныя дадзеныя для гэтага прыкладання, спачатку ўсталюйце ліміт мабільных дадзеных."</string>
     <string name="data_usage_app_restrict_dialog_title" msgid="750037964591673167">"Абмежаваць зыходныя даныя?"</string>
@@ -4123,7 +4123,7 @@
     <string name="data_saver_on" msgid="7281809065420480881">"Уключана"</string>
     <string name="data_saver_off" msgid="7439439787358504018">"Выключана"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"Уключыць эканомію трафіка"</string>
-    <string name="unrestricted_app_title" msgid="4390661122069905122">"Неабмежаваная перадача даных"</string>
+    <string name="unrestricted_app_title" msgid="4390661122069905122">"Неабмежаванае выкарыстанне трафіка"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"Не абмяжоўваць перадачу даных пры ўключанай Эканоміі трафіка"</string>
     <string name="home_app" msgid="3695063566006954160">"Галоўны экран"</string>
     <string name="no_default_home" msgid="1518949210961918497">"Няма стандартнай Галоўнай старонкі"</string>

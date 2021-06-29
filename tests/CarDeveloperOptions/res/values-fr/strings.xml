@@ -2454,7 +2454,7 @@
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"L\'économiseur de batterie s\'activera si l\'autonomie restante risque d\'être insuffisante pour tenir jusqu\'au moment où vous mettez généralement votre téléphone en charge"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"S\'active à <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Paramétrer l\'économiseur de batterie"</string>
-    <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Désactiver une fois la batterie complètement chargée"</string>
+    <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Désactiver quand entièrement chargé"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"L\'économiseur de batterie se désactive lorsque votre téléphone atteint un niveau de charge de <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"L\'économiseur de batterie se désactive lorsque votre tablette atteint un niveau de charge de <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"L\'économiseur de batterie se désactive lorsque votre appareil atteint un niveau de charge de <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3472,7 +3472,7 @@
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"Le programme se désactive lorsqu\'une alarme sonne"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Comportement du mode Ne pas déranger"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Utiliser les paramètres par défaut"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Créer des paramètres personnalisés pour ce programme"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Personnaliser ce programme"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Pour \"<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>\""</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> – <xliff:g id="END">%2$s</xliff:g>"</string>
@@ -4135,7 +4135,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Appuyer pour vérifier la tablette"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Appuyer pour vérifier l\'appareil"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Pour afficher l\'heure, les notifications et d\'autres infos, appuyer sur l\'écran."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Utiliser le lecteur d\'empreinte pour afficher les notifications"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Passer le doigt sur le lecteur d\'empreinte pour les notifications"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Balayer lecteur empreinte"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Pour consulter vos notifications, passez votre doigt de haut en bas sur le lecteur d\'empreinte digitale à l\'arrière du téléphone."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Pour consulter vos notifications, passez votre doigt de haut en bas sur le lecteur d\'empreinte digitale à l\'arrière de la tablette."</string>

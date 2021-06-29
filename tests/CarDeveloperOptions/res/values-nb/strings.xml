@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Forbedre telefonens batterilevetid"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Forhindre ringing"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Trykk på knappene av/på og volum opp samtidig for å"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Trykk på av/på og volum opp samtidig for å"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Snarvei for å forhindre ringing"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrere"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Slå av lyden"</string>

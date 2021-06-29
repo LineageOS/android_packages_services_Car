@@ -3980,7 +3980,7 @@
     <string name="notification_summary_none" msgid="5003043219430054784">"Включены для всех приложений"</string>
     <string name="apps_summary" msgid="8355759446490212195">"Установлено приложений: <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"Установлено 24 приложения"</string>
-    <string name="storage_summary" msgid="4835916510511133784">"Используется <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
+    <string name="storage_summary" msgid="4835916510511133784">"Занято <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Внутренний накопитель: использовано <xliff:g id="PERCENTAGE">%1$s</xliff:g>, свободно <xliff:g id="FREE_SPACE">%2$s</xliff:g>"</string>
     <string name="display_summary" msgid="5725269449657325797">"Устройство переходит в спящий режим после <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> бездействия"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Обои, спящий режим, размер шрифта"</string>
