@@ -178,7 +178,7 @@
     <string name="connected_device_available_call_title" msgid="6774859446815858428">"Dispositivos de chamada disponíveis"</string>
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Ligado atualmente"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Dispositivos guardados"</string>
-    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"O Bluetooth será ativado para a sincronização."</string>
+    <string name="connected_device_add_device_summary" msgid="7960491471270158891">"O Bluetooth será ativado para a sincronização"</string>
     <string name="connected_device_connections_title" msgid="9205000271382018428">"Preferências de ligação"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Dispositivos ligados anteriormente"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Ligados anteriormente"</string>
@@ -1815,7 +1815,7 @@
     <string name="controls_label" msgid="5609285071259457221">"Controlos"</string>
     <string name="force_stop" msgid="9213858124674772386">"Forçar paragem"</string>
     <string name="total_size_label" msgid="3929917501176594692">"Total"</string>
-    <string name="application_size_label" msgid="175357855490253032">"Tamanho da aplicação"</string>
+    <string name="application_size_label" msgid="175357855490253032">"Tamanho da app"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Apps de armazenamento USB"</string>
     <string name="data_size_label" msgid="7790201846922671662">"Dados do utilizador"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"Dados de armazenamento USB"</string>

@@ -3370,9 +3370,9 @@
     <string name="notification_assistant_title" msgid="8216604031352764011">"اطلاع کا اسسٹنٹ"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"کوئی اسسٹنٹ نہیں"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"کسی انسٹال کردہ ایپ نے نوٹیفیکیشن تک رسائی کی درخواست نہیں کی ہے"</string>
-    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> کیلئے اطلاع تک رسائی کی اجازت دیں؟"</string>
+    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"‫<xliff:g id="SERVICE">%1$s</xliff:g> کیلئے اطلاع تک رسائی کی اجازت دیں؟"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> تمام اطلاعات بشمول ذاتی معلومات جیسے رابطہ کے نام اور آپ کو موصول ہونے والے پیغامات کا متن پڑھنے کا اہل ہوگا۔ یہ ان میں شامل اطلاعات یا ٹرگر کارروائیوں کے بٹنز کو برخاست کرنے کا بھی اہل ہوگا۔ \n\nاس سے ایپ کو ڈسٹرب نہ کریں آن یا آف کرنے اور متعلقہ ترتیبات تبدیل کرنے کی اہلیت بھی ملے گی۔"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> کیلئے اطلاع تک رسائی کی اجازت دیں؟"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"‫<xliff:g id="SERVICE">%1$s</xliff:g> کیلئے اطلاع تک رسائی کی اجازت دیں؟"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> تمام اطلاعات  بشمول ذاتی معلومات جیسے رابطہ کے نام اور آپ کو موصول ہونے والے پیغامات کا متن پڑھنے کا اہل ہوگا۔ یہ ان میں شامل اطلاعات یا ٹرگر کارروائیوں کے بٹنز کو برخاست کرنے کا بھی اہل ہوگا۔ \n\nاس سے ایپ کو ڈسٹرب نہ کریں آن یا آف کرنے اور متعلقہ ترتیبات تبدیل کرنے کی اہلیت بھی ملے گی۔"</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"اگر آپ <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> کیلئے اطلاع کی رسائی آف کرتے ہیں تو ڈسٹرب نہ کریں کی رسائی بھی آف ہو سکتی ہے۔"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"آف کریں"</string>

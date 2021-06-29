@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Persónuvernd"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Gert óvirkt af kerfisstjóra"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Öryggisstaða"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skjálás, andlitsopnun"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skjálás, andlitskenni"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skjálás, fingrafar"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skjálás"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Andliti bætt við"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Fjarl. andlitsgögn"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Þú getur notað andlitið þitt til að taka símann úr lás og fá aðgang að forritum. "<annotation id="url">"Frekari upplýsingar"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Eyða andlitsgögnum?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Gögnum sem skráð eru við andlitsopnun verður eytt á öruggan hátt fyrir fullt og allt. Þegar þeim hefur verið eytt þarftu PIN-númer, mynstur eða aðgangsorð til að taka símann úr lás, skrá þig inn í forrit og staðfesta greiðslur."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Gögnum sem skráð eru við andlitskenni verður eytt á öruggan hátt fyrir fullt og allt. Þegar þeim hefur verið eytt þarftu PIN-númer, mynstur eða aðgangsorð til að taka símann úr lás, skrá þig inn í forrit og staðfesta greiðslur."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingrafar"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Stjórna fingraförum"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Nota fingrafar fyrir"</string>
