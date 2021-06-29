@@ -36,6 +36,7 @@ import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.UiAutomation;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.test.mocks.AndroidMockitoHelper;
 import android.car.test.mocks.JavaMockitoHelper;
 import android.content.Context;
 import android.content.Intent;
@@ -111,15 +112,12 @@ public final class NewUserDisclaimerActivityTest extends AbstractExtendedMockito
 
     @Test
     public void testAccept() throws Exception {
-        CountDownLatch latch = new CountDownLatch(1);
-        mActivity.runOnUiThread(() -> {
+        AndroidMockitoHelper.syncRunOnUiThread(mActivity, () -> {
             mActivity.onCreate(/* savedInstanceState= */ null);
             Button button = mActivity.getAcceptButton();
             Log.d(TAG, "Clicking accept button: " + button);
             button.performClick();
-            latch.countDown();
         });
-        JavaMockitoHelper.await(latch, TIMEOUT_MS);
 
         verify(mService).setAcknowledged();
         assertWithMessage("activity is finishing").that(mActivity.isFinishing()).isTrue();
