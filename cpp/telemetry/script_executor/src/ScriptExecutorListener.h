@@ -17,8 +17,6 @@
 #ifndef CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
 #define CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
 
-#include "jni.h"
-
 #include <string>
 
 namespace android {
@@ -29,19 +27,11 @@ namespace script_executor {
 //  Wrapper class for IScriptExecutorListener.aidl.
 class ScriptExecutorListener {
 public:
-    ScriptExecutorListener(JNIEnv* jni, jobject script_executor_listener);
-
-    virtual ~ScriptExecutorListener();
-
     void onScriptFinished() {}
 
     void onSuccess() {}
 
     void onError(const int errorType, const std::string& message, const std::string& stackTrace);
-
-private:
-    // Stores a jni global reference to Java Script Executor listener object.
-    jobject mScriptExecutorListener;
 };
 
 }  // namespace script_executor
