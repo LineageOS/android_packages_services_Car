@@ -35,7 +35,7 @@
     <dimen name="hvac_panel_handle_bar_width">64dp</dimen>
     <dimen name="hvac_panel_bg_radius">24dp</dimen>
     <dimen name="hvac_panel_off_button_radius">24dp</dimen>
-    <dimen name="hvac_panel_on_button_radius">54dp</dimen>
+    <dimen name="hvac_panel_on_button_radius">44dp</dimen>
     <dimen name="hvac_panel_full_expanded_height">472dp</dimen>
     <dimen name="hvac_panel_exit_icon_dimen">21dp</dimen>
     <dimen name="hvac_panel_exit_button_dimen">64dp</dimen>

@@ -28,4 +28,6 @@
         <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
     </string-array>
+
+    <integer name="hvac_num_fan_speeds">9</integer>
 </resources>
