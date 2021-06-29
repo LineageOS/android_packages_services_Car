@@ -766,7 +766,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Ընդլայնված"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Ընդլայնված Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Երբ Bluetooth-ը միացված է, ձեր սարքը կարող է հաղորդակցվել մոտակայքում գտնվող Bluetooth սարքերի հետ:"</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Երբ Bluetooth-ը միացված է, ձեր սարքը կարող է հաղորդակցվել մոտակայքում գտնվող Bluetooth սարքերի հետ:\n\nՍարքի աշխատանքը բարելավելու նպատակով հավելվածներն ու ծառայությունները կորոնեն մոտակայքում գտնվող սարքեր՝ նույնիսկ, երբ Bluetooth-ն անջատված է: Դա կարող է լավացնել տեղորոշում օգտագործող գործառույթների ու ծառայությունների աշխատանքը։ Այս ընտրանքը կարող եք փոխել "<annotation id="link">"որոնման կարգավորումներում"</annotation>":"</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Երբ Bluetooth-ը միացված է, ձեր սարքը կարող է հաղորդակցվել մոտակայքում գտնվող Bluetooth սարքերի հետ:\n\nՍարքի աշխատանքը բարելավելու նպատակով հավելվածներն ու ծառայությունները կորոնեն մոտակայքում գտնվող սարքեր՝ նույնիսկ, երբ Bluetooth-ն անջատված է: Դա կարող է բարելավել տեղորոշում օգտագործող գործառույթների ու ծառայությունների աշխատանքը։ Այս ընտրանքը կարող եք փոխել "<annotation id="link">"որոնման կարգավորումներում"</annotation>":"</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Տեղորոշման ճշգրտությունը բարելավելու նպատակով համակարգի հավելվածներն ու ծառայությունները կարող են շարունակել Bluetooth սարքերի հայտնաբերումը: Այս ընտրանքը կարող եք փոխել <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>որոնման կարգավորումներում<xliff:g id="LINK_END_1">LINK_END</xliff:g>:"</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Չհաջողվեց կապակցվել: Փորձեք նորից:"</string>
     <string name="device_details_title" msgid="726517818032923222">"Սարքի տվյալները"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Ավտոմատ կարգավորում (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Միացնե՞լ Wi-Fi ցանցերի որոնումը"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Wi-Fi ցանցերին ավտոմատ միանալու համար անհրաժեշտ է միացնել Wi‑Fi ցանցերի որոնումը։"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi‑Fi ցանցերի որոնումը թույլ է տալիս հավելվածներին և ծառայություններին որոնել Wi‑Fi ցանցեր նույնիսկ երբ Wi-Fi-ն անջատված է: Դա կարող է լավացնել տեղորոշում օգտագործող գործառույթների ու ծառայությունների ճշգրտությունը:"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Wi‑Fi ցանցերի որոնումը թույլ է տալիս հավելվածներին և ծառայություններին որոնել Wi‑Fi ցանցեր նույնիսկ երբ Wi-Fi-ն անջատված է: Դա կարող է բարելավել տեղորոշում օգտագործող գործառույթների ու ծառայությունների ճշգրտությունը:"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Միացնել"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi-Fi ցանցերի որոնումը միացված է"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Ընդլայնված ընտրանքներ"</string>
@@ -1657,7 +1657,7 @@
     <string name="location_category_recent_location_access" msgid="286059523360285026">"Տեղադրության տվյալների վերջին օգտագործումը"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Մանրամասն"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"Վերջին ժամանակաշրջանում հավելվածները տեղադրության հարցում չեն արել"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ոչ մի հավելված չի օգտագործել տեղադրությունը"</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ոչ մի հավելված չի օգտագործել տեղորոշումը"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Մարտկոցի շատ օգտագործում"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Մարտկոցի ցածր սպառում"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi ցանցերի և Bluetooth ազդանշանի որոնում"</string>

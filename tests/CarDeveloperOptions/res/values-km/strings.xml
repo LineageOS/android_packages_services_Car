@@ -3992,7 +3992,7 @@
     <string name="data_saver_off" msgid="7439439787358504018">"បិទ"</string>
     <string name="data_saver_switch_title" msgid="8244008132112735207">"ប្រើ​កម្មវិធី​សន្សំ​សំចៃ​ទិន្នន័យ"</string>
     <string name="unrestricted_app_title" msgid="4390661122069905122">"ការប្រើប្រាស់ទិន្នន័យគ្មានកំណត់"</string>
-    <string name="unrestricted_app_summary" msgid="2829141815077800483">"អនុញ្ញាតឲ្យចូលប្រើប្រាស់​ទិន្នន័យគ្មានកំណត់ នៅពេលបើកកម្មវិធីសន្សំសំចៃទិន្នន័យ"</string>
+    <string name="unrestricted_app_summary" msgid="2829141815077800483">"អនុញ្ញាតឲ្យចូលប្រើប្រាស់​ទិន្នន័យគ្មានកំណត់ នៅពេលបើកមុខងារសន្សំសំចៃទិន្នន័យ"</string>
     <string name="home_app" msgid="3695063566006954160">"កម្មវិធីអេក្រង់ដើម"</string>
     <string name="no_default_home" msgid="1518949210961918497">"មិនមានទំព័រដើមលំនាំដើមទេ"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"ការចាប់ផ្តើមដែលមានសុវត្ថិភាព"</string>

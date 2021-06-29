@@ -1859,7 +1859,7 @@
     <string name="total_size_label" msgid="3929917501176594692">"Celkove"</string>
     <string name="application_size_label" msgid="175357855490253032">"Veľkosť aplikácie"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Aplikácia, úložisko USB"</string>
-    <string name="data_size_label" msgid="7790201846922671662">"Dáta používateľa"</string>
+    <string name="data_size_label" msgid="7790201846922671662">"Údaje používateľa"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"Údaje ukladacieho priestoru USB"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD karta"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"Odinštalovať"</string>
@@ -4264,7 +4264,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tablet skontrolujete dvojitým klepnutím"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Zariadenie skontrolujete dvojitým klepnutím"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Ak chcete zistiť čas, skontrolovať upozornenia a získať ďalšie informácie, klepnite dvakrát na obrazovku."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Kontrola telefónu zdvihnutím"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Kontrolovať telefónu zdvihnutím"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Tablet skontrolujete tak, že ho zodvihnete"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Zariadenie skontrolujete tak, že ho zodvihnete"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Prebudiť obrazovku"</string>

@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Колдонмону кайра баштан жөндөйсүзбү?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Ушуну менен төмөнкү жөндөөлөр жоюлат:\n\n "<li>"Өчүрүлгөн колдонмолор"</li>\n" "<li>"Өчүрүлгөн колдонмолордун билдирмелери"</li>\n" "<li>"Демейки колдонмолор"</li>\n" "<li>"Фондук режимде маалымат өткөрүүгө коюлган чектөөлөр"</li>\n" "<li>"Бардык уруксаттардын чектөөлөрү"</li>\n\n"Колдонмолордогу нерселер жоголбойт."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Баштапкы абалга келтирүү"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"Бош орунду башкаруу"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"Орун бошотуу"</string>
     <string name="filter" msgid="2426943916212457962">"Чыпка"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Электөө опцияларын тандаңыз"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"Бардык колдонмолор"</string>

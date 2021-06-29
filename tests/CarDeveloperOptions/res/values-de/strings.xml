@@ -2470,7 +2470,7 @@
     <string name="battery_percentage_description" msgid="9219875229166700610">"Ladestand in Statusleiste in Prozent anzeigen"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"Prozessstatistiken"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"Statistiken zu laufenden Prozessen"</string>
-    <string name="app_memory_use" msgid="5126237308545653706">"Speichernutzung"</string>
+    <string name="app_memory_use" msgid="5126237308545653706">"Arbeitsspeichernutzung"</string>
     <string name="process_stats_total_duration" msgid="4013432468516155868">"<xliff:g id="USEDRAM">%1$s</xliff:g> von <xliff:g id="TOTALRAM">%2$s</xliff:g> genutzt in der letzten Zeit (<xliff:g id="TIMEDURATION">%3$s</xliff:g>)"</string>
     <string name="process_stats_total_duration_percentage" msgid="737215062610178960">"<xliff:g id="PERCENT">%1$s</xliff:g> RAM genutzt in <xliff:g id="TIMEDURATION">%2$s</xliff:g>"</string>
     <string name="process_stats_type_background" msgid="7867552451658035199">"Hintergrund"</string>

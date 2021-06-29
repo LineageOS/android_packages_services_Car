@@ -4496,7 +4496,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Пређи на <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Обриши SIM"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Желите ли да обришете преузети SIM?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Брисањем ове SIM картице уклонићете <xliff:g id="CARRIER_0">%1$s</xliff:g> услугу са овог уређаја.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> услуга неће бити отказана."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Брисањем ове SIM картице уклонићете услугу мобилног оператера <xliff:g id="CARRIER_0">%1$s</xliff:g> са овог уређаја.\n\nУслуга мобилног оператера <xliff:g id="CARRIER_1">%2$s</xliff:g> неће бити отказана."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Обриши"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"SIM се брише…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Брисање SIM-а није успело"</string>

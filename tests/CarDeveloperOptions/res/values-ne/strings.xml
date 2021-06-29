@@ -1170,7 +1170,7 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्यक्तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"खोज्नुहोस्"</string>
     <string name="display_settings" msgid="1045535829232307190">"प्रदर्शन"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"स्क्रिन स्वतः रोटेट गरियोस्"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"स्क्रिन अटो रोटेट गरियोस्"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रङ्गहरू"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"प्राकृतिक"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"बुस्ट गरिएको"</string>

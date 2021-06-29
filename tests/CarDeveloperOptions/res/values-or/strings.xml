@@ -182,7 +182,7 @@
     <string name="connected_device_connections_title" msgid="9205000271382018428">"ସଂଯୋଗ ପସନ୍ଦଗୁଡ଼ିକ"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"ପୂର୍ବରୁ ସଂଯୁକ୍ତ ହୋ‌ଇଥିବା ଡିଭାଇସଗୁଡ଼ିକ"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"ପୂର୍ବରୁ ସଂଯୋଗ ହୋ‍ଇଛି"</string>
-    <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ବ୍ଲୁ-ଟୁଥ୍‍ ଅନ୍‌ କରାଗଲା"</string>
+    <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ବ୍ଲୁ-ଟୁଥ୍‍ ଚାଲୁ କରାଯାଇଛି"</string>
     <string name="previous_connected_see_all" msgid="7237095013087310923">"ସବୁ ଦେଖନ୍ତୁ"</string>
     <string name="date_and_time" msgid="2957463607025909857">"ତାରିଖ ଓ ସମୟ"</string>
     <string name="choose_timezone" msgid="8215332993926818147">"ସମୟ ଅଞ୍ଚଳ ବାଛନ୍ତୁ"</string>
@@ -354,7 +354,7 @@
     <string name="owner_info_settings_title" msgid="2537966178998339896">"ଲକ୍‌ ସ୍କ୍ରୀନ୍‌ ମେସେଜ୍‌"</string>
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"ୱିଜେଟ୍‌ ସକ୍ଷମ କରନ୍ତୁ"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"ଆଡମିନଙ୍କ ଦ୍ଵାରା ଅକ୍ଷମ କରାଯାଇଛି"</string>
-    <string name="lockdown_settings_title" msgid="4534779922580115990">"ଲକ୍ କରିବା ବିକଳ୍ପକୁ ଦେଖାନ୍ତୁ"</string>
+    <string name="lockdown_settings_title" msgid="4534779922580115990">"ଲକଡାଉନ୍ ବିକଳ୍ପକୁ ଦେଖାନ୍ତୁ"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"ପାୱର୍ ବଟନ୍‌ ବିକଳ୍ପକୁ ଡିସପ୍ଲେ କରନ୍ତୁ ଯାହା ସ୍ମାର୍ଟ ଲକ୍, ଆଙ୍ଗୁଠିଚିହ୍ନ ସାହାଯ୍ୟରେ ଅନଲକ୍ କରିବା ଓ ଲକ୍ ସ୍କ୍ରୀନ୍‌ରେ ବିଜ୍ଞପ୍ତିର ପ୍ରଦର୍ଶନକୁ ବନ୍ଦ କରିବ"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"କେବଳ ଟ୍ରଷ୍ଟ୍ ଏଜେଣ୍ଟଙ୍କ ପାଇଁ ଏକ୍ସଟେଣ୍ଡ୍ ଅନଲକ୍"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"ଯଦି ସକ୍ଷମ କରାଯାଇଥାଏ, ଟ୍ରଷ୍ଟ ଏଜେଣ୍ଟ ଆପଣଙ୍କ ଡିଭାଇସ୍‍କୁ ବେଶୀ ସମୟ ପାଇଁ ଅନ୍‍ଲକ୍ ରଖିବ, କିନ୍ତୁ ଏକ ଲକ୍ କରାଯାଇଥିବା ଡିଭାଇସ୍‍କୁ ଆଉ ଅନ୍‍ଲକ୍ କରିପାରିବ ନାହିଁ।"</string>
