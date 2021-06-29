@@ -17,14 +17,18 @@ package android.car.test.mocks;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
+import static com.google.common.truth.Truth.assertWithMessage;
+
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyString;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Matchers.anyString;
 import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.app.Activity;
 import android.app.ActivityManager;
 import android.car.test.util.UserTestingHelper;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
@@ -34,8 +38,10 @@ import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.IInterface;
+import android.os.Looper;
 import android.os.ServiceManager;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -44,6 +50,9 @@ import android.util.Log;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Callable;
+import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Provides common Mockito calls for core Android classes.
@@ -262,6 +271,81 @@ public final class AndroidMockitoHelper {
         if (serviceClass.equals(PackageManager.class)) {
             when(context.getPackageManager()).thenReturn(PackageManager.class.cast(service));
         }
+    }
+
+    // TODO(b/192307581): add unit tests
+    /**
+     * Returns the result of the giving {@code callable} in the main thread, preparing the
+     * {@link Looper} if needed and using a default timeout.
+     */
+    public static <T> T syncCallOnMainThread(Callable<T> c) throws Exception {
+        return syncCallOnMainThread(JavaMockitoHelper.ASYNC_TIMEOUT_MS, c);
+    }
+
+    // TODO(b/192307581): add unit tests
+    /**
+     * Returns the result of the giving {@code callable} in the main thread, preparing the
+     * {@link Looper} if needed.
+     */
+    public static <T> T syncCallOnMainThread(long timeoutMs, Callable<T> callable)
+            throws Exception {
+        boolean quitLooper = false;
+        Looper looper = Looper.getMainLooper();
+        if (looper == null) {
+            Log.i(TAG, "preparing main looper");
+            Looper.prepareMainLooper();
+            looper = Looper.getMainLooper();
+            assertWithMessage("Looper.getMainLooper()").that(looper).isNotNull();
+            quitLooper = true;
+        }
+        Log.i(TAG, "looper: " + looper);
+        AtomicReference<Exception> exception = new AtomicReference<>();
+        AtomicReference<T> ref = new AtomicReference<>();
+        try {
+            Handler handler = new Handler(looper);
+            CountDownLatch latch = new CountDownLatch(1);
+            handler.post(() -> {
+                T result = null;
+                try {
+                    result = callable.call();
+                } catch (Exception e) {
+                    exception.set(e);
+                }
+                ref.set(result);
+                latch.countDown();
+            });
+            JavaMockitoHelper.await(latch, timeoutMs);
+            Exception e = exception.get();
+            if (e != null) throw e;
+            return ref.get();
+        } finally {
+            if (quitLooper) {
+                Log.i(TAG, "quitting looper: " + looper);
+                looper.quitSafely();
+            }
+        }
+    }
+
+    // TODO(b/192307581): add unit tests
+    /**
+     * Runs the giving {@code runnable} in the activity's UI thread, using a default timeout.
+     */
+    public static void syncRunOnUiThread(Activity activity, Runnable runnable) throws Exception {
+        syncRunOnUiThread(JavaMockitoHelper.ASYNC_TIMEOUT_MS, activity, runnable);
+    }
+
+    // TODO(b/192307581): add unit tests
+    /**
+     * Runs the giving {@code runnable} in the activity's UI thread.
+     */
+    public static void syncRunOnUiThread(long timeoutMs, Activity activity, Runnable runnable)
+            throws Exception {
+        CountDownLatch latch = new CountDownLatch(1);
+        activity.runOnUiThread(() -> {
+            runnable.run();
+            latch.countDown();
+        });
+        JavaMockitoHelper.await(latch, timeoutMs);
     }
 
     private AndroidMockitoHelper() {
