@@ -37,7 +37,7 @@ interface IScriptExecutor {
    */
   void invokeScript(String scriptBody,
                     String functionName,
-                    in Bundle publishedData,
+                    in byte[] publishedData,
                     in @nullable Bundle savedState,
                     in IScriptExecutorListener listener);
 }
