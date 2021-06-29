@@ -39,6 +39,7 @@ cc_library {
         "src/ScriptExecutorListener.cpp",
     ],
     shared_libs: [
+        "libandroid_runtime",
         "libnativehelper",
     ],
     // Allow dependents to use the header files.
@@ -54,6 +55,20 @@ cc_library_shared {
     ],
     srcs: [
         "src/tests/JniUtilsTestHelper.cpp",
+    ],
+    shared_libs: [
+        "libnativehelper",
+        "libscriptexecutor",
+    ],
+}
+
+cc_library {
+    name: "libscriptexecutorjni",
+    defaults: [
+        "scriptexecutor_defaults",
+    ],
+    srcs: [
+        "src/ScriptExecutorJni.cpp",
     ],
     shared_libs: [
         "libnativehelper",
