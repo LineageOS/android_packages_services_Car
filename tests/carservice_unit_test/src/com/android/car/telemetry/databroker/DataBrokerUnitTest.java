@@ -18,19 +18,33 @@ package com.android.car.telemetry.databroker;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import com.android.car.telemetry.TelemetryProto;
+import static org.mockito.Mockito.when;
 
+import android.car.hardware.CarPropertyConfig;
+
+import com.android.car.CarPropertyService;
+import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.publisher.PublisherFactory;
+
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.util.Collections;
 
 @RunWith(MockitoJUnitRunner.class)
 public class DataBrokerUnitTest {
-    private final DataBrokerImpl mDataBroker = new DataBrokerImpl();
+    private static final int PROP_ID = 100;
+    private static final int PROP_AREA = 200;
+    private static final CarPropertyConfig<Integer> PROP_CONFIG =
+            CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
+                    CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
     private static final TelemetryProto.VehiclePropertyPublisher
             VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION =
             TelemetryProto.VehiclePropertyPublisher.newBuilder().setReadRate(
-                    1).setVehiclePropertyId(1000).build();
+                    1).setVehiclePropertyId(PROP_ID).build();
     private static final TelemetryProto.Publisher PUBLISHER_CONFIGURATION =
             TelemetryProto.Publisher.newBuilder().setVehicleProperty(
                     VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION).build();
@@ -47,12 +61,23 @@ public class DataBrokerUnitTest {
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
 
+    @Mock
+    private CarPropertyService mMockCarPropertyService;
+
+    private DataBrokerImpl mDataBroker;
+
+    @Before
+    public void setUp() {
+        when(mMockCarPropertyService.getPropertyList())
+                .thenReturn(Collections.singletonList(PROP_CONFIG));
+        PublisherFactory factory = new PublisherFactory(mMockCarPropertyService);
+        mDataBroker = new DataBrokerImpl(factory);
+    }
+
     @Test
     public void testAddMetricsConfiguration_newMetricsConfig() {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
 
-        assertThat(mDataBroker.getPublisherMap().containsKey(
-                TelemetryProto.Publisher.PublisherCase.VEHICLE_PROPERTY)).isTrue();
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_FOO.getName());
         // there should be one data subscriber in the subscription list of METRICS_CONFIG_FOO
         assertThat(mDataBroker.getSubscriptionMap().get(METRICS_CONFIG_FOO.getName())).hasSize(1);
@@ -63,7 +88,6 @@ public class DataBrokerUnitTest {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
 
-        assertThat(mDataBroker.getPublisherMap()).hasSize(1);
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_FOO.getName());
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_BAR.getName());
     }
@@ -75,18 +99,6 @@ public class DataBrokerUnitTest {
         boolean status = mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
 
         assertThat(status).isFalse();
-    }
-
-    @Test
-    public void testRemoveMetricsConfiguration_publisherShouldExist() {
-        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
-
-        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
-
-        assertThat(mDataBroker.getPublisherMap()).containsKey(
-                TelemetryProto.Publisher.PublisherCase.VEHICLE_PROPERTY);
-        assertThat(mDataBroker.getSubscriptionMap()).doesNotContainKey(
-                METRICS_CONFIG_FOO.getName());
     }
 
     @Test
