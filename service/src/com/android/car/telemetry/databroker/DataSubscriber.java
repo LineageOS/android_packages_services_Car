@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.os.Bundle;
+
 import com.android.car.telemetry.TelemetryProto;
 
 /**
@@ -35,5 +37,10 @@ public class DataSubscriber {
      */
     public TelemetryProto.Publisher getPublisherParam() {
         return mSubscriber.getPublisher();
+    }
+
+    /** Pushes data to the subscriber. */
+    public void push(Bundle data) {
+        // TODO(b/187743369): implement
     }
 }
