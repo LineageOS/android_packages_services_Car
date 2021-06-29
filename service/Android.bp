@@ -83,10 +83,7 @@ android_app {
         "com.android.car.internal.system",
     ],
 
-    jni_libs: [
-        "libcarservicejni",
-        "libscriptexecutorjni",
-    ],
+    jni_libs: ["libcarservicejni"],
 
     required: ["allowed_privapp_com.android.car"],
 
