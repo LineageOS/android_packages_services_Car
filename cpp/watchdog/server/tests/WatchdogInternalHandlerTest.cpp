@@ -24,6 +24,7 @@
 
 #include <android-base/result.h>
 #include <android/automotive/watchdog/internal/BootPhase.h>
+#include <android/automotive/watchdog/internal/GarageMode.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <android/automotive/watchdog/internal/UserState.h>
 #include <binder/IBinder.h>
@@ -41,6 +42,7 @@ namespace watchdog {
 
 namespace aawi = ::android::automotive::watchdog::internal;
 
+using aawi::GarageMode;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::ICarWatchdogServiceForSystemDefault;
 using aawi::PackageResourceOveruseAction;
@@ -291,27 +293,27 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnTellDumpFinishedWithNonSystemCall
     ASSERT_FALSE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToSuspend) {
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdownPrepare) {
     setSystemCallingUid();
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/false)).Times(1);
-    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::GARAGE_MODE)).Times(1);
     Status status =
             mWatchdogInternalHandler
                     ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
-                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
+                                              static_cast<int32_t>(
+                                                      PowerCycle::POWER_CYCLE_SHUTDOWN_PREPARE),
                                               -1);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
-TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdown) {
+TEST_F(WatchdogInternalHandlerTest, TestNotifyPowerCycleChangeToShutdownEnter) {
     setSystemCallingUid();
     EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/false)).Times(1);
-    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(_)).Times(0);
-    Status status = mWatchdogInternalHandler
-                            ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
-                                                      static_cast<int32_t>(
-                                                              PowerCycle::POWER_CYCLE_SHUTDOWN),
-                                                      -1);
+    Status status =
+            mWatchdogInternalHandler
+                    ->notifySystemStateChange(aawi::StateType::POWER_CYCLE,
+                                              static_cast<int32_t>(
+                                                      PowerCycle::POWER_CYCLE_SHUTDOWN_ENTER),
+                                              -1);
     ASSERT_TRUE(status.isOk()) << status;
 }
 
@@ -337,6 +339,28 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifyPowerCycleChangeWithInvalid
 
     status = mWatchdogInternalHandler->notifySystemStateChange(type, 3000, -1);
     ASSERT_FALSE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOn) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::GARAGE_MODE)).Times(1);
+    Status status =
+            mWatchdogInternalHandler->notifySystemStateChange(aawi::StateType::GARAGE_MODE,
+                                                              static_cast<int32_t>(
+                                                                      GarageMode::GARAGE_MODE_ON),
+                                                              -1);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestNotifyGarageModeOff) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockWatchdogPerfService, setSystemState(SystemState::NORMAL_MODE)).Times(1);
+    Status status =
+            mWatchdogInternalHandler->notifySystemStateChange(aawi::StateType::GARAGE_MODE,
+                                                              static_cast<int32_t>(
+                                                                      GarageMode::GARAGE_MODE_OFF),
+                                                              -1);
+    ASSERT_TRUE(status.isOk()) << status;
 }
 
 TEST_F(WatchdogInternalHandlerTest, TestNotifyUserStateChange) {
@@ -390,7 +414,8 @@ TEST_F(WatchdogInternalHandlerTest, TestErrorOnNotifySystemStateChangeWithNonSys
     Status status =
             mWatchdogInternalHandler
                     ->notifySystemStateChange(type,
-                                              static_cast<int32_t>(PowerCycle::POWER_CYCLE_SUSPEND),
+                                              static_cast<int32_t>(
+                                                      PowerCycle::POWER_CYCLE_SHUTDOWN_PREPARE),
                                               -1);
     ASSERT_FALSE(status.isOk()) << status;
 }
