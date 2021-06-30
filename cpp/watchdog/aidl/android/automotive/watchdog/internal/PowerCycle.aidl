@@ -22,14 +22,14 @@ package android.automotive.watchdog.internal;
 @Backing(type="int")
 enum PowerCycle {
   /**
-   * The system is about to shut down.
+   * The system prepares for shutdown or suspend.
    */
-  POWER_CYCLE_SHUTDOWN,
+  POWER_CYCLE_SHUTDOWN_PREPARE,
 
   /**
-   * The system is being suspended.
+   * The system enters shutdown or suspend.
    */
-  POWER_CYCLE_SUSPEND,
+  POWER_CYCLE_SHUTDOWN_ENTER,
 
   /**
    * The system resumes working.
