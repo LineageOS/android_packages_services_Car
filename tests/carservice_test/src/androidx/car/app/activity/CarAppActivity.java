@@ -34,7 +34,13 @@ import androidx.annotation.Nullable;
  */
 public class CarAppActivity extends Activity {
     public static final String ACTION_SHOW_DIALOG = "SHOW_DIALOG";
+    public static final String ACTION_START_SECOND_INSTANCE = "START_SECOND_INSTANCE";
+    public static final String SECOND_INSTANCE_TITLE = "Second Instance";
+    private static final String BUNDLE_KEY_IS_SECOND_INSTANCE = "is_second_instance";
+
     private final ShowDialogReceiver mShowDialogReceiver = new ShowDialogReceiver();
+    private final StartSecondInstanceReceiver
+            mStartSecondInstanceReceiver = new StartSecondInstanceReceiver();
 
     private class ShowDialogReceiver extends BroadcastReceiver {
         @Override
@@ -43,16 +49,35 @@ public class CarAppActivity extends Activity {
         }
     }
 
+    private class StartSecondInstanceReceiver extends BroadcastReceiver {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            startSecondInstance();
+        }
+    }
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (getIntent().getBooleanExtra(BUNDLE_KEY_IS_SECOND_INSTANCE, false)) {
+            getActionBar().setTitle(SECOND_INSTANCE_TITLE);
+        }
         this.registerReceiver(mShowDialogReceiver, new IntentFilter(ACTION_SHOW_DIALOG));
+        this.registerReceiver(mStartSecondInstanceReceiver,
+                new IntentFilter(ACTION_START_SECOND_INSTANCE));
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
         this.unregisterReceiver(mShowDialogReceiver);
+        this.unregisterReceiver(mStartSecondInstanceReceiver);
+    }
+
+    private void startSecondInstance() {
+        Intent intent = new Intent(CarAppActivity.this, CarAppActivity.class);
+        intent.putExtra(BUNDLE_KEY_IS_SECOND_INSTANCE, true);
+        startActivity(intent);
     }
 
     private void showDialog() {
