@@ -30,7 +30,7 @@ import java.util.concurrent.TimeoutException;
  */
 public final class JavaMockitoHelper {
 
-    private static final long ASYNC_TIMEOUT_MS = 500;
+    static final long ASYNC_TIMEOUT_MS = 500;
 
     private static final String TAG = JavaMockitoHelper.class.getSimpleName();
 
