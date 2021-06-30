@@ -17,6 +17,8 @@
 package com.android.car.telemetry.databroker;
 
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
+import com.android.car.telemetry.systemmonitor.SystemMonitor;
+import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
 /**
  * DataBrokerController instantiates the DataBroker and manages what Publishers
@@ -24,8 +26,13 @@ import com.android.car.telemetry.TelemetryProto.MetricsConfig;
  */
 public class DataBrokerController {
 
+    public static final int TASK_PRIORITY_HI = 0;
+    public static final int TASK_PRIORITY_MED = 50;
+    public static final int TASK_PRIORITY_LOW = 100;
+
     private MetricsConfig mMetricsConfig;
     private final DataBroker mDataBroker;
+    private final SystemMonitor mSystemMonitor;
 
     /**
      * Interface for receiving notification that script finished.
@@ -39,21 +46,11 @@ public class DataBrokerController {
         void onScriptFinished(String configName);
     }
 
-    /**
-     * Interface for receiving notification about metric config changes.
-     */
-    public interface MetricsConfigCallback {
-        /**
-         * Listens to new metrics config event.
-         *
-         * @param metricsConfig the new metrics config.
-         */
-        void onNewMetricsConfig(MetricsConfig metricsConfig);
-    }
-
-    public DataBrokerController(DataBroker dataBroker) {
+    public DataBrokerController(DataBroker dataBroker, SystemMonitor systemMonitor) {
         mDataBroker = dataBroker;
         mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
+        mSystemMonitor = systemMonitor;
+        mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
     }
 
     /**
@@ -72,6 +69,27 @@ public class DataBrokerController {
      * @param configName the name of the config of the finished script.
      */
     public void onScriptFinished(String configName) {
-        // TODO(b/187744195): remove finished config from config store
+        // TODO(b/192008783): remove finished config from config store
+    }
+
+    /**
+     * Listens to {@link SystemMonitorEvent} and changes the cut-off priority
+     * for {@link DataBroker} such that only tasks with the same or more urgent
+     * priority can be run.
+     *
+     * Highest priority is 0 and lowest is 100.
+     *
+     * @param event the {@link SystemMonitorEvent} received.
+     */
+    public void onSystemMonitorEvent(SystemMonitorEvent event) {
+        if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI
+                || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI) {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_HI);
+        } else if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED
+                    || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED) {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_MED);
+        } else {
+            mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_LOW);
+        }
     }
 }
