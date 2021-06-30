@@ -45,6 +45,8 @@ public:
             (std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*),
             (override));
 
+    MOCK_METHOD(android::base::Result<void>, writeToDisk, (), (override));
+
     MOCK_METHOD((const std::unordered_set<std::string>&), vendorPackagePrefixes, (), (override));
 
     MOCK_METHOD((const std::unordered_map<
@@ -67,7 +69,7 @@ public:
 
     void injectPackageConfigs(
             const std::unordered_map<std::string, PackageConfig>& perPackageConfig) {
-        ON_CALL(*this, fetchThreshold(::testing::_))
+        ON_CALL(*this, fetchThreshold(testing::_))
                 .WillByDefault([perPackageConfig = perPackageConfig](
                                        const android::automotive::watchdog::internal::PackageInfo&
                                                packageInfo) {
@@ -78,7 +80,7 @@ public:
                     }
                     return defaultThreshold().perStateWriteBytes;
                 });
-        ON_CALL(*this, isSafeToKill(::testing::_))
+        ON_CALL(*this, isSafeToKill(testing::_))
                 .WillByDefault([perPackageConfig = perPackageConfig](
                                        const android::automotive::watchdog::internal::PackageInfo&
                                                packageInfo) {
