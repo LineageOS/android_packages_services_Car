@@ -242,6 +242,8 @@ Result<void> isValidResourceOveruseConfigs(
 
 IoOveruseConfigs::ParseXmlFileFunction IoOveruseConfigs::sParseXmlFile =
         &OveruseConfigurationXmlHelper::parseXmlFile;
+IoOveruseConfigs::WriteXmlFileFunction IoOveruseConfigs::sWriteXmlFile =
+        &OveruseConfigurationXmlHelper::writeXmlFile;
 
 Result<void> ComponentSpecificConfig::updatePerPackageThresholds(
         const std::vector<PerStateIoOveruseThreshold>& thresholds,
@@ -643,6 +645,39 @@ std::optional<ResourceOveruseConfiguration> IoOveruseConfigs::get(
     resourceOveruseConfiguration.resourceSpecificConfigurations.emplace_back(
             std::move(resourceSpecificConfig));
     return resourceOveruseConfiguration;
+}
+
+Result<void> IoOveruseConfigs::writeToDisk() {
+    std::vector<ResourceOveruseConfiguration> resourceOveruseConfigs;
+    get(&resourceOveruseConfigs);
+    for (const auto resourceOveruseConfig : resourceOveruseConfigs) {
+        switch (resourceOveruseConfig.componentType) {
+            case ComponentType::SYSTEM:
+                if (const auto result =
+                            sWriteXmlFile(resourceOveruseConfig, kLatestSystemConfigXmlPath);
+                    !result.ok()) {
+                    return Error() << "Failed to write system resource overuse config to disk";
+                }
+                continue;
+            case ComponentType::VENDOR:
+                if (const auto result =
+                            sWriteXmlFile(resourceOveruseConfig, kLatestVendorConfigXmlPath);
+                    !result.ok()) {
+                    return Error() << "Failed to write vendor resource overuse config to disk";
+                }
+                continue;
+            case ComponentType::THIRD_PARTY:
+                if (const auto result =
+                            sWriteXmlFile(resourceOveruseConfig, kLatestThirdPartyConfigXmlPath);
+                    !result.ok()) {
+                    return Error() << "Failed to write third-party resource overuse config to disk";
+                }
+                continue;
+            case ComponentType::UNKNOWN:
+                continue;
+        }
+    }
+    return {};
 }
 
 PerStateBytes IoOveruseConfigs::fetchThreshold(const PackageInfo& packageInfo) const {
