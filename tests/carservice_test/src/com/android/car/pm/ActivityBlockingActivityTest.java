@@ -17,6 +17,8 @@
 package com.android.car.pm;
 
 import static androidx.car.app.activity.CarAppActivity.ACTION_SHOW_DIALOG;
+import static androidx.car.app.activity.CarAppActivity.ACTION_START_SECOND_INSTANCE;
+import static androidx.car.app.activity.CarAppActivity.SECOND_INSTANCE_TITLE;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
@@ -126,6 +128,19 @@ public class ActivityBlockingActivityTest {
 
         assertThat(mDevice.wait(Until.findObject(By.text(
                 CarAppActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNotNull();
+        assertBlockingActivityNotFound();
+    }
+
+    @Test
+    public void testBlockingActivity_multipleDoTemplateActivity_notBlocked() throws Exception {
+        startActivity(toComponentName(getTestContext(), CarAppActivity.class));
+        assertThat(mDevice.wait(Until.findObject(By.text(
+                CarAppActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNotNull();
+        getContext().sendBroadcast(new Intent().setAction(ACTION_START_SECOND_INSTANCE));
+        assertThat(mDevice.wait(Until.findObject(By.text(
+                SECOND_INSTANCE_TITLE)),
                 UI_TIMEOUT_MS)).isNotNull();
         assertBlockingActivityNotFound();
     }
