@@ -19,24 +19,27 @@ package com.android.car.telemetry.databroker;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.Mockito.any;
+import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 
 import com.android.car.telemetry.TelemetryProto;
+import com.android.car.telemetry.systemmonitor.SystemMonitor;
+import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
-import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
-import org.mockito.junit.MockitoJUnit;
-import org.mockito.junit.MockitoRule;
+import org.mockito.junit.MockitoJUnitRunner;
 
-
+@RunWith(MockitoJUnitRunner.class)
 public class DataBrokerControllerUnitTest {
-    @Rule public final MockitoRule mockito = MockitoJUnit.rule();
 
     @Mock private DataBroker mMockDataBroker;
+
+    @Mock private SystemMonitor mMockSystemMonitor;
 
     @Captor ArgumentCaptor<TelemetryProto.MetricsConfig> mConfigCaptor;
 
@@ -79,5 +82,75 @@ public class DataBrokerControllerUnitTest {
         // into controller's constructor with @InjectMocks
         verify(mMockDataBroker).setOnScriptFinishedCallback(
                 any(DataBrokerController.ScriptFinishedCallback.class));
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighCpuUsage() {
+        SystemMonitorEvent highCpuEvent = new SystemMonitorEvent();
+        highCpuEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_HI);
+        highCpuEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mController.onSystemMonitorEvent(highCpuEvent);
+
+        verify(mMockDataBroker, atLeastOnce())
+            .setTaskExecutionPriority(mPriorityCaptor.capture());
+        assertThat(mPriorityCaptor.getValue())
+            .isEqualTo(DataBrokerController.TASK_PRIORITY_HI);
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighMemUsage() {
+        SystemMonitorEvent highMemEvent = new SystemMonitorEvent();
+        highMemEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        highMemEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_HI);
+
+        mController.onSystemMonitorEvent(highMemEvent);
+
+        verify(mMockDataBroker, atLeastOnce())
+            .setTaskExecutionPriority(mPriorityCaptor.capture());
+        assertThat(mPriorityCaptor.getValue())
+            .isEqualTo(DataBrokerController.TASK_PRIORITY_HI);
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForMedCpuUsage() {
+        SystemMonitorEvent medCpuEvent = new SystemMonitorEvent();
+        medCpuEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_MED);
+        medCpuEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mController.onSystemMonitorEvent(medCpuEvent);
+
+        verify(mMockDataBroker, atLeastOnce())
+            .setTaskExecutionPriority(mPriorityCaptor.capture());
+        assertThat(mPriorityCaptor.getValue())
+            .isEqualTo(DataBrokerController.TASK_PRIORITY_MED);
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForMedMemUsage() {
+        SystemMonitorEvent medMemEvent = new SystemMonitorEvent();
+        medMemEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        medMemEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_MED);
+
+        mController.onSystemMonitorEvent(medMemEvent);
+
+        verify(mMockDataBroker, atLeastOnce())
+            .setTaskExecutionPriority(mPriorityCaptor.capture());
+        assertThat(mPriorityCaptor.getValue())
+            .isEqualTo(DataBrokerController.TASK_PRIORITY_MED);
+    }
+
+    @Test
+    public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForLowUsage() {
+        SystemMonitorEvent lowUsageEvent = new SystemMonitorEvent();
+        lowUsageEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        lowUsageEvent.setMemoryUsageLevel(SystemMonitorEvent.USAGE_LEVEL_LOW);
+
+        mController.onSystemMonitorEvent(lowUsageEvent);
+
+        verify(mMockDataBroker, atLeastOnce())
+            .setTaskExecutionPriority(mPriorityCaptor.capture());
+        assertThat(mPriorityCaptor.getValue())
+            .isEqualTo(DataBrokerController.TASK_PRIORITY_LOW);
     }
 }
