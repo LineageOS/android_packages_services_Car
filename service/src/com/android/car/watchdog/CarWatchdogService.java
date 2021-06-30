@@ -22,6 +22,7 @@ import static android.car.user.CarUserManager.USER_LIFECYCLE_EVENT_TYPE_STOPPED;
 import static com.android.car.CarLog.TAG_WATCHDOG;
 
 import android.annotation.NonNull;
+import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
@@ -39,7 +40,10 @@ import android.car.watchdog.PackageKillableState;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -68,6 +72,10 @@ import java.util.List;
 public final class CarWatchdogService extends ICarWatchdogService.Stub implements CarServiceBase {
     static final boolean DEBUG = false; // STOPSHIP if true
     static final String TAG = CarLog.tagFor(CarWatchdogService.class);
+    static final String ACTION_GARAGE_MODE_ON =
+            "com.android.server.jobscheduler.GARAGE_MODE_ON";
+    static final String ACTION_GARAGE_MODE_OFF =
+            "com.android.server.jobscheduler.GARAGE_MODE_OFF";
 
     private final Context mContext;
     private final ICarWatchdogServiceForSystemImpl mWatchdogServiceForSystem;
@@ -76,6 +84,35 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final WatchdogPerfHandler mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final CarWatchdogDaemonHelper.OnConnectionChangeListener mConnectionListener;
+    /*
+     * TODO(b/192481350): Listen for GarageMode change notification rather than depending on the
+     *  system_server broadcast when the CarService internal API for listening GarageMode change is
+     *  implemented.
+     */
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            final String action = intent.getAction();
+            boolean isGarageMode = false;
+            if (action.equals(ACTION_GARAGE_MODE_ON)) {
+                isGarageMode = true;
+            } else if (!action.equals(ACTION_GARAGE_MODE_OFF)) {
+                return;
+            }
+            try {
+                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.GARAGE_MODE,
+                        isGarageMode ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF,
+                        /* arg2= */ -1);
+                if (DEBUG) {
+                    Slogf.d(TAG, "Notified car watchdog daemon of garage mode(%s)",
+                            isGarageMode ? "ON" : "OFF");
+                }
+            } catch (RemoteException | RuntimeException e) {
+                Slogf.w(TAG, "Notifying garage mode state change failed: %s", e);
+            }
+        }
+    };
+
     private final Object mLock = new Object();
     @GuardedBy("mLock")
     private boolean mReadyToRespond;
@@ -105,6 +142,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler.init();
         subscribePowerCycleChange();
         subscribeUserStateChange();
+        subscribeBroadcastReceiver();
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
         mWatchdogPerfHandler.init();
@@ -119,6 +157,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
 
     @Override
     public void release() {
+        mContext.unregisterReceiver(mBroadcastReceiver);
         mWatchdogPerfHandler.release();
         unregisterFromDaemon();
         mCarWatchdogDaemonHelper.disconnect();
@@ -355,8 +394,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 switch (state) {
                     // SHUTDOWN_PREPARE covers suspend and shutdown.
                     case CarPowerStateListener.SHUTDOWN_PREPARE:
-                        powerCycle = PowerCycle.POWER_CYCLE_SUSPEND;
+                        powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE;
                         break;
+                    case CarPowerStateListener.SHUTDOWN_ENTER:
+                    case CarPowerStateListener.SUSPEND_ENTER:
+                        powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
                     // ON covers resume.
                     case CarPowerStateListener.ON:
                         powerCycle = PowerCycle.POWER_CYCLE_RESUME;
@@ -371,10 +413,10 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
                             powerCycle, /* arg2= */ -1);
                     if (DEBUG) {
-                        Slogf.d(TAG, "Notified car watchdog daemon a power cycle(%d)", powerCycle);
+                        Slogf.d(TAG, "Notified car watchdog daemon of power cycle(%d)", powerCycle);
                     }
                 } catch (RemoteException | RuntimeException e) {
-                    Slogf.w(TAG, "Notifying system state change failed: %s", e);
+                    Slogf.w(TAG, "Notifying power cycle state change failed: %s", e);
                 }
             }
         });
@@ -412,9 +454,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                             userId, userStateDesc);
                 }
             } catch (RemoteException | RuntimeException e) {
-                Slogf.w(TAG, "Notifying system state change failed: %s", e);
+                Slogf.w(TAG, "Notifying user state change failed: %s", e);
             }
         });
+    }
+
+    private void subscribeBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(ACTION_GARAGE_MODE_ON);
+        filter.addAction(ACTION_GARAGE_MODE_OFF);
+
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
     }
 
     private static final class ICarWatchdogServiceForSystemImpl

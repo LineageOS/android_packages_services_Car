@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2020 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -17,27 +17,17 @@
 package android.automotive.watchdog.internal;
 
 /**
- * Used by ICarWatchdog to describe the change type.
+ * Used by ICarWatchdog to describe the garage mode status.
  */
 @Backing(type="int")
-enum StateType {
+enum GarageMode {
   /**
-   * Device power status change.
+   * The system is in normal mode.
    */
-  POWER_CYCLE,
+  GARAGE_MODE_OFF,
 
   /**
-   * User state change.
+   * The system is in garage mode.
    */
-  USER_STATE,
-
-  /**
-   * Boot phase change.
-   */
-  BOOT_PHASE,
-
-  /**
-   * Garage mode change.
-   */
-  GARAGE_MODE,
+  GARAGE_MODE_ON,
 }
