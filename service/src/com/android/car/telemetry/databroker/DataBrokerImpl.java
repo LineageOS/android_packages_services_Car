@@ -47,6 +47,9 @@ public class DataBrokerImpl implements DataBroker {
         mPublisherFactory = publisherFactory;
     }
 
+    // current task priority, used to determine which data can be processed
+    private int mTaskExecutionPriority;
+
     @Override
     public boolean addMetricsConfiguration(MetricsConfig metricsConfig) {
         // if metricsConfig already exists, it should not be added again
@@ -102,6 +105,11 @@ public class DataBrokerImpl implements DataBroker {
     @Override
     public void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback) {
         mScriptFinishedCallback = callback;
+    }
+
+    @Override
+    public void setTaskExecutionPriority(int priority) {
+        mTaskExecutionPriority = priority;
     }
 
     @VisibleForTesting
