@@ -49,6 +49,7 @@ import android.app.ActivityThread;
 import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
+import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageIdentifier;
@@ -58,6 +59,7 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
@@ -70,7 +72,9 @@ import android.car.watchdog.PackageKillableState;
 import android.car.watchdog.PerStateBytes;
 import android.car.watchdog.ResourceOveruseConfiguration;
 import android.car.watchdog.ResourceOveruseStats;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
@@ -128,6 +132,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
     private IBinder.DeathRecipient mCarWatchdogDaemonBinderDeathRecipient;
+    private BroadcastReceiver mBroadcastReceiver;
     private final SparseArray<String> mPackageNamesByUids = new SparseArray<>();
     private final SparseArray<String[]> mSharedPackagesByUids = new SparseArray<>();
     private final ArrayMap<String, ApplicationInfo> mApplicationInfosByPackages = new ArrayMap<>();
@@ -153,6 +158,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         setupUsers();
         mCarWatchdogService.init();
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
+        captureBroadcastReceiver();
         captureDaemonBinderDeathRecipient();
         mockPackageManager();
     }
@@ -200,6 +206,24 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     @Test
     public void testBadClientHealthCheck() throws Exception {
         testClientHealthCheck(new BadTestClient(), 1);
+    }
+
+    @Test
+    public void testGarageModeStateChangeToOn() throws Exception {
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_ON));
+        verify(mMockCarWatchdogDaemon)
+                .notifySystemStateChange(
+                        eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_ON), eq(-1));
+    }
+
+    @Test
+    public void testGarageModeStateChangeToOff() throws Exception {
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_OFF));
+        verify(mMockCarWatchdogDaemon)
+                .notifySystemStateChange(
+                        eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
     }
 
     @Test
@@ -1253,6 +1277,16 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                     }
                     return applicationInfo;
                 });
+    }
+
+    private void captureBroadcastReceiver() {
+        ArgumentCaptor<BroadcastReceiver> receiverArgumentCaptor =
+                ArgumentCaptor.forClass(BroadcastReceiver.class);
+        verify(mMockContext)
+                .registerReceiverForAllUsers(receiverArgumentCaptor.capture(), any(), any(), any());
+        mBroadcastReceiver = receiverArgumentCaptor.getValue();
+        assertWithMessage("Broadcast receiver must be non-null").that(mBroadcastReceiver)
+                .isNotEqualTo(null);
     }
 
     private void captureDaemonBinderDeathRecipient() throws Exception {
