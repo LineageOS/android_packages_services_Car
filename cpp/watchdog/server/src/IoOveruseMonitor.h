@@ -137,12 +137,6 @@ public:
             time_t time, const android::wp<IProcDiskStatsInterface>& procDiskStats,
             const std::function<void()>& alertHandler);
 
-    // TODO(b/185498771): Forward WatchdogBinderMediator's notifySystemStateChange call to
-    //  WatchdogProcessService. On POWER_CYCLE_SHUTDOWN_PREPARE_COMPLETE, call this method via
-    //  the IDataProcessorInterface. onShutdownPrepareComplete, IoOveruseMonitor will flush
-    //  in-memory stats to disk.
-    android::base::Result<void> onShutdownPrepareComplete();
-
     android::base::Result<void> onDump(int fd);
 
     bool dumpHelpText(int fd);
@@ -226,6 +220,12 @@ private:
     using ListenersByUidMap = std::unordered_map<uid_t, android::sp<IResourceOveruseListener>>;
     using Processor = std::function<void(ListenersByUidMap&, ListenersByUidMap::const_iterator)>;
     bool findListenerAndProcessLocked(const sp<IBinder>& binder, const Processor& processor);
+
+    /*
+     * Writes in-memory configs to disk asynchronously if configs are not written after latest
+     * update.
+     */
+    void writeConfigsToDiskAsyncLocked();
 
     // Local IPackageInfoResolver instance. Useful to mock in tests.
     sp<IPackageInfoResolver> mPackageInfoResolver;

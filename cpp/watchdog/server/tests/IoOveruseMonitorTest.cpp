@@ -26,6 +26,8 @@
 #include <binder/Status.h>
 #include <utils/RefBase.h>
 
+#include <functional>
+
 namespace android {
 namespace automotive {
 namespace watchdog {
@@ -37,7 +39,9 @@ using ::android::automotive::watchdog::internal::IoOveruseAlertThreshold;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
+using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
+using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
 using ::android::binder::Status;
@@ -54,6 +58,7 @@ constexpr size_t kTestMonitorBufferSize = 3;
 constexpr int64_t KTestMinSyncWrittenBytes = 5'000;
 constexpr double kTestIoOveruseWarnPercentage = 80;
 constexpr std::chrono::seconds kTestMonitorInterval = 5s;
+constexpr std::chrono::seconds kMaxWaitSeconds = 5s;
 
 IoOveruseAlertThreshold toIoOveruseAlertThreshold(const int64_t durationInSeconds,
                                                   const int64_t writtenBytesPerSecond) {
@@ -795,6 +800,22 @@ TEST_F(IoOveruseMonitorTest, TestErrorsGetIoOveruseStatsOnNoStats) {
         ASSERT_FALSE(mIoOveruseMonitor->getIoOveruseStats(&actual).ok())
                 << "Should fail on missing package information";
     }));
+}
+
+TEST_F(IoOveruseMonitorTest, TestUpdateResourceOveruseConfigurations) {
+    EXPECT_CALL(*mMockIoOveruseConfigs, update(_)).WillOnce(Return(Result<void>{}));
+    EXPECT_CALL(*mMockIoOveruseConfigs, writeToDisk()).WillOnce(Return(Result<void>{}));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->updateResourceOveruseConfigurations({}));
+}
+
+TEST_F(IoOveruseMonitorTest, TestFailsUpdateResourceOveruseConfigurations) {
+    EXPECT_CALL(*mMockIoOveruseConfigs, update(_))
+            .WillOnce([&]([[maybe_unused]] const std::vector<ResourceOveruseConfiguration>& configs)
+                              -> Result<void> { return Error() << "Failed to update"; });
+    EXPECT_CALL(*mMockIoOveruseConfigs, writeToDisk()).Times(0);
+
+    ASSERT_FALSE(mIoOveruseMonitor->updateResourceOveruseConfigurations({}).ok());
 }
 
 }  // namespace watchdog
