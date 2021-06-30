@@ -42,10 +42,12 @@ using ::android::automotive::watchdog::internal::UidType;
 using ::android::base::Error;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
+using ::testing::Eq;
 using ::testing::IsEmpty;
 using ::testing::Matcher;
 using ::testing::UnorderedElementsAre;
 using ::testing::UnorderedElementsAreArray;
+using ::testing::UnorderedPointwise;
 
 namespace {
 
@@ -102,6 +104,29 @@ std::vector<Matcher<const ResourceOveruseConfiguration>> ResourceOveruseConfigur
         matchers.push_back(ResourceOveruseConfigurationMatcher(config));
     }
     return matchers;
+}
+
+std::string toString(
+        const std::unordered_map<std::string, ResourceOveruseConfiguration>& configsByFilePath) {
+    std::string buffer;
+    StringAppendF(&buffer, "[");
+    for (const auto& [filepath, config] : configsByFilePath) {
+        if (buffer.size() > 1) {
+            StringAppendF(&buffer, ",\n");
+        }
+        StringAppendF(&buffer, "{Filepath{\"%s\"}, %s}", filepath.c_str(),
+                      config.toString().c_str());
+    }
+    StringAppendF(&buffer, "]\n");
+    return buffer;
+}
+
+MATCHER(ConfigsByFilepathsEq, "") {
+    const auto actual = std::get<0>(arg);
+    const auto expected = std::get<1>(arg);
+    return actual.first == expected.first &&
+            ExplainMatchResult(ResourceOveruseConfigurationMatcher(expected.second), actual.second,
+                               result_listener);
 }
 
 ResourceOveruseConfiguration sampleBuildSystemConfig() {
@@ -224,9 +249,25 @@ public:
             }
             return Error() << "No configs available for the given filepath '" << filepath << "'";
         };
+        IoOveruseConfigs::sWriteXmlFile =
+                [&](const android::automotive::watchdog::internal::ResourceOveruseConfiguration&
+                            config,
+                    const char* filepath) -> android::base::Result<void> {
+            configsByFilepaths[filepath] = config;
+            return {};
+        };
     }
     ~IoOveruseConfigsPeer() {
         IoOveruseConfigs::sParseXmlFile = &OveruseConfigurationXmlHelper::parseXmlFile;
+        IoOveruseConfigs::sWriteXmlFile = &OveruseConfigurationXmlHelper::writeXmlFile;
+    }
+    void injectErrorOnWriteXmlFile() {
+        IoOveruseConfigs::sWriteXmlFile =
+                [&]([[maybe_unused]] const android::automotive::watchdog::internal::
+                            ResourceOveruseConfiguration& config,
+                    [[maybe_unused]] const char* filepath) -> android::base::Result<void> {
+            return Error() << "Failed to write XML files";
+        };
     }
     std::unordered_map<std::string, ResourceOveruseConfiguration> configsByFilepaths;
 };
@@ -910,6 +951,53 @@ TEST_F(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithVendorConfig) {
     EXPECT_THAT(ioOveruseConfigs.packagesToAppCategories(),
                 UnorderedElementsAreArray(
                         toPackageToAppCategoryMappings(resourceOveruseConfig.packageMetadata)));
+}
+
+TEST_F(IoOveruseConfigsTest, TestWriteToDisk) {
+    auto systemResourceConfig = sampleUpdateSystemConfig();
+    auto vendorResourceConfig = sampleUpdateVendorConfig();
+    auto thirdPartyResourceConfig = sampleUpdateThirdPartyConfig();
+
+    IoOveruseConfigs ioOveruseConfigs;
+
+    ASSERT_RESULT_OK(ioOveruseConfigs.update(
+            {systemResourceConfig, vendorResourceConfig, thirdPartyResourceConfig}));
+
+    ASSERT_RESULT_OK(ioOveruseConfigs.writeToDisk());
+
+    ASSERT_EQ(mPeer->configsByFilepaths.size(), 3);
+
+    vendorResourceConfig.vendorPackagePrefixes.push_back("vendorPkgB");
+    std::unordered_map<std::string, ResourceOveruseConfiguration> expected(
+            {{kLatestSystemConfigXmlPath, systemResourceConfig},
+             {kLatestVendorConfigXmlPath, vendorResourceConfig},
+             {kLatestThirdPartyConfigXmlPath, thirdPartyResourceConfig}});
+
+    EXPECT_THAT(mPeer->configsByFilepaths, UnorderedPointwise(ConfigsByFilepathsEq(), expected))
+            << "Expected: " << toString(expected)
+            << "Actual:" << toString(mPeer->configsByFilepaths);
+}
+
+TEST_F(IoOveruseConfigsTest, TestWriteToDiskFailure) {
+    auto systemResourceConfig = sampleUpdateSystemConfig();
+    auto vendorResourceConfig = sampleUpdateVendorConfig();
+    auto thirdPartyResourceConfig = sampleUpdateThirdPartyConfig();
+
+    std::vector<ResourceOveruseConfiguration> resourceOvuerseConfigs =
+            {sampleUpdateSystemConfig(), sampleUpdateVendorConfig(),
+             sampleUpdateThirdPartyConfig()};
+
+    mPeer->injectErrorOnWriteXmlFile();
+
+    for (const auto config : resourceOvuerseConfigs) {
+        IoOveruseConfigs ioOveruseConfigs;
+
+        ASSERT_RESULT_OK(ioOveruseConfigs.update({config}));
+
+        ASSERT_FALSE(ioOveruseConfigs.writeToDisk().ok())
+                << "Must fail write to disk on XML write error for component "
+                << toString(config.componentType);
+    }
 }
 
 }  // namespace watchdog

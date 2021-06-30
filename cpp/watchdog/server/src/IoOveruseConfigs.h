@@ -82,6 +82,9 @@ public:
             std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                     resourceOveruseConfigs) = 0;
 
+    // Writes the cached configs to disk.
+    virtual android::base::Result<void> writeToDisk() = 0;
+
     /*
      * Returns the list of vendor package prefixes. Any pre-installed package matching one of these
      * prefixes should be classified as a vendor package.
@@ -193,6 +196,8 @@ public:
     void get(std::vector<android::automotive::watchdog::internal::ResourceOveruseConfiguration>*
                      resourceOveruseConfigs) override;
 
+    android::base::Result<void> writeToDisk();
+
     PerStateBytes fetchThreshold(
             const android::automotive::watchdog::internal::PackageInfo& packageInfo) const override;
 
@@ -265,7 +270,11 @@ private:
     // For unit tests.
     using ParseXmlFileFunction = std::function<android::base::Result<
             android::automotive::watchdog::internal::ResourceOveruseConfiguration>(const char*)>;
+    using WriteXmlFileFunction = std::function<android::base::Result<
+            void>(const android::automotive::watchdog::internal::ResourceOveruseConfiguration&,
+                  const char*)>;
     static ParseXmlFileFunction sParseXmlFile;
+    static WriteXmlFileFunction sWriteXmlFile;
 
     friend class internal::IoOveruseConfigsPeer;
 };
