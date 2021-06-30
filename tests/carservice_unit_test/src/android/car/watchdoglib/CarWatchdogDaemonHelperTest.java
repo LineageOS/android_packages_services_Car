@@ -153,10 +153,10 @@ public class CarWatchdogDaemonHelperTest {
     @Test
     public void testIndirectCall_NotifySystemStateChange() throws Exception {
         mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
-                PowerCycle.POWER_CYCLE_SUSPEND, -1);
+                PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE, -1);
 
         verify(mFakeCarWatchdog).notifySystemStateChange(StateType.POWER_CYCLE,
-                PowerCycle.POWER_CYCLE_SUSPEND, -1);
+                PowerCycle.POWER_CYCLE_SHUTDOWN_PREPARE, -1);
     }
 
     @Test

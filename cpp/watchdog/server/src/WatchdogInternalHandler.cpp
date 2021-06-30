@@ -21,6 +21,7 @@
 #include "WatchdogBinderMediator.h"
 
 #include <android/automotive/watchdog/internal/BootPhase.h>
+#include <android/automotive/watchdog/internal/GarageMode.h>
 #include <android/automotive/watchdog/internal/PowerCycle.h>
 #include <android/automotive/watchdog/internal/UserState.h>
 #include <binder/IPCThreadState.h>
@@ -33,6 +34,7 @@ namespace watchdog {
 namespace aawi = ::android::automotive::watchdog::internal;
 
 using aawi::ComponentType;
+using aawi::GarageMode;
 using aawi::ICarWatchdogServiceForSystem;
 using aawi::PackageResourceOveruseAction;
 using aawi::PowerCycle;
@@ -171,6 +173,13 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
             }
             return handlePowerCycleChange(powerCycle);
         }
+        case aawi::StateType::GARAGE_MODE: {
+            GarageMode garageMode = static_cast<GarageMode>(static_cast<uint32_t>(arg1));
+            mWatchdogPerfService->setSystemState(garageMode == GarageMode::GARAGE_MODE_OFF
+                                                         ? SystemState::NORMAL_MODE
+                                                         : SystemState::GARAGE_MODE);
+            return Status::ok();
+        }
         case aawi::StateType::USER_STATE: {
             userid_t userId = static_cast<userid_t>(arg1);
             aawi::UserState userState = static_cast<aawi::UserState>(static_cast<uint32_t>(arg2));
@@ -196,19 +205,18 @@ Status WatchdogInternalHandler::notifySystemStateChange(aawi::StateType type, in
 
 Status WatchdogInternalHandler::handlePowerCycleChange(PowerCycle powerCycle) {
     switch (powerCycle) {
-        case PowerCycle::POWER_CYCLE_SHUTDOWN:
-            ALOGI("Received SHUTDOWN power cycle");
+        case PowerCycle::POWER_CYCLE_SHUTDOWN_PREPARE:
+            ALOGI("Received SHUTDOWN_PREPARE power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
+            // TODO(b/189508862): Upload resource overuse stats on shutdown prepare.
             break;
-        case PowerCycle::POWER_CYCLE_SUSPEND:
-            ALOGI("Received SUSPEND power cycle");
+        case PowerCycle::POWER_CYCLE_SHUTDOWN_ENTER:
+            ALOGI("Received SHUTDOWN_ENTER power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/false);
-            mWatchdogPerfService->setSystemState(SystemState::GARAGE_MODE);
             break;
         case PowerCycle::POWER_CYCLE_RESUME:
             ALOGI("Received RESUME power cycle");
             mWatchdogProcessService->setEnabled(/*isEnabled=*/true);
-            mWatchdogPerfService->setSystemState(SystemState::NORMAL_MODE);
             break;
         default:
             ALOGW("Unsupported power cycle: %d", powerCycle);
