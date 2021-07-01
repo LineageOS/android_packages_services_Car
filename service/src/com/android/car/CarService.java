@@ -20,6 +20,7 @@ import static android.os.SystemClock.elapsedRealtime;
 
 import android.annotation.Nullable;
 import android.app.Service;
+import android.car.builtin.util.Slog;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.os.Build;
@@ -32,7 +33,6 @@ import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Trace;
 import android.util.EventLog;
-import android.util.Slog;
 
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;

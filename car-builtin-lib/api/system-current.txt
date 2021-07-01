@@ -1,0 +1,20 @@
+// Signature format: 2.0
+package android.car.builtin.util {
+
+  public class Slog {
+    method public static int d(@NonNull String, @NonNull String);
+    method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int e(@NonNull String, @NonNull String);
+    method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int i(@NonNull String, @NonNull String);
+    method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int v(@NonNull String, @NonNull String);
+    method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int w(@NonNull String, @NonNull String);
+    method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int wtf(@NonNull String, @NonNull String);
+    method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
+  }
+
+}
+

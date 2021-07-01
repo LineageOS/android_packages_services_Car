@@ -77,7 +77,10 @@ android_app {
         enabled: false,
     },
 
-    libs: ["android.car"],
+    libs: [
+        "android.car",
+        "android.car.builtin-stubs"
+    ],
 
     static_libs: common_lib_deps + [
         "com.android.car.internal.system",
@@ -130,6 +133,7 @@ android_library {
 
     libs: [
         "android.car",
+        "android.car.builtin-stubs",
         "car-frameworks-service",
     ],
 
@@ -156,6 +160,7 @@ android_library {
 
     libs: common_lib_deps + [
         "android.car",
+        "android.car.builtin-stubs",
         "car-frameworks-service",
     ],
 

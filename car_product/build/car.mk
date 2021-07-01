@@ -125,6 +125,7 @@ PRODUCT_PACKAGES += \
     CarSettings \
     CarUsbHandler \
     android.car \
+    android.car.builtin \
     car-frameworks-service \
     com.android.car.procfsinspector \
     libcar-framework-service-jni \
@@ -223,13 +224,15 @@ PRODUCT_LOCALES := \
     zu_ZA
 
 PRODUCT_BOOT_JARS += \
-    android.car
+    android.car.builtin android.car
 
 PRODUCT_HIDDENAPI_STUBS := \
     android.car-stubs-dex
 
+# android.car.builtin is system api only.
 PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
-    android.car-system-stubs-dex
+    android.car-system-stubs-dex \
+    android.car.builtin-stubs-dex
 
 PRODUCT_HIDDENAPI_STUBS_TEST := \
     android.car-test-stubs-dex
