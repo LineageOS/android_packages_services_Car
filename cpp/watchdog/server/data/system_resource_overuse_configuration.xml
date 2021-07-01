@@ -34,10 +34,12 @@
     <!-- Kitchensink app tests package warning/killing on overuse and requires less threshold so it
          can test the implementation with less amount of writes. However, it shouldn't be killed
          often when running other tests.-->
-    <packageSpecificThresholds id="shared:com.google.android.car.uid.kitchensink">
-      <state id="foreground_mode"> 512 </state>
-      <state id="background_mode"> 512 </state>
-      <state id="garage_mode"> 512 </state>
+    <packageSpecificThresholds>
+      <perStateThreshold id="shared:com.google.android.car.uid.kitchensink">
+        <state id="foreground_mode"> 512 </state>
+        <state id="background_mode"> 512 </state>
+        <state id="garage_mode"> 512 </state>
+      </perStateThreshold>
     </packageSpecificThresholds>
 
     <!-- List of system-wide disk I/O overuse alert thresholds. -->
