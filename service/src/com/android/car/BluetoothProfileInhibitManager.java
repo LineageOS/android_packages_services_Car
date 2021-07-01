@@ -69,8 +69,7 @@ public class BluetoothProfileInhibitManager {
     private final HashSet<BluetoothConnection> mAlreadyDisabledProfiles = new HashSet<>();
 
     private final Handler mHandler = new Handler(
-            CarServiceUtils.getCommonHandlerThread().getLooper());
-
+            CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
     /**
      * BluetoothConnection - encapsulates the information representing a connection to a device on a
      * given profile. This object is hashable, encodable and decodable.

@@ -134,7 +134,7 @@ class FastPairGattServer {
         }
     };
     private final Handler mHandler = new Handler(
-            CarServiceUtils.getCommonHandlerThread().getLooper());
+            CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
     private BluetoothGattCharacteristic mModelIdCharacteristic;
     private BluetoothGattCharacteristic mKeyBasedPairingCharacteristic;
     private BluetoothGattCharacteristic mPasskeyCharacteristic;
