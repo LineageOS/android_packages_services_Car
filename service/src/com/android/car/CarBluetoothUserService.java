@@ -284,10 +284,12 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 Utils.getProfileName(profile));
         mBluetoothProxyLock.lock();
         try {
-            if (!isBluetoothConnectionProxyAvailable(profile)
-                    && !waitForProxies(PROXY_OPERATION_TIMEOUT_MS)) {
-                Slog.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
-                return false;
+            if (!isBluetoothConnectionProxyAvailable(profile)) {
+                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
+                        && !isBluetoothConnectionProxyAvailable(profile)) {
+                    Slog.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
+                    return false;
+                }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
@@ -326,10 +328,12 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 Utils.getProfileName(profile));
         mBluetoothProxyLock.lock();
         try {
-            if (!isBluetoothConnectionProxyAvailable(profile)
-                    && !waitForProxies(PROXY_OPERATION_TIMEOUT_MS)) {
-                Slog.e(TAG, "Cannot disconnect from profile. Proxy Unavailable");
-                return false;
+            if (!isBluetoothConnectionProxyAvailable(profile)) {
+                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
+                        && !isBluetoothConnectionProxyAvailable(profile)) {
+                    Slog.e(TAG, "Cannot disconnect from Profile. Proxy Unavailable");
+                    return false;
+                }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
@@ -368,11 +372,13 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         int priority;
         mBluetoothProxyLock.lock();
         try {
-            if (!isBluetoothConnectionProxyAvailable(profile)
-                    && !waitForProxies(PROXY_OPERATION_TIMEOUT_MS)) {
-                Slog.e(TAG, "Cannot get " + Utils.getProfileName(profile)
-                        + " profile priority. Proxy Unavailable");
-                return BluetoothProfile.PRIORITY_UNDEFINED;
+            if (!isBluetoothConnectionProxyAvailable(profile)) {
+                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
+                        && !isBluetoothConnectionProxyAvailable(profile)) {
+                    Slog.e(TAG, "Cannot get " + Utils.getProfileName(profile)
+                            + " profile priority. Proxy Unavailable");
+                    return BluetoothProfile.PRIORITY_UNDEFINED;
+                }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
@@ -418,11 +424,13 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 device.getName(), device.getAddress(), priority);
         mBluetoothProxyLock.lock();
         try {
-            if (!isBluetoothConnectionProxyAvailable(profile)
-                    && !waitForProxies(PROXY_OPERATION_TIMEOUT_MS)) {
-                Slog.e(TAG, "Cannot set " + Utils.getProfileName(profile)
-                        + " profile priority. Proxy Unavailable");
-                return;
+            if (!isBluetoothConnectionProxyAvailable(profile)) {
+                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
+                        && !isBluetoothConnectionProxyAvailable(profile)) {
+                    Slog.e(TAG, "Cannot set " + Utils.getProfileName(profile)
+                            + " profile priority. Proxy Unavailable");
+                    return;
+                }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
