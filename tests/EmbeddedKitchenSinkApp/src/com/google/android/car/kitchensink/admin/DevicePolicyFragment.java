@@ -330,12 +330,7 @@ public final class DevicePolicyFragment extends Fragment {
         }
         Log.v(TAG, "setAdminApp(): index=" + index + ",size=" + mDeviceAdminApps.size() + ",app="
                 + app);
-        // TODO(188585303): use ACTION_ADD_DEVICE_ADMIN
-//        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
-//                .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, app.admin);
-        Intent intent = new Intent()
-                .setComponent(new ComponentName("com.android.car.settings",
-                        "com.android.car.settings.enterprise.DeviceAdminAddActivity"))
+        Intent intent = new Intent(DevicePolicyManager.ACTION_ADD_DEVICE_ADMIN)
                 .putExtra(DevicePolicyManager.EXTRA_DEVICE_ADMIN, app.admin);
         Log.i(TAG, "launching intent " + intent + " for " + app);
         getActivity().startActivity(intent);
