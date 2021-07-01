@@ -142,7 +142,7 @@ public class FastPairProvider {
         }
         Slog.d(TAG, "modelId == " + mModelId);
         mFastPairAdvertiserHandler = new Handler(
-                CarServiceUtils.getCommonHandlerThread().getLooper());
+                CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
