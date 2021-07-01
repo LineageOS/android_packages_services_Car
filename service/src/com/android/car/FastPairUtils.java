@@ -34,6 +34,7 @@ class FastPairUtils {
     static final boolean DBG = Log.isLoggable("FastPair", Log.DEBUG);
     static final String PREFERENCES = "com.android.car.bluetooth";
     static final String ACCOUNT_KEYS = "AccountKeysCount";
+    static final String THREAD_NAME = "FastPairProvider";
 
     private static final byte SALT_FIELD_DESCRIPTOR = 0x11;
     private static final int BD_ADDR_LEN = 6;
