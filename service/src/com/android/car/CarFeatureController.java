@@ -100,7 +100,8 @@ public final class CarFeatureController implements CarServiceBase {
 
     // This is a feature still under development and cannot be enabled in user build.
     private static final HashSet<String> NON_USER_ONLY_FEATURES = new HashSet<>(Arrays.asList(
-            Car.CAR_EVS_SERVICE
+            Car.CAR_EVS_SERVICE,
+            Car.CAR_TELEMETRY_SERVICE
     ));
 
     // Features that depend on another feature being enabled (i.e. legacy API support).
