@@ -143,8 +143,7 @@ public class BluetoothProfileDeviceManager {
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
     private final ICarBluetoothUserService mBluetoothUserProxies;
     private final Handler mHandler = new Handler(
-            CarServiceUtils.getCommonHandlerThread().getLooper());
-
+            CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
     /**
      * A BroadcastReceiver that listens specifically for actions related to the profile we're
      * tracking and uses them to update the status.
