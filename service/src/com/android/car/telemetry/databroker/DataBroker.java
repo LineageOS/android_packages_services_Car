@@ -22,6 +22,18 @@ import com.android.car.telemetry.TelemetryProto;
 public interface DataBroker {
 
     /**
+     * Interface for receiving notification that script finished.
+     */
+    interface ScriptFinishedCallback {
+        /**
+         * Listens to script finished event.
+         *
+         * @param configName the name of the config whose script finished.
+         */
+        void onScriptFinished(String configName);
+    }
+
+    /**
      * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
      * execution. When updating the MetricsConfig to a newer version, the caller must call
      * {@link #removeMetricsConfiguration(TelemetryProto.MetricsConfig)} first to clear the old
@@ -58,7 +70,7 @@ public interface DataBroker {
      *
      * @param callback script finished callback.
      */
-    void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback);
+    void setOnScriptFinishedCallback(ScriptFinishedCallback callback);
 
     /**
      * Sets the priority which affects which subscribers can consume data. Invoked by controller to

@@ -34,18 +34,6 @@ public class DataBrokerController {
     private final DataBroker mDataBroker;
     private final SystemMonitor mSystemMonitor;
 
-    /**
-     * Interface for receiving notification that script finished.
-     */
-    public interface ScriptFinishedCallback {
-        /**
-         * Listens to script finished event.
-         *
-         * @param configName the name of the config whose script finished.
-         */
-        void onScriptFinished(String configName);
-    }
-
     public DataBrokerController(DataBroker dataBroker, SystemMonitor systemMonitor) {
         mDataBroker = dataBroker;
         mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);

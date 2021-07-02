@@ -77,7 +77,7 @@ public class DataBrokerImpl implements DataBroker {
     private final Map<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
     private final Object mPublisherLock = new Object();
     private final PublisherFactory mPublisherFactory;
-    private DataBrokerController.ScriptFinishedCallback mScriptFinishedCallback;
+    private ScriptFinishedCallback mScriptFinishedCallback;
 
     public DataBrokerImpl(PublisherFactory publisherFactory) {
         mPublisherFactory = publisherFactory;
@@ -187,7 +187,7 @@ public class DataBrokerImpl implements DataBroker {
     }
 
     @Override
-    public void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback) {
+    public void setOnScriptFinishedCallback(ScriptFinishedCallback callback) {
         // TODO(b/187743369): move the interface on databroker surface and pass it in constructor
         mScriptFinishedCallback = callback;
     }
