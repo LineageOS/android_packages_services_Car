@@ -16,16 +16,25 @@
 
 package com.android.car.telemetry.databroker;
 
-import static com.android.car.telemetry.databroker.DataBrokerImpl.MSG_HANDLE_TASK;
-
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
+import android.car.telemetry.IScriptExecutor;
+import android.car.telemetry.IScriptExecutorListener;
+import android.content.Context;
+import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.IBinder;
+import android.os.RemoteException;
 import android.os.SystemClock;
 
 import com.android.car.CarPropertyService;
@@ -35,6 +44,8 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
+import org.mockito.ArgumentCaptor;
+import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -72,21 +83,41 @@ public class DataBrokerUnitTest {
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
 
-    @Mock
-    private CarPropertyService mMockCarPropertyService;
-
     private DataBrokerImpl mDataBroker;
+    private FakeScriptExecutor mFakeScriptExecutor;
     private Handler mHandler;
     private ScriptExecutionTask mHighPriorityTask;
     private ScriptExecutionTask mLowPriorityTask;
+
+    @Mock
+    private Context mMockContext;
+    @Mock
+    private CarPropertyService mMockCarPropertyService;
+    @Mock
+    private IBinder mMockScriptExecutorBinder;
+
+    @Captor
+    private ArgumentCaptor<ServiceConnection> mServiceConnectionCaptor;
 
     @Before
     public void setUp() {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
+        // bind service should return true, otherwise broker is disabled
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         PublisherFactory factory = new PublisherFactory(mMockCarPropertyService);
-        mDataBroker = new DataBrokerImpl(factory);
+        mDataBroker = new DataBrokerImpl(mMockContext, factory);
         mHandler = mDataBroker.getWorkerHandler();
+
+        mFakeScriptExecutor = new FakeScriptExecutor();
+        when(mMockScriptExecutorBinder.queryLocalInterface(anyString()))
+                .thenReturn(mFakeScriptExecutor);
+        // capture ServiceConnection and connect to fake ScriptExecutor
+        verify(mMockContext).bindServiceAsUser(
+                any(), mServiceConnectionCaptor.capture(), anyInt(), any());
+        mServiceConnectionCaptor.getValue().onServiceConnected(
+                null, mMockScriptExecutorBinder);
+
         mHighPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO, PRIORITY_HIGH),
                 DATA,
@@ -98,14 +129,15 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNoTask_shouldNotScheduleTask() {
+    public void testSetTaskExecutionPriority_whenNoTask_shouldNotInvokeScriptExecutor() {
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
 
-        assertThat(mHandler.hasMessages(MSG_HANDLE_TASK)).isFalse();
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(0);
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNextTaskPriorityLow_shouldNotPollTask() {
+    public void testSetTaskExecutionPriority_whenNextTaskPriorityLow_shouldNotRunTask() {
         mDataBroker.getTaskQueue().add(mLowPriorityTask);
 
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
@@ -113,10 +145,11 @@ public class DataBrokerUnitTest {
         waitForHandlerThreadToFinish();
         // task is not polled
         assertThat(mDataBroker.getTaskQueue().peek()).isEqualTo(mLowPriorityTask);
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(0);
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNextTaskPriorityHigh_shouldPollTask() {
+    public void testSetTaskExecutionPriority_whenNextTaskPriorityHigh_shouldInvokeScriptExecutor() {
         mDataBroker.getTaskQueue().add(mHighPriorityTask);
 
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
@@ -124,17 +157,19 @@ public class DataBrokerUnitTest {
         waitForHandlerThreadToFinish();
         // task is polled and run
         assertThat(mDataBroker.getTaskQueue().peek()).isNull();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
     }
 
     @Test
-    public void testScheduleNextTask_whenNoTask_shouldNotSendMessageToHandler() {
+    public void testScheduleNextTask_whenNoTask_shouldNotInvokeScriptExecutor() {
         mDataBroker.scheduleNextTask();
 
-        assertThat(mHandler.hasMessages(MSG_HANDLE_TASK)).isFalse();
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(0);
     }
 
     @Test
-    public void testScheduleNextTask_whenTaskInProgress_shouldNotSendMessageToHandler() {
+    public void testScheduleNextTask_whenTaskInProgress_shouldNotInvokeScriptExecutorAgain() {
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
         mDataBroker.scheduleNextTask(); // start a task
@@ -144,16 +179,68 @@ public class DataBrokerUnitTest {
 
         mDataBroker.scheduleNextTask(); // schedule next task while the last task is in progress
 
-        // verify no message is sent to handler and no task is polled
-        assertThat(mHandler.hasMessages(MSG_HANDLE_TASK)).isFalse();
+        // verify task is not polled
+        assertThat(taskQueue.peek()).isEqualTo(mHighPriorityTask);
+        // expect one invocation for the task that is running
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void testScheduleNextTask_whenTaskCompletes_shouldAutomaticallyScheduleNextTask() {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        // add two tasks into the queue for execution
+        taskQueue.add(mHighPriorityTask);
+        taskQueue.add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask(); // start a task
+        waitForHandlerThreadToFinish();
+        // end a task, should automatically schedule the next task
+        mFakeScriptExecutor.notifyScriptSuccess();
+
+        waitForHandlerThreadToFinish();
+        // verify queue is empty, both tasks are polled and executed
+        assertThat(taskQueue.peek()).isNull();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(2);
+    }
+
+    @Test
+    public void testScheduleNextTask_whenBindScriptExecutorFailed_shouldDisableBroker() {
+        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+        // disconnect ScriptExecutor and fail all future attempts to bind to it
+        mServiceConnectionCaptor.getValue().onServiceDisconnected(null);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(false);
+
+        // will rebind to ScriptExecutor if it is null
+        mDataBroker.scheduleNextTask();
+
+        waitForHandlerThreadToFinish();
+        // all subscribers should have been removed
+        assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(0);
+    }
+
+    @Test
+    public void testScheduleNextTask_whenScriptExecutorFails_shouldRequeueTask() {
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+        mFakeScriptExecutor.failNextApiCalls(1); // fail the next invokeScript() call
+
+        mDataBroker.scheduleNextTask();
+
+        waitForHandlerThreadToFinish();
+        // expect invokeScript() to be called and failed, causing the same task to be re-queued
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
         assertThat(taskQueue.peek()).isEqualTo(mHighPriorityTask);
     }
 
     @Test
-    public void testAddTaskToQueue_shouldScheduleNextTask() {
+    public void testAddTaskToQueue_shouldInvokeScriptExecutor() {
         mDataBroker.addTaskToQueue(mHighPriorityTask);
 
-        assertThat(mHandler.hasMessages(MSG_HANDLE_TASK)).isTrue();
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
     }
 
     @Test
@@ -211,5 +298,47 @@ public class DataBrokerUnitTest {
     private void waitForHandlerThreadToFinish() {
         assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
                 .that(mHandler.runWithScissors(() -> {}, TIMEOUT_MS)).isTrue();
+    }
+
+    private static class FakeScriptExecutor implements IScriptExecutor {
+        private IScriptExecutorListener mListener;
+        private int mApiInvocationCount = 0;
+        private int mFailApi = 0;
+
+        @Override
+        public void invokeScript(String scriptBody, String functionName, Bundle publishedData,
+                @Nullable Bundle savedState, IScriptExecutorListener listener)
+                throws RemoteException {
+            mApiInvocationCount++;
+            mListener = listener;
+            if (mFailApi > 0) {
+                mFailApi--;
+                throw new RemoteException("Simulated failure");
+            }
+        }
+
+        @Override
+        public IBinder asBinder() {
+            return null;
+        }
+
+        /** Mocks script completion. */
+        public void notifyScriptSuccess() {
+            try {
+                mListener.onSuccess(new Bundle());
+            } catch (RemoteException e) {
+                // nothing to do
+            }
+        }
+
+        /** Fails the next N invokeScript() call. */
+        public void failNextApiCalls(int n) {
+            mFailApi = n;
+        }
+
+        /** Returns number of times the ScriptExecutor API was invoked. */
+        public int getApiInvocationCount() {
+            return mApiInvocationCount;
+        }
     }
 }
