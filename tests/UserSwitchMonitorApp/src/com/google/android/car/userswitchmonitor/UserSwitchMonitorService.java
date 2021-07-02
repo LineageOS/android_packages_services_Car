@@ -88,11 +88,13 @@ public final class UserSwitchMonitorService extends Service {
                 NotificationManager.IMPORTANCE_MIN);
         mNotificationManager.createNotificationChannel(channel);
 
+        // Cannot use R.drawable because package name is different on app2
+        int iconResId = mContext.getApplicationInfo().icon;
         startForeground(startId,
                 new Notification.Builder(mContext, channelId)
                         .setContentText(name)
                         .setContentTitle(name)
-                        .setSmallIcon(R.drawable.ic_launcher)
+                        .setSmallIcon(iconResId)
                         .build());
 
         return super.onStartCommand(intent, flags, startId);
