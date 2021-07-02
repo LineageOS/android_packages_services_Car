@@ -16,12 +16,12 @@
 
 package com.android.car.user;
 
+import android.car.ICarResultReceiver;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 
 import com.android.car.CarLog;
-import com.android.internal.os.IResultReceiver;
 
 import java.io.PrintWriter;
 
@@ -36,9 +36,9 @@ final class AppLifecycleListener {
 
     public final int uid;
     public final String packageName;
-    public final IResultReceiver receiver;
+    public final ICarResultReceiver receiver;
 
-    AppLifecycleListener(int uid, String packageName, IResultReceiver receiver,
+    AppLifecycleListener(int uid, String packageName, ICarResultReceiver receiver,
             BinderDeathCallback binderDeathCallback) {
         this.uid = uid;
         this.packageName = packageName;

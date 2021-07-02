@@ -32,6 +32,7 @@ import android.annotation.TestApi;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
+import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AsyncFuture;
@@ -54,7 +55,6 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
@@ -724,10 +724,10 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
-     * {@code IResultReceiver} used to receive user switch UI Callback.
+     * {@code ICarResultReceiver} used to receive user switch UI Callback.
      */
     // TODO(b/154958003): use mReceiver instead as now there are two binder objects
-    private final class UserSwitchUiCallbackReceiver extends IResultReceiver.Stub {
+    private final class UserSwitchUiCallbackReceiver extends ICarResultReceiver.Stub {
 
         private final UserSwitchUiCallback mUserSwitchUiCallback;
 
@@ -742,9 +742,10 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     /**
-     * {@code IResultReceiver} used to receive lifecycle events and dispatch to the proper listener.
+     * {@code ICarResultReceiver} used to receive lifecycle events and dispatch to the proper
+     * listener.
      */
-    private class LifecycleResultReceiver extends IResultReceiver.Stub {
+    private class LifecycleResultReceiver extends ICarResultReceiver.Stub {
         @Override
         public void send(int resultCode, Bundle resultData) {
             if (resultData == null) {

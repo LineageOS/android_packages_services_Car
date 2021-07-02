@@ -61,6 +61,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -127,7 +128,6 @@ import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.R;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;
 
 import org.junit.Before;
@@ -179,7 +179,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Drawable mMockedDrawable;
     @Mock private InitialUserSetter mInitialUserSetter;
     @Mock private UserPreCreator mUserPreCreator;
-    @Mock private IResultReceiver mSwitchUserUiReceiver;
+    @Mock private ICarResultReceiver mSwitchUserUiReceiver;
     @Mock private PackageManager mPackageManager;
     @Mock private CarUxRestrictionsManagerService mCarUxRestrictionService;
     @Mock private ICarUxRestrictionsChangeListener mCarUxRestrictionsListener;

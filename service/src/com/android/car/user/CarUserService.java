@@ -32,6 +32,7 @@ import android.app.ActivityManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slog;
@@ -111,7 +112,6 @@ import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
@@ -141,18 +141,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private static final String TAG = CarLog.tagFor(CarUserService.class);
 
-    /** {@code int} extra used to represent a user id in a {@link IResultReceiver} response. */
+    /** {@code int} extra used to represent a user id in a {@link ICarResultReceiver} response. */
     public static final String BUNDLE_USER_ID = "user.id";
-    /** {@code int} extra used to represent user flags in a {@link IResultReceiver} response. */
+    /** {@code int} extra used to represent user flags in a {@link ICarResultReceiver} response. */
     public static final String BUNDLE_USER_FLAGS = "user.flags";
-    /** {@code String} extra used to represent a user name in a {@link IResultReceiver} response. */
+    /**
+     * {@code String} extra used to represent a user name in a {@link ICarResultReceiver} response.
+     */
     public static final String BUNDLE_USER_NAME = "user.name";
     /**
-     * {@code int} extra used to represent the user locales in a {@link IResultReceiver} response.
+     * {@code int} extra used to represent the user locales in a {@link ICarResultReceiver}
+     * response.
      */
     public static final String BUNDLE_USER_LOCALES = "user.locales";
     /**
-     * {@code int} extra used to represent the info action in a {@link IResultReceiver} response.
+     * {@code int} extra used to represent the info action in a {@link ICarResultReceiver} response.
      */
     public static final String BUNDLE_INITIAL_INFO_ACTION = "initial_info.action";
 
@@ -232,7 +235,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @GuardedBy("mLockUser")
     private UserInfo mInitialUser;
 
-    private IResultReceiver mUserSwitchUiReceiver;
+    private ICarResultReceiver mUserSwitchUiReceiver;
 
     private final CarUxRestrictionsManagerService mCarUxRestrictionService;
 
@@ -675,7 +678,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void setLifecycleListenerForApp(String packageName, IResultReceiver receiver) {
+    public void setLifecycleListenerForApp(String packageName, ICarResultReceiver receiver) {
         int uid = Binder.getCallingUid();
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SET_LIFECYCLE_LISTENER, uid, packageName);
         checkInteractAcrossUsersPermission("setLifecycleListenerForApp-" + uid + "-" + packageName);
@@ -693,7 +696,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     @Override
-    public void resetLifecycleListenerForApp(IResultReceiver receiver) {
+    public void resetLifecycleListenerForApp(ICarResultReceiver receiver) {
         int uid = Binder.getCallingUid();
         checkInteractAcrossUsersPermission("resetLifecycleListenerForApp-" + uid);
         IBinder receiverBinder = receiver.asBinder();
@@ -1605,16 +1608,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return UserHalHelper.convertFlags(user);
     }
 
-    private void sendResult(@NonNull IResultReceiver receiver, int resultCode,
-            @Nullable Bundle resultData) {
-        try {
-            receiver.send(resultCode, resultData);
-        } catch (RemoteException e) {
-            // ignore
-            Slog.w(TAG, "error while sending results", e);
-        }
-    }
-
     private void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
             @UserSwitchResult.Status int userSwitchStatus) {
         sendUserSwitchResult(receiver, HalCallback.STATUS_INVALID, userSwitchStatus,
@@ -1733,7 +1726,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * Car System UI to show the user switch UI before the user switch.
      */
     @Override
-    public void setUserSwitchUiCallback(@NonNull IResultReceiver receiver) {
+    public void setUserSwitchUiCallback(@NonNull ICarResultReceiver receiver) {
         checkManageUsersPermission("setUserSwitchUiCallback");
 
         // Confirm that caller is system UI.
