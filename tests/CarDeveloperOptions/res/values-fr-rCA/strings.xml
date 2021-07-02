@@ -3472,7 +3472,7 @@
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"L\'horaire sera désactivé lorsque l\'alarme sonnera"</string>
     <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"Comportement du mode Ne pas déranger"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"Utiliser les paramètres par défaut"</string>
-    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Créer des paramètres personnalisés pour cet horaire"</string>
+    <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"Personnaliser cet horaire"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"Pour « <xliff:g id="SCHEDULE_NAME">%1$s</xliff:g> »"</string>
     <string name="summary_divider_text" msgid="4780683204694442666">", "</string>
     <string name="summary_range_symbol_combination" msgid="6038631664844488406">"<xliff:g id="START">%1$s</xliff:g> à <xliff:g id="END">%2$s</xliff:g>"</string>

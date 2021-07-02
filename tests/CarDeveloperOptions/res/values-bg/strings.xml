@@ -2819,7 +2819,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d сертификата от сертифициращи органи"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"Подробности за идентификационните данни"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"Премахнати идентификационни данни: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"Няма инсталирани потребителски идентификационни данни"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"Няма инсталирани идентификационни данни на потребителя"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"Правописна проверка"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"Проверка на правописа за служебни цели"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"Въведете текущата си парола за пълно резервно копие тук"</string>
@@ -4136,7 +4136,7 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Докоснете за проверка на устройството"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"За да проверите часа, известията и друга информация, докоснете екрана."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Преглед на известията с плъзване през сензора за отпечатъци"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Плъзване през сензора за отпечат."</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Плъзване през сензора за отпечатъци"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"За да проверите известията си, плъзнете пръст надолу през сензора за отпечатъци на гърба на телефона си."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"За да проверите известията си, плъзнете пръст надолу през сензора за отпечатъци на гърба на таблета си."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"За да проверите известията си, плъзнете пръст надолу през сензора за отпечатъци на гърба на устройството си."</string>

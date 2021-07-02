@@ -1418,7 +1418,7 @@
     <string name="storage_menu_set_up" msgid="2849170579745958513">"सेट करें"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"एक्सप्लोर करें"</string>
     <string name="storage_menu_free" msgid="6586253660759145508">"जगह खाली करें"</string>
-    <string name="storage_menu_manage" msgid="461380717863926516">"मेमोरी प्रबंधित करें"</string>
+    <string name="storage_menu_manage" msgid="461380717863926516">"स्टोरेज मैनेज करें"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"USB कंप्‍यूटर कनेक्‍शन"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"इस रूप में कनेक्ट करें"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"मीडिया डिवाइस (MTP)"</string>
@@ -1492,10 +1492,10 @@
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"ले जाना रोकें"</string>
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"यह <xliff:g id="NAME_0">^1</xliff:g> ज़्यादा वक्त ले रहा है. \n\nआप जारी रख सकते हैं, लेकिन इस जगह पर लाए गए ऐप अटक सकते हैं और डेटा ट्रांसफर में ज़्यादा समय लग सकता है. \n\nबेहतर प्रदर्शन के लिए आप और तेज़ <xliff:g id="NAME_1">^1</xliff:g> का इस्तेमाल कर सकते हैं."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"आप इस <xliff:g id="NAME">^1</xliff:g> को कैसे इस्तेमाल करेंगे?"</string>
-    <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"टैबलेट में ज़्यादा मेमोरी के लिए इस्तेमाल करें"</string>
+    <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"टैबलेट में ज़्यादा स्टोरेज के लिए इस्तेमाल करें"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"सिर्फ़ इस टैबलेट पर मौजूद ऐप्लिकेशन, फ़ाइल और मीडिया के लिए"</string>
     <string name="storage_wizard_init_v2_internal_action" product="tablet" msgid="1016850267330050231">"टैबलेट की मेमोरी"</string>
-    <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"फ़ोन में ज़्यादा मेमोरी के लिए इस्तेमाल करें"</string>
+    <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"फ़ोन में ज़्यादा स्टोरेज के लिए इस्तेमाल करें"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"सिर्फ़ इस फ़ोन पर मौजूद ऐप्लिकेशन, फ़ाइल और मीडिया के लिए"</string>
     <string name="storage_wizard_init_v2_internal_action" product="default" msgid="3383888882755852046">"फ़ोन की मेमोरी"</string>
     <string name="storage_wizard_init_v2_or" msgid="883906565226069620">"या"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"इंस्टॉल करें"</string>
     <string name="disable_text" msgid="5065834603951474397">"बंद करें"</string>
     <string name="enable_text" msgid="7179141636849225884">"चालू करें"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"मेमोरी खाली करें"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"स्टोरेज खाली करें"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"अपडेट अनइंस्टॉल करें"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"आपने कुछ क्रियाओं के लिए इस ऐप्लिकेशन को डिफ़ॉल्‍ट रूप से लॉन्‍च करना चुना है."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"आपने इस ऐप्लिकेशन को शॉर्टकट बनाने और उनके डेटा पर पहुंचने की अनुमति देना चुना है."</string>

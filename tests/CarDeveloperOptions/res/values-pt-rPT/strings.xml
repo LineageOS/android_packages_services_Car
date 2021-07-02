@@ -914,7 +914,7 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"Endereço IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"Guardada através de"</string>
     <string name="passpoint_content" msgid="340527524510304327">"Credenciais de <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"método EAP"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"Método EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"Autenticação da fase 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"Certificado CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domínio"</string>

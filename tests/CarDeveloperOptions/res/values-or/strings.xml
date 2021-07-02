@@ -3470,7 +3470,7 @@
     <string name="zen_mode_schedule_rule_days_all" msgid="8814173364016139675">"ପ୍ରତିଦିନ"</string>
     <string name="zen_mode_schedule_alarm_title" msgid="2078194049274875023">"ଆଲାରାମ୍, ସମାପ୍ତ ସମୟକୁ ଓଭରରାଇଡ୍ କରିପାରେ"</string>
     <string name="zen_mode_schedule_alarm_summary" msgid="5556997989911412070">"ଯେତେବେଳେ ଆଲାରାମ୍ ବାଜେ ସେତେବେଳେ ସୂଚୀ ବନ୍ଦ ହୋ‍ଇଥାଏ"</string>
-    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ ବ୍ୟବହାର"</string>
+    <string name="zen_mode_custom_behavior_title" msgid="8908861697886331001">"\"ବିରକ୍ତ କରନ୍ତୁ ନାହିଁ\" ବ୍ୟବହାର"</string>
     <string name="zen_mode_custom_behavior_summary_default" msgid="3509865340195397447">"ଡିଫଲ୍ଟ୍ ସେଟିଂସ୍ ବ୍ୟବହାର କରନ୍ତୁ"</string>
     <string name="zen_mode_custom_behavior_summary" msgid="7206909852887332604">"ଏହି ସମୟସୂଚୀ ପାଇଁ କଷ୍ଟମ୍ ସେଟିଂସ୍ ତିଆରି କରନ୍ତୁ"</string>
     <string name="zen_mode_custom_behavior_category_title" msgid="7451686525113262087">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ ପାଇଁ"</string>

@@ -2526,7 +2526,7 @@
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Включать, если высока вероятность, что уровня заряда не хватит до подзарядки"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Включать при уровне заряда <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Задать расписание"</string>
-    <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Выключать при полном заряде"</string>
+    <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Отключать при полном заряде"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>."</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"Режим энергосбережения отключается, когда уровень заряда достигает <xliff:g id="PERCENT">%1$s</xliff:g>."</string>

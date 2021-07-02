@@ -4057,7 +4057,7 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps kunnen onbeperkt data gebruiken</item>
       <item quantity="one">1 app kan onbeperkt data gebruiken</item>
     </plurals>
-    <string name="special_access_more" msgid="7086690625048471400">"Meer weergeven"</string>
+    <string name="special_access_more" msgid="7086690625048471400">"Meer tonen"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"Weet je zeker dat je de gebruikersgegevens wilt wissen en wilt converteren naar versleuteling op basis van bestanden?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"Wissen en converteren"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"Rate limiting van ShortcutManager resetten"</string>
@@ -4447,7 +4447,7 @@
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Niet beschikbaar wanneer verbonden met <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Medische gegevens, contacten voor noodgevallen"</string>
     <string name="see_more" msgid="7463940160389802632">"Meer bekijken"</string>
-    <string name="see_less" msgid="3718892257002813387">"Minder weergeven"</string>
+    <string name="see_less" msgid="3718892257002813387">"Minder tonen"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Apparaat om te gebruiken met <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"Geen apparaten gevonden. Zorg dat apparaten zijn ingeschakeld en beschikbaar zijn voor verbinding."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Opnieuw proberen"</string>

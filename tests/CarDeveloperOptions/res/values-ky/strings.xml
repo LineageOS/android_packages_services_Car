@@ -479,7 +479,7 @@
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"Манжа изинин сканерин жөндөө үчүн, телефондун экранын кулпулоону иштетүү керек. Ушуну менен, телефонуңуз жоголуп же бирөө уурдап кетсе, анын ичиндегилерди эч ким көрө албай калат. Экранды кулпулоо функциясын иштетүү үчүн \"Жок\" дегенди басып, андан соң PIN код коюңуз же экранды кулпулоонун башка ыкмасын тандаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Планшетиңизди экранды бөгөттөө опциясы менен коргоңуз, ошондо ал жоголсо же бирөө уурдап кетсе, эч ким колдоно албай калат. Экранды бөгөттөө функциясы менен жүздүн аныктыгын текшерүүнү жөндөсөңүз да болот. \"Жокко чыгарууну\" таптаңыз, анан PIN кодду жөндөңүз же экранды бөгөттөөнүн башка опциясын тандаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Түзмөгүңүздү экранды бөгөттөө опциясы менен коргоңуз, ошондо ал жоголсо же бирөө уурдап кетсе, эч ким колдоно албай калат. Экранды бөгөттөө функциясы менен жүздүн аныктыгын текшерүүнү жөндөсөңүз да болот. \"Жокко чыгарууну\" таптаңыз, анан PIN кодду жөндөңүз же экранды бөгөттөөнүн башка опциясын тандаңыз."</string>
-    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Жүзүнөн таанып ачуу функциясын жөндөө үчүн, телефондун экранын кулпулоону иштетүү керек. Ушуну менен, телефонуңуз жоголуп же бирөө уурдап кетсе, анын ичиндегилерди эч ким көрө албай калат. Экранды кулпулоо функциясын иштетүү үчүн \"Жок\" дегенди басып, андан соң PIN код коюңуз же экранды кулпулоонун башка ыкмасын тандаңыз."</string>
+    <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Жүзүнөн таанып ачуу функциясын тууралоо үчүн, телефондун экранын кулпулоону иштетүү керек. Ушуну менен, телефонуңуз жоголуп же бирөө уурдап кетсе, анын ичиндегилерди эч ким көрө албай калат. Экранды кулпулоо функциясын иштетүү үчүн \"Жок\" дегенди басып, андан соң PIN код коюңуз же экранды кулпулоонун башка ыкмасын тандаңыз."</string>
     <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN кодду жөндөөнү өткөрүп жибересизби?"</string>
     <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Сырсөздү жөндөөнү өткөрүп жибересизби?"</string>
     <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Графикалык ачкычты жөндөөнү өткөрүп жибересизби?"</string>
@@ -888,7 +888,7 @@
     <string name="wifi_menu_remember" msgid="717257200269700641">"Тармакты эстеп калуу"</string>
     <string name="wifi_menu_forget" msgid="7561140554450163075">"Тармак унутулсун"</string>
     <string name="wifi_menu_modify" msgid="4080178040721021101">"Тармакты өзгөртүү"</string>
-    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Жеткиликтүү тармактарды көрүү үчүн, Wi‑Fi\'ды иштетиңиз."</string>
+    <string name="wifi_empty_list_wifi_off" msgid="272877164691346240">"Жеткиликтүү тармактарды көрүү үчүн Wi‑Fi\'ды иштетиңиз."</string>
     <string name="wifi_empty_list_wifi_on" msgid="881478805041020600">"Wi‑Fi түйүндөрү изделүүдө…"</string>
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Wi‑Fi түйүнүн алмаштырууга урукатыңыз жок."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Дагы"</string>
@@ -2696,7 +2696,7 @@
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"Роуминг"</string>
     <string name="data_usage_forground_label" msgid="8992577451178005406">"Алдыңкы план:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"Фон:"</string>
-    <string name="data_usage_app_settings" msgid="3276444867375694809">"Колдонмонун жөндөөлөрү"</string>
+    <string name="data_usage_app_settings" msgid="3276444867375694809">"Колдонмону тууралоо"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"Фондук режим"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"Мобилдик дайындарды фондук режимде өткөрүүнү иштетүү"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"Бул колдонмонун фондук алмашууларына тыюу салуу үчүн, биринчи мобилдик трафик чектөөсүн орнотуңуз."</string>
@@ -3716,7 +3716,7 @@
     <string name="battery_summary" msgid="4345690800899981339">"Акыркы жолу толук кубатталгандан бери <xliff:g id="PERCENTAGE">%1$s</xliff:g> сарпталды"</string>
     <string name="battery_power_management" msgid="2853925857548647969">"Батареянын кубатын башкаруу"</string>
     <string name="no_battery_summary" msgid="4105932628367471314">"Акыркы жолу толук кубатталгандан бери батарея керектеле элек"</string>
-    <string name="app_notification_preferences" msgid="5154466638524523201">"Колдонмонун жөндөөлөрү"</string>
+    <string name="app_notification_preferences" msgid="5154466638524523201">"Колдонмону тууралоо"</string>
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI Tuner\'ди көрсөтүү"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"Кошумча уруксаттар"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"Дагы <xliff:g id="COUNT">%1$d</xliff:g>"</string>
@@ -4117,20 +4117,20 @@
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Камераны которуштуруу"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Селфилерди тез тартуу"</string>
-    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Башка колдонмого которулуу үчүн, Башкы бет баскычын басып, өйдө сүрүңүз. Бардык колдонмолорду көрүү үчүн, дагы бир жолу өйдө сүрүп коюңуз. Бул жаңсоо бардык экрандарда иштейт. Мындан ары экраныңыздын төмөнкү оң жагында Сереп салуу баскычы болбойт."</string>
+    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Башка колдонмого которулуу үчүн, Башкы бет баскычын басып, өйдө сүрүңүз. Бардык колдонмолорду көрүү үчүн дагы бир жолу өйдө сүрүп коюңуз. Бул жаңсоо бардык экрандарда иштейт. Мындан ары экраныңыздын төмөнкү оң жагында Сереп салуу баскычы болбойт."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Жаңы Башкы бет баскычын колдонуп көрүңүз"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Башка колдонмого которулуу үчүн жаңы жаңсоону күйгүзүңүз"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Убакытты жана билдирмелерди текшерүү үчүн эки жолу басуу"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Планшетти текшерүү үчүн эки жолу таптаңыз"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Түзмөктү текшерүү үчүн эки жолу таптаңыз"</string>
-    <string name="ambient_display_summary" msgid="4882910328216411109">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн, экраныңызды эки жолу таптаңыз."</string>
+    <string name="ambient_display_summary" msgid="4882910328216411109">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн экраныңызды эки жолу таптаңыз."</string>
     <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Билдирмелерди текшерүү үчүн телефонду көтөрүү"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Планшетти текшерүү үчүн көтөрүңүз"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Түзмөктү текшерүү үчүн көтөрүңүз"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Дисплейди ачуу"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн, телефонуңузду колуңузга алыңыз."</string>
-    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн, планшетиңизди колуңузга алыңыз."</string>
-    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн, түзмөгүңүздү колуңузга алыңыз."</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн телефонуңузду колуңузга алыңыз."</string>
+    <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн планшетиңизди колуңузга алыңыз."</string>
+    <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Убакытты, билдирмелерди жана башка маалыматты көрүү үчүн түзмөгүңүздү колуңузга алыңыз."</string>
     <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Телефонду текшерүү үчүн басып коюу"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Планшетти текшерүү үчүн басып коюу"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Түзмөктү текшерүү үчүн басып коюу"</string>
