@@ -938,7 +938,7 @@
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Құрылғыны “<xliff:g id="SSID">%1$s</xliff:g>” желісіне қосу үшін төмендегі QR кодын ортасына туралаңыз"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"QR кодын сканерлеу"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"“<xliff:g id="SSID">%1$s</xliff:g>” желісіне жалғау үшін төмендегі QR кодын ортасына туралаңыз"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR кодын сканерлеп, Wi‑Fi желісіне жалғаныңыз"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"QR кодын сканерлеп, Wi‑Fi желісіне қосылыңыз."</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Wi‑Fi желісін бөлісу"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"\"<xliff:g id="SSID">%1$s</xliff:g>\" желісіне жалғану үшін QR кодын сканерлеңіз және құпия сөзді бөлісіңіз."</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"\"<xliff:g id="SSID">%1$s</xliff:g>\" желісіне жалғану үшін осы QR кодын сканерлеңіз."</string>
@@ -2453,7 +2453,7 @@
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Заряд шамасы негізінде"</string>
     <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Батарея қуаты келесі зарядтағанға дейін жетпейтін болса, Батареяны үнемдеу режимі іске қосылады."</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Заряд деңгейі <xliff:g id="PERCENT">%1$s</xliff:g> болғанда қосылады."</string>
-    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Кестені белгілеу"</string>
+    <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Кесте құру"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Толық зарядталғанда өшіру"</string>
     <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"Телефон заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Батареяны үнемдеу режимі өшеді."</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"Планшет заряды <xliff:g id="PERCENT">%1$s</xliff:g> болғанда, Батареяны үнемдеу режимі өшіріледі."</string>
@@ -3370,9 +3370,9 @@
     <string name="notification_assistant_title" msgid="8216604031352764011">"Хабарландыру көмекшісі"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Көмекші жоқ"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Орнатылған қолданбалардың ешбірі хабарландыруға кіруге рұқсат сұрамады."</string>
-    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> қызметіне хабарландыруларды пайдалану рұқсатын беру қажет пе?"</string>
+    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> қызметіне хабарландыруларға рұқсат берілсін бе?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> барлық хабарландыруларды, соның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды өзгерте, жаба немесе олардағы әрекет түймелерін қоса алады. \n\nБұл әрі қолданбаға Мазаламау режимін қосуға немесе өшіруге және тиісті параметрлерді өзгертуге мүмкіндік береді."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> қызметіне хабарландыруларды пайдалану рұқсатын беру қажет пе?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> қызметіне хабарландыруларға рұқсат берілсін бе?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> барлық хабарландыруларды, оның ішінде контакт аттары, сізге келген хабарлардың мәтіні сияқты жеке ақпаратты оқи алатын болады. Сондай-ақ хабарландыруларды жаба немесе олардағы әрекет түймелерін қоса алатын болады. \n\nБұл әрі қолданбаға Мазаламау параметрін қосуға немесе өшіруге және байланысты параметрлерді өзгертуге мүмкіндік береді."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Егер <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> үшін хабарландыруларды пайдалану рұқсатын өшірсеңіз, Мазаламау режимінің рұқсаты да өшуі мүмкін."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Өшіру"</string>

@@ -825,7 +825,7 @@
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Permite troca de dados quando o smartphone encosta em outro dispositivo"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Ativar NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"O NFC troca dados entre este dispositivo e outros dispositivos ou alvos nas proximidades, tais como terminais de pagamento, leitores de acesso e tags ou anúncios interativos."</string>
-    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Proteger NFC"</string>
+    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC segura"</string>
     <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir pagamento por NFC e uso do Transit apenas com a tela desbloqueada"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Pronto para transmitir conteúdo de apps via NFC"</string>

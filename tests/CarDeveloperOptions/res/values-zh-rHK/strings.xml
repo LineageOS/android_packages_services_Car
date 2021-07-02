@@ -3179,7 +3179,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"不發出音效 (<xliff:g id="CATEGORIES">%1$s</xliff:g>除外)"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"不發出音效 (鬧鐘和媒體除外)"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"時間表"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"刪除日程表"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"刪除時間表"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"刪除"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"編輯"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"時間表"</string>

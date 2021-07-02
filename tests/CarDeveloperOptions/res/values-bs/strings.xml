@@ -3220,7 +3220,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Bez zvuka osim <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Bez zvuka, osim upozorenja i medija"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Rasporedi"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Izbrišite rasporede"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Izbriši rasporede"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Izbriši"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Uredi"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Rasporedi"</string>

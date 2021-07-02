@@ -3371,9 +3371,9 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Không có Trợ lý"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Không có ứng dụng đã cài đặt nào yêu cầu quyền truy cập thông báo."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Cho phép <xliff:g id="SERVICE">%1$s</xliff:g> truy cập thông báo?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên liên hệ và nội dung của thông báo bạn nhận được. Tính năng này cũng có thể sửa đổi, bỏ qua thông báo hay kích hoạt các nút thao tác trong những thông báo đó. \n\nNgoài ra, tính năng này có thể bật hoặc tắt chế độ Không làm phiền và thay đổi các tùy chọn cài đặt liên quan."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên của người liên hệ và nội dung của thông báo bạn nhận được. Ứng dụng này cũng có thể sửa đổi, bỏ qua thông báo hay kích hoạt các nút thao tác trong những thông báo đó. \n\nViệc này cũng sẽ cho phép ứng dụng này bật hoặc tắt chế độ Không làm phiền và thay đổi chế độ cài đặt liên quan."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Cho phép <xliff:g id="SERVICE">%1$s</xliff:g> truy cập thông báo?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên liên hệ và nội dung của thông báo mà bạn nhận được. Tính năng này cũng có thể loại bỏ thông báo hoặc kích hoạt các nút thao tác trong các thông báo đó. \n\nTính năng cũng có thể bật hoặc tắt chế độ Không làm phiền và thay đổi các tùy chọn cài đặt có liên quan."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> có thể đọc tất cả các thông báo, bao gồm cả thông tin cá nhân như tên của người liên hệ và nội dung của thông báo mà bạn nhận được. Ứng dụng này cũng có thể loại bỏ thông báo hoặc kích hoạt các nút thao tác trong những thông báo đó. \n\nViệc này cũng cho phép ứng dụng bật hoặc tắt chế độ Không làm phiền và thay đổi chế độ cài đặt có liên quan."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Nếu bạn tắt quyền truy cập thông báo của <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, quyền truy cập chế độ Không làm phiền cũng có thể bị tắt."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Tắt"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"Hủy"</string>
@@ -3422,7 +3422,7 @@
     <string name="notification_content_block_summary" msgid="2743896875255591743">"Không bao giờ hiển thị thông báo trong ngăn thông báo hoặc trên thiết bị ngoại vi"</string>
     <string name="notification_badge_title" msgid="8989086619255666442">"Cho phép dấu chấm thông báo"</string>
     <string name="notification_channel_badge_title" msgid="8228215248332054612">"Hiện dấu chấm thông báo"</string>
-    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Phớt lờ chế độ Không làm phiền"</string>
+    <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"Làm gián đoạn chế độ Không làm phiền"</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"Cho phép những thông báo này tiếp tục hoạt động khi chế độ Không làm phiền đang bật"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"Trên màn hình khóa"</string>
     <string name="app_notification_row_banned" msgid="2079325338122151677">"Bị chặn"</string>
@@ -3511,8 +3511,8 @@
     <string name="zen_mode_bypassing_apps" msgid="3080739479028713449">"Cho phép ứng dụng ghi đè"</string>
     <string name="zen_mode_bypassing_apps_title" msgid="2115024664615538847">"Ứng dụng ngoại lệ"</string>
     <plurals name="zen_mode_bypassing_apps_subtext" formatted="false" msgid="8723144434730871572">
-      <item quantity="other">Thông báo từ <xliff:g id="NUMBER">%1$d</xliff:g> ứng dụng có thể phớt lờ chế độ Không làm phiền</item>
-      <item quantity="one">Thông báo từ 1 ứng dụng có thể phớt lờ chế độ Không làm phiền</item>
+      <item quantity="other">Thông báo từ <xliff:g id="NUMBER">%1$d</xliff:g> ứng dụng có thể làm gián đoạn chế độ Không làm phiền</item>
+      <item quantity="one">Thông báo từ 1 ứng dụng có thể làm gián đoạn chế độ Không làm phiền</item>
     </plurals>
     <string name="zen_mode_events_list" msgid="8578102701815684873">"sự kiện"</string>
     <string name="zen_mode_all_callers" msgid="4455039040077343838">"bất kỳ ai"</string>

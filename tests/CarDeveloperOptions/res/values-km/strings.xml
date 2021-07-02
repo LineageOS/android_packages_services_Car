@@ -3897,7 +3897,7 @@
     <string name="condition_battery_summary" msgid="1236078243905690620">"បានរឹតបន្តឹង​មុខងារ"</string>
     <string name="condition_cellular_title" msgid="6605277435894307935">"ទិន្នន័យ​ទូរសព្ទចល័តបានបិទ"</string>
     <string name="condition_cellular_summary" msgid="3607459310548343777">"អាចប្រើ​អ៊ីនធឺណិតតាមរយៈ Wi‑Fi តែប៉ុណ្ណោះ"</string>
-    <string name="condition_bg_data_title" msgid="184684435298857712">"កម្មវិធី​សន្សំសំចៃ​ទិន្នន័យ"</string>
+    <string name="condition_bg_data_title" msgid="184684435298857712">"មុខងារសន្សំសំចៃទិន្នន័យ"</string>
     <string name="condition_bg_data_summary" msgid="5194942860807136682">"បានរឹតបន្តឹង​មុខងារ"</string>
     <string name="condition_work_title" msgid="9046811302347490371">"ប្រវត្តិរូបការងារត្រូវបានបិទ"</string>
     <string name="condition_work_summary" msgid="5586134491975748565">"សម្រាប់​កម្មវិធី និងការ​ជូនដំណឹង"</string>
@@ -3985,7 +3985,7 @@
     <string name="no_carrier_update_now_text" msgid="4405472895804759042">"ទើប​បាន​ធ្វើ​បច្ចុប្បន្នភាព​អម្បាញ់មិញ"</string>
     <string name="launch_mdp_app_text" msgid="9186559496664208252">"មើល​គម្រោង"</string>
     <string name="launch_wifi_text" msgid="317820210431682605">"មើល​ព័ត៌មាន​លម្អិត"</string>
-    <string name="data_saver_title" msgid="7903308134514179256">"កម្មវិធីសន្សំសំចៃទិន្នន័យ"</string>
+    <string name="data_saver_title" msgid="7903308134514179256">"មុខងារសន្សំសំចៃទិន្នន័យ"</string>
     <string name="unrestricted_data_saver" msgid="9139401849550738720">"ទិន្នន័យ​ដែល​គ្មាន​ការដាក់​កំហិត"</string>
     <string name="restrict_background_blacklisted" msgid="7158991683849067124">"ទិន្នន័យផ្ទៃខាងក្រោយបានបិទ"</string>
     <string name="data_saver_on" msgid="7281809065420480881">"បើក"</string>
