@@ -106,6 +106,7 @@ java_library {
         "src/android/car/storagemonitoring/IoStats.aidl",
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
     ],
+    libs: ["android.car.builtin-stubs"],
     product_variables: {
         pdk: {
             enabled: false,
