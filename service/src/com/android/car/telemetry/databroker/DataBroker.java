@@ -29,18 +29,29 @@ public interface DataBroker {
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
      *
      * @param metricsConfig to be added and queued for execution.
-     * @return true for success, false for failure.
      */
-    boolean addMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    void addMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
 
     /**
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
      * @param metricsConfig to be removed from DataBroker.
-     * @return true for success, false for failure.
      */
-    boolean removeMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    void removeMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+
+    /**
+     * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
+     * next task if a task is not currently running.
+     * This method can be called from any thread, and it is thread-safe.
+     */
+    void addTaskToQueue(ScriptExecutionTask task);
+
+    /**
+     * Sends a message to the handler to poll and execute a task.
+     * This method is thread-safe.
+     */
+    void scheduleNextTask();
 
     /**
      * Sets callback for notifying script finished.
@@ -50,8 +61,10 @@ public interface DataBroker {
     void setOnScriptFinishedCallback(DataBrokerController.ScriptFinishedCallback callback);
 
     /**
-     * Invoked by controller to indicate system health state and which subscribers can be consumed.
-     * A smaller priority number indicates higher priority. Range 1 - 100.
+     * Sets the priority which affects which subscribers can consume data. Invoked by controller to
+     * indicate system health state and which subscribers can be consumed. If controller does not
+     * set the priority, it will be defaulted to 1. A smaller priority number indicates higher
+     * priority. Range 1 - 100.
      */
     void setTaskExecutionPriority(int priority);
 }
