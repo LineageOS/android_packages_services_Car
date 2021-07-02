@@ -130,7 +130,7 @@ public final class UserHalService extends HalServiceBase {
     private int mNextRequestId = 1;
 
     /**
-     * Base requestID. RequestID logged for west world metrics will be mBaseRequestID + original
+     * Base requestID. RequestID logged for metrics will be mBaseRequestID + original
      * requestID
      */
     private final int mBaseRequestId;
@@ -272,9 +272,9 @@ public final class UserHalService extends HalServiceBase {
     }
 
     // Returns mBaseRequestId + originalRequestID. If it overflows, then MOD by Integer.MAX_VALUE
-    // This request Id is used for logging data in statsd for westworld metrics. As original request
-    // id starts with 1 after every restart, a random id is desired for co-relating metrics on the
-    // server side in the west world. mBaseRequestId is generated as a random id on each restart.
+    // This request Id is used for logging data in statsd for metrics. As original request id
+    // starts with 1 after every restart, a random id is desired for co-relating metrics on the
+    // server side. mBaseRequestId is generated as a random id on each restart.
     private int getRequestIdForStatsLog(int originalRequestId) {
         if (Integer.MAX_VALUE - mBaseRequestId < originalRequestId) {
             // overflow
