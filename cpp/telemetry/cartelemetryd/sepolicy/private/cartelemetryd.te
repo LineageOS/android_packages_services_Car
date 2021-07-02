@@ -3,6 +3,7 @@
 type cartelemetryd_exec, system_file_type, exec_type, file_type;
 
 binder_use(cartelemetryd)
+binder_service(cartelemetryd)  # allow binder IPC to the various system services
 
 add_service(cartelemetryd, cartelemetryd_service)
 
