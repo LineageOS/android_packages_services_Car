@@ -36,5 +36,11 @@
         </activity>
         <service android:name=".CarProjectionManagerTest$TestService"
              android:exported="true"/>
+        <service android:name="com.android.car.internal.test.LargeParcelableTestService"
+             android:process=":apiTestServiceProcess"
+             android:exported="true"/>
+        <service android:name="com.android.car.internal.test.IStableAIDLBinderTestService"
+                 android:process=":apiTestServiceProcess"
+                 android:exported="true"/>
     </application>
 </manifest>
