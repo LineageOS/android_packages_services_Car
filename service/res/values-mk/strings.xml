@@ -16,7 +16,7 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="car_permission_label" msgid="2215078736675564541">"Податоци за автомобилот"</string>
+    <string name="car_permission_label" msgid="2215078736675564541">"податоци за автомобилот"</string>
     <string name="car_permission_desc" msgid="3584369074931334964">"пристапува до податоците за автомобилот"</string>
     <string name="car_permission_label_camera" msgid="3725702064841827180">"пристапува до камерата на автомобилот"</string>
     <string name="car_permission_desc_camera" msgid="917024932164501426">"Пристапува до камерите на автомобилот."</string>
