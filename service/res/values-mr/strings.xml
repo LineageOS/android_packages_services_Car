@@ -53,7 +53,7 @@
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ॲप्लिकेशन ब्लॉक करणे"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ड्रायव्हिंग करत असताना ॲप्लिकेशन ब्लॉक करणे नियंत्रित करा."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"नेव्हिगेशन व्यवस्थापक"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"इंस्ट्रुमेंट क्लस्टरला नेव्हिगेशन डेटाचा अहवाल द्या"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"इन्स्ट्रुमेंट क्लस्टरला नेव्हिगेशन डेटाचा अहवाल द्या"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"इंस्ट्रुमेंट क्लस्टरवर थेट रेंडरिंग"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"अ‍ॅप्लिकेशनला इंस्ट्रुमेंट क्लस्टरमध्ये अ‍ॅक्टिव्हिटी दाखवल्या जाण्याची घोषणा करू द्या"</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"इंस्ट्रुमेंट क्लस्टर नियंत्रण"</string>
