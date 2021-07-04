@@ -17,11 +17,23 @@
 #include "ScriptExecutorListener.h"
 
 #include <android-base/logging.h>
+#include <android_runtime/AndroidRuntime.h>
 
 namespace android {
 namespace automotive {
 namespace telemetry {
 namespace script_executor {
+
+ScriptExecutorListener::~ScriptExecutorListener() {
+    if (mScriptExecutorListener != NULL) {
+        JNIEnv* env = AndroidRuntime::getJNIEnv();
+        env->DeleteGlobalRef(mScriptExecutorListener);
+    }
+}
+
+ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject script_executor_listener) {
+    mScriptExecutorListener = env->NewGlobalRef(script_executor_listener);
+}
 
 void ScriptExecutorListener::onError(const int errorType, const std::string& message,
                                      const std::string& stackTrace) {

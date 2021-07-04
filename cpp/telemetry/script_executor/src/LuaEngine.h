@@ -40,8 +40,28 @@ public:
     // Returns pointer to Lua state object.
     lua_State* GetLuaState();
 
+    // Loads Lua script provided as scriptBody string.
+    // Returns 0 if successful. Otherwise returns non-zero Lua error code.
+    int LoadScript(const char* scriptBody);
+
+    // Pushes a Lua function under provided name into the stack.
+    // Returns true if successful.
+    bool PushFunction(const char* functionName);
+
+    // Invokes function with the inputs provided in the stack.
+    // Assumes that the script body has been already loaded and successully
+    // compiled and run, and all input arguments, and the function have been
+    // pushed to the stack.
+    // Returns 0 if successful. Otherwise returns non-zero Lua error code.
+    int Run();
+
+    // Updates stored listener and destroys the previous one.
+    void ResetListener(ScriptExecutorListener* listener);
+
 private:
     lua_State* mLuaState;  // owned
+
+    std::unique_ptr<ScriptExecutorListener> mListener;
 };
 
 }  // namespace script_executor
