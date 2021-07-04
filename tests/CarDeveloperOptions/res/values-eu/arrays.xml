@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"Bat ere ez"</item>
     <item msgid="1464741437353223198">"Eskuliburua"</item>
-    <item msgid="5793600062487886090">"Proxy-konfigurazio auto."</item>
+    <item msgid="5793600062487886090">"Proxy-konfigurazio automatikoa"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"Bat ere ez"</item>

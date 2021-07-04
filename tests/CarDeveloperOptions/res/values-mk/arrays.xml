@@ -216,7 +216,7 @@
     <item msgid="1102693344156734891">"Локација"</item>
     <item msgid="6842381562497597649">"Лични"</item>
     <item msgid="3966700236695683444">"Пораки"</item>
-    <item msgid="8563996233342430477">"Медиуми"</item>
+    <item msgid="8563996233342430477">"Аудиовизуелни содржини"</item>
     <item msgid="5323851085993963783">"Уред"</item>
   </string-array>
   <string-array name="app_ops_summaries">
@@ -324,7 +324,7 @@
     <item msgid="1600379420669104929">"Јачина на звук на глас"</item>
     <item msgid="6296768210470214866">"Јачина на звук на ѕвонење"</item>
     <item msgid="510690696071629241">"Јачина на аудио/видео звук"</item>
-    <item msgid="406861638631430109">"Јачина на звук на аларм"</item>
+    <item msgid="406861638631430109">"Јачина на звук за аларм"</item>
     <item msgid="4715864795872233884">"Јачина на звук на известување"</item>
     <item msgid="2311478519251301183">"Јачина на звук на Bluetooth"</item>
     <item msgid="5133991377896747027">"Задржи активен"</item>
@@ -490,7 +490,7 @@
   </string-array>
   <string-array name="autofill_logging_level_entries">
     <item msgid="6882729786516723474">"Исклучено"</item>
-    <item msgid="4072198137051566919">"Отстранување грешка"</item>
+    <item msgid="4072198137051566919">"Отстранување грешки"</item>
     <item msgid="2473005316958868509">"Опширно"</item>
   </string-array>
   <string-array name="cdma_system_select_choices">

@@ -170,7 +170,7 @@
   <string-array name="wifi_proxy_settings">
     <item msgid="9032900195127165132">"કોઈ નહીં"</item>
     <item msgid="1464741437353223198">"મેન્યુઅલ"</item>
-    <item msgid="5793600062487886090">"પ્રોક્સી ઑટોમૅટિક રીતે ગોઠવો"</item>
+    <item msgid="5793600062487886090">"પ્રૉક્સી ઑટોમૅટિક રીતે ગોઠવો"</item>
   </string-array>
   <string-array name="apn_auth_entries">
     <item msgid="7099647881902405997">"કોઈ નહીં"</item>

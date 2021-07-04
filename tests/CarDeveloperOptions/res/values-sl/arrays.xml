@@ -477,8 +477,8 @@
     <item msgid="1008268820118852416">"Obravnavaj kot omrežje z neomejenim prenosom podatkov"</item>
   </string-array>
   <string-array name="wifi_privacy_entries">
-    <item msgid="6545683814310036454">"Uporaba naključno izbranega naslova MAC (privzeto)"</item>
-    <item msgid="214234417308375326">"Uporaba naslova MAC naprave"</item>
+    <item msgid="6545683814310036454">"Uporabi naključni MAC (privzeto)"</item>
+    <item msgid="214234417308375326">"Uporabi naslov MAC naprave"</item>
   </string-array>
   <string-array name="wifi_hidden_entries">
     <item msgid="7426878022650940844">"Ne"</item>
