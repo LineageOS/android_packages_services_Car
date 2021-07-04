@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Yüz verisini kaldır"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Yüzünüzü kullanarak cihazınızın kilidini açabilir ve uygulamalara erişebilirsiniz. "<annotation id="url">"Daha fazla bilgi"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Yüz verileri silinsin mi?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Yüz tanıma kilidi tarafından kaydedilen veriler kalıcı ve güvenli bir şekilde silinecek. Kaldırma işleminden sonra, telefonunuzun kilidini açmak, oturumlarda oturum açmak ve ödemeleri onaylamak için PIN\'inize, deseninize veya şifrenize ihtiyacınız olur."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Yüz tanıma kilidi tarafından kaydedilen veriler kalıcı ve güvenli bir şekilde silinecek. Kaldırma işleminden sonra, telefonunuzun kilidini açmak, uygulamalarda oturum açmak ve ödemeleri onaylamak için PIN\'inize, deseninize veya şifrenize ihtiyacınız olur."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Parmak izi"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Parmak izi yönetimi"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Parmak izi kullanımı:"</string>
@@ -4120,7 +4120,7 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Uygulamalar arasında geçiş yapmak için Ana Sayfa düğmesini yukarı doğru kaydırın. Tüm uygulamaları görmek için tekrar yukarı doğru kaydırın. Tüm ekranlarda çalışır. Ekranınızın sağ alt kısmındaki Genel Bakış düğmesi kaldırılmıştır."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Yeni Ana Sayfa düğmesini deneyin"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Uygulamalar arasında geçiş yapmak için yeni hareketi açın"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Bakmak için telefona iki kez dokun"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Telefonu kontrol etmek için dokun"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tableti kontrol etmek için iki kez dokunun"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Cihazı kontrol etmek için iki kez dokunun"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Saati, bildirimleri ve diğer bilgileri kontrol etmek için ekranınıza iki kez dokunun."</string>
@@ -4411,7 +4411,7 @@
     <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Etkin Değil / İndirilen SIM"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"SIM adı"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Yeniden adlandır"</string>
-    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM kullan"</string>
+    <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"SIM\'i kullan"</string>
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"Kapalı"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> adlı cihaza geçilsin mi?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"Aynı anda yalnızca bir indirilmiş SIM etkin olabilir.\n\n<xliff:g id="CARRIER1">%1$s</xliff:g> operatörüne geçtiğinizde <xliff:g id="CARRIER2">%2$s</xliff:g> hizmetiniz iptal edilmez."</string>

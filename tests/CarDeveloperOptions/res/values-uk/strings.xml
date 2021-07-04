@@ -432,7 +432,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Видалити обличчя"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Ви можете розблоковувати пристрій і відкривати додатки за допомогою даних про обличчя. "<annotation id="url">"Докладніше"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Видалити дані про обличчя?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Дані, записані Фейсконтролем, буде остаточно й безпечно видалено. Після видалення потрібно буде ввести PIN-код, ключ або пароль, щоб розблоковувати телефон, входити в додатки та підтверджувати платежі."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Дані, записані фейсконтролем, буде остаточно й безпечно видалено. Після видалення потрібно буде ввести PIN-код, ключ або пароль, щоб розблоковувати телефон, входити в додатки та підтверджувати платежі."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Цифровий відбиток"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Керування відбитками"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Використ. відбиток для"</string>
@@ -852,7 +852,7 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Мбіт/с"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"Додаток <xliff:g id="REQUESTER">%s</xliff:g> хоче ввімкнути Wi-Fi"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"Додаток <xliff:g id="REQUESTER">%s</xliff:g> хоче вимкнути Wi-Fi"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Підтвердьте байт-код налагоджуваних додатків"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Підтверджувати байт-код налагоджуваних додатків"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Дозволити ART підтверджувати байт-код налагоджуваних додатків"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Дозволити обмін даними, коли планшетний ПК торкнеться іншого пристрою"</string>
@@ -1211,7 +1211,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Природні"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Яскраві"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Насичені"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптивний колір"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Адаптивні"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Використовувати лише точно відтворені кольори"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Налаштуйте яскравість і точність відтворення кольорів"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Автомат. переключ. орієнтацію під час обертання пристрою"</string>
@@ -1608,7 +1608,7 @@
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Налаштування за умовчанням відновлено."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"Скинути параметри"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"Можна скинути налаштування мережі, додатків або пристрою"</string>
-    <string name="reset_network_title" msgid="8944059136930806211">"Скинути параметри Wi-Fi, мобільного передавання даних і Bluetooth"</string>
+    <string name="reset_network_title" msgid="8944059136930806211">"Скинути параметри Wi-Fi, мобільного Інтернету й Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Буде скинуто всі налаштування мережі, зокрема \n\n"<li>"Wi‑Fi"</li>\n<li>"мобільний трафік"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Видалити завантажені SIM-карти"</string>
     <string name="reset_esim_desc" msgid="433226911566802">"Щоб завантажити нові SIM-карти, зв’яжіться з оператором. Мобільні тарифні плани не буде скасовано."</string>
@@ -2001,7 +2001,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Налашт. фізичної клавіатури"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Натис. пробіл двічі, щоб встав. \".\""</string>
     <string name="show_password" msgid="620964020348073739">"Показувати паролі"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Ненадовго показувати паролі під час введення"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Ненадовго показувати символи під час введення"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Цей засіб перевірки правопису може збирати весь введений вами текст, зокрема такі особисті дані, як паролі та номери кредитних карток. Він походить від програми <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Використати цей засіб перевірки правопису?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Налаштування"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Мова"</string>
@@ -3088,7 +3088,7 @@
     <string name="sim_editor_color" msgid="373059962306191123">"Колір SIM-карти"</string>
     <string name="sim_card_select_title" msgid="4925862525985187946">"Вибрати SIM-карту"</string>
     <string name="color_orange" msgid="3159707916066563431">"Оранжевий"</string>
-    <string name="color_purple" msgid="4391440966734810713">"Пурпуровий"</string>
+    <string name="color_purple" msgid="4391440966734810713">"Фіолетовий"</string>
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"SIM-карту не вставлено"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"Статус SIM-карти"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"Статус SIM-карти (гніздо %1$d для SIM-карти)"</string>
@@ -3905,7 +3905,7 @@
     </plurals>
     <string name="running_frequency" msgid="7545170806968474449">"Як часто працює додаток"</string>
     <string name="memory_maximum_usage" msgid="4734981118293469479">"Найбільше використання"</string>
-    <string name="no_data_usage" msgid="903383745620135746">"Дані не використовуються"</string>
+    <string name="no_data_usage" msgid="903383745620135746">"Трафік не споживався"</string>
     <string name="zen_access_warning_dialog_title" msgid="7704910289810337055">"Надати додатку <xliff:g id="APP">%1$s</xliff:g> доступ до режиму \"Не турбувати\"?"</string>
     <string name="zen_access_warning_dialog_summary" msgid="2717755746850874577">"Додаток зможе вмикати й вимикати режим \"Не турбувати\" та змінювати відповідні налаштування."</string>
     <string name="zen_access_disabled_package_warning" msgid="7086237569177576966">"Має залишатися ввімкненим, оскільки доступ до сповіщень увімкнено"</string>
@@ -4275,7 +4275,7 @@
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Торкніться, щоб перевірити планшет"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Торкніться, щоб перевірити пристрій"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Щоб перевірити час, сповіщення та іншу інформацію, торкніться екрана."</string>
-    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Використовувати відбиток для перегляду сповіщень"</string>
+    <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Сканер відбитків для перегляду сповіщень"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Сканер відбитків"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Щоб переглянути сповіщення, проведіть пальцем униз по сканеру відбитків на задній панелі телефона."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Щоб переглянути сповіщення, проведіть пальцем униз по сканеру відбитків на задній панелі планшета."</string>
@@ -4411,7 +4411,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"Автоматично заповнити"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Рівень реєстрації"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Максимальна кількість запитів на сеанс"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Максимальні видимі набори даних"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Максимальна кількість видимих наборів даних"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Відновити значення за умовчанням"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Скинуто параметри автозаповнення, які вказав розробник"</string>
     <string name="device_theme" msgid="8992291311481135893">"Тема пристрою"</string>
@@ -4541,7 +4541,7 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"Мобільне передавання даних"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Доступ до Інтернету через мобільну мережу"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Телефон автоматично перемикатиметься на цього оператора в зоні його покриття"</string>
-    <string name="calls_preference" msgid="2076353032705811243">"Параметри викликів"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"Налаштування викликів"</string>
     <string name="sms_preference" msgid="8449270011976880">"Налаштування SMS"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Запитувати щоразу"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Додати мережу"</string>
@@ -4629,7 +4629,7 @@
     <string name="hwui_force_dark_title" msgid="3744825212652331461">"Замінити примусовий темний режим"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Не дозволяє постійний примусовий темний режим"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Конфіденційність"</string>
-    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Дозволи, активність в обліковому записі, персональні дані"</string>
+    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Дозволи, дії в обліковому записі, персональні дані"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Видалити"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Залишити"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Видалити цю пропозицію?"</string>

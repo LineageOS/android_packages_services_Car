@@ -330,7 +330,7 @@
     <string name="date_time_set_time_title" msgid="7116850506333406367">"Tid"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"Tidsformat"</string>
     <string name="date_time_set_timezone_title" msgid="7385810505603797962">"Tidssone"</string>
-    <string name="date_time_set_timezone" msgid="2763491683136582165">"Tidssone"</string>
+    <string name="date_time_set_timezone" msgid="2763491683136582165">"Velg tidssone"</string>
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Dato"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"Søk etter region"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Region"</string>
@@ -348,7 +348,7 @@
     <string name="time_picker_title" msgid="1596400307061268660">"Tid"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Låses automatisk"</string>
     <string name="lock_after_timeout_summary" msgid="3160517585613694740">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> etter hvilemodus"</string>
-    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Rett etter hvilemodus, unntatt når den holdes opplåst av <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lock_immediately_summary_with_exception" msgid="6442552135409347556">"Rett etter hvilemodus, med mindre den holdes opplåst av <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lock_after_timeout_summary_with_exception" msgid="7218267834086717545">"<xliff:g id="TIMEOUT_STRING">%1$s</xliff:g> etter at hvilemodus starter, med mindre den holdes opplåst av <xliff:g id="TRUST_AGENT_NAME">%2$s</xliff:g>"</string>
     <string name="show_owner_info_on_lockscreen_label" msgid="4510756693837171575">"Vis eierinformasjon på låseskjermen"</string>
     <string name="owner_info_settings_title" msgid="2537966178998339896">"Låseskjermmelding"</string>
@@ -466,7 +466,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Slett"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"Berør sensoren"</string>
-    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Plassér fingeren på sensoren, og løft den når du kjenner en vibrasjon"</string>
+    <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"Legg fingeren på sensoren, og løft den når du kjenner en vibrasjon"</string>
     <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"Løft fingeren og berør igjen"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"Løft fingeren gjentatte ganger for å legge til de forskjellige delene av fingeravtrykket ditt"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"Fingeravtrykket er lagt til"</string>
@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Neste"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"I tillegg til å låse opp telefonen din, kan du bruke fingeravtrykket ditt til å godkjenne kjøp og apptilgang. "<annotation id="url">"Finn ut mer"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Skjermlåsalternativet er slått av. Ta kontakt med administratoren i organisasjonen din for å finne ut mer. "<annotation id="admin_details">"Mer informasjon"</annotation>\n\n"Du kan fortsatt bruke fingeravtrykket ditt til å autorisere kjøp og apptilgang. "<annotation id="url">"Finn ut mer"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Løft fingeren og trykk på sensoren igjen"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Løft fingeren og legg den på sensoren igjen"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Du kan legge til opptil <xliff:g id="COUNT">%d</xliff:g> fingeravtrykk"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Du har lagt til maksimalt antall fingeravtrykk"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Kan ikke legge til flere fingeravtrykk"</string>
@@ -893,7 +893,7 @@
     <string name="wifi_empty_list_user_restricted" msgid="2341613007817352431">"Du har ikke tillatelse til å endre Wi-Fi-nettverk."</string>
     <string name="wifi_more" msgid="3538241640407382185">"Se mer"</string>
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Automatisk konfig. (WPS)"</string>
-    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vil du slå på Wi‑Fi-søking?"</string>
+    <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vil du slå på Wi‑Fi-skanning?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"For å slå på Wi-Fi automatisk må du først slå på Wi-Fi-søking."</string>
     <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"Med Wi-Fi-skanning kan apper og tjenester søke etter enheter i nærheten når som helst, selv når Wi-Fi er slått av. Dette kan for eksempel brukes til å forbedre posisjonsbaserte funksjoner og tjenester."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Slå på"</string>
@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"Fase 2-autentisering"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"CA-sertifikat"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"Domene"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Klientsertifikat"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"Brukersertifikat"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Identitet"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Anonym identitet"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Passord"</string>
@@ -1185,7 +1185,7 @@
     <string name="brightness" msgid="7309120144111305275">"Lysstyrkenivå"</string>
     <string name="brightness_title" msgid="5660190946911149690">"Lysstyrke"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"Juster skjermens lysstyrke"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"Lysstyrken tilpasser seg"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"Tilpasset lysstyrke"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"På"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"Av"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"Foretrukket lysstyrke er veldig lav"</string>
@@ -1203,19 +1203,19 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Ikke juster etter omgivelsene"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Økt batteribruk"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Optimaliser lysstyrken etter omgivelsene. Når denne funksjonen er på, kan du fremdeles justere lysstyrken midlertidig."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Lysstyrken på skjermen din justeres automatisk etter omgivelser og aktiviteter. Du kan flytte glidebryteren manuelt for få tilpasset lysstyrke til å registrere preferansene dine."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Lysstyrken på skjermen justeres automatisk etter omgivelser og aktiviteter. Du kan flytte glidebryteren manuelt for lære tilpasset lysstyrke om preferansene dine."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Vis hvitbalanse"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Skjermbevisst"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"På / skjermen slås ikke av hvis du ser på den"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"Av"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"Forhindrer at skjermen slås av hvis du ser på den."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Skjermbevisst bruker frontkameraet til å se om noen ser på skjermen. Funksjonen fungerer på enheten, og bilder blir aldri lagret eller sendt til Google."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"Skjermbevisst bruker frontkameraet til å se om noen ser på skjermen. Funksjonen utføres på enheten, og bilder blir aldri lagret eller sendt til Google."</string>
     <string name="night_display_title" msgid="1305002424893349814">"Nattlys"</string>
     <string name="night_display_text" msgid="5330502493684652527">"Nattlys gir skjermen en ravgul nyanse. Dette gjør det mer komfortabelt å se eller lese på skjermen i svakt lys, og det kan gjøre det enklere å sovne."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"Tidsplan"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"Ingen"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Slås på på et egendefinert tidspunkt"</string>
-    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Slås på fra solnedgang til soloppgang"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"Egendefinerte tidspunkt"</string>
+    <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"Fra solnedgang til soloppgang"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"Starttid"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"Sluttid"</string>
     <string name="night_display_status_title" msgid="1727020934735770319">"Status"</string>
@@ -1246,7 +1246,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Gi skjermen et personlig preg"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Velg bakgrunnsbilde fra"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Skjermsparer"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Når enheten lades eller er i dokken"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Når enheten lades / er i dokken"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Begge"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Når enheten lades"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Når enheten er i dokken"</string>
@@ -1254,7 +1254,7 @@
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Av"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"For å kontrollere hva som skjer når telefonen er plassert i dokken og/eller i hvilemodus, slå på skjermspareren."</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Starttidspunkt"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"Nåværende skjermsparer"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"Aktiv skjermsparer"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Start nå"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Innstillinger"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"Automatisk lysstyrke"</string>
@@ -1573,7 +1573,7 @@
     <string name="reset_network_title" msgid="8944059136930806211">"Tilbakestill Wi-Fi, mobil og Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Dette tilbakestiller alle nettverksinnstillinger, inkludert\n\n"<li>"Wi‑Fi"</li>\n<li>"mobildata"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Slett nedlastede SIM-kort"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Kontakt operatøren din for å laste ned erstatnings-SIM-kort. Dette kansellerer ingen mobilabonnementer."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Kontakt operatøren din for å laste ned erstatnings-SIM-kort. Dette fører ikke til at du sier opp noen mobilabonnementer."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Tilbakestill innstillingene"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Vil du tilbakestille alle nettverksinnstillingene? Denne handlingen kan ikke angres."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Vil du tilbakestille alle nettverksinnstillingene og slette nedlastede SIM-kort? Denne handlingen kan ikke angres."</string>
@@ -1587,7 +1587,7 @@
     <string name="master_clear_short_title" msgid="919098101581335101">"Slett alle data (tilbakestill)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Dette sletter alle data fra nettbrettets "<b>"interne lagringsplass"</b>", inkludert følgende:\n\n"<li>"Google-kontoen din"</li>\n<li>"Data og innstillinger for system og apper"</li>\n<li>"Nedlastede apper"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Dette sletter alle data fra telefonens "<b>"interne lagringsplass"</b>", inkludert følgende:\n\n"<li>"Google-kontoen din"</li>\n<li>"Data og innstillinger for system og apper"</li>\n<li>"Nedlastede apper"</li></string>
-    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Du er for øyeblikket pålogget følgende kontoer:\n"</string>
+    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Du er logget på disse kontoene nå:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Det er andre brukere tilstede på denne enheten.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Musikk"</li>\n<li>"Bilder"</li>\n<li>"Andre brukerdata"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"e-SIM-kort"</li></string>
@@ -1768,7 +1768,7 @@
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"Gjør profilmønsteret synlig"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"Vibrer ved trykk"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"Av/på-knapp låser umiddelbart"</string>
-    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Unntatt når den holdes opplåst av <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
+    <string name="lockpattern_settings_power_button_instantly_locks_summary" msgid="1279989004145567840">"Med mindre den holdes opplåst av <xliff:g id="TRUST_AGENT_NAME">%1$s</xliff:g>"</string>
     <string name="lockpattern_settings_choose_lock_pattern" msgid="9042142745571386381">"Opplåsingsmønster"</string>
     <string name="lockpattern_settings_change_lock_pattern" msgid="1456643060737114885">"Opplåsingsmønster"</string>
     <string name="lockpattern_settings_help_how_to_record" msgid="6037403647312543908">"Hvordan tegne et opplåsingsmønster"</string>
@@ -1846,7 +1846,7 @@
     <string name="reset_app_preferences_title" msgid="792909865493673598">"Vil du tilbakestille app-innstillingene?"</string>
     <string name="reset_app_preferences_desc" msgid="7935273005301096031">"Dette tilbakestiller alle innstillinger for\n\n"<li>"avslåtte apper"</li>\n<li>"avslåtte appvarsler"</li>\n<li>"standardapper for handlinger"</li>\n<li>"begrensninger på bakgrunnsdata for apper"</li>\n<li>"begrensninger på tillatelser"</li>\n\n" Du mister ingen appdata."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"Tilbakestill apper"</string>
-    <string name="manage_space_text" msgid="6166469422303124302">"Styr plass"</string>
+    <string name="manage_space_text" msgid="6166469422303124302">"Styr lagring"</string>
     <string name="filter" msgid="2426943916212457962">"Filter"</string>
     <string name="filter_dlg_title" msgid="115313222190512670">"Velg filteralternativer"</string>
     <string name="filter_apps_all" msgid="3938077534861382701">"Alle apper"</string>
@@ -1959,7 +1959,7 @@
     <string name="hardkeyboard_category" msgid="5937171470391551627">"Innstillinger for fysisk tastatur"</string>
     <string name="auto_punctuate_summary" msgid="245694025030386370">"Trykk mellomromstasten to ganger for å skrive punktum"</string>
     <string name="show_password" msgid="620964020348073739">"Vis passord"</string>
-    <string name="show_password_summary" msgid="1403805089582258620">"Vis tegnene mens du skriver"</string>
+    <string name="show_password_summary" msgid="1403805089582258620">"Vis tegnene et øyeblikk mens du skriver"</string>
     <string name="spellchecker_security_warning" msgid="792070474432612097">"Denne stavekontrollen kan være i stand til å samle all tekst du skriver, herunder personlige opplysninger som passord og kredittkortnumre. Den kommer fra appen <xliff:g id="SPELLCHECKER_APPLICATION_NAME">%1$s</xliff:g>. Vil du bruke denne stavekontrollen?"</string>
     <string name="spellchecker_quick_settings" msgid="5193036510190696655">"Innstillinger"</string>
     <string name="spellchecker_language" msgid="5168501692418112444">"Språk"</string>
@@ -2309,9 +2309,9 @@
       <item quantity="other">Vil du begrense %1$d apper?</item>
       <item quantity="one">Vil du begrense appen?</item>
     </plurals>
-    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"For å spare batteri, hindre <xliff:g id="APP">%1$s</xliff:g> i å bruke batteri i bakgrunnen. Appen fungerer muligens ikke som den skal, og varsler kan bli forsinket."</string>
-    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"For å spare batteri, hindre disse appene i å bruke batteri i bakgrunnen. Begrensede apper fungerer muligens ikke som de skal, og varsler kan bli forsinket.\n\nApper:"</string>
-    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"For å spare batteri, hindre disse appene i å bruke batteri i bakgrunnen. Begrensede apper fungerer muligens ikke som de skal, og varsler kan bli forsinket.\n\nApper:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
+    <string name="battery_tip_restrict_app_dialog_message" msgid="6905822297507947381">"For å spare batteri kan du hindre <xliff:g id="APP">%1$s</xliff:g> i å bruke batteri i bakgrunnen. Appen fungerer muligens ikke som den skal, og varsler kan bli forsinket."</string>
+    <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"For å spare batteri kan du hindre disse appene i å bruke batteri i bakgrunnen. Begrensede apper fungerer muligens ikke som de skal, og varsler kan bli forsinket.\n\nApper:"</string>
+    <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"For å spare batteri kan du hindre disse appene i å bruke batteri i bakgrunnen. Begrensede apper fungerer muligens ikke som de skal, og varsler kan bli forsinket.\n\nApper:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"Begrens"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"Vil du fjerne begrensningen?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"Denne appen kan bruke batteri i bakgrunnen. Batteriet kan gå tomt raskere enn forventet."</string>
@@ -2597,11 +2597,11 @@
     <string name="account_sync_settings_title" msgid="3344538161552327748">"Synkronisering"</string>
     <string name="sync_is_failing" msgid="8284618104132302644">"Det er midlertidige problemer med synkroniseringen. Vent litt."</string>
     <string name="add_account_label" msgid="4461298847239641874">"Legg til konto"</string>
-    <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Arbeidsprofilen er ikke tilgjengelig ennå"</string>
+    <string name="managed_profile_not_available_label" msgid="8784246681719821917">"Jobbprofilen er ikke tilgjengelig ennå"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"Jobbprofil"</string>
     <string name="work_mode_on_summary" msgid="1682781113156323592">"Administreres av organisasjonen din"</string>
     <string name="work_mode_off_summary" msgid="1688885392211178315">"Apper og varsler er slått av"</string>
-    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Fjern jobbprofilen"</string>
+    <string name="remove_managed_profile_label" msgid="4625542553784793536">"Slett jobbprofilen"</string>
     <string name="background_data" msgid="8275750862371471171">"Bakgrunnsdata"</string>
     <string name="background_data_summary" msgid="799640633948841990">"Apper kan når som helst synkronisere, sende og motta data"</string>
     <string name="background_data_dialog_title" msgid="8306650658158895976">"Vil du deaktivere bakgrunnsdata?"</string>
@@ -2670,8 +2670,8 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM-kort"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Satt på pause ved grensen"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Synkroniser data automatisk"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Auto-synkr. av personlige data"</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Auto-synkr. av arbeidsdata"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autosynkroniser persondata"</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autosynkroniser jobbdata"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Endre syklus …"</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Dag i måneden for å tilbakestille databruksyklusen:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Ingen apper brukte data i denne perioden."</string>
@@ -2763,7 +2763,7 @@
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"Alltid på-VPN støtter bare numeriske tjeneradresser"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"En DNS-tjener må spesifiseres for alltid på-VPN"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS-tjeneradressen må være numerisk for alltid på-VPN"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Informasjonen som er angitt, støtter ikke alltid på-VPN"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"Informasjonen som er angitt, støtter ikke alltid-på-VPN"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"Avbryt"</string>
     <string name="vpn_done" msgid="6314426362224527349">"Fjern"</string>
     <string name="vpn_save" msgid="1332625259182278316">"Lagre"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"Vil du slette deg selv?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"Vil du slette brukeren?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"Fjerne denne profilen?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Fjern jobbprofilen?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"Vil du slette jobbprofilen?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"Lagringsplassen og dataene dine blir fjernet fra dette nettbrettet. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"Lagringsplassen og dataene dine blir fjernet fra telefonen. Denne handlingen kan ikke angres."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"Alle apper og data slettes."</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"betal, trykk på, betalinger"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"sikkerhetskopi, sikkerhetskopiér"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"bevegelse"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ansikt, lås opp, autentisering, pålogging"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"ansikt, lås, lås opp, autentisering, pålogging"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl-versjon, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"nettverk, status for mobilnettverk, servicestatus, signalstyrke, mobilnettverkstype, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"serienummer, maskinvareversjon"</string>
@@ -3196,18 +3196,18 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"Tillat visuelle signaler"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"Når «Ikke forstyrr» er på"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"Begrens varsler"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Ingen lyd fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"Ingen lydvarsling"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"Du ser varsler på skjermen"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Når du mottar varsler, kommer ikke telefonen til å lage lyd eller vibrere."</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ingen lyd eller visuelle elementer fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Ingen lyd- eller visuell varsling"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Du verken ser eller hører varsler"</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Telefonen verken viser, vibrerer for eller lager lyd for nye eller eksisterende varsler. Husk at viktige varsler om telefonaktivitet og status fremdeles vises.\n\nNår du slår av «Ikke forstyrr», kan du finne varsler du gikk glipp av, ved å sveipe ned fra toppen av skjermen."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Tilpasset"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Slå på tilpasset innstilling"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fjern tilpasset innstilling"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Ingen lyd fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"Ingen lydvarsling"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"Delvis skjult"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Ingen lyd eller visuelle elementer fra varsler"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"Ingen lyd- eller visuell varsling"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"Tilpassede begrensninger"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"Når skjermen er på"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"Når skjermen er av"</string>
@@ -3275,13 +3275,13 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"Når «Ikke forstyrr» er på, ignoreres meldinger, påminnelser og aktiviteter, med unntak av elementene du tillater ovenfor. Du kan justere meldingsinnstillingene for å la venner, familie eller andre kontakter nå deg."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"Ferdig"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"Innstillinger"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ingen lyd eller visuelle elementer fra varsler"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ingen lyd fra varsler"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"Ingen lyd- eller visuell varsling"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"Ingen lydvarsling"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"Du verken ser eller hører varsler. Anrop fra stjernemerkede kontakter og gjentatte oppringere tillates."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Gjeldende innstilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vil du endre innstillinger for varsler for «Ikke forstyrr»?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Lyder i jobbprofilen"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Bruk personlig profil-lyder"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Bruk lyder fra personlig profil"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Lydene er like for jobbprofilen og den personlige profilen"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Telefonringelyd for jobb"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standard varsellyd for jobb"</string>
@@ -3296,7 +3296,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Andre lyder og vibrasjoner"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Varsler"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Nylig sendt"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Se alt fra de siste sju dagene"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Se alt fra de siste 7 dagene"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Avansert"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Jobbvarsler"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Automatisk prioritering av varsler"</string>
@@ -3560,7 +3560,7 @@
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"Krev PIN-kode for å løsne app"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"Krev passord for å løsne apper"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"Lås enheten når apper løsnes"</string>
-    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Denne arbeidsprofilen administreres av:"</string>
+    <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"Denne jobbprofilen administreres av:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"Administrert av <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Eksperimentell)"</string>
     <string name="encryption_interstitial_header" msgid="3298397268731647519">"Trygg oppstart"</string>
@@ -3865,7 +3865,7 @@
     <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Stiler og bakgrunner, hvilemodus, skriftstørrelse"</string>
     <string name="display_dashboard_nowallpaper_summary" msgid="8612534364908229000">"Skriftstørrelse for hvilemodus"</string>
     <string name="display_summary_example" msgid="4555020581960719296">"Hvilemodus etter 10 minutter uten aktivitet"</string>
-    <string name="memory_summary" msgid="9121871336058042600">"Gjennomsnittlig er <xliff:g id="USED_MEMORY">%1$s</xliff:g> av <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> minne brukt"</string>
+    <string name="memory_summary" msgid="9121871336058042600">"I gjennomsnitt er <xliff:g id="USED_MEMORY">%1$s</xliff:g> av <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g> minne brukt"</string>
     <string name="users_summary" msgid="6693338169439092387">"Logget på som <xliff:g id="USER_NAME">%1$s</xliff:g>"</string>
     <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> er angitt som standard"</string>
     <string name="backup_disabled" msgid="6941165814784765643">"Sikkerhetskopiering er slått av"</string>
@@ -4137,7 +4137,7 @@
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Trykk på skjermen for å sjekke klokkeslettet, varsler og annen informasjon."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Sveip fingersensoren for varsler"</string>
     <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Sveip på fingersensoren"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Sjekk varsler ved å sveipe ned på fingeravtrykksensoren på baksiden av telefonen."</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Sjekk varsler ved å sveipe ned på fingeravtrykksensoren bak på telefonen."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Sjekk varsler ved å sveipe ned på fingeravtrykksensoren på baksiden av nettbrettet."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Sjekk varsler ved å sveipe ned på fingeravtrykksensoren på baksiden av enheten."</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"Se varsler raskt"</string>
@@ -4324,7 +4324,7 @@
     <string name="battery_suggestion_title" product="default" msgid="3295786171830183688">"Forbedre telefonens batterilevetid"</string>
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"Forhindre ringing"</string>
-    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Trykk på knappene av/på og volum opp samtidig for å"</string>
+    <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"Trykk på av/på og volum opp samtidig for å"</string>
     <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"Snarvei for å forhindre ringing"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"Vibrere"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"Slå av lyden"</string>
@@ -4387,8 +4387,8 @@
     <string name="mobile_data_settings_title" msgid="3439626666647519547">"Mobildata"</string>
     <string name="mobile_data_settings_summary" msgid="6492798151325636912">"Bruk data via mobilnettverket"</string>
     <string name="mobile_data_settings_summary_auto_switch" msgid="3665863214578471494">"Telefonen bytter automatisk til denne operatøren når den er innen rekkevidde"</string>
-    <string name="calls_preference" msgid="2076353032705811243">"Anropspreferanse"</string>
-    <string name="sms_preference" msgid="8449270011976880">"SMS-preferanse"</string>
+    <string name="calls_preference" msgid="2076353032705811243">"Anropsvalg"</string>
+    <string name="sms_preference" msgid="8449270011976880">"SMS-valg"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Spør hver gang"</string>
     <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Legg til et nettverk"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
@@ -4418,7 +4418,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Bytt til <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Slett SIM-kort"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Vil du slette dette nedlastede SIM-kortet?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Hvis du sletter dette SIM-kortet, fjernes <xliff:g id="CARRIER_0">%1$s</xliff:g>-tjenesten fra denne enheten.\n\nTjenesten for <xliff:g id="CARRIER_1">%2$s</xliff:g> blir ikke kansellert."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Hvis du sletter dette SIM-kortet, fjernes <xliff:g id="CARRIER_0">%1$s</xliff:g>-tjenesten fra denne enheten.\n\nAbonnementet hos <xliff:g id="CARRIER_1">%2$s</xliff:g> blir ikke sagt opp."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Slett"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Sletter SIM-kort …"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Kan ikke slette SIM-kort"</string>

@@ -56,7 +56,7 @@
     <string name="radio_info_ims_reg_status" msgid="4771711884059371514">"IMS पंजीकरण: <xliff:g id="STATUS">%1$s</xliff:g>\nवॉइस ओवर LTE: <xliff:g id="AVAILABILITY_0">%2$s</xliff:g>\nवॉइस ओवर वाई-फ़ाई: <xliff:g id="AVAILABILITY_1">%3$s</xliff:g>\nवीडियो कॉलिंग: <xliff:g id="AVAILABILITY_2">%4$s</xliff:g>\nUT इंटरफ़ेस: <xliff:g id="AVAILABILITY_3">%5$s</xliff:g>"</string>
     <string name="radioInfo_service_in" msgid="1297020186765943857">"सेवा में"</string>
     <string name="radioInfo_service_out" msgid="8460363463722476510">"सेवा में नहीं"</string>
-    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"केवल आपातकालीन कॉल"</string>
+    <string name="radioInfo_service_emergency" msgid="7674989004735662599">"सिर्फ़ आपातकालीन कॉल"</string>
     <string name="radioInfo_service_off" msgid="1873939869994136791">"रेडियो बंद"</string>
     <string name="radioInfo_roaming_in" msgid="7059350234710947417">"रोमिंग"</string>
     <string name="radioInfo_roaming_not" msgid="7733269160603599835">"रोमिंग नहीं"</string>
@@ -162,7 +162,7 @@
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s आपके मैसेज तक पहुंचना चाहता है. %2$s को पहुंचने दें?"</string>
     <string name="bluetooth_sap_request" msgid="6318039677671263261">"सिम का इस्तेमाल करने के लिए अनुरोध"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> आपके SIM कार्ड को ऐक्सेस करना चाहता है. SIM कार्ड की ऐक्सेस देने से कनेक्शन की अवधि तक आपके डिवाइस पर डेटा कनेक्टिविटी अक्षम हो जाएगी. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g> को ऐक्सेस दें"</string>
-    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"दूसरे डिवाइस को \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' के रूप में दिखाई देता है"</string>
+    <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"दूसरे डिवाइसों को \'<xliff:g id="DEVICE_NAME">^1</xliff:g>\' के रूप में दिखाई देता है"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"अपने डिवाइस को दूसरे डिवाइस से जोड़ने के लिए ब्लूटूथ चालू करें."</string>
     <string name="bluetooth_paired_device_title" msgid="8361860197780425286">"आपके डिवाइस"</string>
     <string name="bluetooth_pairing_page_title" msgid="9053463656712597709">"नया डिवाइस जोड़ें"</string>
@@ -196,7 +196,7 @@
     <string name="proxy_settings_title" msgid="6014901859338211713">"प्रॉक्सी"</string>
     <string name="proxy_clear_text" msgid="498317431076294101">"साफ़ करें"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"प्रॉक्सी पोर्ट"</string>
-    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"इसके लिए प्रॉक्‍सी का उपयोग न करें"</string>
+    <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"इसके लिए प्रॉक्‍सी का इस्तेमाल न करें"</string>
     <string name="proxy_defaultView_text" msgid="5785775257042403261">"डिफ़ॉल्ट पुनर्स्थापित करें"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"हो गया"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"प्रॉक्सी होस्‍टनाम"</string>
@@ -207,7 +207,7 @@
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"आपको पोर्ट फ़ील्‍ड पूरा करना होगा."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"अगर होस्‍ट फ़ील्‍ड खाली है तो पोर्ट फ़ील्‍ड को खाली होना ही चाहिए."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"  लिखा गया पोर्ट मान्‍य नहीं है."</string>
-    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"HTTP प्रॉक्सी का उपयोग ब्राउज़र द्वारा किया जाता है लेकिन अन्य ऐप्लिकेशन द्वारा उपयोग नहीं किया जा सकता."</string>
+    <string name="proxy_warning_limited_support" msgid="9026539134219095768">"एचटीटीपी प्रॉक्सी का इस्तेमाल ब्राउज़र करता है, लेकिन हो सकता है कि अन्य ऐप्लिकेशन इसका इस्तेमाल न कर पाएं."</string>
     <string name="proxy_url_title" msgid="882042361706435904">"PAC यूआरएल: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"डीएल बैंडविड्थ (केबीपीएस):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"यूएल बैंडविड्थ (केबीपीएस):"</string>
@@ -316,7 +316,7 @@
     <string name="roaming_warning" msgid="5488050911277592868">"आपको बहुत ज़्यादा शुल्‍क देना पड़ सकता है."</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"जब आप डेटा रोमिंग की अनुमति देते हैं, तो हो सकता है कि आपको ज़्यादा रोमिंग शुल्क लगे!\n\nयह सेटिंग इस टैबलेट के सभी उपयोगकर्ताओं को प्रभावित करती है."</string>
     <string name="roaming_warning_multiuser" product="default" msgid="6999819541078827556">"जब आप डेटा रोमिंग की अनुमति देते हैं, तो हो सकता है कि आपको ज़्यादा रोमिंग शुल्क लगे!\n\nयह सेटिंग इस फ़ोन के सभी उपयोगकर्ताओं को प्रभावित करती है."</string>
-    <string name="roaming_reenable_title" msgid="6985082191178297921">"डेटा रोमिंग की अनुमति दें?"</string>
+    <string name="roaming_reenable_title" msgid="6985082191178297921">"डेटा रोमिंग की अनुमति देना चाहते हैं?"</string>
     <string name="networks" msgid="3073876464102136771">"ऑपरेटर चुनें"</string>
     <string name="sum_carrier_select" msgid="8964744180598499121">"कोई नेटवर्क ऑपरेटर चुनें"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"तारीख और समय"</string>
@@ -377,7 +377,7 @@
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"लोड हो रहा है…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"खाते"</string>
     <string name="security_settings_title" msgid="8228075165942416425">"सुरक्षा"</string>
-    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"सुरक्षित करना और क्रेडेंशियल"</string>
+    <string name="encryption_and_credential_settings_title" msgid="6911729638397745353">"एन्क्रिप्ट (सुरक्षित) करना और क्रेडेंशियल"</string>
     <string name="encryption_and_credential_settings_summary" product="default" msgid="468749700109808546">"फ़ोन सुरक्षित किया गया है"</string>
     <string name="decryption_settings_summary" product="default" msgid="7401802133199522441">"फ़ोन सुरक्षित नहीं है"</string>
     <string name="encryption_and_credential_settings_summary" product="tablet" msgid="8170667308598998791">"सुरक्षित किया गया डिवाइस"</string>
@@ -504,14 +504,14 @@
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"आप अपना फ़ोन अनलॉक करने, खरीदी अधिकृत करने या ऐप्लिकेशन में प्रवेश करने के लिए अपने फ़िंगरप्रिंट का उपयोग नहीं कर सकेंगे"</string>
     <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"आप अपनी वर्क प्रोफ़ाइल अनलॉक करने, खरीदारी अधिकृत करने या अपने काम से जुड़े ऐप्लिकेशन में प्रवेश करने के लिए अपने फ़िंगरप्रिंट का उपयोग नहीं कर सकेंगे."</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"हां, निकालें"</string>
-    <string name="crypt_keeper_settings_title" msgid="839783588093862748">"सुरक्षित करना"</string>
+    <string name="crypt_keeper_settings_title" msgid="839783588093862748">"एन्क्रिप्ट (सुरक्षित) करना"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"टैबलेट सुरक्षित करें"</string>
-    <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"फ़ोन सुरक्षित करें"</string>
-    <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"एन्क्रिप्ट किया गया"</string>
+    <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"फ़ोन एन्क्रिप्ट (सुरक्षित) करें"</string>
+    <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"एन्क्रिप्ट (सुरक्षित) किया गया"</string>
     <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"आप अपने खाते, सेटिंग, डाउनलोड किए गए ऐप और उनका डेटा, मीडिया और अन्य फ़ाइलें सुरक्षित कर सकते हैं. अपना टैबलेट सुरक्षित करने के बाद, यह मानते हुए कि आपने स्क्रीन लॉक (जैसे पैटर्न या पिन या पासवर्ड) सेट कर लिया है, आपको हर बार अपना टैबलेट चालू करते समय इसे सबकी पहुंच में लाने के लिए स्क्रीन के लॉक को खोलना होगा. आप फ़ैक्ट्री डेटा रीसेट करके भी टैबलेट को सबकी पहुंच में ला सकते हैं. \n\nसुरक्षित करने में एक घंटा या इससे ज़्यादा समय लग सकता है. आप जब सुरक्षित करना शुरू करें तो बैटरी को पूरी तरह चार्ज रखें और पूरी प्रक्रिया के दौरान अपने टैबलेट को चार्जिंग पर रखें. अगर सुरक्षित करने के दौरान कोई रुकावट आती है, तो आपका थोड़ा या सारा डेटा खो सकता है."</string>
     <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"आप अपने खाते, सेटिंग, डाउनलोड किए गए ऐप और उनका डेटा, मीडिया और अन्य फ़ाइलें सुरक्षित कर सकते हैं. अपना फ़ोन सुरक्षित करने के बाद, यह मानते हुए कि आपने स्क्रीन लॉक (जैसे पैटर्न या पिन या पासवर्ड) सेट कर लिया है, आपको हर बार अपना फ़ोन चालू करते समय इसे सबकी पहुंच में लाने के लिए स्क्रीन के लॉक को खोलना होगा. आप फ़ैक्ट्री डेटा रीसेट करके भी फ़ोन को सबकी पहुंच में ला सकते हैं. \n\nसुरक्षित करने में एक घंटा या इससे ज़्यादा समय लग सकता है. आप जब सुरक्षित करना शुरू करें तो बैटरी को पूरी तरह चार्ज रखें और पूरी प्रक्रिया के दौरान अपने फ़ोन को चार्जिंग पर रखें. अगर सुरक्षित करने के दौरान कोई रुकावट आती है, तो आपका थोड़ा या सारा डेटा खो सकता है."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"टैबलेट सुरक्षित करें"</string>
-    <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"फ़ोन सुरक्षित करें"</string>
+    <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"फ़ोन एन्क्रिप्ट (सुरक्षित) करें"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"अपनी बैटरी चार्ज करें और फिर से प्रयास करें."</string>
     <string name="crypt_keeper_unplugged_text" msgid="6597684068340036200">"अपना चार्जर प्लग में लगाएं और फिर से प्रयास करें."</string>
     <string name="crypt_keeper_dialog_need_password_title" msgid="8532211509636340535">"कोई लॉक स्‍क्रीन पिन या पासवर्ड नहीं"</string>
@@ -544,7 +544,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
     <string name="lock_settings_picker_title" msgid="1034741644461982205">"स्‍क्रीन लॉक चुनें"</string>
-    <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"वर्क लॉक चुनें"</string>
+    <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"वर्क ऐप्लिकेशन के लिए लॉक चुनें"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"टैबलेट की सुरक्षा करें"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"डिवाइस की सुरक्षा करें"</string>
     <string name="setup_lock_settings_picker_title" product="default" msgid="3911582328576859628">"फ़ोन को सुरक्षित रखें"</string>
@@ -765,14 +765,14 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"विकल्प…"</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"बेहतर सेटिंग"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"बेहतर ब्लूटूथ"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लूटूथ चालू होने पर, आपका डिवाइस आस-पास के दूसरे ब्लूटूथ डिवाइस से संपर्क कर सकता है."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लूटूथ चालू होने पर, आपका डिवाइस आस-पास के दूसरे ब्लूटूथ डिवाइसों से संपर्क कर सकता है."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ब्लूटूथ चालू हाेने पर, आपका डिवाइस आस-पास के ब्लूटूथ डिवाइस से जुड़ सकता है. \n\nडिवाइस काे बेहतर तरीके से चलाने के लिए, ऐप्लिकेशन आैर सेवाएं, ब्लूटूथ बंद हाेने के बावजूद किसी भी समय आस-पास के ब्लूटूथ डिवाइस काे स्कैन कर सकती हैं. इसका इस्तेमाल करके, जगह की जानकारी जैसी सुविधाओं और सेवाओं में सुधार किया जा सकता है. आप "<annotation id="link">"स्कैन करने की सेटिंग"</annotation>" में जाकर इसे बदल सकते हैं."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"जगह की सटीक जानकारी को बेहतर बनाने के लिए, सिस्‍टम ऐप्लिकेशन और सेवाएं अब भी ब्‍लूटूथ डिवाइसों का पता लगा सकती हैं. आप इसे <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>स्‍कैन करने की सेटिंग<xliff:g id="LINK_END_1">LINK_END</xliff:g> में बदल सकते हैं."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"कनेक्ट नहीं हो सका. फिर से कोशिश करें."</string>
     <string name="device_details_title" msgid="726517818032923222">"डिवाइस की जानकारी"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"डिवाइस का ब्लूटूथ पता: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"क्या डिवाइस को भूलना चाहते हैं?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"आपका फ़ोन अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"आपका फ़ोन अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ जुड़ा नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"आपका टैबलेट अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"आपका डिवाइस अब <xliff:g id="DEVICE_NAME">%1$s</xliff:g> के साथ युग्मित नहीं रहेगा"</string>
     <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"डिवाइस को भूल जाएं"</string>
@@ -857,7 +857,7 @@
     <string name="wifi_poor_network_detection_summary" msgid="5539951465985614590">"जब तक इंटरनेट कनेक्‍शन अच्छा न हो, वाई-फ़ाई नेटवर्क का इस्तेमाल न करें"</string>
     <string name="wifi_avoid_poor_network_detection_summary" msgid="1976503191780928104">"उन्हीं नेटवर्क का इस्तेमाल करें, जिनमें अच्छा इंटरनेट कनेक्शन है"</string>
     <string name="use_open_wifi_automatically_title" msgid="3084513215481454350">"खुले नेटवर्क से कनेक्ट करें"</string>
-    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"अच्छा इंटरनेट देने वाले सार्वजनिक नेटवर्क से अपने आप कनेक्ट करें"</string>
+    <string name="use_open_wifi_automatically_summary" msgid="8338020172673161754">"अच्छा इंटरनेट देने वाले सार्वजनिक नेटवर्क से डिवाइस अपने-आप कनेक्ट हो जाए"</string>
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"उपयोग करने के लिए, कोई नेटवर्क रेटिंग कंपनी चुनें"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"उपयोग करने के लिए, कोई संगत नेटवर्क रेटिंग कंपनी चुनें"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"प्रमाणपत्र इंस्टॉल करें"</string>
@@ -880,7 +880,7 @@
     <string name="wifi_configure_settings_preference_summary_wakeup_off" msgid="286904094152909651">"नेटवर्क मिलने पर भी वाई-फ़ाई अपने आप चालू नहीं होता"</string>
     <string name="wifi_access_points" msgid="1647976498906871869">"वाई-फ़ाई  नेटवर्क"</string>
     <string name="wifi_menu_more_options" msgid="8318269834264035524">"ज़्यादा विकल्प"</string>
-    <string name="wifi_menu_p2p" msgid="4945665601551289791">"वाई-फ़ाई डायरेक्ट"</string>
+    <string name="wifi_menu_p2p" msgid="4945665601551289791">"Wi‑Fi Direct"</string>
     <string name="wifi_menu_scan" msgid="9082691677803181629">"स्कैन करें"</string>
     <string name="wifi_menu_advanced" msgid="5984484498045511072">"बेहतर सेटिंग"</string>
     <string name="wifi_menu_configure" msgid="52192491120701266">"कॉन्फ़िगर करें"</string>
@@ -970,7 +970,7 @@
     <string name="wifi_unchanged" msgid="6804964646942333992">"(अपरिवर्तित)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"कृपया चुनें"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(एकाधिक प्रमाणपत्र जोड़े गए)"</string>
-    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम प्रमाणपत्रों का उपयोग करें"</string>
+    <string name="wifi_use_system_certs" msgid="4794489370929885022">"सिस्टम प्रमाणपत्रों का इस्तेमाल करें"</string>
     <string name="wifi_do_not_provide_eap_user_cert" msgid="4044301449482425250">"मुहैया न कराएं"</string>
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"मान्‍य न करें"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"कोई प्रमाणपत्र मौजूद नहीं है. आपका कनेक्‍शन निजी नहीं होगा."</string>
@@ -1040,7 +1040,7 @@
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
     <string name="wifi_gateway" msgid="7455334454444443397">"गेटवे"</string>
     <string name="wifi_network_prefix_length" msgid="1941206966133010633">"नेटवर्क उपसर्ग लंबाई"</string>
-    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"वाई-फ़ाई डायरेक्ट"</string>
+    <string name="wifi_p2p_settings_title" msgid="3213180637906683308">"Wi‑Fi Direct"</string>
     <string name="wifi_p2p_device_info" msgid="4717490498956029237">"डिवाइस की जानकारी"</string>
     <string name="wifi_p2p_persist_network" msgid="1110453878886476660">"यह कनेक्‍शन याद रखें"</string>
     <string name="wifi_p2p_menu_search" msgid="8207638860263805291">"डिवाइस सर्च करें"</string>
@@ -1125,12 +1125,12 @@
     <string name="musicfx_title" msgid="6456079041566773649">"संगीत प्रभाव"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"रिंग की आवाज़"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"शांत होने पर कंपन (वाइब्रेशन) करे"</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"सूचना की डिफ़ॉल्ट टोन"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"सूचना की डिफ़ॉल्ट आवाज़"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"रिंगटोन"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"सूचना की आवाज़"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"सूचना के लिए आने वाले कॉल (इनकमिंग) की आवाज़ का इस्तेमाल करें"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"वर्क प्रोफ़ाइल का समर्थन नहीं करता है"</string>
-    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"सूचना की डिफ़ॉल्ट टोन"</string>
+    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"सूचना की डिफ़ॉल्ट आवाज़"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"मीडिया"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"संगीत और वीडियो के लिए आवाज़ सेट करें"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"अलार्म"</string>
@@ -1170,12 +1170,12 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्‍यक्‍तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"खोज"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिसप्ले"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"स्‍क्रीन अपने आप घूमने की सुविधा चालू करें"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"स्क्रीन का अपने-आप दिशा बदलना (ऑटो-रोटेट)"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"बिना किसी बदलाव के"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"बढ़ाया गया"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"सैचुरेट किया गया"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"आस-पास की रोशनी के अनुसार स्क्रीन की चमक बदले"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"ज़रूरत के हिसाब से स्क्रीन की चमक बदलता है"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"सिर्फ़ सटीक रंगों का इस्तेमाल करें"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"चटख और सटीक रंगों के बीच मनमुताबिक बदलाव करें"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"टैबलेट घुमाने पर स्क्रीन की दिशा अपने आप बदलें"</string>
@@ -1185,7 +1185,7 @@
     <string name="brightness" msgid="7309120144111305275">"स्क्रीन की रोशनी का स्तर"</string>
     <string name="brightness_title" msgid="5660190946911149690">"स्क्रीन की रोशनी"</string>
     <string name="brightness_summary" msgid="8687101964451818730">"स्‍क्रीन की रोशनी एडजस्ट करें"</string>
-    <string name="auto_brightness_title" msgid="908511534369820426">"रोशनी के हिसाब से स्क्रीन की चमक"</string>
+    <string name="auto_brightness_title" msgid="908511534369820426">"आस-पास की रोशनी के हिसाब से स्क्रीन की चमक"</string>
     <string name="auto_brightness_summary_on" msgid="121488862610275737">"चालू है"</string>
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"बंद"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"पसंदीदा स्क्रीन रोशनी का लेवल बहुत कम है"</string>
@@ -1274,9 +1274,9 @@
     <string name="sim_lock_settings_title" msgid="877336472752342977">"सिम कार्ड लॉक"</string>
     <string name="sim_pin_toggle" msgid="2026507420678167488">"सिम कार्ड लॉक करें"</string>
     <string name="sim_lock_on" product="tablet" msgid="3917977767884071323">"टैबलेट के उपयोग के लिए पिन आवश्‍यक"</string>
-    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"फ़ोन का उपयोग करने के लिए पिन ज़रूरी है"</string>
+    <string name="sim_lock_on" product="default" msgid="1363159192182487883">"फ़ोन का इस्तेमाल करने के लिए पिन ज़रूरी है"</string>
     <string name="sim_lock_off" product="tablet" msgid="8428566346685080195">"टैबलेट के उपयोग के लिए पिन आवश्‍यक"</string>
-    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"फ़ोन का उपयोग करने के लिए पिन ज़रूरी है"</string>
+    <string name="sim_lock_off" product="default" msgid="5873747770983496755">"फ़ोन का इस्तेमाल करने के लिए पिन ज़रूरी है"</string>
     <string name="sim_pin_change" msgid="5615972926944053213">"सिम पिन बदलें"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"सिम पिन"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"सिम कार्ड लॉक करें"</string>
@@ -1286,7 +1286,7 @@
     <string name="sim_reenter_new" msgid="5692585822458989725">"नया पिन फिर से लिखें"</string>
     <string name="sim_change_pin" msgid="1674620855223900785">"सिम पिन"</string>
     <string name="sim_bad_pin" msgid="2409776007569751629">"गलत पिन"</string>
-    <string name="sim_pins_dont_match" msgid="1076283313667637902">"पिन मेल नहीं खाते"</string>
+    <string name="sim_pins_dont_match" msgid="1076283313667637902">"पिन मेल नहीं खा रहे"</string>
     <string name="sim_change_failed" msgid="8874765697694275459">"पिन नहीं बदल सकता.\nसंभवत: गलत पिन."</string>
     <string name="sim_change_succeeded" msgid="8802418023120614533">"सिम पिन सफलतापूर्वक बदला गया"</string>
     <string name="sim_lock_failed" msgid="7949781515066772755">"सिम कार्ड लॉक स्‍थिति नहीं बदल सकता.\nसंभवत: गलत पिन."</string>
@@ -1418,7 +1418,7 @@
     <string name="storage_menu_set_up" msgid="2849170579745958513">"सेट करें"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"एक्सप्लोर करें"</string>
     <string name="storage_menu_free" msgid="6586253660759145508">"जगह खाली करें"</string>
-    <string name="storage_menu_manage" msgid="461380717863926516">"मेमोरी प्रबंधित करें"</string>
+    <string name="storage_menu_manage" msgid="461380717863926516">"स्टोरेज मैनेज करें"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"USB कंप्‍यूटर कनेक्‍शन"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"इस रूप में कनेक्ट करें"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"मीडिया डिवाइस (MTP)"</string>
@@ -1492,10 +1492,10 @@
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"ले जाना रोकें"</string>
     <string name="storage_wizard_slow_body" msgid="2307974936036261069">"यह <xliff:g id="NAME_0">^1</xliff:g> ज़्यादा वक्त ले रहा है. \n\nआप जारी रख सकते हैं, लेकिन इस जगह पर लाए गए ऐप अटक सकते हैं और डेटा ट्रांसफर में ज़्यादा समय लग सकता है. \n\nबेहतर प्रदर्शन के लिए आप और तेज़ <xliff:g id="NAME_1">^1</xliff:g> का इस्तेमाल कर सकते हैं."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"आप इस <xliff:g id="NAME">^1</xliff:g> को कैसे इस्तेमाल करेंगे?"</string>
-    <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"टैबलेट में ज़्यादा मेमोरी के लिए इस्तेमाल करें"</string>
+    <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"टैबलेट में ज़्यादा स्टोरेज के लिए इस्तेमाल करें"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"सिर्फ़ इस टैबलेट पर मौजूद ऐप्लिकेशन, फ़ाइल और मीडिया के लिए"</string>
     <string name="storage_wizard_init_v2_internal_action" product="tablet" msgid="1016850267330050231">"टैबलेट की मेमोरी"</string>
-    <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"फ़ोन में ज़्यादा मेमोरी के लिए इस्तेमाल करें"</string>
+    <string name="storage_wizard_init_v2_internal_title" product="default" msgid="2782907833711627804">"फ़ोन में ज़्यादा स्टोरेज के लिए इस्तेमाल करें"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="default" msgid="6352521760027924000">"सिर्फ़ इस फ़ोन पर मौजूद ऐप्लिकेशन, फ़ाइल और मीडिया के लिए"</string>
     <string name="storage_wizard_init_v2_internal_action" product="default" msgid="3383888882755852046">"फ़ोन की मेमोरी"</string>
     <string name="storage_wizard_init_v2_or" msgid="883906565226069620">"या"</string>
@@ -1625,7 +1625,7 @@
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"यूएसबी के ज़रिए टैबलेट का इंटरनेट कनेक्‍शन शेयर करें"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"ब्लूटूथ टेदरिंग"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"ब्लूटूथ के ज़रिए टैबलेट का इंटरनेट कनेक्शन शेयर करें"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"ब्लूटूथ के ज़रिए फ़ोन का इंटरनेट कनेक्शन शेयर करें"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"ब्लूटूथ से फ़ोन का इंटरनेट कनेक्शन शेयर करें"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"<xliff:g id="DEVICE_NAME">%1$d</xliff:g> का इंटरनेट कनेक्शन ब्लूटूथ से शेयर हो रहा है"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"<xliff:g id="MAXCONNECTION">%1$d</xliff:g> डिवाइस से ज़्यादा को टेदर नहीं कर सकता."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> को अनटेदर किया जाएगा."</string>
@@ -1716,8 +1716,8 @@
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"पासवर्ड फिर से डालें"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"अपने पैटर्न की पुष्टि करें"</string>
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"पिन फिर से डालें"</string>
-    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"पासवर्ड मेल नहीं खाते"</string>
-    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"पिन मेल नहीं खाते"</string>
+    <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"पासवर्ड मेल नहीं खा रहे"</string>
+    <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"पिन मेल नहीं खा रहे"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"अपना पैटर्न फिर से बनाएं"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"अनलॉक करने के लिए चुनें"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"पासवर्ड सेट कर दिया गया है"</string>
@@ -1731,7 +1731,7 @@
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"जारी रखने के लिए अपना डिवाइस पासवर्ड डालें"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"जारी रखने के लिए अपने काम पैटर्न का उपयोग करें"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"जारी रखने के लिए अपना दफ़्तर का पिन डालें"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"जारी रखने के लिए अपना दफ़्तर पासवर्ड डालें"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"जारी रखने की लिए, अपने वर्क प्रोफ़ाइल का पासवर्ड डालें"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"अतिरिक्त सुरक्षा के लिए, अपने पैटर्न का इस्तेमाल करें"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"अतिरिक्त सुरक्षा के लिए, अपना पिन डालें"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"अतिरिक्त सुरक्षा के लिए, अपना पासवर्ड डालें"</string>
@@ -1799,7 +1799,7 @@
     <string name="advanced_settings" msgid="6282069364060968122">"बेहतर सेटिंग"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"और सेटिंग विकल्‍प चालू करें"</string>
     <string name="application_info_label" msgid="3886253474964599105">"ऐप्लिकेशन की जानकारी"</string>
-    <string name="storage_label" msgid="1109537840103290384">"स्टोरेज"</string>
+    <string name="storage_label" msgid="1109537840103290384">"मेमोरी"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"डिफ़ॉल्ट रूप से खोलें"</string>
     <string name="auto_launch_label_generic" msgid="7865828543459493308">"डिफ़ॉल्‍ट"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"स्क्रीन संगतता"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"इंस्टॉल करें"</string>
     <string name="disable_text" msgid="5065834603951474397">"बंद करें"</string>
     <string name="enable_text" msgid="7179141636849225884">"चालू करें"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"मेमोरी खाली करें"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"स्टोरेज खाली करें"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"अपडेट अनइंस्टॉल करें"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"आपने कुछ क्रियाओं के लिए इस ऐप्लिकेशन को डिफ़ॉल्‍ट रूप से लॉन्‍च करना चुना है."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"आपने इस ऐप्लिकेशन को शॉर्टकट बनाने और उनके डेटा पर पहुंचने की अनुमति देना चुना है."</string>
@@ -1836,7 +1836,7 @@
     <string name="enable_compatibility" msgid="1754177974320410195">"ऐप्लिकेशन स्‍केल करें"</string>
     <string name="unknown" msgid="2780743426415501227">"अज्ञात"</string>
     <string name="sort_order_alpha" msgid="6689698854460261212">"नाम के हिसाब से क्रम से लगाएं"</string>
-    <string name="sort_order_size" msgid="3167376197248713027">"आकार के अनुसार क्रमित करें"</string>
+    <string name="sort_order_size" msgid="3167376197248713027">"साइज़ के हिसाब से क्रम में लगाएं"</string>
     <string name="sort_order_recent_notification" msgid="5592496977404445941">"सबसे हाल ही में सूचनाएं भेजने वाले ऐप्लिकेशन"</string>
     <string name="sort_order_frequent_notification" msgid="5640245013098010347">"अक्सर"</string>
     <string name="show_running_services" msgid="1895994322704667543">"चल रही सेवाएं दिखाएं"</string>
@@ -1860,8 +1860,8 @@
     <string name="no_applications" msgid="6811396016303576024">"कोई ऐप्लिकेशन नहीं."</string>
     <string name="internal_storage" msgid="7392373600013294853">"मोबाइल मेमोरी"</string>
     <string name="recompute_size" msgid="4290692197892743928">"आकार फिर से परिकलित कर रहा है…"</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ऐप्‍लिकेशन डेटा हटाएं?"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"इस ऐप्लिकेशन का सारा डेटा स्‍थायी रूप से हटा दिया जाएगा. इसमें सभी फ़ाइलें, सेटिंग, खाते, डेटाबेस वगैरह शामिल हैं."</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"ऐप्लिकेशन डेटा मिटाना चाहते हैं?"</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"इस ऐप्लिकेशन का पूरा डेटा हमेशा के लिए मिटा दिया जाएगा. इसमें सभी फ़ाइलें, सेटिंग, खाते, डेटाबेस वगैरह शामिल हैं."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ठीक है"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"रद्द करें"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
@@ -2241,7 +2241,7 @@
     <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"अगर आप ऐप की बैकग्राउंड गतिविधि को सीमित करते हैं, तो हो सकता है यह ठीक ढंग से काम न करे"</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"ऐप्लिकेशन पर रोक नहीं लगेगी क्योंकि यह बैटरी ऑप्टिमाइज़ नहीं कर सकता.\n\nबैटरी ऑप्टिमाइज़ेशन चालू करके ही ऐसा हो सकता है."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"पूरी चार्ज होने के बाद से अब तक स्क्रीन का इस्तेमाल"</string>
-    <string name="power_usage_list_summary" msgid="4314438658308211057">"पिछली बार बैटरी पूरी चार्ज करने के बाद, उसके इस्तेमाल से जुड़ी जानकारी"</string>
+    <string name="power_usage_list_summary" msgid="4314438658308211057">"पिछली बार बैटरी पूरी चार्ज करने के बाद, बैटरी खर्च से जुड़ी जानकारी"</string>
     <string name="screen_usage_summary" msgid="263396144684078341">"पिछली बार पूरी तरह चार्ज होने के बाद से अब तक स्क्रीन के चालू रहने का समय"</string>
     <string name="device_usage_list_summary" msgid="8299017481332816368">"पिछली बार पूरी चार्ज होने के बाद से अब तक का डिवाइस उपयोग"</string>
     <string name="battery_since_unplugged" msgid="6486555910264026856">"अनप्‍लग होने के बाद से बैटरी का उपयोग"</string>
@@ -2313,7 +2313,7 @@
     <string name="battery_tip_restrict_apps_less_than_5_dialog_message" msgid="4225881888543582456">"बैटरी बचाने के लिए, इन ऐप्लिकेशन को बैकग्राउंड में बैटरी इस्तेमाल करने से रोकें. हो सकता है कि जिन ऐप्लिकेशन पर रोक लगाई गई है, वे ठीक तरह से काम न करें और उनके बारे में सूचनाएं देर से मिलें.\n\nऐप्लिकेशन:"</string>
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"बैटरी बचाने के लिए, इन ऐप्लिकेशन को बैकग्राउंड में बैटरी इस्तेमाल करने से रोकें. हो सकता है कि जिन ऐप्लिकेशन पर रोक लगाई गई है, वे ठीक तरह से काम न करें और उनके बारे में सूचनाएं देरी से मिलें.\n\nऐप्लिकेशन:\n<xliff:g id="APP_LIST">%1$s</xliff:g>."</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"रोक लगाएं"</string>
-    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"रोक हटाना चाते हैं?"</string>
+    <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"रोक हटाना चाहते हैं?"</string>
     <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"यह ऐप्लिकेशन बैकग्राउंड में बैटरी इस्तेमाल कर पाएगा. हो सकता है कि आपके डिवाइस की बैटरी समय से पहले ही खत्म हो जाए."</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"ऐप्लिकेशन से रोक हटाएं"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"अभी नहीं"</string>
@@ -2527,18 +2527,18 @@
     <string name="credentials_install" product="default" msgid="8997183776710118353">"SD कार्ड से इंस्‍टॉल करें"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"मेमोरी से प्रमाणपत्र इंस्‍टॉल करें"</string>
     <string name="credentials_install_summary" product="default" msgid="4943897416156671633">"SD कार्ड से प्रमाणपत्र इंस्‍टॉल करें"</string>
-    <string name="credentials_reset" msgid="355080737664731678">"क्रेडेंशियल मिटाएं"</string>
-    <string name="credentials_reset_summary" msgid="7622528359699428555">"सभी सर्टिफ़िकेट मिटाएं"</string>
+    <string name="credentials_reset" msgid="355080737664731678">"क्रेडेंशियल हटाएं"</string>
+    <string name="credentials_reset_summary" msgid="7622528359699428555">"सभी प्रमाणपत्र हटाएं"</string>
     <string name="trusted_credentials" msgid="6989242522455395200">"भरोसेमंद क्रेडेंशियल"</string>
-    <string name="trusted_credentials_summary" msgid="7411781319056251582">"भरोसेमंद सीए प्रमाणपत्र दिखाएं"</string>
-    <string name="user_credentials" msgid="8365731467650306757">"यूज़र क्रेडेंशियल"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"स्टोर किए गए क्रेडेंशियल देखें और उनमें बदलाव करें"</string>
+    <string name="trusted_credentials_summary" msgid="7411781319056251582">"भरोसेमंद CA प्रमाणपत्र दिखाएं"</string>
+    <string name="user_credentials" msgid="8365731467650306757">"उपयोगकर्ता के क्रेडेंशियल"</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"सेव किए गए क्रेडेंशियल देखें और उनमें बदलाव करें"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"बेहतर सेटिंग"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"मेमोरी का प्रकार"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"हार्डवेयर-समर्थित"</string>
     <string name="credential_storage_type_software" msgid="1335905150062717150">"केवल सॉफ़्टवेयर"</string>
     <string name="credentials_settings_not_available" msgid="5490259681690183274">"इस उपयोगकर्ता के लिए क्रेडेंशियल मौजूद नहीं हैं"</string>
-    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"VPN और ऐप्लिकेशन के लिए इंस्टॉल किया गया"</string>
+    <string name="credential_for_vpn_and_apps" msgid="2462642486949593841">"वीपीएन और ऐप्लिकेशन के लिए इंस्टॉल किया गया"</string>
     <string name="credential_for_wifi" msgid="2903295786961726388">"वाई-फ़ाई के लिए इंस्टॉल किया गया"</string>
     <string name="credentials_reset_hint" msgid="3484350477764088169">"सभी सामग्री हटाएं?"</string>
     <string name="credentials_erased" msgid="7287088033523869085">"प्रमाणिकता मेमोरी मिटा दिया गया है."</string>
@@ -2715,7 +2715,7 @@
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"डेटा खर्च की सीमा सेट करें"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"डेटा खर्च सीमित करना"</string>
     <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"जैसे ही आपका टैबलेट डेटा, आपकी सेट की हुई सीमा पर पहुंचेगा, आपका टैबलेट उसे बंद कर देगा.\n\nचूंकि डेटा खर्च आपके टैबलेट से मापा जाता है और आपकी मोबाइल और इंटरनेट सेवा देने वाली कंपनी, इस्तेमाल किए गए डेटा का हिसाब अलग तरीके से लगा सकती है. इसलिए सीमा को कम पर सेट करने के बारे में विचार करें."</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"जैसे ही आपका मोबाइल डेटा आपकी सेट की हुई सीमा पर पहुंचेगा, आपका फ़ोन उसे बंद कर देगा.\n\nचूंकि डेटा खर्च आपके फ़ोन से मापा जाता है और आपकी मोबाइल और इंटरनेट सेवा देने वाली कंपनी, इस्तेमाल किए गए डेटा का हिसाब अलग तरीके से लगा सकती है. इसलिए सीमा को कम पर सेट करने के बारे में विचार करें."</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"जैसे ही आपका मोबाइल डेटा आपकी सेट की हुई सीमा पर पहुंचेगा, आपका फ़ोन उसे बंद कर देगा.\n\nडेटा खर्च आपके फ़ोन से मापा जाता है और आपकी मोबाइल और इंटरनेट सेवा देने वाली कंपनी, इस्तेमाल किए गए डेटा का हिसाब अलग तरीके से लगा सकती है. इसलिए, सीमा को कम पर सेट करें."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"पृष्ठभूमि डेटा प्रतिबंधित करें?"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"अगर आप बैकग्राउंड मोबाइल डेटा प्रतिबंधित करते हैं, तो जब तक आप वाई-फ़ाई से कनेक्ट नहीं हो जाते, तब तक कुछ ऐप्लिकेशन और सेवाएं काम नहीं करेंगी."</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"अगर आप बैकग्राउंड मोबाइल डेटा प्रतिबंधित करते हैं, तो जब तक आप वाई-फ़ाई से कनेक्ट नहीं हो जाते, तब तक कुछ ऐप्लिकेशन और सेवाएं काम नहीं करेंगी.\n\nइस सेटिंग का इस टैबलेट पर मौजूद सभी उपयोगकर्ताओं पर असर पड़ेगा ."</string>
@@ -2740,7 +2740,7 @@
     <string name="cryptkeeper_emergency_call" msgid="4625420047524693116">"आपातकालीन कॉल"</string>
     <string name="cryptkeeper_return_to_call" msgid="4433942821196822815">"कॉल पर वापस लौटें"</string>
     <string name="vpn_name" msgid="3538818658670774080">"नाम"</string>
-    <string name="vpn_type" msgid="6389116710008658550">"प्रकार"</string>
+    <string name="vpn_type" msgid="6389116710008658550">"टाइप"</string>
     <string name="vpn_server" msgid="5216559017318406820">"सर्वर पता"</string>
     <string name="vpn_mppe" msgid="4027660356538086985">"पीपीपी सुरक्षा (MPPE) चालू करें"</string>
     <string name="vpn_l2tp_secret" msgid="8500633072482638606">"L2TP सीक्रेट"</string>
@@ -2757,13 +2757,13 @@
     <string name="vpn_password" msgid="5325943601523662246">"पासवर्ड"</string>
     <string name="vpn_save_login" msgid="6215503139606646915">"खाते की जानकारी सेव करें"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(उपयोग नहीं किया)"</string>
-    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(सर्वर सत्‍यापित न करें)"</string>
+    <string name="vpn_no_ca_cert" msgid="486605757354800838">"(सर्वर की पुष्टि न करें)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(सर्वर से मिला)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"यह वीपीएन प्रकार हमेशा कनेक्ट नहीं रह सकता"</string>
     <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"हमेशा-चालू VPN सिर्फ़ संख्या वाले सर्वर पतों का समर्थन करता है"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"हमेशा-चालू VPN के लिए एक DNS सर्वर तय किया जाना चाहिए"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS सर्वर के पते हमेशा-चालू VPN के लिए संख्या रूप में होने चाहिए"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"डाली गई जानकारी VPN हमेशा चालू रखें से मेल नहीं खाती"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"डाली गई जानकारी \'वीपीएन हमेशा चालू रखें\' से मेल नहीं खाती"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"रद्द करें"</string>
     <string name="vpn_done" msgid="6314426362224527349">"ख़ारिज करें"</string>
     <string name="vpn_save" msgid="1332625259182278316">"जोड़ें"</string>
@@ -2819,7 +2819,7 @@
     <string name="n_cacrts" msgid="7539893176217891549">"%d CA प्रमाणपत्र"</string>
     <string name="user_credential_title" msgid="6237611303219831419">"क्रेडेंशियल की पूरी जानकारी"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"क्रेडेंशियल निकाला गया: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
-    <string name="user_credential_none_installed" msgid="4129252817676332368">"कोई यूज़र क्रेडेंशियल इंस्टॉल नहीं किया गया है"</string>
+    <string name="user_credential_none_installed" msgid="4129252817676332368">"उपयोगकर्ता का कोई क्रेडेंशियल इंस्टॉल नहीं किया गया"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"स्पेलिंग जाँचने वाला"</string>
     <string name="spellcheckers_settings_for_work_title" msgid="7461318390801573022">"काम के लिए स्पेलिंग जांचने वाली सुविधा"</string>
     <string name="current_backup_pw_prompt" msgid="8914812770233159610">"अपना वर्तमान पूरा बैकअप पासवर्ड यहां लिखें"</string>
@@ -2888,7 +2888,7 @@
     <string name="user_confirm_remove_self_title" msgid="6739480453680217543">"खुद को मिटाएं?"</string>
     <string name="user_confirm_remove_title" msgid="1034498514019462084">"इस उपयोगकर्ता को हटाएं?"</string>
     <string name="user_profile_confirm_remove_title" msgid="6138684743385947063">"इस प्रोफ़ाइल को निकालें?"</string>
-    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"वर्क प्रोफ़ाइल निकालें?"</string>
+    <string name="work_profile_confirm_remove_title" msgid="3168910958076735800">"वर्क प्रोफ़ाइल हटाएं?"</string>
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"आप इस टैबलेट पर जगह और डेटा को खो देंगे. आप इस कार्रवाई को पहले जैसा नहीं कर सकते."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"आप इस फ़ोन पर अपनी जगह और डेटा को खो देंगे. आप इस कार्रवाई को पहले जैसा नहीं कर सकते."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"सभी ऐप्लिकेशन और डेटा हटा दिए जाएंगे."</string>
@@ -3141,9 +3141,9 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"रिंग की आवाज़"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"सूचना की आवाज़"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"फ़ोन रिंगटोन"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"सूचना की डिफ़ॉल्ट टोन"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"सूचना की डिफ़ॉल्ट आवाज़"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"ऐप की ओर से दी जाने वाली ध्वनि"</string>
-    <string name="notification_sound_default" msgid="2664544380802426260">"सूचना की डिफ़ॉल्ट टोन"</string>
+    <string name="notification_sound_default" msgid="2664544380802426260">"सूचना की डिफ़ॉल्ट आवाज़"</string>
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"अलार्म की डिफ़ॉल्ट आवाज़"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"कॉल के लिए वाइब्रेट करें"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"अन्य आवाज़ें"</string>
@@ -3480,7 +3480,7 @@
     <string name="zen_mode_calls" msgid="1844534357711539325">"कॉल आने की मंज़ूरी दें"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"कॉल"</string>
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"जिन कॉल के आने की अनुमति है, उनके आने पर आवाज़ आए, यह पक्का करने के लिए देखें कि आपका डिवाइस रिंग करने, वाइब्रेट करने या मौन रहने में से किस मोड पर सेट है."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ के लिए आने वाले कॉल ब्लॉक कर दिए गए हैं. आप सेटिंग में बदलाव करके दोस्तों, परिवार के लोगों, या दूसरे संपर्कों को आप तक पहुंचने की मंज़ूरी दे सकते हैं."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ के लिए आने वाले कॉल ब्लॉक कर दिए गए हैं. आप सेटिंग में बदलाव करके दोस्तों, परिवार के लोगों या दूसरे संपर्कों को आप तक पहुंचने की मंज़ूरी दे सकते हैं."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"तारे के निशान वाले संपर्क"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="one"><xliff:g id="NUM_PEOPLE">%d</xliff:g> और संपर्क</item>
@@ -3488,7 +3488,7 @@
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"मैसेज की मंज़ूरी दें"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"जिन मैसेज के आने की अनुमति है, उनके आने पर आवाज़ आए, यह पक्का करने के लिए देखें कि आपका डिवाइस रिंग करने, वाइब्रेट करने या मौन रहने में से किस मोड पर सेट है."</string>
-    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ के लिए आने वाले मैसेज ब्लॉक कर दिए गए हैं. आप सेटिंग में बदलाव करके दोस्तों, परिवार के लोगों, या दूसरे संपर्कों को आप तक पहुंचने की मंज़ूरी दे सकते हैं."</string>
+    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ के लिए आने वाले मैसेज ब्लॉक कर दिए गए हैं. आप सेटिंग में बदलाव करके दोस्तों, परिवार के लोगों या दूसरे संपर्कों को आप तक पहुंचने की मंज़ूरी दे सकते हैं."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"एसएमएस, एमएमएस, और मैसेज सेवा ऐप्लिकेशन"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"किसी से भी"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"सिर्फ़ संपर्कों से"</string>
@@ -3590,7 +3590,7 @@
     <string name="slot_number" msgid="785422579177068698">"(स्लॉट<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"डिफ़ॉल्ट रूप से खोलें"</string>
     <string name="app_launch_domain_links_title" msgid="2987289657348349133">"खुलने वाले लिंक"</string>
-    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"समर्थित लिंक खोलें"</string>
+    <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"काम करने वाले लिंक खोलें"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"बिना पूछे खोलें"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"समर्थित लिंक"</string>
     <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"अन्य डिफ़ॉल्ट"</string>
@@ -3681,7 +3681,7 @@
     <string name="usage_access" msgid="2023443456361489516">"इस्तेमाल का ऐक्‍सेस"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"\'डेटा खर्च\' देखने की इजाज़त दें"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"ऐप उपयोग की प्राथमिकताएं"</string>
-    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"स्क्रीन समय"</string>
+    <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"किसी डिवाइस के इस्तेमाल में बीता समय"</string>
     <string name="usage_access_description" msgid="2178083292760305207">"\'डेटा खर्च\' देखने की इजाज़त से कोई ऐप्लिकेशन इस बात पर नज़र रख पाता है कि आप किन ऐप्लिकेशन को चला रहे हैं और उन्हें कितनी बार इस्तेमाल करते हैं. साथ ही, ऐप्लिकेशन आपकी मोबाइल और इंटरनेट सेवा देने वाली कंपनी, भाषा सेटिंग, और दूसरी जानकारी देख पाता है."</string>
     <string name="memory_settings_title" msgid="7867148522014070721">"मेमोरी"</string>
     <string name="memory_details_title" msgid="6364825184513396865">"मेमोरी का विवरण"</string>
@@ -3736,7 +3736,7 @@
     <string name="usb_use_tethering" msgid="4250626730173163846">"यूएसबी टेदरिंग"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"इस डिवाइस का उपयोग MIDI के रूप में करें"</string>
-    <string name="usb_use" msgid="8940500223316278632">"यूएसबी का उपयोग इसके लिए करें"</string>
+    <string name="usb_use" msgid="8940500223316278632">"यूएसबी का इस्तेमाल इसके लिए करें"</string>
     <string name="usb_default_label" msgid="7471316635263936101">"यूएसबी का डिफ़ॉल्ट कॉन्फ़िगरेशन"</string>
     <string name="usb_default_info" msgid="953775292571786528">"जब आपका फ़ोन किसी दूसरे डिवाइस से जुड़ा हो और वह अनलॉक हो तो, ये सेटिंग लागू होंगी. अपना फ़ोन सिर्फ़ भरोसेमंद डिवाइस से ही जोड़ें."</string>
     <string name="usb_pref" msgid="6194821550693495068">"यूएसबी"</string>
@@ -3964,7 +3964,7 @@
     <string name="configure" msgid="8232696842838580549">"कॉन्फ़िगर करें"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"उपयोग में शामिल अन्य ऐप्लिकेशन"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="one">डेटा बचाने की सेटिंग चालू होने पर <xliff:g id="COUNT">%1$d</xliff:g> ऐप्लिकेशन बिना पाबंदी के डेटा इस्तेमाल कर सकते हैं</item>
+      <item quantity="one">डेटा बचाने की सेटिंग चालू होने पर <xliff:g id="COUNT">%1$d</xliff:g> ऐप्लिकेशन बिना पाबंदी के डेटा इस्तेमाल कर सकता है</item>
       <item quantity="other">डेटा बचाने की सेटिंग चालू होने पर <xliff:g id="COUNT">%1$d</xliff:g> ऐप्लिकेशन बिना पाबंदी के डेटा इस्तेमाल कर सकते हैं</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"प्राइमरी डेटा"</string>
@@ -4124,7 +4124,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"टैबलेट देखने के लिए दो बार छूएं"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"डिवाइस देखने के लिए दो बार छूएं"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"समय, सूचनाएं और दूसरी जानकारी देखने के लिए, फ़ोन की स्क्रीन पर दो बार टैप करें."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"फ़ोन चेक करने के लिए उसे उठाएं"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"फ़ोन की स्क्रीन देखने के लिए उसे उठाएं"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"टैबलेट देखने के लिए लिफ़्ट करें"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"डिवाइस देखने के लिए लिफ़्ट करें"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"चालू करने का डिसप्ले"</string>
@@ -4248,13 +4248,13 @@
     <string name="launch_instant_app" msgid="5251693061228352333">"खोलें"</string>
     <string name="game_storage_settings" msgid="6856911551799175914">"गेम"</string>
     <string name="audio_files_title" msgid="3073879661731363935">"ऑडियो फ़ाइलें"</string>
-    <string name="app_info_storage_title" msgid="6643391804949509308">"उपयोग की गई जगह"</string>
+    <string name="app_info_storage_title" msgid="6643391804949509308">"इस्तेमाल की गई जगह"</string>
     <string name="webview_uninstalled_for_user" msgid="3407952144444040557">"(उपयोगकर्ता <xliff:g id="USER">%s</xliff:g> के लिए अनइंस्टॉल है)"</string>
     <string name="webview_disabled_for_user" msgid="8057805373224993504">"(उपयोगकर्ता <xliff:g id="USER">%s</xliff:g> के लिए बंद है)"</string>
     <string name="autofill_app" msgid="3990765434980280073">"अपने आप भरने की सेवा"</string>
     <string name="autofill_keywords" msgid="7717726766232862218">"ऑटो, भरना, ऑटोमैटिक भरना"</string>
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;पक्का करें कि आप इस ऐप्लिकेशन पर भरोसा करते हैं&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google ऑटोमैटिक भरना&gt;%1$s&lt;/xliff:g&gt; ऑटोमैटिक भरी जा सकने वाली चीज़ें तय करने के लिए आपकी स्क्रीन पर मौजूद चीज़ों का इस्तेमाल करता है."</string>
-    <string name="debug_autofill_category" msgid="6262526615416295645">"अपने आप भरने की सुविधा (ऑटो फ़िल)"</string>
+    <string name="debug_autofill_category" msgid="6262526615416295645">"अपने-आप भरने की सुविधा (ऑटो फ़िल)"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"लॉग की गई जानकारी का लेवल"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"हर सत्र में ज़्यादा से ज़्यादा इतने अनुरोध शामिल कर सकते हैं"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"दिखने वाले डेटा सेट की ज़्यादा से ज़्यादा संख्या"</string>
@@ -4415,7 +4415,7 @@
     <string name="mobile_network_use_sim_off" msgid="2077820358051946635">"बंद"</string>
     <string name="mobile_network_esim_swap_confirm_title" msgid="6077154427380613615">"<xliff:g id="CARRIER">%1$s</xliff:g> पर स्विच करें?"</string>
     <string name="mobile_network_esim_swap_confirm_body" msgid="1192274915146275063">"एक समय में डाउनलोड किया गया सिर्फ़ एक सिम इस्तेमाल किया जा सकता है. \n\n <xliff:g id="CARRIER1">%1$s</xliff:g> में स्विच करने से आपके <xliff:g id="CARRIER2">%2$s</xliff:g> की सेवा रद्द नहीं की जाएगी."</string>
-    <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> पर जाएं"</string>
+    <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"<xliff:g id="CARRIER">%1$s</xliff:g> पर स्विच करें"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"सिम मिटाएं"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"इस डाउनलोड किए गए सिम को मिटाएं?"</string>
     <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"इस सिम को इस डिवाइस से मिटाने पर <xliff:g id="CARRIER_0">%1$s</xliff:g> सेवा हट जाती है.\n\n<xliff:g id="CARRIER_1">%2$s</xliff:g> के लिए सेवा रद्द नहीं की जाएगी."</string>
@@ -4423,9 +4423,9 @@
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"सिम को हमेशा के लिए मिटाया जा रहा है…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"सिम नहीं मिटाया जा सकता"</string>
     <string name="mobile_network_erase_sim_error_dialog_body" msgid="5955463559366034787">"गड़बड़ी की वजह से इस सिम को मिटाया नहीं जा सकता.\n\nडिवाइस रीस्टार्ट करें और फिर से कोशिश करें."</string>
-    <string name="preferred_network_mode_title" msgid="8324526359482124770">"पसंदीदा नेटवर्क प्रकार"</string>
+    <string name="preferred_network_mode_title" msgid="8324526359482124770">"पसंदीदा नेटवर्क टाइप"</string>
     <string name="preferred_network_mode_summary" msgid="388957154320426335">"नेटवर्क संचालन मोड बदलें"</string>
-    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"पसंदीदा नेटवर्क प्रकार"</string>
+    <string name="preferred_network_mode_dialogtitle" msgid="5448698073828567428">"पसंदीदा नेटवर्क टाइप"</string>
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"मोबाइल और इंटरनेट सेवा देने वाली कंपनी"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"सेटिंग वर्शन"</string>
     <string name="call_category" msgid="3418535202893644015">"कॉल करना"</string>
@@ -4439,7 +4439,7 @@
     <string name="cdma_subscription_summary" msgid="2298861419202726628">"RUIM/सिम और NV में बदलाव करें"</string>
     <string name="cdma_subscription_dialogtitle" msgid="232485231569225126">"सदस्यता"</string>
     <string name="register_automatically" msgid="1858081641661493109">"अपने आप रजिस्ट्रेशन…"</string>
-    <string name="roaming_alert_title" msgid="1849237823113454475">"डेटा रोमिंग की अनुमति दें?"</string>
+    <string name="roaming_alert_title" msgid="1849237823113454475">"डेटा रोमिंग की अनुमति देना चाहते हैं?"</string>
     <string name="roaming_check_price_warning" msgid="5883499714594419439">"कीमतों की जानकारी के लिए आपको नेटवर्क सेवा देने वाली कंपनी से संपर्क करें."</string>
     <string name="mobile_data_usage_title" msgid="2376358672434990037">"ऐप्लिकेशन का डेटा इस्तेमाल"</string>
     <string name="mobile_network_mode_error" msgid="6818434186286086554">"गलत नेटवर्क मोड <xliff:g id="NETWORKMODEID">%1$d</xliff:g>. अनदेखा करें."</string>

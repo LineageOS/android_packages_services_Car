@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privatliv"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Deaktiveret af administratoren"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sikkerhedsstatus"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skærmlås, Ansigtslås"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skærmlås, ansigtslås"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skærmlås, fingeraftryk"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skærmlås"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Ansigtet blev tilføjet"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Fjern ansigtsdata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Du kan låse din enhed op og få adgang til apps ved hjælp af dit ansigt. "<annotation id="url">"Få flere oplysninger"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Vil du slette ansigtsdata?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data, der er registreret via Ansigtslås slettes permanent på en sikker måde. Efter fjernelsen skal du bruge din pinkode, dit mønster eller din adgangskode til at låse din telefon op, logge ind i apps og bekræfte betalinger."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data, der er registreret via ansigtslås, slettes permanent på en sikker måde. Efter fjernelsen skal du bruge din pinkode, dit mønster eller din adgangskode til at låse din telefon op, logge ind i apps og bekræfte betalinger."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingeraftryk"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Adm. fingeraftryk"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Brug fingeraftryk til"</string>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Ingen tidsplan"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"Baseret på din rutine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"Baseret på procent"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Batterisparefunktion aktiveres, hvis dit batteri ser ud til at løbe tør inden det tidspunkt, hvor du normalt oplader det."</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Batterisparefunktion aktiveres, hvis dit batteri ser ud til at løbe tør inden det tidspunkt, hvor du normalt oplader det"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Aktiveres ved <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Angiv en tidsplan"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Deaktiver, når enheden er opladet"</string>
@@ -2573,8 +2573,8 @@
     <string name="no_device_admins" msgid="4129231900385977460">"Der er ikke nogen tilgængelige apps til enhedsadministration"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Personlig"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"Arbejde"</string>
-    <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Begræns adgang til sms og opkaldsliste"</string>
-    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Det er kun standardapps til opkald og beskeder, der har tilladelser for sms og opkaldsliste"</string>
+    <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Begræns adgang til sms og opkaldshistorik"</string>
+    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Det er kun standardapps til opkald og beskeder, der har tilladelser for sms og opkaldshistorik"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Der er ingen tilgængelige trust agents"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktivér appen til enhedsadministration?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktivér denne app til enhedsadministration"</string>
@@ -2710,7 +2710,7 @@
     <string name="data_usage_auto_sync_off_dialog" msgid="4057984234450947964">"Dette vil sænke data- og batteriforbruget, men du skal til gengæld synkronisere hver konto manuelt for at hente de seneste oplysninger, og du vil ikke modtage notifikationer, når der kommer nye opdateringer."</string>
     <string name="data_usage_cycle_editor_title" msgid="4967309390043599889">"Dato for nulstilling af forbrugsperiode"</string>
     <string name="data_usage_cycle_editor_subtitle" msgid="6043098041946166597">"Dato i hver måned:"</string>
-    <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Gem"</string>
+    <string name="data_usage_cycle_editor_positive" msgid="9155752056537811646">"Angiv"</string>
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Konfigurer en advarsel om dataforbrug"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Angiv en grænse for dataforbrug"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Grænse for dataforbrug"</string>
@@ -3281,7 +3281,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(aktuel indstilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Vil du ændre notifikationsindstillingerne for Forstyr ikke?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Lyde for arbejdsprofil"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Brug lyde fra privat profil"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Brug lyde fra din personlige profil"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Lydene er de samme for din arbejdsprofil og din personlige profil"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Ringetone til arbejdstelefon"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Standardlyd for arbejdsnotifikationer"</string>

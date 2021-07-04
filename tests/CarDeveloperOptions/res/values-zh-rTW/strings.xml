@@ -275,7 +275,7 @@
     <string name="dlg_remove_locales_message" msgid="5179370688876343176">"使用介面的文字會切換成另一種語言。"</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"無法移除所有語言"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"請保留至少一種偏好語言"</string>
-    <string name="locale_not_translated" msgid="7943669576006420058">"部分應用程式可能不提供支援"</string>
+    <string name="locale_not_translated" msgid="7943669576006420058">"某些應用程式可能不支援這個語言"</string>
     <string name="action_drag_label_move_up" msgid="2074064283966078352">"向上移"</string>
     <string name="action_drag_label_move_down" msgid="1367989732445492291">"向下移"</string>
     <string name="action_drag_label_move_top" msgid="2033098833739345957">"移至頂端"</string>
@@ -1208,7 +1208,7 @@
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"螢幕感知"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"啟用/螢幕不會在你注視時關閉"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"關閉"</string>
-    <string name="adaptive_sleep_description" msgid="812673735459170009">"避免螢幕在你注視時關閉。"</string>
+    <string name="adaptive_sleep_description" msgid="812673735459170009">"當你注視著手機時，螢幕不會關閉。"</string>
     <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"螢幕感知功能會使用前置鏡頭，判斷是否有人正在注視螢幕。這項功能只會在裝置上運作，系統不會儲存相關圖像或將其傳送至 Google。"</string>
     <string name="night_display_title" msgid="1305002424893349814">"夜燈"</string>
     <string name="night_display_text" msgid="5330502493684652527">"夜燈功能會將你的螢幕色調改為琥珀色，讓你更輕鬆地在光線昏暗的環境中查看螢幕，也比較容易入睡。"</string>
@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"耗電量低"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi‑Fi 和藍牙掃描"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"掃描 Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi-Fi 功能處於關閉狀態)。這麼做可以改善適地性功能和服務等等。"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"允許應用程式和服務隨時掃描 Wi‑Fi 網路 (即使 Wi-Fi 功能處於關閉狀態)。這項設定有助於改善適地性相關功能和服務等等。"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"藍牙掃描"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃描附近裝置 (即使藍牙功能處於關閉狀態)。這麼做可以改善適地性功能和服務等等。"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"允許應用程式和服務隨時掃描附近裝置 (即使藍牙功能處於關閉狀態)。這項設定有助於改善適地性相關功能和服務等等。"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"工作用定位服務"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Wi-Fi 和行動網路位置"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"允許應用程式使用 Google 的定位服務加速判斷你的約略位置。系統會收集匿名的位置資料並傳送給 Google。"</string>
@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"無障礙設定"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"螢幕閱讀器、顯示、互動控制項"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"視覺輔助設定"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"你可以根據個人需求自訂這個裝置，日後，你可以前往 [設定] 變更這些無障礙功能。"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"你可以根據個人需求自訂這部裝置，並在之後前往「設定」變更這些無障礙功能。"</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"變更字型大小"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"螢幕閱讀器"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"音訊和畫面上的文字"</string>
@@ -2995,7 +2995,7 @@
     <string name="sim_calls_always_use" msgid="5322696995795851734">"一律使用這張 SIM 卡通話"</string>
     <string name="select_sim_for_data" msgid="2099705792885526394">"選擇數據連線 SIM 卡"</string>
     <string name="select_sim_for_sms" msgid="2481682560233370731">"選取要用於收發簡訊的 SIM 卡"</string>
-    <string name="data_switch_started" msgid="4517966162053949265">"正在切換行動數據連線 SIM 卡，這可能需要一點時間..."</string>
+    <string name="data_switch_started" msgid="4517966162053949265">"正在切換行動數據連線 SIM 卡，這最多可能需要一分鐘..."</string>
     <string name="select_sim_for_calls" msgid="131091573472832807">"選擇通話 SIM 卡"</string>
     <string name="sim_select_card" msgid="5558215843972182767">"選取 SIM 卡"</string>
     <string name="sim_card_number_title" msgid="8808663374497085634">"SIM <xliff:g id="CARD_NUMBER">%1$d</xliff:g>"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"支付、輕觸、付款"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"備份內容, 備份"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"手勢"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"臉孔, 解鎖, 驗證, 登入"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"人臉, 解鎖, 驗證, 登入"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"IMEI、MEID、MIN、PRL 版本、IMEI SV"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"網路、行動網路狀態、服務狀態、訊號強度、行動網路類型、漫遊、ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"序號、硬體版本"</string>
@@ -3296,7 +3296,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"其他音效與震動"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"通知"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"最近傳送通知的應用程式"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"查看過去 7 天的所有相關內容"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"查看過去 7 天的所有應用程式"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"進階"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Work 通知"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"自動通知優先順序排序工具"</string>
@@ -3371,14 +3371,14 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"不使用小幫手"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"最近沒有已安裝的應用程式要求「通知」存取權。"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"要允許<xliff:g id="SERVICE">%1$s</xliff:g>存取通知嗎？"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g>將可讀取所有通知 (包括聯絡人姓名和你收到的訊息文字等個人資訊)，而且還能修改或關閉通知，或者觸發通知當中的動作按鈕。\n\n此外，該應用程式將因此能夠開啟或關閉「零打擾」模式，以及變更相關設定。"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"要允許 <xliff:g id="SERVICE">%1$s</xliff:g> 的通知存取權嗎？"</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"「<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g>」將可讀取所有通知 (包括聯絡人姓名和你收到的訊息文字等個人資訊)，而且還能修改或關閉通知，或者觸發通知當中的動作按鈕。\n\n此外，該應用程式將因此能夠開啟或關閉「零打擾」模式，以及變更相關設定。"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"要授予「<xliff:g id="SERVICE">%1$s</xliff:g>」通知存取權嗎？"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」將能讀取所有通知，包括聯絡人姓名以及你收到的訊息文字等個人資訊，而且還能關閉通知或觸發通知當中的動作按鈕。\n\n此外，該應用程式將能關閉或開啟「零打擾」模式，以及變更相關設定。"</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"如果你停用「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」的通知存取權，「零打擾」模式的存取權可能也會一併遭到停用。"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"關閉"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"取消"</string>
     <string name="vr_listeners_title" msgid="511483902408792832">"VR 小幫手服務"</string>
-    <string name="no_vr_listeners" msgid="7675484190394450979">"沒有任何已安裝的應用程式要求透過 VR 小幫手服務來執行。"</string>
+    <string name="no_vr_listeners" msgid="7675484190394450979">"沒有任何已安裝的應用程式要求以 VR 小幫手服務的形式執行。"</string>
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"要允許 <xliff:g id="SERVICE">%1$s</xliff:g> 存取 VR 服務嗎？"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"你必須透過虛擬實境模式使用應用程式，才能執行「<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g>」。"</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"當裝置處於 VR 模式時"</string>
@@ -3964,8 +3964,8 @@
     <string name="configure" msgid="8232696842838580549">"設定"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"計入數據用量的其他應用程式"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">已允許 <xliff:g id="COUNT">%1$d</xliff:g> 個應用程式在數據節省模式開啟時無限量使用數據</item>
-      <item quantity="one">已允許 1 個應用程式在數據節省模式開啟時無限量使用數據</item>
+      <item quantity="other">已允許 <xliff:g id="COUNT">%1$d</xliff:g> 個應用程式在數據節省模式開啟時不受任何數據用量限制</item>
+      <item quantity="one">已允許 1 個應用程式在數據節省模式開啟時不受任何數據用量限制</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"主要數據"</string>
     <string name="data_usage_wifi_title" msgid="7161828479387766556">"Wi‑Fi 數據"</string>
@@ -4120,18 +4120,18 @@
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"如要切換應用程式，請在主螢幕按鈕上向上滑動。再次向上滑動即可查看所有應用程式。這項操作適用於任何畫面。你的螢幕右下方將不會再有 [總覽] 按鈕。"</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"體驗新版主螢幕按鈕"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"啟用新手勢即可切換應用程式"</string>
-    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕觸兩下手機即可查看"</string>
+    <string name="ambient_display_title" product="default" msgid="6785677099744344088">"輕觸兩下手機即可喚醒螢幕"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"輕觸兩下平板電腦即可查看"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"輕觸兩下裝置即可查看"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"輕觸兩下螢幕即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起手機即可查看"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"拿起手機即可喚醒螢幕"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"拿起平板電腦即可查看"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"拿起裝置即可查看"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"喚醒螢幕"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"拿起手機即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"拿起平板電腦即可查看時間、通知和其他資訊。"</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"拿起裝置即可查看時間、通知和其他資訊。"</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕觸以查看手機"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"輕觸手機即可喚醒螢幕"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"輕觸以查看平板電腦"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"輕觸以查看裝置"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"如要查看時間、通知和其他資訊，請輕觸螢幕。"</string>

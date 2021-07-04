@@ -179,7 +179,7 @@
     <string name="connected_device_connected_title" msgid="6255107326608785482">"Momenteel verbonden"</string>
     <string name="connected_device_saved_title" msgid="8270136893488475163">"Opgeslagen apparaten"</string>
     <string name="connected_device_add_device_summary" msgid="7960491471270158891">"Bluetooth wordt ingeschakeld om te koppelen"</string>
-    <string name="connected_device_connections_title" msgid="9205000271382018428">"Verbindingsvoorkeuren"</string>
+    <string name="connected_device_connections_title" msgid="9205000271382018428">"Verbindings­voorkeuren"</string>
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Eerder verbonden apparaten"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Eerder verbonden"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"Bluetooth ingeschakeld"</string>
@@ -543,7 +543,7 @@
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
-    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Schermvergrendeling kiezen"</string>
+    <string name="lock_settings_picker_title" msgid="1034741644461982205">"Scherm­vergrendeling kiezen"</string>
     <string name="lock_settings_picker_title_profile" msgid="5086594364428782115">"Werkvergr. kiezen"</string>
     <string name="setup_lock_settings_picker_title" product="tablet" msgid="2429667472335773519">"Je tablet beschermen"</string>
     <string name="setup_lock_settings_picker_title" product="device" msgid="4739290104106645233">"Je apparaat beschermen"</string>
@@ -796,7 +796,7 @@
     <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"Als luidspreker"</string>
     <string name="bluetooth_dock_settings_a2dp" msgid="6618893632901282661">"Voor muziek en media"</string>
     <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"Instellingen onthouden"</string>
-    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maximum aantal verbonden Bluetooth-audioapparaten"</string>
+    <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"Maximum aantal verbonden bluetooth-audioapparaten"</string>
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"Selecteer het maximum aantal verbonden Bluetooth-audioapparaten"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"Casten"</string>
     <string name="wifi_display_enable_menu_item" msgid="4578340247147692250">"Draadloze weergave inschakelen"</string>
@@ -1203,7 +1203,7 @@
     <string name="auto_brightness_off_summary" msgid="6162650416289359104">"Niet aanpassen aan het beschikbare licht"</string>
     <string name="auto_brightness_very_high_summary" msgid="7202032980509583918">"Hoger batterijgebruik"</string>
     <string name="auto_brightness_disclaimer" msgid="5416696351199148809">"Helderheidsniveau optimaliseren voor het beschikbare licht. Als deze functie is ingeschakeld, kun je de helderheid alsnog tijdelijk aanpassen."</string>
-    <string name="auto_brightness_description" msgid="8209140379089535411">"Je schermhelderheid wordt automatisch aangepast aan je omgeving en je activiteiten. Je kunt de schuifregelaar handmatig verplaatsen zodat \'Aanpasbare helderheid\' je voorkeuren leert kennen."</string>
+    <string name="auto_brightness_description" msgid="8209140379089535411">"Je schermhelderheid wordt automatisch aangepast aan je omgeving en je activiteiten. Je kunt de schuifregelaar handmatig verplaatsen zodat Aanpasbare helderheid je voorkeuren leert kennen."</string>
     <string name="display_white_balance_title" msgid="5747260735311935143">"Witbalans van scherm"</string>
     <string name="adaptive_sleep_title" msgid="3237620948260957018">"Screen aware"</string>
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"Aan: scherm schakelt niet uit als je ernaar kijkt"</string>
@@ -1621,11 +1621,11 @@
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Kan niet tetheren of draagbare hotspots gebruiken terwijl Databesparing is ingeschakeld"</string>
     <string name="usb_title" msgid="7480927657535578688">"USB"</string>
     <string name="usb_tethering_button_text" msgid="6242228383142012332">"USB-tethering"</string>
-    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Internetverbinding van telefoon delen via USB"</string>
+    <string name="usb_tethering_subtext" product="default" msgid="1573513260339548671">"Deel internetverbinding van telefoon via USB"</string>
     <string name="usb_tethering_subtext" product="tablet" msgid="154536000235361034">"Internetverbinding van tablet delen via USB"</string>
     <string name="bluetooth_tether_checkbox_text" msgid="7257293066139372774">"Bluetooth-tethering"</string>
     <string name="bluetooth_tethering_subtext" product="tablet" msgid="6868756914621131635">"Internetverbinding van deze tablet delen via bluetooth"</string>
-    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Internetverbinding van telefoon delen via bluetooth"</string>
+    <string name="bluetooth_tethering_subtext" product="default" msgid="9167912297565425178">"Deel internetverbinding van telefoon via bluetooth"</string>
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Internetverbinding van deze <xliff:g id="DEVICE_NAME">%1$d</xliff:g> delen via bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Kan niet meer dan <xliff:g id="MAXCONNECTION">%1$d</xliff:g> apparaten tetheren."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"Tethering van <xliff:g id="DEVICE_NAME">%1$s</xliff:g> wordt opgeheven."</string>
@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Instellingen voor toegankelijkheid"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Schermlezers, weergave, interactieopties"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Optische instellingen"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Je kunt dit apparaat aanpassen aan je behoeften. Deze toegankelijkheidsfuncties kunnen later worden gewijzigd in Instellingen."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Pas dit apparaat aan je behoeften aan. Je kunt de toegankelijkheidsfuncties later altijd veranderen in Instellingen."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Lettergrootte wijzigen"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Schermlezers"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio en tekst op het scherm"</string>
@@ -2714,8 +2714,8 @@
     <string name="data_usage_warning_editor_title" msgid="1431385383278389290">"Waarschuwing voor datagebruik instellen"</string>
     <string name="data_usage_limit_editor_title" msgid="1687908662154108293">"Limiet voor dataverbruik instellen"</string>
     <string name="data_usage_limit_dialog_title" msgid="8804760847110131518">"Datagebruik beperken"</string>
-    <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"Je tablet schakelt mobiele data uit zodra je de ingestelde limiet bereikt.\n\nAangezien het datagebruik wordt gemeten door je tablet en je provider het gebruik afwijkend kan berekenen, kun je overwegen een conservatieve limiet in te stellen."</string>
-    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Je telefoon schakelt mobiele data uit zodra je de ingestelde limiet bereikt.\n\nAangezien het datagebruik wordt gemeten door je telefoon, en je provider het gebruik afwijkend kan berekenen, kun je overwegen een conservatieve limiet in te stellen."</string>
+    <string name="data_usage_limit_dialog_mobile" product="tablet" msgid="2000713577999830647">"Je tablet zet mobiele data uit zodra je de ingestelde limiet bereikt.\n\nAangezien het datagebruik wordt gemeten door je tablet, en je provider tot een ander totaal kan komen, kun je het beste een voorzichtige limiet instellen."</string>
+    <string name="data_usage_limit_dialog_mobile" product="default" msgid="943546278705619205">"Je telefoon zet mobiele data uit zodra je de ingestelde limiet bereikt.\n\nAangezien het datagebruik wordt gemeten door je telefoon, en je provider tot een ander totaal kan komen, kun je het beste een voorzichtige limiet instellen."</string>
     <string name="data_usage_restrict_background_title" msgid="3568746530413220844">"Achtergrondgegevens beperken?"</string>
     <string name="data_usage_restrict_background" msgid="995811034744808575">"Als je mobiele data op de achtergrond beperkt, werken sommige apps en services alleen als je verbinding hebt via wifi."</string>
     <string name="data_usage_restrict_background_multiuser" product="tablet" msgid="6032810839234864814">"Als je mobiele data op de achtergrond beperkt, werken sommige apps en services alleen als je verbinding hebt via wifi.\n\nDeze instelling is van toepassing op alle gebruikers van deze tablet."</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"betalen, tikken, betalingen"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"back-up, back-up maken, back-uppen"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gebaar"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"gezicht, ontgrendelen, auth, inloggen"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"gezicht, gezichtsherkenning, ontgrendelen, auth, inloggen"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl-versie, imei-softwareversie"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"netwerk, status mobiel netwerk, servicestatus, signaalsterkte, type mobiel netwerk, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"serienummer, hardwareversie"</string>
@@ -3296,7 +3296,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"Andere geluiden en trillingen"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"Meldingen"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"Recent verstuurd"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Alles weergeven van de afgelopen zeven dagen"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"Alles van de afgelopen 7 dagen bekijken"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"Geavanceerd"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"Werkmeldingen"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"Automatische prioriteiten voor meldingen"</string>
@@ -3436,7 +3436,7 @@
     <string name="zen_mode_rule_delete_button" msgid="6763486487220471193">"Verwijderen"</string>
     <string name="zen_mode_rule_rename_button" msgid="1428130397306726792">"Naam wijzigen"</string>
     <string name="zen_mode_rule_name" msgid="8583652780885724670">"Naam van planning"</string>
-    <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Naam van planning opgeven"</string>
+    <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Geef naam planning op"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Naam van planning wordt al gebruikt"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Meer toevoegen"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Afsprakenplanning toevoegen"</string>
@@ -4057,7 +4057,7 @@
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> apps kunnen onbeperkt data gebruiken</item>
       <item quantity="one">1 app kan onbeperkt data gebruiken</item>
     </plurals>
-    <string name="special_access_more" msgid="7086690625048471400">"Meer weergeven"</string>
+    <string name="special_access_more" msgid="7086690625048471400">"Meer tonen"</string>
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"Weet je zeker dat je de gebruikersgegevens wilt wissen en wilt converteren naar versleuteling op basis van bestanden?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"Wissen en converteren"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"Rate limiting van ShortcutManager resetten"</string>
@@ -4390,7 +4390,7 @@
     <string name="calls_preference" msgid="2076353032705811243">"Voorkeur voor gesprekken"</string>
     <string name="sms_preference" msgid="8449270011976880">"Sms-voorkeuren"</string>
     <string name="calls_and_sms_ask_every_time" msgid="2776167541223210738">"Altijd vragen"</string>
-    <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Een netwerk toevoegen"</string>
+    <string name="mobile_network_summary_add_a_network" msgid="5408745221357144009">"Voeg een netwerk toe"</string>
     <plurals name="mobile_network_summary_count" formatted="false" msgid="6222822873390636020">
       <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> simkaarten</item>
       <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> simkaart</item>
@@ -4408,7 +4408,7 @@
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Actief/simkaart"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Inactief/simkaart"</string>
     <string name="mobile_network_active_esim" msgid="2919290915755581140">"Actief, gedownloade simkaart"</string>
-    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inactief/gedownloade simkaart"</string>
+    <string name="mobile_network_inactive_esim" msgid="6525747163540293028">"Inactief, gedownloade simkaart"</string>
     <string name="mobile_network_sim_name" msgid="8228870017368926761">"Naam van simkaart"</string>
     <string name="mobile_network_sim_name_rename" msgid="4810736493612513152">"Naam wijzigen"</string>
     <string name="mobile_network_use_sim_on" msgid="1944823242539751387">"Simkaart gebruiken"</string>
@@ -4418,7 +4418,7 @@
     <string name="mobile_network_esim_swap_confirm_ok" msgid="4253442720111626242">"Overschakelen naar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="mobile_network_erase_sim" msgid="7813251003613841044">"Simkaart wissen"</string>
     <string name="mobile_network_erase_sim_dialog_title" msgid="3796268164204467499">"Deze gedownloade simkaart wissen?"</string>
-    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Als deze simkaart wordt gewist, wordt de <xliff:g id="CARRIER_0">%1$s</xliff:g>-service van dit apparaat verwijderd.\n\nDe service voor <xliff:g id="CARRIER_1">%2$s</xliff:g> wordt niet geannuleerd."</string>
+    <string name="mobile_network_erase_sim_dialog_body" msgid="1923189407958581450">"Als je deze simkaart wist, wordt de <xliff:g id="CARRIER_0">%1$s</xliff:g>-service van dit apparaat verwijderd.\n\nDe service voor <xliff:g id="CARRIER_1">%2$s</xliff:g> wordt niet geannuleerd."</string>
     <string name="mobile_network_erase_sim_dialog_ok" msgid="7133484721717815447">"Wissen"</string>
     <string name="mobile_network_erase_sim_dialog_progress" msgid="4881754030959536493">"Simkaart wissen…"</string>
     <string name="mobile_network_erase_sim_error_dialog_title" msgid="9026625253242102706">"Kan simkaart niet wissen"</string>
@@ -4447,7 +4447,7 @@
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"Niet beschikbaar wanneer verbonden met <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
     <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"Medische gegevens, contacten voor noodgevallen"</string>
     <string name="see_more" msgid="7463940160389802632">"Meer bekijken"</string>
-    <string name="see_less" msgid="3718892257002813387">"Minder weergeven"</string>
+    <string name="see_less" msgid="3718892257002813387">"Minder tonen"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"Apparaat om te gebruiken met <xliff:g id="APPNAME">%1$s</xliff:g>"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"Geen apparaten gevonden. Zorg dat apparaten zijn ingeschakeld en beschikbaar zijn voor verbinding."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"Opnieuw proberen"</string>

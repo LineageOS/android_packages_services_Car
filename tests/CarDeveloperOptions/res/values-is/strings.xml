@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Persónuvernd"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Gert óvirkt af kerfisstjóra"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Öryggisstaða"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skjálás, andlitsopnun"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skjálás, andlitskenni"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skjálás, fingrafar"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skjálás"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Andliti bætt við"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Fjarl. andlitsgögn"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Þú getur notað andlitið þitt til að taka símann úr lás og fá aðgang að forritum. "<annotation id="url">"Frekari upplýsingar"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Eyða andlitsgögnum?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Gögnum sem skráð eru við andlitsopnun verður eytt á öruggan hátt fyrir fullt og allt. Þegar þeim hefur verið eytt þarftu PIN-númer, mynstur eða aðgangsorð til að taka símann úr lás, skrá þig inn í forrit og staðfesta greiðslur."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Gögnum sem skráð eru við andlitskenni verður eytt á öruggan hátt fyrir fullt og allt. Þegar þeim hefur verið eytt þarftu PIN-númer, mynstur eða aðgangsorð til að taka símann úr lás, skrá þig inn í forrit og staðfesta greiðslur."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingrafar"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Stjórna fingraförum"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Nota fingrafar fyrir"</string>
@@ -1175,7 +1175,7 @@
     <string name="color_mode_option_natural" msgid="1292837781836645320">"Náttúrulegir"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"Efldir"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"Mettaðir"</string>
-    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegur"</string>
+    <string name="color_mode_option_automatic" msgid="6572718611315165117">"Breytilegir"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"Nota aðeins nákvæma liti"</string>
     <string name="color_mode_summary_automatic" msgid="6066740785261330514">"Stilla á líflega eða nákvæma liti"</string>
     <string name="accelerometer_summary_on" product="tablet" msgid="5750977897791656412">"Snúa skjámynd sjálfkrafa þegar spjaldtölvu er snúið"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"borga, ýta, greiðslur"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"afrita, afritun"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"bendingar"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"andlit, opna, taka úr lás, sannvottun, innskráning, skrá inn"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"andlit, opna, taka úr lás, sannvottun, skrá inn"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl-útgáfa, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"netkerfi, staða farsímakerfis, staða þjónustu, sendistyrkur, tegund farsímakerfis, reiki, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"raðnúmer, vélbúnaðarútgáfa"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"Þegar tilkynningar berast mun síminn hvorki gefa frá sér hljóð né titra."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"Engin skilaboð á skjá eða hljóð frá tilkynningum"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"Þú munt hvorki sjá né heyra tilkynningar"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Síminn hvorki sýnir, titrar eða gefur frá sér hljóð fyrir nýjar eða fyrirliggjandi tilkynningar. Hafðu í huga að áríðandi tilkynningar um aðgerðir og stöðu símans birtast áfram.\n\nÞegar slökkt er á „Ónáðið ekki“ má sjá tilkynningar með því að strjúka niður frá toppi skjásins."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"Síminn hvorki sýnir, titrar né gefur frá sér hljóð fyrir nýjar eða fyrirliggjandi tilkynningar. Hafðu í huga að áríðandi tilkynningar um aðgerðir og stöðu símans birtast áfram.\n\nÞegar slökkt er á „Ónáðið ekki“ má sjá tilkynningar með því að strjúka niður frá toppi skjásins."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"Sérsniðið"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"Kveikja á sérstillingu"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"Fjarlægja sérstillingu"</string>
@@ -3281,9 +3281,9 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(Núverandi stilling)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Viltu breyta stillingum tilkynninga fyrir „Ónáðið ekki“?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Hljóð vinnuprófils"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Nota hljóð úr persónulegum prófíl"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Nota hljóð úr eigin sniði"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Hljóð vinnuprófíls eru þau sömu og í persónulegum prófíl"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"Vinnuhringingartónn"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"Vinnuhringitónn"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Sjálfgefið hljóð vinnutilkynninga"</string>
     <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"Sjálfgefið hljóð í vekjara fyrir vinnu"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"Sama og í persónulegum prófíl"</string>
@@ -3589,7 +3589,7 @@
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI-tengdar upplýsingar"</string>
     <string name="slot_number" msgid="785422579177068698">"(Rauf<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
     <string name="launch_by_default" msgid="6106985160202769725">"Opna sjálfgefið"</string>
-    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Opnar tengla"</string>
+    <string name="app_launch_domain_links_title" msgid="2987289657348349133">"Opnun tengla"</string>
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"Opna studda tengla"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"Opna án þess að spyrja"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"Studdir tenglar"</string>
@@ -3649,7 +3649,7 @@
     <string name="app_permissions_summary" msgid="8785798165776061594">"Forrit sem nota <xliff:g id="APPS">%1$s</xliff:g>"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"Ýta til að vekja"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"Ýttu tvisvar hvar sem er á skjáinn til að vekja tækið."</string>
-    <string name="domain_urls_title" msgid="7939209950373945367">"Opnar tengla"</string>
+    <string name="domain_urls_title" msgid="7939209950373945367">"Opnun tengla"</string>
     <string name="domain_urls_summary_none" msgid="5401203416941265109">"Ekki opna studda tengla"</string>
     <string name="domain_urls_summary_one" msgid="3893975485064803435">"Opna „<xliff:g id="DOMAIN">%s</xliff:g>“"</string>
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Opna <xliff:g id="DOMAIN">%s</xliff:g> og aðrar vefslóðir"</string>
@@ -4404,7 +4404,7 @@
     <string name="subscription_available" msgid="1227974088365700952">"Í boði"</string>
     <string name="mobile_network_in_range" msgid="9205757267706176023">"Samband"</string>
     <string name="mobile_network_not_in_range" msgid="3772644769833809436">"Ekkert samband"</string>
-    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Bæta fleiri við"</string>
+    <string name="mobile_network_list_add_more" msgid="65420172175416318">"Bæta fleirum við"</string>
     <string name="mobile_network_active_sim" msgid="7660119090716084589">"Virkt / SIM-kort"</string>
     <string name="mobile_network_inactive_sim" msgid="8296195866147486039">"Óvirkt / SIM-kort"</string>
     <string name="mobile_network_active_esim" msgid="2919290915755581140">"Virk / sótt SIM-kort"</string>

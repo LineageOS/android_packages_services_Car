@@ -825,7 +825,7 @@
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Permite troca de dados quando o smartphone encosta em outro dispositivo"</string>
     <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Ativar NFC"</string>
     <string name="nfc_disclaimer_content" msgid="3066113577854565782">"O NFC troca dados entre este dispositivo e outros dispositivos ou alvos nas proximidades, tais como terminais de pagamento, leitores de acesso e tags ou anúncios interativos."</string>
-    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"Proteger NFC"</string>
+    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC segura"</string>
     <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Permitir pagamento por NFC e uso do Transit apenas com a tela desbloqueada"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Pronto para transmitir conteúdo de apps via NFC"</string>
@@ -1246,7 +1246,7 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"Personalizar sua tela"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"Selecionar de..."</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"Protetor de tela"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar ou quando encaixado na base"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"Ao carregar/encaixado na base"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"Ambos"</string>
     <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"Ao carregar"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"Na base"</string>
@@ -1299,7 +1299,7 @@
     <string name="sim_change_data_title" msgid="2512227368681250054">"Usar <xliff:g id="CARRIER">%1$s</xliff:g> para dados móveis?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"Você está usando <xliff:g id="CARRIER2_0">%2$s</xliff:g> para dados móveis. Se alterar para <xliff:g id="CARRIER1">%1$s</xliff:g>, <xliff:g id="CARRIER2_1">%2$s</xliff:g> não será mais usada para dados móveis."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"Usar <xliff:g id="CARRIER">%1$s</xliff:g>"</string>
-    <string name="sim_preferred_title" msgid="3389680276182899407">"Atualiz. chip preferido?"</string>
+    <string name="sim_preferred_title" msgid="3389680276182899407">"Atualizar chip preferido?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"O <xliff:g id="NEW_SIM">%1$s</xliff:g> é o único chip no seu dispositivo. Quer usá-lo para dados móveis, chamadas e mensagens SMS?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"Código PIN do chip incorreto. Entre em contato com a operadora para desbloquear o dispositivo."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
@@ -1585,7 +1585,7 @@
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Os chips transferidos por download não podem ser limpos devido a um erro.\n\nReinicie o dispositivo e tente novamente."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Limpar todos os dados (redefinir para a configuração original)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Limpar todos os dados"</string>
-    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu tablet, incluindo:\n\n"<li>"sua Conta do Google;"</li>\n<li>"configurações e dados do sistema e dos apps;"</li>\n<li>"apps transferidos."</li></string>
+    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu tablet, incluindo:\n\n"<li>"Sua Conta do Google"</li>\n<li>"Configurações e dados do sistema e dos apps"</li>\n<li>"Apps instalados"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Essa ação apagará todos os dados do "<b>"armazenamento interno"</b>" do seu smartphone, incluindo:\n\n"<li>"Sua Conta do Google"</li>\n<li>"Configurações e dados do sistema e dos apps"</li>\n<li>"Apps transferidos"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"No momento você está conectado às seguintes contas:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Há outros usuários presentes neste dispositivo.\n"</string>
@@ -1629,7 +1629,7 @@
     <string name="bluetooth_tethering_off_subtext_config" msgid="3981528184780083266">"Compartilhando conexão com a Internet deste <xliff:g id="DEVICE_NAME">%1$d</xliff:g> via Bluetooth"</string>
     <string name="bluetooth_tethering_overflow_error" msgid="6946561351369376943">"Não é possível vincular a mais de <xliff:g id="MAXCONNECTION">%1$d</xliff:g> dispositivos."</string>
     <string name="bluetooth_untether_blank" msgid="5428300773782256084">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> será vinculado."</string>
-    <string name="tethering_footer_info" msgid="8019555174339154124">"Use o ponto de acesso e tethering para fornecer Internet a outros dispositivos por meio da sua conexão de dados móveis. Os apps também podem criar um ponto de acesso para compartilhar conteúdo com dispositivos por perto."</string>
+    <string name="tethering_footer_info" msgid="8019555174339154124">"Use as opções de ponto de acesso e tethering para compartilhar a Internet com outros dispositivos usando sua conexão de dados móveis. Os apps também podem criar um ponto de acesso para compartilhar conteúdo com dispositivos por perto."</string>
     <string name="tethering_help_button_text" msgid="7653022000284543996">"Ajuda"</string>
     <string name="network_settings_title" msgid="8516526011407061679">"Rede móvel"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Plano para dispositivos móveis"</string>
@@ -1892,7 +1892,7 @@
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"Desativar notificações?"</string>
     <string name="app_install_details_group_title" msgid="2909597319422976921">"Loja"</string>
     <string name="app_install_details_title" msgid="6954953384372934881">"Detalhes do app"</string>
-    <string name="app_install_details_summary" msgid="6612222941121363940">"App instalado a partir da <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
+    <string name="app_install_details_summary" msgid="6612222941121363940">"App instalado da <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="instant_app_details_summary" msgid="6384264315914966114">"Mais informações em <xliff:g id="APP_STORE">%1$s</xliff:g>"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"Em execução"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(Nunca usado)"</string>
@@ -2455,7 +2455,7 @@
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Será ativada em <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Definir uma programação"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Desativar quando a carga estiver completa"</string>
-    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"A Economia de bateria é desativada quando a carga do smartphone chega a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
+    <string name="battery_saver_sticky_description_new" product="default" msgid="3406582427270935879">"A Economia de bateria é desativada quando a carga do telefone chega a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="tablet" msgid="3284967694001857194">"A Economia de bateria é desativada quando a carga do tablet chega a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_sticky_description_new" product="device" msgid="5056520668081504111">"A Economia de bateria é desativada quando a carga da bateria do dispositivo chega a <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
@@ -2936,7 +2936,7 @@
     <string name="restriction_menu_change_pin" msgid="592512748243421101">"Alterar PIN"</string>
     <string name="app_notifications_switch_label" msgid="670683308275498821">"Mostrar notificações"</string>
     <string name="help_label" msgid="1296484776243905646">"Ajuda e feedback"</string>
-    <string name="support_summary" msgid="3278943815956130740">"Ajuda, início, telefone e bate-papo"</string>
+    <string name="support_summary" msgid="3278943815956130740">"Ajuda, início, telefone e chat"</string>
     <string name="user_account_title" msgid="2108666882630552859">"Conta para conteúdo"</string>
     <string name="user_picture_title" msgid="6664602422948159123">"ID de foto"</string>
     <string name="extreme_threats_title" msgid="1405820547540456436">"Ameaças extremas"</string>
@@ -3147,7 +3147,7 @@
     <string name="alarm_ringtone_title" msgid="6411326147408635902">"Som de alarme padrão"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"Vibrar para chamadas"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"Outros sons"</string>
-    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Tons de discagem"</string>
+    <string name="dial_pad_tones_title" msgid="8877212139988655769">"Sons do teclado"</string>
     <string name="screen_locking_sounds_title" msgid="4407110895465866809">"Sons de bloqueio de tela"</string>
     <string name="charging_sounds_title" msgid="5070437987230894287">"Sons e vibração ao carregar"</string>
     <string name="docking_sounds_title" msgid="2573137471605541366">"Sons da base"</string>
@@ -4117,16 +4117,16 @@
     <string name="double_twist_for_camera_mode_title" msgid="2606032140297556018">"Virar câmera"</string>
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"Tirar selfies com mais rapidez"</string>
-    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Para alternar entre apps, deslize o botão home para cima. Deslize para cima mais uma vez para ver todos os apps. Isso funciona em qualquer tela. O botão Visão geral não estará mais disponível na parte inferior direita da tela."</string>
+    <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"Para mudar de app, deslize o botão home para cima. Deslize para cima mais uma vez para ver todos os apps. Isso funciona em qualquer tela. O botão Visão geral não estará mais disponível na parte inferior direita da tela."</string>
     <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"Testar o novo botão home"</string>
-    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Ative o novo gesto para alternar entre apps"</string>
+    <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"Ative o novo gesto para mudar de app"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"Tocar duas vezes na tela para verificar o smartphone"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tocar duas vezes na tela para verificar o tablet"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tocar duas vezes na tela para verificar o dispositivo"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Para verificar a hora, as notificações e outras informações, toque duas vezes na tela."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar o smartphone para verificá-lo"</string>
-    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Levantar o tablet para verificá-lo"</string>
-    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Levantar o dispositivo para verificá-lo"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Levantar para verificar o smartphone"</string>
+    <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Levantar para verificar o tablet"</string>
+    <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Levantar para verificar o dispositivo"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Ativar a tela"</string>
     <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Para verificar a hora, as notificações e outras informações, pegue o smartphone."</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Para verificar a hora, as notificações e outras informações, pegue o tablet."</string>

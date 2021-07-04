@@ -347,7 +347,7 @@
     <string name="zone_time_type_dst" msgid="7812605402646684853">"Poletni čas"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"Standardni čas"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"Izberi po regiji"</string>
-    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Izberi po zamiku glede na UTC"</string>
+    <string name="zone_menu_by_offset" msgid="6538342360925785227">"Izbira po zamiku glede na UTC"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"Datum"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"Ura"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"Samodejno zaklepanje"</string>
@@ -359,7 +359,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Omogoči pripomočke"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Onemogočil skrbnik"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Prikaz možnosti za zaklep"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Prikaz možnosti gumba za vklop, s katero izklopite funkcijo Smart Lock, odklepanje s prstnimi odtisi in obvestila na zaklenjenem zaslonu"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Prikaz možnosti gumba za vklop, s katerim izklopite funkcijo Smart Lock, odklepanje s prstnimi odtisi in obvestila na zaklenjenem zaslonu."</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Posredniki zaupanja le podaljšajo čas odklenjenosti"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Če je ta možnost omogočena, posredniki zaupanja poskrbijo, da naprava ostane odklenjena dalj časa, vendar ne more več odkleniti zaklenjene naprave."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Zakleni zaslon ob izgubljenem zaupanju"</string>
@@ -502,7 +502,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Naprej"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Prstni odtis lahko uporabljate za odklepanje zaslona ter potrjevanje nakupov in dostop do aplikacij. "<annotation id="url">"Več o tem"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Možnost zaklepanja zaslona je onemogočena. Če želite izvedeti več, se obrnite na skrbnika organizacije. "<annotation id="admin_details">"Več podrobnosti"</annotation>\n\n"Prstni odtis lahko še naprej uporabljate za potrjevanje nakupov in dostop do aplikacij. "<annotation id="url">"Več o tem"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Dvignite prst in se znova dotaknite tipala"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Dvignite prst in se znova dotaknite tipala."</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Dodate lahko do toliko prstnih odtisov: <xliff:g id="COUNT">%d</xliff:g>"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Dodali ste največje dovoljeno število prstnih odtisov"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Prstnih odtisov ni več mogoče dodati"</string>
@@ -2401,7 +2401,7 @@
       <item quantity="few">Omejitev porabe energije akumulatorja za %1$d aplikacije</item>
       <item quantity="other">Omejitev porabe energije akumulatorja za %1$d aplikacij</item>
     </plurals>
-    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Omejeno ob <xliff:g id="TIME">%1$s</xliff:g>"</string>
+    <string name="restricted_app_time_summary" msgid="5205881852523135226">"Omejeno <xliff:g id="TIME">%1$s</xliff:g>"</string>
     <string name="restricted_app_detail_footer" msgid="482460517275754465">"Te aplikacije so porabljale energijo akumulatorja v ozadju. Omejene aplikacije morda ne bodo delovale pravilno, obvestila pa bodo morda zakasnjena."</string>
     <string name="battery_auto_restriction_title" msgid="488905332794794076">"Uporaba varčevanja z energijo akumulatorja"</string>
     <string name="battery_auto_restriction_summary" msgid="1638072655581821837">"Zaznavanje, ko aplikacije porabljajo energijo akumulatorja"</string>
@@ -3317,7 +3317,7 @@
     <string name="zen_mode_button_turn_on" msgid="1097964136225943415">"Vklopi zdaj"</string>
     <string name="zen_mode_button_turn_off" msgid="3990967728457149454">"Izklopi zdaj"</string>
     <string name="zen_mode_settings_dnd_manual_end_time" msgid="4307574188962071429">"Način »ne moti« bo vklopljen do <xliff:g id="FORMATTED_TIME">%s</xliff:g>"</string>
-    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način »ne moti« bo ostal vklopljen, dokler ga ne izklopite"</string>
+    <string name="zen_mode_settings_dnd_manual_indefinite" msgid="3701005376825238752">"Način »Ne moti« bo ostal vklopljen, dokler ga ne izklopite"</string>
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"Način »ne moti« je bil samodejno vklopljen na podlagi razporeda (<xliff:g id="RULE_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"Način »ne moti« je samodejno vklopila aplikacija (<xliff:g id="APP_NAME">%s</xliff:g>)"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"Način »ne moti« je vklopljen za <xliff:g id="RULE_NAMES">%s</xliff:g> z nastavitvami po meri."</string>
@@ -3535,10 +3535,10 @@
     <string name="zen_mode_rule_name_hint" msgid="6569877315858105901">"Vnesite ime razporeda"</string>
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"Ime razporeda je že v uporabi"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"Dodajte več"</string>
-    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Dodajanje razporeda za dogodek"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Dodajanje časovnega razporeda"</string>
+    <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"Dodajte razpored za dogodek"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"Dodajte časovni razpored"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"Izbriši razpored"</string>
-    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Izbira vrste razporeda"</string>
+    <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"Izberite vrsto razporeda"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"Želite izbrisati pravilo »<xliff:g id="RULE">%1$s</xliff:g>«?"</string>
     <string name="zen_mode_delete_rule_button" msgid="611058106279881991">"Izbriši"</string>
     <string name="zen_mode_rule_type_unknown" msgid="2819480113355191421">"Neznano"</string>

@@ -119,7 +119,7 @@
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> גלוי למכשירים קרובים כאשר הגדרת Bluetooth פתוחה."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"כתובת הטלפון לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"כתובת הטאבלט לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"כתובת המכשיר לחיבור דרך Bluetooth: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"כתובת המכשיר לחיבור דרך Bluetooth‏: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"האם לנתק את <xliff:g id="DEVICE_NAME">%1$s</xliff:g>?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"שידור"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"מכשיר Bluetooth ללא שם"</string>
@@ -129,7 +129,7 @@
     <string name="bluetooth_notif_title" msgid="5090288898529286011">"בקשת התאמה"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"הקש כדי ליצור התאמה עם <xliff:g id="DEVICE_NAME">%1$s</xliff:g>."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"קבצים שהתקבלו"</string>
-    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"הקבצים התקבלו באמצעות Bluetooth"</string>
+    <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"קבצים שהתקבלו באמצעות Bluetooth"</string>
     <string name="device_picker" msgid="8345264486071697705">"בחר מכשיר Bluetooth"</string>
     <string name="bluetooth_ask_enablement" msgid="8716802066127746062">"<xliff:g id="APP_NAME">%1$s</xliff:g> רוצה להפעיל את ה-Bluetooth"</string>
     <string name="bluetooth_ask_disablement" msgid="7125319551097350783">"<xliff:g id="APP_NAME">%1$s</xliff:g> רוצה לכבות את ה-Bluetooth"</string>
@@ -210,7 +210,7 @@
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"שדה היציאה חייב להיות ריק אם שדה המארח ריק."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"היציאה שהקלדת אינה חוקית."</string>
     <string name="proxy_warning_limited_support" msgid="9026539134219095768">"שרת ה-Proxy של HTTP נמצא בשימוש הדפדפן, אך אפליקציות אחרות לא יכולות להשתמש בו."</string>
-    <string name="proxy_url_title" msgid="882042361706435904">"כתובת אתר של PAC: "</string>
+    <string name="proxy_url_title" msgid="882042361706435904">"כתובת URL של PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"רוחב פס DL (ב-kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"רוחב פס UL (ב-kbps):"</string>
     <string name="radio_info_signal_location_label" msgid="6788144906873498013">"מידע על מיקום סלולרי (הוצא משימוש):"</string>
@@ -395,7 +395,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"פרטיות"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"הושבת על ידי מנהל המכשיר"</string>
     <string name="security_status_title" msgid="1261960357751754428">"סטטוס אבטחה"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"נעילת מסך, שחרור נעילה על ידי זיהוי פנים"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"נעילת מסך, פתיחה ע\"י זיהוי הפנים"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"נעילת מסך, טביעת אצבע"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"נעילת מסך"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"הפנים נוספו"</string>
@@ -432,7 +432,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"הסרת נתוני הפנים"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ניתן להשתמש בפנים שלך כדי לבטל את נעילת המכשיר ולגשת לאפליקציות. "<annotation id="url">"מידע נוסף"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"למחוק נתוני פנים?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"הנתונים שמתועדים ב\'שחרור נעילה על-ידי זיהוי פנים\' יימחקו לצמיתות ובאופן מאובטח. אחרי ההסרה יהיה צורך בקוד האימות, קו ביטול הנעילה או הסיסמה כדי לבטל את נעילת הטלפון, להיכנס לאפליקציות ולאשר תשלומים."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"הנתונים שתועדו על ידי התכונה \'פתיחה ע\"י זיהוי הפנים\' יימחקו לצמיתות ובאופן מאובטח. אחרי ההסרה יהיה צורך בקוד האימות, קו ביטול הנעילה או הסיסמה כדי לבטל את נעילת הטלפון, להיכנס לאפליקציות ולאשר תשלומים."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"טביעת אצבע"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"נהל טביעות אצבע"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"השתמש בטביעות אצבע ל-"</string>
@@ -799,17 +799,17 @@
     <string name="bluetooth_device_context_connect_advanced" msgid="423463405499392444">"אפשרויות..."</string>
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"אפשרויות מתקדמות"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth מתקדם"</string>
-    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"כש-Bluetooth פועל, יש קשר למכשירי Bluetooth אחרים."</string>
+    <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"כשה-Bluetooth מופעל, המכשיר יכול לתקשר עם מכשירי Bluetooth אחרים שנמצאים בקרבת מקום."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"כש-Bluetooth מופעל, המכשיר יכול לתקשר עם מכשירי Bluetooth אחרים שנמצאים בקרבת מקום.\n\nלשיפור חוויית השימוש במכשיר, אפליקציות ושירותים עדיין יכולים לסרוק מכשירים בקרבת מקום בכל עת, גם כאשר ה-Bluetooth כבוי. ניתן להשתמש בכך, למשל, כדי לשפר תכונות ושירותים מבוססי-מיקום. אפשר לשנות זאת ב"<annotation id="link">"הגדרות הסריקה"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"כדי לשפר את דיוק המיקום, אפליקציות ושירותים של המערכת יכולים עדיין לזהות התקני Bluetooth. ניתן לשנות זאת ב<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>הגדרות הסריקה<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"לא ניתן להתחבר. יש לנסות שוב."</string>
     <string name="device_details_title" msgid="726517818032923222">"פרטי מכשיר"</string>
-    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"כתובת המכשיר לחיבור דרך Bluetooth: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"לשכוח את ההתקן?"</string>
-    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ההתאמה בין הטלפון שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
+    <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"כתובת המכשיר לחיבור דרך Bluetooth‏: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_unpair_dialog_title" msgid="3669848977755142047">"לשכוח את המכשיר?"</string>
+    <string name="bluetooth_unpair_dialog_body" product="default" msgid="5998071227980078077">"ההתאמה בין הטלפון שלך למכשיר <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_body" product="tablet" msgid="4696157463230518866">"ההתאמה בין הטאבלט שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
     <string name="bluetooth_unpair_dialog_body" product="device" msgid="6385091489719875730">"ההתאמה בין המכשיר שלך להתקן <xliff:g id="DEVICE_NAME">%1$s</xliff:g> תבוטל"</string>
-    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"שכח התקן"</string>
+    <string name="bluetooth_unpair_dialog_forget_confirm_button" msgid="8485211340349958886">"כן, אפשר לשכוח"</string>
     <string name="bluetooth_connect_specific_profiles_title" msgid="2381509181266180406">"התחברות אל…"</string>
     <string name="bluetooth_disconnect_a2dp_profile" msgid="8072503764470451567">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ינותק מהאודיו של המדיה."</string>
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ינותק מהאודיו של הדיבורית."</string>
@@ -2326,7 +2326,7 @@
     <string name="controls_subtitle" msgid="6920199888882834620">"התאמת צריכת סוללה"</string>
     <string name="packages_subtitle" msgid="6506269487892204413">"חבילות כלולות"</string>
     <string name="battery_tip_summary_title" msgid="2750922152518825526">"האפליקציות פועלות כרגיל"</string>
-    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"דפוס השימוש בסוללה בטלפון זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
+    <string name="battery_tip_summary_summary" product="default" msgid="6294900413896440006">"דפוס השימוש בסוללה של אפליקציות הפועלות ברקע בטלפון זה הוא אופייני"</string>
     <string name="battery_tip_summary_summary" product="tablet" msgid="5280099016800644130">"דפוס השימוש בסוללה בטאבלט זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
     <string name="battery_tip_summary_summary" product="device" msgid="4459840492610842705">"דפוס השימוש בסוללה במכשיר זה של אפליקציות הפועלות ברקע הוא אופייני"</string>
     <string name="battery_tip_low_battery_title" msgid="6784043681672161175">"קיבולת הסוללה נמוכה"</string>
@@ -2594,7 +2594,7 @@
     <string name="tts_reset" msgid="8864073594540705579">"איפוס המכשיר"</string>
     <string name="tts_play" msgid="9023430029380675514">"הפעלה"</string>
     <string name="vpn_settings_title" msgid="7008219502396889192">"VPN"</string>
-    <string name="credentials_title" msgid="7119207354982673965">"אחסון אישורים"</string>
+    <string name="credentials_title" msgid="7119207354982673965">"אחסון פרטי כניסה"</string>
     <string name="credentials_install" product="nosdcard" msgid="8509362500537206883">"התקנה מאמצעי אחסון"</string>
     <string name="credentials_install" product="default" msgid="8997183776710118353">"התקנה מכרטיס SD"</string>
     <string name="credentials_install_summary" product="nosdcard" msgid="3426661965567059596">"התקנת אישורים מאמצעי אחסון"</string>
@@ -2845,7 +2845,7 @@
     <string name="vpn_forget" msgid="7662717604542624887">"אפשר לשכוח"</string>
     <string name="vpn_connect_to" msgid="7926776854873218762">"התחברות אל <xliff:g id="PROFILE">%s</xliff:g>"</string>
     <string name="vpn_disconnect_confirm" msgid="3505111947735651082">"האם לנתק את ה-VPN הזה?"</string>
-    <string name="vpn_disconnect" msgid="4625914562388652486">"נתק"</string>
+    <string name="vpn_disconnect" msgid="4625914562388652486">"ניתוק"</string>
     <string name="vpn_version" msgid="2006792987077940456">"גרסה <xliff:g id="VERSION">%s</xliff:g>"</string>
     <string name="vpn_forget_long" msgid="8457511440635534478">"שכח VPN"</string>
     <string name="vpn_replace_vpn_title" msgid="8517436922021598103">"האם להחליף רשת VPN קיימת?"</string>
@@ -3000,12 +3000,12 @@
     <string name="nfc_payment_default" msgid="7869273092463612271">"ברירת המחדל לתשלום"</string>
     <string name="nfc_payment_default_not_set" msgid="955804193510335338">"לא מוגדרת"</string>
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> - <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
-    <string name="nfc_payment_use_default" msgid="3098724195746409476">"השתמש בברירת המחדל"</string>
+    <string name="nfc_payment_use_default" msgid="3098724195746409476">"שימוש בברירת המחדל"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"תמיד"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"מלבד כשאפליקציית תשלום אחרת פועלת"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"רק אם לא פועלת אפליקציית תשלום אחרת"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"במסוף \'הקש ושלם\', שלם באמצעות:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"תשלום במסוף"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"הגדר אפליקציית תשלום. לאחר מכן עליך רק להצמיד את גב הטלפון למסוף שעליו מופיע סמל התשלום ללא מגע."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"יש להגדיר אפליקציית תשלום. לאחר מכן, רק צריך להצמיד את גב הטלפון למסוף שעליו מופיע סמל התשלום ללא מגע."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"הבנתי"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"עוד..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"האם להגדיר בתור ההעדפה שלך?"</string>
@@ -3226,7 +3226,7 @@
     <string name="notification_ringtone_title" msgid="2932960620843976285">"צליל ברירת המחדל להתראות"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"צליל שסיפקה האפליקציה"</string>
     <string name="notification_sound_default" msgid="2664544380802426260">"צליל ברירת המחדל להתראות"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"צליל לשעון מעורר"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"צליל ברירת המחדל לשעון מעורר"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"רטט לשיחות"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"צלילים אחרים"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"צלילים של לוח חיוג"</string>
@@ -3243,7 +3243,7 @@
     <string name="emergency_tone_alert" msgid="907868135091891015">"צלילים"</string>
     <string name="emergency_tone_vibrate" msgid="5020068066905681181">"רטט"</string>
     <string name="boot_sounds_title" msgid="7583926202411353620">"הפעלת צלילים"</string>
-    <string name="live_caption_title" msgid="7926591158657997051">"כתוביות בזמן אמת"</string>
+    <string name="live_caption_title" msgid="7926591158657997051">"כתוביות מיידיות"</string>
     <string name="live_caption_summary" msgid="9064771862352393125">"הוספת כתוביות אוטומטית למדיה"</string>
     <string name="zen_mode_settings_summary_off" msgid="6929319200478424962">"אף פעם"</string>
     <plurals name="zen_mode_settings_summary_on" formatted="false" msgid="6061723291126091396">
@@ -3371,9 +3371,9 @@
     <string name="sound_work_settings" msgid="4140215240360927923">"צלילי פרופיל עבודה"</string>
     <string name="work_use_personal_sounds_title" msgid="531727195073003599">"השתמש בצלילי הפרופיל האישי"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"הצלילים זהים עבור הפרופיל האישי ופרופיל העבודה"</string>
-    <string name="work_ringtone_title" msgid="5499360583947410224">"רינגטון של טלפון מהעבודה"</string>
+    <string name="work_ringtone_title" msgid="5499360583947410224">"רינגטון לפרופיל העבודה"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"צליל ברירת המחדל להתראת עבודה"</string>
-    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"צליל ברירת המחדל להתראת עבודה"</string>
+    <string name="work_alarm_ringtone_title" msgid="5328487181385375130">"צליל ברירת המחדל לשעון מעורר בפרופיל העבודה"</string>
     <string name="work_sound_same_as_personal" msgid="7728560881697159758">"זהה לצלילים של הפרופיל האישי"</string>
     <string name="work_sync_dialog_title" msgid="4799120971202956837">"להחליף צלילים?"</string>
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"החלף"</string>
@@ -3488,7 +3488,7 @@
     <string name="channel_notifications_off_desc" msgid="8005444443218306611">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות ששייכות לקטגוריה הזו"</string>
     <string name="channel_group_notifications_off_desc" msgid="7154205544298672850">"לבקשתך, מערכת Android לא מאפשרת להציג במכשיר הזה התראות מקבוצה זו"</string>
     <string name="notification_channels" msgid="956764228116145956">"קטגוריות"</string>
-    <string name="notification_channels_other" msgid="1615988645667411530">"אחר"</string>
+    <string name="notification_channels_other" msgid="1615988645667411530">"אחרות"</string>
     <plurals name="notification_group_summary" formatted="false" msgid="3744856747513344999">
       <item quantity="two"><xliff:g id="COUNT_1">%d</xliff:g> קטגוריות</item>
       <item quantity="many"><xliff:g id="COUNT_1">%d</xliff:g> קטגוריות</item>

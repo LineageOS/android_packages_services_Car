@@ -316,7 +316,7 @@
     <string name="roaming_warning" msgid="5488050911277592868">"আপুনি যথেষ্ট পৰিমাণৰ খৰচ বহন কৰিবলগীয়া হ’ব পাৰে।"</string>
     <string name="roaming_warning_multiuser" product="tablet" msgid="7090388691615686893">"আপুনি ৰ’মিঙৰ অনুমতি দিলে যথেষ্ট ৰ’মিং মাচুল ভৰিবলগীয়া হ’ব পাৰে!\n\nএই ছেটিঙটোৱে এই টেবলেটোৰ সকলো ব্যৱহাৰকাৰীকে প্ৰভাৱান্বিত কৰিব।"</string>
     <string name="roaming_warning_multiuser" product="default" msgid="6999819541078827556">"আপুনি ৰ\'মিঙৰ অনুমতি দিলে যথেষ্ট ৰ\'মিং মাচুল ভৰিবলগীয়া হ\' পাৰে!\n\nএই ছেটিঙটোৱে এই ফ\'নটোৰ সকলো ব্যৱহাৰকাৰীকে প্ৰভাৱান্বিত কৰিব।"</string>
-    <string name="roaming_reenable_title" msgid="6985082191178297921">"ডেটা ৰ\'মিঙৰ অনুমতি দিয়েনে?"</string>
+    <string name="roaming_reenable_title" msgid="6985082191178297921">"ডেটা ৰ\'মিঙৰ অনুমতি দিবনে?"</string>
     <string name="networks" msgid="3073876464102136771">"অপাৰেটৰ বাছনি"</string>
     <string name="sum_carrier_select" msgid="8964744180598499121">"এটা নেটৱৰ্ক অপাৰেটৰ বাছক"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"তাৰিখ আৰু সময়"</string>
@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"গোপনীয়তা"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"প্ৰশাসকে অক্ষম কৰিছে"</string>
     <string name="security_status_title" msgid="1261960357751754428">"সুৰক্ষা স্থিতি"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্ৰীণ লক, ফে’চ আনলক"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"স্ক্ৰীণ লক, ফেচ আনলক"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"স্ক্ৰীণ লক, ফিংগাৰপ্ৰিণ্ট"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"স্ক্ৰীণ লক"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"চেহেৰা যোগ কৰা হ\'ল"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"মুখমণ্ডল ডেটা আঁতৰাওক"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"আপোনাৰ মুখমণ্ডল আপোনাৰ ডিভাইচ আনলক কৰা আৰু এপসমূহ এক্সেছ কৰাত ব্যৱহাৰ কৰিব পাৰি।"<annotation id="url">"অধিক জানক"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"মুখমণ্ডলৰ ডেটা মচিবনে?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ফে’চ আনলক ব্যৱহাৰ কৰি ৰেকৰ্ড কৰা ডেটা স্থায়ীভাৱে আৰু সুৰক্ষিতভাৱে মচা হ’ব। আঁতৰোৱাৰ পিছত আপোনাৰ ফ’নটো আনলক কৰিবলৈ পিন আৰ্হি বা পাছৱৰ্ডৰ প্ৰয়োজন হ’ব, এপ্‌সমূহত ছাইন ইন কৰক আৰু পৰিশোধ নিশ্চিত কৰক।"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ফেচ আনলক ব্যৱহাৰ কৰি ৰেকৰ্ড কৰা ডেটা স্থায়ীভাৱে আৰু সুৰক্ষিতভাৱে মচা হ’ব। আঁতৰোৱাৰ পিছত আপোনাৰ ফ’নটো আনলক কৰিবলৈ পিন আৰ্হি বা পাছৱৰ্ডৰ প্ৰয়োজন হ’ব, এপ্‌সমূহত ছাইন ইন কৰক আৰু পৰিশোধ নিশ্চিত কৰক।"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ফিংগাৰপ্ৰিণ্ট"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ফিংগাৰপ্ৰিণ্টসমূহ পৰিচালনা কৰক"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ফিংগাৰপ্ৰিণ্ট ব্যৱহাৰ কৰক"</string>
@@ -574,7 +574,7 @@
     <string name="unlock_set_unlock_password_title" msgid="2092949379238466560">"পাছৱৰ্ড"</string>
     <string name="unlock_set_unlock_password_summary" msgid="7042787631866059147">"উচ্চ নিৰাপত্তা"</string>
     <string name="unlock_set_do_later_title" msgid="2939110070503695956">"এতিয়া নহয়"</string>
-    <string name="current_screen_lock" msgid="398328543694154510">"বৰ্তমান ব্যৱহাৰহৈ থকা স্ক্ৰীণ লক"</string>
+    <string name="current_screen_lock" msgid="398328543694154510">"বৰ্তমান ব্যৱহাৰ হৈ থকা স্ক্ৰীণ লক"</string>
     <string name="fingerprint_unlock_set_unlock_pattern" msgid="132337696546315927">"ফিংগাৰপ্ৰিণ্ট + আৰ্হি"</string>
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"ফিংগাৰপ্ৰিণ্ট + পিন"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"ফিংগাৰপ্ৰিণ্ট + পাছৱৰ্ড"</string>
@@ -975,7 +975,7 @@
     <string name="wifi_do_not_validate_eap_server" msgid="1892537559682474878">"মান্য় নকৰিব"</string>
     <string name="wifi_do_not_validate_eap_server_warning" msgid="3895397996759837323">"কোনো প্ৰমাণপত্ৰ নিৰ্দিষ্ট কৰা হোৱা নাই। আপোনাৰ সংযোগ ব্যক্তিগত ৰূপত নাথাকিব।"</string>
     <string name="wifi_ssid_too_long" msgid="34911971389775920">"নেটৱৰ্কৰ নাম অতি দীঘল হৈছে৷"</string>
-    <string name="wifi_no_domain_warning" msgid="735859919311067606">"এটা ড\'মেইন নিৰ্দিষ্ট কৰিবই লাগিব"</string>
+    <string name="wifi_no_domain_warning" msgid="735859919311067606">"এটা ড\'মেইন নিৰ্দিষ্ট কৰিবই লাগিব।"</string>
     <string name="wifi_wps_available_first_item" msgid="3221671453930485243">"WPS উপলব্ধ"</string>
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS উপলব্ধ)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"বাহকৰ ৱাই-ফাই নেটৱৰ্ক"</string>
@@ -1170,8 +1170,8 @@
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"ব্যক্তিগত একাউণ্ট - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"Search"</string>
     <string name="display_settings" msgid="1045535829232307190">"ডিছপ্লে’"</string>
-    <string name="accelerometer_title" msgid="2427487734964971453">"স্বয়ং-ঘূৰ্ণন স্ক্ৰীণ"</string>
-    <string name="color_mode_title" msgid="8164858320869449142">"ৰংবোৰ"</string>
+    <string name="accelerometer_title" msgid="2427487734964971453">"স্বয়ং-ঘূৰ্ণন স্ক্ৰীন"</string>
+    <string name="color_mode_title" msgid="8164858320869449142">"ৰং"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"প্ৰাকৃতিক"</string>
     <string name="color_mode_option_boosted" msgid="453557938434778933">"বৃদ্ধি কৰা হ’ল"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"সংপৃক্ত"</string>
@@ -1214,7 +1214,7 @@
     <string name="night_display_text" msgid="5330502493684652527">"ৰাতিৰ পোহৰে আপোনাৰ স্ক্ৰীণখন মৌ-বৰণীয়া কৰি তোলে। এই কাৰ্যই আপোনাক স্ক্ৰীণখন চাবলৈ বা কম পোহৰতো পঢ়িবলৈ সুবিধা দিয়ে আৰু ই আপোনাক সহজে টোপনি যোৱাতো সহায় কৰিব পাৰে।"</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"সূচী"</string>
     <string name="night_display_auto_mode_never" msgid="2897444637217807088">"নাই"</string>
-    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"কাষ্টম সময়ত অন হ’ব"</string>
+    <string name="night_display_auto_mode_custom" msgid="1400891076453963151">"কাষ্টম সময়ত অন হয়"</string>
     <string name="night_display_auto_mode_twilight" msgid="4000162110017520674">"সূৰ্যাস্তৰ পৰা সূৰ্যোদয়লৈ অন হয়"</string>
     <string name="night_display_start_time_title" msgid="1069255169673371077">"আৰম্ভ হোৱাৰ সময়"</string>
     <string name="night_display_end_time_title" msgid="2760793157124245911">"সমাপ্ত হোৱাৰ সময়"</string>
@@ -1246,15 +1246,15 @@
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"আপোনাৰ স্ক্ৰীণখনক ব্যক্তিগত ৰূপ দিয়ক"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"ৱালপেপাৰ বাছক"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"স্ক্ৰীণ ছেভাৰ"</string>
-    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"চ্চাৰ্জ কৰোঁতে বা ডক কৰি থওঁতে"</string>
+    <string name="screensaver_settings_summary_either_long" msgid="6078038506795498288">"চাৰ্জ কৰোঁতে বা ডক কৰি থওঁতে"</string>
     <string name="screensaver_settings_summary_either_short" msgid="2453772128682850053">"কোনোবা এটা"</string>
-    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"চ্চাৰ্জ কৰি থকাৰ সময়ত"</string>
+    <string name="screensaver_settings_summary_sleep" msgid="6097363596749362692">"চাৰ্জ কৰি থকাৰ সময়ত"</string>
     <string name="screensaver_settings_summary_dock" msgid="6297808146601570196">"ডক হৈ থাকোঁতে"</string>
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"কেতিয়াও নহয়"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"অফ হৈ আছে"</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"ফ\'নটো ড’ক আৰু/বা সুপ্ত অৱস্থাত থাকিলে যি হয় তাক নিয়ন্ত্ৰণ কৰিবলৈ, স্ক্ৰীণ ছেভাৰ অন কৰক৷"</string>
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ষ্টাৰ্ট কৰাৰ সময়"</string>
-    <string name="screensaver_settings_current" msgid="4017556173596361672">"বৰ্তমান ব্যৱহৃতহৈ থকা স্ক্ৰীণছেভাৰ"</string>
+    <string name="screensaver_settings_current" msgid="4017556173596361672">"বৰ্তমান ব্যৱহাৰ হৈ থকা স্ক্ৰীণ ছেভাৰ"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"এতিয়াই আৰম্ভ কৰক"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"ছেটিংসমূহ"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"স্বয়ংক্ৰিয় উজ্জ্বলতা"</string>
@@ -1527,7 +1527,7 @@
     <string name="battery_status_title" msgid="8731200319740671905">"বেটাৰিৰ স্থিতি"</string>
     <string name="battery_level_title" msgid="5207775387973771646">"বেটাৰিৰ পৰিমাণ"</string>
     <string name="apn_settings" msgid="8130776653826271664">"এপিএনসমূহ"</string>
-    <string name="apn_edit" msgid="4350571070853305357">"একচেছ পইণ্ট সম্পাদনা কৰক"</string>
+    <string name="apn_edit" msgid="4350571070853305357">"এক্সেছ পইণ্ট সম্পাদনা কৰক"</string>
     <string name="apn_not_set" msgid="5344235604466825691">"ছেট কৰা হোৱা নাই"</string>
     <string name="apn_name" msgid="8431432886706852226">"নাম"</string>
     <string name="apn_apn" msgid="190519449579357696">"এপিএন"</string>
@@ -1825,7 +1825,7 @@
     <string name="install_text" msgid="2798092278891807849">"ইনষ্টল কৰক"</string>
     <string name="disable_text" msgid="5065834603951474397">"নিষ্ক্ৰিয় কৰক"</string>
     <string name="enable_text" msgid="7179141636849225884">"সক্ষম কৰক"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"সঞ্চয়াগাৰ মচক"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"ষ্ট’ৰেজ মচক"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"আপডেইটবিলাক আঁতৰাওক"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"আপুনি কিছুমান কাৰ্যৰ কাৰণে এই এপক ডিফ\'ল্টভাৱে লঞ্চ কৰাৰ বিকল্প বাছি লৈছে।"</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"আপুনি এই এপটোক ৱিজেট সৃষ্টি কৰিবলৈ আৰু সেইবিলাকৰ ডেটা চাবলৈ অনুমতি দিবলৈ বাছনি কৰিছে।"</string>
@@ -2227,7 +2227,7 @@
     <string name="print_search_box_shown_utterance" msgid="5164929050163660303">"অনুসন্ধান বাকচ দেখুওৱা হ’ল"</string>
     <string name="print_search_box_hidden_utterance" msgid="1726782308351002642">"অনুসন্ধান বাকচটো লুকাই আছে"</string>
     <string name="printer_info_desc" msgid="5913001479556045848">"এই প্ৰিণ্টাৰৰ আৰু অধিক তথ্য"</string>
-    <string name="power_usage_summary_title" msgid="3871905566750338898">"বেটাৰি"</string>
+    <string name="power_usage_summary_title" msgid="3871905566750338898">"বেটাৰী"</string>
     <string name="power_usage_summary" msgid="2950273948620691117">"যিয়ে বেটাৰি ব্যৱহাৰ কৰি আছে"</string>
     <string name="power_usage_not_available" msgid="7040527428065650339">"বেটাৰি ব্যৱহাৰ হোৱা ডেটা নাই৷"</string>
     <string name="power_usage_level_and_status" msgid="8873534076894160727">"<xliff:g id="LEVEL">%1$s</xliff:g> - <xliff:g id="STATUS">%2$s</xliff:g>"</string>
@@ -2314,7 +2314,7 @@
     <string name="battery_tip_restrict_apps_more_than_5_dialog_message" msgid="1748375562539446634">"বেটাৰিৰ চ্চাৰ্জ বচাবলৈ এই এপসমূহক নেপথ্য়ত বেটাৰি ব্য়ৱহাৰ কৰাৰপৰা বিৰত ৰাখক। সীমিত কৰা এপসমূহে ভালকৈ কাম নকৰিব পাৰে আৰু জাননীসমূহ পলমকৈ আহিব পাৰে।\n\nএপসমূহ:\n<xliff:g id="APP_LIST">%1$s</xliff:g>।"</string>
     <string name="battery_tip_restrict_app_dialog_ok" msgid="2573410775701913487">"সীমিত কৰক"</string>
     <string name="battery_tip_unrestrict_app_dialog_title" msgid="812458516399125710">"প্ৰতিবন্ধ আঁতৰাবনে?"</string>
-    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"এই এপে নেপথ্য়ত বেটাৰি ব্যৱহাৰ কৰিব পাৰে। আপোনাৰ বেটাৰি অপেক্ষা কৰাতকৈ সোনকালে শেষ হ\'ব পাৰে।"</string>
+    <string name="battery_tip_unrestrict_app_dialog_message" msgid="8120081438825031335">"এই এপে নেপথ্য়ত বেটাৰী ব্যৱহাৰ কৰিব পাৰে। আপোনাৰ বেটাৰীৰ চাৰ্জ আশা কৰাতকৈ আগতেই শেষ হ\'ব পাৰে।"</string>
     <string name="battery_tip_unrestrict_app_dialog_ok" msgid="9154938931448151479">"আঁতৰাওক"</string>
     <string name="battery_tip_unrestrict_app_dialog_cancel" msgid="7331148618292397166">"বাতিল কৰক"</string>
     <string name="battery_tip_dialog_summary_message" product="default" msgid="7244950433272770280">"আপোনাৰ এপসমূহে বৰ্তমান সাধাৰণ পৰিমাণৰ বেটাৰি ব্যৱহাৰ কৰি আছে। যদিহে এপসমূহে অত্যধিক বেটাৰি ব্যৱহাৰ কৰে, তেন্তে আপোনাৰ ফ\'নটোৱে আপুনি ল\'ব পৰা কাৰ্যপন্থাৰ বিষয়ে আপোনাক পৰামৰ্শ দিব।\n\nবেটাৰি কমি গ\'লে আপুনি সদায় বেটাৰি সঞ্চয়কাৰী অন কৰিব পাৰে।"</string>
@@ -2434,7 +2434,7 @@
     <string name="battery_detail_background" msgid="7938146832943604280">"নেপথ্যত থাকোঁতে"</string>
     <string name="battery_detail_power_usage" msgid="3606930232257489212">"বেটাৰিৰ ব্যৱহাৰ"</string>
     <string name="battery_detail_info_title" msgid="4617514228447481336">"সম্পূৰ্ণ চ্চাৰ্জ হোৱাৰ পিছত"</string>
-    <string name="battery_detail_manage_title" msgid="745194290572617507">"বেটাৰি ব্যৱহাৰ পৰিচালনা কৰক"</string>
+    <string name="battery_detail_manage_title" msgid="745194290572617507">"বেটাৰীৰ ব্যৱহাৰ পৰিচালনা কৰক"</string>
     <string name="advanced_battery_graph_subtext" msgid="3349760453669664057">"আপোনাৰ ডিভাইচৰ ব্যৱহাৰৰ ভিত্তিত বাকী থকা বেটাৰিৰ পৰিমাণ নিৰ্ণয় হয়"</string>
     <string name="estimated_time_left" msgid="8849913193475011250">"বাকী থকা মোটামুটি সময়"</string>
     <string name="estimated_charging_time_left" msgid="7597080379844486777">"সম্পূৰ্ণৰূপে চ্চাৰ্জ নোহোৱা পৰ্যন্ত"</string>
@@ -2461,11 +2461,11 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"অন কৰক"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"বেটাৰি সঞ্চয়কাৰী ব্যৱহাৰ কৰক"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"বেটাৰী সঞ্চয়কাৰী ব্যৱহাৰ কৰক"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"স্বয়ংক্ৰিয়ভাবে অন কৰক"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"কেতিয়াও নকৰিব"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"<xliff:g id="PERCENT">%1$s</xliff:g> বেটাৰি"</string>
-    <string name="battery_percentage" msgid="7782252476471033843">"বেটাৰিত থকা চ্চাৰ্জৰ শতাংশ"</string>
+    <string name="battery_percentage" msgid="7782252476471033843">"বেটাৰীত থকা চাৰ্জৰ শতাংশ"</string>
     <string name="battery_percentage_description" msgid="9219875229166700610">"স্থিতি বাৰত বেটাৰিৰ অনুপাত দেখুৱাওক"</string>
     <string name="process_stats_summary_title" msgid="9189588417488537954">"প্ৰক্ৰিয়া-বিষয়ক পৰিসংখ্যা"</string>
     <string name="process_stats_summary" msgid="8077998499161221885">"চলি থকা প্ৰক্ৰিয়াসমূহৰ বিষয়ে কাৰিকৰী পৰিসংখ্যা"</string>
@@ -2749,7 +2749,7 @@
     <string name="vpn_ipsec_user_cert" msgid="2762078384595366852">"IPSec ব্যৱহাৰকাৰী প্ৰমাণপত্ৰ"</string>
     <string name="vpn_ipsec_ca_cert" msgid="5537567128766402789">"IPSec চিএ প্ৰমাণপত্ৰ"</string>
     <string name="vpn_ipsec_server_cert" msgid="3066696943831527934">"IPSec ছাৰ্ভাৰ প্ৰমাণপত্ৰ"</string>
-    <string name="vpn_show_options" msgid="7672984921872882859">"উচ্চখাপৰ বিকল্পবোৰ দেখাওক"</string>
+    <string name="vpn_show_options" msgid="7672984921872882859">"উচ্চখাপৰ বিকল্পবোৰ দেখুৱাওক"</string>
     <string name="vpn_search_domains" msgid="8469394307693909080">"DNS অনুসন্ধান ড\'মেইনসমূহ"</string>
     <string name="vpn_dns_servers" msgid="3017453300909321239">"ডিএনএছ ছাৰ্ভাৰ (যেনে: ৮.৮.৮.৮)"</string>
     <string name="vpn_routes" msgid="3393989650778663742">"ফৰৱাৰ্ড কৰাৰ ঠিকনাসমূহ (যেনে, ১০.০.০.০/৮)"</string>
@@ -2789,7 +2789,7 @@
     <string name="vpn_create" msgid="2477570636472897359">"ভিপিএন প্ৰ\'ফাইল যোগ কৰক"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"প্ৰ\'ফাইল সম্পাদনা কৰক"</string>
     <string name="vpn_menu_delete" msgid="4128305800374946877">"প্ৰ\'ফাইল মচক"</string>
-    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"যিকোনো সময়ত অন থকা ভিপিএন"</string>
+    <string name="vpn_menu_lockdown" msgid="6951452279924808089">"সদায় অন থকা ভিপিএন"</string>
     <string name="vpn_no_vpns_added" msgid="6616183541896197147">"কোনো ভিপিএন যোগ কৰা হোৱা নাই"</string>
     <string name="vpn_always_on_summary" msgid="3639994551631437397">"সকলো সময়তে VPNৰ সৈতে সংযুক্ত হৈ থাকক"</string>
     <string name="vpn_always_on_summary_not_supported" msgid="9077720997795965133">"এই এপটোৰ দ্বাৰা সমৰ্থিত নহয়"</string>
@@ -3813,7 +3813,7 @@
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"অনুমতি দিয়া হ’ল"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"অনুমতি দিয়া হোৱা নাই"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"অজ্ঞাত উৎসৰ পৰা লাভ কৰা এপ্ ইনষ্টল কৰক"</string>
-    <string name="write_settings" msgid="9009040811145552108">"ছিষ্টেমৰ ছেটিংসমূহ সংশোধন কৰক"</string>
+    <string name="write_settings" msgid="9009040811145552108">"ছিষ্টেমৰ ছেটিং সংশোধন কৰক"</string>
     <string name="keywords_write_settings" msgid="3450405263390246293">"সলনি কৰা হোৱা ছিষ্টেম ছেটিংসমূহ লিখক"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g>ৰ ভিতৰত <xliff:g id="COUNT_0">%1$d</xliff:g>ক ছিষ্টেম ছেটিংসমূহ সংশোধন কৰিবলৈ অনুমতি দিয়া হৈছে"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"বিত্তীয় এপৰ দ্বাৰা এছএমএছ এক্সেছ"</string>
@@ -3956,7 +3956,7 @@
     <string name="operator_warning" msgid="4676042739221117031">"বাহকৰ ডেটা গণনা কাৰ্য ডিভাইচৰ গণনাতকৈ পৃথক হ’ব পাৰে"</string>
     <string name="data_used_template" msgid="761605393453849477">"<xliff:g id="ID_1">%1$s</xliff:g> খৰচ কৰা হৈছে"</string>
     <string name="set_data_warning" msgid="8115980184415563941">"ডেটা ব্যৱহাৰৰ সকীয়নি ছেট কৰক"</string>
-    <string name="data_warning" msgid="2699207195535036240">"ডেটা সকিয়নী"</string>
+    <string name="data_warning" msgid="2699207195535036240">"ডেটাৰ ব্য়ৱহাৰৰ সকীয়নি"</string>
     <string name="data_warning_footnote" msgid="965724845580257305">"আপোনাৰ ডিভাইচে ডেটাৰ ব্য়ৱহাৰ সম্পৰ্কীয় সকীয়নি আৰু ডেটাৰ সীমা ছেট কৰে। এইটো বাহকৰ ডেটাতকৈ বেলেগ হ\'ব পাৰে।"</string>
     <string name="set_data_limit" msgid="5043770023229990674">"ডেটা ব্যৱহাৰৰ সীমা ছেট কৰক"</string>
     <string name="data_limit" msgid="5793521160051596228">"ডেটাৰ সীমা"</string>
@@ -4325,7 +4325,7 @@
     <string name="battery_suggestion_summary" msgid="2669070349482656490"></string>
     <string name="gesture_prevent_ringing_screen_title" msgid="4173494225145223638">"ৰিং কৰিবলৈ নিদিব"</string>
     <string name="gesture_prevent_ringing_title" msgid="8827963588425673557">"পাৱাৰ আৰু ভলিউম বৃদ্ধি কৰা কী একেলগে হেঁচক"</string>
-    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ৰিংৰ ধ্বনি বাজিবলৈ নিদিয়াৰ বাবে শ্বৰ্টকাট"</string>
+    <string name="gesture_prevent_ringing_sound_title" msgid="8642330448721033641">"ৰিঙৰ ধ্বনি বাজিবলৈ নিদিয়াৰ শ্বৰ্টকাট"</string>
     <string name="prevent_ringing_option_vibrate" msgid="6456505293904544108">"কম্পন কৰক"</string>
     <string name="prevent_ringing_option_mute" msgid="53662688921253613">"মিউট কৰক"</string>
     <string name="prevent_ringing_option_none" msgid="1450985763137666231">"একো নকৰিব"</string>
