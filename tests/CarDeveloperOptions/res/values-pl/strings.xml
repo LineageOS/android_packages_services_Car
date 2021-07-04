@@ -432,7 +432,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Usuń dane dotyczące twarzy"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Twoja twarz wystarczy, by odblokować urządzenie i otworzyć aplikacje."<annotation id="url">"Dowiedz się więcej"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Usunąć dane twarzy?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Dane zarejestrowane przez Rozpoznawanie twarzy zostaną trwale i bezpiecznie usunięte. Po usunięciu danych do odblokowania telefonu, logowania się w aplikacjach i potwierdzania płatności będziesz potrzebować kodu PIN, wzoru lub hasła."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Dane zarejestrowane przez rozpoznawanie twarzy zostaną trwale i bezpiecznie usunięte. Po usunięciu danych do odblokowania telefonu, logowania się w aplikacjach i potwierdzania płatności będziesz potrzebować kodu PIN, wzoru lub hasła."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Odcisk palca"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Zarządzaj odciskami"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Używaj odcisku palca do"</string>
@@ -939,7 +939,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Wpisz identyfikator SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Zabezpieczenia"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Sieć ukryta"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jeśli router nie transmituje identyfikatora sieci, ale chcesz się z nią łączyć w przyszłości, możesz ją ustawić jako ukrytą.\n\nMoże to stanowić zagrożenie bezpieczeństwa, bo Twój telefon będzie regularnie transmitował sygnał, by znaleźć sieć.\n\nUstawienie sieci jako ukrytej nie zmienia ustawień routera."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jeśli router nie transmituje identyfikatora sieci, ale chcesz się z nią łączyć w przyszłości, możesz ją ustawić jako ukrytą.\n\nMoże to stanowić zagrożenie dla bezpieczeństwa, bo Twój telefon będzie regularnie transmitował sygnał, żeby znaleźć sieć.\n\nUstawienie sieci jako ukrytej nie zmienia ustawień routera."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Siła sygnału"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Stan"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Szybkość łącza nadawania"</string>
@@ -968,7 +968,7 @@
     <string name="wifi_ip_settings" msgid="4636102290236116946">"Ustawienia IP"</string>
     <string name="wifi_privacy_settings" msgid="4462092795794247809">"Prywatność"</string>
     <string name="wifi_privacy_settings_ephemeral_summary" msgid="2411375348287064283">"Randomizowany adres MAC"</string>
-    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Dodawanie urządzenia"</string>
+    <string name="wifi_dpp_add_device_to_network" msgid="8871041525483253430">"Dodaj urządzenie"</string>
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Wyśrodkuj kod QR poniżej, by podłączyć urządzenie do sieci „<xliff:g id="SSID">%1$s</xliff:g>”"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Zeskanuj kod QR"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Wyśrodkuj kod QR poniżej, by połączyć się z siecią „<xliff:g id="SSID">%1$s</xliff:g>”"</string>
@@ -1289,7 +1289,7 @@
     <string name="screensaver_settings_summary_never" msgid="3995259444981620707">"Nigdy"</string>
     <string name="screensaver_settings_summary_off" msgid="6119947316484763131">"Wył."</string>
     <string name="screensaver_settings_disabled_prompt" msgid="1897518064782596947">"Włącz wygaszacz ekranu, by kontrolować to, co dzieje się, gdy telefon jest w stacji dokującej i/lub w trybie uśpienia."</string>
-    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Kiedy zacząć"</string>
+    <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"Kiedy włączać"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"Bieżący wygaszacz ekranu"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"Zacznij teraz"</string>
     <string name="screensaver_settings_button" msgid="4662384378821837589">"Ustawienia"</string>
@@ -2648,7 +2648,7 @@
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Ogranicz dostęp do SMS-ów i rejestru połączeń"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Tylko domyślne aplikacje do obsługi telefonu i wiadomości mają dostęp do SMS-ów i rejestru połączeń"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Brak agentów zaufania"</string>
-    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktywować aplikację do administrowania urządzeniem?"</string>
+    <string name="add_device_admin_msg" msgid="3573765823476931173">"Aktywować tę aplikację?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"Aktywuj tę aplikację do administrowania urządzeniem"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"Administrator urządzenia"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"Aktywowanie tej aplikacji do zarządzania pozwoli aplikacji <xliff:g id="APP_NAME">%1$s</xliff:g> wykonywać te operacje:"</string>
@@ -3002,7 +3002,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Użyj domyślnej"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Zawsze"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy jest otwarta inna aplikacja płatnicza"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Z wyjątkiem, gdy otwarta jest inna aplikacja płatnicza"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Na terminalu „Zbliż i zapłać” płać przy użyciu:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Płacenie na terminalu"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Skonfiguruj aplikację płatniczą, a później przyłóż tylną część telefonu do terminala z symbolem płatności zbliżeniowej."</string>
@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"płacenie, klikanie, płatności"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"kopia zapasowa, tworzenie kopii zapasowej"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gest"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"twarz, odblokowanie, uwierzytelnienie, logowanie"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"twarz, rozpoznawanie, uwierzytelnienie, logowanie"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, wersja prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"sieć, stan sieci komórkowej, stan usługi, moc sygnału, typ sieci komórkowej, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"numer seryjny, wersja sprzętu"</string>
@@ -3262,7 +3262,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"Brak dźwięku oprócz: <xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"Brak dźwięku oprócz alarmów i multimediów"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"Harmonogramy"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Usuwanie harmonogramów"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"Usuń harmonogramy"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"Usuń"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"Edytuj"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"Harmonogramy"</string>
@@ -3324,10 +3324,10 @@
     <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" Wyświetl ustawienia niestandardowe "</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"Tylko priorytet"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Wł. / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Wyłączono / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
-    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Wyłączono"</string>
-    <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Wł."</string>
+    <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"Włączone / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off_with_info" msgid="3910718455243440265">"Wyłączone / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
+    <string name="zen_mode_sound_summary_off" msgid="2800265178411749309">"Wyłączone"</string>
+    <string name="zen_mode_sound_summary_on" msgid="6964666541479146310">"Włączone"</string>
     <string name="zen_mode_duration_summary_always_prompt" msgid="7642321938427056823">"Pytaj za każdym razem (chyba że został włączony automatycznie)"</string>
     <string name="zen_mode_duration_summary_forever" msgid="4563938129424903030">"Dopóki nie wyłączysz (chyba że został włączony automatycznie)"</string>
     <plurals name="zen_mode_duration_summary_time_hours" formatted="false" msgid="8872000022033647725">
@@ -3461,7 +3461,7 @@
     <string name="no_notification_assistant" msgid="9140123568386413264">"Brak asystenta"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Żadna z zainstalowanych aplikacji nie prosiła o dostęp do powiadomień."</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Zezwolić usłudze <xliff:g id="SERVICE">%1$s</xliff:g> na dostęp do powiadomień?"</string>
-    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"Aplikacja <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> będzie mogła czytać wszystkie powiadomienia, w tym dane osobowe takie jak nazwy kontaktów oraz treść otrzymywanych wiadomości. Będzie też mogła modyfikować lub odrzucać powiadomienia oraz używać zawartych w nich przycisków działań. \n\nDodatkowo aplikacja będzie mogła włączać lub wyłączać tryb Nie przeszkadzać i zmieniać powiązane ustawienia."</string>
+    <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"Aplikacja <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> będzie mogła czytać wszystkie powiadomienia, w tym informacje osobiste takie jak nazwy kontaktów i treść otrzymywanych wiadomości. Będzie też mogła modyfikować lub odrzucać powiadomienia oraz używać zawartych w nich przycisków czynności. \n\nDodatkowo aplikacja będzie mogła włączać lub wyłączać tryb Nie przeszkadzać i zmieniać powiązane ustawienia."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Zezwolić usłudze <xliff:g id="SERVICE">%1$s</xliff:g> na dostęp do powiadomień?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"Aplikacja <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> będzie mogła czytać wszystkie powiadomienia, w tym informacje osobiste, takie jak nazwy kontaktów i treść otrzymywanych wiadomości. Będzie też mogła odrzucać powiadomienia lub używać zawartych w nich przycisków czynności. \n\nDodatkowo aplikacja będzie mogła włączać lub wyłączać opcję Nie przeszkadzać i zmieniać powiązane ustawienia."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Jeśli wyłączysz dostęp do powiadomień dla aplikacji <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, możesz również wyłączyć opcję Nie przeszkadzać."</string>
@@ -3846,7 +3846,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"Odrzuć"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"Tylko ładowanie"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"Tylko ładowanie tego urządzenia"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"Ładowanie podłączonego urządzenia"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"Ładuj połączone urządzenie"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"Przesyłanie plików"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"Przesyłaj pliki do innego urządzenia"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -4059,7 +4059,7 @@
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Automatyczne aktualizacje systemu"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Zastosuj aktualizacje po ponownym uruchomieniu urządzenia"</string>
     <string name="usage" msgid="9172908720164431622">"Wykorzystanie danych"</string>
-    <string name="cellular_data_usage" msgid="1236562234207782386">"Zużycie danych"</string>
+    <string name="cellular_data_usage" msgid="1236562234207782386">"Użycie danych"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Użycie danych przez aplikację"</string>
     <string name="wifi_data_usage" msgid="275569900562265895">"Użycie danych (Wi-Fi)"</string>
     <string name="ethernet_data_usage" msgid="747614925362556718">"Użycie danych w sieci Ethernet"</string>
@@ -4431,7 +4431,7 @@
     <string name="disabled_low_ram_device" msgid="4958060232123741721">"Ta funkcja jest niedostępna na tym urządzeniu."</string>
     <string name="disabled_feature" msgid="3747549387387702365">"Ta funkcja jest niedostępna"</string>
     <string name="disabled_feature_reason_slow_down_phone" msgid="1819157849156814583">"Spowoduje spowolnienie telefonu"</string>
-    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Wymuś pełną procedurę pomiarów GNSS"</string>
+    <string name="enable_gnss_raw_meas_full_tracking" msgid="3397182995626655581">"Wymuszaj pełną procedurę pomiarów GNSS"</string>
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"Śledź wszystkie konstelacje GNSS i częstotliwości bez uwzględniania współczynnika impulsu"</string>
     <string name="enable_user_switch_message" msgid="8613014373053051092">"Debugowanie podczas przełączania użytkownika"</string>
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"Pokaż szczegółowe informacje podczas przełączania użytkownika"</string>

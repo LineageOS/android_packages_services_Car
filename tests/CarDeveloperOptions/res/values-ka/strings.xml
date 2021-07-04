@@ -334,7 +334,7 @@
     <string name="date_time_set_date_title" msgid="8250501639251422132">"თარიღი"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"ძიების რეგიონი"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"რეგიონი"</string>
-    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"აირჩიეთ მსოფლიო კოორდინირებული დროის წანაცვლება"</string>
+    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"აირჩიეთ UTC-ის წანაცვლება"</string>
     <string name="zone_change_to_from_dst" msgid="5772776596087610194">"<xliff:g id="TIME_TYPE">%1$s</xliff:g> იწყება რიცხვში: <xliff:g id="TRANSITION_DATE">%2$s</xliff:g>."</string>
     <string name="zone_info_exemplar_location_and_offset" msgid="7264956350119098020">"<xliff:g id="EXEMPLAR_LOCATION">%1$s</xliff:g> (<xliff:g id="OFFSET">%2$s</xliff:g>)"</string>
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"კონფიდენციალურობა"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"გათიშულია ადმინისტრატორის მიერ"</string>
     <string name="security_status_title" msgid="1261960357751754428">"უსაფრთხოების სტატუსი"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ეკრანის დაბლოკვა, განბლოკვა სახით"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ეკრანის დაბლოკვა, სახით განბლოკვა"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ეკრანის დაბლოკვა, თითის ანაბეჭდი"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ეკრანის დაბლოკვა"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"სახე დამატებულია"</string>
@@ -2580,7 +2580,7 @@
     <string name="add_device_admin" msgid="1621152410207260584">"მოწყობილობის ადმინისტრატორის ამ აპის გააქტიურება"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"მოწყობილობის ადმინისტრატორი"</string>
     <string name="device_admin_warning" msgid="4421817419326480449">"ადმინისტრატორის ამ აპის გააქტიურების შემთხვევაში, <xliff:g id="APP_NAME">%1$s</xliff:g>ს აპი შეძლებს განახორციელოს შემდეგი ოპერაციები:"</string>
-    <string name="device_admin_status" msgid="5424944611789040723">"ადმინისტრატორის აპი აქტიურია და საშუალებას აძლევს <xliff:g id="APP_NAME">%1$s</xliff:g> აპს, განახორციელოს შემდეგი ოპერაციები:"</string>
+    <string name="device_admin_status" msgid="5424944611789040723">"ადმინისტრატორის აპი აქტიურია და საშუალებას აძლევს აპს (<xliff:g id="APP_NAME">%1$s</xliff:g>), განახორციელოს შემდეგი ოპერაციები:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"გსურთ, პროფილის მმართველის აქტივაცია?"</string>
     <string name="adding_profile_owner_warning" msgid="1284541194547382194">"გაგრძელების შემთხვევაში, თქვენი მომხმარებელი მართული იქნება ადმინისტრატორის მიერ, რომელიც თქვენს პირად მონაცემებთან ერთად, დაკავშირებული მონაცემების შენახვასაც შეძლებს.\n\nთქვენს ადმინისტრატორს შეუძლია ამ მომხმარებელთან ასოცირებული პარამეტრების, წვდომის, აპებისა და მონაცემების (მათ შორის, ქსელის აქტივობისა და თქვენი მოწყობილობის მდებარეობის ინფორმაციის) მონიტორინგი და მართვა."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"სხვა ვარიანტები გათიშულია თქვენი ადმინისტრატორის მიერ"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"შეტყობინებების მიღებისას თქვენს ტელეფონზე არ ამოქმედდება ხმოვანი ან ვიბროსიგნალი."</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"უხილავი და უხმო შეტყობინებები"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"თქვენ არ დაინახავთ და არც გაიგონებთ შეტყობინებებს"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"თქვენი ტელეფონი არ გამოაჩენს ახალ თუ არსებული შეტყობინებებს, არ გამოსცემს ხმას და არც ვიბრაციას აამოქმედებს. გაითვალისწინეთ, რომ ტელეფონის აქტივობასთან და სტატუსთან დაკავშირებული, კრიტიკულად მნიშვნელოვანი შეტყობინებები მაინც გამოჩნდება.\n\n„არ შემაწუხოთ“ რეჟიმის გამორთვის შემდეგ გამოტოვებული შეტყობინებების პოვნა შეგიძლიათ თითის ჩამოსმით ეკრანის ზედა ნაწილიდან ქვემოთ."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"თქვენი ტელეფონი არ გამოაჩენს ახალ თუ არსებულ შეტყობინებებს, არ გამოსცემს ხმას და არც ვიბრაციას აამოქმედებს. გაითვალისწინეთ, რომ ტელეფონის აქტივობასთან და სტატუსთან დაკავშირებული, კრიტიკულად მნიშვნელოვანი შეტყობინებები მაინც გამოჩნდება.\n\n„არ შემაწუხოთ“ რეჟიმის გამორთვის შემდეგ გამოტოვებული შეტყობინებების პოვნა შეგიძლიათ თითის ჩამოსმით ეკრანის ზედა ნაწილიდან ქვემოთ."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"მორგებული"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"მორგებული პარამეტრის ჩართვა"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"მორგებული პარამეტრის გაუქმება"</string>

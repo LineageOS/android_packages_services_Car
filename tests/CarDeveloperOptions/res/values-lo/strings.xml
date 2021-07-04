@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ຄວາມເປັນສ່ວນຕົວ"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"ຖືກຜູ້ເບິ່ງແຍງລະບົບປິດໄວ້"</string>
     <string name="security_status_title" msgid="1261960357751754428">"ສະຖານະຄວາມປອດໄພ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ລັອກໜ້າຈໍ, ການປົດລັອກດ້ວຍໃບໜ້າ"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ລັອກໜ້າຈໍ, ການປົດລັອກດ້ວຍໜ້າ"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"ການລັອກໜ້າຈໍ, ລາຍນິ້ວມື"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ການລັອກໜ້າຈໍ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"ເພີ່ມໜ້າແລ້ວ"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"ລຶບຂໍ້ມູນໃບໜ້າອອກ"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ໃບໜ້າຂອງທ່ານສາມາດໃຊ້ເພື່ອປົດລັອກອຸປະກອນ ແລະ ເຂົ້າເຖິງແອັບຕ່າງໆໄດ້. "<annotation id="url">"ສຶກສາເພີ່ມເຕີມ"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"ລຶບຂໍ້ມູນໃບໜ້າອອກບໍ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ຂໍ້ມູນທີ່ບັນທຶກໂດຍການປົດລັອກໜ້າຈໍຈະຖືກລຶບອອກຖາວອນຢ່າງປອດໄພ. ຫຼັງຈາກການລຶບແລ້ວ, ທ່ານຈະຕ້ອງໃຊ້ PIN, ຮູບແບບປົດລັອກ ຫຼື ລະຫັດຜ່ານໃນການປົດລັອກໂທລະສັບ, ການລົງຊື່ເຂົ້າໃຊ້ແອັບ ແລະ ການຢືນຢັນການຈ່າຍເງິນ."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ຂໍ້ມູນທີ່ບັນທຶກໂດຍການປົດລັອກດ້ວຍໜ້າຈໍຈະຖືກລຶບອອກຖາວອນຢ່າງປອດໄພ. ຫຼັງຈາກການລຶບແລ້ວ, ທ່ານຈະຕ້ອງໃຊ້ PIN, ຮູບແບບປົດລັອກ ຫຼື ລະຫັດຜ່ານໃນການປົດລັອກໂທລະສັບ, ການລົງຊື່ເຂົ້າໃຊ້ແອັບ ແລະ ການຢືນຢັນການຈ່າຍເງິນ."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ລາຍນີ້ວ​ມື"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"ຈັດ​ການ​ລາຍ​ນີ້ວ​ມື"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ໃຊ້​ລາຍ​ນີ້ວ​ມື​ສຳ​ລັບ"</string>
@@ -494,7 +494,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"ຕໍ່​ໄປ"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"ນອກ​ຈາກ​ການ​ປົດ​ລັອກ​ໂທ​ລະ​ສັບ​ຂອງ​ທ່ານ​ແລ້ວ, ທ່ານ​ສາ​ມາດ​ໃຊ້​ລາຍ​ນີ້​ມື​ຂອງ​ທ່ານ ​ເພື່ອ​ໃຊ້​ສິດ​ໃນ​ການ​ຊື້ ແລະ​ການ​ເຂົ້າ​ຫາ​ແອັບ​ໄດ້ນຳ​ອີກ "<annotation id="url">"ຮຽນ​ຮູ້​ເພີ່ມ​ເຕີມ"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" ຕົວເລືອກໜ້າຈໍລັອກຖືກປິດການນຳໃຊ້ໄວ້. ເພື່ອສຶກສາເພີ່ມເຕີມ, ໃຫ້ຕິດຕໍ່ຜູ້ເບິ່ງແຍງລະບົບອົງກອນຂອງທ່ານ. "<annotation id="admin_details">"ລາຍລະອຽດເພີ່ມເຕີມ"</annotation>\n\n"ທ່ານຍັງຄົງສາມາດໃຊ້ລາຍນິ້ວມືຂອງທ່ານເພື່ອອະນຸມັດການສັ່ງຊື້ແອັບ ແລະ ການເຂົ້າເຖິງແອັບໄດ້. "<annotation id="url">"ສຶກສາເພີ່ມເຕີມ"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ຍົກນິ້ວມືອອກ, ຈາກນັ້ນ ສຳພັດເຊັນເຊີອີກຄັ້ງ"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"ຍົກນິ້ວມືອອກ, ຈາກນັ້ນ ສຳຜັດເຊັນເຊີອີກຄັ້ງ"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"ທ່ານ​ສາ​ມາດ​ເພີ່ມ​ບໍ່ເກີນ <xliff:g id="COUNT">%d</xliff:g> ລາຍ​ນີ້ວ​ມື​"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"You’ve added the maximum number of fingerprints"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Can’t add more fingerprints"</string>
@@ -552,8 +552,8 @@
     <string name="setup_lock_settings_picker_message" product="tablet" msgid="7230799135599877804">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ແທັບເລັດນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
     <string name="setup_lock_settings_picker_message" product="device" msgid="2098404520816295371">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ອຸປະກອນນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"ປ້ອງກັນບໍ່ໃຫ້ຄົນອື່ນໃຊ້ໂທລະສັບນີ້ໂດຍບໍ່ໄດ້ຮັບອະນຸຍາດຈາກທ່ານ ໂດຍການເປີດນຳໃຊ້ຄຸນສົມບັດການປົກປ້ອງອຸປະກອນ. ເລືອກການລັອກໜ້າຈໍທີ່ທ່ານຕ້ອງການໃຊ້."</string>
-    <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"ເລືອກວິ​ທີ​ລັອກ​ໜ້າ​ຈໍ​ການ​ສຳ​ຮອງ​ຂອງ​ທ່ານ"</string>
-    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"ເລືອກວິທີລັອກໜ້າຈໍການສຳຮອງຂອງທ່ານ"</string>
+    <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"ເລືອກວິ​ທີ​ລັອກ​ໜ້າ​ຈໍ​ສຳ​ຮອງ​ຂອງ​ທ່ານ"</string>
+    <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"ເລືອກວິທີລັອກໜ້າຈໍສຳຮອງຂອງທ່ານ"</string>
     <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"ຕົວເລືອກໜ້າຈໍລັອກ"</string>
     <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"ຕົວເລືອກໜ້າຈໍລັອກ"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ການລັອກໜ້າຈໍ"</string>
@@ -918,7 +918,7 @@
     <string name="please_select_phase2" msgid="5848080896810435677">"ການກວດສອບສິດທິໄລຍະທີ 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ໃບ​ຢັ້ງ​ຢືນ​ CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"ໂດເມນ"</string>
-    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ່ໃຊ້"</string>
+    <string name="wifi_eap_user_cert" msgid="6786839531765719173">"ໃບຮັບຮອງຜູ້ໃຊ້"</string>
     <string name="wifi_eap_identity" msgid="5280457017705738773">"ການລະບຸໂຕຕົນ"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"ໂຕຕົນທີ່ບໍ່ລະບຸຊື່"</string>
     <string name="wifi_password" msgid="6942983531275177771">"ລະຫັດຜ່ານ"</string>
@@ -1173,7 +1173,7 @@
     <string name="accelerometer_title" msgid="2427487734964971453">"ໝຸນໜ້າຈໍອັດຕະໂນມັດ"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"ສີ"</string>
     <string name="color_mode_option_natural" msgid="1292837781836645320">"ທຳ​ມະ​ຊາດ"</string>
-    <string name="color_mode_option_boosted" msgid="453557938434778933">"ເລັ່ງແລ້ວ"</string>
+    <string name="color_mode_option_boosted" msgid="453557938434778933">"ສີເຂັ້ມຂຶ້ນ"</string>
     <string name="color_mode_option_saturated" msgid="7758384943407859851">"ເພີ່ມສີແລ້ວ"</string>
     <string name="color_mode_option_automatic" msgid="6572718611315165117">"ປັບປ່ຽນໄດ້"</string>
     <string name="color_mode_summary_natural" msgid="1247153893843263340">"ໃຊ້ສີທີ່ຖືກຕ້ອງເທົ່ານັ້ນ"</string>
@@ -2065,7 +2065,7 @@
     <string name="accessibility_shortcut_service_title" msgid="3516052294376744060">"ບໍລິການປຸ່ມທາງລັດ"</string>
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"ອະນຸຍາດຈາກໜ້າຈໍລັອກ"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ເມື່ອເປີດໃຊ້ທາງລັດແລ້ວ, ທ່ານສາມາດກົດປຸ່ມລະດັບສຽງທັງສອງຄ້າງໄວ້ 3 ວິນາທີເພື່ອເລີ່ມຄຸນສົມບັດການຊ່ວຍເຂົ້າເຖິງໄດ້."</string>
-    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"​ໂຕ​ອັກ​ສອນ​ຄອນ​ທຣາສ​ສູງ"</string>
+    <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ຕົວອັກສອນຄອນທຣາສສູງ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"ອັບເດດການຂະຫຍາຍໜ້າຈໍອັດຕະໂນມັດ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ອັບເດດການຂະຫຍາຍໜ້າຈໍເມື່ອປ່ຽນແອັບພລິເຄຊັນ"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"ກົດປຸ່ມ ປິດ/ເປີດ ເພື່ອວາງສາຍ"</string>
@@ -2892,7 +2892,7 @@
     <string name="user_confirm_remove_self_message" product="tablet" msgid="2889456786320157545">"ທ່ານຈະເສຍພື້ນທີ່ຈັດເກັບຂໍ້ມູນ ແລະຂໍ້ມູນທີ່ມີຢູ່ໃນແທັບເລັດນີ້. ການກະທຳນີ້ຈະບໍ່ສາມາດຍົກເລີກໄດ້."</string>
     <string name="user_confirm_remove_self_message" product="default" msgid="8441729423565705183">"ທ່ານຈະເສຍພື້ນທີ່ຈັດເກັບຂໍ້ມູນ ແລະຂໍ້ມູນທີ່ມີຢູ່ໃນໂທລະສັບນີ້. ການກະທຳນີ້ຈະບໍ່ສາມາດຍົກເລີກໄດ້."</string>
     <string name="user_confirm_remove_message" msgid="5202150470271756013">"ແອັບ ແລະ ​ຂໍ້​ມູນ​ທັງ​ໝົດ​ຈະ​ຖືກ​ລຶບ​ອອກ."</string>
-    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"ແອັບ ແລະຂໍ້ມູນທັງໝົດໃນໂປຣໄຟລນີ້ຈະຖືກລຶບຖ້າທ່ານສືບຕໍ່."</string>
+    <string name="work_profile_confirm_remove_message" msgid="1220672284385083128">"ແອັບ ແລະ ຂໍ້ມູນທັງໝົດໃນໂປຣໄຟລ໌ນີ້ຈະຖືກລຶບຖ້າທ່ານສືບຕໍ່."</string>
     <string name="user_profile_confirm_remove_message" msgid="8376289888144561545">"​ແອັບ ​ແລະ ​ຂໍ້​ມູນ​ທັງ​ໝົດ​ຈະ​ຖືກ​ລຶບ​ອອກ."</string>
     <string name="user_adding_new_user" msgid="381717945749193417">"ກຳລັງເພີ່ມຜູ່ໃຊ້ໃໝ່..."</string>
     <string name="user_delete_user_description" msgid="3627684990761268859">"ລຶບຜູ່ໃຊ້"</string>
@@ -3728,7 +3728,7 @@
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"ປະຕິເສດ"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"ບໍ່ມີການໂອນຍ້າຍຂໍ້ມູນ"</string>
     <string name="usb_use_charging_only_desc" msgid="3283518562582478950">"ຫາ​ກໍ່​ສາກ​ອຸ​ປະ​ກອນ​ນີ້"</string>
-    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາດອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
+    <string name="usb_use_power_only" msgid="6595783381323810697">"ສາກອຸປະກອນທີ່ເຊື່ອມຕໍ່ໄວ້"</string>
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ການໂອນໄຟລ໌"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"ໂອນຍ້າຍໄຟລ໌ໄປໃສ່ອຸປະກອນອື່ນ"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP"</string>
@@ -3964,7 +3964,7 @@
     <string name="configure" msgid="8232696842838580549">"ກຳນົດຄ່າ"</string>
     <string name="data_usage_other_apps" msgid="7002491980141402084">"ແອັບອື່ນໆແມ່ນຮວມໃນການນຳໃຊ້"</string>
     <plurals name="data_saver_unrestricted_summary" formatted="false" msgid="6046013861315713697">
-      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດຂໍ້ມູນເປີດຢູ່</item>
+      <item quantity="other">ອະນຸຍາດໃຫ້ <xliff:g id="COUNT">%1$d</xliff:g> ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
       <item quantity="one">ອະນຸຍາດໃຫ້ 1 ແອັບໄດ້ຮັບອະນຸຍາດໃຫ້ໃຊ້ຂໍ້ມູນແບບບໍ່ຈຳກັດ ເມື່ອຕົວປະຢັດອິນເຕີເນັດເປີດຢູ່</item>
     </plurals>
     <string name="data_usage_title" msgid="7874606430902201083">"ຂໍ້ມູນຫຼັກ"</string>

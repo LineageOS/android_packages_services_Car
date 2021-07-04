@@ -334,7 +334,7 @@
     <string name="date_time_set_date_title" msgid="8250501639251422132">"日期"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"搜尋區域"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"地區"</string>
-    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"選取世界協調時間 (UTC) 偏移量"</string>
+    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"選取世界協調時間 (UTC) 時差值"</string>
     <string name="zone_change_to_from_dst" msgid="5772776596087610194">"<xliff:g id="TIME_TYPE">%1$s</xliff:g>於 <xliff:g id="TRANSITION_DATE">%2$s</xliff:g>開始"</string>
     <string name="zone_info_exemplar_location_and_offset" msgid="7264956350119098020">"<xliff:g id="EXEMPLAR_LOCATION">%1$s</xliff:g> (<xliff:g id="OFFSET">%2$s</xliff:g>)"</string>
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
@@ -343,7 +343,7 @@
     <string name="zone_time_type_dst" msgid="7812605402646684853">"夏令時間"</string>
     <string name="zone_time_type_standard" msgid="4093967611947328688">"標準時間"</string>
     <string name="zone_menu_by_region" msgid="8211384017117296924">"按地區選取"</string>
-    <string name="zone_menu_by_offset" msgid="6538342360925785227">"按世界協調時間 (UTC) 偏移量選取"</string>
+    <string name="zone_menu_by_offset" msgid="6538342360925785227">"按世界協調時間 (UTC) 時差值選取"</string>
     <string name="date_picker_title" msgid="2563955125757999610">"日期"</string>
     <string name="time_picker_title" msgid="1596400307061268660">"時間"</string>
     <string name="lock_after_timeout" msgid="7755520959071097304">"自動鎖定"</string>
@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"私隱權"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"已由管理員停用"</string>
     <string name="security_status_title" msgid="1261960357751754428">"安全性狀態"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定, 臉孔解鎖"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"螢幕鎖定、面孔解鎖"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"螢幕鎖定、指紋"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"螢幕鎖定"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"已加入臉孔"</string>
@@ -399,11 +399,11 @@
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"取消"</string>
-    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"使用臉孔解鎖"</string>
+    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"使用面孔解鎖"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"使用臉孔驗證"</string>
-    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"使用臉孔解鎖手機、授權購物或登入應用程式。"</string>
-    <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"使用臉孔解鎖手機或核准購物交易。\n\n請注意：您無法使用臉孔解鎖此裝置。如需瞭解詳情，請聯絡您機構的管理員。"</string>
-    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"使用臉孔解鎖手機、授權購物或登入應用程式"</string>
+    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"使用面孔解鎖手機、授權購物或登入應用程式。"</string>
+    <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"使用面孔解鎖手機或核准購物交易。\n\n請注意：您無法使用面孔解鎖此裝置。如需瞭解詳情，請聯絡您機構的管理員。"</string>
+    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"使用面孔解鎖手機、授權購物或登入應用程式"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"將您的臉孔置於圓圈中心"</string>
     <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"稍後再註冊"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"移除臉容資料"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"您的臉容可以用來解鎖裝置和存取應用程式。"<annotation id="url">"瞭解詳情"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"是否刪除臉孔資料？"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"臉孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"面孔解鎖功能記錄的資料將以安全方式永久刪除。移除後，您將需使用 PIN、圖案或密碼解鎖手機、登入應用程式及確認付款。"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"指紋"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"管理指紋"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"使用指紋"</string>
@@ -584,7 +584,7 @@
     <string name="face_unlock_set_unlock_pin" msgid="3320824093518497476">"臉孔驗證 + PIN"</string>
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"臉孔驗證 + 密碼"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"不驗證臉孔並繼續"</string>
-    <string name="face_unlock_title" msgid="1298031162909236127">"您可以使用臉孔解鎖手機。為安全起見，此選項需要設定後備螢幕鎖定方式。"</string>
+    <string name="face_unlock_title" msgid="1298031162909236127">"您可以使用面孔解鎖手機。為安全起見，此選項需要設定後備螢幕鎖定方式。"</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"已由管理員、加密政策或認證儲存空間停用"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"無"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"滑動"</string>
@@ -2175,7 +2175,7 @@
     <string name="color_red" msgid="7426040122729897596">"紅色"</string>
     <string name="color_green" msgid="3432648781089648971">"綠色"</string>
     <string name="color_blue" msgid="4055855996393833996">"藍色"</string>
-    <string name="color_cyan" msgid="7669317410901991453">"洋青色"</string>
+    <string name="color_cyan" msgid="7669317410901991453">"藍綠色"</string>
     <string name="color_yellow" msgid="8847327436896180799">"黃色"</string>
     <string name="color_magenta" msgid="721976999611563071">"洋紅色"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"使用「<xliff:g id="SERVICE">%1$s</xliff:g>」？"</string>
@@ -2848,7 +2848,7 @@
       <item quantity="other">檢查憑證</item>
       <item quantity="one">檢查憑證</item>
     </plurals>
-    <string name="user_settings_title" msgid="7917598650933179545">"複數使用者"</string>
+    <string name="user_settings_title" msgid="7917598650933179545">"多位使用者"</string>
     <string name="user_settings_footer_text" product="device" msgid="4573858247439190545">"新增使用者即可分享您的裝置。每位使用者在您的裝置上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="tablet" msgid="780018221428132918">"新增使用者即可分享您的平板電腦。每位使用者在您的平板電腦上都有個人空間，以自訂主畫面、帳戶、應用程式、設定等。"</string>
     <string name="user_settings_footer_text" product="default" msgid="1470859614968237491">"您可以新增使用者來分享這部手機。每位使用者在您的手機上都有個人空間，可以自訂主畫面、帳戶、應用程式、設定等等。"</string>
@@ -3099,7 +3099,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"支付, 輕按, 付款"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"備份內容, 備份"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"手勢"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"臉容, 解鎖, 驗證, 登入"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"面孔, 解鎖, 驗證, 登入"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"MEI, MEID, MIN, PRL 版本, IMEI SV"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"網絡, 流動網絡狀態, 服務狀態, 訊號強度, 流動網絡類型, 漫遊, ICCID"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"序號, 硬件版本"</string>
@@ -3179,7 +3179,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"不發出音效 (<xliff:g id="CATEGORIES">%1$s</xliff:g>除外)"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"不發出音效 (鬧鐘和媒體除外)"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"時間表"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"刪除日程表"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"刪除時間表"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"刪除"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"編輯"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"時間表"</string>
@@ -3197,18 +3197,18 @@
     <string name="zen_mode_visual_signals_settings_subtitle" msgid="6608239691864638854">"允許視覺訊號"</string>
     <string name="zen_mode_settings_category" msgid="5601680733422424922">"開啟「請勿騷擾」模式時"</string>
     <string name="zen_mode_restrict_notifications_title" msgid="7486753018073540477">"限制通知"</string>
-    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"無音效通知"</string>
+    <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"不發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"您會在螢幕上看到通知"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"手機收到通知時不會發出音效或震動。"</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"無顯示或音效通知"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"不顯示或發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"您不會看到或聽到通知"</string>
     <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"您的手機不會顯示新通知或現有通知，亦不會為此震動或發出音效。請記住，有關手機活動和狀態的重要通知仍會顯示。\n\n關閉「請勿騷擾」後，您可以從螢幕頂部向下滑動以查看錯過的通知。"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"自訂"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"啟用自訂設定"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"移除自訂設定"</string>
-    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"無音效通知"</string>
+    <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"不發出音效通知"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"隱藏部分通知"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"無顯示或音效通知"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"不顯示或發出音效通知"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"自訂限制"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"螢幕開啟時"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"螢幕關閉時"</string>
@@ -3276,13 +3276,13 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"開啟「請勿騷擾」模式時，除了您在上方允許的項目外，所有訊息、提醒和活動均會設為靜音。您可以調整訊息設定，讓好友、家人或其他聯絡人可以聯絡您。"</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"完成"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"設定"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"無顯示或音效通知"</string>
-    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"無音效通知"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"不顯示或發出音效通知"</string>
+    <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"不發出音效通知"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"您不會看到或聽到通知，但允許顯示已加星號的聯絡人和重複來電者的來電。"</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(目前設定)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"要變更「請勿騷擾」通知設定嗎？"</string>
-    <string name="sound_work_settings" msgid="4140215240360927923">"工作設定檔聲音"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔聲音"</string>
+    <string name="sound_work_settings" msgid="4140215240360927923">"工作設定檔音效"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"使用個人設定檔音效"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"在工作和個人設定檔中使用相同音效"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"工作手機鈴聲"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"預設工作通知音效"</string>
@@ -3373,7 +3373,7 @@
     <string name="no_notification_listeners" msgid="1366386609506834717">"沒有已安裝的應用程式要求通知存取權。"</string>
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"要允許<xliff:g id="SERVICE">%1$s</xliff:g>存取通知嗎？"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g>將能夠讀取所有通知 (包括個人資料，例如聯絡人姓名和訊息內容)，亦能修改或關閉通知，或者觸發通知內的操作按鈕。\n\n此外，該應用程式還能開啟或關閉「請勿騷擾」模式及變更相關設定。"</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"授權 <xliff:g id="SERVICE">%1$s</xliff:g> 存取通知 ？"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"要允許<xliff:g id="SERVICE">%1$s</xliff:g>存取通知嗎？"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」將可讀取所有通知，包括聯絡人姓名和訊息內容等個人資料。它亦可以關閉通知，或觸發通知內的動作按鈕。\n\n這亦允許應用程式開啟或關閉「請勿騷擾」，以及變更相關設定。"</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"如果您關閉「<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>」的通知存取權，「請勿騷擾」的存取權亦可能會關閉。"</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"關閉"</string>
@@ -3441,7 +3441,7 @@
     <string name="zen_mode_rule_name_warning" msgid="4773465816059587512">"日程表名稱已使用"</string>
     <string name="zen_mode_add_rule" msgid="7200004557856029928">"加入更多"</string>
     <string name="zen_mode_add_event_rule" msgid="1398181272397489506">"加入日程表活動"</string>
-    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表 (時間)"</string>
+    <string name="zen_mode_add_time_rule" msgid="5999467757140524729">"加入日程表時間"</string>
     <string name="zen_mode_delete_rule" msgid="2292933835997203801">"刪除日程表"</string>
     <string name="zen_mode_choose_rule_type" msgid="8877138307319450306">"選擇時間表類型"</string>
     <string name="zen_mode_delete_rule_confirmation" msgid="2646596466259025978">"要刪除規則「<xliff:g id="RULE">%1$s</xliff:g>」嗎？"</string>
@@ -3572,9 +3572,9 @@
     <string name="encryption_interstitial_message_pin_for_fingerprint" msgid="3706009740537484517">"為加強保護此裝置，除了使用指紋解鎖裝置外，您亦可以在裝置啟動前要求輸入 PIN 碼。裝置啟動前，您將無法接收來電、訊息或通知 (包括鬧鐘)。\n\n這有助保護遺失或被盜裝置上的資料。要在啟動裝置時要求輸入 PIN 碼嗎？"</string>
     <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"為加強保護此裝置，除了使用指紋解鎖裝置外，您亦可以在裝置啟動前要求畫出上鎖圖案。裝置啟動前，您將無法接收來電、訊息或通知 (包括鬧鐘)。\n\n這有助保護遺失或被盜裝置上的資料。要在啟動裝置時要求畫出上鎖圖案嗎？"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="8451977276748128814">"除了使用指紋解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"除了使用臉孔解鎖裝置外，您亦可以設定裝置必需 PIN 才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需 PIN 才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"除了使用臉孔解鎖裝置外，您亦可以設定裝置必需圖案才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需圖案才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"除了使用臉孔解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"除了使用面孔解鎖裝置外，您亦可以設定裝置必需 PIN 才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需 PIN 才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"除了使用面孔解鎖裝置外，您亦可以設定裝置必需圖案才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需圖案才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"除了使用面孔解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
     <string name="encryption_interstitial_yes" msgid="1839339586101502601">"是"</string>
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"否"</string>
     <string name="restricted_true_label" msgid="1545180379083441282">"受限制"</string>
@@ -3679,7 +3679,7 @@
     <string name="system_app" msgid="4111402206594443265">"(系統)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(系統預設)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"應用程式儲存空間"</string>
-    <string name="usage_access" msgid="2023443456361489516">"使用紀錄存取權"</string>
+    <string name="usage_access" msgid="2023443456361489516">"使用記錄存取權"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"允許使用記錄存取權"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"應用程式使用喜好"</string>
     <string name="time_spent_in_app_pref_title" msgid="2803186835902798451">"裝置使用時間"</string>

@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privacy"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Disattivata dall\'amministratore"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Stato sicurezza"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Blocco schermo, Sblocco con il volto"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Blocco schermo, sblocco con il volto"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Blocco schermo, impronta digitale"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Blocco schermo"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Volto aggiunto"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Rimuovi dati viso"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Il tuo viso può essere utilizzato per sbloccare il tuo dispositivo e accedere alle app. "<annotation id="url">"Ulteriori informazioni"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Eliminare i dati del volto?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati da Sblocco con il volto verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"I dati registrati dallo sblocco con il volto verranno eliminati in modo definitivo e sicuro. Dopo la rimozione, ti serviranno il tuo PIN, la tua sequenza o la tua password per sbloccare il telefono, accedere alle app e confermare i pagamenti."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impronta digitale"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gestisci impronte digitali"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Utilizza l\'impronta digitale per"</string>
@@ -498,7 +498,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Puoi aggiungere fino a <xliff:g id="COUNT">%d</xliff:g> impronte digitali"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Hai aggiunto il numero massimo di impronte digitali"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Impossibile aggiungere ulteriori impronte digitali"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Rimuovere tutte le impronte?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Vuoi rimuovere tutte le impronte?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Rimuovi \"<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\""</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Vuoi eliminare questa impronta digitale?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Non potrai più utilizzare le impronte per sbloccare il telefono, autorizzare gli acquisti o accedere alle app."</string>
@@ -718,7 +718,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> app attiva</item>
     </plurals>
     <string name="manage_trust_agents" msgid="8129970926213142261">"Agenti di attendibilità"</string>
-    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Per l\'utilizzo, imposta prima un blocco schermo"</string>
+    <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"Per usare questa opzione, imposta prima un blocco schermo"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"Nessuno"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> agenti di attendibilità attivi</item>
@@ -766,7 +766,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"Avanzate"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Bluetooth avanzato"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Quando il Bluetooth è attivato, il dispositivo può comunicare con altri dispositivi che si trovano nelle vicinanze."</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Quando il Bluetooth è attivato, il dispositivo può comunicare con altri dispositivi che si trovano nelle vicinanze.\n\nPer migliorare l\'esperienza sul dispositivo, app e servizi possono comunque cercare dispositivi nelle vicinanze in qualsiasi momento, anche quando il Bluetooth è disattivato. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione. Puoi modificare questa impostazione nelle "<annotation id="link">"impostazioni di scansione"</annotation>"."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Quando il Bluetooth è attivato, il dispositivo può comunicare con altri dispositivi che si trovano nelle vicinanze.\n\nPer migliorare l\'esperienza sul dispositivo, app e servizi possono comunque cercare dispositivi nelle vicinanze in qualsiasi momento, anche quando il Bluetooth è disattivato. Questa funzionalità è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione. Puoi modificare questa impostazione nelle "<annotation id="link">"impostazioni di scansione"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"Per una maggiore precisione della geolocalizzazione, le app e i servizi di sistema possono ancora rilevare i dispositivi Bluetooth. Puoi modificare questa impostazione nelle <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>impostazioni di scansione<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Connessione non riuscita. Riprova."</string>
     <string name="device_details_title" msgid="726517818032923222">"Dettagli dispositivo"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"Configurazione auto (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"Vuoi attivare la ricerca di reti Wi-Fi?"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"Per attivare automaticamente il Wi-Fi devi prima attivare la ricerca di reti Wi-Fi."</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"La ricerca di reti Wi-Fi consente ad app e servizi di cercare reti Wi-Fi in qualsiasi momento, anche quando il Wi-Fi non è attivo. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"La ricerca di reti Wi-Fi consente ad app e servizi di cercare reti Wi-Fi in qualsiasi momento, anche quando il Wi-Fi non è attivo. Questa funzionalità è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"Attiva"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Ricerca di reti Wi-Fi attiva"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"Opzioni avanzate"</string>
@@ -905,7 +905,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Inserisci SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Sicurezza"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Rete nascosta"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Se il tuo router non trasmette un ID rete, ma in futuro vorresti stabilire una connessione, puoi impostare la rete come nascosta.\n\nQuesto potrebbe creare un rischio per la sicurezza, poiché il telefono trasmetterà regolarmente il suo segnale per trovare la rete.\n\nL\'impostazione della rete come nascosta non altera le impostazioni del router."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Se il tuo router non trasmette un ID rete ma vuoi poterti connettere in futuro, puoi impostare la rete come nascosta.\n\nQuesto potrebbe mettere a rischio la sicurezza, poiché il telefono trasmetterà regolarmente il suo segnale per trovare la rete.\n\nLa configurazione della rete come nascosta non influirà sulle impostazioni del router."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Intensità segnale"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Stato"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Velocità in trasmissione"</string>
@@ -1568,12 +1568,12 @@
     <string name="restore_default_apn" msgid="7195266404077471007">"Ripristino delle impostazioni APN predefinite."</string>
     <string name="menu_restore" msgid="3799288817317293115">"Ripristina impostazioni predefinite"</string>
     <string name="restore_default_apn_completed" msgid="5671734152740058937">"Ripristino delle impostazioni APN predefinite completato."</string>
-    <string name="reset_dashboard_title" msgid="7084966342252178530">"Opzioni di reimpostazione"</string>
+    <string name="reset_dashboard_title" msgid="7084966342252178530">"Opzioni di ripristino"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"È possibile reimpostare la rete, le app o il dispositivo"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Reimposta Wi-Fi, dati mobili e Bluetooth"</string>
     <string name="reset_network_desc" msgid="4982633363916261109">"Verranno reimpostate tutte le impostazioni di rete, tra cui:\n\n"<li>"Wi‑Fi"</li>\n<li>"Dati mobili"</li>\n<li>"Bluetooth"</li></string>
     <string name="reset_esim_title" msgid="7630781767040831893">"Resetta SIM scaricate"</string>
-    <string name="reset_esim_desc" msgid="433226911566802">"Per scaricare le SIM sostitutive, contatta il tuo operatore. Ciò non annullerà alcun piano di servizio mobile."</string>
+    <string name="reset_esim_desc" msgid="433226911566802">"Per scaricare le SIM sostitutive, contatta il tuo operatore. Gli eventuali piani tariffari non verranno annullati."</string>
     <string name="reset_network_button_text" msgid="4293271046867912819">"Reimposta"</string>
     <string name="reset_network_final_desc" msgid="2463817067048751373">"Ripristinare tutte le impostazioni della rete? Questa azione non può essere annullata."</string>
     <string name="reset_network_final_desc_esim" msgid="4676436976372555750">"Reimpostare tutte le impostazioni di rete e resettare tutte le SIM scaricate? Questa azione non può essere annullata."</string>
@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"Basso utilizzo della batteria"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Scansione Wi‑Fi e Bluetooth"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"Ricerca di reti Wi-Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Consenti ad app e servizi di cercare reti Wi-Fi in qualsiasi momento, anche quando il Wi-Fi non è attivo. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Consenti ad app e servizi di cercare reti Wi-Fi in qualsiasi momento, anche quando il Wi-Fi non è attivo. Questa funzionalità è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Ricerca di dispositivi Bluetooth"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Consenti ad app e servizi di cercare dispositivi nelle vicinanze in qualsiasi momento, anche quando il Bluetooth non è attivo. Questa funzione è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Consenti ad app e servizi di cercare dispositivi nelle vicinanze in qualsiasi momento, anche quando il Bluetooth non è attivo. Questa funzionalità è utile, ad esempio, per migliorare funzioni e servizi basati sulla posizione."</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"Location services for work"</string>
     <string name="location_network_based" msgid="1535812159327454835">"Posizione Wi‑Fi e rete mobile"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"Consenti alle app di usare geolocalizzazione Google per stabilire la posizione. Saranno raccolti e inviati a Google dati anonimi."</string>
@@ -2451,7 +2451,7 @@
     <string name="battery_saver_auto_no_schedule" msgid="739814529432092706">"Nessuna pianificazione"</string>
     <string name="battery_saver_auto_routine" msgid="886514412067906980">"In base alla tua routine"</string>
     <string name="battery_saver_auto_percentage" msgid="5791982309331921556">"In base alla percentuale"</string>
-    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"La funzionalità Risparmio energetico viene attivata se è probabile che la batteria si scarichi prima della successiva ricarica abituale"</string>
+    <string name="battery_saver_auto_routine_summary" msgid="9182044424547482889">"Il risparmio energetico viene attivato se è probabile che la batteria si scarichi prima della successiva ricarica abituale"</string>
     <string name="battery_saver_auto_percentage_summary" msgid="2036128588460338677">"Si attiva quando la batteria raggiunge <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
     <string name="battery_saver_schedule_settings_title" msgid="574233428557678128">"Imposta una pianificazione"</string>
     <string name="battery_saver_sticky_title_new" msgid="5328707297110866082">"Disattiva quando la ricarica è completa"</string>
@@ -2461,7 +2461,7 @@
     <!-- no translation found for battery_saver_seekbar_title (7607123201469333645) -->
     <skip />
     <string name="battery_saver_seekbar_title_placeholder" msgid="2321082163892561703">"Attiva"</string>
-    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Usa Risparmio energetico"</string>
+    <string name="battery_saver_master_switch_title" msgid="8241862826825517212">"Usa risparmio energetico"</string>
     <string name="battery_saver_turn_on_automatically_title" msgid="7316920304024245838">"Attiva automaticamente"</string>
     <string name="battery_saver_turn_on_automatically_never" msgid="2623381258359775227">"Mai"</string>
     <string name="battery_saver_turn_on_automatically_pct" msgid="434270432432390307">"al seguente livello di carica: <xliff:g id="PERCENT">%1$s</xliff:g>"</string>
@@ -3759,7 +3759,7 @@
     <string name="background_check_pref" msgid="664081406854758392">"Controllo background"</string>
     <string name="background_check_title" msgid="4136736684290307970">"Accesso completo in background"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"Utilizza testo sullo schermo"</string>
-    <string name="assist_access_context_summary" msgid="5867997494395842785">"Consenti all\'app di assistenza di accedere ai contenuti dello schermo come il testo"</string>
+    <string name="assist_access_context_summary" msgid="5867997494395842785">"Consenti all\'app di assistenza di accedere ai contenuti testuali sullo schermo"</string>
     <string name="assist_access_screenshot_title" msgid="1991014038776117688">"Utilizza screenshot"</string>
     <string name="assist_access_screenshot_summary" msgid="3010943864000489424">"Consenti all\'app di assistenza di accedere a un\'immagine sullo schermo"</string>
     <string name="assist_flash_title" msgid="8852484250748551092">"Fai lampeggiare lo schermo"</string>
@@ -4052,7 +4052,7 @@
     <string name="display_cutout_emulation_keywords" msgid="6795671536772871439">"ritaglio display, tacca"</string>
     <string name="overlay_option_device_default" msgid="165508753381657697">"Predefinita dispositivo"</string>
     <string name="overlay_toast_failed_to_apply" msgid="5692251825129250040">"Applicazione dell\'overlay non riuscita"</string>
-    <string name="special_access" msgid="1453926335914696206">"App con accesso speciale"</string>
+    <string name="special_access" msgid="1453926335914696206">"Accesso speciale per le app"</string>
     <plurals name="special_access_summary" formatted="false" msgid="5182092345063909346">
       <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> app possono usare dati senza limitazioni</item>
       <item quantity="one">1 app può usare dati senza limitazioni</item>
@@ -4124,14 +4124,14 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tocca due volte il tablet per controllare le notifiche"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Tocca due volte il dispositivo per controllare le notifiche"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Per controllare l\'ora, le notifiche e altre informazioni, tocca due volte lo schermo."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Solleva per controllare il telefono"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Solleva per attivare"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Solleva il tablet per controllare le notifiche"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Solleva il dispositivo per controllare le notifiche"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Riattiva schermo"</string>
-    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il telefono."</string>
+    <string name="ambient_display_pickup_summary" product="default" msgid="8798915340594367449">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il telefono"</string>
     <string name="ambient_display_pickup_summary" product="tablet" msgid="1077745287100012928">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il tablet."</string>
     <string name="ambient_display_pickup_summary" product="device" msgid="404199660076598026">"Per controllare l\'ora, le notifiche e altre informazioni, solleva il dispositivo."</string>
-    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocca per controllare il telefono"</string>
+    <string name="ambient_display_tap_screen_title" product="default" msgid="2784322628239960695">"Tocca per attivare"</string>
     <string name="ambient_display_tap_screen_title" product="tablet" msgid="6434521782016864148">"Tocca per selezionare le notifiche"</string>
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Tocca per selezionare il dispositivo"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Per controllare l\'ora, le notifiche e altre informazioni, tocca lo schermo."</string>

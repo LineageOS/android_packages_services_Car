@@ -502,7 +502,7 @@
     <string name="fingerprint_enroll_button_next" msgid="6419214079104413695">"Ďalej"</string>
     <string name="security_settings_fingerprint_enroll_disclaimer" msgid="5831834311961551423">"Okrem odomknutia svojho telefónu môžete pomocou odtlačku schvaľovať nákupy a prístup aplikácií. "<annotation id="url">"Ďalšie informácie"</annotation></string>
     <string name="security_settings_fingerprint_enroll_disclaimer_lockscreen_disabled" msgid="7954742554236652690">" Možnosť zámky obrazovky je zakázaná. Ďalšie informácie vám poskytne správca vašej organizácie. "<annotation id="admin_details">"Ďalšie podrobnosti"</annotation>\n\n"Naďalej môžete pomocou odtlačku prsta schvaľovať nákupy a prístup do aplikácií. "<annotation id="url">"Ďalšie informácie"</annotation></string>
-    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Nadvihnite prst, potom sa opäť dotknite senzora"</string>
+    <string name="security_settings_fingerprint_enroll_lift_touch_again" msgid="1670703069782212223">"Zdvihnite prst, potom sa opäť dotknite senzora"</string>
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Môžete pridať ďalšie odtlačky (max. <xliff:g id="COUNT">%d</xliff:g>)"</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Pridali ste maximálny počet odtlačkov prstov"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Nie je možné pridať ďalšie odtlačky prstov"</string>
@@ -1653,7 +1653,7 @@
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Pripojenie cez Bluetooth"</string>
     <string name="tether_settings_title_usb_bluetooth" msgid="1159128764162788159">"Zdieľané pripojenie"</string>
     <string name="tether_settings_title_all" msgid="6935843543433954181">"Hotspot a tethering"</string>
-    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot je zapnutý, tethering"</string>
+    <string name="tether_settings_summary_hotspot_on_tether_on" msgid="1289593649526514499">"Hotspot je zapnutý, dátové pripojenie sa zdieľa"</string>
     <string name="tether_settings_summary_hotspot_on_tether_off" msgid="8010689354668285422">"Hotspot je zapnutý"</string>
     <string name="tether_settings_summary_hotspot_off_tether_on" msgid="1349909238672649877">"Zdieľané pripojenie"</string>
     <string name="tether_settings_disabled_on_data_saver" msgid="3682544845899910726">"Keď je šetrič dát zapnutý, nie je možné zdieľať dátové pripojenie ani používať prenosné hotspoty"</string>
@@ -1859,7 +1859,7 @@
     <string name="total_size_label" msgid="3929917501176594692">"Celkove"</string>
     <string name="application_size_label" msgid="175357855490253032">"Veľkosť aplikácie"</string>
     <string name="external_code_size_label" msgid="3434421216268309411">"Aplikácia, úložisko USB"</string>
-    <string name="data_size_label" msgid="7790201846922671662">"Dáta používateľa"</string>
+    <string name="data_size_label" msgid="7790201846922671662">"Údaje používateľa"</string>
     <string name="external_data_size_label" product="nosdcard" msgid="8004991551882573479">"Údaje ukladacieho priestoru USB"</string>
     <string name="external_data_size_label" product="default" msgid="1097584278225902734">"SD karta"</string>
     <string name="uninstall_text" msgid="4859715815689705801">"Odinštalovať"</string>
@@ -1867,7 +1867,7 @@
     <string name="install_text" msgid="2798092278891807849">"Inštalovať"</string>
     <string name="disable_text" msgid="5065834603951474397">"Deaktivovať"</string>
     <string name="enable_text" msgid="7179141636849225884">"Povoliť"</string>
-    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať obsah úložiska"</string>
+    <string name="clear_user_data_text" msgid="8894073247302821764">"Vymazať priestor"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"Odinštalovať aktualizácie"</string>
     <string name="auto_launch_enable_text" msgid="3372898942144027341">"Pre niektoré akcie ste sa rozhodli spúšťať túto aplikáciu ako predvolenú."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"Tejto aplikácii ste povolili vytváranie miniaplikácií a pristupovanie k ich údajom."</string>
@@ -2742,7 +2742,7 @@
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"SIM karty"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"Pozastavené na limite"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Autom. synchronizovať dáta"</string>
-    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autom. synchr. osobných údajov"</string>
+    <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Autom. synchr. osobné údaje"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Autom. synchr. pracov. údajov"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Zmeniť cyklus..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Deň v mesiaci, kedy sa má resetovať cyklus spotreby:"</string>
@@ -3002,7 +3002,7 @@
     <string name="nfc_payment_app_and_desc" msgid="102312684211458190">"<xliff:g id="APP">%1$s</xliff:g> – <xliff:g id="DESCRIPTION">%2$s</xliff:g>"</string>
     <string name="nfc_payment_use_default" msgid="3098724195746409476">"Použiť predvolenú"</string>
     <string name="nfc_payment_favor_default" msgid="7555356982142464260">"Vždy"</string>
-    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Okrem prípadov, keď je spustená iná platobná aplikácia"</string>
+    <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Iba keď nie je spustená iná platobná aplikácia"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Aplikácia na platby mobilom"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Platenie pri termináli"</string>
     <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Nastavte si platobnú aplikáciu. Potom iba priložte zadnú časť vášho telefónu k akémukoľvek terminálu so symbolom pre bezkontaktné platby."</string>
@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"platiť, klepnutie, platby"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"záloha, zálohovanie"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"gesto"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"tvár, odomknutie, overenie totožnosti, prihlásenie"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"odomknutie, tvárou, overenie totožnosti, prihlásenie"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, verzia prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"sieť, stav mobilnej siete, stav služby, sila signálu, typ mobilnej siete, roaming, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"sériové číslo, hardvérová verzia"</string>
@@ -4264,7 +4264,7 @@
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"Tablet skontrolujete dvojitým klepnutím"</string>
     <string name="ambient_display_title" product="device" msgid="5064644474876041478">"Zariadenie skontrolujete dvojitým klepnutím"</string>
     <string name="ambient_display_summary" msgid="4882910328216411109">"Ak chcete zistiť čas, skontrolovať upozornenia a získať ďalšie informácie, klepnite dvakrát na obrazovku."</string>
-    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Kontrola telefónu zdvihnutím"</string>
+    <string name="ambient_display_pickup_title" product="default" msgid="7141652156907066938">"Kontrolovať telefónu zdvihnutím"</string>
     <string name="ambient_display_pickup_title" product="tablet" msgid="1555456400210301959">"Tablet skontrolujete tak, že ho zodvihnete"</string>
     <string name="ambient_display_pickup_title" product="device" msgid="2480126522988135037">"Zariadenie skontrolujete tak, že ho zodvihnete"</string>
     <string name="ambient_display_wake_screen_title" msgid="3376988352851077102">"Prebudiť obrazovku"</string>
@@ -4276,7 +4276,7 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"Klepnutím skontrolujete zariadenie"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"Ak chcete zistiť čas, skontrolovať upozornenia a získať ďalšie informácie, klepnite na obrazovku."</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"Upozornenia odtlačkom prsta"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Potiahnutie prstom"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"Potiahnuť po senzore"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane telefónu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane tabletu."</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"Upozornenia zobrazíte potiahnutím nadol po senzore odtlačkov prstov na zadnej strane zariadenia."</string>
@@ -4411,7 +4411,7 @@
     <string name="debug_autofill_category" msgid="6262526615416295645">"Automatické dopĺňanie"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"Úroveň zaznamenávania"</string>
     <string name="autofill_max_partitions" msgid="125269645910590057">"Maximálny počet žiadostí na reláciu"</string>
-    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Max. viditeľných množín dát"</string>
+    <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"Maximum viditeľných množín údajov"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"Resetovať na predvolené hodnoty"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"Možnosti automatického dopĺňania pre vývojárov boli obnovené"</string>
     <string name="device_theme" msgid="8992291311481135893">"Motív zariadenia"</string>

@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privaatheid"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Gedeaktiveer deur administrateur"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sekuriteitstatus"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skermslot, gesigslot"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Skermslot, Gesigslot"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Skermslot, vingerafdruk"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Skermslot"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Gesig is bygevoeg"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Verwyder gesigdata"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Jou gesig kan gebruik word om jou toestel te ontsluit en toegang tot programme te kry. "<annotation id="url">"Kom meer te wete"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Vee gesigdata uit?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data wat deur gesigslot opgeneem word, sal permanent en veilig uitgevee word. Nadat dit uitgevee is, sal jy jou PIN, patroon of wagwoord nodig hê om jou foon te ontsluit, by programme aan te meld en betalings te bevestig."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Data wat deur Gesigslot opgeneem word, sal permanent en veilig uitgevee word. Nadat dit uitgevee is, sal jy jou PIN, patroon of wagwoord nodig hê om jou foon te ontsluit, by programme aan te meld en betalings te bevestig."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Vingerafdruk"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Bestuur vingerafdrukke"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Gebruik vingerafdruk vir"</string>
@@ -938,7 +938,7 @@
     <string name="wifi_dpp_center_qr_code" msgid="3826108361797476758">"Sentreer die QR-kode hieronder om die toestel by “<xliff:g id="SSID">%1$s</xliff:g>” te voeg"</string>
     <string name="wifi_dpp_scan_qr_code" msgid="6021600592661235546">"Skandeer QR-kode"</string>
     <string name="wifi_dpp_scan_qr_code_join_network" msgid="3085162928804379545">"Sentreer die QR-kode hieronder om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel"</string>
-    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Skandeer \'n QR-kode om by W-Fi aan te sluit"</string>
+    <string name="wifi_dpp_scan_qr_code_join_unknown_network" msgid="5682308317067290738">"Skandeer \'n QR-kode om by Wi-Fi aan te sluit"</string>
     <string name="wifi_dpp_share_wifi" msgid="1724161216219646284">"Deel Wi‑Fi"</string>
     <string name="wifi_dpp_scan_qr_code_with_another_device" msgid="4357387474444884759">"Skandeer hierdie QR-kode om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel en die wagwoord te deel"</string>
     <string name="wifi_dpp_scan_open_network_qr_code_with_another_device" msgid="572011882416511818">"Skandeer hierdie QR-kode om aan “<xliff:g id="SSID">%1$s</xliff:g>” te koppel"</string>

@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privaatsus"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Administraatori keelatud"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Turvalisuse olek"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekraanilukk, Face Unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Ekraanilukk, näoga avamine"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Ekraanilukk, sõrmejälg"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Ekraanilukk"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Nägu on lisatud"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Eemalda näoandmed"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Võite oma nägu kasutada seadme avamiseks ja rakendustele juurdepääsemiseks. "<annotation id="url">"Lisateave"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Kas soovite näoandmed kustutada?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Funktsiooniga Face Unlock salvestatud andmed kustutatakse jäädavalt ja turvaliselt. Pärast eemaldamist vajate telefoni avamiseks, rakendustesse sisselogimiseks ja maksete kinnitamiseks PIN-koodi, mustrit või parooli."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Näoga avamise funktsiooniga salvestatud andmed kustutatakse jäädavalt ja turvaliselt. Pärast eemaldamist vajate telefoni avamiseks, rakendustesse sisselogimiseks ja maksete kinnitamiseks PIN-koodi, mustrit või parooli."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Sõrmejälg"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Sõrmejälgede haldamine"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Sõrmej. kasutatakse:"</string>
@@ -1776,7 +1776,7 @@
     <string name="activity_not_found" msgid="3492413375341165453">"Rakendus pole teie telefoni installitud."</string>
     <string name="lock_settings_profile_title" msgid="3928992050074556160">"Tööprofiili turvalisus"</string>
     <string name="lock_settings_profile_screen_lock_title" msgid="285267471459162203">"Tööprofiili ekraanilukk"</string>
-    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Kasutatakse ühte lukku"</string>
+    <string name="lock_settings_profile_unification_title" msgid="2629698644191935287">"Kasuta ühte lukku"</string>
     <string name="lock_settings_profile_unification_summary" msgid="4797188229308317207">"Tööprofiili ja seadme ekraani puhul kasutatakse ühte lukku"</string>
     <string name="lock_settings_profile_unification_dialog_title" msgid="1690211342491067179">"Kas kasutada ühte lukku?"</string>
     <string name="lock_settings_profile_unification_dialog_body" msgid="8629158560032603101">"Seade kasutab teie tööprofiili ekraanilukku. Mõlema luku puhul kehtivad tööreeglid."</string>
@@ -3370,9 +3370,9 @@
     <string name="notification_assistant_title" msgid="8216604031352764011">"Märguannete abi"</string>
     <string name="no_notification_assistant" msgid="9140123568386413264">"Abi ei ole"</string>
     <string name="no_notification_listeners" msgid="1366386609506834717">"Ükski installitud rakendus pole taotlenud juurdepääsu märguannetele."</string>
-    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Kas lubada teenusel <xliff:g id="SERVICE">%1$s</xliff:g> märguannetele juurde pääseda?"</string>
+    <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"Kas <xliff:g id="SERVICE">%1$s</xliff:g> pääseb märguannetele juurde?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"<xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> saab lugeda kõiki märguandeid, sh isiklikke andmeid, nagu kontaktide nimed ja teile saadetud tekstsõnumid. See saab ka märguandeid muuta või nendest loobuda või aktiveerida märguannetes olevaid toimingunuppe. \n\nSee võimaldab rakendusel ka lülitada sisse või välja funktsiooni Mitte segada ja muuta sellega seotud seadeid."</string>
-    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Kas lubada teenusel <xliff:g id="SERVICE">%1$s</xliff:g> märguannetele juurde pääseda?"</string>
+    <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"Kas <xliff:g id="SERVICE">%1$s</xliff:g> pääseb märguannetele juurde?"</string>
     <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"Teenus <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> saab lugeda kõiki märguandeid, sh isiklikke andmeid, nagu kontaktide nimed ja teile saadetud tekstsõnumid. See saab ka loobuda märguannetest või aktiveerida märguannetes olevaid toimingunuppe. \n\nSee võimaldab ka rakendusel lülitada sisse või välja funktsiooni Mitte segada ja muuta sellega seotud seadeid."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"Kui lülitate teenuse <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> jaoks juurdepääsu märguannetele välja, võidakse välja lülitada ka juurdepääs funktsioonile Mitte segada."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"Lülita välja"</string>

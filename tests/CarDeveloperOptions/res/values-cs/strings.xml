@@ -1456,7 +1456,7 @@
     <string name="storage_menu_set_up" msgid="2849170579745958513">"Nastavit"</string>
     <string name="storage_menu_explore" msgid="3733439525636202662">"Prozkoumat"</string>
     <string name="storage_menu_free" msgid="6586253660759145508">"Uvolnit místo"</string>
-    <string name="storage_menu_manage" msgid="461380717863926516">"Spravovat úložiště"</string>
+    <string name="storage_menu_manage" msgid="461380717863926516">"Správa úložiště"</string>
     <string name="storage_title_usb" msgid="2015671467177303099">"Připojení USB k počítači"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"Připojit jako"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"Zařízení pro média (MTP)"</string>
@@ -1902,7 +1902,7 @@
     <string name="no_applications" msgid="6811396016303576024">"Žádné aplikace"</string>
     <string name="internal_storage" msgid="7392373600013294853">"Interní úložiště"</string>
     <string name="recompute_size" msgid="4290692197892743928">"Přepočítávání velikosti..."</string>
-    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Vymazat data aplikace?"</string>
+    <string name="clear_data_dlg_title" msgid="7388024498687029597">"Smazat data aplikace?"</string>
     <string name="clear_data_dlg_text" msgid="6849657743695013414">"Veškerá data (všechny soubory, nastavení, účty, databáze apod.) této aplikace budou trvale vymazána."</string>
     <string name="dlg_ok" msgid="4666570206507476557">"OK"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"Zrušit"</string>
@@ -4239,7 +4239,7 @@
       <item quantity="other"><xliff:g id="NUMBER">%s</xliff:g> sekund</item>
       <item quantity="one">1 sekunda</item>
     </plurals>
-    <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Spravovat úložiště"</string>
+    <string name="automatic_storage_manager_settings" msgid="2403621409625820182">"Správa úložiště"</string>
     <string name="automatic_storage_manager_text" msgid="4270379105066667493">"Správce úložiště vám pomůže uvolnit místo v úložišti tím, že ze zařízení odstraní zálohované fotky a videa."</string>
     <string name="automatic_storage_manager_days_title" msgid="1783767804707813799">"Odstranit fotky a videa"</string>
     <string name="automatic_storage_manager_preference_title" msgid="4668642150512639466">"Správce úložiště"</string>

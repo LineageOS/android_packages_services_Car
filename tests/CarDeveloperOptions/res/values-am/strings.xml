@@ -308,7 +308,7 @@
     <string name="sms_messages_title" msgid="934188835214592753">"የኤስኤምኤስ መልዕክቶች"</string>
     <string name="cellular_data_summary" msgid="8817717603450318646">"በተንቀሳቃሽ ስልክ አውታረ መረብ ላይ ውሂብ መጠቀም ፍቀድ"</string>
     <string name="allow_data_usage_title" msgid="5381624105803294315">"በሌላ የስልክ አውታረ መረብ መንቀሳቀስ ላይ ሳሉ የውሂብ መጠቀም ይፈቀድ"</string>
-    <string name="roaming" msgid="8860308342135146004">"ማንዣበብ"</string>
+    <string name="roaming" msgid="8860308342135146004">"በማዛወር ላይ"</string>
     <string name="roaming_enable" msgid="2108142024297441116">"በእንቅስቃሴ ላይ ሲሆን ወደ ውሂብ አገልግሎቶች ተያያዝ"</string>
     <string name="roaming_disable" msgid="1915440242079953809">"በእንቅስቃሴ ላይ ሲሆን ወደ ውሂብ አገልግሎቶች ተያያዝ"</string>
     <string name="roaming_reenable_message" msgid="8388505868655113258">"የውሂብዎ ተያያዥነት ጠፍቷል ምክንያቱም የቤትዎን አውታረመረብ በእንቅስቃሴ ላይ አጥፋተው በመተዎ ነው።"</string>
@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"ግላዊነት"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"በአስተዳዳሪ ተሰናክሏል"</string>
     <string name="security_status_title" msgid="1261960357751754428">"የደህንነት ሁኔታ"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ማያ ገጽ መቆለፊያ፣ የፊት መክፈቻ"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"ማያ ገጽ መቆለፊያ፣ በመልክ መክፈት"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"የማያ ገጽ ቁልፍ፣ የጣት አሻራ"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"ማሳያ መቆለፊያ"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"መልክ ታክሏል"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"የፊት ውሂብ አስወግድ"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"የእርስዎ ፊት የእርስዎን መሣሪያ ለመክፈት እና መተግበሪያዎችን ለመድረስ ጥቅም ላይ ሊውል ይችላል። "<annotation id="url">"የበለጠ ለመረዳት"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"የፊት ውሂብ ይሰረዝ?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ፊትን ተጠቅሞ በመክፈት የተመዘገብ ውሂብ በቋሚነት እና ለደህንነት አስተማማኝ በሆነ መንገድ ይሰረዛል። ከስረዛ በኋላ፣ የእርስዎን ስልክ ለመክፈት፣ ወደ መተግበሪያዎች በመለያ ለመግባት፣ እና ክፍያዎችን ለማረጋገጥ የእርስዎን ፒን፣ ሥርዓተ ጥለት ወይም የይለፍ ቃል መጠቀም ይኖርብዎታል።"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"በመልክ መክፈት የተመዘገብ ውሂብ በቋሚነት እና ለደህንነት አስተማማኝ በሆነ መንገድ ይሰረዛል። ከስረዛ በኋላ፣ የእርስዎን ስልክ ለመክፈት፣ ወደ መተግበሪያዎች በመለያ ለመግባት፣ እና ክፍያዎችን ለማረጋገጥ የእርስዎን ፒን፣ ሥርዓተ ጥለት ወይም የይለፍ ቃል መጠቀም ይኖርብዎታል።"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"የጣት አሻራ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"የጣት አሻራዎችን ያስተዳድሩ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"የጣት አሻራን ይጠቀሙ ለ"</string>
@@ -717,7 +717,7 @@
       <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> ገቢር መተግበሪያዎች</item>
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ገቢር መተግበሪያዎች</item>
     </plurals>
-    <string name="manage_trust_agents" msgid="8129970926213142261">"የተአማኒነት ወኪሎች"</string>
+    <string name="manage_trust_agents" msgid="8129970926213142261">"የተዓማኒነት ወኪሎች"</string>
     <string name="disabled_because_no_backup_security" msgid="8127039979909203528">"ለመጠቀም በመጀመሪያ የቁልፍ ገጽ ያዋቅሩ"</string>
     <string name="manage_trust_agents_summary" msgid="2023116850759962248">"ምንም የለም"</string>
     <plurals name="manage_trust_agents_summary_on" formatted="false" msgid="5550538038916606097">
@@ -1764,7 +1764,7 @@
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"ስርዓተ ጥለት ክፈት"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"ስርዓተ ጥለት ጠይቅ"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"ማያ ለመክፈት ስርዓተ ጥለት ሳል"</string>
-    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"መልክ የሚታይ አድርግ"</string>
+    <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"ስርዓተ ጥለት የሚታይ አድርግ"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"የመገለጫ ስርዓተ ጥለት የሚታይ አድርገው"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"ነካ ሲደረግ ንዘር"</string>
     <string name="lockpattern_settings_enable_power_button_instantly_locks" msgid="5890335732200257777">"የኃይል አዝራር ወዲያውኑ ይቆልፋል"</string>
@@ -2575,7 +2575,7 @@
     <string name="managed_device_admin_title" msgid="8021522755492551726">"ስራ"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"የኤስኤምኤስ እና የጥሪ ምዝግብ መዳረሻን ገድብ"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"ነባሪ የስልክ እና የመልዕክት መላላኪያ መተግበሪያዎች ብቻ የኤስኤምኤስ እና የጥሪ ምዝግብ ማስታወሻ ፈቃዶች አላቸው"</string>
-    <string name="no_trust_agents" msgid="5757792915019113084">"ምንም የሚገኙ የተአማኒነት ወኪሎች የሉም"</string>
+    <string name="no_trust_agents" msgid="5757792915019113084">"ምንም የሚገኙ የተዓማኒነት ወኪሎች የሉም"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"የመሣሪያ አስተዳዳሪ መተግበሪያ ገቢር ይሁን?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"የዚህ መሣሪያ አስተዳዳሪ መተግበሪያን አግብር"</string>
     <string name="device_admin_add_title" msgid="6097881332139146897">"የመሣሪያ አስተዳዳሪ"</string>
@@ -3098,7 +3098,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"ይክፈሉ፣ መታ ያድርጉ፣ ክፍያዎች"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"ምትኬ"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"የጣት ምልክት"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"ፊት፣ ክፈት፣ ፈቀዳ፣ በመለያ መግቢያ"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"መልክ፣ መክፈት፣ ፈቀዳ፣ በመለያ መግቢያ"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei፣ meid፣ ደቂቃ፣ prl ስሪት፣ imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"አውታረ መረብ፣ የተንቀሳቃሽ ስልክ አውታረ መረብ ሁኔታ፣ አገልግሎት ሁኔታ፣ የሲግናል ጥንካሬ፣ የተንቀሳቃሽ ስልክ አውታረ መረብ ዓይነት፣ ከአገልግሎት መስጫ ክልል ውጭ፣ iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"ተከታታይ ቁጥር፣ የሃርድዌር ስሪት"</string>

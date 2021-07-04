@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"นำข้อมูลใบหน้าออก"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"ใช้ใบหน้าของคุณเพื่อปลดล็อกอุปกรณ์และเข้าถึงแอปได้ "<annotation id="url">"ดูข้อมูลเพิ่มเติม"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"ลบข้อมูลใบหน้าไหม"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ระบบจะลบข้อมูลที่การปลดล็อกด้วยใบหน้าบันทึกไว้อย่างถาวรและปลอดภัย หลักจากที่นำออกแล้ว คุณจะต้องใช้ PIN รูปแบบ หรือรหัสผ่านเพื่อปลดล็อกโทรศัพท์ ลงชื่อเข้าใช้แอป และยืนยันการชำระเงิน"</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"ระบบจะลบข้อมูลที่การปลดล็อกด้วยใบหน้าบันทึกไว้อย่างถาวรและปลอดภัย หลังจากที่นำออกแล้ว คุณจะต้องใช้ PIN รูปแบบ หรือรหัสผ่านเพื่อปลดล็อกโทรศัพท์ ลงชื่อเข้าใช้แอป และยืนยันการชำระเงิน"</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"ลายนิ้วมือ"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"จัดการลายนิ้วมือ"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"ใช้ลายนิ้วมือเพื่อ"</string>
@@ -559,7 +559,7 @@
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"ล็อกหน้าจอ"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/ทันทีหลังจากเข้าสู่โหมดสลีป"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g>/หลังจากเข้าสู่โหมดสลีป <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g>"</string>
-    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ล็อกโปรไฟล์งาน"</string>
+    <string name="unlock_set_unlock_launch_picker_title_profile" msgid="7976345264630422921">"ล็อกของโปรไฟล์งาน"</string>
     <string name="unlock_set_unlock_launch_picker_change_title" msgid="32310692507029407">"เปลี่ยนหน้าจอล็อก"</string>
     <string name="unlock_set_unlock_launch_picker_change_summary" msgid="2072792784866320522">"เปลี่ยนหรือปิดการใช้งานรูปแบบ, PIN หรือความปลอดภัยของรหัสผ่าน"</string>
     <string name="unlock_set_unlock_launch_picker_enable_summary" msgid="9070847611379078795">"เลือกวิธีที่จะล็อกหน้าจอ"</string>
@@ -766,7 +766,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"ขั้นสูง"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"บลูทูธขั้นสูง"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"เมื่อเปิดบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธที่อยู่ใกล้ๆ ได้"</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"เมื่อเปิดใช้งานบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธเครื่องอื่นในบริเวณใกล้เคียงได้\n\nเพื่อปรับปรุงประสบการณ์การใช้งานอุปกรณ์ แอปและบริการต่างๆ จะยังคงสแกนหาอุปกรณ์ใกล้เคียงตลอดเวลาแม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่ คุณสามารถเปลี่ยนแปลงการตั้งค่านี้ได้ใน"<annotation id="link">"การตั้งค่าการสแกน"</annotation>"."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"เมื่อเปิดใช้งานบลูทูธ อุปกรณ์ของคุณจะสื่อสารกับอุปกรณ์บลูทูธเครื่องอื่นในบริเวณใกล้เคียงได้\n\nเพื่อปรับปรุงประสบการณ์การใช้งานอุปกรณ์ แอปและบริการต่างๆ จะยังคงสแกนหาอุปกรณ์ใกล้เคียงตลอดเวลาแม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่ คุณสามารถเปลี่ยนแปลงการตั้งค่านี้ได้ใน"<annotation id="link">"การตั้งค่าการสแกน"</annotation>"."</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"แอปและบริการของระบบจะยังสามารถตรวจหาอุปกรณ์บลูทูธได้อยู่เพื่อปรับปรุงความแม่นยำของตำแหน่ง คุณสามารถเปลี่ยนแปลงฟีเจอร์นี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"ไม่สามารถเชื่อมต่อ โปรดลองอีกครั้ง"</string>
     <string name="device_details_title" msgid="726517818032923222">"รายละเอียดอุปกรณ์"</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"เลือกผู้ให้บริการจัดอันดับเครือข่ายเพื่อใช้งาน"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"เลือกผู้ให้บริการจัดอันดับเครือข่ายที่ใช้งานร่วมกันได้เพื่อใช้งาน"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"ติดตั้งใบรับรอง"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"เพื่อปรับปรุงความแม่นยำของตำแหน่ง แอปและบริการต่างๆ จะยังคงสแกนหาเครือข่าย Wi‑Fi ได้ทุกเมื่อ แม้ว่า Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่ คุณเปลี่ยนแปลงการตั้งค่านี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"เพื่อปรับปรุงความแม่นยำของตำแหน่ง แอปและบริการต่างๆ จะยังคงสแกนหาเครือข่าย Wi‑Fi ได้ทุกเมื่อ แม้ว่า Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่ คุณเปลี่ยนแปลงการตั้งค่านี้ได้ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>"</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"เปิดการสแกนหา Wi-Fi ใน<xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>การตั้งค่าการสแกน<xliff:g id="LINK_END_1">LINK_END</xliff:g>เพื่อปรับปรุงความแม่นยำของตำแหน่ง"</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"ไม่ต้องแสดงข้อความนี้อีก"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"เปิด WiFi ขณะอยู่ในโหมดสลีป"</string>
@@ -895,7 +895,7 @@
     <string name="wifi_setup_wps" msgid="6730131677695521321">"การตั้งค่าอัตโนมัติ (WPS)"</string>
     <string name="wifi_settings_scanning_required_title" msgid="3593457187659922490">"เปิดการสแกนหา Wi-Fi ไหม"</string>
     <string name="wifi_settings_scanning_required_summary" msgid="7469610959462708782">"คุณต้องเปิดการสแกนหา Wi-Fi ก่อนจึงจะเปิด Wi-Fi โดยอัตโนมัติได้"</string>
-    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"การสแกนหา Wi-Fi อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="wifi_settings_scanning_required_info" msgid="5913535073390607386">"การสแกนหา Wi-Fi อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"เปิด"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"เปิดการสแกนหา Wi-Fi แล้ว"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"ตัวเลือกขั้นสูง"</string>
@@ -914,7 +914,7 @@
     <string name="wifi_ip_address" msgid="5572539114989914831">"ที่อยู่ IP"</string>
     <string name="passpoint_label" msgid="7429247462404128615">"บันทึกผ่านทาง"</string>
     <string name="passpoint_content" msgid="340527524510304327">"ข้อมูลรับรองของ <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_eap_method" msgid="3752116941487485859">"เมธอด EAP"</string>
+    <string name="wifi_eap_method" msgid="3752116941487485859">"วิธีการ EAP"</string>
     <string name="please_select_phase2" msgid="5848080896810435677">"การตรวจสอบสิทธิ์เฟส 2"</string>
     <string name="wifi_eap_ca_cert" msgid="1496395241849383785">"ใบรับรอง CA"</string>
     <string name="wifi_eap_domain" msgid="3298302320003640130">"โดเมน"</string>
@@ -1662,9 +1662,9 @@
     <string name="location_low_battery_use" msgid="5030448574501435888">"ใช้แบตเตอรี่น้อย"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"การสแกนหา Wi‑Fi และบลูทูธ"</string>
     <string name="location_scanning_wifi_always_scanning_title" msgid="6750542206763112172">"การสแกนหา Wi‑Fi"</string>
-    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"อนุญาตให้แอปและบริการต่างๆ สแกนหาเครือข่าย Wi‑Fi ตลอดเวลาแม้ Wi‑Fi จะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"การสแกนหาบลูทูธ"</string>
-    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"อนุญาตให้แอปและบริการต่างๆ สแกนหาอุปกรณ์ใกล้เคียงตลอดเวลา แม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อปรับปรุงสิ่งต่างๆ เช่น ฟีเจอร์และบริการตามสถานที่"</string>
+    <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"อนุญาตให้แอปและบริการต่างๆ สแกนหาอุปกรณ์ใกล้เคียงตลอดเวลา แม้บลูทูธจะปิดอยู่ การตั้งค่านี้ใช้เพื่อทำสิ่งต่างๆ เช่น ปรับปรุงฟีเจอร์และบริการตามสถานที่"</string>
     <string name="managed_profile_location_services" msgid="224925483299159541">"บริการตำแหน่งสำหรับการทำงาน"</string>
     <string name="location_network_based" msgid="1535812159327454835">"ตำแหน่ง WiFi และเครือข่าย"</string>
     <string name="location_neighborhood_level" msgid="8459352741296587916">"ให้แอปต่างๆ ใช้บริการระบุตำแหน่งของ Google เพื่อระบุตำแหน่งโดยประมาณของคุณรวดเร็วยิ่งขึ้น โดยจะมีการรวบรวมและส่งข้อมูลตำแหน่งที่ไม่ระบุชื่อให้ Google"</string>
@@ -1731,7 +1731,7 @@
     <string name="lockpassword_confirm_your_password_generic" msgid="6304552647060899594">"ป้อนรหัสผ่านของอุปกรณ์เพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_confirm_your_pattern_generic_profile" msgid="3074250084050465513">"ใช้รูปแบบของที่ทำงานเพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_confirm_your_pin_generic_profile" msgid="6037908971086439523">"ป้อน PIN ของที่ทำงานเพื่อดำเนินการต่อ"</string>
-    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"ป้อนรหัสผ่านที่ทำงานเพื่อดำเนินการต่อ"</string>
+    <string name="lockpassword_confirm_your_password_generic_profile" msgid="2646162490703489685">"ป้อนรหัสผ่านของโปรไฟล์งานเพื่อดำเนินการต่อ"</string>
     <string name="lockpassword_strong_auth_required_device_pattern" msgid="1014214190135045781">"ใช้รูปแบบของอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
     <string name="lockpassword_strong_auth_required_device_pin" msgid="24030584350601016">"ป้อน PIN ของอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
     <string name="lockpassword_strong_auth_required_device_password" msgid="7746588206458754598">"ป้อนรหัสผ่านอุปกรณ์เพื่อเพิ่มความปลอดภัย"</string>
@@ -1861,7 +1861,7 @@
     <string name="internal_storage" msgid="7392373600013294853">"ที่เก็บข้อมูลภายใน"</string>
     <string name="recompute_size" msgid="4290692197892743928">"กำลังคำนวณขนาดใหม่..."</string>
     <string name="clear_data_dlg_title" msgid="7388024498687029597">"ลบข้อมูลในแอปหรือไม่"</string>
-    <string name="clear_data_dlg_text" msgid="6849657743695013414">"ข้อมูลทั้งหมดของแอปนี้จะถูกลบอย่างถาวร ซึ่งรวมถึงไฟล์ การตั้งค่า บัญชี และฐานข้อมูล"</string>
+    <string name="clear_data_dlg_text" msgid="6849657743695013414">"ระบบจะลบข้อมูลทั้งหมดของแอปนี้โดยถาวร ซึ่งรวมถึงไฟล์ การตั้งค่า บัญชี ฐานข้อมูล ฯลฯ ทั้งหมด"</string>
     <string name="dlg_ok" msgid="4666570206507476557">"ตกลง"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"ยกเลิก"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
@@ -2817,7 +2817,7 @@
     <string name="one_usercrt" msgid="856282310586987313">"ใบรับรองสำหรับผู้ใช้ 1 ราย"</string>
     <string name="one_cacrt" msgid="4757720453112732485">"1 ใบรับรอง CA"</string>
     <string name="n_cacrts" msgid="7539893176217891549">"%d ใบรับรอง CA"</string>
-    <string name="user_credential_title" msgid="6237611303219831419">"รายละเอียดข้อมูลรับรอง"</string>
+    <string name="user_credential_title" msgid="6237611303219831419">"รายละเอียดข้อมูลเข้าสู่ระบบ"</string>
     <string name="user_credential_removed" msgid="6243576567538844852">"ข้อมูลรับรองที่นำออก: <xliff:g id="CREDENTIAL_NAME">%s</xliff:g>"</string>
     <string name="user_credential_none_installed" msgid="4129252817676332368">"ไม่ได้ติดตั้งข้อมูลรับรองของผู้ใช้"</string>
     <string name="spellcheckers_settings_title" msgid="1687210427248364327">"โปรแกรมตรวจตัวสะกด"</string>
@@ -2898,8 +2898,8 @@
     <string name="user_delete_user_description" msgid="3627684990761268859">"ลบผู้ใช้"</string>
     <string name="user_delete_button" msgid="6747802570634772774">"ลบ"</string>
     <string name="user_guest" msgid="6226240869459683235">"ผู้เข้าร่วม"</string>
-    <string name="user_exit_guest_title" msgid="7279886200373071797">"นำผู้เข้าร่วมออก"</string>
-    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"ต้องการนำผู้เข้าร่วมออกไหม"</string>
+    <string name="user_exit_guest_title" msgid="7279886200373071797">"นำผู้ใช้ชั่วคราวออก"</string>
+    <string name="user_exit_guest_confirm_title" msgid="4767911571671099844">"ต้องการนำผู้ใช้ชั่วคราวออกไหม"</string>
     <string name="user_exit_guest_confirm_message" msgid="6955182181145748919">"ระบบจะลบแอปและข้อมูลทั้งหมดในเซสชันนี้"</string>
     <string name="user_exit_guest_dialog_remove" msgid="1878866060881115716">"นำออก"</string>
     <string name="user_enable_calling" msgid="864760054792249503">"เปิดการโทร"</string>
@@ -2943,7 +2943,7 @@
     <string name="extreme_threats_summary" msgid="4967919167246852181">"รับการแจ้งเตือนภัยคุกคามต่อชีวิตและทรัพย์สินระดับสูงสุด"</string>
     <string name="severe_threats_title" msgid="1987698359027211862">"ภัยคุกคามที่ร้ายแรง"</string>
     <string name="severe_threats_summary" msgid="1148147804181873835">"รับการแจ้งเตือนภัยคุกคามที่ร้ายแรงต่อชีวิตและทรัพย์สิน"</string>
-    <string name="amber_alerts_title" msgid="8274651933750533271">"การแจ้งเตือน AMBER"</string>
+    <string name="amber_alerts_title" msgid="8274651933750533271">"การแจ้งเตือนเด็กหาย Amber Alert"</string>
     <string name="amber_alerts_summary" msgid="7570943549000256418">"รับกระดานข่าวสารเกี่ยวกับการลักพาตัวเด็ก"</string>
     <string name="repeat_title" msgid="507090203366188931">"เล่นซ้ำ"</string>
     <string name="call_manager_enable_title" msgid="6345443572463650308">"เปิดใช้ Call Manager"</string>
@@ -3178,7 +3178,7 @@
     <string name="zen_mode_behavior_no_sound_except" msgid="8894465423364103198">"ไม่มีเสียง ยกเว้น<xliff:g id="CATEGORIES">%1$s</xliff:g>"</string>
     <string name="zen_mode_behavior_alarms_only" msgid="8406622989983047562">"ไม่มีเสียง ยกเว้นการปลุกและสื่อ"</string>
     <string name="zen_mode_automation_settings_title" msgid="3916960043054489008">"กำหนดเวลา"</string>
-    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"ลบกำหนดเวลา"</string>
+    <string name="zen_mode_delete_automatic_rules" msgid="2455264581527305755">"ลบกำหนดการ"</string>
     <string name="zen_mode_schedule_delete" msgid="7786092652527516740">"ลบ"</string>
     <string name="zen_mode_rule_name_edit" msgid="5479435215341745578">"แก้ไข"</string>
     <string name="zen_mode_automation_settings_page_title" msgid="3001783354881078983">"กำหนดเวลา"</string>
@@ -3201,7 +3201,7 @@
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"เมื่อมีการแจ้งเตือนเข้ามา โทรศัพท์จะไม่ส่งเสียงหรือสั่น"</string>
     <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"ไม่แสดงภาพหรือเสียงเวลาแจ้งเตือน"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"คุณจะไม่เห็นหรือได้ยินเสียงการแจ้งเตือน"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"โทรศัพท์จะไม่แสดง สั่น หรือส่งเสียงเวลามีการแจ้งเตือน ไม่ว่าจะเป็นการแจ้งเตือนใหม่หรือเก่า อย่างไรก็ตาม หากเป็นข้อมูลสำคัญเกี่ยวกับกิจกรรมและสถานะของโทรศัพท์ คุณจะยังได้รับการแจ้งเตือนอยู่\n\nในขณะปิดโหมดห้ามรบกวน ถ้าต้องการดูการแจ้งเตือนที่ไม่ได้รับ ให้เลื่อนลงจากด้านบนของหน้าจอ"</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"โทรศัพท์จะไม่แสดง สั่น หรือส่งเสียงเวลามีการแจ้งเตือน ไม่ว่าจะเป็นการแจ้งเตือนใหม่หรือเก่า อย่างไรก็ตาม หากเป็นข้อมูลสำคัญเกี่ยวกับกิจกรรมและสถานะของโทรศัพท์ คุณจะยังได้รับการแจ้งเตือนอยู่\n\nในขณะปิดโหมดห้ามรบกวน ถ้าต้องการดูการแจ้งเตือนที่ไม่ได้รับ ให้ปัดลงจากด้านบนของหน้าจอ"</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"กำหนดเอง"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"เปิดใช้การตั้งค่าที่กำหนดเอง"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"นำการตั้งค่าที่กำหนดเองออก"</string>
@@ -3216,7 +3216,7 @@
     <string name="zen_mode_block_effect_light" msgid="8679333758037487644">"อย่าเปิดไฟกะพริบ"</string>
     <string name="zen_mode_block_effect_peek" msgid="6075662813575910221">"อย่าแสดงการแจ้งเตือนบนหน้าจอ"</string>
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"ซ่อนไอคอนแถบสถานะที่ด้านบนของหน้าจอ"</string>
-    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ซ่อนจุดแสดงการแจ้งเตือนบนไอคอนแอป"</string>
+    <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"ซ่อนเครื่องหมายจุดแสดงการแจ้งเตือนบนไอคอนแอป"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"ไม่ต้องปลุกระบบเพื่อแสดงการแจ้งเตือน"</string>
     <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"ซ่อนจากรายการแจ้งเตือน"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ไม่เลย"</string>
@@ -3420,8 +3420,8 @@
     <string name="app_notification_block_summary" msgid="4502146897785692336">"ไม่ต้องแสดงการแจ้งเตือน"</string>
     <string name="notification_content_block_title" msgid="2805138591864484587">"แสดงการแจ้งเตือน"</string>
     <string name="notification_content_block_summary" msgid="2743896875255591743">"ไม่ต้องแสดงการแจ้งเตือนในแว่นตาหรืออุปกรณ์ต่อพ่วง"</string>
-    <string name="notification_badge_title" msgid="8989086619255666442">"อนุญาตให้ใช้จุดแจ้งเตือน"</string>
-    <string name="notification_channel_badge_title" msgid="8228215248332054612">"แสดงจุดแจ้งเตือน"</string>
+    <string name="notification_badge_title" msgid="8989086619255666442">"อนุญาตให้ใช้เครื่องหมายจุดแสดงการแจ้งเตือน"</string>
+    <string name="notification_channel_badge_title" msgid="8228215248332054612">"แสดงเครื่องหมายจุดแสดงการแจ้งเตือน"</string>
     <string name="app_notification_override_dnd_title" msgid="1757042206738172601">"ลบล้าง \"ห้ามรบกวน\""</string>
     <string name="app_notification_override_dnd_summary" msgid="3152957611171210980">"อนุญาตให้แสดงการแจ้งเตือนต่อไปเมื่อ \"ห้ามรบกวน\" เปิดอยู่"</string>
     <string name="app_notification_visibility_override_title" msgid="2349335170165637672">"บนหน้าจอล็อก"</string>
@@ -3555,10 +3555,10 @@
     <string name="switch_on_text" msgid="7100491749799298324">"เปิด"</string>
     <string name="switch_off_text" msgid="3539551289454353555">"ปิด"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"การตรึงหน้าจอ"</string>
-    <string name="screen_pinning_description" msgid="3814537379086412278">"เมื่อเปิดการตั้งค่านี้ คุณจะใช้การตรึงหน้าจอเพื่อให้หน้าจอปัจจุบันอยู่ในมุมมองตลอดได้จนกว่าจะเลิกตรึง\n\nวิธีใช้การตรึงหน้าจอ\n\n1. ดูว่าคุณเปิดใช้การตรึงหน้าจอแล้ว\n\n2. เปิด \"ภาพรวม\"\n\n3. แตะไอคอนแอปที่ด้านบนของหน้าจอ แล้วแตะ \"ตรึง\""</string>
+    <string name="screen_pinning_description" msgid="3814537379086412278">"เมื่อเปิดการตั้งค่านี้ คุณจะใช้การปักหมุดหน้าจอเพื่อให้หน้าจอปัจจุบันอยู่ในมุมมองตลอดได้จนกว่าจะเลิกปักหมุด\n\nวิธีใช้การปักหมุดหน้าจอ\n\n1. ดูว่าคุณเปิดใช้การปักหมุดหน้าจอแล้ว\n\n2. เปิด \"ภาพรวม\"\n\n3. แตะไอคอนแอปที่ด้านบนของหน้าจอ แล้วแตะ \"ปักหมุด\""</string>
     <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"ขอรูปแบบการปลดล็อกก่อนเลิกปักหมุด"</string>
-    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"ขอ PIN ก่อนเลิกตรึง"</string>
-    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"ขอรหัสผ่านก่อนเลิกตรึง"</string>
+    <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"ขอ PIN ก่อนเลิกปักหมุด"</string>
+    <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"ขอรหัสผ่านก่อนเลิกปักหมุด"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"ล็อกอุปกรณ์เมื่อเลิกปักหมุด"</string>
     <string name="opening_paragraph_delete_profile_unknown_company" msgid="2350380017136403670">"โปรไฟล์งานนี้ได้รับการจัดการโดย:"</string>
     <string name="managing_admin" msgid="3212584016377581608">"จัดการโดย <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
@@ -3677,7 +3677,7 @@
     <string name="default_app" msgid="8861276008866619872">"(ค่าเริ่มต้น)"</string>
     <string name="system_app" msgid="4111402206594443265">"(ระบบ)"</string>
     <string name="system_default_app" msgid="1454719098589351197">"(ค่าเริ่มต้นของระบบ)"</string>
-    <string name="apps_storage" msgid="5658466038269046038">"พื้นที่เก็บแอป"</string>
+    <string name="apps_storage" msgid="5658466038269046038">"พื้นที่เก็บข้อมูลแอป"</string>
     <string name="usage_access" msgid="2023443456361489516">"การเข้าถึงการใช้งาน"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"อนุญาตการเข้าถึงการใช้งาน"</string>
     <string name="app_usage_preference" msgid="5691545073101551727">"ค่ากำหนดการใช้งานแอป"</string>
@@ -3756,7 +3756,7 @@
     <string name="usb_summary_tether_power" msgid="5684170912136320002">"การเชื่อมต่ออินเทอร์เน็ตผ่าน USB และจ่ายไฟ"</string>
     <string name="usb_summary_photo_transfers_power" msgid="4424106272137720464">"PTP และจ่ายไฟ"</string>
     <string name="usb_summary_MIDI_power" msgid="7685597621357005180">"MIDI และจ่ายไฟ"</string>
-    <string name="background_check_pref" msgid="664081406854758392">"การตรวจสอบพื้นหลัง"</string>
+    <string name="background_check_pref" msgid="664081406854758392">"การตรวจสอบเบื้องหลัง"</string>
     <string name="background_check_title" msgid="4136736684290307970">"การเข้าถึงพื้นหลังอย่างเต็มรูปแบบ"</string>
     <string name="assist_access_context_title" msgid="2274614501747710439">"ใช้ข้อความจากหน้าจอ"</string>
     <string name="assist_access_context_summary" msgid="5867997494395842785">"อนุญาตให้แอปผู้ช่วยสามารถเข้าถึงเนื้อหาบนหน้าจอเป็นข้อความ"</string>
@@ -3833,7 +3833,7 @@
     <string name="screen_zoom_title" msgid="164369086350486104">"ขนาดการแสดงผล"</string>
     <string name="screen_zoom_short_summary" msgid="5508079362742276703">"ทำให้รายการบนหน้าจอมีขนาดใหญ่ขึ้นหรือเล็กลง"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"ความหนาแน่นในการแสดงผล, ซูมหน้าจอ, ระดับ, การปรับระดับ"</string>
-    <string name="screen_zoom_summary" msgid="5294003755961312560">"ปรับขนาดข้อความบนหน้าจอให้เล็กลงหรือใหญ่ขึ้น แอปบางส่วนบนหน้าจออาจเปลี่ยนตำแหน่ง"</string>
+    <string name="screen_zoom_summary" msgid="5294003755961312560">"ปรับขนาดข้อความบนหน้าจอให้เล็กลงหรือใหญ่ขึ้น แ⁠อ⁠ปบางส่วนบนหน้าจออาจเปลี่ยนตำแหน่ง"</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"ดูตัวอย่าง"</string>
     <string name="screen_zoom_make_smaller_desc" msgid="1374501139722916729">"ทำให้เล็กลง"</string>
     <string name="screen_zoom_make_larger_desc" msgid="5306684807895846141">"ทำให้ใหญ่ขึ้น"</string>
@@ -4136,8 +4136,8 @@
     <string name="ambient_display_tap_screen_title" product="device" msgid="4396793721852647356">"แตะเพื่อดูอุปกรณ์"</string>
     <string name="ambient_display_tap_screen_summary" msgid="7869039870571925213">"หากต้องการดูเวลา การแจ้งเตือน และข้อมูลอื่นๆ ให้แตะหน้าจอ"</string>
     <string name="fingerprint_swipe_for_notifications_title" msgid="3676002930672489760">"ใช้ลายนิ้วมือแสดงการแจ้งเตือน"</string>
-    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"เลื่อนนิ้วสแกนลายนิ้วมือ"</string>
-    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังโทรศัพท์"</string>
+    <string name="fingerprint_gesture_screen_title" msgid="8638932855807473479">"ปัดสแกนลายนิ้วมือ"</string>
+    <string name="fingerprint_swipe_for_notifications_summary" product="default" msgid="4347999905190477310">"ในการตรวจสอบการแจ้งเตือน ให้ปัดนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังโทรศัพท์"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="tablet" msgid="3480057984564476283">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังแท็บเล็ต"</string>
     <string name="fingerprint_swipe_for_notifications_summary" product="device" msgid="7950264130913070035">"ในการตรวจสอบการแจ้งเตือน ให้เลื่อนนิ้วลงผ่านเซ็นเซอร์ลายนิ้วมือที่ด้านหลังอุปกรณ์"</string>
     <string name="fingerprint_swipe_for_notifications_suggestion_title" msgid="948946491233738823">"ดูการแจ้งเตือนได้อย่างรวดเร็ว"</string>

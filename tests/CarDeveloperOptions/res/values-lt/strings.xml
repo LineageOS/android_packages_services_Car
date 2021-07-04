@@ -338,7 +338,7 @@
     <string name="date_time_set_date_title" msgid="8250501639251422132">"Data"</string>
     <string name="date_time_search_region" msgid="3308475245895589430">"Ieškokite regiono"</string>
     <string name="date_time_select_region" msgid="4338128568430027561">"Regionas"</string>
-    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"Pasirinkti UTC nuokrypį"</string>
+    <string name="date_time_select_fixed_offset_time_zones" msgid="26551633879900175">"UTC nuokrypio pasirinkimas"</string>
     <string name="zone_change_to_from_dst" msgid="5772776596087610194">"<xliff:g id="TIME_TYPE">%1$s</xliff:g> prasideda <xliff:g id="TRANSITION_DATE">%2$s</xliff:g>."</string>
     <string name="zone_info_exemplar_location_and_offset" msgid="7264956350119098020">"<xliff:g id="EXEMPLAR_LOCATION">%1$s</xliff:g> (<xliff:g id="OFFSET">%2$s</xliff:g>)"</string>
     <string name="zone_info_offset_and_name" msgid="6043432339008569441">"<xliff:g id="TIME_TYPE">%2$s</xliff:g> (<xliff:g id="OFFSET">%1$s</xliff:g>)"</string>
@@ -506,7 +506,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Galite pridėti iki <xliff:g id="COUNT">%d</xliff:g> kontrol. kod."</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Pridėjote maksimalų skaičių kontrolinių kodų"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Negalima pridėti daugiau kontrolinių kodų"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Pašalinti visus pirštų atspaudus?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Pašalinti visus kontrolinius kodus?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Pašalinti „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>“"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Ar norite ištrinti šį piršto antspaudą?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Negalėsite naudoti pirštų atspaudų norėdami atrakinti telefoną, įgalioti pirkimo procesus ar prisijungti prie programų"</string>
@@ -939,7 +939,7 @@
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"Įveskite SSID"</string>
     <string name="wifi_security" msgid="9136702039496152831">"Sauga"</string>
     <string name="wifi_hidden_network" msgid="6647772204699776833">"Paslėptas tinklas"</string>
-    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą maršruto parinktuvo nustatymai nebus pakeisti."</string>
+    <string name="wifi_hidden_network_warning" msgid="8182333050353796473">"Jei maršruto parinktuvas netransliuoja tinklo ID, bet vėliau norėsite prie jo prisijungti, galite nustatyti tinklą kaip paslėptą.\n\nGali kilti saugos pavojus, nes telefonas reguliariai transliuos signalą, kad surastų tinklą.\n\nNustačius tinklą kaip paslėptą, maršruto parinktuvo nustatymai nebus pakeisti."</string>
     <string name="wifi_signal" msgid="696548364467704808">"Signalo stiprumas"</string>
     <string name="wifi_status" msgid="3439931558930689940">"Būsena"</string>
     <string name="tx_wifi_speed" msgid="2571810085003261073">"Perdavimo nuorodos sparta"</string>

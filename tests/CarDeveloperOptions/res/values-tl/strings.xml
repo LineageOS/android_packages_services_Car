@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privacy"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Na-disable ng admin"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Status ng seguridad"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Lock ng screen, face unlock"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Lock ng screen, pag-unlock gamit ang mukha"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Lock ng screen, fingerprint"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Lock ng screen"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Naidagdag ang mukha"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Alisin ang face data"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Maaaring gamitin ang iyong mukha para i-unlock ang iyong device at mag-access ng mga app. "<annotation id="url">"Matuto pa"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"I-delete ang data ng mukha?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Permanente at secure na ide-delete ang data na naitala ng face unlock. Pagkatapos nitong maalis, kakailanganin mo ang iyong PIN, pattern, o password para i-unlock ang telepono mo, mag-sign in sa mga app, at kumpirmahin ang mga pagbabayad."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Permanente at secure na ide-delete ang data na naitala ng pag-unlock gamit ang mukha. Pagkatapos nitong maalis, kakailanganin mo ang iyong PIN, pattern, o password para i-unlock ang telepono mo, mag-sign in sa mga app, at kumpirmahin ang mga pagbabayad."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Fingerprint"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Pamahalaan fingerprint"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Gamit fingerprint para"</string>
@@ -2925,7 +2925,7 @@
     <string name="nfc_payment_favor_open" msgid="3739055715000436749">"Maliban kung may nakabukas na isa pang app sa pagbabayad"</string>
     <string name="nfc_payment_pay_with" msgid="8412558374792061266">"Sa isang Tap &amp; pay terminal, magbayad gamit ang:"</string>
     <string name="nfc_how_it_works_title" msgid="6531433737926327904">"Pagbabayad sa terminal"</string>
-    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolong walang pakikipag-ugnayan."</string>
+    <string name="nfc_how_it_works_content" msgid="9174575836302449343">"Mag-set up ng app sa pagbabayad. Pagkatapos ay idikit ang iyong telepono sa anumang terminal na may simbolo ng contactless."</string>
     <string name="nfc_how_it_works_got_it" msgid="2432535672153247411">"Nakuha ko"</string>
     <string name="nfc_more_title" msgid="2825856411836382264">"Higit pa..."</string>
     <string name="nfc_payment_set_default_label" msgid="3997927342761454042">"Itakda bilang iyong kagustuhan?"</string>
