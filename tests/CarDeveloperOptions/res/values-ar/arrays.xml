@@ -461,9 +461,9 @@
     <item msgid="5642914536624000094">"أحمر"</item>
   </string-array>
   <string-array name="automatic_storage_management_days">
-    <item msgid="2860293514533486236">"تم إنشاؤها منذ أكثر من 30 يومًا"</item>
-    <item msgid="8699273238891265610">"تم إنشاؤها منذ أكثر من 60 يومًا"</item>
-    <item msgid="8346279419423837266">"تم إنشاؤها منذ أكثر من 90 يومًا"</item>
+    <item msgid="2860293514533486236">"تم إنشاؤها قبل أكثر من 30 يومًا."</item>
+    <item msgid="8699273238891265610">"تم إنشاؤها قبل أكثر من 60 يومًا."</item>
+    <item msgid="8346279419423837266">"تم إنشاؤها قبل أكثر من 90 يومًا."</item>
   </string-array>
     <!-- no translation found for swipe_direction_titles:0 (6583090603341402282) -->
     <!-- no translation found for swipe_direction_titles:1 (4965730704403236310) -->
