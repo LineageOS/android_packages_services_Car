@@ -489,7 +489,7 @@
     <item msgid="5079453644557603349">"Vaalea"</item>
   </string-array>
   <string-array name="autofill_logging_level_entries">
-    <item msgid="6882729786516723474">"Pois käytöstä"</item>
+    <item msgid="6882729786516723474">"Pois päältä"</item>
     <item msgid="4072198137051566919">"Virheenkorjaus"</item>
     <item msgid="2473005316958868509">"Monisanainen"</item>
   </string-array>
