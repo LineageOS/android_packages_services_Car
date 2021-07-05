@@ -506,7 +506,7 @@
     <string name="fingerprint_add_max" msgid="2939393314646115661">"Galite pridėti iki <xliff:g id="COUNT">%d</xliff:g> kontrol. kod."</string>
     <string name="fingerprint_intro_error_max" msgid="3247720976621039437">"Pridėjote maksimalų skaičių kontrolinių kodų"</string>
     <string name="fingerprint_intro_error_unknown" msgid="3975674268256524015">"Negalima pridėti daugiau kontrolinių kodų"</string>
-    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Pašalinti visus pirštų atspaudus?"</string>
+    <string name="fingerprint_last_delete_title" msgid="3104596858161269635">"Pašalinti visus kontrolinius kodus?"</string>
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"Pašalinti „<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>“"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"Ar norite ištrinti šį piršto antspaudą?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"Negalėsite naudoti pirštų atspaudų norėdami atrakinti telefoną, įgalioti pirkimo procesus ar prisijungti prie programų"</string>
