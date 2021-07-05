@@ -399,11 +399,11 @@
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"取消"</string>
-    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"使用臉孔解鎖"</string>
+    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"使用面孔解鎖"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"使用臉孔驗證"</string>
-    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"使用臉孔解鎖手機、授權購物或登入應用程式。"</string>
-    <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"使用臉孔解鎖手機或核准購物交易。\n\n請注意：您無法使用臉孔解鎖此裝置。如需瞭解詳情，請聯絡您機構的管理員。"</string>
-    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"使用臉孔解鎖手機、授權購物或登入應用程式"</string>
+    <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"使用面孔解鎖手機、授權購物或登入應用程式。"</string>
+    <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"使用面孔解鎖手機或核准購物交易。\n\n請注意：您無法使用面孔解鎖此裝置。如需瞭解詳情，請聯絡您機構的管理員。"</string>
+    <string name="security_settings_face_enroll_introduction_message_setup" msgid="4533297059466270074">"使用面孔解鎖手機、授權購物或登入應用程式"</string>
     <string name="security_settings_face_enroll_introduction_footer_message" msgid="7764021721107723266"></string>
     <string name="security_settings_face_enroll_repeat_title" msgid="2507710348140837875">"將您的臉孔置於圓圈中心"</string>
     <string name="security_settings_face_enroll_enrolling_skip" msgid="4346077260378772613">"稍後再註冊"</string>
@@ -584,7 +584,7 @@
     <string name="face_unlock_set_unlock_pin" msgid="3320824093518497476">"臉孔驗證 + PIN"</string>
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"臉孔驗證 + 密碼"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"不驗證臉孔並繼續"</string>
-    <string name="face_unlock_title" msgid="1298031162909236127">"您可以使用臉孔解鎖手機。為安全起見，此選項需要設定後備螢幕鎖定方式。"</string>
+    <string name="face_unlock_title" msgid="1298031162909236127">"您可以使用面孔解鎖手機。為安全起見，此選項需要設定後備螢幕鎖定方式。"</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"已由管理員、加密政策或認證儲存空間停用"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"無"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"滑動"</string>
@@ -3572,9 +3572,9 @@
     <string name="encryption_interstitial_message_pin_for_fingerprint" msgid="3706009740537484517">"為加強保護此裝置，除了使用指紋解鎖裝置外，您亦可以在裝置啟動前要求輸入 PIN 碼。裝置啟動前，您將無法接收來電、訊息或通知 (包括鬧鐘)。\n\n這有助保護遺失或被盜裝置上的資料。要在啟動裝置時要求輸入 PIN 碼嗎？"</string>
     <string name="encryption_interstitial_message_pattern_for_fingerprint" msgid="5230877866699023998">"為加強保護此裝置，除了使用指紋解鎖裝置外，您亦可以在裝置啟動前要求畫出上鎖圖案。裝置啟動前，您將無法接收來電、訊息或通知 (包括鬧鐘)。\n\n這有助保護遺失或被盜裝置上的資料。要在啟動裝置時要求畫出上鎖圖案嗎？"</string>
     <string name="encryption_interstitial_message_password_for_fingerprint" msgid="8451977276748128814">"除了使用指紋解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"除了使用臉孔解鎖裝置外，您亦可以設定裝置必需 PIN 才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需 PIN 才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"除了使用臉孔解鎖裝置外，您亦可以設定裝置必需圖案才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需圖案才能啟動嗎？"</string>
-    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"除了使用臉孔解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_pin_for_face" msgid="7469243836881325172">"除了使用面孔解鎖裝置外，您亦可以設定裝置必需 PIN 才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需 PIN 才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_pattern_for_face" msgid="9221235885895441797">"除了使用面孔解鎖裝置外，您亦可以設定裝置必需圖案才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需圖案才能啟動嗎？"</string>
+    <string name="encryption_interstitial_message_password_for_face" msgid="5559223480280120457">"除了使用面孔解鎖外，您亦可以設定裝置必需密碼才能啟動，再加一重保護。裝置必須成功啟動才能接收來電、訊息或通知 (包括鬧鐘)。\n\n即使裝置遺失或遭竊，資料仍會安全無虞。要設定裝置必需密碼才能啟動嗎？"</string>
     <string name="encryption_interstitial_yes" msgid="1839339586101502601">"是"</string>
     <string name="encryption_interstitial_no" msgid="6517277668879344227">"否"</string>
     <string name="restricted_true_label" msgid="1545180379083441282">"受限制"</string>
