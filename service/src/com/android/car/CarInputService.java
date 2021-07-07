@@ -60,6 +60,7 @@ import android.view.ViewConfiguration;
 import com.android.car.hal.InputHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.pm.CarSafetyAccessibilityService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -69,6 +70,7 @@ import com.android.internal.os.BackgroundThread;
 import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.BitSet;
 import java.util.Collections;
 import java.util.List;
@@ -81,7 +83,8 @@ import java.util.function.Supplier;
  */
 public class CarInputService extends ICarInput.Stub
         implements CarServiceBase, InputHalService.InputListener {
-
+    public static final String ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR = ":";
+    private static final int MAX_RETRIES_FOR_ENABLING_ACCESSIBILITY_SERVICES = 5;
     private static final String TAG = CarLog.TAG_INPUT;
 
     /** An interface to receive {@link KeyEvent}s as they occur. */
@@ -232,7 +235,7 @@ public class CarInputService extends ICarInput.Stub
     private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
         Slogf.d(TAG, "CarInputService.onEvent(%s)", event);
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
-            updateRotaryServiceSettings(event.getUserId());
+            updateCarAccessibilityServicesSettings(event.getUserId());
         }
     };
 
@@ -327,9 +330,7 @@ public class CarInputService extends ICarInput.Stub
                         mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
             });
         }
-        if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
-            mUserService.addUserLifecycleListener(mUserLifecycleListener);
-        }
+        mUserService.addUserLifecycleListener(mUserLifecycleListener);
     }
 
     @Override
@@ -344,9 +345,7 @@ public class CarInputService extends ICarInput.Stub
                 mBluetoothHeadsetClient = null;
             }
         }
-        if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
-            mUserService.removeUserLifecycleListener(mUserLifecycleListener);
-        }
+        mUserService.removeUserLifecycleListener(mUserLifecycleListener);
     }
 
     @Override
@@ -691,6 +690,26 @@ public class CarInputService extends ICarInput.Stub
         return true;
     }
 
+    private List<String> getAccessibilityServicesToBeEnabled() {
+        String carSafetyAccessibilityServiceComponentName = mContext.getPackageName()
+                + "/"
+                + CarSafetyAccessibilityService.class.getName();
+        ArrayList<String> accessibilityServicesToBeEnabled = new ArrayList<>();
+        accessibilityServicesToBeEnabled.add(carSafetyAccessibilityServiceComponentName);
+        if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {
+            accessibilityServicesToBeEnabled.add(mRotaryServiceComponentName);
+        }
+        return accessibilityServicesToBeEnabled;
+    }
+
+    private static List<String> createServiceListFromSettingsString(
+            String accessibilityServicesString) {
+        return TextUtils.isEmpty(accessibilityServicesString)
+                ? new ArrayList<>()
+                : Arrays.asList(accessibilityServicesString.split(
+                        ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR));
+    }
+
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
@@ -701,15 +720,44 @@ public class CarInputService extends ICarInput.Stub
         mCaptureController.dump(writer);
     }
 
-    private void updateRotaryServiceSettings(@UserIdInt int userId) {
+    private void updateCarAccessibilityServicesSettings(@UserIdInt int userId) {
         if (UserHelperLite.isHeadlessSystemUser(userId)) {
             return;
         }
+        List<String> accessibilityServicesToBeEnabled = getAccessibilityServicesToBeEnabled();
         ContentResolver contentResolver = mContext.getContentResolver();
-        Settings.Secure.putStringForUser(contentResolver,
-                Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                mRotaryServiceComponentName,
-                userId);
+        List<String> alreadyEnabledServices = createServiceListFromSettingsString(
+                Settings.Secure.getStringForUser(contentResolver,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                        userId));
+
+        int retry = 0;
+        while (!alreadyEnabledServices.containsAll(accessibilityServicesToBeEnabled)
+                && retry <= MAX_RETRIES_FOR_ENABLING_ACCESSIBILITY_SERVICES) {
+            ArrayList<String> enabledServicesList = new ArrayList<>(alreadyEnabledServices);
+            int numAccessibilityServicesToBeEnabled = accessibilityServicesToBeEnabled.size();
+            for (int i = 0; i < numAccessibilityServicesToBeEnabled; i++) {
+                String serviceToBeEnabled = accessibilityServicesToBeEnabled.get(i);
+                if (!enabledServicesList.contains(serviceToBeEnabled)) {
+                    enabledServicesList.add(serviceToBeEnabled);
+                }
+            }
+            Settings.Secure.putStringForUser(contentResolver,
+                    Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                    String.join(ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR, enabledServicesList),
+                    userId);
+            // Read again to account for any race condition with other parts of the code that might
+            // be enabling other accessibility services.
+            alreadyEnabledServices = createServiceListFromSettingsString(
+                    Settings.Secure.getStringForUser(contentResolver,
+                            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
+                            userId));
+            retry++;
+        }
+        if (!alreadyEnabledServices.containsAll(accessibilityServicesToBeEnabled)) {
+            Slogf.e(TAG, "Failed to enable accessibility services");
+        }
+
         Settings.Secure.putStringForUser(contentResolver,
                 Settings.Secure.ACCESSIBILITY_ENABLED,
                 "1",
