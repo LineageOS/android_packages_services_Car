@@ -32,6 +32,9 @@ public abstract class AbstractPublisher {
     /**
      * Adds a subscriber that listens for data produced by this publisher.
      *
+     * <p>DataBroker may call this method when a new {@code MetricsConfig} is added,
+     * {@code CarTelemetryService} is restarted or the device is restarted.
+     *
      * @param subscriber a subscriber to receive data
      * @throws IllegalArgumentException if the subscriber is invalid.
      */
@@ -46,6 +49,8 @@ public abstract class AbstractPublisher {
 
     /**
      * Removes all the subscribers from the publisher. The publisher may stop.
+     *
+     * <p>This method also cleans-up internal publisher and the data source persisted state.
      */
     public abstract void removeAllDataSubscribers();
 
