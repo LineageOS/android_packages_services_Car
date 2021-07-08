@@ -73,6 +73,7 @@ public class CarWatchdogTestFragment extends Fragment {
     private static final long TEN_MEGABYTES = 1024 * 1024 * 10;
     private static final int DISK_DELAY_MS = 3000;
     private static final String TAG = "CarWatchdogTestFragment";
+    private static final double WARN_THRESHOLD_PERCENT = 0.8;
     private static final double EXCEED_WARN_THRESHOLD_PERCENT = 0.9;
 
     private final ExecutorService mExecutor = Executors.newSingleThreadExecutor();
@@ -133,12 +134,22 @@ public class CarWatchdogTestFragment extends Fragment {
                                         return;
                                     }
 
+                                    /*
+                                     * CarService notifies applications on exceeding 80% of the
+                                     * threshold. The app maybe notified before completing the
+                                     * following write. Ergo, the minimum expected written bytes
+                                     * should be the warn threshold rather than the actual amount
+                                     * of bytes written by the app.
+                                     */
+                                    long bytesToWarnThreshold = (long) Math.ceil(
+                                            (remainingBytes + TEN_MEGABYTES)
+                                                    * WARN_THRESHOLD_PERCENT);
+
+                                    listener.setExpectedMinWrittenBytes(bytesToWarnThreshold);
+
                                     long bytesToExceedWarnThreshold =
                                             (long) Math.ceil(remainingBytes
                                                     * EXCEED_WARN_THRESHOLD_PERCENT);
-
-                                    listener.setExpectedMinWrittenBytes(
-                                            TEN_MEGABYTES + bytesToExceedWarnThreshold);
 
                                     if (!writeToDisk(bytesToExceedWarnThreshold)) {
                                         mCarWatchdogManager.removeResourceOveruseListener(listener);
