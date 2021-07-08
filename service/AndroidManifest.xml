@@ -939,6 +939,18 @@
         <service android:name=".telemetry.ScriptExecutor"
             android:exported="false"
             android:isolatedProcess="true"/>
+        <service
+            android:name="com.android.car.pm.CarSafetyAccessibilityService"
+            android:singleUser="true"
+            android:permission="android.permission.BIND_ACCESSIBILITY_SERVICE"
+            android:exported="false">
+            <intent-filter>
+                <action android:name="android.accessibilityservice.AccessibilityService" />
+            </intent-filter>
+            <meta-data
+                android:name="android.accessibilityservice"
+                android:resource="@xml/car_safety_accessibility_service_config" />
+        </service>
 
         <activity android:name="com.android.car.pm.ActivityBlockingActivity"
              android:documentLaunchMode="always"
