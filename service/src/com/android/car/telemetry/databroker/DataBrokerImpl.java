@@ -32,6 +32,7 @@ import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
@@ -52,8 +53,9 @@ public class DataBrokerImpl implements DataBroker {
     @VisibleForTesting
     static final int MSG_HANDLE_TASK = 1;
 
+    private final Object mLock = new Object();
     private final HandlerThread mWorkerThread = CarServiceUtils.getHandlerThread(
-            CarTelemetryService.class.getClass().getSimpleName());
+            CarTelemetryService.class.getSimpleName());
     private final Handler mWorkerHandler = new TaskHandler(mWorkerThread.getLooper());
 
     /** Thread-safe int to determine which data can be processed. */
@@ -74,8 +76,8 @@ public class DataBrokerImpl implements DataBroker {
      * Maps MetricsConfig's name to its subscriptions. This map is useful when removing a
      * MetricsConfig.
      */
+    @GuardedBy("mLock")
     private final Map<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
-    private final Object mPublisherLock = new Object();
     private final PublisherFactory mPublisherFactory;
     private DataBrokerController.ScriptFinishedCallback mScriptFinishedCallback;
 
@@ -95,9 +97,11 @@ public class DataBrokerImpl implements DataBroker {
             throw new RuntimeException(
                     "addMetricsConfigurationOnHandlerThread is not called from handler thread");
         }
-        // if metricsConfig already exists, it should not be added again
-        if (mSubscriptionMap.containsKey(metricsConfig.getName())) {
-            return;
+        synchronized (mLock) {
+            // if metricsConfig already exists, it should not be added again
+            if (mSubscriptionMap.containsKey(metricsConfig.getName())) {
+                return;
+            }
         }
         // Create the subscribers for this metrics configuration
         List<DataSubscriber> dataSubscribers = new ArrayList<>(
@@ -106,7 +110,6 @@ public class DataBrokerImpl implements DataBroker {
             // protobuf publisher to a concrete Publisher
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
                     subscriber.getPublisher().getPublisherCase());
-
             // create DataSubscriber from TelemetryProto.Subscriber
             DataSubscriber dataSubscriber = new DataSubscriber(
                     this,
@@ -118,15 +121,15 @@ public class DataBrokerImpl implements DataBroker {
             try {
                 // The publisher will start sending data to the subscriber.
                 // TODO(b/191378559): handle bad configs
-                synchronized (mPublisherLock) {
-                    publisher.addDataSubscriber(dataSubscriber);
-                }
+                publisher.addDataSubscriber(dataSubscriber);
             } catch (IllegalArgumentException e) {
                 Slog.w(CarLog.TAG_TELEMETRY, "Invalid config", e);
                 return;
             }
         }
-        mSubscriptionMap.put(metricsConfig.getName(), dataSubscribers);
+        synchronized (mLock) {
+            mSubscriptionMap.put(metricsConfig.getName(), dataSubscribers);
+        }
     }
 
     @Override
@@ -141,19 +144,22 @@ public class DataBrokerImpl implements DataBroker {
             throw new RuntimeException(
                     "removeMetricsConfigurationOnHandlerThread is not called from handler thread");
         }
-        if (!mSubscriptionMap.containsKey(metricsConfig.getName())) {
-            return;
+        synchronized (mLock) {
+            if (!mSubscriptionMap.containsKey(metricsConfig.getName())) {
+                return;
+            }
         }
         // get the subscriptions associated with this MetricsConfig, remove it from the map
-        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(metricsConfig.getName());
+        List<DataSubscriber> dataSubscribers;
+        synchronized (mLock) {
+            dataSubscribers = mSubscriptionMap.remove(metricsConfig.getName());
+        }
         // for each subscriber, remove it from publishers
         for (DataSubscriber subscriber : dataSubscribers) {
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
                     subscriber.getPublisherParam().getPublisherCase());
             try {
-                synchronized (mPublisherLock) {
-                    publisher.removeDataSubscriber(subscriber);
-                }
+                publisher.removeDataSubscriber(subscriber);
             } catch (IllegalArgumentException e) {
                 // It shouldn't happen, but if happens, let's just log it.
                 Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove subscriber from publisher", e);
@@ -200,7 +206,9 @@ public class DataBrokerImpl implements DataBroker {
 
     @VisibleForTesting
     Map<String, List<DataSubscriber>> getSubscriptionMap() {
-        return mSubscriptionMap;
+        synchronized (mLock) {
+            return new ArrayMap<>((ArrayMap<String, List<DataSubscriber>>) mSubscriptionMap);
+        }
     }
 
     @VisibleForTesting
