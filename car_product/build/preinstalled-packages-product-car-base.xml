@@ -289,9 +289,6 @@
     <install-in-user-type package="com.android.car.activityresolver">
         <install-in user-type="FULL" />
     </install-in-user-type>
-    <install-in-user-type package="com.android.wifi.inprocess.overlay.car">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
     <install-in-user-type package="com.android.cellbroadcastreceiver">
         <install-in user-type="FULL" />
     </install-in-user-type>
