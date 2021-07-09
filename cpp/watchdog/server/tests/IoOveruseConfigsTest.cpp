@@ -75,12 +75,14 @@ std::unordered_map<std::string, ApplicationCategoryType> toPackageToAppCategoryM
 
 PackageInfo constructPackageInfo(
         const char* packageName, const ComponentType componentType,
-        const ApplicationCategoryType appCategoryType = ApplicationCategoryType::OTHERS) {
+        const ApplicationCategoryType appCategoryType = ApplicationCategoryType::OTHERS,
+        const std::vector<std::string>& sharedUidPackages = std::vector<std::string>()) {
     PackageInfo packageInfo;
     packageInfo.packageIdentifier.name = packageName;
     packageInfo.uidType = UidType::APPLICATION;
     packageInfo.componentType = componentType;
     packageInfo.appCategoryType = appCategoryType;
+    packageInfo.sharedUidPackages = sharedUidPackages;
     return packageInfo;
 }
 
@@ -832,6 +834,28 @@ TEST_F(IoOveruseConfigsTest, TestFetchThresholdForSystemPackages) {
     EXPECT_THAT(actual, MEDIA_THRESHOLDS);
 }
 
+TEST_F(IoOveruseConfigsTest, TestFetchThresholdForSharedSystemPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+    auto sampleSystemConfig = sampleUpdateSystemConfig();
+    auto& ioConfig = sampleSystemConfig.resourceSpecificConfigurations[0]
+                             .get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+    ioConfig.packageSpecificThresholds.push_back(
+            toPerStateIoOveruseThreshold("shared:systemSharedPackage",
+                                         toPerStateBytes(100, 200, 300)));
+
+    ioOveruseConfigs->update({sampleSystemConfig});
+
+    auto actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("shared:systemSharedPackage", ComponentType::SYSTEM));
+
+    EXPECT_THAT(actual, toPerStateBytes(100, 200, 300));
+
+    actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("systemSharedPackage", ComponentType::SYSTEM));
+
+    EXPECT_THAT(actual, SYSTEM_COMPONENT_LEVEL_THRESHOLDS);
+}
+
 TEST_F(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
 
@@ -851,6 +875,28 @@ TEST_F(IoOveruseConfigsTest, TestFetchThresholdForVendorPackages) {
 
     // Maps category thresholds as there is no package specific thresholds.
     EXPECT_THAT(actual, MAPS_THRESHOLDS);
+}
+
+TEST_F(IoOveruseConfigsTest, TestFetchThresholdForSharedVendorPackages) {
+    const auto ioOveruseConfigs = sampleIoOveruseConfigs();
+    auto sampleVendorConfig = sampleUpdateVendorConfig();
+    auto& ioConfig = sampleVendorConfig.resourceSpecificConfigurations[0]
+                             .get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+    ioConfig.packageSpecificThresholds.push_back(
+            toPerStateIoOveruseThreshold("shared:vendorSharedPackage",
+                                         toPerStateBytes(100, 200, 300)));
+
+    ioOveruseConfigs->update({sampleVendorConfig});
+
+    auto actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("shared:vendorSharedPackage", ComponentType::VENDOR));
+
+    EXPECT_THAT(actual, toPerStateBytes(100, 200, 300));
+
+    actual = ioOveruseConfigs->fetchThreshold(
+            constructPackageInfo("vendorSharedPackage", ComponentType::VENDOR));
+
+    EXPECT_THAT(actual, VENDOR_COMPONENT_LEVEL_THRESHOLDS);
 }
 
 TEST_F(IoOveruseConfigsTest, TestFetchThresholdForThirdPartyPackages) {
@@ -883,6 +929,36 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSystemPackages) {
             constructPackageInfo("systemPackageA", ComponentType::SYSTEM)));
 }
 
+TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSharedSystemPackages) {
+    auto sampleSystemConfig = sampleUpdateSystemConfig();
+    sampleSystemConfig.safeToKillPackages.push_back("sharedUidSystemPackageC");
+    sampleSystemConfig.safeToKillPackages.push_back("shared:systemSharedPackageD");
+    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+
+    EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleSystemConfig}));
+
+    PackageInfo packageInfo =
+            constructPackageInfo("systemSharedPackage", ComponentType::SYSTEM,
+                                 ApplicationCategoryType::OTHERS,
+                                 {"sharedUidSystemPackageA", "sharedUidSystemPackageB",
+                                  "sharedUidSystemPackageC"});
+
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Should be safe-to-kill when at least one package under shared UID is safe-to-kill";
+
+    packageInfo =
+            constructPackageInfo("shared:systemSharedPackageD", ComponentType::SYSTEM,
+                                 ApplicationCategoryType::OTHERS, {"sharedUidSystemPackageA"});
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Should be safe-to-kill when shared package is safe-to-kill";
+
+    packageInfo =
+            constructPackageInfo("systemSharedPackageD", ComponentType::SYSTEM,
+                                 ApplicationCategoryType::OTHERS, {"sharedUidSystemPackageA"});
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Shouldn't be safe-to-kill when the 'shared:' prefix is missing";
+}
+
 TEST_F(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
     const auto ioOveruseConfigs = sampleIoOveruseConfigs();
     EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(
@@ -890,6 +966,40 @@ TEST_F(IoOveruseConfigsTest, TestIsSafeToKillVendorPackages) {
 
     EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(
             constructPackageInfo("vendorPackageA", ComponentType::VENDOR)));
+}
+
+TEST_F(IoOveruseConfigsTest, TestIsSafeToKillSharedVendorPackages) {
+    auto sampleVendorConfig = sampleUpdateVendorConfig();
+    sampleVendorConfig.safeToKillPackages.push_back("sharedUidVendorPackageC");
+    sampleVendorConfig.safeToKillPackages.push_back("shared:vendorSharedPackageD");
+
+    auto sampleSystemConfig = sampleUpdateSystemConfig();
+    sampleSystemConfig.safeToKillPackages.push_back("sharedUidSystemPackageC");
+
+    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+
+    EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleSystemConfig, sampleVendorConfig}));
+
+    PackageInfo packageInfo =
+            constructPackageInfo("vendorSharedPackage", ComponentType::VENDOR,
+                                 ApplicationCategoryType::OTHERS,
+                                 {"sharedUidVendorPackageA", "sharedUidVendorPackageB",
+                                  "sharedUidVendorPackageC"});
+
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Should be safe-to-kill when at least one package under shared UID is safe-to-kill";
+
+    packageInfo =
+            constructPackageInfo("shared:vendorSharedPackageD", ComponentType::VENDOR,
+                                 ApplicationCategoryType::OTHERS, {"sharedUidVendorPackageA"});
+    EXPECT_TRUE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Should be safe-to-kill when shared package is safe-to-kill";
+
+    packageInfo =
+            constructPackageInfo("shared:vendorSharedPackageE", ComponentType::VENDOR,
+                                 ApplicationCategoryType::OTHERS, {"sharedUidVendorPackageA"});
+    EXPECT_FALSE(ioOveruseConfigs->isSafeToKill(packageInfo))
+            << "Shouldn't be safe-to-kill when the 'shared:' prefix is missing";
 }
 
 TEST_F(IoOveruseConfigsTest, TestIsSafeToKillThirdPartyPackages) {
@@ -929,6 +1039,32 @@ TEST_F(IoOveruseConfigsTest, TestVendorPackagePrefixes) {
 
     EXPECT_THAT(ioOveruseConfigs->vendorPackagePrefixes(),
                 UnorderedElementsAre("vendorPackage", "vendorPkgB"));
+}
+
+TEST_F(IoOveruseConfigsTest, TestVendorPackagePrefixesWithSharedPackages) {
+    auto sampleVendorConfig = sampleUpdateVendorConfig();
+    sampleVendorConfig.vendorPackagePrefixes.push_back("shared:vendorSharedPackage");
+    sampleVendorConfig.safeToKillPackages.push_back("sharedUidVendorPackageD");
+    sampleVendorConfig.safeToKillPackages.push_back("shared:vendorSharedPackageE");
+    sampleVendorConfig.safeToKillPackages.push_back("shared:vndrSharedPkgF");
+
+    auto& ioConfig = sampleVendorConfig.resourceSpecificConfigurations[0]
+                             .get<ResourceSpecificConfiguration::ioOveruseConfiguration>();
+
+    ioConfig.packageSpecificThresholds.push_back(
+            toPerStateIoOveruseThreshold("shared:vendorSharedPackageG",
+                                         VENDOR_PACKAGE_A_THRESHOLDS));
+    ioConfig.packageSpecificThresholds.push_back(
+            toPerStateIoOveruseThreshold("shared:vndrSharedPkgH", VENDOR_PACKAGE_A_THRESHOLDS));
+
+    sp<IoOveruseConfigs> ioOveruseConfigs = new IoOveruseConfigs();
+
+    EXPECT_RESULT_OK(ioOveruseConfigs->update({sampleVendorConfig}));
+
+    EXPECT_THAT(ioOveruseConfigs->vendorPackagePrefixes(),
+                UnorderedElementsAre("vendorPackage", "vendorPkgB", "shared:vendorSharedPackage",
+                                     "sharedUidVendorPackageD", "shared:vndrSharedPkgF",
+                                     "shared:vndrSharedPkgH"));
 }
 
 TEST_F(IoOveruseConfigsTest, TestPackagesToAppCategoriesWithSystemConfig) {
