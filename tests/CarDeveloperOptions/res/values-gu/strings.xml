@@ -2049,7 +2049,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"સુવિધાની માહિતી દર્શાવતા ફ્લેગ"</string>
     <string name="talkback_title" msgid="3717960404234260050">"ટૉકબૅક"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"સ્ક્રીન રીડર મુખ્યત્વે અંધત્વ અને ઓછી દૃષ્ટિવાળા લોકો માટે છે"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"તમારી સ્ક્રીન પરની આઇટમો મોટેથી વંચાઈને સાંભળવા માટે તેમને ટૅપ કરો"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"તમારી સ્ક્રીન પરની આઇટમ મોટેથી વાંચીને સાંભળવા માટે તેના પર ટૅપ કરો"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"કૅપ્શન્સ"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"વિસ્તૃતીકરણ"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"ત્રણ-ટૅપ વડે વિસ્તૃત કરો"</string>
@@ -3831,7 +3831,7 @@
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"કૅમેરા માટે બે વખત પાવર બટન દબાવો"</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"તમારી સ્ક્રીન અનલૉક કર્યાં વગર ઝડપથી કૅમેરો ખોલો"</string>
     <string name="screen_zoom_title" msgid="164369086350486104">"ડિસ્પ્લે કદ"</string>
-    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"સ્ક્રીન પરની આઇટમ્સને મોટી અથવા નાની કરો"</string>
+    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"સ્ક્રીન પરની આઇટમને મોટી અથવા નાની કરો"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"પ્રદર્શન ઘનતા, સ્ક્રીન ઝૂમ, સ્કેલ, સ્કેલિંગ"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"તમારી સ્ક્રીન પરની આઇટમ્સને નાની અથવા મોટી કરો. તમારી સ્ક્રીન પરની કેટલીક ઍપ્લિકેશનો સ્થિતિ બદલી શકે છે."</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"પ્રીવ્યૂ"</string>

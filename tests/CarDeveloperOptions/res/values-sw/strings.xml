@@ -651,8 +651,8 @@
     <string name="lock_failed_attempts_now_wiping_profile" msgid="5347108525299038285">"Umejaribu kufungua mara nyingi mno kwa njia isiyo sahihi. Wasifu huu wa kazini utafutwa pamoja na data yake."</string>
     <string name="lock_failed_attempts_now_wiping_dialog_dismiss" msgid="3950582268749037318">"Ondoa"</string>
     <plurals name="lockpassword_password_too_short" formatted="false" msgid="694091983183310827">
-      <item quantity="other">Lazima iwe na angalau herufi <xliff:g id="COUNT_1">%d</xliff:g></item>
-      <item quantity="one">Lazima iwe na angalau herufi <xliff:g id="COUNT_0">%d</xliff:g></item>
+      <item quantity="other">Lazima uweke angalau herufi <xliff:g id="COUNT_1">%d</xliff:g></item>
+      <item quantity="one">Lazima uweke angalau herufi <xliff:g id="COUNT_0">%d</xliff:g></item>
     </plurals>
     <plurals name="lockpassword_pin_too_short" formatted="false" msgid="6805936168283187298">
       <item quantity="other">PIN lazima iwe na angalau tarakimu <xliff:g id="COUNT_1">%d</xliff:g></item>
@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Mipangilio ya ufikiaji"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Vidhibiti vya mawasiliano, maonyesho na visomaji skrini"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Mipangilio ya Kuona"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Unaweza kubadilisha mipangilio ya kifaa hiki kulingana na mahitaji yako. Vipengele hivi vya zana za walio na matatizo ya kuona au kusikia vinaweza kubadilishwa baadaye kwenye Mipangilio."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Unaweza kubadilisha mipangilio ya kifaa hiki kulingana na mahitaji yako. Vipengele hivi vya ufikivu vinaweza kubadilishwa baadaye kwenye Mipangilio."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Badilisha ukubwa wa fonti"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Visomaji skrini"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Maandishi kwenye skrini na sauti"</string>
@@ -2049,7 +2049,7 @@
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"Alama za vipengele"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
     <string name="talkback_summary" msgid="6602857105831641574">"Kisoma skrini hasa kwa watu wenye upofu na wenye matatizo ya kuona"</string>
-    <string name="select_to_speak_summary" msgid="7514180457557735421">"Gusa vipengee kwenye skrini yako ili usikie vikisoma kwa sauti"</string>
+    <string name="select_to_speak_summary" msgid="7514180457557735421">"Gusa vipengee kwenye skrini yako ili usikie vikisomwa kwa sauti"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"Manukuu"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"Ukuzaji"</string>
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Kuza kwa kugusa mara tatu"</string>

@@ -554,8 +554,8 @@
     <string name="setup_lock_settings_picker_message" product="default" msgid="2003984443953672040">"పరికర సంరక్షణ లక్షణాలను సక్రియం చేయడం ద్వారా మీ అనుమతి లేకుండా ఈ ఫోన్‌ను ఉపయోగించనీయకుండా ఇతరులను నిరోధించండి. మీరు ఉపయోగించాలనుకుంటున్న స్క్రీన్ లాక్‌ను ఎంచుకోండి."</string>
     <string name="lock_settings_picker_fingerprint_message" msgid="1344567476145156885">"మీ బ్యాకప్ స్క్రీన్ లాక్ పద్ధతిని ఎంచుకోండి"</string>
     <string name="lock_settings_picker_face_message" msgid="6413145626861812959">"మీ బ్యాకప్ స్క్రీన్ లాక్ పద్ధతిని ఎంచుకోండి"</string>
-    <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"స్క్రీన్ లాక్ ఎంపికలు"</string>
-    <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"స్క్రీన్ లాక్ ఎంపికలు"</string>
+    <string name="setup_lock_settings_options_button_label" msgid="4197315143877977385">"స్క్రీన్ లాక్ ఆప్షన్‌లు"</string>
+    <string name="setup_lock_settings_options_dialog_title" msgid="5241946349173768827">"స్క్రీన్ లాక్ ఆప్షన్‌లు"</string>
     <string name="unlock_set_unlock_launch_picker_title" msgid="2731152716948003853">"స్క్రీన్ లాక్"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_immediately" msgid="5596186270725220642">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / నిద్రావస్థలోకి వెళ్లిన వెంటనే"</string>
     <string name="unlock_set_unlock_launch_picker_summary_lock_after_timeout" msgid="3861167251234952373">"<xliff:g id="UNLOCK_METHOD">%1$s</xliff:g> / నిద్రావస్థలోకి వెళ్లిన <xliff:g id="TIMEOUT_STRING">%2$s</xliff:g> తర్వాత"</string>
@@ -1266,7 +1266,7 @@
     <string name="doze_always_on_title" msgid="8555184965031789941">"ఎల్లప్పుడూ ఆన్‌లో ఉంచు"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"సమయం, నోటిఫికేషన్ చిహ్నాలు మరియు ఇతర సమాచారాన్ని చూపిస్తుంది. బ్యాటరీ వినియోగం పెరుగుతుంది."</string>
     <string name="title_font_size" msgid="5021464556860010851">"ఫాంట్ పరిమాణం"</string>
-    <string name="short_summary_font_size" msgid="4141077908728522946">"వచనాన్ని పెద్దదిగా లేదా చిన్నదిగా చేస్తుంది"</string>
+    <string name="short_summary_font_size" msgid="4141077908728522946">"టెక్స్ట్‌ను పెద్దదిగా లేదా చిన్నదిగా చేస్తుంది"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"సిమ్ కార్డు లాక్ సెట్టింగ్‌లు"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"SIM కార్డ్ లాక్"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"ఆఫ్"</string>
@@ -2037,9 +2037,9 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"యాక్సెస్ సామర్థ్యం"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"యాక్సెస్ సామర్థ్య సెట్టింగ్‌లు"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"స్క్రీన్ రీడర్‌లు, ప్రదర్శన, పరస్పర చర్య నియంత్రణలు"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"దృశ్యత సెట్టింగ్‌లు"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"మీరు మీ అవసరాలకు అనుగుణంగా ఈ పరికరాన్ని అనుకూలీకరించవచ్చు. ఈ యాక్సెస్ పీచర్లను సెట్టింగ్‌ల్లో తర్వాత మార్చవచ్చు."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"ఫాంట్ పరిమాణాన్ని మార్చండి"</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"విజన్ సెట్టింగ్‌లు"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"మీరు మీ అవసరాలకు అనుగుణంగా ఈ పరికరాన్ని అనుకూలీకరించవచ్చు. ఈ యాక్సెస్ చేయగల ఫీచర్లను సెట్టింగ్స్‌లో తర్వాత మార్చవచ్చు."</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"ఫాంట్ సైజ్ మార్చండి"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"స్క్రీన్ రీడర్‌లు"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"ఆడియో &amp; స్క్రీన్‌పై ఉండే టెక్స్ట్"</string>
     <string name="display_category_title" msgid="545168481672250195">"డిస్‌ప్లే"</string>

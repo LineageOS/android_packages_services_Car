@@ -2097,7 +2097,7 @@
     <string name="accessibility_screen_magnification_gestures_title" msgid="9199287875401817974">"Збільшувати потрійним торканням"</string>
     <string name="accessibility_screen_magnification_navbar_title" msgid="400655612610761242">"Збільшувати кнопкою"</string>
     <string name="accessibility_screen_magnification_state_navbar_gesture" msgid="1863831350878995600">"Збільшувати кнопкою та потрійним торканням"</string>
-    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Наблизити екран"</string>
+    <string name="accessibility_preference_magnification_summary" msgid="753307741814376312">"Наближуйте екран"</string>
     <string name="accessibility_screen_magnification_short_summary" msgid="5698545174944494486">"Тричі торкніться, щоб збільшити"</string>
     <string name="accessibility_screen_magnification_navbar_short_summary" msgid="5418767043532322397">"Торкніться кнопки, щоб збільшити вміст"</string>
     <string name="accessibility_screen_magnification_summary" msgid="3363006902079431772"><b>"Щоб збільшити вміст"</b>", тричі торкніться екрана.\n"<ul><li>"Щоб прокрутити вміст, проведіть по екрану принаймні двома пальцями."</li>\n<li>"Щоб змінити масштаб, стисніть або розведіть принаймні два пальці."</li></ul>\n\n<b>"Щоб тимчасово збільшити вміст"</b>", тричі натисніть і втримуйте його.\n"<ul><li>"Пересувайте палець, щоб переміщатись екраном."</li>\n<li>"Підніміть палець, щоб знову зменшити елемент."</li></ul>\n\n"Масштабування не підтримується на клавіатурі та панелі навігації."</string>
@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"оплатити, торкнутися, платежі"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"резервна копія, резервне копіювання"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"жест"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"обличчя, розблокувати, автентифікація, увійти"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"обличчя, розблокувати, автентифікація, увійти, фейсконтроль"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, версія prl, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"мережа, стан мобільної мережі, стан служби, потужність сигналу, тип мобільної мережі, роумінг, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"серійний номер, версія апаратного забезпечення"</string>

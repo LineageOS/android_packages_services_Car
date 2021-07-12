@@ -480,9 +480,9 @@
     <string name="face_lock_screen_setup_skip_dialog_text" product="tablet" msgid="2998863111689476550">"Планшетиңизди экранды бөгөттөө опциясы менен коргоңуз, ошондо ал жоголсо же бирөө уурдап кетсе, эч ким колдоно албай калат. Экранды бөгөттөө функциясы менен жүздүн аныктыгын текшерүүнү жөндөсөңүз да болот. \"Жокко чыгарууну\" таптаңыз, анан PIN кодду жөндөңүз же экранды бөгөттөөнүн башка опциясын тандаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="device" msgid="6780557259734235952">"Түзмөгүңүздү экранды бөгөттөө опциясы менен коргоңуз, ошондо ал жоголсо же бирөө уурдап кетсе, эч ким колдоно албай калат. Экранды бөгөттөө функциясы менен жүздүн аныктыгын текшерүүнү жөндөсөңүз да болот. \"Жокко чыгарууну\" таптаңыз, анан PIN кодду жөндөңүз же экранды бөгөттөөнүн башка опциясын тандаңыз."</string>
     <string name="face_lock_screen_setup_skip_dialog_text" product="default" msgid="8541640018478926775">"Жүзүнөн таанып ачуу функциясын тууралоо үчүн, телефондун экранын кулпулоону иштетүү керек. Ушуну менен, телефонуңуз жоголуп же бирөө уурдап кетсе, анын ичиндегилерди эч ким көрө албай калат. Экранды кулпулоо функциясын иштетүү үчүн \"Жок\" дегенди басып, андан соң PIN код коюңуз же экранды кулпулоонун башка ыкмасын тандаңыз."</string>
-    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN кодду жөндөөнү өткөрүп жибересизби?"</string>
-    <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Сырсөздү жөндөөнү өткөрүп жибересизби?"</string>
-    <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Графикалык ачкычты жөндөөнү өткөрүп жибересизби?"</string>
+    <string name="lock_screen_pin_skip_title" msgid="8217519439213393785">"PIN кодду койбойсузбу?"</string>
+    <string name="lock_screen_password_skip_title" msgid="3725788215672959827">"Сырсөздү койбойсузбу?"</string>
+    <string name="lock_screen_pattern_skip_title" msgid="4237030500353932005">"Графикалык ачкычты койбойсузбу?"</string>
     <string name="security_settings_fingerprint_enroll_setup_screen_lock" msgid="9036983528330627756">"Экранды кулпулоо ыкмасын коюу"</string>
     <string name="security_settings_fingerprint_enroll_done" msgid="4111289529758845926">"Даяр"</string>
     <string name="security_settings_fingerprint_enroll_touch_dialog_title" msgid="7410398793283818609">"Ой, ал сенсор эмес"</string>
@@ -1750,7 +1750,7 @@
     <string name="lock_settings_title" msgid="233657584969886812">"Түзмөктүн коопсуздугу"</string>
     <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"Графикалык ачкычты өзгөртүү"</string>
     <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"Кулпуну ачуу PIN кодун өзгөртүү"</string>
-    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Кулпуну ачуучу графикалык ачкычты тартыңыз"</string>
+    <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"Түзмөктү ачуучу графикалык  ачкычты тартыңыз"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"Жардам үчүн Менюну басыңыз."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"Даяр болгондо манжаңызды алыңыз"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"Кеминде <xliff:g id="NUMBER">%d</xliff:g> чекитти бириктириңиз. Дагы бир жолу аракет кылыңыз."</string>

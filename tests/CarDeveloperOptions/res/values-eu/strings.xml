@@ -2038,7 +2038,7 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Erabilerraztasun-ezarpenak"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Pantaila-irakurgailuak, pantaila, interakzioak kontrolatzeko aukerak"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Ikusmen-ezarpenak"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Zure beharretara doi dezakezu gailua. Erabilerraztasun-eginbideak edonoiz alda ditzakezu Ezarpenak atalean."</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Doitu gailua zure beharretara. Ezarpenak atalean alda ditzakezu Erabilerraztasun-eginbideak."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Aldatu letra-tamaina"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Pantaila-irakurgailuak"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audioa eta pantailako testua"</string>
