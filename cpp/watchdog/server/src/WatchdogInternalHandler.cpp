@@ -268,6 +268,15 @@ Status WatchdogInternalHandler::actionTakenOnResourceOveruse(
     return Status::ok();
 }
 
+Status WatchdogInternalHandler::controlProcessHealthCheck(bool disable) {
+    Status status = checkSystemUser();
+    if (!status.isOk()) {
+        return status;
+    }
+    mWatchdogProcessService->setEnabled(!disable);
+    return Status::ok();
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android

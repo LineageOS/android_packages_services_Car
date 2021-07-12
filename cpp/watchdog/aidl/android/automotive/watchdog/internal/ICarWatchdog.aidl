@@ -128,4 +128,12 @@ interface ICarWatchdog {
    * @param actions              List of actions take on resource overusing packages.
    */
    void actionTakenOnResourceOveruse(in List<PackageResourceOveruseAction> actions);
+
+   /**
+    * Enable/disable the internal client health check process.
+    * Disabling would stop the ANR killing process.
+    *
+    * @param isEnabled            New enabled state.
+    */
+    void controlProcessHealthCheck(in boolean disable);
 }

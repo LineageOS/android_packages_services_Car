@@ -240,6 +240,16 @@ public final class WatchdogProcessHandler {
         }
     }
 
+    /** Enables/disables the watchdog daemon client health check process. */
+    void controlProcessHealthCheck(boolean disable) {
+        try {
+            mCarWatchdogDaemonHelper.controlProcessHealthCheck(disable);
+        } catch (RemoteException e) {
+            Slogf.w(CarWatchdogService.TAG,
+                    "Cannot enable/disable the car watchdog daemon health check process: %s", e);
+        }
+    }
+
     private void onClientDeath(ICarWatchdogServiceCallback client, int timeout) {
         synchronized (mLock) {
             removeClientLocked(client.asBinder(), timeout);
