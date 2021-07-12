@@ -819,7 +819,15 @@ public final class VehiclePropertyIds {
     public static final int FUEL_CONSUMPTION_UNITS_DISTANCE_OVER_VOLUME = 287311364;
     /**
      * Outside temperature in celsius.
-     * Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_EXTERIOR_ENVIRONMENT}.
      */
     @RequiresPermission(Car.PERMISSION_EXTERIOR_ENVIRONMENT)
     public static final int ENV_OUTSIDE_TEMPERATURE = 291505923;
