@@ -1299,7 +1299,7 @@
     <string name="sim_change_data_title" msgid="2512227368681250054">"ಮೊಬೈಲ್ ಡೇಟಾಗಾಗಿ <xliff:g id="CARRIER">%1$s</xliff:g> ಬಳಸುವುದೇ?"</string>
     <string name="sim_change_data_message" msgid="51004703157782900">"ಮೊಬೈಲ್ ಡೇಟಾಗಾಗಿ ನೀವು <xliff:g id="CARRIER2_0">%2$s</xliff:g> ಬಳಸುತ್ತಿರುವಿರಿ. ನೀವು <xliff:g id="CARRIER1">%1$s</xliff:g> ಗೆ ಬದಲಾಯಿಸಿದರೆ, ಇನ್ನು ಮುಂದೆ <xliff:g id="CARRIER2_1">%2$s</xliff:g> ಅನ್ನು ಮೊಬೈಲ್ ಡೇಟಾಗಾಗಿ ಬಳಸಲಾಗುವುದಿಲ್ಲ."</string>
     <string name="sim_change_data_ok" msgid="7491552537317573235">"<xliff:g id="CARRIER">%1$s</xliff:g> ಅನ್ನು ಬಳಸಿ"</string>
-    <string name="sim_preferred_title" msgid="3389680276182899407">"ಪ್ರಾಶಸ್ತ್ಯದ ಸಿಮ್‌ ಕಾರ್ಡ್ ನವೀಕರಿಸುವುದೇ?"</string>
+    <string name="sim_preferred_title" msgid="3389680276182899407">"ಆದ್ಯತೆಯ ಸಿಮ್‌ ಕಾರ್ಡ್ ಅಪ್‍ಡೇಟ್ ಮಾಡಬೇಕೇ?"</string>
     <string name="sim_preferred_message" msgid="3751011329746359050">"ನಿಮ್ಮ ಸಾಧನದಲ್ಲಿ <xliff:g id="NEW_SIM">%1$s</xliff:g> ಸಿಮ್‌ ಮಾತ್ರ ಇದೆ. ಮೊಬೈಲ್ ಡೇಟಾ, ಕರೆಗಳು ಮತ್ತು ಎಸ್‌ಎಂಎಸ್ ಸಂದೇಶಗಳಿಗೆ ನೀವು ಈ ಸಿಮ್‌‌ ಬಳಸಲು ಬಯಸುತ್ತೀರಾ?"</string>
     <string name="wrong_pin_code_pukked" msgid="3214670264775760428">"ಸಿಮ್‌ ಪಿನ್‌ ಕೋಡ್‌ ತಪ್ಪಾಗಿದೆ ನಿಮ್ಮ ಸಾಧನವನ್ನು ಅನ್‌ಲಾಕ್‌ ಮಾಡಲು ನೀವು ಈ ಕೂಡಲೇ ನಿಮ್ಮ ವಾಹಕವನ್ನು ಸಂಪರ್ಕಿಸಬೇಕು."</string>
     <plurals name="wrong_pin_code" formatted="false" msgid="2934318793525717627">
@@ -2066,7 +2066,7 @@
     <string name="accessibility_shortcut_service_on_lock_screen_title" msgid="1279441617927949980">"ಲಾಕ್ ಪರದೆಯಿಂದ ಅನುಮತಿಸಿ"</string>
     <string name="accessibility_shortcut_description" msgid="1427049334225166395">"ಶಾರ್ಟ್‌ಕಟ್ ಆನ್ ಆಗಿರುವಾಗ ಪ್ರವೇಶಿಸುವಿಕೆ ವೈಶಿಷ್ಟ್ಯ ಆನ್ ಮಾಡಲು, ಎರಡೂ ವಾಲ್ಯೂಮ್ ಕೀಗಳನ್ನು ನೀವು 3 ಸೆಕೆಂಡುಗಳ ಕಾಲ ಒತ್ತಬೇಕು."</string>
     <string name="accessibility_toggle_high_text_contrast_preference_title" msgid="5652244684961877255">"ಹೆಚ್ಚು ಕಾಂಟ್ರಾಸ್ಟ್‌ನ ಪಠ್ಯ"</string>
-    <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"ಸ್ವಯಂಚಾಲಿತ ನವೀಕರಣದ ಸ್ಕ್ರೀನ್‌ ವರ್ಧನೆ"</string>
+    <string name="accessibility_toggle_screen_magnification_auto_update_preference_title" msgid="2466317284195934003">"ಸ್ವಯಂಚಾಲಿತ ಅಪ್‍ಡೇಟ್ ಸ್ಕ್ರೀನ್‌ ವರ್ಧನೆ"</string>
     <string name="accessibility_toggle_screen_magnification_auto_update_preference_summary" msgid="6625473745911276917">"ಅಪ್ಲಿಕೇಶನ್‌ ಪರಿವರ್ತನೆಗಳಲ್ಲಿ ಸ್ಕ್ರೀನ್‌ ವರ್ಧಕವನ್ನು ಅಪ್‌ಡೇಟ್‌ ಮಾಡಿ"</string>
     <string name="accessibility_power_button_ends_call_prerefence_title" msgid="6172987104538172869">"ಪವರ್ ಬಟನ್ ಕರೆಯನ್ನು ಕೊನೆಗೊಳಿಸುತ್ತದೆ"</string>
     <string name="accessibility_toggle_large_pointer_icon_title" msgid="9127905775116570565">"ದೊಡ್ಡ ಮೌಸ್ ಪಾಯಿಂಟರ್"</string>

@@ -3180,7 +3180,7 @@
     <string name="keywords_payment_settings" msgid="4745023716567666052">"Бесконтактная оплата"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"создать резервную копию"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"жест"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"фейс, контроль, аутентификация, вход"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"фейсконтроль, аутентификация, вход"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, версия prl, imeisv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"сеть, подключение к мобильной сети, доступность мобильной сети, уровень сигнала, тип мобильной сети, роуминг, iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"серийный номер, версия аппаратного обеспечения"</string>
@@ -3369,7 +3369,7 @@
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(выбрано)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"Изменить настройки уведомлений в режиме \"Не беспокоить\"?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"Сигналы в рабочем профиле"</string>
-    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Использовать те же звуки, что и в личном профиле"</string>
+    <string name="work_use_personal_sounds_title" msgid="531727195073003599">"Использовать звуки из личного профиля"</string>
     <string name="work_use_personal_sounds_summary" msgid="2886871383995187441">"Одинаковые сигналы в рабочем и личном профиле"</string>
     <string name="work_ringtone_title" msgid="5499360583947410224">"Рингтон рабочего телефона"</string>
     <string name="work_notification_ringtone_title" msgid="8059159087214025757">"Звук уведомления по умолчанию"</string>

@@ -2572,7 +2572,7 @@
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Enhetsadministratörsappar"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"Inga tillgängliga appar för enhetsadministratör"</string>
     <string name="personal_device_admin_title" msgid="759440849188565661">"Personlig"</string>
-    <string name="managed_device_admin_title" msgid="8021522755492551726">"Arbete"</string>
+    <string name="managed_device_admin_title" msgid="8021522755492551726">"Jobb"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"Begränsa åtkomst till sms- och samtalshistorik"</string>
     <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"Endast standardappar för telefon och sms har behörighet till samtalshistorik"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"Det finns inga tillgängliga betrodda agenter"</string>
@@ -3635,7 +3635,7 @@
     <string name="filter_enabled_apps" msgid="5888459261768538489">"Installerade appar"</string>
     <string name="filter_instant_apps" msgid="8087483282854072366">"Snabbappar"</string>
     <string name="filter_personal_apps" msgid="3473268022652904457">"Personligt"</string>
-    <string name="filter_work_apps" msgid="4202483998339465542">"Arbete"</string>
+    <string name="filter_work_apps" msgid="4202483998339465542">"Jobb"</string>
     <string name="filter_notif_all_apps" msgid="1862666327228804896">"Appar: alla"</string>
     <string name="filter_notif_blocked_apps" msgid="5694956954776028202">"Inaktiverade"</string>
     <string name="filter_notif_urgent_channels" msgid="5000735867167027148">"Kategorier: brådskande avisering"</string>

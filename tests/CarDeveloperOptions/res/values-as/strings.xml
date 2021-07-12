@@ -467,7 +467,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"মচক"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"ছেন্সৰটো স্পৰ্শ কৰক"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"আপোনাৰ আঙুলিটো ছেন্সৰটোত ৰাখক আৰু এটা কম্পন অনুভৱ কৰাৰ পিছত আঁতৰাওক"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ওপৰলৈ উঠাওক, তাৰ পিছত পুনৰ স্পৰ্শ কৰক"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"ওপৰলৈ উঠাওক, তাৰ পাছত পুনৰ স্পৰ্শ কৰক"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"আপোনাৰ ফিংগাৰপ্ৰিণ্টৰ সকলো অংশ যোগ কৰিবলৈ আঙুলিটো কেইবাবাৰো উঠাব আৰু পুনৰ লগাব লাগিব"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"ফিংগাৰপ্ৰিণ্ট যোগ কৰা হ’ল"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"আপুনি যেতিয়া এই আইকনটো দেখা পায়, তেতিয়া চিনাক্তকৰণৰ বাবে বা ক্ৰয়ৰ অনুমতি দিবলৈ আপোনাৰ ফিংগাৰপ্ৰিণ্টটো ব্যৱহাৰ কৰক"</string>

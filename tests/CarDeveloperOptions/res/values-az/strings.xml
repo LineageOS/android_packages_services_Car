@@ -1709,7 +1709,7 @@
     <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"Ekran kilidi ayarlayın"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"Güvənlik üçün parol ayarlayın"</string>
     <string name="lockpassword_choose_your_password_header_for_fingerprint" msgid="4921343500484160894">"Barmaq izi üçün parol seçin"</string>
-    <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Barmaq izi üçün nümunə seçin"</string>
+    <string name="lockpassword_choose_your_pattern_header_for_fingerprint" msgid="314870151462139417">"Qrafik açar hazırlayın"</string>
     <string name="lockpassword_choose_your_pin_message" msgid="8942598950627277885">"Güvənlik üçün PIN ayarlayın"</string>
     <string name="lockpassword_choose_your_pin_header_for_fingerprint" msgid="1102927520952116303">"Barmaq izi üçün PIN ayarlayın"</string>
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"Qrafik açar hazırlayın"</string>
@@ -1718,7 +1718,7 @@
     <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"PIN-i təkrar daxil edin"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"Parollar eyni deyil"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN-lər eyni deyil"</string>
-    <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Modeli yenidən çəkin"</string>
+    <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"Modeli təkrar çəkin"</string>
     <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"Kilid açma seçimi"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"Parol ayarlandı"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"PIN ayarlandı"</string>
@@ -2037,8 +2037,8 @@
     <string name="accessibility_settings" msgid="9140621093888234485">"Giriş imkanı"</string>
     <string name="accessibility_settings_title" msgid="1687226556576913576">"Əlçatımlılıq parametrləri"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Ekran oxuyucuları, görüntü, bağlantı nəzarəti"</string>
-    <string name="vision_settings_title" msgid="7315352351051423944">"Görünüş Ayarları"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"Bu cihazı ehtiyacınıza uyğun fərdiləşdirə bilərsiniz. Bu əlçatımlıq xüsusiyyətləri daha sonra Ayarlardan dəyişdirilə bilər."</string>
+    <string name="vision_settings_title" msgid="7315352351051423944">"Görünüş ayarları"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"Cihazı rahat işlətmək üçün fərdiləşdirin. Xüsusi imkanları ayarlarda dəyişmək olur."</string>
     <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Şriftin ölçüsünü dəyişin"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Ekran oxuyucuları"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Audio və ekran mətni"</string>

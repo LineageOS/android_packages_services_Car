@@ -356,8 +356,8 @@
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"நிர்வாகி முடக்கியுள்ளார்"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"பூட்டு விருப்பத்தைக் காட்டு"</string>
     <string name="lockdown_settings_summary" msgid="7270756909878256174">"Smart Lock, கைரேகை மூலம் திறக்கும் அனுமதி மற்றும் லாக் ஸ்கிரீனில் தெரியும் அறிவிப்புகள் ஆகியவற்றை ஆஃப் செய்யக்கூடிய, பவர் பட்டன் விருப்பத்தைக் காண்பிக்கும்"</string>
-    <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"நீடித்த திறப்பு: நம்பகமான ஏஜெண்டுக்கு"</string>
-    <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"நம்பமான ஏஜெண்டுகளை இயக்குவதன் மூலம் நீண்ட நேரம் உங்கள் சாதனத்தை அன்லாக் செய்து வைக்க முடியுமே தவிர மூடப்பட்டுள்ள சாதனத்தை அது திறக்காது."</string>
+    <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"நம்பகமான ஏஜெண்டுகளுக்கு மட்டும் அன்லாக் நிலையை நீட்டித்தல்"</string>
+    <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"நம்பமான ஏஜெண்டுகளை இயக்குவதன் மூலம் நீண்ட நேரம் உங்கள் சாதனத்தை அன்லாக் செய்து வைக்க முடியுமே தவிர மூடப்பட்டுள்ள சாதனத்தை அது அன்லாக் செய்யாது."</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"நம்பிக்கை இழந்ததும் திரை பூட்டப்படுதல்"</string>
     <string name="trust_lost_locks_screen_summary" msgid="2058567484625606803">"இயக்கப்பட்டால், கடைசி நம்பகமான ஏஜெண்ட் நம்பிக்கையை இழந்ததும் சாதனம் பூட்டப்படும்"</string>
     <string name="owner_info_settings_summary" msgid="4208702251226725583">"ஏதுமில்லை"</string>
@@ -384,8 +384,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"சாதனம் என்கிரிப்ட் செய்யப்படவில்லை"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"பூட்டுத் திரைக் காட்சி"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"எதைக் காட்ட வேண்டும்"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"எனது இருப்பிடம், திரை திற, சிம் கார்டு பூட்டு, அனுமதிச் சான்று சேமிப்பக பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"எனது இருப்பிடம், திரையைத் திற, அனுமதிச் சான்று சேமிப்பகப் பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"எனது இருப்பிடம், திரையை அன்லாக் செய்தல், சிம் கார்டு பூட்டு, அனுமதிச் சான்று சேமிப்பக பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"எனது இருப்பிடம், திரையை அன்லாக் செய்தல், அனுமதிச் சான்று சேமிப்பகப் பூட்டு ஆகியவற்றை அமைக்கவும்"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"தனியுரிமை"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"நிர்வாகி முடக்கியுள்ளார்"</string>
     <string name="security_status_title" msgid="1261960357751754428">"பாதுகாப்பு நிலை"</string>
@@ -399,7 +399,7 @@
     <string name="security_settings_face_enroll_introduction_accessibility_diversity" msgid="1130222333285509856"></string>
     <string name="security_settings_face_enroll_introduction_accessibility_vision" msgid="356568621735811168"></string>
     <string name="security_settings_face_enroll_introduction_cancel" msgid="4190924649721437238">"ரத்துசெய்"</string>
-    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"முகத்தின் மூலம் திறக்கலாம்"</string>
+    <string name="security_settings_face_enroll_introduction_title" msgid="6073249653318265486">"முகத்தின் மூலம் அன்லாக் செய்யலாம்"</string>
     <string name="security_settings_face_enroll_introduction_title_unlock_disabled" msgid="9223270521083202896">"அங்கீகரிக்க, முகத்தைப் பயன்படுத்தலாம்"</string>
     <string name="security_settings_face_enroll_introduction_message" msgid="484806903869220184">"மொபைலை அன்லாக் செய்ய, வாங்குதல்களை அங்கீகரிக்க &amp; ஆப்ஸில் உள்நுழைய, உங்கள் முகத்தைப் பயன்படுத்தலாம்."</string>
     <string name="security_settings_face_enroll_introduction_message_unlock_disabled" msgid="2850101281254663082">"மொபைலை அன்லாக் செய்யவோ, பொருட்கள் வாங்குவதை அங்கீகரிக்கவோ, உங்கள் முகத்தைப் பயன்படுத்தவும். \n\nகவனத்திற்கு: இந்தச் சாதனத்தை அன்லாக் செய்வதற்கு, உங்கள் முகத்தைப் பயன்படுத்த இயலாது. மேலும் தகவலுக்கு, உங்கள் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
@@ -419,12 +419,12 @@
     <string name="security_settings_face_settings_use_face_category" msgid="1586532139528115416">"முகம் பயன்படுத்தலாம்"</string>
     <string name="security_settings_face_settings_use_face_unlock_phone" msgid="318274519126401671">"ஃபோனை அன்லாக்செய்தல்"</string>
     <string name="security_settings_face_settings_use_face_for_apps" msgid="5479369083370664351">"ஆப்ஸ் உள்நுழைவும் பேமெண்ட்டும்"</string>
-    <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"தடைநீக்க, கண்களைத் திறத்தல்"</string>
+    <string name="security_settings_face_settings_require_attention" msgid="2755140150841557225">"கண்கள் திறந்தால் மட்டும் அன்லாக் செய்தல்"</string>
     <string name="security_settings_face_settings_require_attention_details" msgid="2557060433599942587">"முக அடையாளத்தைப் பயன்படுத்தும்போது, கண்களைத் திறந்திருக்க வேண்டும்"</string>
     <string name="security_settings_face_settings_require_confirmation" msgid="7312024271060416438">"உறுதிப்படுத்தல் எப்போதும் தேவை"</string>
     <string name="security_settings_face_settings_require_confirmation_details" msgid="8740564864091803429">"ஆப்ஸில் அங்கீகரிக்கும்போதெல்லாம் உறுதிப்படுத்துவது அவசியம்"</string>
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"முகங்களை அகற்று"</string>
-    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"சாதனத்தைத் திறப்பதற்கும் ஆப்ஸை அணுகுவதற்கும், உங்கள் முகத்தைப் பயன்படுத்தலாம். "<annotation id="url">"மேலும் அறிக"</annotation></string>
+    <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"சாதனத்தை அன்லாக் செய்வதற்கும் ஆப்ஸை அணுகுவதற்கும் உங்கள் முகத்தைப் பயன்படுத்தலாம். "<annotation id="url">"மேலும் அறிக"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"முகத்திற்கான தரவை அகற்றவா?"</string>
     <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"’முகம் காட்டித் திறக்கும்’ அம்சத்தால் ரெக்கார்டு செய்யப்பட்ட தரவு நிரந்தரமாகவும் பாதுகாப்பாகவும் நீக்கப்படும். அவ்வாறு அகற்றப்பட்ட பிறகு மொபைலை அன்லாக் செய்யவும், ஆப்ஸில் உள்நுழையவும், பேமெண்ட்டுகளை உறுதிப்படுத்தவும் உங்கள் பின், பேட்டர்ன் அல்லது கடவுச்சொல்லைப் பயன்படுத்தவும்."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"கைரேகை"</string>
@@ -437,7 +437,7 @@
       <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> கைரேகையின் அமைவு</item>
     </plurals>
     <string name="security_settings_fingerprint_preference_summary_none" msgid="3613424536269750172"></string>
-    <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"கைரேகை மூலம் திறக்கலாம்"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_title" msgid="889558002683900544">"கைரேகை மூலம் அன்லாக் செய்யலாம்"</string>
     <string name="security_settings_fingerprint_enroll_introduction_title_unlock_disabled" msgid="7915504118657864429">"கைரேகையைப் பயன்படுத்தவும்"</string>
     <string name="security_settings_fingerprint_enroll_introduction_message" msgid="5586198131986682472">"மொபைலை அன்லாக் செய்ய, வாங்குவதை அங்கீகரிக்க அல்லது பயன்பாடுகளில் உள்நுழைய, கைரேகை சென்சாரைத் தொட்டால் போதும். கைரேகையைப் பயன்படுத்தி மேலே குறிப்பிட்டுள்ளவற்றைச் செய்ய முடியும் என்பதால், அனைவரின் கைரேகைகளையும் இதில் சேர்க்க வேண்டாம்.\n\nகுறிப்பு: எளிதில் ஊகிக்க முடியாத பேட்டர்ன் அல்லது பின்னைப் பயன்படுத்தும் போது கிடைக்கும் பாதுகாப்பை விட, கைரேகையைப் பயன்படுத்தும் போது குறைவான பாதுகாப்பே கிடைக்கும்."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"மொபைலை அன்லாக் செய்ய அல்லது வாங்குவதை அங்கீகரிக்க, உங்கள் கைரேகையைப் பயன்படுத்தவும்.\n\n குறிப்பு: இந்தச் சாதனத்தை அன்லாக் செய்ய, கைரேகையைப் பயன்படுத்த முடியாது. மேலும் தகவலுக்கு, உங்கள் நிறுவனத்தின் நிர்வாகியைத் தொடர்புகொள்ளவும்."</string>
@@ -473,7 +473,7 @@
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"திரையில் இந்த ஐகானைப் பார்க்கும்போது, உங்களை அடையாளப்படுத்துவதற்கும், ஆன்லைனில் வாங்குதல்களை அங்கீகரிக்கவும், உங்கள் கைரேகையைப் பயன்படுத்தவும்"</string>
     <string name="security_settings_fingerprint_enroll_enrolling_skip" msgid="1473280156532146933">"பின்னர் செய்"</string>
     <string name="setup_fingerprint_enroll_enrolling_skip_title" msgid="2816424026528101690">"கைரேகையை அமைக்க வேண்டாமா?"</string>
-    <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"கைரேகையை மட்டும் பயன்படுத்தி மொபைலைத் திறக்கும் முறையைத் தேர்ந்தெடுத்துள்ளீர்கள். இப்போது தவிர்த்தால், இதைப் பின்னர் அமைக்க வேண்டியிருக்கும். இதை அமைக்க ஒரு நிமிடமே ஆகும்."</string>
+    <string name="setup_fingerprint_enroll_enrolling_skip_message" msgid="8139299964344809780">"கைரேகையை மட்டும் பயன்படுத்தி மொபைலை அன்லாக் செய்யும் முறையைத் தேர்ந்தெடுத்துள்ளீர்கள். இப்போது தவிர்த்தால், இதைப் பின்னர் அமைக்க வேண்டியிருக்கும். இதை அமைக்க ஒரு நிமிடமே ஆகும்."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="tablet" msgid="1384438077720821127">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் டேப்லெட் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். கைரேகையை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="device" msgid="7207112623501771824">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் சாதனம் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். கைரேகையை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
     <string name="fingerprint_lock_screen_setup_skip_dialog_text" product="default" msgid="7623975730623531606">"திரைப் பூட்டை அமைப்பதன் மூலம் உங்கள் மொபைல் தொலைந்து போனாலோ திருடு போனாலோ வேறுயாரும் பயன்படுத்தாமல் பாதுகாக்கலாம். கைரேகையை அமைப்பதற்கும் இது தேவைப்படும். வேண்டாம் என்பதைத் தட்டிய பிறகு பின்னை அமைக்கவும் அல்லது வேறொரு திரைப் பூட்டு விருப்பத்தைத் தேர்வுசெய்யவும்."</string>
@@ -502,14 +502,14 @@
     <string name="fingerprint_delete_title" msgid="3120894112324235536">"\'<xliff:g id="FINGERPRINT_ID">%1$s</xliff:g>\'ஐ அகற்று"</string>
     <string name="fingerprint_delete_message" msgid="5895802741486967970">"இந்தக் கைரேகையை அழிக்க விரும்புகிறீர்களா?"</string>
     <string name="fingerprint_last_delete_message" msgid="3346252479778971442">"கைரேகைகளை நீக்கிவிட்டால், அவற்றைப் பயன்படுத்தி மொபைலை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது ஆப்ஸில் உள்நுழையவோ முடியாது"</string>
-    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"கைரேகைகளை நீக்கிவிட்டால், அவற்றைப் பயன்படுத்தி பணி விவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பணிப் பயன்பாடுகளில் உள்நுழையவோ முடியாது"</string>
+    <string name="fingerprint_last_delete_message_profile_challenge" msgid="5385095150532247025">"கைரேகைகளை நீக்கிவிட்டால், அவற்றைப் பயன்படுத்தி பணி விவரத்தை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பணிப் பயன்பாடுகளில் உள்நுழையவோ முடியாது"</string>
     <string name="fingerprint_last_delete_confirm" msgid="7984595457589664004">"ஆம், அகற்று"</string>
     <string name="crypt_keeper_settings_title" msgid="839783588093862748">"என்க்ரிப்ட்"</string>
     <string name="crypt_keeper_encrypt_title" product="tablet" msgid="2292129135369853167">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypt_title" product="default" msgid="3110852053238357832">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_encrypted_summary" msgid="2438498691741626642">"என்க்ரிப்ட் செய்யப்பட்டது"</string>
-    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
-    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையைத் திறக்க வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="tablet" msgid="9142792050252407734">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் டேப்லெட்டை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் டேப்லெட்டை இயக்கும்போது குறிநீக்குவதற்கு திரையை அன்லாக் செய்ய வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
+    <string name="crypt_keeper_desc" product="default" msgid="1996334685607444282">"உங்கள் கணக்குகள், அமைப்புகள், பதிவிறக்கிய ஆப்ஸ் மற்றும் அவற்றின் தரவு, மீடியா மற்றும் பிற கோப்புகள் என அனைத்தையும் என்க்ரிப்ட் செய்யலாம். உங்கள் மொபைலை என்க்ரிப்ட் செய்த பிறகு, திரைப்பூட்டை (அதாவது பேட்டர்ன் அல்லது பின் அல்லது கடவுச்சொல்) அமைத்திருந்தால், ஒவ்வொரு முறையும் மொபைலை இயக்கும்போது குறிநீக்குவதற்கு திரையை அன்லாக் செய்ய வேண்டும். உங்களின் எல்லா தரவையும் அழித்து, ஆரம்ப நிலைக்கு மீட்டமைப்பதே குறிநீக்குவதற்கான மற்றொரு வழியாகும்.\n\nஎன்க்ரிப்ட் செய்வதற்கு ஒரு மணிநேரம் அல்லது அதற்கு மேல் ஆகலாம். சார்ஜ் செய்த பேட்டரியுடன் தொடங்கி, செயல் முடியும் வரை சார்ஜ் ஆகும் நிலையிலேயே வைக்கவும். செயலில் குறுக்கிட்டால், உங்கள் தரவில் சிலவற்றை அல்லது மொத்தத்தையும் இழப்பீர்கள்."</string>
     <string name="crypt_keeper_button_text" product="tablet" msgid="7918671468758813824">"டேப்லெட்டை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_button_text" product="default" msgid="8737394386627318489">"மொபைலை என்க்ரிப்ட் செய்"</string>
     <string name="crypt_keeper_low_charge_text" msgid="1422879728632636311">"உங்கள் பேட்டரியை சார்ஜ் செய்து மீண்டும் முயற்சிக்கவும்."</string>
@@ -539,7 +539,7 @@
     <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"டேப்லெட்டைப் பாதுகாக்க, திரைப் பூட்டை அமைக்கவும்"</string>
     <string name="suggested_lock_settings_summary" product="device" msgid="7127114417250029182">"சாதனத்தைப் பாதுகாக்க, திரைப் பூட்டை அமைக்கவும்"</string>
     <string name="suggested_lock_settings_summary" product="default" msgid="1090621950888321990">"மொபைலைப் பாதுகாக்க, திரைப் பூட்டை அமைக்கவும்"</string>
-    <string name="suggested_fingerprint_lock_settings_title" msgid="2860380076519822398">"திறப்பதற்கான கைரேகையைச் சேர்க்கவும்"</string>
+    <string name="suggested_fingerprint_lock_settings_title" msgid="2860380076519822398">"அன்லாக் செய்வதற்கான கைரேகையைச் சேர்க்கவும்"</string>
     <string name="suggested_fingerprint_lock_settings_summary" product="tablet" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="device" msgid="8114514312665251311"></string>
     <string name="suggested_fingerprint_lock_settings_summary" product="default" msgid="8114514312665251311"></string>
@@ -579,12 +579,12 @@
     <string name="fingerprint_unlock_set_unlock_pin" msgid="886426673328906002">"கைரேகை + பின்"</string>
     <string name="fingerprint_unlock_set_unlock_password" msgid="3325527833422156515">"கைரேகை + கடவுச்சொல்"</string>
     <string name="fingerprint_unlock_skip_fingerprint" msgid="2063700014903801639">"கைரேகையின்றி தொடர்க"</string>
-    <string name="fingerprint_unlock_title" msgid="8009992449332532869">"கைரேகையைப் பயன்படுத்தி மொபைலைத் திறக்கலாம். பாதுகாப்பிற்காக, இந்த விருப்பத்திற்கு மாற்று திரைப் பூட்டு அவசியம்."</string>
+    <string name="fingerprint_unlock_title" msgid="8009992449332532869">"கைரேகையைப் பயன்படுத்தி மொபைலை அன்லாக் செய்யலாம். பாதுகாப்பிற்காக, இந்த விருப்பத்திற்கு மாற்று திரைப் பூட்டு அவசியம்."</string>
     <string name="face_unlock_set_unlock_pattern" msgid="3748596996869406905">"முக அங்கீகாரம் + பேட்டர்ன்"</string>
     <string name="face_unlock_set_unlock_pin" msgid="3320824093518497476">"முக அங்கீகாரம் + பின்"</string>
     <string name="face_unlock_set_unlock_password" msgid="8962344604388383659">"முக அங்கீகாரம் + கடவுச்சொல்"</string>
     <string name="face_unlock_skip_face" msgid="7173197040501143880">"முக அங்கீகாரத்தைத் தவிர்த்து, தொடரவும்"</string>
-    <string name="face_unlock_title" msgid="1298031162909236127">"முகத்தைப் பயன்படுத்தி மொபைலைத் திறக்கலாம். இந்த வசதியை உபயோகிக்கும்போது, பாதுகாப்பிற்காகத் திரைப் பூட்டையும் அமைத்திருப்பது அவசியம்."</string>
+    <string name="face_unlock_title" msgid="1298031162909236127">"முகத்தைப் பயன்படுத்தி மொபைலை அன்லாக் செய்யலாம். இந்த வசதியை உபயோகிக்கும்போது, பாதுகாப்பிற்காகத் திரைப் பூட்டையும் அமைத்திருப்பது அவசியம்."</string>
     <string name="unlock_set_unlock_disabled_summary" msgid="1713159782896140817">"நிர்வாகி, என்கிரிப்ஷன் பாலிசி/அனுமதிச் சான்று சேமிப்பகம் காரணமாக முடக்கப்பட்டது"</string>
     <string name="unlock_set_unlock_mode_off" msgid="2950701212659081973">"ஏதுமில்லை"</string>
     <string name="unlock_set_unlock_mode_none" msgid="3441605629077912292">"ஸ்வைப்"</string>
@@ -614,23 +614,23 @@
     <string name="unlock_disable_frp_warning_content_pattern_profile" msgid="2369992898062808499">"பேட்டர்ன் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_pattern_fingerprint_profile" msgid="8511105093090018735">"பேட்டர்ன் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
+</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
     <string name="unlock_disable_frp_warning_content_pin_profile" msgid="7114165651000498040">"பின் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_pin_fingerprint_profile" msgid="5118210431544156122">"பின் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
+</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
     <string name="unlock_disable_frp_warning_content_password_profile" msgid="3989497526180082037">"கடவுச்சொல் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_password_fingerprint_profile" msgid="8360485354164416198">"கடவுச்சொல் இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
+</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
     <string name="unlock_disable_frp_warning_content_unknown_profile" msgid="4066001421137974082">"திரைப் பூட்டு இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது."</string>
     <string name="unlock_disable_frp_warning_content_unknown_fingerprint_profile" msgid="1201259228331105948">"திரைப் பூட்டு இல்லாமல் சுயவிவரப் பாதுகாப்பு அம்சங்கள் செயல்படாது.<xliff:g id="EMPTY_LINE">
 
-</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தைத் திறக்கவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
+</xliff:g>சேமிக்கப்பட்டிருக்கும் கைரேகைகளும் இந்தச் சுயவிவரத்திலிருந்து அகற்றப்படும். எனவே அவற்றின் மூலம் உங்களால் சுயவிவரத்தை அன்லாக் செய்யவோ, வாங்குவதை அங்கீகரிக்கவோ அல்லது பயன்பாடுகளில் உள்நுழையவோ முடியாது."</string>
     <string name="unlock_disable_frp_warning_ok" msgid="2373890505202766456">"ஆம், அகற்று"</string>
     <string name="unlock_change_lock_pattern_title" msgid="7622476883851319877">"அன்லாக் பேட்டர்னை மாற்று"</string>
-    <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"திறக்கும் பின்னை மாற்று"</string>
-    <string name="unlock_change_lock_password_title" msgid="7886432065775170719">"திறப்பதற்கான கடவுச்சொல்லை மாற்று"</string>
+    <string name="unlock_change_lock_pin_title" msgid="6671224158800812238">"அன்லாக் பின்னை மாற்று"</string>
+    <string name="unlock_change_lock_password_title" msgid="7886432065775170719">"அன்லாக் கடவுச்சொல்லை மாற்று"</string>
     <string name="unlock_footer_high_complexity_requested" msgid="8016987143669762130">"வலிமையான பின் அல்லது கடவுச்சொல்லை உபயோகிக்குமாறு <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸ் பரிந்துரைக்கிறது, இவற்றில் ஒன்றை உபயோகிக்கவில்லை எனில் எதிர்பார்த்தபடி ஆப்ஸ் வேலை செய்யாமல் போகலாம்"</string>
     <string name="unlock_footer_medium_complexity_requested" msgid="5004825329461874633">"புதிய பின் அல்லது கடவுச்சொல்லை உபயோகிக்குமாறு <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸ் பரிந்துரைக்கிறது, இவற்றில் ஒன்றை உபயோகிக்கவில்லை எனில் எதிர்பார்த்தபடி ஆப்ஸ் வேலை செய்யாமல் போகலாம்"</string>
     <string name="unlock_footer_low_complexity_requested" msgid="513212093196833566">"புதிய பேட்டர்ன், பின் அல்லது கடவுச்சொல்லை உபயோகிக்குமாறு <xliff:g id="APP_NAME">%1$s</xliff:g> ஆப்ஸ் பரிந்துரைக்கிறது, இவற்றில் ஒன்றை உபயோகிக்கவில்லை எனில் எதிர்பார்த்தபடி ஆப்ஸ் வேலை செய்யாமல் போகலாம்"</string>
@@ -1280,7 +1280,7 @@
     <string name="sim_pin_change" msgid="5615972926944053213">"சிம்மின் பின்னை மாற்று"</string>
     <string name="sim_enter_pin" msgid="149201344579560481">"சிம் பின்"</string>
     <string name="sim_enable_sim_lock" msgid="4478794975656337476">"சிம் கார்டைப் பூட்டு"</string>
-    <string name="sim_disable_sim_lock" msgid="394864376519820956">"சிம் கார்டை தடைநீக்கு"</string>
+    <string name="sim_disable_sim_lock" msgid="394864376519820956">"சிம் கார்டை அன்லாக் செய்"</string>
     <string name="sim_enter_old" msgid="8984991229691526849">"பழைய சிம் பின்"</string>
     <string name="sim_enter_new" msgid="1720792957661107585">"புதிய சிம் பின்"</string>
     <string name="sim_reenter_new" msgid="5692585822458989725">"புதிய பின்னை மீண்டும் உள்ளிடவும்"</string>
@@ -1719,7 +1719,7 @@
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"கடவுச்சொற்கள் பொருந்தவில்லை"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"பின்கள் பொருந்தவில்லை"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"பேட்டர்னை மீண்டும் வரையவும்"</string>
-    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"எப்படித் திறக்க வேண்டும்?"</string>
+    <string name="lockpassword_choose_lock_generic_header" msgid="4418423132980560119">"எப்படி அன்லாக் செய்ய வேண்டும்?"</string>
     <string name="lockpassword_password_set_toast" msgid="601928982984489868">"கடவுச்சொல் அமைக்கப்பட்டது"</string>
     <string name="lockpassword_pin_set_toast" msgid="172594825722240059">"பின் அமைக்கப்பட்டது"</string>
     <string name="lockpassword_pattern_set_toast" msgid="6923260369475481406">"பேட்டர்ன் அமைக்கப்பட்டது"</string>
@@ -1748,22 +1748,22 @@
     <string name="lockpassword_invalid_password" msgid="8374331995318204099">"தவறான கடவுச்சொல்"</string>
     <string name="lockpattern_need_to_unlock_wrong" msgid="1328670466959377948">"தவறான பேட்டர்ன்"</string>
     <string name="lock_settings_title" msgid="233657584969886812">"சாதனப் பாதுகாப்பு"</string>
-    <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"திறக்கும் வடிவத்தை மாற்று"</string>
-    <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"திறப்பதற்கான பின்னை மாற்று"</string>
+    <string name="lockpattern_change_lock_pattern_label" msgid="333149762562581510">"அன்லாக் பேட்டர்னை மாற்று"</string>
+    <string name="lockpattern_change_lock_pin_label" msgid="3435796032210265723">"அன்லாக் பின்னை மாற்று"</string>
     <string name="lockpattern_recording_intro_header" msgid="2262005028838969839">"அன்லாக் பேட்டர்னை வரைக"</string>
     <string name="lockpattern_recording_intro_footer" msgid="5426745740754065099">"உதவிக்கு மெனுவை அழுத்தவும்."</string>
     <string name="lockpattern_recording_inprogress" msgid="4060818382176523671">"முடிந்ததும் விரலை எடுக்கவும்"</string>
     <string name="lockpattern_recording_incorrect_too_short" msgid="6374760294545431845">"குறைந்தது <xliff:g id="NUMBER">%d</xliff:g> புள்ளிகளை இணைக்கவும். மீண்டும் முயற்சிக்கவும்."</string>
     <string name="lockpattern_pattern_entered_header" msgid="2108106638322637851">"பேட்டர்ன் பதிவுசெய்யப்பட்டது"</string>
     <string name="lockpattern_need_to_confirm" msgid="4079482507985867389">"உறுதிப்படுத்துவதற்கு வடிவத்தை மீண்டும் வரையவும்"</string>
-    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"திறப்பதற்கான புதிய பேட்டர்ன்"</string>
+    <string name="lockpattern_pattern_confirmed_header" msgid="5603156929428721407">"புதிய அன்லாக் பேட்டர்ன்"</string>
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"உறுதிசெய்க"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"மீண்டும் வரைக"</string>
     <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"அழி"</string>
     <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"தொடர்க"</string>
-    <string name="lockpattern_settings_title" msgid="5152005866870766842">"திறப்பதற்கான பேட்டர்ன்"</string>
+    <string name="lockpattern_settings_title" msgid="5152005866870766842">"அன்லாக் பேட்டர்ன்"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"பேட்டர்ன் தேவை"</string>
-    <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"திரையைத் திறப்பதற்கான வடிவத்தை வரைய வேண்டும்"</string>
+    <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"திரையை அன்லாக் செய்வதற்கான பேட்டர்னை வரைய வேண்டும்"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title" msgid="4935583222709647096">"வடிவத்தைக் காணும்படி செய்"</string>
     <string name="lockpattern_settings_enable_visible_pattern_title_profile" msgid="5338893138982642228">"சுயவிவரப் பேட்டர்னை வரையும் போது காட்டு"</string>
     <string name="lockpattern_settings_enable_tactile_feedback_title" msgid="3203621862806531947">"தட்டும் போது அதிர்வது"</string>
@@ -3091,14 +3091,14 @@
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"மேம்படுத்தல்களைத் தவிர்த்தல், பேட்டரியைக் குறைவாகப் பயன்படுத்துதல், ஆப்ஸ் காத்திருப்பு நிலை"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"அதிர்வு, RGB, sRGB, வண்ணம், இயற்கை, நிலையானது"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"வண்ணம், வண்ண வெப்பநிலை, D65, D73, வெள்ளை, மஞ்சள், நீலம், அடர், வெளிர்"</string>
-    <string name="keywords_lockscreen" msgid="4936846554280830394">"திறப்பதற்கு ஸ்லைடு செய்தல், கடவுச்சொல், பேட்டர்ன், பின்"</string>
+    <string name="keywords_lockscreen" msgid="4936846554280830394">"ஸ்லைடு செய்து அன்லாக் செய்தல், கடவுச்சொல், பேட்டர்ன், பின்"</string>
     <string name="keywords_profile_challenge" msgid="8653718001253979611">"பணிச்சுமை, பணி, சுயவிவரம்"</string>
     <string name="keywords_unification" msgid="2020759909366983593">"பணிக் கணக்கு, நிர்வகிக்கப்படும் சுயவிவரம், ஒருங்கிணை, ஒருங்கிணைத்தல், பணி, சுயவிவரம்"</string>
     <string name="keywords_gesture" msgid="5031323247529869644">"சைகைகள்"</string>
     <string name="keywords_payment_settings" msgid="4745023716567666052">"கட்டணம் செலுத்தவும், தட்டவும், கட்டணம் செலுத்துதல்"</string>
     <string name="keywords_backup" msgid="7433356270034921627">"காப்புப்பிரதி, காப்புப் பிரதி"</string>
     <string name="keywords_assist_gesture_launch" msgid="2711433664837843513">"சைகை"</string>
-    <string name="keywords_face_unlock" msgid="651615819291927262">"முகம், தடைநீக்கம், முகம் காட்டித் திறத்தல், அடையாளம், உள்நுழைதல்"</string>
+    <string name="keywords_face_unlock" msgid="651615819291927262">"முகம், அன்லாக் செய்தல், முகம் காட்டித் திறத்தல், அடையாளம், உள்நுழைதல்"</string>
     <string name="keywords_imei_info" msgid="4325847870422053408">"imei, meid, min, prl பதிப்பு, imei sv"</string>
     <string name="keywords_sim_status" msgid="3852088576719874387">"நெட்வொர்க், மொபைல் நெட்வொர்க் நிலை, சேவை நிலை, சிக்னலின் வலிமை, மொபைல் நெட்வொர்க் வகை, ரோமிங், iccid"</string>
     <string name="keywords_model_and_hardware" msgid="2743197096210895251">"வரிசை எண், வன்பொருள் பதிப்பு"</string>
@@ -3556,7 +3556,7 @@
     <string name="switch_off_text" msgid="3539551289454353555">"ஆஃப்"</string>
     <string name="screen_pinning_title" msgid="578020318289781102">"திரையில் பொருத்துதல்"</string>
     <string name="screen_pinning_description" msgid="3814537379086412278">"அமைப்பை ஆன் செய்திருக்கும்போது, நடப்புத் திரையைக் காட்சியில் வைக்க, திரையில் பொருத்துதல் அம்சத்தைப் பயன்படுத்தலாம். அதை அகற்றும்வரை நடப்புத் திரை தோன்றும்.\n\nதிரையில் பொருத்துதல் அம்சத்தைப் பயன்படுத்த:\n\n1. அம்சம் ஆனில் இருக்கவேண்டும்\n\n2. மேலோட்டப் பார்வையைத் திறக்கவும்\n\n3. ஆப்ஸ் ஐகானைத் தட்டி, \'பொருத்து\' என்பதைத் தட்டவும்"</string>
-    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"அகற்றும் முன் திறத்தல் வடிவத்தைக் கேள்"</string>
+    <string name="screen_pinning_unlock_pattern" msgid="1060334707088339444">"அகற்றும் முன் அன்லாக் பேட்டர்னைக் கேள்"</string>
     <string name="screen_pinning_unlock_pin" msgid="1441705536015645023">"அகற்றும் முன் பின்னைக் கேள்"</string>
     <string name="screen_pinning_unlock_password" msgid="1017776884000170841">"அகற்றும் முன் கடவுச்சொல்லைக் கேள்"</string>
     <string name="screen_pinning_unlock_none" msgid="9183040569733226911">"திரையை விலக்கும்போது சாதனத்தைப் பூட்டு"</string>
@@ -3584,7 +3584,7 @@
     <string name="encrypt_talkback_dialog_message_pin" msgid="1912533826818077891">"இந்தச் சாதனத்தைத் துவக்க பின்னை நீங்கள் பயன்படுத்தினால், <xliff:g id="SERVICE">%1$s</xliff:g> போன்ற அணுகல்தன்மை சேவைகள் கிடைக்காது."</string>
     <string name="encrypt_talkback_dialog_message_pattern" msgid="4415837749933863432">"இந்தச் சாதனத்தைத் துவக்க வடிவத்தை நீங்கள் பயன்படுத்தினால், <xliff:g id="SERVICE">%1$s</xliff:g> போன்ற அணுகல்தன்மை சேவைகள் கிடைக்காது."</string>
     <string name="encrypt_talkback_dialog_message_password" msgid="4276703366120881008">"இந்தச் சாதனத்தைத் துவக்க கடவுச்சொல்லை நீங்கள் பயன்படுத்தினால், <xliff:g id="SERVICE">%1$s</xliff:g> போன்ற அணுகல்தன்மை சேவைகள் கிடைக்காது."</string>
-    <string name="direct_boot_unaware_dialog_message" msgid="5253248227337914350">"கவனத்திற்கு: உங்கள் மொபைலை மீண்டும் தொடங்கும்போது அதில் திரைப் பூட்டு அமைக்கப்பட்டிருந்தால், மொபைலைத் திறக்கும் வரை இந்த ஆப்ஸால் செயல்பட முடியாது"</string>
+    <string name="direct_boot_unaware_dialog_message" msgid="5253248227337914350">"கவனத்திற்கு: உங்கள் மொபைலை மீண்டும் தொடங்கும்போது அதில் திரைப் பூட்டு அமைக்கப்பட்டிருந்தால், மொபைலை அன்லாக் செய்யும் வரை இந்த ஆப்ஸால் செயல்பட முடியாது"</string>
     <string name="imei_information_title" msgid="7666097743700170757">"IMEI தகவல்"</string>
     <string name="imei_information_summary" msgid="716516316022275083">"IMEI தொடர்புடைய தகவல்"</string>
     <string name="slot_number" msgid="785422579177068698">"(ஸ்லாட்<xliff:g id="SLOT_NUM">%1$d</xliff:g>)"</string>
@@ -3732,7 +3732,7 @@
     <string name="usb_use_file_transfers" msgid="6153021302176151884">"ஃபைல் பரிமாற்றம்"</string>
     <string name="usb_use_file_transfers_desc" msgid="6953866660041189580">"கோப்புகளை மற்றொரு சாதனத்திற்கு இடமாற்றும்"</string>
     <string name="usb_use_photo_transfers" msgid="5974236250197451257">"PTP பயன்முறை"</string>
-    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"MTP ஆதரிக்கப்படவில்லை எனில், படங்கள் அல்லது கோப்புகளைப் பரிமாற்றும் (PTP)"</string>
+    <string name="usb_use_photo_transfers_desc" msgid="2325112887316125320">"MTP ஆதரிக்கப்படவில்லை எனில், படங்கள் அல்லது ஃபைல்களைப் பரிமாற்றும் (PTP)"</string>
     <string name="usb_use_tethering" msgid="4250626730173163846">"USB இணைப்பு முறை"</string>
     <string name="usb_use_MIDI" msgid="4710632870781041401">"MIDI"</string>
     <string name="usb_use_MIDI_desc" msgid="1770966187150010947">"இந்தச் சாதனத்தை MIDI ஆகப் பயன்படுத்தும்"</string>
@@ -4000,7 +4000,7 @@
     <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"சாதனத்தைத் தொடங்க, பின் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
     <string name="lockpattern_settings_require_password_before_startup_summary" msgid="1266300087760553585">"சாதனத்தைத் தொடங்க, கடவுச்சொல் தேவை. முடக்கப்பட்டிருக்கும் போது, இந்தச் சாதனம் அழைப்புகள், செய்திகள், அறிவிப்புகள் அல்லது அலாரங்கள் ஆகியவற்றைப் பெற முடியாது."</string>
     <string name="suggestion_additional_fingerprints" msgid="3434467207282466411">"மற்றொரு கைரேகையைச் சேர்க்கவும்"</string>
-    <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"வேறு விரலைப் பயன்படுத்தித் திறக்கவும்"</string>
+    <string name="suggestion_additional_fingerprints_summary" msgid="1916547587832484196">"வேறு விரலைப் பயன்படுத்தி அன்லாக் செய்யவும்"</string>
     <string name="battery_saver_on_summary" msgid="6841062406467435672">"ஆன்"</string>
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"<xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g> ஆக இருக்கும்போது, ஆன் செய்யப்படும்"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"ஆஃப்"</string>

@@ -355,7 +355,7 @@
     <string name="security_enable_widgets_title" msgid="1701510007926738088">"Ativar widgets"</string>
     <string name="security_enable_widgets_disabled_summary" msgid="4408176087132339331">"Desativada pelo administrador"</string>
     <string name="lockdown_settings_title" msgid="4534779922580115990">"Mostrar opção de bloqueio total"</string>
-    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Exibir a opção do botão liga/desliga que desativa o Smart Lock, o desbloqueio com impressão digital e as notificações na tela de bloqueio"</string>
+    <string name="lockdown_settings_summary" msgid="7270756909878256174">"Exibir a opção do botão liga/desliga que desativa o Smart Lock, o Desbloqueio por impressão digital e as notificações na tela de bloqueio"</string>
     <string name="trust_agents_extend_unlock_title" msgid="3582017561316089951">"Agentes de confiança só podem ampliar o desbloqueio"</string>
     <string name="trust_agents_extend_unlock_summary" msgid="3543997596586078084">"Se essa opção for ativada, os agentes de confiança poderão manter o dispositivo desbloqueado por mais tempo, mas não poderão desbloquear o dispositivo"</string>
     <string name="trust_lost_locks_screen_title" msgid="3094736590690459372">"Bloquear tela quando a confiança for perdida"</string>
@@ -389,7 +389,7 @@
     <string name="security_passwords_title" msgid="6853942836045862315">"Privacidade"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Desativada pelo administrador"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Status da segurança"</string>
-    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Bloqueio de tela, desbloqueio facial"</string>
+    <string name="security_dashboard_summary_face" msgid="2536136110153593745">"Bloqueio de tela, Desbloqueio facial"</string>
     <string name="security_dashboard_summary" msgid="4048877125766167227">"Bloqueio de tela, impressão digital"</string>
     <string name="security_dashboard_summary_no_fingerprint" msgid="8861903321053490658">"Bloqueio de tela"</string>
     <string name="security_settings_face_preference_summary" msgid="4437701024542221434">"Rosto adicionado"</string>
@@ -426,7 +426,7 @@
     <string name="security_settings_face_settings_remove_face_data" msgid="2821359954483136239">"Remov. dados faciais"</string>
     <string name="security_settings_face_settings_footer" msgid="4627175759990550715">"Use seu rosto para desbloquear o dispositivo e acessar apps. "<annotation id="url">"Saiba mais"</annotation></string>
     <string name="security_settings_face_settings_remove_dialog_title" msgid="5675319895815271094">"Excluir dados faciais?"</string>
-    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Os dados gravados pelo \"Desbloqueio facial\" serão excluídos permanentemente e com segurança. Depois da remoção, você precisará do PIN, padrão ou senha para desbloquear o smartphone, fazer login em apps e confirmar pagamentos."</string>
+    <string name="security_settings_face_settings_remove_dialog_details" msgid="3754494807169276107">"Os dados gravados pelo Desbloqueio facial serão excluídos permanentemente e com segurança. Depois da remoção, você precisará do PIN, padrão ou senha para desbloquear o smartphone, fazer login em apps e confirmar pagamentos."</string>
     <string name="security_settings_fingerprint_preference_title" msgid="4177132225930582928">"Impressão digital"</string>
     <string name="fingerprint_manage_category_title" msgid="1463406696801542090">"Gerenciar impressões digitais"</string>
     <string name="fingerprint_usage_category_title" msgid="7298369141954599706">"Usar impressão digital para"</string>
