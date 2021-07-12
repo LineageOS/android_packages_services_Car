@@ -17,6 +17,7 @@
 package android.car;
 
 import android.annotation.RequiresPermission;
+import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardStatus;
 import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
 
@@ -38,95 +39,183 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_IDENTIFICATION)
     public static final int INFO_VIN = 286261504;
     /**
-     * Manufacturer of vehicle
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * Manufacturer of vehicle.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code String} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MAKE = 286261505;
     /**
-     * Model of vehicle
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * Model of vehicle.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code String} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MODEL = 286261506;
     /**
      * Model year of vehicle.
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MODEL_YEAR = 289407235;
     /**
-     * Fuel capacity of the vehicle in milliliters
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * Fuel capacity of the vehicle in milliliters.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_CAPACITY = 291504388;
     /**
-     * List of fuels the vehicle may use
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * List the {@link FuelType}s the vehicle may use.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_TYPE = 289472773;
     /**
      * Battery capacity of the vehicle in watt-hours (Wh), if EV or hybrid. This is the nominal
      * battery capacity when the vehicle is new.
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_BATTERY_CAPACITY = 291504390;
     /**
-     * List of connectors this vehicle may use
+     * List of {@link EvConnectorType}s this vehicle may use.
      *
-     * <p>Applications can query the property value by
-     * {@link android.car.hardware.property.CarPropertyManager#getIntArrayProperty(int, int)}. The
-     * return value is an integer array containing enums in {@link EvConnectorType}
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
      *
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_CONNECTOR_TYPE = 289472775;
     /**
-     * Fuel door location
+     * {@link PortLocationType} for the fuel door location.
      *
-     * <p> Applications can query the property value by
-     * {@link android.car.hardware.property.CarPropertyManager#getIntProperty(int, int)}. The return
-     * value is one of enums in {@link PortLocationType}.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_FUEL_DOOR_LOCATION = 289407240;
     /**
-     * EV port location
+     * {@link PortLocationType} for the EV port location
      *
-     * <p> Applications can query the property value by
-     * {@link android.car.hardware.property.CarPropertyManager#getIntProperty(int, int)}. The return
-     * value is one of enums in {@link PortLocationType}.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_PORT_LOCATION = 289407241;
     /**
-     * Multiple EV port locations
+     * List {@link PortLocationType}s for Multiple EV port locations.
      *
-     * <p> Applications can query the property value by
-     * {@link android.car.hardware.property.CarPropertyManager#getIntArrayProperty(int, int)}. The
-     * return value is an integer array containing enums in {@link PortLocationType}.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
      *
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_MULTI_EV_PORT_LOCATIONS = 289472780;
     /**
-     * Driver's seat location
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * Driver's {@link VehicleAreaSeat} seat location.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_DRIVER_SEAT = 356516106;
     /**
-     * Vehicle's exterior dimensions.
-     * Requires permission: {@link Car#PERMISSION_CAR_INFO}.
+     * Vehicle's exterior dimensions in millimeters.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_STATIC}
+     *  <li>{@code Integer[]} property type
+     * </ul>
+     *
+     * <p>Exterior dimensions defined in the {@link CarPropertyValue#getValue()} {@code Integer[]}:
+     * <ul>
+     *  <li>Integer[0] = height
+     *  <li>Integer[1] = length
+     *  <li>Integer[2] = width
+     *  <li>Integer[3] = width including mirrors
+     *  <li>Integer[4] = wheel base
+     *  <li>Integer[5] = track width front
+     *  <li>Integer[6] = track width rear
+     *  <li>Integer[7] = curb to curb turning radius
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EXTERIOR_DIMENSIONS = 289472779;
