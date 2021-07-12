@@ -19,6 +19,9 @@ package com.google.android.car.kitchensink.volume;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
 
+import static java.lang.Math.max;
+import static java.lang.Math.min;
+
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -176,11 +179,13 @@ public final class CarAudioZoneVolumeFragment extends Fragment {
             return;
         }
         int current = mCarAudioManager.getGroupVolume(mZoneId, groupId);
-        int volume = current + (up ? 1 : -1);
+        int volume = (up ? min(mCarAudioManager.getGroupMaxVolume(mZoneId, groupId), current + 1)
+                : max(mCarAudioManager.getGroupMinVolume(mZoneId, groupId), current - 1));
         mCarAudioManager.setGroupVolume(mZoneId, groupId, volume, AudioManager.FLAG_SHOW_UI);
         if (DEBUG) {
-            Log.d(TAG, "Set group " + groupId + " volume " + volume + " in audio zone "
-                    + mZoneId);
+            Log.d(TAG, "Set group " + groupId + " volume "
+                    + mCarAudioManager.getGroupVolume(mZoneId, groupId)
+                    + " in audio zone " + mZoneId);
         }
     }
 
