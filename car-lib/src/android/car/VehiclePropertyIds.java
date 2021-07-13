@@ -28,7 +28,8 @@ import android.car.hardware.property.VehicleElectronicTollCollectionCardType;
  */
 public final class VehiclePropertyIds {
     /**
-     * Undefined property.  */
+     * Undefined property.
+     */
     public static final int INVALID = 0;
     /**
      * VIN of vehicle
@@ -139,8 +140,9 @@ public final class VehiclePropertyIds {
      * Speed of the vehicle in meters per second.
      *
      * <p>PERF_VEHICLE_SPEED property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, and returns a Float type value.
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, and returns
+     * a Float type value.
      *
      * <p>When the vehicle is moving forward, PERF_VEHICLE_SPEED is positive and negative when the
      * vehicle is moving backward. Also, this value is independent of gear value (CURRENT_GEAR or
@@ -209,8 +211,9 @@ public final class VehiclePropertyIds {
      * Reports wheel ticks.
      *
      * <p>WHEEL_TICK property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a Long[] type value.
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a
+     * Long[] type value.
      *
      * <p>The first element in the array is a reset count.  A reset indicates
      * previous tick counts are not comparable with this and future ones.  Some
@@ -326,8 +329,9 @@ public final class VehiclePropertyIds {
      * Currently selected gear by user.
      *
      * <p>GEAR_SELECTION property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Integer type value.
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
+     * Integer type value.
      *
      * <p> See {@link VehicleGear} for gear value enum.
      *
@@ -347,8 +351,8 @@ public final class VehiclePropertyIds {
      *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
      *  <li>configArray[2] = {@link VehicleGear#GEAR_PARK}
      *  <li>configArray[3] = {@link VehicleGear#GEAR_DRIVE}
-     *  <li>configArray[4] = {@link VehicleGear#GEAR_1}
-     *  <li>configArray[5] = {@link VehicleGear#GEAR_2}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
      *  <li>...
      * </ul>
      *
@@ -357,8 +361,8 @@ public final class VehiclePropertyIds {
      * <ul>
      *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
      *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
-     *  <li>configArray[4] = {@link VehicleGear#GEAR_1}
-     *  <li>configArray[5] = {@link VehicleGear#GEAR_2}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
      *  <li>...
      * </ul>
      *
@@ -379,8 +383,9 @@ public final class VehiclePropertyIds {
      * Parking brake state.
      *
      * <p>PARKING_BRAKE_ON property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Boolean type value.
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
+     * Boolean type value.
      *
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
@@ -402,8 +407,9 @@ public final class VehiclePropertyIds {
      * Night mode.
      *
      * <p>NIGHT_MODE property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a Boolean type value.
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
+     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
+     * Boolean type value.
      *
      * <p>True indicates that the night mode sensor has detected that the car cabin environment has
      * low light.
@@ -489,8 +495,8 @@ public final class VehiclePropertyIds {
      * </pre>
      * <p>If the vehicle supports {@link VehiclePropertyIds#HVAC_TEMPERATURE_VALUE_SUGGESTION},
      * the application can use that property to get the suggested value before setting
-     * {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET}. Otherwise, the application may choose the
-     * value in {@code configArray} of {@link VehiclePropertyIds#HVAC_TEMPERATURE_SET} by itself.
+     * {@code HVAC_TEMPERATURE_SET}. Otherwise, the application may choose the
+     * value in {@code configArray} of {@code HVAC_TEMPERATURE_SET} by itself.
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
     public static final int HVAC_TEMPERATURE_SET = 358614275;
@@ -655,6 +661,7 @@ public final class VehiclePropertyIds {
      * ELECTRIC DEFROSTER
      * The property is protected by the signature permission:
      * android.car.permission.CONTROL_CAR_CLIMATE.
+     *
      * @hide
      */
     @RequiresPermission(Car.PERMISSION_CONTROL_CAR_CLIMATE)
@@ -704,6 +711,7 @@ public final class VehiclePropertyIds {
      * Requires permission {@link Car#PERMISSION_READ_DISPLAY_UNITS} to read the property.
      * Requires two signature permissions: android.car.permission.CONTROL_CAR_DISPLAY_UNITS and
      * android.car.permission.CAR_VENDOR_EXTENSION to write the property.
+     *
      * @hide
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
@@ -1387,6 +1395,13 @@ public final class VehiclePropertyIds {
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874;
 
     /**
+     * @deprecated to prevent others from instantiating this class
+     */
+    @Deprecated
+    public VehiclePropertyIds() {
+    }
+
+    /**
      * Gets a user-friendly representation of a property.
      */
     public static String toString(int property) {
@@ -1703,10 +1718,4 @@ public final class VehiclePropertyIds {
                 return "0x" + Integer.toHexString(property);
         }
     }
-
-    /**
-     * @deprecated to prevent others from instantiating this class
-     */
-    @Deprecated
-    public VehiclePropertyIds() {}
 }
