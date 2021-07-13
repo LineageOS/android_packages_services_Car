@@ -14,13 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- IME should not hide nav bar -->
-    <bool name="config_automotiveHideNavBarForKeyboard">false</bool>
-
-    <!-- Class name of the device specific implementation of DisplayAreaPolicy.Provider
-    or empty if the default should be used. -->
-    <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
-        com.android.server.wm.CarDisplayAreaPolicyProvider
-    </string>
+<resources>
+    <!-- Height of the bottom navigation / climate bar. -->
+    <dimen name="navigation_bar_height">136dp</dimen>
+    <dimen name="navigation_bar_height_landscape">136dp</dimen>
 </resources>
