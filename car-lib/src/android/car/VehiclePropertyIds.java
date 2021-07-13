@@ -460,11 +460,53 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int GEAR_SELECTION = 289408000;
     /**
-     * Current gear. In non-manual case, selected gear may not
-     * match the current gear. For example, if the selected gear is GEAR_DRIVE,
-     * the current gear will be one of GEAR_1, GEAR_2 etc, which reflects
-     * the actual gear the transmission is currently running in.
-     * Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     * Vehicle transmission's current {@link VehicleGear}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>{@code CURRENT_GEAR}'s value may not match that of {@link
+     * VehiclePropertyIds#GEAR_SELECTION}. For example, if the {@link
+     * VehiclePropertyIds#GEAR_SELECTION} is {@link VehicleGear#GEAR_DRIVE} in a vehicle with an
+     * automatic transmission, the {@code CURRENT_GEAR} will be one of {@link
+     * VehicleGear#GEAR_FIRST}, {@link VehicleGear#GEAR_SECOND}, etc, which reflects the actual gear
+     * the transmission is currently running in.
+     *
+     * <p>configArray represents the list of supported {@link VehicleGear}s for {@code
+     * CURRENT_GEAR}. For example, the configArray for an EV vehicle is set as follows:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_PARK}
+     *  <li>configArray[2] = {@link VehicleGear#GEAR_DRIVE}
+     * </ul>
+     *
+     * <p>Example automatic transmission configArray:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[2] = {@link VehicleGear#GEAR_PARK}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
+     *  <li>...
+     * </ul>
+     *
+     * <p>Example manual transmission configArray:
+     *
+     * <ul>
+     *  <li>configArray[0] = {@link VehicleGear#GEAR_NEUTRAL}
+     *  <li>configArray[1] = {@link VehicleGear#GEAR_REVERSE}
+     *  <li>configArray[4] = {@link VehicleGear#GEAR_FIRST}
+     *  <li>configArray[5] = {@link VehicleGear#GEAR_SECOND}
+     *  <li>...
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int CURRENT_GEAR = 289408001;
@@ -482,7 +524,15 @@ public final class VehiclePropertyIds {
     public static final int PARKING_BRAKE_ON = 287310850;
     /**
      * Auto-apply parking brake.
-     * Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int PARKING_BRAKE_AUTO_APPLY = 287310851;
