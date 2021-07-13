@@ -547,9 +547,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 AudioManager.GET_DEVICES_INPUTS);
     }
 
+    @GuardedBy("mImplLock")
     private SparseArray<CarAudioZone> loadCarAudioConfigurationLocked(
-            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
-        AudioDeviceInfo[] inputDevices = getAllInputDevices();
+            List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
         try (InputStream inputStream = new FileInputStream(mCarAudioConfigurationPath)) {
             CarAudioZonesHelper zonesHelper = new CarAudioZonesHelper(mCarAudioSettings,
                     inputStream, carAudioDeviceInfos, inputDevices, mUseCarVolumeGroupMuting);
@@ -561,8 +561,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @GuardedBy("mImplLock")
     private SparseArray<CarAudioZone> loadVolumeGroupConfigurationWithAudioControlLocked(
-            List<CarAudioDeviceInfo> carAudioDeviceInfos) {
+            List<CarAudioDeviceInfo> carAudioDeviceInfos, AudioDeviceInfo[] inputDevices) {
         AudioControlWrapper audioControlWrapper = getAudioControlWrapperLocked();
         if (!(audioControlWrapper instanceof AudioControlWrapperV1)) {
             throw new IllegalStateException(
@@ -571,20 +572,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
         CarAudioZonesHelperLegacy legacyHelper = new CarAudioZonesHelperLegacy(mContext,
                 R.xml.car_volume_groups, carAudioDeviceInfos,
-                (AudioControlWrapperV1) audioControlWrapper, mCarAudioSettings);
+                (AudioControlWrapperV1) audioControlWrapper, mCarAudioSettings, inputDevices);
         return legacyHelper.loadAudioZones();
     }
 
     @GuardedBy("mImplLock")
     private void loadCarAudioZonesLocked() {
         List<CarAudioDeviceInfo> carAudioDeviceInfos = generateCarAudioDeviceInfos();
+        AudioDeviceInfo[] inputDevices = getAllInputDevices();
 
         mCarAudioConfigurationPath = getAudioConfigurationPath();
         if (mCarAudioConfigurationPath != null) {
-            mCarAudioZones = loadCarAudioConfigurationLocked(carAudioDeviceInfos);
+            mCarAudioZones = loadCarAudioConfigurationLocked(carAudioDeviceInfos, inputDevices);
         } else {
-            mCarAudioZones = loadVolumeGroupConfigurationWithAudioControlLocked(
-                    carAudioDeviceInfos);
+            mCarAudioZones =
+                    loadVolumeGroupConfigurationWithAudioControlLocked(carAudioDeviceInfos,
+                            inputDevices);
         }
 
         CarAudioZonesValidator.validate(mCarAudioZones);
