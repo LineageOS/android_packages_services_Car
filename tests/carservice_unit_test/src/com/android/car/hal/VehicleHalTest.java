@@ -43,9 +43,13 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+
+import com.android.car.CarServiceUtils;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -90,6 +94,10 @@ public class VehicleHalTest {
     @Mock private ClusterHalService mClusterHalService;
     @Mock private HalClient mHalClient;
 
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            VehicleHal.class.getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+
     @Rule public final TestName mTestName = new TestName();
 
     private VehicleHal mVehicleHal;
@@ -101,7 +109,7 @@ public class VehicleHalTest {
     public void setUp() throws Exception {
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient);
+                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
 
         mConfigs.clear();
 
@@ -658,7 +666,8 @@ public class VehicleHalTest {
         int areaId = VehicleHal.NO_AREA;
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mHandler.post(() -> mVehicleHal.onPropertySetError(errorCode, propId, areaId));
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
@@ -878,9 +887,10 @@ public class VehicleHalTest {
                 UserHalService userHal,
                 DiagnosticHalService diagnosticHal,
                 ClusterHalService clusterHalService,
-                HalClient halClient) {
+                HalClient halClient,
+                HandlerThread handlerThread) {
             super(powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
-                    clusterHalService, halClient);
+                    clusterHalService, halClient, handlerThread);
         }
     }
 
@@ -888,7 +898,7 @@ public class VehicleHalTest {
     public void testSet() throws Exception {
         VehicleHalTestClass t = new VehicleHalTestClass(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient);
+                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
         t.init();
 
         VehiclePropValue propValue = new VehiclePropValue();
@@ -1267,6 +1277,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
@@ -1286,6 +1297,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_INT32_VEC_PROPERTY, VehicleHal.NO_AREA, "1,2", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
@@ -1305,6 +1317,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_BOOL_PROPERTY, VehicleHal.NO_AREA, "True", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
@@ -1324,6 +1337,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_FLOAT_PROPERTY, VehicleHal.NO_AREA, "1.1", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
@@ -1343,6 +1357,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_FLOAT_VEC_PROPERTY, VehicleHal.NO_AREA, "1.1,1.2", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         assertThat(values.size()).isEqualTo(1);
@@ -1363,6 +1378,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectVhalEvent(SOME_READ_ON_CHANGE_PROPERTY, VehicleHal.NO_AREA, "1", 0);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService, never()).onHalEvents(any());
@@ -1379,6 +1395,7 @@ public class VehicleHalTest {
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", 10, 1);
         // Wait for injection to complete.
         SystemClock.sleep(1000);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
 
@@ -1397,6 +1414,7 @@ public class VehicleHalTest {
         // Act
         mVehicleHal.injectContinuousVhalEvent(
                 SOME_READ_ON_CHANGE_PROPERTY, VehicleHal.NO_AREA, "1", 10, 1);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService, never()).onHalEvents(any());
@@ -1411,6 +1429,7 @@ public class VehicleHalTest {
 
         // Act
         mVehicleHal.injectContinuousVhalEvent(SOME_INT32_PROPERTY, VehicleHal.NO_AREA, "1", -1, 1);
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService, never()).onHalEvents(any());
