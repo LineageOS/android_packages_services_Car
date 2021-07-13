@@ -24,16 +24,21 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.clearInvocations;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.doReturn;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
@@ -42,6 +47,8 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
+import com.android.car.R;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
 
@@ -219,4 +226,87 @@ public class ControllerTest {
         // Verify that worker that polls running jobs from JobScheduler is scheduled.
         verify(mHandlerMock).postDelayed(any(), eq(JOB_SNAPSHOT_INITIAL_UPDATE_MS));
     }
+
+    @Test
+    public void testInitAndRelease() {
+        CarPowerManagementService mockCarPowerManagementService =
+                mock(CarPowerManagementService.class);
+
+        GarageMode garageMode = mock(GarageMode.class);
+        Controller controller = new Controller(mContextMock, mLooperMock, mWakeupPolicy,
+                mHandlerMock, garageMode);
+        CarLocalServices.addService(CarPowerManagementService.class, mockCarPowerManagementService);
+
+        controller.init();
+        controller.release();
+
+        verify(garageMode).init();
+        verify(garageMode).release();
+    }
+
+    @Test
+    public void testConstructor() {
+        Resources resourcesMock = mock(Resources.class);
+        when(mContextMock.getResources()).thenReturn(resourcesMock);
+        when(resourcesMock.getStringArray(R.array.config_garageModeCadence))
+                .thenReturn(sTemplateWakeupSchedule);
+        Controller controller = new Controller(mContextMock, mLooperMock);
+
+        assertThat(controller).isNotNull();
+    }
+
+    @Test
+    public void testScheduleNextWakeup() {
+        GarageMode garageMode = mock(GarageMode.class);
+
+        // Enter GarageMode only 1 time, no wake up after that
+        WakeupPolicy wakeUpPolicy = new WakeupPolicy(new String[] { "15m,1" });
+
+        Controller controller = new Controller(mContextMock, mLooperMock, wakeUpPolicy,
+                mHandlerMock, garageMode);
+        controller.setCarPowerManager(mCarPowerManagerMock);
+
+        // Imitate entering and leavimg GarageMode
+        controller.initiateGarageMode(/* future= */ null);
+
+        controller.scheduleNextWakeup();
+
+        verify(mCarPowerManagerMock).scheduleNextWakeupTime(900);
+
+        // Imitate entering Garage mode after sleep
+        controller.initiateGarageMode(/* future= */ null);
+
+        // Should be no more calls to scheduleNextWakeupTime
+        controller.scheduleNextWakeup();
+
+        Mockito.verifyNoMoreInteractions(mCarPowerManagerMock);
+    }
+
+    @Test
+    public void testOnStateChanged() {
+        GarageMode garageMode = mock(GarageMode.class);
+
+        Controller controller = Mockito.spy(new Controller(mContextMock, mLooperMock, mWakeupPolicy,
+                mHandlerMock, garageMode));
+
+        controller.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.SHUTDOWN_ENTER, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.SUSPEND_ENTER, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.SUSPEND_EXIT, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.INVALID , null);
+        verify(controller, never()).resetGarageMode();
+    }
+
 }
