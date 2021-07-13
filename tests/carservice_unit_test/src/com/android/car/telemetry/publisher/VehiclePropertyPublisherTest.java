@@ -27,6 +27,7 @@ import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doNothing;
 import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -108,7 +109,21 @@ public class VehiclePropertyPublisherTest {
         mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
 
         verify(mMockCarPropertyService).registerListener(eq(PROP_ID_1), eq(PROP_READ_RATE), any());
-        assertThat(mVehiclePropertyPublisher.getDataSubscribers()).hasSize(1);
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+    }
+
+    @Test
+    public void testAddDataSubscriber_withSamePropertyId_registersSingleListener() {
+        DataSubscriber subscriber2 = mock(DataSubscriber.class);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+
+        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(subscriber2);
+
+        verify(mMockCarPropertyService, times(1))
+                .registerListener(eq(PROP_ID_1), eq(PROP_READ_RATE), any());
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(subscriber2)).isTrue();
     }
 
     @Test
@@ -125,7 +140,7 @@ public class VehiclePropertyPublisherTest {
                 () -> mVehiclePropertyPublisher.addDataSubscriber(invalidDataSubscriber));
 
         assertThat(error).hasMessageThat().contains("No access.");
-        assertThat(mVehiclePropertyPublisher.getDataSubscribers()).isEmpty();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
     @Test
@@ -137,7 +152,7 @@ public class VehiclePropertyPublisherTest {
                 () -> mVehiclePropertyPublisher.addDataSubscriber(invalidDataSubscriber));
 
         assertThat(error).hasMessageThat().contains("not found");
-        assertThat(mVehiclePropertyPublisher.getDataSubscribers()).isEmpty();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
     @Test
@@ -145,7 +160,9 @@ public class VehiclePropertyPublisherTest {
         mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
 
         mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber);
-        // TODO(b/189143814): add proper verification
+
+        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_ID_1), any());
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
     @Test
@@ -153,13 +170,21 @@ public class VehiclePropertyPublisherTest {
         Throwable error = assertThrows(IllegalArgumentException.class,
                 () -> mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber));
 
-        assertThat(error).hasMessageThat().contains("subscriber not found");
+        assertThat(error).hasMessageThat().contains("DataSubscriber was not found");
     }
 
     @Test
     public void testRemoveAllDataSubscribers_succeeds() {
+        DataSubscriber subscriber2 = mock(DataSubscriber.class);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+        mVehiclePropertyPublisher.addDataSubscriber(mMockDataSubscriber);
+        mVehiclePropertyPublisher.addDataSubscriber(subscriber2);
+
         mVehiclePropertyPublisher.removeAllDataSubscribers();
-        // TODO(b/189143814): add tests
+
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mVehiclePropertyPublisher.hasDataSubscriber(subscriber2)).isFalse();
+        verify(mMockCarPropertyService, times(1)).unregisterListener(eq(PROP_ID_1), any());
     }
 
     @Test
