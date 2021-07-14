@@ -95,16 +95,34 @@ public class WindowDumpParserTest {
             + "    mViewVisibility=0x4 mHaveFrame=true mObscured=false\n"
             + "    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]\n"
             + "    isOnScreen=false\n"
+            + "    isVisible=false\n"
+
+            + "  Window #4 Window{1c5571 u0 HVAC Driver Temp}:\n"
+            + "    mDisplayId=2 rootTaskId=1000006 mSession=Session{629ba4e 2235:u0a10120} "
+            + "mClient=android.os.BinderProxy@99ccafb\n"
+            + "    mOwnerUid=10120 showForAllUsers=true package=com.app3 appop=NONE\n"
+            + "    mAttrs={(24,0)(84x419) gr=BOTTOM LEFT CENTER sim={adjust=pan} "
+            + "ty=APPLICATION_STARTING fmt=TRANSLUCENT\n"
+            + "      fl=NOT_FOCUSABLE LAYOUT_NO_LIMITS HARDWARE_ACCELERATED\n"
+            + "      pfl=NO_MOVE_ANIMATION USE_BLAST INSET_PARENT_FRAME_BY_IME\n"
+            + "      bhv=DEFAULT\n"
+            + "      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR}\n"
+            + "    Requested w=84 h=419 mLayoutSeq=143\n"
+            + "    mBaseLayer=291000 mSubLayer=0    mToken=WindowToken{6bd1718 android.os"
+            + ".BinderProxy@99ccafb}\n"
+            + "    mViewVisibility=0x4 mHaveFrame=true mObscured=false\n"
+            + "    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]\n"
+            + "    isOnScreen=false\n"
             + "    isVisible=false\n";
 
     private static final WindowDumpParser.Window APP_1_WINDOW = new WindowDumpParser.Window(
-            "com.app1", "0");
+            "com.app1", 0);
     private static final WindowDumpParser.Window APP_2_WINDOW = new WindowDumpParser.Window(
-            "com.app2", "1");
+            "com.app2", 1);
     private static final WindowDumpParser.Window APP_2_WINDOW_2 = new WindowDumpParser.Window(
-            "com.app2", "1");
+            "com.app2", 1);
     private static final WindowDumpParser.Window APP_3_WINDOW = new WindowDumpParser.Window(
-            "com.app3", "2");
+            "com.app3", 2);
 
     @Test
     public void testWindowDumpParsing() {

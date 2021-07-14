@@ -16,6 +16,8 @@
 
 package com.android.car.pm;
 
+import static androidx.car.app.activity.CarAppActivity.ACTION_SHOW_DIALOG;
+
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
@@ -23,6 +25,8 @@ import static org.junit.Assert.assertNotNull;
 
 import android.app.Activity;
 import android.app.ActivityOptions;
+import android.app.AlertDialog;
+import android.app.UiAutomation;
 import android.car.Car;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -31,10 +35,12 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.test.uiautomator.By;
+import android.support.test.uiautomator.Configurator;
 import android.support.test.uiautomator.UiDevice;
 import android.support.test.uiautomator.Until;
 import android.view.Display;
 
+import androidx.car.app.activity.CarAppActivity;
 import androidx.test.InstrumentationRegistry;
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
@@ -74,6 +80,8 @@ public class ActivityBlockingActivityTest {
                 car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
         assertNotNull(mCarDrivingStateManager);
 
+        Configurator.getInstance()
+                .setUiAutomationFlags(UiAutomation.FLAG_DONT_SUPPRESS_ACCESSIBILITY_SERVICES);
         mDevice = UiDevice.getInstance(InstrumentationRegistry.getInstrumentation());
         ensureHomeIsDisplayed();
         setDrivingStateMoving();
@@ -97,6 +105,45 @@ public class ActivityBlockingActivityTest {
                 DoActivity.class.getSimpleName())),
                 UI_TIMEOUT_MS)).isNotNull();
         assertBlockingActivityNotFound();
+    }
+
+    @Test
+    public void testBlockingActivity_doActivity_showingDialog_isNotBlocked() throws Exception {
+        Intent intent = new Intent();
+        intent.putExtra(DoActivity.INTENT_EXTRA_SHOW_DIALOG, true);
+        intent.setComponent(toComponentName(getTestContext(), DoActivity.class));
+        startActivity(intent);
+
+        assertThat(mDevice.wait(Until.findObject(By.text(
+                DoActivity.DIALOG_TITLE)),
+                UI_TIMEOUT_MS)).isNotNull();
+        assertBlockingActivityNotFound();
+    }
+
+    @Test
+    public void testBlockingActivity_doTemplateActivity_isNotBlocked() throws Exception {
+        startActivity(toComponentName(getTestContext(), CarAppActivity.class));
+
+        assertThat(mDevice.wait(Until.findObject(By.text(
+                CarAppActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNotNull();
+        assertBlockingActivityNotFound();
+    }
+
+    @Test
+    public void testBlockingActivity_doTemplateActivity_showingDialog_isBlocked() throws Exception {
+        startActivity(toComponentName(getTestContext(), CarAppActivity.class));
+        assertThat(mDevice.wait(Until.findObject(By.text(
+                CarAppActivity.class.getSimpleName())),
+                UI_TIMEOUT_MS)).isNotNull();
+        assertBlockingActivityNotFound();
+
+        getContext().sendBroadcast(new Intent().setAction(ACTION_SHOW_DIALOG));
+        assertThat(mDevice.wait(Until.findObject(By.text(DoActivity.DIALOG_TITLE)),
+                UI_TIMEOUT_MS)).isNotNull();
+
+        assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
+                UI_TIMEOUT_MS)).isNotNull();
     }
 
     @Test
@@ -155,11 +202,13 @@ public class ActivityBlockingActivityTest {
     private void startActivity(ComponentName name) {
         Intent intent = new Intent();
         intent.setComponent(name);
-        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        startActivity(intent);
+    }
 
+    private void startActivity(Intent intent) {
+        intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
-
         getContext().startActivity(intent, options.toBundle());
     }
 
@@ -251,6 +300,20 @@ public class ActivityBlockingActivityTest {
     }
 
     public static class DoActivity extends TempActivity {
+        public static final String INTENT_EXTRA_SHOW_DIALOG = "SHOW_DIALOG";
+        public static final String DIALOG_TITLE = "Title";
+
+        @Override
+        protected void onCreate(Bundle savedInstanceState) {
+            super.onCreate(savedInstanceState);
+            if (getIntent().getBooleanExtra(INTENT_EXTRA_SHOW_DIALOG, false)) {
+                AlertDialog dialog = new AlertDialog.Builder(DoActivity.this)
+                        .setTitle(DIALOG_TITLE)
+                        .setMessage("Message")
+                        .create();
+                dialog.show();
+            }
+        }
     }
 
     /** Activity that closes itself after some timeout to clean up the screen. */
