@@ -18,6 +18,7 @@ package com.android.car.am;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
@@ -36,6 +37,7 @@ import android.app.IActivityManager;
 import android.app.TaskStackListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
+import android.car.user.CarUserManager;
 import android.content.BroadcastReceiver;
 import android.content.ComponentName;
 import android.content.Context;
@@ -322,6 +324,70 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         mFixedActivityService.stopFixedActivityMode(Display.DEFAULT_DISPLAY);
         verify(mActivityManager, never()).unregisterTaskStackListener(any(TaskStackListener.class));
     }
+
+    @Test
+    public void onUserSwitch_clearsRunningActivities() throws Exception {
+        testClearingOfRunningActivitiesOnUserSwitch(
+                /* fromUserId = */ 10,
+                /* toUserId = */ 11,
+                /* runningFixedActivityExpected = */ false);
+    }
+
+    @Test
+    public void onUserSwitchFromSystemUser_noChangeInRunningActivities() throws Exception {
+        testClearingOfRunningActivitiesOnUserSwitch(
+                /* fromUserId = */ UserHandle.USER_SYSTEM,
+                /* toUserId = */ 11,
+                /* runningFixedActivityExpected = */ true);
+    }
+
+    @Test
+    public void onUserSwitchToUserWithEnabledProfile_noChangeInRunningActivities()
+            throws Exception {
+        when(mUserManager.getEnabledProfileIds(11)).thenReturn(new int[]{10});
+        testClearingOfRunningActivitiesOnUserSwitch(
+                /* fromUserId = */ 10,
+                /* toUserId = */ 11,
+                /* runningFixedActivityExpected = */ true);
+    }
+
+    @Test
+    public void onUserSwitchToSameUser_noChangeInRunningActivities() throws Exception {
+        testClearingOfRunningActivitiesOnUserSwitch(
+                /* fromUserId = */ 11,
+                /* toUserId = */ 11,
+                /* runningFixedActivityExpected = */ true);
+    }
+
+    private void testClearingOfRunningActivitiesOnUserSwitch(int fromUserId, int toUserId,
+            boolean runningFixedActivityExpected) throws Exception {
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", fromUserId);
+        mockAmGetCurrentUser(fromUserId);
+        doAnswer(invocation -> {
+            CarUserManager.UserLifecycleListener userLifecycleListener =
+                    (CarUserManager.UserLifecycleListener) invocation.getArgument(0);
+            mockAmGetCurrentUser(toUserId);
+            userLifecycleListener.onEvent(new CarUserManager.UserLifecycleEvent(
+                    CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING, toUserId));
+            return null;
+        }).when(mCarUserService).addUserLifecycleListener(any());
+
+        // No running activities
+        boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
+                options, mValidDisplayId, fromUserId);
+        assertThat(ret).isTrue();
+        verify(mCarUserService).addUserLifecycleListener(any());
+
+        if (runningFixedActivityExpected) {
+            assertThat(mFixedActivityService.getRunningFixedActivity(mValidDisplayId))
+                    .isNotNull();
+        } else {
+            assertThat(mFixedActivityService.getRunningFixedActivity(mValidDisplayId))
+                    .isNull();
+        }
+    }
+
 
     private void expectNoProfileUser(@UserIdInt int userId) {
         when(mUserManager.getEnabledProfileIds(userId)).thenReturn(new int[0]);

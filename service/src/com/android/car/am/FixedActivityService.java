@@ -61,6 +61,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
 
@@ -610,6 +611,13 @@ public final class FixedActivityService implements CarServiceBase {
             return false;
         }
         return true;
+    }
+
+    @VisibleForTesting
+    RunningActivityInfo getRunningFixedActivity(int displayId) {
+        synchronized (mLock) {
+            return mRunningActivities.get(displayId);
+        }
     }
 
     /**
