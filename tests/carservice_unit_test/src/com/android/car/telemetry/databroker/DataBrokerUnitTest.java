@@ -158,22 +158,54 @@ public class DataBrokerUnitTest {
 
     @Test
     public void testAddMetricsConfiguration_newMetricsConfig() {
+        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
+
+        waitForHandlerThreadToFinish();
+        assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
+        assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_BAR.getName());
+        // there should be one data subscriber in the subscription list of METRICS_CONFIG_BAR
+        assertThat(mDataBroker.getSubscriptionMap().get(METRICS_CONFIG_BAR.getName())).hasSize(1);
+    }
+
+
+    @Test
+    public void testAddMetricsConfiguration_duplicateMetricsConfig_shouldDoNothing() {
+        // this metrics config has already been added in setUp()
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
 
         waitForHandlerThreadToFinish();
+        assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_FOO.getName());
-        // there should be one data subscriber in the subscription list of METRICS_CONFIG_FOO
         assertThat(mDataBroker.getSubscriptionMap().get(METRICS_CONFIG_FOO.getName())).hasSize(1);
     }
 
     @Test
-    public void testAddMetricsConfiguration_multipleMetricsConfigsSamePublisher() {
+    public void testRemoveMetricsConfiguration_shouldRemoveAllAssociatedTasks() {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
+        ScriptExecutionTask taskWithMetricsConfigBar = new ScriptExecutionTask(
+                new DataSubscriber(mDataBroker, METRICS_CONFIG_BAR, SUBSCRIBER_BAR, PRIORITY_HIGH),
+                new Bundle(),
+                SystemClock.elapsedRealtime());
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
+        taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_FOO
+        taskQueue.add(taskWithMetricsConfigBar); // associated with METRICS_CONFIG_BAR
+        assertThat(taskQueue).hasSize(3);
+
+        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
 
         waitForHandlerThreadToFinish();
-        assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_FOO.getName());
-        assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_BAR.getName());
+        assertThat(taskQueue).hasSize(1);
+        assertThat(taskQueue.poll()).isEqualTo(taskWithMetricsConfigBar);
+    }
+
+    @Test
+    public void testRemoveMetricsConfiguration_whenMetricsConfigNonExistent_shouldDoNothing() {
+        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_BAR);
+
+        waitForHandlerThreadToFinish();
+        assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
     }
 
     private void waitForHandlerThreadToFinish() {
