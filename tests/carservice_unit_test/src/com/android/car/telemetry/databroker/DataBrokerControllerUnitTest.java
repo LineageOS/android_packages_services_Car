@@ -81,7 +81,7 @@ public class DataBrokerControllerUnitTest {
         // Checks that mMockDataBroker's setOnScriptFinishedCallback is called after it's injected
         // into controller's constructor with @InjectMocks
         verify(mMockDataBroker).setOnScriptFinishedCallback(
-                any(DataBrokerController.ScriptFinishedCallback.class));
+                any(DataBroker.ScriptFinishedCallback.class));
     }
 
     @Test
