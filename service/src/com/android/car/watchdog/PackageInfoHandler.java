@@ -38,7 +38,6 @@ import com.android.server.utils.Slogf;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
-import java.util.Map;
 
 /** Handles package info resolving */
 public final class PackageInfoHandler {
@@ -53,7 +52,7 @@ public final class PackageInfoHandler {
     @GuardedBy("mLock")
     private final SparseArray<List<String>> mPackagesBySharedUid = new SparseArray<>();
     @GuardedBy("mLock")
-    private final Map<String, String> mGenericPackageNameByPackage = new ArrayMap<>();
+    private final ArrayMap<String, String> mGenericPackageNameByPackage = new ArrayMap<>();
     @GuardedBy("mLock")
     private List<String> mVendorPackagePrefixes = new ArrayList<>();
 
@@ -210,12 +209,13 @@ public final class PackageInfoHandler {
                 }
             }
             List<ApplicationInfo> applicationInfos = new ArrayList<>();
-            for (String pkg : packages) {
+            for (int i = 0; i < packages.size(); ++i) {
                 try {
-                    applicationInfos.add(mPackageManager.getApplicationInfoAsUser(pkg,
+                    applicationInfos.add(mPackageManager.getApplicationInfoAsUser(packages.get(i),
                             /* flags= */ 0, userId));
                 } catch (PackageManager.NameNotFoundException e) {
-                    Slogf.e(TAG, "Package '%s' not found for user %d: %s", pkg, userId, e);
+                    Slogf.e(TAG, "Package '%s' not found for user %d: %s", packages.get(i), userId,
+                            e);
                 }
             }
             packageInfo.componentType = getSharedComponentType(
@@ -238,16 +238,16 @@ public final class PackageInfoHandler {
     public int getSharedComponentType(List<ApplicationInfo> applicationInfos,
             String genericPackageName) {
         SparseBooleanArray seenComponents = new SparseBooleanArray();
-        for (ApplicationInfo applicationInfo : applicationInfos) {
-            int type = getComponentType(applicationInfo);
+        for (int i = 0; i < applicationInfos.size(); ++i) {
+            int type = getComponentType(applicationInfos.get(i));
             seenComponents.put(type, true);
         }
         if (seenComponents.get(ComponentType.VENDOR)) {
             return ComponentType.VENDOR;
         } else if (seenComponents.get(ComponentType.SYSTEM)) {
             synchronized (mLock) {
-                for (String prefix : mVendorPackagePrefixes) {
-                    if (genericPackageName.startsWith(prefix)) {
+                for (int i = 0; i < mVendorPackagePrefixes.size(); ++i) {
+                    if (genericPackageName.startsWith(mVendorPackagePrefixes.get(i))) {
                         return ComponentType.VENDOR;
                     }
                 }
@@ -282,8 +282,8 @@ public final class PackageInfoHandler {
                 || (applicationInfo.privateFlags & ApplicationInfo.PRIVATE_FLAG_PRODUCT) != 0
                 || (applicationInfo.privateFlags & ApplicationInfo.PRIVATE_FLAG_SYSTEM_EXT) != 0) {
             synchronized (mLock) {
-                for (String prefix : mVendorPackagePrefixes) {
-                    if (applicationInfo.packageName.startsWith(prefix)) {
+                for (int i = 0; i < mVendorPackagePrefixes.size(); ++i) {
+                    if (applicationInfo.packageName.startsWith(mVendorPackagePrefixes.get(i))) {
                         return ComponentType.VENDOR;
                     }
                 }
