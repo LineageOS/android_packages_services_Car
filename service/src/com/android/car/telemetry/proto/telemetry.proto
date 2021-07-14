@@ -38,8 +38,8 @@ message MetricsConfig {
   optional int32 version = 2;
 
   // Required.
-  // A script that is executed in devices. Must contain all the handler functions
-  // defined in the listeners below.
+  // A script that is executed at the device side. Must contain all the handler
+  // functions defined in the listeners below.
   // The script functions must be `pure` functions.
   optional string script = 3;
 
@@ -70,9 +70,12 @@ message Publisher {
 // Specifies publisher with its parameters and the handler function that's invoked
 // when data is received. The format of the data depends on the Publisher.
 message Subscriber {
-  // Name of the script function that's invoked when this subscriber is triggered.
+  // Required.
+  // Name of the function that handles the published data. Must be defined
+  // in the script.
   optional string handler = 1;
 
-  // Publisher and its parameters.
+  // Required.
+  // Publisher definition.
   optional Publisher publisher = 2;
 }
