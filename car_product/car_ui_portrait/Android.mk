@@ -15,6 +15,6 @@
 
 car_ui_portrait_modules := \
     rro/car-ui-customizations \
-    HideApps
+    apps/HideApps
 
 include $(call all-named-subdir-makefiles,$(car_ui_portrait_modules))
