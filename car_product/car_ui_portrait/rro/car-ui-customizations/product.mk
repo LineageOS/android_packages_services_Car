@@ -14,13 +14,7 @@
 # limitations under the License.
 #
 
-$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-customizations/product.mk)
-
-# All RROs to be included in car_ui_portrait builds.
+# Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
+# Include generated RROs
 PRODUCT_PACKAGES += \
-    CarUiPortraitMediaRRO \
-    CarUiPortraitLauncherRRO \
-
-# All apps to be excluded in car_ui_portrait builds should be specified as part of CarUiPortraitHideApps.
-PRODUCT_PACKAGES += \
-    CarUiPortraitHideApps
+    generatedcaruiportrait-com-android-car-media \

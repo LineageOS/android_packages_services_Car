@@ -1,5 +1,4 @@
-#
-# Copyright (C) 2021 The Android Open-Source Project
+# Copyright (C) 2021 The Android Open Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -14,13 +13,8 @@
 # limitations under the License.
 #
 
-$(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/car-ui-customizations/product.mk)
+car_ui_portrait_modules := \
+    rro/car-ui-customizations \
+    HideApps
 
-# All RROs to be included in car_ui_portrait builds.
-PRODUCT_PACKAGES += \
-    CarUiPortraitMediaRRO \
-    CarUiPortraitLauncherRRO \
-
-# All apps to be excluded in car_ui_portrait builds should be specified as part of CarUiPortraitHideApps.
-PRODUCT_PACKAGES += \
-    CarUiPortraitHideApps
+include $(call all-named-subdir-makefiles,$(car_ui_portrait_modules))

@@ -14,12 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.media.caruiportrait.rro">
-    <application android:hasCode="false"/>
-    <overlay android:priority="20"
-             android:targetName="CarMediaApp"
-             android:targetPackage="com.android.car.media"
-             android:resourcesMap="@xml/overlays"
-             android:isStatic="true" />
-</manifest>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+        android:width="48dp"
+        android:height="48dp"
+        android:viewportWidth="48.0"
+        android:viewportHeight="48.0">
+    <path
+        android:pathData="M14.83,30.83L24,21.66l9.17,9.17L36,28 24,16 12,28z"
+        android:fillColor="#000000"/>
+</vector>
