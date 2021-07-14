@@ -22,7 +22,6 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.doAnswer;
-import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -37,7 +36,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
-import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 
 import org.junit.After;
@@ -52,7 +50,6 @@ import org.mockito.junit.MockitoRule;
 
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -132,42 +129,6 @@ public final class GarageModeTest {
         waitForHandlerThreadToFinish(latch);
         assertThat(mGarageMode.getStartedBackgroundUsers()).containsExactly(101, 102, 103, 104,
                 105);
-    }
-
-    @Test
-    public void garageModeTestExitImmediately() throws Exception {
-        CarPowerManagementService mockCarPowerManagementService =
-                mock(CarPowerManagementService.class);
-
-        // Mock CPMS to force Garage Mode early exit
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        CarLocalServices.addService(CarPowerManagementService.class, mockCarPowerManagementService);
-        when(mockCarPowerManagementService.garageModeShouldExitImmediately()).thenReturn(true);
-
-        // Check exit immediately without future
-        GarageMode garageMode = new GarageMode(mController);
-        garageMode.init();
-        garageMode.enterGarageMode(/* future= */ null);
-        assertThat(garageMode.isGarageModeActive()).isFalse();
-
-        // Create new instance of GarageMode
-        garageMode = new GarageMode(mController);
-        garageMode.init();
-        // Check exit immediately with future
-        CompletableFuture<Void> future = new CompletableFuture<>();
-        garageMode.enterGarageMode(future);
-        assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isDone()).isTrue();
-
-        // Create new instance of GarageMode
-        garageMode = new GarageMode(mController);
-        garageMode.init();
-        // Check exit immediately with completed future
-        garageMode.enterGarageMode(future);
-        assertThat(garageMode.isGarageModeActive()).isFalse();
-        assertThat(future.isDone()).isTrue();
-
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }
 
     private void waitForHandlerThreadToFinish(CountDownLatch latch) throws Exception {
