@@ -26,7 +26,7 @@ import java.util.regex.Pattern;
  * A utility class to parse the window dump.
  */
 class WindowDumpParser {
-    private static final String WINDOW_TYPE_APPLICATION_STARTING =  "APPLICATION_STARTING";
+    private static final String WINDOW_TYPE_APPLICATION_STARTING = "APPLICATION_STARTING";
 
     /**
      * Parses the provided window dump and returns the list of windows only for a particular app.
@@ -38,19 +38,34 @@ class WindowDumpParser {
      * @return a list of parsed {@link Window} objects.
      */
     public static List<Window> getParsedAppWindows(String dump, String appPackageName) {
-        Pattern p = Pattern.compile("Window #\\d*.*\\n"
-                + ".*mDisplayId=(\\S*).*\\n"
-                + ".*package=(\\S*).*\\n"
-                + ".*ty=(\\S*)");
-        Matcher m = p.matcher(dump);
+        Pattern dumpSplitter = Pattern.compile("(Window #)|\\n\\n");
+        // \\n\\n to separate out the Global dump from the windows list.
+
+        Pattern windowDetailsPattern = Pattern.compile("\\d*.*\\n"
+                        + ".*mDisplayId=(\\S*).*\\n"
+                        + ".*package=(\\S*).*\\n"
+                        + ".*ty=(\\S*)"
+                        + "((.*ActivityRecord\\{(.*?)\\}.*\\n)|(.*\\n))*"
+                // (.*\\n) is required for skipping the lines before the line containing
+                // ActivityRecord{}.
+        );
         List<Window> windows = new ArrayList<>();
-        while (m.find()) {
-            // Only consider windows for the given appPackageName which are not the splash screen
-            // windows.
-            // TODO(b/192355798): Revisit this logic as window type can be changed.
-            if (Objects.equals(m.group(2), appPackageName)
-                    && !Objects.equals(m.group(3), WINDOW_TYPE_APPLICATION_STARTING)) {
-                windows.add(new Window(m.group(2), Integer.parseInt(m.group(1))));
+
+        String[] windowDumps = dumpSplitter.split(dump);
+        for (int i = 1; i < windowDumps.length - 1; i++) {
+            Matcher m = windowDetailsPattern.matcher(windowDumps[i]);
+            if (m.find()) {
+                // Only consider windows for the given appPackageName which are not the splash
+                // screen windows.
+                // TODO(b/192355798): Revisit this logic as window type can be changed.
+                if (Objects.equals(m.group(2), appPackageName)
+                        && !Objects.equals(m.group(3), WINDOW_TYPE_APPLICATION_STARTING)) {
+                    windows.add(new Window(
+                            /* packageName = */ m.group(2),
+                            /* displayId = */ Integer.parseInt(m.group(1)),
+                            /* activityRecord = */ m.group(6)
+                    ));
+                }
             }
         }
         return windows;
@@ -62,10 +77,12 @@ class WindowDumpParser {
     static class Window {
         private final String mPackageName;
         private final int mDisplayId;
+        private final String mActivityRecord;
 
-        Window(String packageName, int displayId) {
+        Window(String packageName, int displayId, String activityRecord) {
             mPackageName = packageName;
             mDisplayId = displayId;
+            mActivityRecord = activityRecord;
         }
 
         public String getPackageName() {
@@ -76,26 +93,32 @@ class WindowDumpParser {
             return mDisplayId;
         }
 
+        public String getActivityRecord() {
+            return mActivityRecord;
+        }
+
         @Override
         public boolean equals(Object o) {
             if (this == o) return true;
             if (!(o instanceof Window)) return false;
             Window window = (Window) o;
-            return mPackageName.equals(window.mPackageName)
-                    && mDisplayId == window.mDisplayId;
+            return mDisplayId == window.mDisplayId
+                    && mPackageName.equals(window.mPackageName)
+                    && Objects.equals(mActivityRecord, window.mActivityRecord);
         }
 
         @Override
         public int hashCode() {
-            return Objects.hash(mPackageName, mDisplayId);
+            return Objects.hash(mPackageName, mDisplayId, mActivityRecord);
         }
 
         @Override
         public String toString() {
             return "Window{"
-                    + "mPackageName='" + mPackageName + '\''
-                    + ", mDisplayId='" + mDisplayId + '\''
-                    + '}';
+                    + "mPackageName=" + mPackageName
+                    + ", mDisplayId=" + mDisplayId
+                    + ", mActivityRecord={" + mActivityRecord + "}"
+                    + "}";
         }
     }
 }

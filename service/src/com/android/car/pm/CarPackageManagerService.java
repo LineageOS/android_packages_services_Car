@@ -58,6 +58,7 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.UserHandle;
+import android.text.TextUtils;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.LocalLog;
@@ -65,7 +66,6 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.Slog;
 import android.util.SparseArray;
-import android.util.SparseIntArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
@@ -1228,18 +1228,29 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         String output = dumpWindows();
         List<WindowDumpParser.Window> appWindows =
                 WindowDumpParser.getParsedAppWindows(output, activityName.getPackageName());
-        // TODO(b/192354699): Handle case where an activity can have multiple instances.
-        SparseIntArray appWindowsPerDisplay = new SparseIntArray();
-        for (int i = appWindows.size() - 1; i >= 0; i--) {
-            WindowDumpParser.Window window = appWindows.get(i);
-            appWindowsPerDisplay.put(
-                    window.getDisplayId(),
-                    appWindowsPerDisplay.get(window.getDisplayId(), 0) + 1);
+        // TODO(b/192354699): Handle case where an activity can have multiple instances on the same
+        //  display.
+        int totalAppWindows = appWindows.size();
+        String firstActivityRecord = null;
+        int numTopActivityAppWindowsOnDisplay = 0;
+        for (int i = 0; i < totalAppWindows; i++) {
+            WindowDumpParser.Window appWindow = appWindows.get(i);
+            if (appWindow.getDisplayId() != displayId) {
+                continue;
+            }
+            if (TextUtils.isEmpty(appWindow.getActivityRecord())) {
+                continue;
+            }
+            if (firstActivityRecord == null) {
+                firstActivityRecord = appWindow.getActivityRecord();
+            }
+            if (firstActivityRecord.equals(appWindow.getActivityRecord())) {
+                numTopActivityAppWindowsOnDisplay++;
+            }
         }
         Slogf.d(TAG, "Top activity =  " + activityName);
-        Slogf.d(TAG, "Number of app widows per display = " + appWindowsPerDisplay);
-
-        boolean isShowingADialog = appWindowsPerDisplay.get(displayId, 0) > 1;
+        Slogf.d(TAG, "Number of app widows of top activity = " + numTopActivityAppWindowsOnDisplay);
+        boolean isShowingADialog = numTopActivityAppWindowsOnDisplay > 1;
         synchronized (mLock) {
             if (isShowingADialog) {
                 mTopActivityWithDialogPerDisplay.put(displayId, activityName);

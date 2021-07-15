@@ -45,8 +45,12 @@ public class WindowDumpParserTest {
             + "      pfl=NO_MOVE_ANIMATION USE_BLAST INSET_PARENT_FRAME_BY_IME\n"
             + "      bhv=DEFAULT\n"
             + "      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR}\n"
-            + "    Requested w=84 h=419 mLayoutSeq=144\n"
-            + "    mBaseLayer=291000 mSubLayer=0    mToken=WindowToken{6cca8c7 android.os"
+            + "    Requested w=1080 h=1920 mLayoutSeq=154\n"
+            + "    mBaseLayer=21000 mSubLayer=0    mToken=AppWindowToken{546fe66 token=Token"
+            + "{8b7a6c1 ActivityRecord{2789ba8 u0 com.app2/.MainActivity t5}}}\n"
+            + "    mAppToken=AppWindowToken{546fe66 token=Token{8b7a6c1 ActivityRecord{2789ba8 u0"
+            + " com.app2/.MainActivity t5}}}\n"
+
             + ".BinderProxy@3f3ea06}\n"
             + "    Frames: containing=[0,0][1080,600] parent=[0,0][1080,600] display=[-10000,"
             + "-10000][10000,10000]\n"
@@ -72,7 +76,9 @@ public class WindowDumpParserTest {
             + "      bhv=DEFAULT\n"
             + "      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR}\n"
             + "    Requested w=84 h=419 mLayoutSeq=143\n"
-            + "    mBaseLayer=291000 mSubLayer=0    mToken=WindowToken{6bd1718 android.os"
+            + "    mBaseLayer=21000 mSubLayer=0    mToken=ActivityRecord{b44066 u10 com.app2/"
+            + "SecondActivity t1000031}\n"
+            + "    mActivityRecord=ActivityRecord{b44066 u10 com.app2/SecondActivity t1000031}\n"
             + ".BinderProxy@99ccafb}\n"
             + "    mViewVisibility=0x4 mHaveFrame=true mObscured=false\n"
             + "    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]\n"
@@ -91,6 +97,7 @@ public class WindowDumpParserTest {
             + "      fitTypes=STATUS_BARS NAVIGATION_BARS CAPTION_BAR}\n"
             + "    Requested w=84 h=419 mLayoutSeq=143\n"
             + "    mBaseLayer=291000 mSubLayer=0    mToken=WindowToken{6bd1718 android.os"
+            + "    mActivityRecord=ActivityRecord{a3f066 u10 com.app3/MainActivity t1000031}\n"
             + ".BinderProxy@99ccafb}\n"
             + "    mViewVisibility=0x4 mHaveFrame=true mObscured=false\n"
             + "    mGivenContentInsets=[0,0][0,0] mGivenVisibleInsets=[0,0][0,0]\n"
@@ -116,13 +123,13 @@ public class WindowDumpParserTest {
             + "    isVisible=false\n";
 
     private static final WindowDumpParser.Window APP_1_WINDOW = new WindowDumpParser.Window(
-            "com.app1", 0);
+            "com.app1", 0, null);
     private static final WindowDumpParser.Window APP_2_WINDOW = new WindowDumpParser.Window(
-            "com.app2", 1);
+            "com.app2", 1, "2789ba8 u0 com.app2/.MainActivity t5");
     private static final WindowDumpParser.Window APP_2_WINDOW_2 = new WindowDumpParser.Window(
-            "com.app2", 1);
+            "com.app2", 1, "b44066 u10 com.app2/SecondActivity t1000031");
     private static final WindowDumpParser.Window APP_3_WINDOW = new WindowDumpParser.Window(
-            "com.app3", 2);
+            "com.app3", 2, "a3f066 u10 com.app3/MainActivity t1000031");
 
     @Test
     public void testWindowDumpParsing() {
