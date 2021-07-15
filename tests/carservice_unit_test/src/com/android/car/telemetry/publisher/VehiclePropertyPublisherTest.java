@@ -75,7 +75,7 @@ public class VehiclePropertyPublisherTest {
                             .setVehiclePropertyId(-200))
                     .build();
 
-    // mMockCarPropertyService supported car property list.
+    // CarPropertyConfigs for mMockCarPropertyService.
     private static final CarPropertyConfig<Integer> PROP_CONFIG_1 =
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID_1, AREA_ID).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();

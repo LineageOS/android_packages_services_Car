@@ -33,7 +33,7 @@ public abstract class AbstractPublisher {
      * Adds a subscriber that listens for data produced by this publisher.
      *
      * @param subscriber a subscriber to receive data
-     * @throws IllegalArgumentException if an invalid subscriber was provided.
+     * @throws IllegalArgumentException if the subscriber is invalid.
      */
     public abstract void addDataSubscriber(DataSubscriber subscriber);
 
