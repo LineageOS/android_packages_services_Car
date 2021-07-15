@@ -16,7 +16,12 @@
 
 package com.android.car.user;
 
+import android.os.IBinder.DeathRecipient;
+import android.os.RemoteException;
+
+import com.android.car.CarLog;
 import com.android.internal.os.IResultReceiver;
+import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 
@@ -25,14 +30,32 @@ import java.io.PrintWriter;
  */
 final class AppLifecycleListener {
 
+    private static final String TAG = CarLog.tagFor(AppLifecycleListener.class);
+
+    private final DeathRecipient mDeathRecipient;
+
     public final int uid;
     public final String packageName;
     public final IResultReceiver receiver;
 
-    AppLifecycleListener(int uid, String packageName, IResultReceiver receiver) {
+    AppLifecycleListener(int uid, String packageName, IResultReceiver receiver,
+            BinderDeathCallback binderDeathCallback) {
         this.uid = uid;
         this.packageName = packageName;
         this.receiver = receiver;
+
+        mDeathRecipient = () -> binderDeathCallback.onBinderDeath(this);
+        Slogf.v(TAG, "linking death recipient %s", mDeathRecipient);
+        try {
+            receiver.asBinder().linkToDeath(mDeathRecipient, /* flags= */ 0);
+        } catch (RemoteException e) {
+            Slogf.wtf(TAG, "Cannot listen to death of %s", mDeathRecipient);
+        }
+    }
+
+    void onDestroy() {
+        Slogf.v(TAG, "onDestroy(): unlinking death recipient %s", mDeathRecipient);
+        receiver.asBinder().unlinkToDeath(mDeathRecipient, /* flags= */ 0);
     }
 
     void dump(PrintWriter writer) {
@@ -46,5 +69,9 @@ final class AppLifecycleListener {
     @Override
     public String toString() {
         return "AppLifecycleListener[uid=" + uid + ", pkg=" + packageName + "]";
+    }
+
+    interface BinderDeathCallback {
+        void onBinderDeath(AppLifecycleListener listener);
     }
 }
