@@ -60,10 +60,21 @@ message VehiclePropertyPublisher {
   optional float read_rate = 2;
 }
 
+// Parameters for cartelemetryd publisher.
+// See packages/services/Car/cpp/telemetry for CarData proto and docs.
+message CarTelemetrydPublisher {
+  // Required.
+  // CarData id to subscribe to.
+  // See packages/services/Car/cpp/telemetry/proto/CarData.proto for all the
+  // messages and IDs.
+  optional int32 id = 1;
+}
+
 // Specifies data publisher and its parameters.
 message Publisher {
   oneof publisher {
     VehiclePropertyPublisher vehicle_property = 1;
+    CarTelemetrydPublisher cartelemetryd = 2;
   }
 }
 

@@ -31,6 +31,11 @@ option java_outer_classname = "CarDataProto";
 
 import "packages/services/Car/cpp/telemetry/proto/evs.proto";
 
+// Contains all the CarData messages to declare all the messages.
+// Unique protobuf number is used as an ID.
+// A message will be sent from writer clients to the cartelemetryd
+// wrapped in
+// frameworks/hardware/interfaces/automotive/telemetry/aidl/android/frameworks/automotive/telemetry/CarData.aidl
 message CarData {
   oneof pushed {
     EvsFirstFrameLatency evs_first_frame_latency = 1;
