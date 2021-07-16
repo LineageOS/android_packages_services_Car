@@ -35,6 +35,10 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyAccess;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
+import android.os.Handler;
+import android.os.HandlerThread;
+
+import com.android.car.CarServiceUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -69,6 +73,10 @@ public final class VehicleHalTest {
     @Mock private ClusterHalService mClusterHalService;
     @Mock private HalClient mHalClient;
 
+    private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
+            VehicleHal.class.getSimpleName());
+    private final Handler mHandler = new Handler(mHandlerThread.getLooper());
+
     private VehicleHal mVehicleHal;
 
     /** Hal services configurations */
@@ -78,7 +86,7 @@ public final class VehicleHalTest {
     public void setUp() throws Exception {
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient);
+                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
 
         mConfigs.clear();
 
@@ -185,7 +193,8 @@ public final class VehicleHalTest {
         propValues.add(propValue);
 
         // Act
-        mVehicleHal.onPropertyEvent(propValues);
+        mHandler.post(() -> mVehicleHal.onPropertyEvent(propValues));
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(dispatchList).add(propValue);
@@ -201,7 +210,8 @@ public final class VehicleHalTest {
         int areaId = VehicleHal.NO_AREA;
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mHandler.post(() -> mVehicleHal.onPropertySetError(errorCode, propId, areaId));
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
@@ -215,7 +225,8 @@ public final class VehicleHalTest {
         int areaId = VehicleHal.NO_AREA;
 
         // Act
-        mVehicleHal.onPropertySetError(errorCode, propId, areaId);
+        mHandler.post(() -> mVehicleHal.onPropertySetError(errorCode, propId, areaId));
+        CarServiceUtils.runOnLooperSync(mHandlerThread.getLooper(), () -> {});
 
         // Assert
         verify(mPowerHalService).onPropertySetError(propId, areaId, errorCode);
