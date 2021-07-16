@@ -2567,7 +2567,7 @@
     <string name="device_admin_settings_title" msgid="2074319456047334589">"Definições de administração do dispositivo"</string>
     <string name="active_device_admin_msg" msgid="6929247869516924549">"App administração do dispositivo"</string>
     <string name="remove_device_admin" msgid="4413438593788336400">"Desativar esta app de administração do dispositivo"</string>
-    <string name="uninstall_device_admin" msgid="9017499299961719830">"Desinstalar aplicação"</string>
+    <string name="uninstall_device_admin" msgid="9017499299961719830">"Desinstalar app"</string>
     <string name="remove_and_uninstall_device_admin" msgid="5607703579731496253">"Desativar e desinstalar"</string>
     <string name="select_device_admin_msg" msgid="4173769638399075387">"Apps de gestor do dispositivo"</string>
     <string name="no_device_admins" msgid="4129231900385977460">"Nenhuma aplicação de administração do dispositivo disponível"</string>
