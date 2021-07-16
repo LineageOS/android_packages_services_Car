@@ -164,8 +164,13 @@ public class DataBrokerImpl implements DataBroker {
                 // It shouldn't happen, but if happens, let's just log it.
                 Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove subscriber from publisher", e);
             }
-            // TODO(b/187743369): remove related tasks from the queue
         }
+        // Remove all the tasks associated with this metrics config. The underlying impl uses the
+        // weakly consistent iterator, which is thread-safe but does not freeze the collection while
+        // iterating, so it may or may not reflect any updates since the iterator was created.
+        // But since adding & polling from queue should happen in the same thread, the task queue
+        // should not be changed while tasks are being iterated and removed.
+        mTaskQueue.removeIf(task -> task.isAssociatedWithMetricsConfig(metricsConfig));
     }
 
     @Override
