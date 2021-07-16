@@ -18,6 +18,8 @@ package com.android.car.telemetry.databroker;
 
 import android.os.Bundle;
 
+import com.android.car.telemetry.TelemetryProto;
+
 /**
  * A wrapper class containing all the necessary information to invoke the ScriptExecutor API. It
  * is enqueued into the priority queue where it pends execution by {@link DataBroker}.
@@ -42,6 +44,14 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     /** Returns the creation timestamp of the task. */
     public long getCreationTimestampMillis() {
         return mTimestampMillis;
+    }
+
+    /**
+     * Indicates whether the task is associated with the given
+     * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig).
+     */
+    public boolean isAssociatedWithMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
+        return mSubscriber.getMetricsConfig().equals(metricsConfig);
     }
 
     @Override
