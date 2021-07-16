@@ -747,7 +747,7 @@
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"Actualizar"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Buscando…"</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Ajustes del dispositivo"</string>
-    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo vinculado"</string>
+    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo emparejado"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Conexión a Internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Teclado"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Contactos e historial de llamadas"</string>
