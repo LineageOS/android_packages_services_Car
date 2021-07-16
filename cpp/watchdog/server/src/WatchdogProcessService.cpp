@@ -83,10 +83,11 @@ const std::vector<TimeoutLength> kTimeouts = {TimeoutLength::TIMEOUT_CRITICAL,
 const int32_t MSG_VHAL_WATCHDOG_ALIVE = static_cast<int>(TimeoutLength::TIMEOUT_NORMAL) + 1;
 const int32_t MSG_VHAL_HEALTH_CHECK = MSG_VHAL_WATCHDOG_ALIVE + 1;
 
-// VHAL sends heart beat every 3s. Car watchdog checks if there is the latest heart beat from VHAL
+// TODO(b/193742550): Restore the timeout to 3s after configuration by vendors is added.
+// VHAL sends heart beat every 6s. Car watchdog checks if there is the latest heart beat from VHAL
 // with 1s marginal time.
-constexpr std::chrono::nanoseconds kVhalHealthCheckDelayNs = 4s;
-constexpr int64_t kVhalHeartBeatIntervalMs = 3000;
+constexpr std::chrono::milliseconds kVhalHeartBeatIntervalMs = 6s;
+constexpr std::chrono::nanoseconds kVhalHealthCheckDelayNs = kVhalHeartBeatIntervalMs + 1s;
 
 constexpr const char kServiceName[] = "WatchdogProcessService";
 constexpr const char kVhalInterfaceName[] = "android.hardware.automotive.vehicle@2.0::IVehicle";
@@ -799,7 +800,7 @@ void WatchdogProcessService::checkVhalHealth() {
         Mutex::Autolock lock(mMutex);
         lastEventTime = mVhalHeartBeat.eventTime;
     }
-    if (currentUptime > lastEventTime + kVhalHeartBeatIntervalMs) {
+    if (currentUptime > lastEventTime + kVhalHeartBeatIntervalMs.count()) {
         ALOGW("VHAL failed to update heart beat within timeout. Terminating VHAL...");
         terminateVhal();
     }
