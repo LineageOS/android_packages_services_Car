@@ -29,4 +29,14 @@
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
         <item>com.android.systemui.car.rvc.ExtendedRearViewCameraViewMediator</item>
     </string-array>
+
+    <!-- Show heads-up notifications on the bottom -->
+    <bool name="config_showHeadsUpNotificationOnBottom">true</bool>
+
+    <string name="config_notificationPanelViewMediator" translatable="false">
+        com.android.systemui.car.notification.BottomNotificationPanelViewMediator</string>
+
+    <!-- Animation helper for animating heads-up notification showing on screen and leaving the screen from the bottom -->
+    <string name="config_headsUpNotificationAnimationHelper" translatable="false">
+        com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper</string>
 </resources>
