@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,12 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="rear_view_camera_button_background">#CCFFFFFF</color>
-    <color name="rear_view_camera_exit_icon_color">@android:color/black</color>
 
-    <color name="car_nav_icon_fill_color">#FFFFFF</color>
-    <color name="car_nav_icon_background_color">#3C4043</color>
+<resources
+    xmlns:android="http://schemas.android.com/apk/res/android">
 
-    <drawable name="system_bar_background">#000000</drawable>
+    <style name="SystemBarButton">
+        <item name="android:layout_width">@dimen/system_bar_button_size</item>
+        <item name="android:layout_height">@dimen/system_bar_button_size</item>
+        <item name="android:background">@drawable/nav_bar_button_background</item>
+        <item name="android:gravity">center</item>
+        <item name="unselectedAlpha">1.0</item>
+    </style>
 </resources>
