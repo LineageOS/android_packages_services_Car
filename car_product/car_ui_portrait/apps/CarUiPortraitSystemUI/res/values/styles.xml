@@ -24,4 +24,10 @@
         <item name="android:gravity">center</item>
         <item name="unselectedAlpha">1.0</item>
     </style>
+
+    <style name="TextAppearance.SystemBar.Username"
+           parent="@android:style/TextAppearance.DeviceDefault">
+        <item name="android:textSize">@dimen/car_body1_size</item>
+        <item name="android:textColor">@color/system_bar_text_color</item>
+    </style>
 </resources>
