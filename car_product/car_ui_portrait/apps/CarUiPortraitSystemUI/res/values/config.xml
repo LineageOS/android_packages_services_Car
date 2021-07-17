@@ -27,7 +27,6 @@
         <item>com.android.systemui.car.keyguard.CarKeyguardViewMediator</item>
         <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
-        <item>com.android.systemui.car.rvc.ExtendedRearViewCameraViewMediator</item>
     </string-array>
 
     <!-- Show heads-up notifications on the bottom -->
