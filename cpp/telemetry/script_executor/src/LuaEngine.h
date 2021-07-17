@@ -38,30 +38,47 @@ public:
     virtual ~LuaEngine();
 
     // Returns pointer to Lua state object.
-    lua_State* GetLuaState();
+    lua_State* getLuaState();
 
     // Loads Lua script provided as scriptBody string.
     // Returns 0 if successful. Otherwise returns non-zero Lua error code.
-    int LoadScript(const char* scriptBody);
+    int loadScript(const char* scriptBody);
 
     // Pushes a Lua function under provided name into the stack.
     // Returns true if successful.
-    bool PushFunction(const char* functionName);
+    bool pushFunction(const char* functionName);
 
     // Invokes function with the inputs provided in the stack.
-    // Assumes that the script body has been already loaded and successully
+    // Assumes that the script body has been already loaded and successfully
     // compiled and run, and all input arguments, and the function have been
     // pushed to the stack.
     // Returns 0 if successful. Otherwise returns non-zero Lua error code.
-    int Run();
+    int run();
 
     // Updates stored listener and destroys the previous one.
-    void ResetListener(ScriptExecutorListener* listener);
+    static void resetListener(ScriptExecutorListener* listener);
 
 private:
-    lua_State* mLuaState;  // owned
+    // Invoked by running Lua script to store intermediate results.
+    // The script will provide the results as a Lua table.
+    // We currently support only non-nested fields in the table and the fields can be the following
+    // Lua types: boolean, number, integer, and string.
+    // The result is converted to Android Bundle and forwarded to
+    // ScriptExecutor service via callback interface.
+    static int onSuccess(lua_State* lua);
 
-    std::unique_ptr<ScriptExecutorListener> mListener;
+    // Points to the current listener object.
+    // Lua cannot call non-static class methods. We need to access listener object instance in
+    // Lua callbacks. Therefore, callbacks callable by Lua are static class methods and the pointer
+    // to a listener object needs to be static, since static methods cannot access non-static
+    // members.
+    // Only one listener is supported at any given time.
+    // Since listeners are heap-allocated, the destructor does not need to run at shutdown
+    // of the service because the memory allocated to the current listener object will be
+    // reclaimed by the OS.
+    static ScriptExecutorListener* sListener;
+
+    lua_State* mLuaState;  // owned
 };
 
 }  // namespace script_executor

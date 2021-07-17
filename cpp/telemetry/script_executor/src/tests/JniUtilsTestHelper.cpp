@@ -44,21 +44,21 @@ JNIEXPORT void JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeDestroy
 
 JNIEXPORT void JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativePushBundleToLuaTableCaller(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundle) {
-    PushBundleToLuaTable(env, reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr)),
+    pushBundleToLuaTable(env, reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr)),
                          bundle);
 }
 
 JNIEXPORT jint JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeGetObjectSize(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jint index) {
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
-    return lua_rawlen(engine->GetLuaState(), static_cast<int>(index));
+    return lua_rawlen(engine->getLuaState(), static_cast<int>(index));
 }
 
 JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasBooleanValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jboolean value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
-    auto* luaState = engine->GetLuaState();
+    auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
     env->ReleaseStringUTFChars(key, rawKey);
     lua_gettable(luaState, -2);
@@ -76,7 +76,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasIntV
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
-    auto* luaState = engine->GetLuaState();
+    auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
     env->ReleaseStringUTFChars(key, rawKey);
     lua_gettable(luaState, -2);
@@ -94,7 +94,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasDoub
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
-    auto* luaState = engine->GetLuaState();
+    auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
     env->ReleaseStringUTFChars(key, rawKey);
     lua_gettable(luaState, -2);
@@ -112,7 +112,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasStri
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     // Assumes the table is on top of the stack.
-    auto* luaState = engine->GetLuaState();
+    auto* luaState = engine->getLuaState();
     lua_pushstring(luaState, rawKey);
     env->ReleaseStringUTFChars(key, rawKey);
     lua_gettable(luaState, -2);

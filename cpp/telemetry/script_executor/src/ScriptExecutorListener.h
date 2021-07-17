@@ -35,13 +35,20 @@ public:
 
     void onScriptFinished() {}
 
-    void onSuccess() {}
+    void onSuccess(jobject bundle);
 
     void onError(const int errorType, const std::string& message, const std::string& stackTrace);
+
+    JNIEnv* getCurrentJNIEnv();
 
 private:
     // Stores a jni global reference to Java Script Executor listener object.
     jobject mScriptExecutorListener;
+
+    // Stores JavaVM pointer in order to be able to get JNIEnv pointer.
+    // This is done because JNIEnv cannot be shared between threads.
+    // https://developer.android.com/training/articles/perf-jni.html#javavm-and-jnienv
+    JavaVM* mJavaVM;
 };
 
 }  // namespace script_executor

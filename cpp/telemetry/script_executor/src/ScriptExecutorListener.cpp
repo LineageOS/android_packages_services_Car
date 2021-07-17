@@ -17,7 +17,6 @@
 #include "ScriptExecutorListener.h"
 
 #include <android-base/logging.h>
-#include <android_runtime/AndroidRuntime.h>
 
 namespace android {
 namespace automotive {
@@ -25,20 +24,41 @@ namespace telemetry {
 namespace script_executor {
 
 ScriptExecutorListener::~ScriptExecutorListener() {
-    if (mScriptExecutorListener != NULL) {
-        JNIEnv* env = AndroidRuntime::getJNIEnv();
+    JNIEnv* env = getCurrentJNIEnv();
+    if (mScriptExecutorListener != nullptr) {
         env->DeleteGlobalRef(mScriptExecutorListener);
     }
 }
 
 ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject script_executor_listener) {
     mScriptExecutorListener = env->NewGlobalRef(script_executor_listener);
+    env->GetJavaVM(&mJavaVM);
+}
+
+void ScriptExecutorListener::onSuccess(jobject bundle) {
+    JNIEnv* env = getCurrentJNIEnv();
+    if (mScriptExecutorListener == nullptr) {
+        env->FatalError(
+                "mScriptExecutorListener must point to a valid listener object, not nullptr.");
+    }
+    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
+    jmethodID onSuccessMethod =
+            env->GetMethodID(listenerClass, "onSuccess", "(Landroid/os/Bundle;)V");
+    env->CallVoidMethod(mScriptExecutorListener, onSuccessMethod, bundle);
 }
 
 void ScriptExecutorListener::onError(const int errorType, const std::string& message,
                                      const std::string& stackTrace) {
     LOG(INFO) << "errorType: " << errorType << ", message: " << message
               << ", stackTrace: " << stackTrace;
+}
+
+JNIEnv* ScriptExecutorListener::getCurrentJNIEnv() {
+    JNIEnv* env;
+    if (mJavaVM->GetEnv(reinterpret_cast<void**>(&env), JNI_VERSION_1_6) != JNI_OK) {
+        LOG(FATAL) << "Unable to return JNIEnv from JavaVM";
+    }
+    return env;
 }
 
 }  // namespace script_executor
