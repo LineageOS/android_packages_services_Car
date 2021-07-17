@@ -21,8 +21,8 @@ namespace automotive {
 namespace telemetry {
 namespace script_executor {
 
-void PushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
-    lua_newtable(luaEngine->GetLuaState());
+void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
+    lua_newtable(luaEngine->getLuaState());
     // null bundle object is allowed. We will treat it as an empty table.
     if (bundle == nullptr) {
         return;
@@ -62,19 +62,19 @@ void PushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
         if (env->IsInstanceOf(value, booleanClass)) {
             jmethodID boolMethod = env->GetMethodID(booleanClass, "booleanValue", "()Z");
             bool boolValue = static_cast<bool>(env->CallBooleanMethod(value, boolMethod));
-            lua_pushboolean(luaEngine->GetLuaState(), boolValue);
+            lua_pushboolean(luaEngine->getLuaState(), boolValue);
         } else if (env->IsInstanceOf(value, integerClass)) {
             jmethodID intMethod = env->GetMethodID(integerClass, "intValue", "()I");
-            lua_pushinteger(luaEngine->GetLuaState(), env->CallIntMethod(value, intMethod));
+            lua_pushinteger(luaEngine->getLuaState(), env->CallIntMethod(value, intMethod));
         } else if (env->IsInstanceOf(value, numberClass)) {
             // Condense other numeric types using one class. Because lua supports only
             // integer or double, and we handled integer in previous if clause.
             jmethodID numberMethod = env->GetMethodID(numberClass, "doubleValue", "()D");
             /* Pushes a double onto the stack */
-            lua_pushnumber(luaEngine->GetLuaState(), env->CallDoubleMethod(value, numberMethod));
+            lua_pushnumber(luaEngine->getLuaState(), env->CallDoubleMethod(value, numberMethod));
         } else if (env->IsInstanceOf(value, stringClass)) {
             const char* rawStringValue = env->GetStringUTFChars((jstring)value, nullptr);
-            lua_pushstring(luaEngine->GetLuaState(), rawStringValue);
+            lua_pushstring(luaEngine->getLuaState(), rawStringValue);
             env->ReleaseStringUTFChars((jstring)value, rawStringValue);
         } else {
             // Other types are not implemented yet, skipping.
@@ -84,7 +84,7 @@ void PushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
         const char* rawKey = env->GetStringUTFChars(key, nullptr);
         // table[rawKey] = value, where value is on top of the stack,
         // and the table is the next element in the stack.
-        lua_setfield(luaEngine->GetLuaState(), /* idx= */ -2, rawKey);
+        lua_setfield(luaEngine->getLuaState(), /* idx= */ -2, rawKey);
         env->ReleaseStringUTFChars(key, rawKey);
     }
 }

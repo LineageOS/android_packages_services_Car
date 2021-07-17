@@ -34,6 +34,7 @@ cc_library {
         "scriptexecutor_defaults",
     ],
     srcs: [
+        "src/BundleWrapper.cpp",
         "src/JniUtils.cpp",
         "src/LuaEngine.cpp",
         "src/ScriptExecutorListener.cpp",
