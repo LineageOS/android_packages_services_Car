@@ -65,9 +65,8 @@ JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeDestr
 // More information about how to work with Lua stack: https://www.lua.org/pil/24.2.html
 // and how Lua functions are called via Lua API: https://www.lua.org/pil/25.2.html
 //
-// Finally, once parsing and pushing to Lua stack is complete, we do
-//
-// Step 6: attempt to run the provided function.
+// Finally, once parsing and pushing to Lua stack is complete, we go on to the final step,
+// Step 6: Attempt to run the provided function.
 JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeInvokeScript(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring scriptBody, jstring functionName,
         jobject publishedData, jobject savedState, jobject listener) {
@@ -88,7 +87,7 @@ JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeInvok
 
     // Load and parse the script
     const char* scriptStr = env->GetStringUTFChars(scriptBody, nullptr);
-    auto status = engine->LoadScript(scriptStr);
+    auto status = engine->loadScript(scriptStr);
     env->ReleaseStringUTFChars(scriptBody, scriptStr);
     // status == 0 if the script loads successfully.
     if (status) {
@@ -96,11 +95,11 @@ JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeInvok
                       "Failed to load the script.");
         return;
     }
-    engine->ResetListener(new ScriptExecutorListener(env, listener));
+    LuaEngine::resetListener(new ScriptExecutorListener(env, listener));
 
     // Push the function name we want to invoke to Lua stack
     const char* functionNameStr = env->GetStringUTFChars(functionName, nullptr);
-    status = engine->PushFunction(functionNameStr);
+    status = engine->pushFunction(functionNameStr);
     env->ReleaseStringUTFChars(functionName, functionNameStr);
     // status == 1 if the name is indeed a function.
     if (!status) {
@@ -119,10 +118,10 @@ JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeInvok
 
     // Unpack bundle in savedState, convert to Lua table and push it to Lua
     // stack.
-    PushBundleToLuaTable(env, engine, savedState);
+    pushBundleToLuaTable(env, engine, savedState);
 
     // Execute the function. This will block until complete or error.
-    if (engine->Run()) {
+    if (engine->run()) {
         env->ThrowNew(env->FindClass("java/lang/RuntimeException"),
                       "Runtime error occurred while running the function.");
         return;
