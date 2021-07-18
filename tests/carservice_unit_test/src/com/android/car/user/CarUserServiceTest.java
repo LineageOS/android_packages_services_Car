@@ -53,14 +53,15 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
+import static org.testng.Assert.expectThrows;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
@@ -149,7 +150,7 @@ import java.util.Set;
  * The following mocks are used:
  * <ol>
  * <li> {@link Context} provides system services and resources.
- * <li> {@link IActivityManager} provides current user.
+ * <li> {@link ActivityManager} provides current user and other calls.
  * <li> {@link UserManager} provides user creation and user info.
  * <li> {@link Resources} provides user icon.
  * <li> {@link Drawable} provides bitmap of user icon.
@@ -171,7 +172,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private Context mApplicationContext;
     @Mock private LocationManager mLocationManager;
     @Mock private UserHalService mUserHal;
-    @Mock private IActivityManager mMockedIActivityManager;
+    @Mock private ActivityManager mMockedActivityManager;
+    @Mock private ActivityManagerHelper mMockedActivityManagerHelper;
     @Mock private UserManager mMockedUserManager;
     @Mock private Resources mMockedResources;
     @Mock private Drawable mMockedDrawable;
@@ -182,6 +184,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private CarUxRestrictionsManagerService mCarUxRestrictionService;
     @Mock private ICarUxRestrictionsChangeListener mCarUxRestrictionsListener;
     @Mock private ICarServiceHelper mICarServiceHelper;
+    @Mock private Handler mMockedHandler;
 
     private final BlockingUserLifecycleListener mUserLifecycleListener =
             BlockingUserLifecycleListener.forAnyEvent().build();
@@ -548,14 +551,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
-        when(mMockedIActivityManager.startUserInBackground(user2)).thenReturn(true);
-        when(mMockedIActivityManager.unlockUser(user2, null, null, null)).thenReturn(true);
+        when(mMockedActivityManagerHelper.startUserInBackground(user2)).thenReturn(true);
+        when(mMockedActivityManagerHelper.unlockUser(user2)).thenReturn(true);
         assertThat(mCarUserService.startAllBackgroundUsersInGarageMode()).containsExactly(user2);
         sendUserUnlockedEvent(user2);
         assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user2, user3);
 
-        when(mMockedIActivityManager.stopUser(user2, true, null))
-                .thenReturn(ActivityManager.USER_OP_SUCCESS);
         // should not stop the current fg user
         assertThat(mCarUserService.stopBackgroundUserInGagageMode(user3)).isFalse();
         assertThat(mCarUserService.stopBackgroundUserInGagageMode(user2)).isTrue();
@@ -591,14 +592,27 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testStopUser_fail() throws Exception {
         int userId = 101;
         UserInfo userInfo = new UserInfo(userId, "user101", NO_USER_INFO_FLAGS);
-        mockStopUserWithDelayedLockingThrowsRemoteException(userId);
-
         AndroidFuture<UserStopResult> userStopResult = new AndroidFuture<>();
-        stopUser(userId, userStopResult);
+        CarUserService carUserServiceLocal = new CarUserService(
+                mMockContext,
+                mUserHal,
+                mMockedUserManager,
+                mMockedActivityManager,
+                mMockedActivityManagerHelper,
+                /* maxRunningUsers= */ 3,
+                mInitialUserSetter,
+                mUserPreCreator,
+                mCarUxRestrictionService,
+                mMockedHandler);
+        mockStopUserWithDelayedLockingThrowsIllegalStateException(userId);
 
-        assertThat(getResult(userStopResult).getStatus())
-                .isEqualTo(UserStopResult.STATUS_ANDROID_FAILURE);
-        assertThat(getResult(userStopResult).isSuccess()).isFalse();
+        carUserServiceLocal.stopUser(userId, userStopResult);
+
+        ArgumentCaptor<Runnable> runnableCaptor =
+                ArgumentCaptor.forClass(Runnable.class);
+        verify(mMockedHandler).post(runnableCaptor.capture());
+        Runnable runnable = runnableCaptor.getValue();
+        expectThrows(IllegalStateException.class, ()-> runnable.run());
     }
 
     @Test
@@ -786,8 +800,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int passenger3Id = 93;
         int zone1Id = 1;
         int zone2Id = 2;
-        doReturn(true).when(mMockedIActivityManager)
-                .startUserInBackgroundWithListener(anyInt(), eq(null));
+        doReturn(true).when(mMockedActivityManagerHelper)
+                .startUserInBackground(anyInt());
         assertTrue(mCarUserService.startPassenger(passenger1Id, zone1Id));
         assertTrue(mCarUserService.startPassenger(passenger2Id, zone2Id));
         assertFalse(mCarUserService.startPassenger(passenger3Id, zone2Id));
@@ -806,8 +820,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(passenger1Info).when(mMockedUserManager).getUserInfo(passenger1Id);
         doReturn(null).when(mMockedUserManager).getUserInfo(passenger2Id);
         mockGetCurrentUser(user1Id);
-        doReturn(true).when(mMockedIActivityManager)
-                .startUserInBackgroundWithListener(anyInt(), eq(null));
+        doReturn(true).when(mMockedActivityManagerHelper)
+                .startUserInBackground(anyInt());
         assertTrue(mCarUserService.startPassenger(passenger1Id, zoneId));
         assertTrue(mCarUserService.stopPassenger(passenger1Id));
         // Test of stopping an already stopped passenger.
@@ -2461,7 +2475,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 mMockContext,
                 mUserHal,
                 mMockedUserManager,
-                mMockedIActivityManager,
+                mMockedActivityManager,
+                mMockedActivityManagerHelper,
                 /* maxRunningUsers= */ 3,
                 mInitialUserSetter,
                 mUserPreCreator,
@@ -2506,17 +2521,16 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockCurrentUser(@NonNull UserInfo user) throws Exception {
-        when(mMockedIActivityManager.getCurrentUser()).thenReturn(user);
         mockGetCurrentUser(user.id);
     }
 
     private void mockAmStartUserInBackground(@UserIdInt int userId, boolean result)
             throws Exception {
-        when(mMockedIActivityManager.startUserInBackground(userId)).thenReturn(result);
+        when(mMockedActivityManagerHelper.startUserInBackground(userId)).thenReturn(result);
     }
 
     private void mockAmSwitchUser(@NonNull UserInfo user, boolean result) throws Exception {
-        when(mMockedIActivityManager.switchUser(user.id)).thenReturn(result);
+        when(mMockedActivityManager.switchUser(UserHandle.of(user.id))).thenReturn(result);
     }
 
     private void mockRemoveUser(@NonNull UserInfo user) {
@@ -2549,14 +2563,14 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     private void mockStopUserWithDelayedLocking(@UserIdInt int userId, int result)
             throws Exception {
-        when(mMockedIActivityManager.stopUserWithDelayedLocking(userId, true, null))
+        when(mMockedActivityManagerHelper.stopUserWithDelayedLocking(userId, true))
                 .thenReturn(result);
     }
 
-    private void mockStopUserWithDelayedLockingThrowsRemoteException(@UserIdInt int userId)
+    private void mockStopUserWithDelayedLockingThrowsIllegalStateException(@UserIdInt int userId)
             throws Exception {
-        when(mMockedIActivityManager.stopUserWithDelayedLocking(userId, true, null))
-                .thenThrow(new RemoteException());
+        when(mMockedActivityManagerHelper.stopUserWithDelayedLocking(userId, true))
+                .thenThrow(new IllegalStateException());
     }
 
     private void mockHalGetInitialInfo(@UserIdInt int currentUserId,
@@ -2814,11 +2828,11 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyAnyUserSwitch() throws Exception {
-        verify(mMockedIActivityManager).switchUser(anyInt());
+        verify(mMockedActivityManager).switchUser(any());
     }
 
     private void verifyNoUserSwitch() throws Exception {
-        verify(mMockedIActivityManager, never()).switchUser(anyInt());
+        verify(mMockedActivityManager, never()).switchUser(any());
     }
 
     @NonNull

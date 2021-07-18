@@ -22,10 +22,12 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
@@ -108,8 +110,11 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
     @Before
     public void setUp() {
         mContext = new ServiceLauncherContext(ApplicationProvider.getApplicationContext());
+        ActivityManagerHelper activityManagerHelper = mock(ActivityManagerHelper.class);
+
         mCarUserService = new CarUserService(mContext, mUserHal, mUserManager,
-                ActivityManager.getService(), /* maxRunningUsers= */ 2, mUxRestrictionService);
+                activityManagerHelper,
+                /* maxRunningUsers= */ 2, mUxRestrictionService);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
 
         mController = new VendorServiceController(mContext, Looper.getMainLooper());

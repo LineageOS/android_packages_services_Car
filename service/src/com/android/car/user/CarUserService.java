@@ -29,12 +29,11 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager.RootTaskInfo;
-import android.app.IActivityManager;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarUserService;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
@@ -162,7 +161,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public static final String HANDLER_THREAD_NAME = "UserService";
 
     private final Context mContext;
-    private final IActivityManager mAm;
+    private final ActivityManagerHelper mAmHelper;
+    private final ActivityManager mAm;
     private final UserManager mUserManager;
     private final int mMaxRunningUsers;
     private final InitialUserSetter mInitialUserSetter;
@@ -300,9 +300,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     public CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
-            @NonNull IActivityManager am, int maxRunningUsers,
+            @NonNull ActivityManagerHelper amHelper,
+            int maxRunningUsers,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService) {
-        this(context, hal, userManager, am, maxRunningUsers,
+        this(context, hal, userManager,
+                context.getSystemService(ActivityManager.class), amHelper, maxRunningUsers,
                 /* initialUserSetter= */ null, /* userPreCreator= */ null, uxRestrictionService,
                 null);
     }
@@ -310,7 +312,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @VisibleForTesting
     CarUserService(@NonNull Context context, @NonNull UserHalService hal,
             @NonNull UserManager userManager,
-            @NonNull IActivityManager am, int maxRunningUsers,
+            @NonNull ActivityManager am,
+            @NonNull ActivityManagerHelper amHelper,
+            int maxRunningUsers,
             @Nullable InitialUserSetter initialUserSetter,
             @Nullable UserPreCreator userPreCreator,
             @NonNull CarUxRestrictionsManagerService uxRestrictionService,
@@ -321,6 +325,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mContext = context;
         mHal = hal;
         mAm = am;
+        mAmHelper = amHelper;
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
         mLastPassengerId = UserHandle.USER_NULL;
@@ -609,14 +614,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public boolean startPassenger(@UserIdInt int passengerId, int zoneId) {
         checkManageUsersPermission("startPassenger");
         synchronized (mLockUser) {
-            try {
-                if (!mAm.startUserInBackgroundWithListener(passengerId, null)) {
-                    Slog.w(TAG, "could not start passenger");
-                    return false;
-                }
-            } catch (RemoteException e) {
-                // ignore
-                Slog.w(TAG, "error while starting passenger", e);
+            if (!mAmHelper.startUserInBackground(passengerId)) {
+                Slog.w(TAG, "could not start passenger");
                 return false;
             }
             if (!assignUserToOccupantZone(passengerId, zoneId)) {
@@ -662,7 +661,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // Passenger is a profile, so cannot be stopped through activity manager.
             // Instead, activities started by the passenger are stopped and the passenger is
             // unassigned from the zone.
-            stopAllTasks(passengerId);
+            mAmHelper.stopAllTasksForUser(passengerId);
             if (!unassignUserFromOccupantZone(passengerId)) {
                 Slog.w(TAG, "could not unassign user from occupant zone");
                 return false;
@@ -673,23 +672,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             callback.onPassengerStopped(passengerId);
         }
         return true;
-    }
-
-    private void stopAllTasks(@UserIdInt int userId) {
-        try {
-            for (RootTaskInfo info : mAm.getAllRootTaskInfos()) {
-                for (int i = 0; i < info.childTaskIds.length; i++) {
-                    if (info.childTaskUserIds[i] == userId) {
-                        int taskId = info.childTaskIds[i];
-                        if (!mAm.removeTask(taskId)) {
-                            Slog.w(TAG, "could not remove task " + taskId);
-                        }
-                    }
-                }
-            }
-        } catch (RemoteException e) {
-            Slog.e(TAG, "could not get stack info", e);
-        }
     }
 
     @Override
@@ -967,7 +949,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /**
-     * Calls the {@link UserHalService} and {@link IActivityManager} for user switch.
+     * Calls the {@link UserHalService} and {@link ActivityManager} for user switch.
      *
      * <p>
      * When everything works well, the workflow is:
@@ -975,7 +957,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      *   <li> {@link UserHalService} is called for HAL user switch with ANDROID_SWITCH request
      *   type, current user id, target user id, and a callback.
      *   <li> HAL called back with SUCCESS.
-     *   <li> {@link IActivityManager} is called for Android user switch.
+     *   <li> {@link ActivityManager} is called for Android user switch.
      *   <li> Receiver would receive {@code STATUS_SUCCESSFUL}.
      *   <li> Once user is unlocked, {@link UserHalService} is again called with ANDROID_POST_SWITCH
      *   request type, current user id, and target user id. In this case, the current and target
@@ -1039,14 +1021,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         // If User Hal is not supported, just android user switch.
         if (!isUserHalSupported()) {
-            try {
-                if (mAm.switchUser(targetUserId)) {
-                    sendUserSwitchResult(receiver, UserSwitchResult.STATUS_SUCCESSFUL);
-                    return;
-                }
-            } catch (RemoteException e) {
-                // ignore
-                Slog.w(TAG, "error while switching user " + targetUser.toFullString(), e);
+            if (mAm.switchUser(UserHandle.of(targetUserId))) {
+                sendUserSwitchResult(receiver, UserSwitchResult.STATUS_SUCCESSFUL);
+                return;
             }
             sendUserSwitchResult(receiver, UserSwitchResult.STATUS_ANDROID_FAILURE);
             return;
@@ -1119,20 +1096,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 switch (resp.status) {
                     case SwitchUserStatus.SUCCESS:
                         boolean switched;
-                        try {
-                            switched = mAm.switchUser(targetUserId);
-                            if (switched) {
-                                sendUserSwitchUiCallback(targetUserId);
-                                resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
-                                mRequestIdForUserSwitchInProcess = resp.requestId;
-                            } else {
-                                resultStatus = UserSwitchResult.STATUS_ANDROID_FAILURE;
-                                postSwitchHalResponse(resp.requestId, targetUserId);
-                            }
-                        } catch (RemoteException e) {
-                            // ignore
-                            Slog.w(TAG,
-                                    "error while switching user " + targetUser.toFullString(), e);
+                        switched = mAm.switchUser(UserHandle.of(targetUserId));
+                        if (switched) {
+                            sendUserSwitchUiCallback(targetUserId);
+                            resultStatus = UserSwitchResult.STATUS_SUCCESSFUL;
+                            mRequestIdForUserSwitchInProcess = resp.requestId;
+                        } else {
+                            resultStatus = UserSwitchResult.STATUS_ANDROID_FAILURE;
+                            postSwitchHalResponse(resp.requestId, targetUserId);
                         }
                         break;
                     case SwitchUserStatus.FAILURE:
@@ -1692,16 +1663,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 targetUserId);
         Slog.i(TAG, "User hal requested a user switch. Target user id " + targetUserId);
 
-        try {
-            boolean result = mAm.switchUser(targetUserId);
-            if (result) {
-                updateUserSwitchInProcess(requestId, targetUserId);
-            } else {
-                postSwitchHalResponse(requestId, targetUserId);
-            }
-        } catch (RemoteException e) {
-            // ignore
-            Slog.w(TAG, "error while switching user " + targetUserId, e);
+        boolean result = mAm.switchUser(UserHandle.of(targetUserId));
+        if (result) {
+            updateUserSwitchInProcess(requestId, targetUserId);
+        } else {
+            postSwitchHalResponse(requestId, targetUserId);
         }
     }
 
@@ -1928,14 +1894,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
 
-        try {
-            if (!mAm.startUserInBackground(userId)) {
-                Slogf.w(TAG, "Failed to start user %d in background", userId);
-                sendUserStartResult(userId, UserStartResult.STATUS_ANDROID_FAILURE, receiver);
-                return;
-            }
-        } catch (RemoteException e) {
-            Slogf.w(TAG, e, "Failed to start user %d in background", userId);
+        if (!mAmHelper.startUserInBackground(userId)) {
+            Slogf.w(TAG, "Failed to start user %d in background", userId);
+            sendUserStartResult(userId, UserStartResult.STATUS_ANDROID_FAILURE, receiver);
+            return;
         }
 
         // TODO(b/181331178): We are not updating mBackgroundUsersToRestart or
@@ -1977,24 +1939,19 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             if (user == ActivityManager.getCurrentUser()) {
                 continue;
             }
-            try {
-                if (mAm.startUserInBackground(user)) {
-                    if (mUserManager.isUserUnlockingOrUnlocked(user)) {
-                        // already unlocked / unlocking. No need to unlock.
+            if (mAmHelper.startUserInBackground(user)) {
+                if (mUserManager.isUserUnlockingOrUnlocked(user)) {
+                    // already unlocked / unlocking. No need to unlock.
+                    startedUsers.add(user);
+                } else if (mAmHelper.unlockUser(user)) {
+                    startedUsers.add(user);
+                } else { // started but cannot unlock
+                    Slog.w(TAG, "Background user started but cannot be unlocked:" + user);
+                    if (mUserManager.isUserRunning(user)) {
+                        // add to started list so that it can be stopped later.
                         startedUsers.add(user);
-                    } else if (mAm.unlockUser(user, null, null, null)) {
-                        startedUsers.add(user);
-                    } else { // started but cannot unlock
-                        Slog.w(TAG, "Background user started but cannot be unlocked:" + user);
-                        if (mUserManager.isUserRunning(user)) {
-                            // add to started list so that it can be stopped later.
-                            startedUsers.add(user);
-                        }
                     }
                 }
-            } catch (RemoteException e) {
-                // ignore
-                Slog.w(TAG, "error while starting user in background", e);
             }
         }
         // Keep only users that were re-started in mBackgroundUsersRestartedHere
@@ -2036,26 +1993,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId) {
-        try {
-            int r = mAm.stopUserWithDelayedLocking(userId, true, null);
-            switch(r) {
-                case ActivityManager.USER_OP_SUCCESS:
-                    return UserStopResult.STATUS_SUCCESSFUL;
-                case ActivityManager.USER_OP_ERROR_IS_SYSTEM:
-                    Slogf.w(TAG, "Cannot stop the system user: %d", userId);
-                    return UserStopResult.STATUS_FAILURE_SYSTEM_USER;
-                case ActivityManager.USER_OP_IS_CURRENT:
-                    Slogf.w(TAG, "Cannot stop the current user: %d", userId);
-                    return UserStopResult.STATUS_FAILURE_CURRENT_USER;
-                case ActivityManager.USER_OP_UNKNOWN_USER:
-                    Slogf.w(TAG, "Cannot stop the user that does not exist: %d", userId);
-                    return UserStopResult.STATUS_USER_DOES_NOT_EXIST;
-                default:
-                    Slogf.w(TAG, "stopUser failed, user: %d, err: %d", userId, r);
-            }
-        } catch (RemoteException e) {
-            // ignore the exception
-            Slogf.w(TAG, e, "error while stopping user: %d", userId);
+        int r = mAmHelper.stopUserWithDelayedLocking(userId, true);
+        switch(r) {
+            case ActivityManager.USER_OP_SUCCESS:
+                return UserStopResult.STATUS_SUCCESSFUL;
+            case ActivityManager.USER_OP_ERROR_IS_SYSTEM:
+                Slogf.w(TAG, "Cannot stop the system user: %d", userId);
+                return UserStopResult.STATUS_FAILURE_SYSTEM_USER;
+            case ActivityManager.USER_OP_IS_CURRENT:
+                Slogf.w(TAG, "Cannot stop the current user: %d", userId);
+                return UserStopResult.STATUS_FAILURE_CURRENT_USER;
+            case ActivityManager.USER_OP_UNKNOWN_USER:
+                Slogf.w(TAG, "Cannot stop the user that does not exist: %d", userId);
+                return UserStopResult.STATUS_USER_DOES_NOT_EXIST;
+            default:
+                Slogf.w(TAG, "stopUser failed, user: %d, err: %d", userId, r);
         }
         return UserStopResult.STATUS_ANDROID_FAILURE;
     }
