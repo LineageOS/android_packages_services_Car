@@ -1159,10 +1159,10 @@
     <string name="dock_not_found_text" product="tablet" msgid="5996654431405111902">"É necessário que você encaixe seu tablet antes de configurar o áudio da base."</string>
     <string name="dock_not_found_text" product="default" msgid="8275091896320216368">"É necessário que você encaixe o telefone antes de configurar o áudio da base."</string>
     <string name="dock_sounds_enable_title" msgid="3385931465312084061">"Som de inserção na base"</string>
-    <string name="dock_sounds_enable_summary_on" product="tablet" msgid="4322104626905111669">"Reproduzir sons ao inserir ou remover o tablet da base"</string>
-    <string name="dock_sounds_enable_summary_on" product="default" msgid="2751810717801098293">"Reproduzir sons ao inserir ou remover o telefone da base."</string>
-    <string name="dock_sounds_enable_summary_off" product="tablet" msgid="2125391395745266946">"Não reproduzir sons ao inserir ou remover o tablet da base"</string>
-    <string name="dock_sounds_enable_summary_off" product="default" msgid="9075438702849896866">"Não reproduzir sons ao inserir ou remover o telefone da base."</string>
+    <string name="dock_sounds_enable_summary_on" product="tablet" msgid="4322104626905111669">"Tocar sons ao inserir ou remover o tablet da base"</string>
+    <string name="dock_sounds_enable_summary_on" product="default" msgid="2751810717801098293">"Tocar sons ao inserir ou remover o telefone da base."</string>
+    <string name="dock_sounds_enable_summary_off" product="tablet" msgid="2125391395745266946">"Não tocar sons ao inserir ou remover o tablet da base"</string>
+    <string name="dock_sounds_enable_summary_off" product="default" msgid="9075438702849896866">"Não tocar sons ao inserir ou remover o telefone da base."</string>
     <string name="account_settings" msgid="1937600532993930396">"Contas"</string>
     <string name="accessibility_category_work" msgid="2808942060489460727">"Contas do perfil de trabalho - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_category_personal" msgid="1423427301759058762">"Contas do perfil pessoal"</string>
@@ -3501,7 +3501,7 @@
     <string name="zen_mode_from_none_messages" msgid="9069143820057833634">"Não permitir mensagens"</string>
     <string name="zen_mode_alarms" msgid="5528707742250954290">"Permitir alarmes"</string>
     <string name="zen_mode_alarms_list" msgid="9162210238533665593">"alarmes"</string>
-    <string name="zen_mode_media" msgid="3701280649874724055">"Reproduzir sons de mídia"</string>
+    <string name="zen_mode_media" msgid="3701280649874724055">"Tocar sons de mídia"</string>
     <string name="zen_mode_media_list" msgid="509327580522287125">"mídia"</string>
     <string name="zen_mode_system" msgid="597437265986355038">"Permitir sons de toque"</string>
     <string name="zen_mode_system_list" msgid="480192458506838077">"sons de toque"</string>
