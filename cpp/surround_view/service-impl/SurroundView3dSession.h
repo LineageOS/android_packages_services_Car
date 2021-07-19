@@ -108,6 +108,11 @@ public:
 private:
     void processFrames();
 
+// TODO: Add a enumerator for choosing library or service.
+#ifdef SURROUND_VIEW_LIBRARY
+    void handleSvCallbacks();
+#endif  // SURROUND_VIEW_LIBRARY
+
     // Set up and open the Evs camera(s), triggered when session is created.
     bool setupEvs();
 
@@ -134,6 +139,14 @@ private:
     // Stream subscribed for the session.
     sp<ISurroundViewStream> mStream GUARDED_BY(mAccessLock);
     StreamStateValues mStreamState GUARDED_BY(mAccessLock);
+
+#ifdef SURROUND_VIEW_LIBRARY
+    std::thread mCallbackThread;
+    condition_variable mSvFramesSignal GUARDED_BY(mAccessLock);
+    bool mSvFramesReady GUARDED_BY(mAccessLock);
+    bool mSvSignalReady GUARDED_BY(mAccessLock);
+    SvEvent mCurrentEvent GUARDED_BY(mAccessLock);
+#endif  // SURROUND_VIEW_LIBRARY
 
     std::thread mProcessThread; // The thread we'll use to process frames
 

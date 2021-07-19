@@ -155,9 +155,8 @@ cc_test{
     ],
 }
 
-cc_library{
-    name : "libsvsession",
-    vendor : true,
+cc_defaults{
+    name : "libsvsession-defaults",
     srcs : [
         "CameraUtils.cpp",
         "SurroundView2dSession.cpp",
@@ -210,6 +209,21 @@ cc_library{
     },
 }
 
+cc_library{
+    name: "libsvsession-hidl",
+    vendor: true,
+    defaults: ["libsvsession-defaults"],
+}
+
+cc_library{
+    name: "libsvsession-no-hidl",
+    vendor: true,
+    defaults: ["libsvsession-defaults"],
+    cflags: [
+        "-DSURROUND_VIEW_LIBRARY",
+    ],
+}
+
 cc_test{
     name : "sv_2d_session_tests",
     test_suites : ["device-tests"],
@@ -240,7 +254,7 @@ cc_test{
         "libhidlbase",
         "libhidlmemory",
         "libio_module",
-        "libsvsession",
+        "libsvsession-hidl",
         "libtinyxml2",
         "libui",
         "libutils",
@@ -298,7 +312,7 @@ cc_test{
         "libhidlbase",
         "libhidlmemory",
         "libio_module",
-        "libsvsession",
+        "libsvsession-hidl",
         "libtinyxml2",
         "libui",
         "libutils",
@@ -325,14 +339,8 @@ cc_test{
     ],
 }
 
-cc_binary{
-    name : "android.automotive.sv.service@1.0-impl",
-    vendor : true,
-    srcs : [
-        "SurroundViewService.cpp",
-        "service.cpp",
-    ],
-    init_rc : ["android.automotive.sv.service@1.0-impl.rc"],
+cc_defaults {
+    name : "surround_view_defaults",
     shared_libs : [
         "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.sv@1.0",
@@ -348,12 +356,13 @@ cc_binary{
         "libhidlbase",
         "libhidlmemory",
         "libio_module",
-        "libsvsession",
         "libui",
         "libutils",
         "libvhal_handler",
     ],
-    cflags: ["-DLOG_TAG=\"SurroundViewService\""],
+    cflags: [
+        "-DLOG_TAG=\"SurroundViewService\"",
+    ],
     required : [
         "cam0.png",
         "cam1.png",
@@ -377,6 +386,40 @@ cc_binary{
             enabled : true,
         },
     },
+
+}
+
+cc_library{
+    name : "libsurround_view",
+
+    defaults : ["surround_view_defaults"],
+
+    vendor: true,
+    srcs : [
+        "SurroundViewService.cpp",
+    ],
+    shared_libs : [
+        "libsvsession-no-hidl",
+    ],
+    cflags: [
+        "-DSURROUND_VIEW_LIBRARY",
+    ],
+}
+
+cc_binary{
+    name : "android.automotive.sv.service@1.0-impl",
+
+    defaults : ["surround_view_defaults"],
+
+    vendor : true,
+    srcs : [
+        "SurroundViewService.cpp",
+        "service.cpp",
+    ],
+    init_rc : ["android.automotive.sv.service@1.0-impl.rc"],
+    shared_libs : [
+        "libsvsession-hidl",
+    ],
     vintf_fragments : [
         "manifest_android.hardware.automotive.sv@1.0.xml",
     ],

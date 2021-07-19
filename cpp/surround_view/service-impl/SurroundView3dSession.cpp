@@ -245,7 +245,16 @@ void SurroundView3dSession::processFrames() {
 
     // Notify the SV client that no new results will be delivered.
     LOG(DEBUG) << "Notify SvEvent::STREAM_STOPPED";
+#ifdef SURROUND_VIEW_LIBRARY
+    {
+        scoped_lock<mutex> lock(mAccessLock);
+        mSvSignalReady = true;
+        mCurrentEvent = SvEvent::STREAM_STOPPED;
+        mSvFramesSignal.notify_all();
+    }
+#else
     mStream->notify(SvEvent::STREAM_STOPPED);
+#endif  // SURROUND_VIEW_LIBRARY
 
     {
         scoped_lock<mutex> lock(mAccessLock);
@@ -256,6 +265,32 @@ void SurroundView3dSession::processFrames() {
 
     ATRACE_END();
 }
+
+#ifdef SURROUND_VIEW_LIBRARY
+void SurroundView3dSession::handleSvCallbacks() {
+    ATRACE_BEGIN(__PRETTY_FUNCTION__);
+
+    while (true) {
+        unique_lock<mutex> lock(mAccessLock);
+
+        if (mStreamState != RUNNING) {
+            break;
+        }
+
+        mSvFramesSignal.wait(lock, [this]() { return mSvFramesReady || mSvSignalReady; });
+
+        if (mSvFramesReady) {
+            mStream->receiveFrames(mFramesRecord.frames);
+            mSvFramesReady = false;
+        } else {
+            mStream->notify(mCurrentEvent);
+            mSvSignalReady = false;
+        }
+    }
+
+    ATRACE_END();
+}
+#endif  // SURROUND_VIEW_LIBRARY
 
 SurroundView3dSession::SurroundView3dSession(sp<IEvsEnumerator> pEvs,
                                              VhalHandler* vhalHandler,
@@ -323,11 +358,24 @@ Return<SvResult> SurroundView3dSession::startStream(
         LOG(WARNING) << "VhalHandler is null. Ignored";
     }
 
+#ifdef SURROUND_VIEW_LIBRARY
+    mSvFramesReady = false;
+    mSvSignalReady = false;
+    mCallbackThread = thread([this]() { handleSvCallbacks(); });
+#endif  // SURROUND_VIEW_LIBRARY
+
     // TODO(b/158131080): the STREAM_STARTED event is not implemented in EVS
     // reference implementation yet. Once implemented, this logic should be
     // moved to EVS notify callback.
     LOG(DEBUG) << "Notify SvEvent::STREAM_STARTED";
+#ifdef SURROUND_VIEW_LIBRARY
+    mSvSignalReady = true;
+    mCurrentEvent = SvEvent::STREAM_STARTED;
+    mSvFramesSignal.notify_all();
+#else
     mStream->notify(SvEvent::STREAM_STARTED);
+#endif  // SURROUND_VIEW_LIBRARY
+
     mProcessingEvsFrames = false;
 
     // Start the frame generation thread
@@ -364,7 +412,9 @@ Return<void> SurroundView3dSession::stopStream() {
 Return<void> SurroundView3dSession::doneWithFrames(
     const SvFramesDesc& svFramesDesc){
     LOG(DEBUG) << __FUNCTION__;
+#ifndef SURROUND_VIEW_LIBRARY
     scoped_lock <mutex> lock(mAccessLock);
+#endif  // SURROUND_VIEW_LIBRARY
 
     mFramesRecord.inUse = false;
 
@@ -413,7 +463,13 @@ Return<SvResult> SurroundView3dSession::set3dConfig(const Sv3dConfig& sv3dConfig
 
     if (mStream != nullptr) {
         LOG(DEBUG) << "Notify SvEvent::CONFIG_UPDATED";
+#ifdef SURROUND_VIEW_LIBRARY
+        mSvSignalReady = true;
+        mCurrentEvent = SvEvent::CONFIG_UPDATED;
+        mSvFramesSignal.notify_all();
+#else
         mStream->notify(SvEvent::CONFIG_UPDATED);
+#endif  // SURROUND_VIEW_LIBRARY
     }
 
     return SvResult::OK;
@@ -585,7 +641,13 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
 
         if (mFramesRecord.inUse) {
             LOG(DEBUG) << "Notify SvEvent::FRAME_DROPPED";
+#ifdef SURROUND_VIEW_LIBRARY
+            mSvSignalReady = true;
+            mCurrentEvent = SvEvent::FRAME_DROPPED;
+            mSvFramesSignal.notify_all();
+#else
             mStream->notify(SvEvent::FRAME_DROPPED);
+#endif  // SURROUND_VIEW_LIBRARY
             return true;
         }
 
@@ -746,7 +808,12 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
         mFramesRecord.frames.sequenceId = sequenceId;
 
         mFramesRecord.inUse = true;
+#ifdef SURROUND_VIEW_LIBRARY
+        mSvFramesReady = true;
+        mSvFramesSignal.notify_all();
+#else
         mStream->receiveFrames(mFramesRecord.frames);
+#endif  // SURROUND_VIEW_LIBRARY
     }
 
     ATRACE_END();

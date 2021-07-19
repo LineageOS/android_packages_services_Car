@@ -1,4 +1,4 @@
-service sv_app /system/bin/sv_app
+service sv_service_app /system/bin/sv_service_app
     class hal
     priority -20
     user automotive_evs

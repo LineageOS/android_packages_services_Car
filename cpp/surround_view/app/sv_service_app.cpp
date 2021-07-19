@@ -25,9 +25,6 @@ using android::sp;
 using android::hardware::Return;
 using android::hardware::automotive::evs::V1_0::EvsResult;
 
-using BufferDesc_1_0  = android::hardware::automotive::evs::V1_0::BufferDesc;
-using DisplayState = android::hardware::automotive::evs::V1_0::DisplayState;
-
 using namespace android::hardware::automotive::sv::V1_0;
 using namespace android::hardware::automotive::evs::V1_1;
 using namespace android::hardware::automotive::sv::app;
@@ -37,15 +34,16 @@ int main(int argc, char** argv) {
     // Start up
     LOG(INFO) << "SV app starting";
 
+    // Users must specify the demo mode to either 2d or 3d
+    // Sample command: "adb shell /vendor/bin/sv_service_app --use2d"
     DemoMode mode = UNKNOWN;
-    for (int i=1; i< argc; i++) {
+    for (int i = 1; i < argc; i++) {
         if (strcmp(argv[i], "--use2d") == 0) {
             mode = DEMO_2D;
         } else if (strcmp(argv[i], "--use3d") == 0) {
             mode = DEMO_3D;
         } else {
-            LOG(WARNING) << "Ignoring unrecognized command line arg: "
-                         << argv[i];
+            LOG(WARNING) << "Ignoring unrecognized command line arg: " << argv[i];
         }
     }
 
@@ -68,24 +66,29 @@ int main(int argc, char** argv) {
 
     // Try to connect to SV service
     LOG(INFO) << "Acquiring SV Service";
-    android::sp<ISurroundViewService> surroundViewService
-        = ISurroundViewService::getService("default");
+    android::sp<ISurroundViewService> surroundViewService =
+            ISurroundViewService::getService("default");
 
     if (surroundViewService == nullptr) {
         LOG(ERROR) << "getService(default) returned NULL.";
         return EXIT_FAILURE;
-    } else {
-        LOG(INFO) << "Get ISurroundViewService default";
     }
 
     // Connect to evs display
-    int displayId;
+    // getDisplayIdList returns a vector of uint64_t, so any valid display id is
+    // guaranteed to be non-negative.
+    int displayId = -1;
     evs->getDisplayIdList([&displayId](auto idList) {
-        displayId = idList[0];
+        if (idList.size() > 0) {
+            displayId = idList[0];
+        }
     });
+    if (displayId == -1) {
+        LOG(ERROR) << "Cannot get a valid display";
+        return EXIT_FAILURE;
+    }
 
-    LOG(INFO) << "Acquiring EVS Display with ID: "
-              << displayId;
+    LOG(INFO) << "Acquiring EVS Display with ID: " << displayId;
     sp<IEvsDisplay> display = evs->openDisplay_1_1(displayId);
     if (display == nullptr) {
         LOG(ERROR) << "EVS Display unavailable.  Exiting.";
