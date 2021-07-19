@@ -109,8 +109,8 @@ PRODUCT_PACKAGES += \
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
 
 # Boot animation
-PRODUCT_COPY_FILES += \
-    packages/services/Car/car_product/bootanimations/bootanimation-832.zip:system/media/bootanimation.zip
+# PRODUCT_COPY_FILES += \
+#     packages/services/Car/car_product/bootanimations/bootanimation-832.zip:system/media/bootanimation.zip
 
 PRODUCT_LOCALES := \
     en_US \
