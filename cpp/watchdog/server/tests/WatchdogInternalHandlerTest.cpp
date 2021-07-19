@@ -470,6 +470,19 @@ TEST_F(WatchdogInternalHandlerTest,
     ASSERT_FALSE(status.isOk()) << status;
 }
 
+TEST_F(WatchdogInternalHandlerTest, TestControlProcessHealthCheck) {
+    setSystemCallingUid();
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(/*isEnabled=*/true)).Times(1);
+    Status status = mWatchdogInternalHandler->controlProcessHealthCheck(false);
+    ASSERT_TRUE(status.isOk()) << status;
+}
+
+TEST_F(WatchdogInternalHandlerTest, TestErrorOnControlProcessHealthCheckWithNonSystemCallingUid) {
+    EXPECT_CALL(*mMockWatchdogProcessService, setEnabled(_)).Times(0);
+    Status status = mWatchdogInternalHandler->controlProcessHealthCheck(false);
+    ASSERT_FALSE(status.isOk()) << status;
+}
+
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android

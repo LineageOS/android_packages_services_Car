@@ -31,6 +31,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.assertThrows;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyList;
@@ -1243,6 +1244,23 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 uids, new ArrayList<>());
 
         assertPackageInfoEquals(actualPackageInfos, expectedPackageInfos);
+    }
+
+    @Test
+    public void testSetProcessHealthCheckEnabled() throws Exception {
+        mCarWatchdogService.controlProcessHealthCheck(true);
+
+        verify(mMockCarWatchdogDaemon).controlProcessHealthCheck(eq(true));
+    }
+
+    @Test
+    public void testSetProcessHealthCheckEnabledWithDisconnectedDaemon() throws Exception {
+        crashWatchdogDaemon();
+
+        assertThrows(IllegalStateException.class,
+                () -> mCarWatchdogService.controlProcessHealthCheck(false));
+
+        verify(mMockCarWatchdogDaemon, never()).controlProcessHealthCheck(anyBoolean());
     }
 
     private void mockWatchdogDaemon() {
