@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "41e4cbac_0e29e12f",
+        "filename": "car_product/build/car_base.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 0,
+      "message": "Make it a separate change as well. After that, you can keep the rest of the change as \"Update method signatures....\" like you have in another one.",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 10
+      },
+      "revId": "bdfa9a515a3b837f3320d02de4c4e092db341610",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}

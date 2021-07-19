@@ -1,0 +1,119 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "6a8e5a08_2b0b9880",
+        "filename": "car_product/build/car.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 1,
+      "message": "This is not exactly an incompatibility... Make it a separate change, explaining that we keep Lineage boot anim or all build types.",
+      "range": {
+        "startLine": 112,
+        "startChar": 0,
+        "endLine": 113,
+        "endChar": 107
+      },
+      "revId": "0e27a5161a1214694a42de7fd22672338d4ae600",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "31303155_45230ebb",
+        "filename": "tests/CarDeveloperOptions/src/com/android/car/developeroptions/CryptKeeper.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 729,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 1,
+      "message": "Over 100 chars.",
+      "range": {
+        "startLine": 729,
+        "startChar": 16,
+        "endLine": 729,
+        "endChar": 139
+      },
+      "revId": "0e27a5161a1214694a42de7fd22672338d4ae600",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2ae4bb05_eb09f47b",
+        "filename": "tests/CarDeveloperOptions/src/com/android/car/developeroptions/password/ChooseLockPattern.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 267,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 1,
+      "message": "Over 100 chars.",
+      "range": {
+        "startLine": 267,
+        "startChar": 32,
+        "endLine": 267,
+        "endChar": 117
+      },
+      "revId": "0e27a5161a1214694a42de7fd22672338d4ae600",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "a3cf8ea6_e53cc305",
+        "filename": "tests/CarDeveloperOptions/src/com/android/car/developeroptions/password/ChooseLockPattern.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 278,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 1,
+      "message": "Over 100 chars.",
+      "range": {
+        "startLine": 278,
+        "startChar": 28,
+        "endLine": 278,
+        "endChar": 128
+      },
+      "revId": "0e27a5161a1214694a42de7fd22672338d4ae600",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "aa655b8d_56d36a42",
+        "filename": "tests/CarDeveloperOptions/src/com/android/car/developeroptions/password/ConfirmLockPattern.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 405,
+      "author": {
+        "id": 13648
+      },
+      "writtenOn": "2021-07-19T10:46:23Z",
+      "side": 1,
+      "message": "Over 100 chars.",
+      "range": {
+        "startLine": 405,
+        "startChar": 16,
+        "endLine": 405,
+        "endChar": 139
+      },
+      "revId": "0e27a5161a1214694a42de7fd22672338d4ae600",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
+    }
+  ]
+}
