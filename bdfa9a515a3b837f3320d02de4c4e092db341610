@@ -22,6 +22,30 @@
       "revId": "bdfa9a515a3b837f3320d02de4c4e092db341610",
       "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
       "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d93c8509_4360ec43",
+        "filename": "car_product/build/car_base.mk",
+        "patchSetId": 1
+      },
+      "lineNbr": 33,
+      "author": {
+        "id": 11883
+      },
+      "writtenOn": "2021-07-19T12:33:29Z",
+      "side": 0,
+      "message": "We better override it via the bp property in Trebuchet?",
+      "parentUuid": "41e4cbac_0e29e12f",
+      "range": {
+        "startLine": 33,
+        "startChar": 0,
+        "endLine": 33,
+        "endChar": 10
+      },
+      "revId": "bdfa9a515a3b837f3320d02de4c4e092db341610",
+      "serverId": "1ec6b3db-b2c1-4fa4-84a2-4c7efe89ba71",
+      "unresolved": true
     }
   ]
 }
