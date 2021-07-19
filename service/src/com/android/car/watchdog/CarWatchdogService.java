@@ -326,6 +326,14 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         return mWatchdogPerfHandler.getResourceOveruseConfigurations(resourceOveruseFlag);
     }
 
+    /**
+     * Enables/disables the watchdog daemon client health check process.
+     */
+    public void controlProcessHealthCheck(boolean disable) {
+        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
+        mWatchdogProcessHandler.controlProcessHealthCheck(disable);
+    }
+
     private void postRegisterToDaemonMessage() {
         CarServiceUtils.runOnMain(() -> {
             synchronized (mLock) {
