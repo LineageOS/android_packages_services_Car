@@ -32,7 +32,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.util.Objects;
 
 // TODO: move this class to CarSettings or at least to some common package (not admin)
-
 /**
  * Helper for notification-related tasks
  */

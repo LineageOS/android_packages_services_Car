@@ -20,11 +20,13 @@ import android.annotation.NonNull;
 import android.car.storagemonitoring.WearEstimate;
 import android.car.storagemonitoring.WearEstimateChange;
 import android.util.JsonWriter;
+
+import org.json.JSONException;
+import org.json.JSONObject;
+
 import java.io.IOException;
 import java.time.Instant;
 import java.util.Objects;
-import org.json.JSONException;
-import org.json.JSONObject;
 
 /**
  * This class represents a wear estimate record as stored by CarStorageMonitoringService.
