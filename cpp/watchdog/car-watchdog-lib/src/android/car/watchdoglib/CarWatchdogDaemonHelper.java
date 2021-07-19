@@ -291,6 +291,16 @@ public final class CarWatchdogDaemonHelper {
         invokeDaemonMethod((daemon) -> daemon.actionTakenOnResourceOveruse(actions));
     }
 
+    /**
+     * Enable/disable the internal client health check process.
+     * Disabling would stop the ANR killing process.
+     *
+     * @param disable True to disable watchdog's health check process.
+     */
+    public void controlProcessHealthCheck(boolean disable) throws RemoteException {
+        invokeDaemonMethod((daemon) -> daemon.controlProcessHealthCheck(disable));
+    }
+
     private void invokeDaemonMethod(Invokable r) throws RemoteException {
         ICarWatchdog daemon;
         synchronized (mLock) {

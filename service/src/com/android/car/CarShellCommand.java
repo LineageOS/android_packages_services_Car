@@ -18,6 +18,7 @@ package com.android.car;
 import static android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME;
 import static android.car.Car.PERMISSION_CAR_POWER;
 import static android.car.Car.PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG;
+import static android.car.Car.PERMISSION_USE_CAR_WATCHDOG;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -197,6 +198,8 @@ final class CarShellCommand extends ShellCommand {
             "watchdog-io-set-3p-foreground-bytes";
     private static final String COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES =
             "watchdog-io-get-3p-foreground-bytes";
+    private static final String COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK =
+            "watchdog-control-health-check";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -269,6 +272,8 @@ final class CarShellCommand extends ShellCommand {
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES,
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK,
+                PERMISSION_USE_CAR_WATCHDOG);
     }
 
     private static final String PARAM_DAY_MODE = "day";
@@ -612,6 +617,10 @@ final class CarShellCommand extends ShellCommand {
 
         pw.printf("\t%s\n", COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES);
         pw.println("\t  Gets third-party apps foreground I/O overuse threshold");
+
+        pw.printf("\t%s true|false\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
+        pw.println("\t  Enables/disables car watchdog process health check.");
+        pw.println("\t  Set to true to disable the process health check.");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -940,7 +949,9 @@ final class CarShellCommand extends ShellCommand {
             case COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES:
                 getWatchdogIoThirdPartyForegroundBytes(writer);
                 break;
-
+            case COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK:
+                controlWatchdogProcessHealthCheck(args, writer);
+                break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
                 showHelp(writer);
@@ -2201,6 +2212,19 @@ final class CarShellCommand extends ShellCommand {
                 configuration.getVendorPackagePrefixes(),
                 configuration.getPackagesToAppCategoryTypes())
                 .setIoOveruseConfiguration(configuration.getIoOveruseConfiguration());
+    }
+
+    private void controlWatchdogProcessHealthCheck(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        boolean newState = Boolean.parseBoolean(args[1]);
+        if (!newState && !args[1].equalsIgnoreCase("false")) {
+            writer.println("Failed to parse argument. Valid arguments: true | false");
+            return;
+        }
+        mCarWatchdogService.controlProcessHealthCheck(newState);
     }
 
     // Check if the given property is global

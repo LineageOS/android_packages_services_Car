@@ -193,6 +193,13 @@ public class CarWatchdogDaemonHelperTest {
         verify(mFakeCarWatchdog).actionTakenOnResourceOveruse(eq(actions));
     }
 
+    @Test
+    public void testIndirectCall_controlProcessHealthCheck() throws Exception {
+        mCarWatchdogDaemonHelper.controlProcessHealthCheck(true);
+
+        verify(mFakeCarWatchdog).controlProcessHealthCheck(eq(true));
+    }
+
     /*
      * Test that the {@link CarWatchdogDaemonHelper} throws {@code IllegalArgumentException} when
      * trying to register already-registered service again.
