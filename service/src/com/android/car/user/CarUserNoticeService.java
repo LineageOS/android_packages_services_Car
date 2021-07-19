@@ -25,6 +25,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.car.CarNotConnectedException;
+import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
 import android.car.user.CarUserManager;
@@ -46,7 +47,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 

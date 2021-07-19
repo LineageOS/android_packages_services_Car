@@ -18,11 +18,11 @@ package com.android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.util.EventLog;
-import android.util.Slog;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;

@@ -17,8 +17,8 @@
 package com.android.car.am;
 
 import android.app.Activity;
+import android.car.builtin.util.Slog;
 import android.os.Bundle;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.R;

@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.car.Car;
 import android.car.Car.FeaturerRequestEnum;
 import android.car.CarFeatures;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.os.Build;
 import android.os.Handler;
@@ -27,7 +28,6 @@ import android.os.HandlerThread;
 import android.util.AtomicFile;
 import android.util.IndentingPrintWriter;
 import android.util.Pair;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

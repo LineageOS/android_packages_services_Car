@@ -18,10 +18,10 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.content.Context;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;

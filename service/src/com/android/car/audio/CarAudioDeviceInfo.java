@@ -18,6 +18,7 @@ package com.android.car.audio;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.car.builtin.util.Slog;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
@@ -26,7 +27,6 @@ import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

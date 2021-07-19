@@ -16,9 +16,9 @@
 package com.android.car.evs;
 
 import android.annotation.SystemApi;
+import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
-import android.util.Slog;
 
 /**
  * Utility class for CarEvsService

@@ -19,6 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.car.builtin.util.Slog;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.media.AudioManager;
@@ -29,7 +30,6 @@ import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;

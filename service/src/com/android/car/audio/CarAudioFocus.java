@@ -18,6 +18,7 @@ package com.android.car.audio;
 import static com.android.car.audio.CarAudioContext.isCriticalAudioContext;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.car.builtin.util.Slog;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusInfo;
@@ -26,7 +27,6 @@ import android.media.audiopolicy.AudioPolicy;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
 import android.util.LocalLog;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

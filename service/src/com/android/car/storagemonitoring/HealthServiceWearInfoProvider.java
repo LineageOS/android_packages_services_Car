@@ -17,12 +17,12 @@ package com.android.car.storagemonitoring;
 
 import android.annotation.Nullable;
 import android.annotation.TestApi;
+import android.car.builtin.util.Slog;
 import android.hardware.health.V2_0.IHealth;
 import android.hardware.health.V2_0.Result;
 import android.hardware.health.V2_0.StorageInfo;
 import android.os.RemoteException;
 import android.util.MutableInt;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 

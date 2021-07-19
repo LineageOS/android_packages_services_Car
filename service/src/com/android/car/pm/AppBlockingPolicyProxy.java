@@ -15,6 +15,7 @@
  */
 package com.android.car.pm;
 
+import android.car.builtin.util.Slog;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.ICarAppBlockingPolicy;
 import android.car.content.pm.ICarAppBlockingPolicySetter;
@@ -27,7 +28,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;

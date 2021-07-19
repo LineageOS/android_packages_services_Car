@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.car.occupantawareness.DriverMonitoringDetection;
 import android.car.occupantawareness.GazeDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection;
@@ -27,7 +28,6 @@ import android.car.occupantawareness.SystemStatusEvent.DetectionTypeFlags;
 import android.car.occupantawareness.SystemStatusEvent.SystemStatus;
 import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
-import android.util.Slog;
 
 /*package*/ final class OccupantAwarenessUtils {
     private static final String TAG = CarLog.tagFor(OccupantAwarenessUtils.class);

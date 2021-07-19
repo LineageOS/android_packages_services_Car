@@ -27,6 +27,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.content.Context;
@@ -34,7 +35,6 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.UserHandle;
-import android.util.Slog;
 import android.widget.Button;
 import android.widget.Toast;
 

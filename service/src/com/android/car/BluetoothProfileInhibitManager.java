@@ -22,6 +22,7 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
@@ -31,7 +32,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 

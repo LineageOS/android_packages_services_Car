@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.car.IExperimentalCar;
 import android.car.IExperimentalCarHelper;
+import android.car.builtin.util.Slog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -28,7 +29,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

@@ -16,8 +16,8 @@
 package com.android.car.storagemonitoring;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.car.storagemonitoring.UidIoRecord;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

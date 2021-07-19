@@ -16,12 +16,12 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.test.ICarTest;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 

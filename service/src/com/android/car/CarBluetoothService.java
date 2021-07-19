@@ -21,6 +21,7 @@ import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetooth;
 import android.car.ICarBluetoothUserService;
 import android.car.IPerUserCarService;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
@@ -28,7 +29,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;

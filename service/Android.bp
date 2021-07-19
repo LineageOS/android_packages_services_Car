@@ -113,6 +113,10 @@ java_library {
         "src/com/android/car/Utils.java",
     ],
 
+    libs: [
+        "android.car.builtin-stubs"
+    ],
+
     static_libs: [
         "com.android.car.internal.common",
     ],

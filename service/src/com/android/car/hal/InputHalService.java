@@ -27,6 +27,7 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_ROTARY
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.CarOccupantZoneManager;
+import android.car.builtin.util.Slog;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -35,7 +36,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleHwKeyInputAction;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.SystemClock;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.InputDevice;
 import android.view.KeyEvent;

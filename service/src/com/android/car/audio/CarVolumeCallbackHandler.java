@@ -16,10 +16,10 @@
 package com.android.car.audio;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.car.media.ICarVolumeCallback;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Slog;
 
 import com.android.car.BinderInterfaceContainer;
 import com.android.car.CarLog;

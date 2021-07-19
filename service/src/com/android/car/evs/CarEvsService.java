@@ -31,6 +31,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsError;
@@ -63,7 +64,6 @@ import android.os.UserHandle;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;

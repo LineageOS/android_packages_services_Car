@@ -17,13 +17,13 @@
 package com.android.car.telemetry.publisher;
 
 import android.car.VehiclePropertyIds;
+import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

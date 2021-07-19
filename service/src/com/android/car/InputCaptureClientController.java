@@ -23,6 +23,7 @@ import static java.util.Map.entry;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.builtin.util.Slog;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
@@ -33,7 +34,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 

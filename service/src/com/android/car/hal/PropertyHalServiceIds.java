@@ -22,6 +22,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleHvacFanDirection;
+import android.car.builtin.util.Slog;
 import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardType;
@@ -42,7 +43,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleSeatOccupancyState;
 import android.hardware.automotive.vehicle.V2_0.VehicleTurnSignal;
 import android.hardware.automotive.vehicle.V2_0.VehicleUnit;
 import android.util.Pair;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

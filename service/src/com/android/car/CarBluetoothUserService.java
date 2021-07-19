@@ -24,9 +24,9 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
+import android.car.builtin.util.Slog;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseBooleanArray;
 
 import com.android.car.bluetooth.FastPairProvider;

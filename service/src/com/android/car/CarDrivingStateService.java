@@ -19,6 +19,7 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
+import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.ICarDrivingState;
@@ -36,7 +37,6 @@ import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

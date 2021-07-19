@@ -19,6 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
+import android.car.builtin.util.Slog;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
@@ -26,7 +27,6 @@ import android.os.Binder;
 import android.os.Bundle;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.AppFocusService;
 import com.android.car.AppFocusService.FocusOwnershipCallback;

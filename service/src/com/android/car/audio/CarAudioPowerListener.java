@@ -19,10 +19,10 @@ package com.android.car.audio;
 import static android.car.hardware.power.PowerComponent.AUDIO;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
-import android.util.Slog;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;

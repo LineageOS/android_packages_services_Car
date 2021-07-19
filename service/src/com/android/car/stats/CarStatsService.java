@@ -18,11 +18,11 @@ package com.android.car.stats;
 
 import android.app.StatsManager;
 import android.app.StatsManager.PullAtomMetadata;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.util.StatsEvent;
 
 import com.android.car.CarLog;

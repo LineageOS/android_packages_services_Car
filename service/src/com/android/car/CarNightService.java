@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.annotation.IntDef;
 import android.app.UiModeManager;
+import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -25,7 +26,6 @@ import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 

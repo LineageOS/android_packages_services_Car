@@ -20,10 +20,10 @@ import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

@@ -16,12 +16,12 @@
 
 package com.android.car.vms;
 
+import android.car.builtin.util.Slog;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsLayer;
 import android.car.vms.VmsLayerDependency;
 import android.car.vms.VmsLayersOffering;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;

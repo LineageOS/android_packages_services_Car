@@ -31,6 +31,7 @@ import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.Presentation;
 import android.app.TaskStackListener;
+import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -51,7 +52,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.Display;
 

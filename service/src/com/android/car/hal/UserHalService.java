@@ -27,6 +27,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
+import android.car.builtin.util.Slog;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.user.CarUserManager;
 import android.car.userlib.HalCallback;
@@ -56,7 +57,6 @@ import android.os.ServiceSpecificException;
 import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.EventLog;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 

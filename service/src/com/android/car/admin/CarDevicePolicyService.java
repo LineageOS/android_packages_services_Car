@@ -23,6 +23,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.ICarDevicePolicyService;
+import android.car.builtin.util.Slog;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
@@ -31,7 +32,6 @@ import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;

@@ -24,6 +24,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
@@ -32,7 +33,6 @@ import android.media.AudioManager;
 import android.os.Bundle;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

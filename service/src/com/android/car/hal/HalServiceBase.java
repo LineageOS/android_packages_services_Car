@@ -18,9 +18,9 @@ package com.android.car.hal;
 
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
-import android.util.Slog;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

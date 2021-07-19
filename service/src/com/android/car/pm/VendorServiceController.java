@@ -19,6 +19,7 @@ package com.android.car.pm;
 import static android.content.Context.BIND_AUTO_CREATE;
 
 import android.app.ActivityManager;
+import android.car.builtin.util.Slog;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -36,7 +37,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;

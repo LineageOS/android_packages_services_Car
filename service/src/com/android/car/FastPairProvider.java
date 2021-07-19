@@ -18,6 +18,7 @@ package com.android.car.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -25,7 +26,6 @@ import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;

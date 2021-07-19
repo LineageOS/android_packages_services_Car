@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
@@ -32,7 +33,6 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;

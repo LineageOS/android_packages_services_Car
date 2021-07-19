@@ -21,6 +21,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -33,7 +34,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
 import android.util.Pair;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.hal.PropertyHalService;

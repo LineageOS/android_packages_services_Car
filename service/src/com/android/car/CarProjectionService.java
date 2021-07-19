@@ -35,6 +35,7 @@ import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
+import android.car.builtin.util.Slog;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
 import android.car.projection.ProjectionStatus.ProjectionState;
@@ -65,7 +66,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.internal.annotations.GuardedBy;
