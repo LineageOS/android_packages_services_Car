@@ -71,7 +71,7 @@
         android:layout_marginEnd="@dimen/car_padding_3"
         android:layout_gravity="end"
         android:gravity="end"
-        systemui:intent="intent:#Intent;component=com.android.car.settings/.common.CarSettingActivities$QuickSettingActivity;launchFlags=0x24000000;end">
+        systemui:intent="intent:#Intent;component=com.android.car.settings/.common.CarSettingActivities$HomepageActivity;launchFlags=0x24000000;end">
 
         <com.android.systemui.statusbar.phone.StatusIconContainer
             android:id="@+id/statusIcons"
