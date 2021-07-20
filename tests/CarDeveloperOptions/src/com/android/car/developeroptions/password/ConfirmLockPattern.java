@@ -402,7 +402,8 @@ public class ConfirmLockPattern extends ConfirmDeviceCredentialBaseActivity {
 
                 final boolean verifyChallenge = getActivity().getIntent().getBooleanExtra(
                         ChooseLockSettingsHelper.EXTRA_KEY_HAS_CHALLENGE, false);
-                final LockscreenCredential credential = LockscreenCredential.createPattern(pattern);
+                final LockscreenCredential credential = LockscreenCredential.createPattern(pattern,
+                        LockPatternUtils.PATTERN_SIZE_DEFAULT);
                 Intent intent = new Intent();
                 if (verifyChallenge) {
                     if (isInternalActivity()) {
