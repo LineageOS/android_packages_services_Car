@@ -30,7 +30,6 @@ PRODUCT_COPY_FILES += \
 
 PRODUCT_PACKAGES += \
     com.android.wifi \
-    Home \
     BasicDreams \
     CaptivePortalLogin \
     CertInstaller \
