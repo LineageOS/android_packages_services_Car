@@ -337,6 +337,9 @@ cc_test{
 
 cc_defaults {
     name : "surround_view_defaults",
+    include_dirs: [
+        "packages/services/Car/cpp/evs/sampleDriver",
+    ],
     shared_libs : [
         "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.sv@1.0",
@@ -352,8 +355,10 @@ cc_defaults {
         "libhidlbase",
         "libhidlmemory",
         "libio_module",
+        "libmock_evs",
         "libui",
         "libutils",
+        "libtinyxml2",
         "libvhal_handler",
     ],
     cflags: [

@@ -31,6 +31,9 @@ namespace implementation {
 // Struct for camera related configurations.
 // Note: Does not include camera intrinsics and extrinsics, these are specified in EVS metadata.
 struct CameraConfig {
+    // Use MockEVS for camera source if true.
+    bool useMockEvs;
+
     // Id of logical group containing surronnd view cameras.
     std::string evsGroupId;
 

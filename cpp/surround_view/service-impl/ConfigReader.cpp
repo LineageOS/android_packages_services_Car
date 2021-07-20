@@ -200,6 +200,9 @@ bool ReadCameraConfig(const XMLElement* parent, CameraConfig* cameraConfig) {
     const XMLElement* cameraConfigElem = nullptr;
     RETURN_IF_FALSE(GetElement(parent, "CameraConfig", &cameraConfigElem));
     {
+        // Use Mock EVS
+        RETURN_IF_FALSE(ReadValue(cameraConfigElem, "UseMockEvs", &cameraConfig->useMockEvs));
+
         // Evs Group Id
         RETURN_IF_FALSE(ReadValue(cameraConfigElem, "EvsGroupId", &cameraConfig->evsGroupId));
 
