@@ -210,10 +210,10 @@ public class ChooseLockPattern extends SettingsActivity {
          */
         private final List<LockPatternView.Cell> mAnimatePattern =
                 Collections.unmodifiableList(Lists.newArrayList(
-                        LockPatternView.Cell.of(0, 0),
-                        LockPatternView.Cell.of(0, 1),
-                        LockPatternView.Cell.of(1, 1),
-                        LockPatternView.Cell.of(2, 1)
+                        LockPatternView.Cell.of(0, 0, LockPatternUtils.PATTERN_SIZE_DEFAULT),
+                        LockPatternView.Cell.of(0, 1, LockPatternUtils.PATTERN_SIZE_DEFAULT),
+                        LockPatternView.Cell.of(1, 1, LockPatternUtils.PATTERN_SIZE_DEFAULT),
+                        LockPatternView.Cell.of(2, 1, LockPatternUtils.PATTERN_SIZE_DEFAULT)
                 ));
 
         @Override
@@ -264,7 +264,8 @@ public class ChooseLockPattern extends SettingsActivity {
                         if (mChosenPattern == null) throw new IllegalStateException(
                                 "null chosen pattern in stage 'need to confirm");
                         try (LockscreenCredential confirmPattern =
-                                LockscreenCredential.createPattern(pattern)) {
+                                LockscreenCredential.createPattern(pattern,
+                                        LockPatternUtils.PATTERN_SIZE_DEFAULT)) {
                             if (mChosenPattern.equals(confirmPattern)) {
                                 updateStage(Stage.ChoiceConfirmed);
                             } else {
@@ -275,7 +276,8 @@ public class ChooseLockPattern extends SettingsActivity {
                         if (pattern.size() < LockPatternUtils.MIN_LOCK_PATTERN_SIZE) {
                             updateStage(Stage.ChoiceTooShort);
                         } else {
-                            mChosenPattern = LockscreenCredential.createPattern(pattern);
+                            mChosenPattern = LockscreenCredential.createPattern(pattern,
+                                    LockPatternUtils.PATTERN_SIZE_DEFAULT);
                             updateStage(Stage.FirstChoiceValid);
                         }
                     } else {

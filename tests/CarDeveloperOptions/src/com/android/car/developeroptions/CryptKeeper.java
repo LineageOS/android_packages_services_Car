@@ -726,7 +726,8 @@ public class CryptKeeper extends Activity implements TextView.OnEditorActionList
         public void onPatternDetected(List<LockPatternView.Cell> pattern) {
             mLockPatternView.setEnabled(false);
             if (pattern.size() >= MIN_LENGTH_BEFORE_REPORT) {
-                new DecryptTask().execute(new String(LockPatternUtils.patternToByteArray(pattern)));
+                new DecryptTask().execute(new String(LockPatternUtils.patternToByteArray(pattern,
+                        LockPatternUtils.PATTERN_SIZE_DEFAULT)));
             } else {
                 // Allow user to make as many of these as they want.
                 fakeUnlockAttempt(mLockPatternView);
