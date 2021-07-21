@@ -43,6 +43,10 @@
     <dimen name="hvac_panel_bg_radius">24dp</dimen>
     <dimen name="hvac_panel_button_radius">24dp</dimen>
     <dimen name="hvac_panel_full_expanded_height">456dp</dimen>
+    <dimen name="hvac_panel_exit_icon_dimen">28dp</dimen>
+    <dimen name="hvac_panel_exit_button_margin">34dp</dimen>
+    <dimen name="hvac_panel_title_margin">28dp</dimen>
+    <dimen name="hvac_panel_buttons_guideline">104dp</dimen>
     <dimen name="hvac_panel_icon_dimen">44dp</dimen>
     <dimen name="hvac_panel_icon_inset_dimen">22dp</dimen>
     <dimen name="hvac_panel_button_dimen">88dp</dimen>
