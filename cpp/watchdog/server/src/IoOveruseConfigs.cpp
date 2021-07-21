@@ -238,6 +238,16 @@ Result<void> isValidResourceOveruseConfigs(
     return {};
 }
 
+bool isSafeToKillAnyPackage(const std::vector<std::string>& packages,
+                            const std::unordered_set<std::string>& safeToKillPackages) {
+    for (const auto& packageName : packages) {
+        if (safeToKillPackages.find(packageName) != safeToKillPackages.end()) {
+            return true;
+        }
+    }
+    return false;
+}
+
 }  // namespace
 
 IoOveruseConfigs::ParseXmlFileFunction IoOveruseConfigs::sParseXmlFile =
@@ -724,11 +734,26 @@ bool IoOveruseConfigs::isSafeToKill(const PackageInfo& packageInfo) const {
     }
     switch (packageInfo.componentType) {
         case ComponentType::SYSTEM:
-            return mSystemConfig.mSafeToKillPackages.find(packageInfo.packageIdentifier.name) !=
-                    mSystemConfig.mSafeToKillPackages.end();
+            if (mSystemConfig.mSafeToKillPackages.find(packageInfo.packageIdentifier.name) !=
+                mSystemConfig.mSafeToKillPackages.end()) {
+                return true;
+            }
+            return isSafeToKillAnyPackage(packageInfo.sharedUidPackages,
+                                          mSystemConfig.mSafeToKillPackages);
         case ComponentType::VENDOR:
-            return mVendorConfig.mSafeToKillPackages.find(packageInfo.packageIdentifier.name) !=
-                    mVendorConfig.mSafeToKillPackages.end();
+            if (mVendorConfig.mSafeToKillPackages.find(packageInfo.packageIdentifier.name) !=
+                mVendorConfig.mSafeToKillPackages.end()) {
+                return true;
+            }
+            /*
+             * Packages under the vendor shared UID may contain system packages because when
+             * CarWatchdogService derives the shared component type it attributes system packages
+             * as vendor packages when there is at least one vendor package.
+             */
+            return isSafeToKillAnyPackage(packageInfo.sharedUidPackages,
+                                          mSystemConfig.mSafeToKillPackages) ||
+                    isSafeToKillAnyPackage(packageInfo.sharedUidPackages,
+                                           mVendorConfig.mSafeToKillPackages);
         default:
             return true;
     }
