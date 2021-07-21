@@ -17,7 +17,7 @@
     <item android:drawable="@drawable/hvac_button_heat_on_bg"
           android:width="@dimen/hvac_panel_button_dimen"
           android:height="@dimen/hvac_panel_button_dimen"/>
-    <item android:drawable="@drawable/ic_heated_steering"
+    <item android:drawable="@drawable/ic_heated_steering_on"
           android:start="@dimen/hvac_panel_icon_inset_dimen"
           android:top="@dimen/hvac_panel_icon_inset_dimen"
           android:end="@dimen/hvac_panel_icon_inset_dimen"

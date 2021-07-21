@@ -17,7 +17,7 @@
     <item android:drawable="@drawable/hvac_button_cool_on_bg"
           android:width="@dimen/hvac_panel_wide_button_width"
           android:height="@dimen/hvac_panel_button_dimen"/>
-    <item android:drawable="@drawable/ic_airflow_feet"
+    <item android:drawable="@drawable/ic_airflow_feet_on"
           android:start="@dimen/hvac_panel_icon_inset_dimen"
           android:top="@dimen/hvac_panel_icon_inset_dimen"
           android:end="@dimen/hvac_panel_icon_inset_dimen"
