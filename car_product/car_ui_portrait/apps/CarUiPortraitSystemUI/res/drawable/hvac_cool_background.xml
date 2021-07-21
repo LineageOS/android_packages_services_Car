@@ -14,11 +14,8 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Format for temperature in the temperature control view (No decimal) -->
-    <string name="hvac_temperature_format_fahrenheit" translatable="false">%.0f</string>
-
-    <!-- HVAC panel header [CHAR LIMIT=40]-->
-    <string name="hvac_panel_header">Comfort controls</string>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_selected="true"
+          android:drawable="@drawable/hvac_button_cool_on_bg"/>
+    <item android:drawable="@drawable/hvac_button_off_bg"/>
+</selector>

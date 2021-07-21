@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -15,10 +14,11 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Format for temperature in the temperature control view (No decimal) -->
-    <string name="hvac_temperature_format_fahrenheit" translatable="false">%.0f</string>
-
-    <!-- HVAC panel header [CHAR LIMIT=40]-->
-    <string name="hvac_panel_header">Comfort controls</string>
+<resources>
+    <declare-styleable name="FanSpeedSeekBar">
+        <!-- List of drawables that will be shown when the seat heat level button is clicked.
+             This list should have exactly R.integer.hvac_seat_heat_level_count items.
+             The first item should have the "off" drawable. -->
+        <attr name="fanSpeedThumbIcons" format="reference"/>
+    </declare-styleable>
 </resources>

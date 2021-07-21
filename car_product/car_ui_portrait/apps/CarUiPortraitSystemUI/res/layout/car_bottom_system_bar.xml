@@ -37,8 +37,7 @@
             android:layout_weight="1"
             android:layout_gravity="start"
             android:gravity="start|center_vertical"
-            systemui:hvacAreaId="49"
-            systemui:hvacTempFormat="@string/hvac_temperature_format">
+            systemui:hvacAreaId="49">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.TemperatureControlView>
 
@@ -87,8 +86,7 @@
             android:layout_gravity="end"
             android:layout_weight="1"
             android:gravity="end|center_vertical"
-            systemui:hvacAreaId="68"
-            systemui:hvacTempFormat="@string/hvac_temperature_format">
+            systemui:hvacAreaId="68">
             <include layout="@layout/adjustable_temperature_view"/>
         </com.android.systemui.car.hvac.TemperatureControlView>
 

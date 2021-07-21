@@ -26,4 +26,13 @@
     <color name="status_bar_background_color">#00000000</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
 
+    <color name="hvac_background_color">#202124</color>
+    <color name="hvac_master_switch_color">@color/car_nav_icon_fill_color</color>
+    <color name="hvac_on_icon_fill_color">@android:color/black</color>
+    <color name="hvac_off_icon_fill_color">@android:color/white</color>
+    <color name="hvac_on_cooling_background_color">#669DF6</color>
+    <color name="hvac_on_heating_background_color">#EE675C</color>
+    <color name="hvac_on_background_color">#50E3C2</color>
+    <color name="hvac_off_background_color">#3C4043</color>
+
 </resources>

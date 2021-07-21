@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="UTF-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -15,10 +14,15 @@
   ~ limitations under the License.
   -->
 
-<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <!-- Format for temperature in the temperature control view (No decimal) -->
-    <string name="hvac_temperature_format_fahrenheit" translatable="false">%.0f</string>
-
-    <!-- HVAC panel header [CHAR LIMIT=40]-->
-    <string name="hvac_panel_header">Comfort controls</string>
-</resources>
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="48"
+    android:viewportHeight="48">
+  <path
+      android:pathData="M33.6001,24.0001L40.8001,16.8001L33.6001,9.6001V14.4001H9.6001V19.2001H33.6001V24.0001Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+  <path
+      android:pathData="M14.4002,24L7.2002,31.2L14.4002,38.4V33.6H38.4002V28.8H14.4002V24Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"/>
+</vector>
