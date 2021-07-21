@@ -44,23 +44,6 @@ interface IScriptExecutorListener {
   void onSuccess(in @nullable Bundle stateToPersist);
 
   /**
-   * Default error type.
-   */
-  const int ERROR_TYPE_UNSPECIFIED = 0;
-
-  /**
-   * Used when an error occurs in the ScriptExecutor code.
-   */
-  const int ERROR_TYPE_SCRIPT_EXECUTOR_ERROR = 1;
-
-  /**
-   * Used when an error occurs while executing the Lua script (such as
-   * errors returned by lua_pcall)
-   */
-  const int ERROR_TYPE_LUA_RUNTIME_ERROR = 2;
-
-
-  /**
    * Called by ScriptExecutor to report errors that prevented the script
    * from running or completing execution successfully.
    *

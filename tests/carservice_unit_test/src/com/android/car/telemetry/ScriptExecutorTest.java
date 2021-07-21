@@ -21,6 +21,7 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.junit.Assert.fail;
 
 import android.car.telemetry.IScriptExecutor;
+import android.car.telemetry.IScriptExecutorConstants;
 import android.car.telemetry.IScriptExecutorListener;
 import android.content.ComponentName;
 import android.content.Context;
@@ -50,7 +51,11 @@ public final class ScriptExecutorTest {
 
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {
         public Bundle mSavedBundle;
+        public int mErrorType;
+        public String mMessage;
+        public String mStackTrace;
         public final CountDownLatch mSuccessLatch = new CountDownLatch(1);
+        public final CountDownLatch mErrorLatch = new CountDownLatch(1);
 
         @Override
         public void onScriptFinished(byte[] result) {
@@ -64,6 +69,10 @@ public final class ScriptExecutorTest {
 
         @Override
         public void onError(int errorType, String message, String stackTrace) {
+            mErrorType = errorType;
+            mMessage = message;
+            mStackTrace = stackTrace;
+            mErrorLatch.countDown();
         }
     }
 
@@ -86,6 +95,8 @@ public final class ScriptExecutorTest {
 
     private static final int BIND_SERVICE_TIMEOUT_SEC = 5;
     private static final int SCRIPT_SUCCESS_TIMEOUT_SEC = 10;
+    private static final int SCRIPT_ERROR_TIMEOUT_SEC = 10;
+
 
     private final ServiceConnection mScriptExecutorConnection =
             new ServiceConnection() {
@@ -102,7 +113,7 @@ public final class ScriptExecutorTest {
             };
 
     // Helper method to invoke the script and wait for it to complete and return the result.
-    public void runScriptAndWaitForResult(String script, String function, Bundle previousState)
+    private void runScriptAndWaitForResult(String script, String function, Bundle previousState)
             throws RemoteException {
         mScriptExecutor.invokeScript(script, function, mPublishedData, previousState,
                 mFakeScriptExecutorListener);
@@ -110,6 +121,20 @@ public final class ScriptExecutorTest {
             if (!mFakeScriptExecutorListener.mSuccessLatch.await(SCRIPT_SUCCESS_TIMEOUT_SEC,
                     TimeUnit.SECONDS)) {
                 fail("Failed to get on_success called by the script on time");
+            }
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+            fail(e.getMessage());
+        }
+    }
+
+    private void runScriptAndWaitForError(String script, String function) throws RemoteException {
+        mScriptExecutor.invokeScript(script, function, mPublishedData, new Bundle(),
+                mFakeScriptExecutorListener);
+        try {
+            if (!mFakeScriptExecutorListener.mErrorLatch.await(SCRIPT_ERROR_TIMEOUT_SEC,
+                    TimeUnit.SECONDS)) {
+                fail("Failed to get on_error called by the script on time");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -266,6 +291,59 @@ public final class ScriptExecutorTest {
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getBoolean("boolean")).isEqualTo(true);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo(
                 "ABRACADABRA");
+    }
+
+    @Test
+    public void invokeScript_scriptCallsOnError() throws RemoteException {
+        String script =
+                "function calls_on_error()\n"
+                        + "    if 1 ~= 2 then\n"
+                        + "        on_error(\"one is not equal to two\")\n"
+                        + "        return\n"
+                        + "    end\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "calls_on_error");
+
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo("one is not equal to two");
+    }
+
+    @Test
+    public void invokeScript_tooManyParametersInOnError() throws RemoteException {
+        String script =
+                "function too_many_params_in_on_error()\n"
+                        + "    if 1 ~= 2 then\n"
+                        + "        on_error(\"param1\", \"param2\")\n"
+                        + "        return\n"
+                        + "    end\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "too_many_params_in_on_error");
+
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_error can push only a single string parameter from Lua");
+    }
+
+    @Test
+    public void invokeScript_onErrorOnlyAcceptsString() throws RemoteException {
+        String script =
+                "function only_string()\n"
+                        + "    if 1 ~= 2 then\n"
+                        + "        on_error(false)\n"
+                        + "        return\n"
+                        + "    end\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "only_string");
+
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_error can push only a single string parameter from Lua");
     }
 }
 
