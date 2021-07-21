@@ -50,7 +50,7 @@
     <string name="car_permission_desc_receive_ducking" msgid="776376388266656512">"કારમાં કોઈ અન્ય ઑડિયો વગાડવાને કારણે જો કોઈ ઍપનું વૉલ્યૂમ ઘટાડવામાં આવતું હોય, તો ઍપને સૂચિત કરવાની મંજૂરી આપવામાં આવે છે."</string>
     <string name="car_permission_desc_mock_vehicle_hal" msgid="5235596491098649155">"આંતરિક પરીક્ષણ હેતુથી તમારી કારના HALનું અનુસરણ કરો."</string>
     <string name="car_permission_desc_audio_volume" msgid="536626185654307889">"તમારી કારના ઑડિયોનું વૉલ્યૂમ નિયંત્રિત કરવાની મંજૂરી આપો."</string>
-    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"તમારી કારના ઑડિઓ સેટિંગ્સ નિયંત્રિત કરો."</string>
+    <string name="car_permission_desc_audio_settings" msgid="7192007170677915937">"તમારી કારના ઑડિયો સેટિંગ નિયંત્રિત કરો."</string>
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"ઍપ્લિકેશન બ્લૉકિંગ"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"ડ્રાઇવિંગ કરતી વખતે ઍપ્લિકેશન બ્લૉકિંગ નિયંત્રિત કરો."</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"નૅવિગેશન મેનેજર"</string>
