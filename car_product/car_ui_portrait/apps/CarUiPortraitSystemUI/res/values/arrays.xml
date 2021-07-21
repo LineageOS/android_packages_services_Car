@@ -40,4 +40,15 @@
         <item>@drawable/ic_passenger_seat_cool_med</item>
         <item>@drawable/ic_passenger_seat_cool_high</item>
     </array>
+    <array name="hvac_fan_speed_icons">
+        <item>@drawable/fan_speed_seek_bar_thumb_off</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_1</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_2</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_3</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_4</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_5</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_6</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_7</item>
+        <item>@drawable/fan_speed_seek_bar_thumb_8</item>
+    </array>
 </resources>

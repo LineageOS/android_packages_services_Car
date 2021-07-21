@@ -181,7 +181,7 @@
            <include layout="@layout/fan_direction"/>
         </LinearLayout>
 
-        <com.android.systemui.car.hvac.referenceui.FanSpeedBar
+        <com.android.systemui.car.hvac.custom.FanSpeedSeekBar
             android:id="@+id/fan_speed_control"
             android:layout_width="0dp"
             android:layout_height="@dimen/hvac_panel_button_dimen"
@@ -189,6 +189,12 @@
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
+            android:progressDrawable="@drawable/fan_speed_seek_bar"
+            android:thumb="@drawable/fan_speed_seek_bar_thumb"
+            android:maxHeight="@dimen/hvac_panel_button_dimen"
+            android:minHeight="@dimen/hvac_panel_button_dimen"
+            android:background="@drawable/fan_speed_seek_bar_background"
+            android:splitTrack="false"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toRightOf="@+id/seat_heater_driver_on_off"
             app:layout_constraintRight_toLeftOf="@+id/seat_heater_passenger_on_off"

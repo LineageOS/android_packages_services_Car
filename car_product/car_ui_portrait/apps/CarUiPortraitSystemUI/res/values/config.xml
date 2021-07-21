@@ -39,4 +39,6 @@
     <!-- Animation helper for animating heads-up notification showing on screen and leaving the screen from the bottom -->
     <string name="config_headsUpNotificationAnimationHelper" translatable="false">
         com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper</string>
+
+    <integer name="hvac_num_fan_speeds">9</integer>
 </resources>
