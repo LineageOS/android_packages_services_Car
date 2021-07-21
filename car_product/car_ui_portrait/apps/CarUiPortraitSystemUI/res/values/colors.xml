@@ -26,4 +26,7 @@
     <color name="status_bar_background_color">#00000000</color>
     <drawable name="status_bar_background">@color/status_bar_background_color</drawable>
 
+    <color name="hvac_background_color">#282A2D</color>
+    <color name="hvac_module_background_color">#3C4043</color>
+    <color name="hvac_master_switch_color">@color/car_nav_icon_fill_color</color>
 </resources>
