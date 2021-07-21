@@ -15,10 +15,31 @@
   -->
 <overlay>
     <item target="id/bottom_card" value="@id/bottom_card" />
+    <item target="id/card_background" value="@id/card_background" />
+    <item target="id/card_background_image" value="@id/card_background_image" />
+    <item target="id/card_background_scrim" value="@id/card_background_scrim" />
+    <item target="id/card_icon" value="@id/card_icon" />
+    <item target="id/card_name" value="@id/card_name" />
+    <item target="id/card_view" value="@id/card_view" />
+    <item target="id/descriptive_text_layout" value="@id/descriptive_text_layout" />
+    <item target="id/text_block_layout" value="@id/text_block_layout" />
+    <item target="id/descriptive_text_with_controls_layout" value="@id/descriptive_text_with_controls_layout" />
+    <item target="id/media_descriptive_text" value="@id/media_descriptive_text" />
+    <item target="id/media_layout" value="@id/media_layout"/>
+    <item target="id/media_playback_controls_bar" value="@id/media_playback_controls_bar" />
+    <item target="id/optional_image" value="@id/optional_image" />
+    <item target="id/optional_timer" value="@id/optional_timer"/>
+    <item target="id/optional_timer_separator" value="@id/optional_timer_separator"/>
+    <item target="id/primary_text" value="@id/primary_text" />
+    <item target="id/secondary_text" value="@id/secondary_text"/>
 
+    <item target="layout/card_content_media" value="@layout/card_content_media" />
+    <item target="layout/card_fragment" value="@layout/card_fragment" />
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
+    <item target="layout/descriptive_text" value="@layout/descriptive_text" />
 
     <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
+
 </overlay>
