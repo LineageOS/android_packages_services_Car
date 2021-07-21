@@ -18,7 +18,7 @@
     <item>
         <shape xmlns:android="http://schemas.android.com/apk/res/android">
             <solid android:color="@color/hvac_off_background_color"/>
-            <corners android:radius="@dimen/hvac_panel_button_bg_radius"/>
+            <corners android:radius="@dimen/hvac_panel_off_button_radius"/>
         </shape>
     </item>
     <item>
@@ -26,7 +26,7 @@
             <item android:id="@android:id/mask">
                 <shape>
                     <solid android:color="?android:colorAccent"/>
-                    <corners android:radius="@dimen/hvac_panel_button_bg_radius"/>
+                    <corners android:radius="@dimen/hvac_panel_off_button_radius"/>
                 </shape>
             </item>
         </ripple>
