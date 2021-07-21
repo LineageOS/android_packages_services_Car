@@ -1,0 +1,26 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+  ~ Copyright (C) 2021 The Android Open Source Project
+  ~
+  ~ Licensed under the Apache License, Version 2.0 (the "License");
+  ~ you may not use this file except in compliance with the License.
+  ~ You may obtain a copy of the License at
+  ~
+  ~      http://www.apache.org/licenses/LICENSE-2.0
+  ~
+  ~ Unless required by applicable law or agreed to in writing, software
+  ~ distributed under the License is distributed on an "AS IS" BASIS,
+  ~ WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+  ~ See the License for the specific language governing permissions and
+  ~ limitations under the License.
+  -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="@dimen/hvac_panel_icon_dimen"
+    android:height="@dimen/hvac_panel_icon_dimen"
+    android:viewportWidth="44"
+    android:viewportHeight="44">
+  <path
+      android:pathData="M23.8333,3.6667H20.1666V22H23.8333V3.6667ZM31.0933,12.925L33.6783,10.34C40.1133,16.7934 40.1133,27.225 33.6783,33.66C27.2433,40.1134 16.7933,40.1134 10.3583,33.6784C3.9049,27.225 3.9049,16.775 10.34,10.34L12.925,12.9067C7.92,17.9117 7.9383,26.07 12.9433,31.075C17.93,36.0617 26.07,36.0617 31.0749,31.0567C36.0799,26.0517 36.0983,17.93 31.0933,12.925Z"
+      android:fillColor="@color/hvac_on_icon_fill_color"
+      android:fillType="evenOdd"/>
+</vector>
