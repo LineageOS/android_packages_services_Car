@@ -33,7 +33,8 @@
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_head_on"
             systemui:hvacTurnOffIfAutoOn="true"
             systemui:onValue="1"
-            systemui:offValue="0"/>
+            systemui:offValue="0"
+            systemui:preventToggleOff="true"/>
         <View
             android:layout_width="32dp"
             android:layout_height="match_parent"/>
@@ -49,7 +50,8 @@
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_feet_on"
             systemui:hvacTurnOffIfAutoOn="true"
             systemui:onValue="2"
-            systemui:offValue="0"/>
+            systemui:offValue="0"
+            systemui:preventToggleOff="true"/>
         <View
             android:layout_width="32dp"
             android:layout_height="match_parent"/>
@@ -65,7 +67,8 @@
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_airflow_windshield_on"
             systemui:hvacTurnOffIfAutoOn="true"
             systemui:onValue="6"
-            systemui:offValue="0"/>
+            systemui:offValue="0"
+            systemui:preventToggleOff="true"/>
     </LinearLayout>
     <View
         android:layout_width="match_parent"
