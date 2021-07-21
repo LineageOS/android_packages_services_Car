@@ -154,8 +154,6 @@ public class ActivityBlockingActivityTest {
         assertBlockingActivityNotFound();
 
         getContext().sendBroadcast(new Intent().setAction(ACTION_SHOW_DIALOG));
-        assertThat(mDevice.wait(Until.findObject(By.text(DoActivity.DIALOG_TITLE)),
-                UI_TIMEOUT_MS)).isNotNull();
 
         assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 UI_TIMEOUT_MS)).isNotNull();
