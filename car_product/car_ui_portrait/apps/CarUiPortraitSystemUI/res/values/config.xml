@@ -23,22 +23,11 @@
     <!-- Car System UI's OverlayViewsMediator.
          Whenever a new class is added, make sure to also add that class to OverlayWindowModule. -->
     <string-array name="config_carSystemUIOverlayViewsMediators" translatable="false">
-        <item>@string/config_notificationPanelViewMediator</item>
         <item>com.android.systemui.car.hvac.HvacPanelOverlayViewMediator</item>
         <item>com.android.systemui.car.keyguard.CarKeyguardViewMediator</item>
         <item>com.android.systemui.car.userswitcher.FullscreenUserSwitcherViewMediator</item>
         <item>com.android.systemui.car.userswitcher.UserSwitchTransitionViewMediator</item>
     </string-array>
-
-    <!-- Show heads-up notifications on the bottom -->
-    <bool name="config_showHeadsUpNotificationOnBottom">true</bool>
-
-    <string name="config_notificationPanelViewMediator" translatable="false">
-        com.android.systemui.car.notification.BottomNotificationPanelViewMediator</string>
-
-    <!-- Animation helper for animating heads-up notification showing on screen and leaving the screen from the bottom -->
-    <string name="config_headsUpNotificationAnimationHelper" translatable="false">
-        com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper</string>
 
     <integer name="hvac_num_fan_speeds">9</integer>
 </resources>
