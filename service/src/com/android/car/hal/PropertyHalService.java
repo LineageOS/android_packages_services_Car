@@ -203,7 +203,7 @@ public class PropertyHalService extends HalServiceBase {
     public CarPropertyValue getPropertySafe(int mgrPropId, int areaId) {
         try {
             return getProperty(mgrPropId, areaId);
-        } catch (ServiceSpecificException e) {
+        } catch (Exception e) {
             Slog.e(TAG, "get property value failed for property id: 0x "
                     + toHexString(mgrPropId) + " area id: 0x" + toHexString(areaId)
                     + " exception: " + e);
