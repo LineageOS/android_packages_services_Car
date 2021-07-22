@@ -61,6 +61,7 @@ PRODUCT_PACKAGES += \
     A2dpSinkService \
     PackageInstaller \
     carbugreportd \
+    vehicle_binding_util \
 
 # EVS service
 include packages/services/Car/cpp/evs/manager/evsmanager.mk
