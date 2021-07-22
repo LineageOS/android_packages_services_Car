@@ -3,6 +3,7 @@
     <Version>1.0</Version>
 
     <CameraConfig>
+        <UseMockEvs>false</UseMockEvs>
         <EvsGroupId>v4l2loopback_group0</EvsGroupId>
         <EvsCameraIds>
             <Front>/dev/video60</Front>

@@ -230,9 +230,6 @@ cc_test{
     vendor : true,
     srcs : [
         "SurroundView2dSessionTests.cpp",
-        "mock-evs/MockEvsCamera.cpp",
-        "mock-evs/MockEvsEnumerator.cpp",
-        "mock-evs/MockSurroundViewCallback.cpp",
     ],
     include_dirs: [
         "packages/services/Car/cpp/evs/sampleDriver",
@@ -259,6 +256,7 @@ cc_test{
         "libui",
         "libutils",
         "libvhal_handler",
+        "libmock_evs",
     ],
     // Disable builds except for arm64 and emulator devices
     enabled : false,
@@ -287,9 +285,6 @@ cc_test{
     vendor : true,
     srcs : [
         "SurroundView3dSessionTests.cpp",
-        "mock-evs/MockEvsCamera.cpp",
-        "mock-evs/MockEvsEnumerator.cpp",
-        "mock-evs/MockSurroundViewCallback.cpp",
     ],
     include_dirs: [
         "packages/services/Car/cpp/evs/sampleDriver",
@@ -317,6 +312,7 @@ cc_test{
         "libui",
         "libutils",
         "libvhal_handler",
+        "libmock_evs",
     ],
     // Disable builds except for arm64 and emulator devices
     enabled : false,
@@ -341,6 +337,9 @@ cc_test{
 
 cc_defaults {
     name : "surround_view_defaults",
+    include_dirs: [
+        "packages/services/Car/cpp/evs/sampleDriver",
+    ],
     shared_libs : [
         "android.hardware.automotive.evs@1.1",
         "android.hardware.automotive.sv@1.0",
@@ -356,8 +355,10 @@ cc_defaults {
         "libhidlbase",
         "libhidlmemory",
         "libio_module",
+        "libmock_evs",
         "libui",
         "libutils",
+        "libtinyxml2",
         "libvhal_handler",
     ],
     cflags: [

@@ -17,6 +17,7 @@
 #include <android-base/logging.h>
 
 #include "SurroundViewService.h"
+#include "mock-evs/MockEvsEnumerator.h"
 
 using namespace android_auto::surround_view;
 
@@ -93,22 +94,30 @@ std::vector<uint64_t> getAnimationPropertiesToRead(const AnimationConfig& animat
 }
 
 bool SurroundViewService::initialize() {
-    // Get the EVS manager service
-    LOG(INFO) << "Acquiring EVS Enumerator";
-    mEvs = IEvsEnumerator::getService("default");
-    if (mEvs == nullptr) {
-        LOG(ERROR) << "getService returned NULL.  Exiting.";
-        return false;
-    }
 
+    // Initialize the IOModule.
     IOStatus status = mIOModule->initialize();
     if (status != IOStatus::OK) {
         LOG(ERROR) << "IO Module cannot be initialized properly";
         return false;
     }
 
+    // Obtain the Config.
     if (!mIOModule->getConfig(&mConfig)) {
         LOG(ERROR) << "Cannot parse Car Config file properly";
+        return false;
+    }
+
+    // Get the EVS Enumerator.
+    LOG(INFO) << "Acquiring EVS Enumerator";
+    if (mConfig.cameraConfig.useMockEvs) {
+        mEvs = new MockEvsEnumerator();
+    } else {
+        mEvs = IEvsEnumerator::getService("default");
+    }
+
+    if (mEvs == nullptr) {
+        LOG(ERROR) << "Failed to obtain EVS Enumerator. Exiting.";
         return false;
     }
 
