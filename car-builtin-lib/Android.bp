@@ -61,7 +61,7 @@ droidstubs {
     name: "android.car.builtin-stubs-docs",
     defaults: ["android.car.builtin-docs-default"],
     args: "--hide UnavailableSymbol --hide HiddenSuperclass " +
-        "--no-docs --stub-packages android.car.builtin* " +
+        "--stub-packages android.car.builtin* " +
         "--show-annotation android.annotation.SystemApi",
     installable: false,
     check_api: {
