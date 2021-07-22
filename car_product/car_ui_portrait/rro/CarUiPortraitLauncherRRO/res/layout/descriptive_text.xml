@@ -67,6 +67,7 @@
         android:layout_width="wrap_content"
         android:singleLine="true"
         android:textAppearance="?android:attr/textAppearanceSmall"
+        android:layout_toEndOf="@id/optional_timer_separator"
         android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/descriptive_text_vertical_margin"/>
 </RelativeLayout>
