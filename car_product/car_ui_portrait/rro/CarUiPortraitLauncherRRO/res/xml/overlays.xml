@@ -33,6 +33,11 @@
     <item target="id/primary_text" value="@id/primary_text" />
     <item target="id/secondary_text" value="@id/secondary_text"/>
 
+    <item target="id/button_trio" value="@id/button_trio"/>
+    <item target="id/button_center" value="@id/button_center"/>
+    <item target="id/button_left" value="@id/button_left"/>
+    <item target="id/button_right" value="@id/button_right"/>
+
     <item target="layout/card_content_media" value="@layout/card_content_media" />
     <item target="layout/card_fragment" value="@layout/card_fragment" />
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
