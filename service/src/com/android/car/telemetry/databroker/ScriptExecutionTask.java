@@ -30,10 +30,12 @@ import com.android.car.telemetry.TelemetryProto;
 public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     private final long mTimestampMillis;
     private final DataSubscriber mSubscriber;
+    private final Bundle mData;
 
     ScriptExecutionTask(DataSubscriber subscriber, Bundle data, long elapsedRealtimeMillis) {
         mTimestampMillis = elapsedRealtimeMillis;
         mSubscriber = subscriber;
+        mData = data;
     }
 
     /** Returns the priority of the task. */
@@ -44,6 +46,18 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     /** Returns the creation timestamp of the task. */
     public long getCreationTimestampMillis() {
         return mTimestampMillis;
+    }
+
+    public TelemetryProto.MetricsConfig getMetricsConfig() {
+        return mSubscriber.getMetricsConfig();
+    }
+
+    public String getHandlerName() {
+        return mSubscriber.getHandlerName();
+    }
+
+    public Bundle getData() {
+        return mData;
     }
 
     /**

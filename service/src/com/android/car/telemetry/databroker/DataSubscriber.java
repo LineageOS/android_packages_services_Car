@@ -47,6 +47,11 @@ public class DataSubscriber {
         mPriority = priority;
     }
 
+    /** Returns the handler function name for this subscriber. */
+    public String getHandlerName() {
+        return mSubscriber.getHandler();
+    }
+
     /**
      * Returns the publisher param {@link com.android.car.telemetry.TelemetryProto.Publisher} that
      * contains the data source and the config.
