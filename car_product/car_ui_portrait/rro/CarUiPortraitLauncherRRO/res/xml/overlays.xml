@@ -38,6 +38,12 @@
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
 
+    <item target="dimen/total_screen_height" value="@dimen/total_screen_height"/>
+    <item target="dimen/total_screen_width" value="@dimen/total_screen_width"/>
+    <item target="dimen/control_bar_height" value="@dimen/control_bar_height"/>
+    <item target="dimen/default_app_display_area_height" value="@dimen/default_app_display_area_height"/>
+    <item target="dimen/title_bar_display_area_height" value="@dimen/title_bar_display_area_height"/>
+
     <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
