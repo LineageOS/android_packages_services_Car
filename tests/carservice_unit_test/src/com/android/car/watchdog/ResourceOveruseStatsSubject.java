@@ -71,7 +71,7 @@ public final class ResourceOveruseStatsSubject extends Subject {
         if (actual == null || expected == null) {
             return false;
         }
-        return actual.getPackageName() == expected.getPackageName()
+        return actual.getPackageName().equals(expected.getPackageName())
                 && actual.getUserHandle().equals(expected.getUserHandle())
                 && IoOveruseStatsSubject.isEquals(actual.getIoOveruseStats(),
                     expected.getIoOveruseStats());
