@@ -39,4 +39,6 @@
     <!-- This height is from the top of navbar not accounting for the control bar height. -->
     <dimen name="default_app_display_area_height">1055dp</dimen>
     <dimen name="title_bar_display_area_height">96dp</dimen>
+    <!-- This value is 500dp + (top of title bar)  -->
+    <dimen name="title_bar_display_area_touch_drag_threshold">1204dp</dimen>
 </resources>
