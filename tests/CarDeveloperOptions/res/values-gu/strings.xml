@@ -139,13 +139,13 @@
     <string name="bluetooth_ask_discovery_no_name" product="default" msgid="6195796094297507404">"કોઈ ઍપ્લિકેશન તમારા ફોનને અન્ય બ્લૂટૂથ ઉપકરણો પર <xliff:g id="TIMEOUT">%1$d</xliff:g> સેકન્ડ માટે દૃશ્યક્ષમ બનાવવા માગે છે."</string>
     <string name="bluetooth_ask_lasting_discovery" product="tablet" msgid="2702942027812132427">"<xliff:g id="APP_NAME">%1$s</xliff:g>, તમારા ટૅબ્લેટને અન્ય બ્લૂટૂથ ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_lasting_discovery" product="default" msgid="7796723473397303412">"<xliff:g id="APP_NAME">%1$s</xliff:g>, તમારા ફોનને અન્ય બ્લૂટૂથ ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
-    <string name="bluetooth_ask_lasting_discovery_no_name" product="tablet" msgid="5961921359655434504">"કોઈ ઍપ્લિકેશન તમારા ટેબ્લેટને અન્ય બ્લૂટૂથ ઉપકરણો પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગ્સમાં બદલી શકો છો."</string>
+    <string name="bluetooth_ask_lasting_discovery_no_name" product="tablet" msgid="5961921359655434504">"કોઈ ઍપ તમારા ટૅબ્લેટને અન્ય બ્લૂટૂથ ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_lasting_discovery_no_name" product="default" msgid="3585910858758443872">"કોઈ ઍપ તમારા ફોનને અન્ય બ્લૂટૂથ ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_enablement_and_discovery" product="tablet" msgid="5676466923424941153">"<xliff:g id="APP_NAME">%1$s</xliff:g>, બ્લૂટૂથ ચાલુ કરવા અને તમારા ટેબ્લેટને અન્ય ઉપકરણો પર <xliff:g id="TIMEOUT">%2$d</xliff:g> સેકન્ડ માટે દૃશ્યક્ષમ બનાવવા માગે છે."</string>
     <string name="bluetooth_ask_enablement_and_discovery" product="default" msgid="507088376226791063">"<xliff:g id="APP_NAME">%1$s</xliff:g>, બ્લૂટૂથ ચાલુ કરવા અને તમારા ફોનને અન્ય ઉપકરણો પર <xliff:g id="TIMEOUT">%2$d</xliff:g> સેકન્ડ માટે દૃશ્યક્ષમ બનાવવા માગે છે."</string>
     <string name="bluetooth_ask_enablement_and_discovery_no_name" product="tablet" msgid="1164681893121736219">"કોઈ ઍપ્લિકેશન બ્લૂટૂથ ચાલુ કરવા અને તમારા ટેબ્લેટને અન્ય ઉપકરણો પર <xliff:g id="TIMEOUT">%1$d</xliff:g> સેકન્ડ માટે દૃશ્યક્ષમ બનાવવા માગે છે."</string>
     <string name="bluetooth_ask_enablement_and_discovery_no_name" product="default" msgid="2542247690119921188">"ઍપ્લિકેશન બ્લૂટૂથ ચાલુ કરવા અને તમારા ફોનને અન્ય ઉપકરણો પર <xliff:g id="TIMEOUT">%1$d</xliff:g> સેકન્ડ માટે દૃશ્યક્ષમ બનાવવા માગે છે."</string>
-    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"<xliff:g id="APP_NAME">%1$s</xliff:g>, બ્લૂટૂથ ચાલુ કરવા અને તમારા ટેબ્લેટને અન્ય ઉપકરણો પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગ્સમાં બદલી શકો છો."</string>
+    <string name="bluetooth_ask_enablement_and_lasting_discovery" product="tablet" msgid="7118362102769177771">"<xliff:g id="APP_NAME">%1$s</xliff:g>, બ્લૂટૂથ ચાલુ કરવા અને તમારા ટૅબ્લેટને અન્ય ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_enablement_and_lasting_discovery" product="default" msgid="2577488464813970727">"<xliff:g id="APP_NAME">%1$s</xliff:g>, બ્લૂટૂથ ચાલુ કરવા અને તમારા ફોનને અન્ય ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="tablet" msgid="7083038132794842691">"કોઈ ઍપ બ્લૂટૂથ ચાલુ કરવા અને તમારા ટૅબ્લેટને અન્ય ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
     <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"કોઈ ઍપ બ્લૂટૂથ ચાલુ કરવા અને તમારા ફોનને અન્ય ડિવાઇસ પર દૃશ્યક્ષમ બનાવવા માગે છે. તમે આને પછીથી બ્લૂટૂથ સેટિંગમાં બદલી શકો છો."</string>
@@ -299,7 +299,7 @@
     <string name="add" msgid="903114118076816060">"ઉમેરો"</string>
     <string name="settings_label" msgid="7263237773415875813">"સેટિંગ"</string>
     <string name="settings_label_launcher" msgid="500627679902923496">"સેટિંગ"</string>
-    <string name="settings_shortcut" msgid="4503714880251502167">"સેટિંગ્સ શૉર્ટકટ"</string>
+    <string name="settings_shortcut" msgid="4503714880251502167">"સેટિંગ શૉર્ટકટ"</string>
     <string name="airplane_mode" msgid="4508870277398231073">"એરપ્લેન મોડ"</string>
     <string name="wireless_networks_settings_title" msgid="4298430520189173949">"વાયરલેસ અને નેટવર્ક્સ"</string>
     <string name="radio_controls_summary" msgid="4596981962167684814">"વાઇ-ફાઇ, બ્લૂટૂથ, એરપ્લેન મોડ, મોબાઇલ નેટવર્ક્સ અને VPN સંચાલિત કરો"</string>
@@ -795,7 +795,7 @@
     <string name="bluetooth_dock_settings_title" msgid="4444650787249778130">"ઑડિયો માટે ડૉકનો ઉપયોગ કરો"</string>
     <string name="bluetooth_dock_settings_headset" msgid="6043070852100434218">"સ્પીકર ફોન તરીકે"</string>
     <string name="bluetooth_dock_settings_a2dp" msgid="6618893632901282661">"સંગીત અને મીડિયા માટે"</string>
-    <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"સેટિંગ્સ યાદ રાખો"</string>
+    <string name="bluetooth_dock_settings_remember" msgid="5512957564380371067">"સેટિંગ યાદ રાખો"</string>
     <string name="bluetooth_max_connected_audio_devices_string" msgid="6799012540303500020">"મહત્તમ સંખ્યામાં કનેક્ટ થયેલા બ્લૂટૂથ ઑડિઓ ઉપકરણો"</string>
     <string name="bluetooth_max_connected_audio_devices_dialog_title" msgid="6049527354499590314">"મહત્તમ સંખ્યામાં કનેક્ટ થયેલા બ્લૂટૂથ ઑડિઓ ઉપકરણો પસંદ કરો"</string>
     <string name="wifi_display_settings_title" msgid="8718182672694575456">"કાસ્ટ કરો"</string>
@@ -1029,7 +1029,7 @@
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
     <skip />
     <string name="wifi_advanced_settings_label" msgid="9147669851658738784">"IP સેટિંગ"</string>
-    <string name="wifi_advanced_not_available" msgid="5751084989400195009">"આ વપરાશકર્તા માટે વાઇ-ફાઇ વિગતવાર સેટિંગ્સ ઉપલબ્ધ નથી"</string>
+    <string name="wifi_advanced_not_available" msgid="5751084989400195009">"આ વપરાશકર્તા માટે વાઇ-ફાઇ વિગતવાર સેટિંગ ઉપલબ્ધ નથી"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"સાચવો"</string>
     <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"રદ કરો"</string>
     <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"એક માન્ય IP ઍડ્રેસ લખો."</string>
@@ -1256,7 +1256,7 @@
     <string name="screensaver_settings_when_to_dream" msgid="3763052013516826348">"ક્યારે શરૂ કરવું"</string>
     <string name="screensaver_settings_current" msgid="4017556173596361672">"વર્તમાન સ્ક્રીન સેવર"</string>
     <string name="screensaver_settings_dream_start" msgid="3772227299054662550">"હવે પ્રારંભ કરો"</string>
-    <string name="screensaver_settings_button" msgid="4662384378821837589">"સેટિંગ્સ"</string>
+    <string name="screensaver_settings_button" msgid="4662384378821837589">"સેટિંગ"</string>
     <string name="automatic_brightness" msgid="8663792987774126192">"સ્વચલિત તેજ"</string>
     <string name="lift_to_wake_title" msgid="5523752279947392868">"જાગૃત કરવા માટે લિફ્ટ કરો"</string>
     <string name="ambient_display_screen_title" msgid="2632871676917956691">"ઍમ્બિઅન્ટ ડિસ્પ્લે"</string>
@@ -1267,7 +1267,7 @@
     <string name="doze_always_on_summary" msgid="7654436900436328950">"સમય, નોટિફિકેશનના આઇકન અને અન્ય માહિતી બતાવો. વધારેલ બૅટરી વપરાશ."</string>
     <string name="title_font_size" msgid="5021464556860010851">"ફોન્ટનું કદ"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"ટેક્સ્ટને નાની અથવા મોટી કરો"</string>
-    <string name="sim_lock_settings" msgid="1986924650622642189">"સિમ કાર્ડ લૉક સેટિંગ્સ"</string>
+    <string name="sim_lock_settings" msgid="1986924650622642189">"સિમ કાર્ડ લૉક સેટિંગ"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"સિમ કાર્ડ લૉક"</string>
     <string name="sim_lock_settings_summary_off" msgid="348656447968142307">"બંધ"</string>
     <string name="sim_lock_settings_summary_on" msgid="3440707542514810045">"લૉક કરેલ"</string>
@@ -1796,7 +1796,7 @@
     <string name="install_all_warning" product="tablet" msgid="4580699862358542727">"તમારું ટૅબ્લેટ અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ટૅબ્લેટને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="install_all_warning" product="default" msgid="7445839116997296358">"તમારો ફોન અને વ્યક્તિગત ડેટા અજાણી ઍપ્લિકેશનોના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ્લિકેશનો ઇન્સ્ટૉલ કરીને તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ફોનને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
     <string name="install_all_warning" product="device" msgid="9141585291103603515">"તમારું ઉપકરણ અને વ્યક્તિગત ડેટા અજાણી ઍપના હુમલા પ્રતિ વધુ સંવેદનશીલ છે. આ સ્રોત પરથી ઍપ ઇન્સ્ટૉલ કરીને, તમે સંમત થાઓ છો કે તેમનો ઉપયોગ કરવાના પરિણામે તમારા ઉપકરણને થતી કોઈ પણ ક્ષતિ કે ડેટાના નુકસાન માટે તમે જવાબદાર છો."</string>
-    <string name="advanced_settings" msgid="6282069364060968122">"વિગતવાર સેટિંગ્સ"</string>
+    <string name="advanced_settings" msgid="6282069364060968122">"વિગતવાર સેટિંગ"</string>
     <string name="advanced_settings_summary" msgid="5912237062506771716">"વધુ સેટિંગ વિકલ્પો ચાલુ કરો"</string>
     <string name="application_info_label" msgid="3886253474964599105">"ઍપની માહિતી"</string>
     <string name="storage_label" msgid="1109537840103290384">"સ્ટોરેજ"</string>
@@ -2191,7 +2191,7 @@
     <string name="accessibility_no_services_installed" msgid="6979918129976547334">"કોઈ સેવાઓ ઇન્સ્ટોલ કરેલી નથી"</string>
     <string name="accessibility_no_service_selected" msgid="3909390566736834080">"કોઈ સેવા પસંદ કરેલી નથી"</string>
     <string name="accessibility_service_default_description" msgid="857921874644864502">"કોઈ વર્ણન પ્રદાન કરવામાં આવેલ નથી."</string>
-    <string name="settings_button" msgid="8557747862035866953">"સેટિંગ્સ"</string>
+    <string name="settings_button" msgid="8557747862035866953">"સેટિંગ"</string>
     <string name="print_settings" msgid="7886184656544483072">"પ્રિન્ટિંગ"</string>
     <string name="print_settings_summary_no_service" msgid="634173687975841526">"બંધ"</string>
     <plurals name="print_settings_summary" formatted="false" msgid="7580293760281445137">
@@ -2394,8 +2394,8 @@
     <string name="usage_type_actual_power" msgid="8067253427718526111">"નિરીક્ષિત પાવર ઉપયોગ"</string>
     <string name="battery_action_stop" msgid="1866624019460630143">"ફરજિયાત બંધ કરો"</string>
     <string name="battery_action_app_details" msgid="1077011181969550402">"ઍપની માહિતી"</string>
-    <string name="battery_action_app_settings" msgid="587998773852488539">"ઍપ્લિકેશન સેટિંગ્સ"</string>
-    <string name="battery_action_display" msgid="4887913003634317465">"સ્ક્રીન સેટિંગ્સ"</string>
+    <string name="battery_action_app_settings" msgid="587998773852488539">"ઍપ સેટિંગ"</string>
+    <string name="battery_action_display" msgid="4887913003634317465">"સ્ક્રીન સેટિંગ"</string>
     <string name="battery_action_wifi" msgid="7123520587925323824">"વાઇ-ફાઇ સેટિંગ"</string>
     <string name="battery_action_bluetooth" msgid="718594420017519807">"બ્લૂટૂથ સેટિંગ"</string>
     <string name="battery_desc_voice" msgid="4731966028374974986">"વૉઇસ કૉલ્સ દ્વારા વપરાયેલ બૅટરી"</string>
@@ -2503,7 +2503,7 @@
     <string name="voice_input_output_settings_title" msgid="7080213653518526025">"વૉઇસ ઇનપુટ અને આઉટપુટ સેટિંગ"</string>
     <string name="voice_search_settings_title" msgid="4999026024622014272">"વૉઇસ શોધ"</string>
     <string name="keyboard_settings_title" msgid="2056233617644581410">"Android કીબોર્ડ"</string>
-    <string name="voice_input_settings" msgid="4983011614890521505">"વોઇસ ઇનપુટ સેટિંગ્સ"</string>
+    <string name="voice_input_settings" msgid="4983011614890521505">"વૉઇસ ઇનપુટ સેટિંગ"</string>
     <string name="voice_input_settings_title" msgid="6865032806501269306">"વોઇસ ઇનપુટ"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"વૉઇસ ઇનપુટ સેવાઓ"</string>
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"પૂર્ણ હૉટવર્ડ અને ક્રિયાપ્રતિક્રિયા"</string>
@@ -2582,7 +2582,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"આ વ્યવસ્થાપક ઍપ્લિકેશનને સક્રિય કરવું ઍપ્લિકેશન <xliff:g id="APP_NAME">%1$s</xliff:g>ને નીચેની ક્રિયાઓ કરવાની મંજૂરી આપશે:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"આ વ્યવસ્થાપક ઍપ્લિકેશન સક્રિય છે અને ઍપ્લિકેશન <xliff:g id="APP_NAME">%1$s</xliff:g>ને નીચેની ક્રિયાઓ કરવાની મંજૂરી આપે છે:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"પ્રોફાઇલ સંચાલક સક્રિય કરીએ?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"આગળ વધવાથી, તમારા વપરાશકર્તાને તમારા વ્યવસ્થાપક દ્વારા સંચાલિત કરવામાં આવશે કે જેઓ વ્યક્તિગત ડેટા ઉપરાંત સંકળાયેલ ડેટાને પણ સંગ્રહિત કરી શકે છે.\n\nતમારા વ્યવસ્થાપક સેટિંગ્સ, ઍક્સેસ, ઍપ્લિકેશનો અને નેટવર્ક પ્રવૃત્તિ અને તમારા ઉપકરણની સ્થાન માહિતી સહિત, વપરાશકર્તાથી સંબંધિત ડેટાને મૉનિટર અને સંચાલિત કરી શકે છે."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"આગળ વધવાથી, તમારા વપરાશકર્તાને તમારા વ્યવસ્થાપક દ્વારા મેનેજ કરવામાં આવશે કે જેઓ વ્યક્તિગત ડેટા ઉપરાંત સંકળાયેલ ડેટાને પણ સ્ટોર કરી શકે છે.\n\nતમારા વ્યવસ્થાપક સેટિંગ, ઍક્સેસ, ઍપ અને નેટવર્ક પ્રવૃત્તિ અને તમારા ડિવાઇસની સ્થાન માહિતી સહિત, વપરાશકર્તાથી સંબંધિત ડેટાને મૉનિટર અને મેનેજ કરી શકે છે."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"તમારા વ્યવસ્થાપકે અન્ય વિકલ્પો અક્ષમ કરેલા છે"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"વધુ વિગતો"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"નોટિફિકેશન લૉગ"</string>
@@ -2622,7 +2622,7 @@
     <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"સંપર્કો"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google સમન્વયન પર સ્વાગત છે!"</font>" \nતમારા સંપર્કો, એપોઇન્ટમેન્ટ્સ અને વધુના અ‍ૅક્સેસની તમે જ્યાં પણ હોવ ત્યાંથી મંજૂરી આપવા માટે ડેટાને સમન્વયિત કરવાનો એક Google અભિગમ."</string>
-    <string name="header_application_sync_settings" msgid="4581847153669774489">"ઍપ્લિકેશન સમન્વયન સેટિંગ્સ"</string>
+    <string name="header_application_sync_settings" msgid="4581847153669774489">"ઍપ સિંક સેટિંગ"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"ડેટા અને સમન્વયન"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"પાસવર્ડ બદલો"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"એકાઉન્ટ સેટિંગ"</string>
@@ -2696,7 +2696,7 @@
     <string name="data_roaming_enable_mobile" msgid="5886394350890765947">"રોમિંગ"</string>
     <string name="data_usage_forground_label" msgid="8992577451178005406">"અગ્રભૂમિ:"</string>
     <string name="data_usage_background_label" msgid="8460891123904985128">"બૅકગ્રાઉન્ડ"</string>
-    <string name="data_usage_app_settings" msgid="3276444867375694809">"ઍપ્લિકેશન સેટિંગ્સ"</string>
+    <string name="data_usage_app_settings" msgid="3276444867375694809">"ઍપ સેટિંગ"</string>
     <string name="data_usage_app_restrict_background" msgid="649167881583859169">"બૅકગ્રાઉન્ડ ડેટા"</string>
     <string name="data_usage_app_restrict_background_summary" msgid="2703967920234671881">"બૅકગ્રાઉન્ડમાં મોબાઇલ ડેટાના વપરાશને ચાલુ કરો"</string>
     <string name="data_usage_app_restrict_background_summary_disabled" msgid="7211921499365814638">"આ ઍપ્લિકેશન માટે બૅકગ્રાઉન્ડ ડેટા પ્રતિબંધિત કરવા માટે, પહેલા મોબાઇલ ડેટા મર્યાદા સેટ કરો."</string>
@@ -3373,7 +3373,7 @@
     <string name="notification_assistant_security_warning_title" msgid="4190584438086738496">"<xliff:g id="SERVICE">%1$s</xliff:g> માટે નોટિફિકેશનના ઍક્સેસની મંજૂરી આપીએ?"</string>
     <string name="notification_assistant_security_warning_summary" msgid="6924513399671031930">"સંપર્કોના નામ અને તમને મળતા સંદેશાની ટેક્સ્ટ જેવી વ્યક્તિગત માહિતી સહિતના બધા નોટિફિકેશન <xliff:g id="NOTIFICATION_ASSISTANT_NAME">%1$s</xliff:g> વાંચી શકશે. તે આ નોટિફિકેશનમાં ફેરફાર કરવા અથવા તેને છોડી શકવા ઉપરાંત તેમાં રહેલા ક્રિયા બટનને ટ્રિગર પણ કરી શકશે. \n\nઆ ઍપને \"ખલેલ પાડશો નહીં\"ની સુવિધાને ચાલુ કે બંધ કરવાની તથા સંબંધિત સેટિંગ બદલી શકવાની ક્ષમતા પણ આપશે."</string>
     <string name="notification_listener_security_warning_title" msgid="4902253246428777797">"<xliff:g id="SERVICE">%1$s</xliff:g> માટે નોટિફિકેશન ઍક્સેસની મંજૂરી આપીએ?"</string>
-    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, સંપર્ક નામ અને તમને મળતા સંદેશાની ટેક્સ્ટ જેવી વ્યક્તિગત માહિતી સહિત તમામ સૂચનાઓ વાંચવામાં સમર્થ હશે. તે આ સૂચનાઓને છોડી દેવા અથવા તેમાં રહેલા ક્રિયા બટનોને શરૂ કરવામાં પણ સમર્થ હશે. \n\nઆ ઍપ્લિકેશનને ખલેલ પાડશો નહીંને ચાલુ કે બંધ કરવાની તથા સંબંધિત સેટિંગ્સ બદલવાની ક્ષમતા પણ આપશે."</string>
+    <string name="notification_listener_security_warning_summary" msgid="4454702907350100288">"<xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g>, સંપર્ક નામ અને તમને મળતા સંદેશાની ટેક્સ્ટ જેવી વ્યક્તિગત માહિતી સહિત તમામ નોટિફિકેશન વાંચવામાં સમર્થ હશે. તે આ નોટિફિકેશનને છોડી દેવા અથવા તેમાં રહેલા ક્રિયા બટનને ટ્રિગર કરવામાં પણ સમર્થ હશે. \n\nઆ ઍપને ખલેલ પાડશો નહીંને ચાલુ કે બંધ કરવાની તથા સંબંધિત સેટિંગ બદલવાની ક્ષમતા પણ આપશે."</string>
     <string name="notification_listener_disable_warning_summary" msgid="162165151519082978">"જો તમે <xliff:g id="NOTIFICATION_LISTENER_NAME">%1$s</xliff:g> માટે નોટિફિકેશન ઍક્સેસને બંધ કરો છો, તો ખલેલ પાડશો નહીં ઍક્સેસ પણ બંધ કરવામાં આવી શકે છે."</string>
     <string name="notification_listener_disable_warning_confirm" msgid="7863495391671154188">"બંધ કરો"</string>
     <string name="notification_listener_disable_warning_cancel" msgid="6264631825225298458">"રદ કરો"</string>
