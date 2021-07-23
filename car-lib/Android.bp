@@ -154,7 +154,7 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --no-docs --stub-packages android.car* " +
+    args: "--hide UnavailableSymbol --stub-packages android.car* " +
         "--hide-package com.android.internal ",
     installable: false,
     check_api: {
@@ -184,7 +184,7 @@ droidstubs {
     defaults: ["android.car-docs-default"],
     // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
-        "--no-docs --stub-packages android.car* " +
+        "--stub-packages android.car* " +
         "--show-annotation android.annotation.SystemApi --hide-package com.android.internal ",
     installable: false,
     check_api: {
@@ -212,7 +212,7 @@ droidstubs {
 droidstubs {
     name: "android.car-test-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide HiddenSuperclass --hide UnavailableSymbol --no-docs --stub-packages android.car* " +
+    args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* " +
         "--show-annotation android.annotation.TestApi ",
     installable: false,
     check_api: {
@@ -235,7 +235,7 @@ droidstubs {
         "android.car",
     ],
     api_filename: "api.txt",
-    args: "--hide HiddenSuperclass --hide UnavailableSymbol --no-docs --stub-packages android.car* ",
+    args: "--hide HiddenSuperclass --hide UnavailableSymbol --stub-packages android.car* ",
     installable: false,
     product_variables: {
         pdk: {
