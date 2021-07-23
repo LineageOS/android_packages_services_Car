@@ -26,6 +26,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
@@ -38,7 +39,6 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Pair;
-import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
