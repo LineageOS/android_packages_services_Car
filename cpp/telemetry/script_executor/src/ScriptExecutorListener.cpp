@@ -47,10 +47,19 @@ void ScriptExecutorListener::onSuccess(jobject bundle) {
     env->CallVoidMethod(mScriptExecutorListener, onSuccessMethod, bundle);
 }
 
-void ScriptExecutorListener::onError(const int errorType, const std::string& message,
-                                     const std::string& stackTrace) {
-    LOG(INFO) << "errorType: " << errorType << ", message: " << message
-              << ", stackTrace: " << stackTrace;
+void ScriptExecutorListener::onError(const int errorType, const char* message,
+                                     const char* stackTrace) {
+    JNIEnv* env = getCurrentJNIEnv();
+    if (mScriptExecutorListener == nullptr) {
+        env->FatalError(
+                "mScriptExecutorListener must point to a valid listener object, not nullptr.");
+    }
+    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
+    jmethodID onErrorMethod =
+            env->GetMethodID(listenerClass, "onError", "(ILjava/lang/String;Ljava/lang/String;)V");
+
+    env->CallVoidMethod(mScriptExecutorListener, onErrorMethod, errorType,
+                        env->NewStringUTF(message), env->NewStringUTF(stackTrace));
 }
 
 JNIEnv* ScriptExecutorListener::getCurrentJNIEnv() {

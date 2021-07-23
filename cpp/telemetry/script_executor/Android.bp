@@ -34,6 +34,7 @@ cc_library {
         "scriptexecutor_defaults",
     ],
     srcs: [
+        ":iscriptexecutorconstants_aidl",
         "src/BundleWrapper.cpp",
         "src/JniUtils.cpp",
         "src/LuaEngine.cpp",
@@ -41,12 +42,18 @@ cc_library {
     ],
     shared_libs: [
         "libandroid_runtime",
+        "libbase",
+        "libbinder",
         "libnativehelper",
+        "libutils",
     ],
     // Allow dependents to use the header files.
     export_include_dirs: [
         "src",
     ],
+    aidl: {
+        include_dirs: ["packages/services/Car/car-lib/src/android/car/telemetry"],
+    },
 }
 
 cc_library_shared {
