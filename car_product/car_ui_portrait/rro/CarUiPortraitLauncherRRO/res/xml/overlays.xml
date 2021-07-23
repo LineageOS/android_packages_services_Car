@@ -48,6 +48,7 @@
     <item target="dimen/control_bar_height" value="@dimen/control_bar_height"/>
     <item target="dimen/default_app_display_area_height" value="@dimen/default_app_display_area_height"/>
     <item target="dimen/title_bar_display_area_height" value="@dimen/title_bar_display_area_height"/>
+    <item target="dimen/title_bar_display_area_touch_drag_threshold" value="@dimen/title_bar_display_area_touch_drag_threshold"/>
 
     <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
