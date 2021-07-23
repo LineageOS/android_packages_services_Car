@@ -21,3 +21,4 @@ PRODUCT_PACKAGES += \
     CarUiPortraitMediaRRO \
     CarUiPortraitLauncherRRO \
     CarUiPortraitNotificationRRO \
+    CarUiPortraitFrameworkResRRO \
