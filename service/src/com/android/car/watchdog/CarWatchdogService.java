@@ -30,6 +30,7 @@ import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.ICarPowerStateListener;
 import android.car.watchdog.CarWatchdogManager;
@@ -60,7 +61,6 @@ import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.ArrayUtils;
-import com.android.server.utils.Slogf;
 
 import java.lang.ref.WeakReference;
 import java.util.List;

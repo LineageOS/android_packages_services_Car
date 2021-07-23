@@ -30,6 +30,7 @@ import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
+import android.car.builtin.util.Slogf;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInput;
@@ -66,7 +67,6 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 import com.android.internal.os.BackgroundThread;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.Arrays;

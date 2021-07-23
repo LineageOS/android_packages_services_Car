@@ -18,6 +18,7 @@ package com.android.car.hal;
 
 import static android.os.SystemClock.elapsedRealtime;
 
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.IVehicleCallback;
 import android.hardware.automotive.vehicle.V2_0.StatusCode;
@@ -32,7 +33,6 @@ import android.os.ServiceSpecificException;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;

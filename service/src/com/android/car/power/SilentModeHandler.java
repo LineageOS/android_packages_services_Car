@@ -18,6 +18,7 @@ package com.android.car.power;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.util.Slogf;
 import android.os.FileObserver;
 import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
@@ -25,7 +26,6 @@ import android.util.IndentingPrintWriter;
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import libcore.io.IoUtils;
 

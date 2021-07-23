@@ -27,6 +27,7 @@ import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
+import android.car.builtin.util.Slogf;
 import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
 import android.car.cluster.IClusterHomeCallback;
@@ -56,7 +57,6 @@ import com.android.car.R;
 import com.android.car.am.FixedActivityService;
 import com.android.car.hal.ClusterHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.server.utils.Slogf;
 
 /**
  * Service responsible for interactions between ClusterOS and ClusterHome.

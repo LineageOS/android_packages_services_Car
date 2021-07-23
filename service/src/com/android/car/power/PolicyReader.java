@@ -28,6 +28,7 @@ import static org.xmlpull.v1.XmlPullParser.START_TAG;
 import static org.xmlpull.v1.XmlPullParser.TEXT;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.PowerComponent;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
@@ -41,7 +42,6 @@ import android.util.Xml;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import org.xmlpull.v1.XmlPullParser;
 import org.xmlpull.v1.XmlPullParserException;

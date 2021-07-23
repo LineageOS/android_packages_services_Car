@@ -45,6 +45,7 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.car.builtin.util.Slogf;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
 import android.car.watchdog.IoOveruseAlertThreshold;
@@ -79,7 +80,6 @@ import android.util.SparseArray;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;

@@ -25,6 +25,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.car.builtin.util.Slogf;
 import android.car.watchdog.ICarWatchdogServiceCallback;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.os.Binder;
@@ -38,7 +39,6 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 

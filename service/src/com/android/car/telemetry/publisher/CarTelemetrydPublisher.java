@@ -21,6 +21,7 @@ import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -32,7 +33,6 @@ import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 

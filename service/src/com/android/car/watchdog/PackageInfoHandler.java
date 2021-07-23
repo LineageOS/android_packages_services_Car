@@ -22,6 +22,7 @@ import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.UidType;
+import android.car.builtin.util.Slogf;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
 import android.os.Process;
@@ -33,7 +34,6 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.GuardedBy;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.Arrays;

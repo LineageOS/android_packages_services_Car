@@ -36,6 +36,7 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarUserService;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
@@ -116,7 +117,6 @@ import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

@@ -21,6 +21,7 @@ import static com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedR
 import android.app.job.JobInfo;
 import android.app.job.JobScheduler;
 import android.app.job.JobSnapshot;
+import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -37,7 +38,6 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

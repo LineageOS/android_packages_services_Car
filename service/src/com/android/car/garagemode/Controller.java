@@ -19,6 +19,7 @@ package com.android.car.garagemode;
 import static com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.app.job.JobScheduler;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
@@ -33,7 +34,6 @@ import com.android.car.CarLog;
 import com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.concurrent.CompletableFuture;

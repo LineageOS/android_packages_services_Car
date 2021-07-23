@@ -28,6 +28,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.CarOccupantZoneManager;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -45,7 +46,6 @@ import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.Collection;

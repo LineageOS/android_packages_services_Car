@@ -16,12 +16,12 @@
 
 package com.android.car.user;
 
+import android.car.builtin.util.Slogf;
 import android.os.IBinder.DeathRecipient;
 import android.os.RemoteException;
 
 import com.android.car.CarLog;
 import com.android.internal.os.IResultReceiver;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 

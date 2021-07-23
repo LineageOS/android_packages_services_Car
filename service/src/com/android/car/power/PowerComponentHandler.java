@@ -28,6 +28,7 @@ import static android.car.hardware.power.PowerComponentUtil.toPowerComponent;
 
 import android.annotation.Nullable;
 import android.bluetooth.BluetoothAdapter;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.PowerComponent;
@@ -46,7 +47,6 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
-import com.android.server.utils.Slogf;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;

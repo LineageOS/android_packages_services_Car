@@ -20,6 +20,7 @@ import android.app.Service;
 import android.car.ICarBluetoothUserService;
 import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
@@ -27,7 +28,6 @@ import android.os.IBinder;
 import android.util.IndentingPrintWriter;
 
 import com.android.car.admin.PerUserCarDevicePolicyService;
-import com.android.server.utils.Slogf;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

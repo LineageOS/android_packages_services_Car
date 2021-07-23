@@ -26,6 +26,7 @@ import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.content.pm.AppBlockingPackageInfo;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.CarAppBlockingPolicyService;
@@ -78,7 +79,6 @@ import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import com.google.android.collect.Sets;
 

@@ -16,12 +16,12 @@
 
 package com.android.car.garagemode;
 
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 
 import com.android.car.CarLog;
 import com.android.car.R;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.util.HashMap;
 import java.util.LinkedList;

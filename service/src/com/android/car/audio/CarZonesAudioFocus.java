@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
@@ -34,7 +35,6 @@ import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.List;

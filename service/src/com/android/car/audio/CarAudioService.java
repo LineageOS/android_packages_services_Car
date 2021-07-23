@@ -34,6 +34,7 @@ import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
@@ -84,7 +85,6 @@ import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
-import com.android.server.utils.Slogf;
 
 import org.xmlpull.v1.XmlPullParserException;
 

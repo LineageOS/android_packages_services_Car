@@ -29,6 +29,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
+import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -57,7 +58,6 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
 import java.util.List;

@@ -25,6 +25,7 @@ import static android.car.VehiclePropertyIds.CLUSTER_SWITCH_UI;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slogf;
 import android.graphics.Insets;
 import android.graphics.Rect;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
@@ -35,7 +36,6 @@ import android.util.IntArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
-import com.android.server.utils.Slogf;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;

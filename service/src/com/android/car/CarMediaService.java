@@ -25,6 +25,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -69,7 +70,6 @@ import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
 
 import java.util.ArrayDeque;
 import java.util.ArrayList;
