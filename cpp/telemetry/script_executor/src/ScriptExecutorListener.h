@@ -37,7 +37,7 @@ public:
 
     void onSuccess(jobject bundle);
 
-    void onError(const int errorType, const std::string& message, const std::string& stackTrace);
+    void onError(const int errorType, const char* message, const char* stackTrace);
 
     JNIEnv* getCurrentJNIEnv();
 
