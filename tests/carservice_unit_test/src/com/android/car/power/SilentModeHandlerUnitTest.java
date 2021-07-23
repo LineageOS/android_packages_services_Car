@@ -176,9 +176,6 @@ public final class SilentModeHandlerUnitTest {
         writeStringToFile(mFileHwStateMonitoring.getFile(),
                 expectedSilentMode ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE);
 
-        String contents = readFileAsString(mFileKernelSilentMode.getPath());
-        assertWithMessage("Kernel silent mode").that(contents).isEqualTo(
-                expectedSilentMode ? VALUE_SILENT_MODE : VALUE_NON_SILENT_MODE);
         assertSilentMode(handler, expectedSilentMode);
     }
 
