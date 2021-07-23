@@ -19,6 +19,7 @@
 #include "BundleWrapper.h"
 
 #include <android-base/logging.h>
+#include <android/car/telemetry/IScriptExecutorConstants.h>
 
 #include <utility>
 
@@ -32,6 +33,8 @@ namespace android {
 namespace automotive {
 namespace telemetry {
 namespace script_executor {
+
+using android::car::telemetry::IScriptExecutorConstants;
 
 namespace {
 
@@ -84,6 +87,7 @@ int LuaEngine::loadScript(const char* scriptBody) {
 
     // Register limited set of reserved methods for Lua to call native side.
     lua_register(mLuaState, "on_success", LuaEngine::onSuccess);
+    lua_register(mLuaState, "on_error", LuaEngine::onError);
     return status;
 }
 
@@ -112,9 +116,6 @@ int LuaEngine::run() {
 }
 
 int LuaEngine::onSuccess(lua_State* lua) {
-    if (sListener == nullptr) {
-        LOG(FATAL) << "sListener object must not be null";
-    }
     // Any script we run can call on_success only with a single argument of Lua table type.
     if (lua_gettop(lua) != 1 || !lua_istable(lua, /* index =*/-1)) {
         // TODO(b/193565932): Return programming error through binder callback interface.
@@ -128,20 +129,20 @@ int LuaEngine::onSuccess(lua_State* lua) {
     // key-value pair for the popped key. It returns 0 if the next pair was not found.
     // More on lua_next in: https://www.lua.org/manual/5.3/manual.html#lua_next
     lua_pushnil(lua);  // First key is a null value.
-    while (lua_next(lua, /* index =*/-2) != 0) {
+    while (lua_next(lua, /* index = */ -2) != 0) {
         //  'key' is at index -2 and 'value' is at index -1
         // -1 index is the top of the stack.
         // remove 'value' and keep 'key' for next iteration
         // Process each key-value depending on a type and push it to Java Bundle.
-        const char* key = lua_tostring(lua, /* index =*/-2);
-        if (lua_isboolean(lua, /* index =*/-1)) {
-            bundleWrapper.putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index =*/-1)));
-        } else if (lua_isinteger(lua, /* index =*/-1)) {
-            bundleWrapper.putInteger(key, static_cast<int>(lua_tointeger(lua, /* index =*/-1)));
-        } else if (lua_isnumber(lua, /* index =*/-1)) {
-            bundleWrapper.putDouble(key, static_cast<double>(lua_tonumber(lua, /* index =*/-1)));
-        } else if (lua_isstring(lua, /* index =*/-1)) {
-            bundleWrapper.putString(key, lua_tostring(lua, /* index =*/-1));
+        const char* key = lua_tostring(lua, /* index = */ -2);
+        if (lua_isboolean(lua, /* index = */ -1)) {
+            bundleWrapper.putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
+        } else if (lua_isinteger(lua, /* index = */ -1)) {
+            bundleWrapper.putInteger(key, static_cast<int>(lua_tointeger(lua, /* index = */ -1)));
+        } else if (lua_isnumber(lua, /* index = */ -1)) {
+            bundleWrapper.putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
+        } else if (lua_isstring(lua, /* index = */ -1)) {
+            bundleWrapper.putString(key, lua_tostring(lua, /* index = */ -1));
         } else {
             // not supported yet...
             LOG(WARNING) << "key=" << key << " has a Lua type which is not supported yet. "
@@ -156,6 +157,18 @@ int LuaEngine::onSuccess(lua_State* lua) {
     sListener->onSuccess(bundleWrapper.getBundle());
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
+    return ZERO_RETURNED_RESULTS;
+}
+
+int LuaEngine::onError(lua_State* lua) {
+    // Any script we run can call on_error only with a single argument of Lua string type.
+    if (lua_gettop(lua) != 1 || !lua_isstring(lua, /* index = */ -1)) {
+        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                           "on_error can push only a single string parameter from Lua", "");
+        return ZERO_RETURNED_RESULTS;
+    }
+    sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                       lua_tostring(lua, /* index = */ -1), /* stackTrace =*/"");
     return ZERO_RETURNED_RESULTS;
 }
 
