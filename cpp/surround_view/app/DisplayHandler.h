@@ -19,8 +19,6 @@
 
 #include <utils/StrongPointer.h>
 
-#include <android/hardware/automotive/sv/1.0/ISurroundViewService.h>
-#include <android/hardware/automotive/sv/1.0/ISurroundViewStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware_buffer.h>
 
@@ -31,25 +29,27 @@
 #include <GLES3/gl3.h>
 #include <GLES3/gl3ext.h>
 
-using namespace android::hardware::automotive::sv::V1_0;
 using namespace android::hardware::automotive::evs::V1_1;
+using android::hardware::graphics::common::V1_2::HardwareBuffer;
 
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 
-class SurroundViewServiceCallback : public ISurroundViewStream {
+// Class handles display operations. Uses EVS Display and OpenGLES.
+class DisplayHandler : public android::RefBase {
 public:
-    SurroundViewServiceCallback(android::sp<IEvsDisplay> pDisplay,
-                                android::sp<ISurroundViewSession> pSession);
+    DisplayHandler(android::sp<IEvsDisplay> pDisplay);
 
-    // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewStream.
-    android::hardware::Return<void> notify(SvEvent svEvent) override;
-    android::hardware::Return<void> receiveFrames(const SvFramesDesc& svFramesDesc) override;
+    // Initializes OpenGLES and sets EVS Display state.
+    bool startDisplay();
+
+    // Renders the provided Hardware buffer to the screen.
+    bool renderBufferToScreen(const HardwareBuffer& hardwareBuffer);
 
 private:
+    bool prepareGL();
     static const char* getEGLError(void);
     static const std::string getGLFramebufferError(void);
 
-    bool prepareGL();
     BufferDesc convertBufferDesc(const BufferDesc_1_0& src);
     bool attachRenderTarget(const BufferDesc& tgtBuffer);
     void detachRenderTarget();
@@ -62,5 +62,4 @@ private:
     static EGLImageKHR  sKHRimage;
 
     android::sp<IEvsDisplay> mDisplay;
-    android::sp<ISurroundViewSession> mSession;
 };

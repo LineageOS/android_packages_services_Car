@@ -15,7 +15,7 @@
  */
 
 #include "SurroundViewAppCommon.h"
-#include "SurroundViewServiceCallback.h"
+#include "SurroundViewCallback.h"
 
 // libhidl:
 using android::hardware::configureRpcThreadpool;

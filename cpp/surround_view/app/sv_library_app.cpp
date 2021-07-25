@@ -16,7 +16,7 @@
 
 #include "SurroundViewAppCommon.h"
 #include "SurroundViewService.h"
-#include "SurroundViewServiceCallback.h"
+#include "SurroundViewCallback.h"
 
 // libhidl:
 using android::sp;

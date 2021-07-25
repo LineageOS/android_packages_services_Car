@@ -43,8 +43,10 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
         LOG(INFO) << "start2dSession succeeded";
     }
 
-    sp<SurroundViewServiceCallback> sv2dCallback =
-            new SurroundViewServiceCallback(pDisplay, surroundView2dSession);
+    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
+
+    sp<SurroundViewCallback> sv2dCallback =
+            new SurroundViewCallback(displayHandler, surroundView2dSession);
 
     // Start 2d stream with callback with default quality and resolution.
     // The quality is defaulted to be HIGH_QUALITY, and the default resolution
@@ -127,8 +129,10 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
         LOG(INFO) << "start3dSession succeeded";
     }
 
-    sp<SurroundViewServiceCallback> sv3dCallback =
-            new SurroundViewServiceCallback(pDisplay, surroundView3dSession);
+    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
+
+    sp<SurroundViewCallback> sv3dCallback =
+            new SurroundViewCallback(displayHandler, surroundView3dSession);
 
     // A view must be set before the 3d stream is started.
     if (!setView(surroundView3dSession, /*viewId=*/0, /*poseIndex=*/0, kHorizontalFov)) {

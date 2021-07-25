@@ -15,7 +15,7 @@
  */
 #pragma once
 
-#include "SurroundViewServiceCallback.h"
+#include "SurroundViewCallback.h"
 
 #include <android-base/logging.h>
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>

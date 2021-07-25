@@ -63,8 +63,9 @@ cc_binary {
     defaults: ["sv_app_defaults"],
 
     srcs: [
+        "DisplayHandler.cpp",
         "SurroundViewAppCommon.cpp",
-        "SurroundViewServiceCallback.cpp",
+        "SurroundViewCallback.cpp",
         "shader.cpp",
         "sv_service_app.cpp",
     ],
@@ -85,8 +86,9 @@ cc_binary {
     vendor:true,
 
     srcs: [
+        "DisplayHandler.cpp",
         "SurroundViewAppCommon.cpp",
-        "SurroundViewServiceCallback.cpp",
+        "SurroundViewCallback.cpp",
         "shader.cpp",
         "sv_library_app.cpp",
     ],
