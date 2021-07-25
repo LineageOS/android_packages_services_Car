@@ -224,12 +224,23 @@ void SurroundView3dSession::processFrames() {
     ATRACE_BEGIN(__PRETTY_FUNCTION__);
 
     ATRACE_BEGIN("SV core lib method: Start3dPipeline");
-    if (mSurroundView->Start3dPipeline()) {
-        LOG(INFO) << "Start3dPipeline succeeded";
+
+    if (mUseExternalRendering) {
+        if(mSurroundView->Start3dPipelineExternal(mRenderingInfo, mOpenglInitInfo)) {
+            LOG(INFO) << "Start3dPipelineExternal succeeded.";
+        } else {
+            LOG(ERROR) << "Start3dPipelineExternal failed.";
+            return;
+        }
     } else {
-        LOG(ERROR) << "Start3dPipeline failed";
-        return;
+        if (mSurroundView->Start3dPipeline()) {
+            LOG(INFO) << "Start3dPipeline succeeded.";
+        } else {
+            LOG(ERROR) << "Start3dPipeline failed.";
+            return;
+        }
     }
+
     ATRACE_END();
 
     while (true) {
@@ -742,14 +753,20 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
     const std::array<float, 3> viewTranslation = {trans.x, trans.y, trans.z};
 
     ATRACE_BEGIN("SV core lib method: Get3dSurroundView");
-    if (mSurroundView->Get3dSurroundView(
-            mInputPointers, viewQuaternion, viewTranslation, &mOutputPointer)) {
-        LOG(INFO) << "Get3dSurroundView succeeded";
+    if (mUseExternalRendering) {
+        if(!mSurroundView->Update3dSurroundViewExternal(
+                mInputPointers, viewQuaternion, viewTranslation)) {
+            LOG(ERROR) << "Update3dSurroundViewExternal() failed.";
+            return false;
+        }
     } else {
-        LOG(ERROR) << "Get3dSurroundView failed. "
-                   << "Using memset to initialize to gray.";
-        memset(mOutputPointer.cpu_data_pointer, kGrayColor,
-               mOutputHeight * mOutputWidth * kOutputNumChannels);
+        if(!mSurroundView->Get3dSurroundView(
+                mInputPointers, viewQuaternion, viewTranslation, &mOutputPointer)) {
+            LOG(ERROR) << "Get3dSurroundView() failed. "
+                       << "Using memset to initialize to gray.";
+            memset(mOutputPointer.cpu_data_pointer, kGrayColor,
+                   mOutputHeight * mOutputWidth * kOutputNumChannels);
+        }
     }
     ATRACE_END();
 
@@ -830,6 +847,24 @@ bool SurroundView3dSession::handleFrames(int sequenceId) {
 
     return true;
 }
+
+#ifdef SURROUND_VIEW_LIBRARY
+bool SurroundView3dSession::initializeExternalRender(const RendererInfo& renderingInfo,
+        const OpenGlInitInfo& openglInitInfo) {
+    LOG(INFO) << "initializeExternalRender() called";
+    {
+        lock_guard<mutex> lock(mAccessLock, adopt_lock);
+        mUseExternalRendering = true;
+        mRenderingInfo = renderingInfo;
+        mOpenglInitInfo = openglInitInfo;
+    }
+    if(!initialize()) {
+        LOG(ERROR) << "SurroundView3dSession::initializeExternal() failed.";
+        return false;
+    }
+    return true;
+}
+#endif // SURROUND_VIEW_LIBRARY
 
 bool SurroundView3dSession::initialize() {
     lock_guard<mutex> lock(mAccessLock, adopt_lock);

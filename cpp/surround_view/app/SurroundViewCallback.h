@@ -27,13 +27,17 @@ using namespace android::hardware::automotive::evs::V1_1;
 
 class SurroundViewCallback : public ISurroundViewStream {
 public:
-    SurroundViewCallback(android::sp<DisplayHandler> pDisplayHandler,
-                                android::sp<ISurroundViewSession> pSession);
+    // Constructor for SurroundViewCallback. pSession - pointer to an initialized 2d/3d session.
+    // onSvFrameReceiveFn - function to call on receiving a sv frame buffer.
+    SurroundViewCallback(android::sp<ISurroundViewSession> pSession,
+            const std::function<bool(const HardwareBuffer& svBuffer)>& onSvFrameReceiveFn);
 
+    // Methods from ISurroundViewStream follow.
     android::hardware::Return<void> notify(SvEvent svEvent) override;
     android::hardware::Return<void> receiveFrames(const SvFramesDesc& svFramesDesc) override;
-
 private:
-    android::sp<DisplayHandler> mDisplayHandler;
     android::sp<ISurroundViewSession> mSession;
+
+    // Function to call on receiving a surround view frame.
+    std::function<bool(const HardwareBuffer& hardwareBuffer)> mOnSvFrameReceiveFn;
 };

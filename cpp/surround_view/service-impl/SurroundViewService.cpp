@@ -215,6 +215,29 @@ Return<void> SurroundViewService::start3dSession(start3dSession_cb _hidl_cb) {
     return {};
 }
 
+#ifdef SURROUND_VIEW_LIBRARY
+bool SurroundViewService::start3dSessionExternalRender(const RendererInfo& renderingInfo,
+        const OpenGlInitInfo& openglInitInfo, sp<SurroundView3dSession>* pSv3dsession) {
+    LOG(DEBUG) << __FUNCTION__;
+    std::scoped_lock<std::mutex> lock(sLock);
+
+    if (sSurroundView3dSession != nullptr) {
+        LOG(WARNING) << "Only one 3d session is supported at the same time";
+        return false;
+    }
+    sSurroundView3dSession = new SurroundView3dSession(mEvs,
+                                                       mVhalHandler,
+                                                       mAnimationModule,
+                                                       &mConfig);
+    if (!sSurroundView3dSession->initializeExternalRender(renderingInfo, openglInitInfo)) {
+        LOG(ERROR) << "Sv3d initialize failed.";
+        return false;
+    }
+    *pSv3dsession = sSurroundView3dSession;
+    return true;
+}
+#endif  // SURROUND_VIEW_LIBRARY
+
 Return<SvResult> SurroundViewService::stop3dSession(
     const sp<ISurroundView3dSession>& sv3dSession) {
     LOG(DEBUG) << __FUNCTION__;

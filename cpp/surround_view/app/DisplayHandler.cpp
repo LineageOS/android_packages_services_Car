@@ -31,6 +31,8 @@ using android::sp;
 using std::string;
 
 EGLDisplay   DisplayHandler::sGLDisplay;
+EGLSurface   DisplayHandler::sGLSurface;
+EGLContext   DisplayHandler::sGLContext;
 GLuint       DisplayHandler::sFrameBuffer;
 GLuint       DisplayHandler::sColorBuffer;
 GLuint       DisplayHandler::sDepthBuffer;
@@ -106,6 +108,8 @@ bool DisplayHandler::prepareGL() {
         EGL_RED_SIZE,           8,
         EGL_GREEN_SIZE,         8,
         EGL_BLUE_SIZE,          8,
+        EGL_ALPHA_SIZE,         8,
+        EGL_DEPTH_SIZE,         8,
         EGL_NONE
     };
 
@@ -132,6 +136,7 @@ bool DisplayHandler::prepareGL() {
                   << "."
                   << minor;
     }
+    sGLDisplay = display;
 
     // Select the configuration that "best" matches our desired characteristics
     EGLConfig egl_config;
@@ -153,6 +158,7 @@ bool DisplayHandler::prepareGL() {
     } else {
         LOG(INFO) << "Placeholder surface looks good!  :)";
     }
+    sGLSurface = sPlaceholderSurface;
 
     //
     // Create the EGL context
@@ -164,6 +170,7 @@ bool DisplayHandler::prepareGL() {
                    << getEGLError();
         return false;
     }
+    sGLContext = context;
 
     // Activate our render target for drawing
     if (!eglMakeCurrent(display, sPlaceholderSurface, sPlaceholderSurface, context)) {
@@ -235,6 +242,11 @@ bool DisplayHandler::prepareGL() {
 }
 
 bool DisplayHandler::startDisplay() {
+    // Just trivially return success if we're already prepared.
+    if (sGLDisplay != EGL_NO_DISPLAY) {
+        return true;
+    }
+
     // Set the display state to VISIBLE_ON_NEXT_FRAME
     if (mDisplay != nullptr) {
         Return<EvsResult> result =
@@ -253,6 +265,17 @@ bool DisplayHandler::startDisplay() {
         LOG(ERROR) << "Error while setting up OpenGL!";
         return false;
     }
+
+    if(!attachNewRenderTarget()) {
+        LOG(ERROR) << "Failed to attachNewRenderTarget.";
+        return false;
+    }
+
+    if(!clearContext()) {
+        LOG(ERROR) << "Failed to clear context.";
+        return false;
+    }
+
     return true;
 }
 
@@ -275,8 +298,14 @@ BufferDesc DisplayHandler::convertBufferDesc(
     return dst;
 }
 
-bool DisplayHandler::attachRenderTarget(
-    const BufferDesc& tgtBuffer) {
+bool DisplayHandler::attachNewRenderTarget() {
+    // Get display buffer from EVS display
+    auto& tgtBuffer_1_0 = mTgtBuffer;
+    mDisplay->getTargetBuffer([&tgtBuffer_1_0](const BufferDesc_1_0& buff) {
+        tgtBuffer_1_0 = buff;
+    });
+
+    auto tgtBuffer = convertBufferDesc(tgtBuffer_1_0);
     const AHardwareBuffer_Desc* pDesc =
         reinterpret_cast<const AHardwareBuffer_Desc *>(
             &tgtBuffer.buffer.description);
@@ -356,21 +385,33 @@ bool DisplayHandler::attachRenderTarget(
     // Set the viewport
     glViewport(0, 0, pDesc->width, pDesc->height);
 
-    // We don't actually need the clear if we're going to cover the whole
-    // screen anyway
-    // Clear the color buffer
+    glEnable(GL_DEPTH_TEST);
+
+    // Enable transparency.
+    glEnable(GL_BLEND);
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
+    // Clear the color and depth buffer.
     glClearColor(0.8f, 0.1f, 0.2f, 1.0f);
-    glClear(GL_COLOR_BUFFER_BIT);
+    glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
 
     return true;
 }
 
-void DisplayHandler::detachRenderTarget() {
+bool DisplayHandler::detachAndDisplayCurrRenderTarget() {
     // Drop our external render target
     if (sKHRimage != EGL_NO_IMAGE_KHR) {
         eglDestroyImageKHR(sGLDisplay, sKHRimage);
         sKHRimage = EGL_NO_IMAGE_KHR;
     }
+
+    // Return display buffer back to EVS display
+    if(mDisplay->returnTargetBufferForDisplay(mTgtBuffer) != EvsResult::OK) {
+        LOG(ERROR) << "Failed to returnTargetBufferForDisplay.";
+        return false;
+    }
+    LOG(DEBUG) << "Returned target buffer to EVS.";
+    return true;
 }
 
 DisplayHandler::DisplayHandler(
@@ -379,134 +420,179 @@ DisplayHandler::DisplayHandler(
     // Nothing but member initialization
 }
 
+EGLDisplay DisplayHandler::getDisplay() {
+    return sGLDisplay;
+}
+EGLSurface DisplayHandler::getSurface() {
+    return sGLSurface;
+}
+EGLContext DisplayHandler::getContext() {
+    return sGLContext;
+}
+
+bool DisplayHandler::makeContextCurrent() {
+    if (!eglMakeCurrent(sGLDisplay, sGLSurface, sGLSurface, sGLContext)) {
+        LOG(ERROR) << "Failed to make the OpenGL ES Context current: "
+                   << getEGLError();
+        return false;
+    }
+    LOG(DEBUG) << "Context current is current for DisplayHandler.";
+    return true;
+}
+
+bool DisplayHandler::clearContext() {
+    if (eglMakeCurrent(sGLDisplay, EGL_NO_SURFACE, EGL_NO_SURFACE, EGL_NO_CONTEXT) == EGL_FALSE) {
+        LOG(ERROR) << "Failed to clear the OpenGLES context: "
+                   << getEGLError();
+        return false;
+    }
+    LOG(DEBUG) << "Context is cleared for DisplayHandler.";
+    return true;
+}
+
+bool DisplayHandler::renderGlTargetToScreen() {
+    if (!makeContextCurrent()) {
+        return false;
+    }
+
+    glFinish();
+
+    if(!detachAndDisplayCurrRenderTarget()) {
+        LOG(ERROR) << "Failed to detachAndDisplayCurrRenderTarget";
+        return false;
+    }
+
+    if(!attachNewRenderTarget()) {
+        LOG(ERROR) << "Failed to attachNewRenderTarget";
+        return false;
+    }
+
+    if (!clearContext()) {
+        LOG(ERROR) << "Failed to clearContext";
+        return false;
+    }
+    return true;
+}
+
 bool DisplayHandler::renderBufferToScreen(const HardwareBuffer& hardwareBuffer) {
+    // Only process the frame when EVS display is valid. If
+    // not, ignore the coming frame.
+    if (!mDisplay) {
+        LOG(WARNING) << "Display is not ready. Skip the frame";
+        return false;
+    }
+
     // Now we assume there is only one frame for both 2d and 3d.
     auto handle = hardwareBuffer.nativeHandle.getNativeHandle();
     const AHardwareBuffer_Desc* pDesc =
           reinterpret_cast<const AHardwareBuffer_Desc *>(&hardwareBuffer.description);
 
-    // Only process the frame when EVS display is valid. If
-    // not, ignore the coming frame.
-    if (mDisplay == nullptr) {
-        LOG(WARNING) << "Display is not ready. Skip the frame";
-    } else {
-        // Get display buffer from EVS display
-        BufferDesc_1_0 tgtBuffer = {};
-        mDisplay->getTargetBuffer([&tgtBuffer](const BufferDesc_1_0& buff) {
-            tgtBuffer = buff;
-        });
-
-        if (!attachRenderTarget(convertBufferDesc(tgtBuffer))) {
-            LOG(ERROR) << "Failed to attach render target";
-            return {};
-        } else {
-            LOG(INFO) << "Successfully attached render target";
-        }
-
-        // Render frame to EVS display
-        LOG(INFO) << "Rendering to display buffer";
-        sp<GraphicBuffer> graphicBuffer =
-            new GraphicBuffer(handle,
-                              GraphicBuffer::CLONE_HANDLE,
-                              pDesc->width,
-                              pDesc->height,
-                              pDesc->format,
-                              pDesc->layers,  // layer count
-                              pDesc->usage,
-                              pDesc->stride);
-
-        EGLImageKHR KHRimage = EGL_NO_IMAGE_KHR;
-
-        // Get a GL compatible reference to the graphics buffer we've been given
-        EGLint eglImageAttributes[] = {
-            EGL_IMAGE_PRESERVED_KHR,
-            EGL_TRUE,
-            EGL_NONE
-        };
-        EGLClientBuffer clientBuf = static_cast<EGLClientBuffer>(
-            graphicBuffer->getNativeBuffer());
-        KHRimage = eglCreateImageKHR(sGLDisplay, EGL_NO_CONTEXT,
-                                     EGL_NATIVE_BUFFER_ANDROID, clientBuf,
-                                     eglImageAttributes);
-        if (KHRimage == EGL_NO_IMAGE_KHR) {
-            const char *msg = getEGLError();
-            LOG(ERROR) << "error creating EGLImage: "
-                       << msg;
-            return {};
-        } else {
-            LOG(INFO) << "Successfully created EGLImage";
-
-            // Update the texture handle we already created to refer to
-            // this gralloc buffer
-            glActiveTexture(GL_TEXTURE0);
-            glBindTexture(GL_TEXTURE_2D, sTextureId);
-            glEGLImageTargetTexture2DOES(GL_TEXTURE_2D,
-                                         static_cast<GLeglImageOES>(KHRimage));
-
-            // Initialize the sampling properties (it seems the sample may
-            // not work if this isn't done)
-            // The user of this texture may very well want to set their own
-            // filtering, but we're going to pay the (minor) price of
-            // setting this up for them to avoid the dreaded "black image"
-            // if they forget.
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
-                            GL_LINEAR);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
-                            GL_NEAREST);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
-                            GL_CLAMP_TO_EDGE);
-            glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
-                            GL_CLAMP_TO_EDGE);
-        }
-
-        // Bind the texture and assign it to the shader's sampler
-        glActiveTexture(GL_TEXTURE0);
-        glBindTexture(GL_TEXTURE_2D, sTextureId);
-
-        // We want our image to show up opaque regardless of alpha values
-        glDisable(GL_BLEND);
-
-        // Draw a rectangle on the screen
-        const GLfloat vertsCarPos[] = {
-            -1.0,  1.0, 0.0f,   // left top in window space
-            1.0,  1.0, 0.0f,    // right top
-            -1.0, -1.0, 0.0f,   // left bottom
-            1.0, -1.0, 0.0f     // right bottom
-        };
-        const GLfloat vertsCarTex[] = {
-            0.0f, 0.0f,   // left top
-            1.0f, 0.0f,   // right top
-            0.0f, 1.0f,   // left bottom
-            1.0f, 1.0f    // right bottom
-        };
-        glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertsCarPos);
-        glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, vertsCarTex);
-        glEnableVertexAttribArray(0);
-        glEnableVertexAttribArray(1);
-
-        glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
-
-        glDisableVertexAttribArray(0);
-        glDisableVertexAttribArray(1);
-
-        // Now that everything is submitted, release our hold on the
-        // texture resource
-        detachRenderTarget();
-
-        // Wait for the rendering to finish
-        glFinish();
-        detachRenderTarget();
-
-        // Drop our external render target
-        if (KHRimage != EGL_NO_IMAGE_KHR) {
-            eglDestroyImageKHR(sGLDisplay, KHRimage);
-            KHRimage = EGL_NO_IMAGE_KHR;
-        }
-
-        LOG(DEBUG) << "Rendering finished. Going to return the buffer";
-
-        // Return display buffer back to EVS display
-        mDisplay->returnTargetBufferForDisplay(tgtBuffer);
+    if (!makeContextCurrent()) {
+        return false;
     }
-    return {};
+
+    // Render frame to EVS display
+    LOG(INFO) << "Rendering to display buffer";
+    sp<GraphicBuffer> graphicBuffer =
+       new GraphicBuffer(handle,
+                         GraphicBuffer::CLONE_HANDLE,
+                         pDesc->width,
+                         pDesc->height,
+                         pDesc->format,
+                         pDesc->layers,  // layer count
+                         pDesc->usage,
+                         pDesc->stride);
+
+    EGLImageKHR KHRimage = EGL_NO_IMAGE_KHR;
+
+    // Get a GL compatible reference to the graphics buffer we've been given
+    EGLint eglImageAttributes[] = {
+       EGL_IMAGE_PRESERVED_KHR,
+       EGL_TRUE,
+       EGL_NONE
+    };
+    EGLClientBuffer clientBuf = static_cast<EGLClientBuffer>(
+       graphicBuffer->getNativeBuffer());
+    KHRimage = eglCreateImageKHR(sGLDisplay, EGL_NO_CONTEXT,
+                                EGL_NATIVE_BUFFER_ANDROID, clientBuf,
+                                eglImageAttributes);
+    if (KHRimage == EGL_NO_IMAGE_KHR) {
+       const char *msg = getEGLError();
+       LOG(ERROR) << "error creating EGLImage: "
+                  << msg;
+       return false;
+    } else {
+       LOG(INFO) << "Successfully created EGLImage";
+
+       // Update the texture handle we already created to refer to
+       // this gralloc buffer
+       glActiveTexture(GL_TEXTURE0);
+       glBindTexture(GL_TEXTURE_2D, sTextureId);
+       glEGLImageTargetTexture2DOES(GL_TEXTURE_2D,
+                                    static_cast<GLeglImageOES>(KHRimage));
+
+       // Initialize the sampling properties (it seems the sample may
+       // not work if this isn't done)
+       // The user of this texture may very well want to set their own
+       // filtering, but we're going to pay the (minor) price of
+       // setting this up for them to avoid the dreaded "black image"
+       // if they forget.
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MAG_FILTER,
+                       GL_LINEAR);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_MIN_FILTER,
+                       GL_NEAREST);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_S,
+                       GL_CLAMP_TO_EDGE);
+       glTexParameteri(GL_TEXTURE_2D, GL_TEXTURE_WRAP_T,
+                       GL_CLAMP_TO_EDGE);
+    }
+
+    // Bind the texture and assign it to the shader's sampler
+    glActiveTexture(GL_TEXTURE0);
+    glBindTexture(GL_TEXTURE_2D, sTextureId);
+
+    // We want our image to show up opaque regardless of alpha values
+    glDisable(GL_BLEND);
+
+    // Draw a rectangle on the screen
+    const GLfloat vertsCarPos[] = {
+       -1.0,  1.0, 0.0f,   // left top in window space
+       1.0,  1.0, 0.0f,    // right top
+       -1.0, -1.0, 0.0f,   // left bottom
+       1.0, -1.0, 0.0f     // right bottom
+    };
+    const GLfloat vertsCarTex[] = {
+       0.0f, 0.0f,   // left top
+       1.0f, 0.0f,   // right top
+       0.0f, 1.0f,   // left bottom
+       1.0f, 1.0f    // right bottom
+    };
+    glVertexAttribPointer(0, 3, GL_FLOAT, GL_FALSE, 0, vertsCarPos);
+    glVertexAttribPointer(1, 2, GL_FLOAT, GL_FALSE, 0, vertsCarTex);
+    glEnableVertexAttribArray(0);
+    glEnableVertexAttribArray(1);
+
+    glDrawArrays(GL_TRIANGLE_STRIP, 0, 4);
+
+    glDisableVertexAttribArray(0);
+    glDisableVertexAttribArray(1);
+
+    // Wait for the rendering to finish.
+    glFinish();
+
+    if(!detachAndDisplayCurrRenderTarget()) {
+        LOG(ERROR) << "Failed to detachAndDisplayCurrRenderTarget";
+        return false;
+    }
+
+    if(!attachNewRenderTarget()) {
+        LOG(ERROR) << "Failed to attachNewRenderTarget";
+        return false;
+    }
+
+    if (!clearContext()) {
+        return false;
+    }
+
+    return true;
 }

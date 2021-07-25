@@ -91,13 +91,15 @@ const float kPoseTrans[kPoseCount][4] = {{4, 0, 2.5},
                                          {2.82843, -2.82843, 2.5},
                                          {3.69552, -1.53073, 2.5}};
 
-bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay);
+// Performs common operations to run surround View 2D session. Session and callback input pointers
+// must be initialized.
+bool runSurroundView2dSession(sp<ISurroundView2dSession> sv2dSession,
+        sp<SurroundViewCallback> svCallback);
 
-bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay);
-
-// Given a valid sv 3d session and pose, viewid and hfov parameters, sets the view.
-bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId, uint32_t poseIndex,
-             float hfov);
+// Performs common operations to run surround View 3D session. Session and callback input pointers
+// must be initialized.
+bool runSurroundView3dSession(sp<ISurroundView3dSession> sv3dSession,
+        sp<SurroundViewCallback> svCallback);
 
 }  // namespace app
 }  // namespace sv

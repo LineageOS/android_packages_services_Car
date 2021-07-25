@@ -18,6 +18,10 @@
 #include "SurroundViewService.h"
 #include "SurroundViewCallback.h"
 
+#include "core_lib.h"
+#include "SurroundViewService.h"
+#include "SurroundView3dSession.h"
+
 // libhidl:
 using android::sp;
 using android::hardware::configureRpcThreadpool;
@@ -30,7 +34,111 @@ using namespace android::hardware::automotive::evs::V1_1;
 using namespace android::hardware::automotive::sv::V1_0::implementation;
 using namespace android::hardware::automotive::sv::app;
 
-#define SURROUND_VIEW_LIBRARY
+using android_auto::surround_view::RendererInfo;
+using android_auto::surround_view::OpenGlInitInfo;
+using android::hardware::automotive::sv::V1_0::implementation::SurroundViewService;
+using android::hardware::automotive::sv::V1_0::implementation::SurroundView3dSession;
+
+namespace {
+bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewLibrary, sp<IEvsDisplay> pDisplay) {
+    LOG(INFO) << "Running Surround View 2D.";
+
+    // Initialize a display handler.
+    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
+    if (!displayHandler->startDisplay()) {
+        LOG(ERROR) << "Failed to start display for DisplayHandler.";
+        return false;
+    }
+
+    // Initialize a 2D Session.
+    sp<ISurroundView2dSession> surroundView2dSession;
+    SvResult svResult;
+    pSurroundViewLibrary->start2dSession(
+            [&surroundView2dSession, &svResult](const sp<ISurroundView2dSession>& session,
+                                                SvResult result) {
+                surroundView2dSession = session;
+                svResult = result;
+            });
+
+    if (surroundView2dSession == nullptr || svResult != SvResult::OK) {
+        LOG(ERROR) << "Failed to start2dSession";
+        return false;
+    }
+
+    // Setup a SurroundViewCallback.
+    sp<SurroundViewCallback> svCallback =
+            new SurroundViewCallback(surroundView2dSession,
+                                     [&displayHandler](const HardwareBuffer& hardwareBuffer) {
+                                         return displayHandler->renderBufferToScreen(
+                                                 hardwareBuffer);
+                                     });
+
+    // Run Surround View 2D Session.
+    if (!runSurroundView2dSession(surroundView2dSession, svCallback)) {
+        // TODO(197005459): Refactor to use a helper class for simplifying clean-up.
+        pSurroundViewLibrary->stop2dSession(surroundView2dSession);
+        LOG(ERROR) << "Failed run2dSurroundViewSession";
+        return false;
+    }
+
+    // Stop the 2D Session.
+    pSurroundViewLibrary->stop2dSession(surroundView2dSession);
+    LOG(INFO) << "End of Surround View 2D.";
+    return true;
+};
+
+bool run3dSurroundView(sp<SurroundViewService> pSurroundViewLibrary, sp<IEvsDisplay> pDisplay) {
+    LOG(INFO) << "Running Surround View 3D (Library).";
+
+    // Initialize a display handler.
+    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
+    if (!displayHandler->startDisplay()) {
+        LOG(ERROR) << "Failed to start display for DisplayHandler.";
+        return false;
+    }
+
+// Undefine clashing macros for version_major and version_minor.
+#undef version_major
+#undef version_minor
+    RendererInfo renderInfo = {.api = RendererInfo::RenderingApi::OPENGLES,
+                               .version_major = 3,
+                               .version_minor = 1};
+
+    // Initialization info for external OpenGLES rendering.
+    const OpenGlInitInfo glInitInfo = {.egl_display = displayHandler->getDisplay(),
+                                       .egl_surface = displayHandler->getSurface(),
+                                       .egl_context = displayHandler->getContext()};
+
+    // Initialize a 3D Session with external rendering.
+    sp<SurroundView3dSession> surroundView3dSession;
+    if (!pSurroundViewLibrary->start3dSessionExternalRender(renderInfo, glInitInfo,
+                                                            &surroundView3dSession)) {
+        LOG(ERROR) << "Failed start3dSessionExternal.";
+        return false;
+    }
+
+    // Setup a SurroundViewCallback with external rendering.
+    sp<SurroundViewCallback> svCallback =
+            new SurroundViewCallback(surroundView3dSession,
+                                     [&displayHandler](const HardwareBuffer& /*hardwareBuffer*/) {
+                                         return displayHandler->renderGlTargetToScreen();
+                                     });
+
+    // Run Surround View 3D Session.
+    if (!runSurroundView3dSession(surroundView3dSession, svCallback)) {
+        // TODO(197005459): Refactor to use a helper class for simplifying clean-up.
+        pSurroundViewLibrary->stop3dSession(surroundView3dSession);
+        LOG(ERROR) << "Failed runSurroundView3dSession";
+        return false;
+    }
+
+    // Stop the 3D Session.
+    pSurroundViewLibrary->stop3dSession(surroundView3dSession);
+    LOG(INFO) << "End of Surround View 3D.";
+    return true;
+}
+
+}  // namespace
 
 // Main entry point
 int main(int argc, char** argv) {
@@ -66,14 +174,13 @@ int main(int argc, char** argv) {
     }
 
     // Create a new instance of the SurroundViewService.
-    LOG(INFO) << "Acquiring SV Service";
-    android::sp<ISurroundViewService> surroundViewService = SurroundViewService::getInstance();
+    LOG(INFO) << "Creating instance of Surround View Library.";
+    // TODO(b/196727179): Use SurroundViewLibrary class instead of SurroundViewService.
+    android::sp<SurroundViewService> surroundViewLibrary = SurroundViewService::getInstance();
 
-    if (surroundViewService == nullptr) {
-        LOG(ERROR) << "getService(default) returned NULL.";
+    if (surroundViewLibrary == nullptr) {
+        LOG(ERROR) << "getInstance(default) returned NULL.";
         return EXIT_FAILURE;
-    } else {
-        LOG(INFO) << "Get ISurroundViewService default";
     }
 
     // Connect to evs display
@@ -98,15 +205,17 @@ int main(int argc, char** argv) {
     }
 
     if (mode == DEMO_2D) {
-        if (!run2dSurroundView(surroundViewService, display)) {
+        if (!run2dSurroundView(surroundViewLibrary, display)) {
             LOG(ERROR) << "Something went wrong in 2d surround view demo. "
                        << "Exiting.";
+            evs->closeDisplay(display);
             return EXIT_FAILURE;
         }
     } else if (mode == DEMO_3D) {
-        if (!run3dSurroundView(surroundViewService, display)) {
+        if (!run3dSurroundView(surroundViewLibrary, display)) {
             LOG(ERROR) << "Something went wrong in 3d surround view demo. "
                        << "Exiting.";
+            evs->closeDisplay(display);
             return EXIT_FAILURE;
         }
     }
