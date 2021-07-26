@@ -61,7 +61,6 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLogHelper;
-import com.android.car.ICarImpl;
 import com.android.car.R;
 import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
@@ -1011,7 +1010,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // The listener is not required (or allowed) to call finished().
     @Override
     public void registerListener(ICarPowerStateListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         mPowerManagerListeners.register(listener);
     }
 
@@ -1019,8 +1018,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // After the listener completes its processing, it must call finished().
     @Override
     public void registerListenerWithCompletion(ICarPowerStateListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        ICarImpl.assertCallingFromSystemProcessOrSelf();
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
 
         mPowerManagerListenersWithCompletion.register(listener);
         // TODO: Need to send current state to newly registered listener? If so, need to handle
@@ -1029,13 +1028,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void unregisterListener(ICarPowerStateListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         doUnregisterListener(listener);
     }
 
     @Override
     public void requestShutdownOnNextSuspend() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         synchronized (mLock) {
             mShutdownOnNextSuspend = true;
         }
@@ -1043,14 +1042,14 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public void finished(ICarPowerStateListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
-        ICarImpl.assertCallingFromSystemProcessOrSelf();
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertCallingFromSystemProcessOrSelf();
         finishedImpl(listener.asBinder());
     }
 
     @Override
     public void scheduleNextWakeupTime(int seconds) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         if (seconds < 0) {
             Slogf.w(TAG, "Next wake up time is negative. Ignoring!");
             return;
@@ -1074,7 +1073,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @Override
     public int getPowerState() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         synchronized (mLock) {
             return (mCurrentState == null) ? CarPowerStateListener.INVALID
                     : mCurrentState.mCarPowerStateListenerState;
@@ -1086,7 +1085,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public CarPowerPolicy getCurrentPowerPolicy() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         return mPowerComponentHandler.getAccumulatedPolicy();
     }
 
@@ -1095,7 +1094,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public void applyPowerPolicy(String policyId) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyId != null, "policyId cannot be null");
         Preconditions.checkArgument(!policyId.startsWith(PolicyReader.SYSTEM_POWER_POLICY_PREFIX),
                 "System power policy cannot be applied by apps");
@@ -1110,7 +1109,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public void setPowerPolicyGroup(String policyGroupId) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_POWER_POLICY);
         Preconditions.checkArgument(policyGroupId != null, "policyGroupId cannot be null");
         int status = setCurrentPowerPolicyGroup(policyGroupId);
         if (status != PolicyOperationStatus.OK) {
@@ -1124,7 +1123,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @Override
     public void addPowerPolicyListener(CarPowerPolicyFilter filter,
             ICarPowerPolicyListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         mPowerPolicyListeners.register(listener, filter);
     }
 
@@ -1133,7 +1132,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      */
     @Override
     public void removePowerPolicyListener(ICarPowerPolicyListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_READ_CAR_POWER_POLICY);
         mPowerPolicyListeners.unregister(listener);
     }
 
@@ -1978,7 +1977,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * on devices which do not support it may lead to an unexpected system state.
      */
     public void powerOffFromCommand(boolean skipGarageMode, boolean shutdown) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         int param = 0;
         if (shutdown) {
             param = skipGarageMode ? VehicleApPowerStateShutdownParam.SHUTDOWN_IMMEDIATELY
@@ -2000,7 +1999,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
      * Changes Silent Mode to the given mode.
      */
     public void setSilentMode(String silentMode) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_POWER);
         mSilentModeHandler.setSilentMode(silentMode);
     }
 

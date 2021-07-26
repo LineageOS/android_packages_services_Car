@@ -189,7 +189,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public void registerProjectionRunner(Intent serviceIntent) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         // We assume one active projection app running in the system at one time.
         synchronized (mLock) {
             if (serviceIntent.filterEquals(mRegisteredService) && mBound) {
@@ -206,7 +206,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public void unregisterProjectionRunner(Intent serviceIntent) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         synchronized (mLock) {
             if (!serviceIntent.filterEquals(mRegisteredService)) {
                 Slog.w(CarLog.TAG_PROJECTION, "Request to unbind unregistered service["
@@ -241,7 +241,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void registerKeyEventHandler(
             ICarProjectionKeyEventHandler eventHandler, byte[] eventMask) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         BitSet events = BitSet.valueOf(eventMask);
         Preconditions.checkArgument(
                 events.length() <= CarProjectionManager.NUM_KEY_EVENTS,
@@ -261,7 +261,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public void unregisterKeyEventHandler(ICarProjectionKeyEventHandler eventHandler) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         synchronized (mLock) {
             mKeyEventHandlers.removeBinder(eventHandler);
             updateInputServiceHandlerLocked();
@@ -271,7 +271,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void startProjectionAccessPoint(final Messenger messenger, IBinder binder)
             throws RemoteException {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         //TODO: check if access point already started with the desired configuration.
         registerWirelessClient(WirelessClient.of(messenger, binder));
         startAccessPoint();
@@ -279,7 +279,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public void stopProjectionAccessPoint(IBinder token) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         Slog.i(TAG, "Received stop access point request from " + token);
 
         boolean shouldReleaseAp;
@@ -298,7 +298,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public int[] getAvailableWifiChannels(int band) {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         WifiScanner scanner;
         synchronized (mLock) {
             // Lazy initialization
@@ -342,7 +342,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slog.d(TAG, "requestBluetoothProfileInhibit device=" + device + " profile=" + profile
                     + " from uid " + Binder.getCallingUid());
         }
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         try {
             if (device == null) {
                 // Will be caught by AIDL and thrown to caller.
@@ -375,7 +375,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
             Slog.d(TAG, "releaseBluetoothProfileInhibit device=" + device + " profile=" + profile
                     + " from uid " + Binder.getCallingUid());
         }
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         try {
             if (device == null) {
                 // Will be caught by AIDL and thrown to caller.
@@ -397,7 +397,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         if (DBG) {
             Slog.d(TAG, "updateProjectionStatus, status: " + status + ", token: " + token);
         }
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         final String packageName = status.getPackageName();
         final int callingUid = Binder.getCallingUid();
         final int userHandleId = Binder.getCallingUserHandle().getIdentifier();
@@ -438,7 +438,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void registerProjectionStatusListener(ICarProjectionStatusListener listener)
             throws RemoteException {
-        ICarImpl.assertProjectionStatusPermission(mContext);
+        CarServiceUtils.assertProjectionStatusPermission(mContext);
         mProjectionStatusListeners.addBinder(listener);
 
         // Immediately notify listener with the current status.
@@ -448,7 +448,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void unregisterProjectionStatusListener(ICarProjectionStatusListener listener)
             throws RemoteException {
-        ICarImpl.assertProjectionStatusPermission(mContext);
+        CarServiceUtils.assertProjectionStatusPermission(mContext);
         mProjectionStatusListeners.removeBinder(listener);
     }
 
@@ -518,7 +518,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
 
     @Override
     public Bundle getProjectionOptions() {
-        ICarImpl.assertProjectionPermission(mContext);
+        CarServiceUtils.assertProjectionPermission(mContext);
         synchronized (mLock) {
             if (mProjectionOptions == null) {
                 mProjectionOptions = createProjectionOptionsBuilder()

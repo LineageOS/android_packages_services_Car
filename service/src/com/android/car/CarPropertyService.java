@@ -229,7 +229,7 @@ public class CarPropertyService extends ICarProperty.Stub
                         propId));
                 return;
             }
-            ICarImpl.assertPermission(mContext, mHal.getReadPermission(propId));
+            CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
             // Get or create the client for this listener
             Client client = mClientMap.get(listenerBinder);
             if (client == null) {
@@ -295,7 +295,7 @@ public class CarPropertyService extends ICarProperty.Stub
         if (DBG) {
             Slog.d(TAG, "unregisterListener propId=0x" + toHexString(propId));
         }
-        ICarImpl.assertPermission(mContext, mHal.getReadPermission(propId));
+        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
         if (listener == null) {
             Slog.e(TAG, "unregisterListener: Listener is null.");
             throw new IllegalArgumentException("Listener is null");
@@ -392,7 +392,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
             // Check if context already granted permission first
             if (grantedPermission.contains(readPermission)
-                    || ICarImpl.hasPermission(mContext, readPermission)) {
+                    || CarServiceUtils.hasPermission(mContext, readPermission)) {
                 grantedPermission.add(readPermission);
                 synchronized (mLock) {
                     availableProp.add(mConfigs.get(propId));
@@ -414,7 +414,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 return null;
             }
         }
-        ICarImpl.assertPermission(mContext, mHal.getReadPermission(prop));
+        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(prop));
         return mHal.getProperty(prop, zone);
     }
 
@@ -433,7 +433,7 @@ public class CarPropertyService extends ICarProperty.Stub
                 return null;
             }
         }
-        ICarImpl.assertPermission(mContext, mHal.getReadPermission(prop));
+        CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(prop));
         return mHal.getPropertySafe(prop, zone);
     }
 
@@ -475,7 +475,7 @@ public class CarPropertyService extends ICarProperty.Stub
         checkPropertyAccessibility(propId);
         // need an extra permission for writing display units properties.
         if (mHal.isDisplayUnitsProperty(propId)) {
-            ICarImpl.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
+            CarServiceUtils.assertPermission(mContext, Car.PERMISSION_VENDOR_EXTENSION);
         }
         mHal.setProperty(prop);
         IBinder listenerBinder = listener.asBinder();
@@ -506,7 +506,7 @@ public class CarPropertyService extends ICarProperty.Stub
                     + "property Id: 0x" + Integer.toHexString(propId));
         }
         // Checks if the client has the permission.
-        ICarImpl.assertPermission(mContext, propertyWritePermission);
+        CarServiceUtils.assertPermission(mContext, propertyWritePermission);
     }
 
     // Updates recorder for set operation.

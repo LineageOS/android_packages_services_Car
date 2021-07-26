@@ -114,7 +114,8 @@ java_library {
     ],
 
     libs: [
-        "android.car.builtin-stubs"
+        "android.car.builtin-stubs",
+        "android.car",
     ],
 
     static_libs: [

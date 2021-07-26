@@ -221,7 +221,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
 
     @Override
     public void injectDrivingState(CarDrivingStateEvent event) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_APP_BLOCKING);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_APP_BLOCKING);
 
         dispatchEventToClients(event);
     }

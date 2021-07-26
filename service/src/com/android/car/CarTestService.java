@@ -72,7 +72,7 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
     @Override
     public void stopCarService(IBinder token) throws RemoteException {
         Slog.d(TAG, "stopCarService, token: " + token);
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
 
         synchronized (mLock) {
             if (mTokens.containsKey(token)) {
@@ -93,7 +93,7 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
     @Override
     public void startCarService(IBinder token) throws RemoteException {
         Slog.d(TAG, "startCarService, token: " + token);
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
         releaseToken(token);
     }
 

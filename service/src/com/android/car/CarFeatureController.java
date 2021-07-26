@@ -451,7 +451,7 @@ public final class CarFeatureController implements CarServiceBase {
     }
 
     private void assertPermission() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_FEATURES);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_FEATURES);
     }
 
     private void dispatchDefaultConfigUpdate() {
