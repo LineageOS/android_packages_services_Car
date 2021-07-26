@@ -16,6 +16,7 @@
 
 package com.android.car.systeminterface;
 
+import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -23,7 +24,6 @@ import android.content.IntentFilter;
 import android.os.Looper;
 import android.os.PowerManager;
 import android.util.Pair;
-import android.util.Slog;
 
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.procfsinspector.ProcessInfo;

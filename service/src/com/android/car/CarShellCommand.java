@@ -41,6 +41,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.util.Slog;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -92,7 +93,6 @@ import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 

@@ -23,6 +23,7 @@ import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.TaskStackListener;
+import android.car.builtin.util.Slog;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -37,7 +38,6 @@ import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Pair;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.Display;
 

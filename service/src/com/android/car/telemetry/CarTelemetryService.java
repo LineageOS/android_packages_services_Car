@@ -22,13 +22,13 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_SAME_MANIFEST_EXIS
 
 import android.annotation.NonNull;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.telemetry.CarTelemetryManager.AddManifestError;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.ManifestKey;
 import android.content.Context;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarServiceBase;
 import com.android.internal.annotations.GuardedBy;

@@ -23,6 +23,7 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.DISPLAY_B
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -32,7 +33,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.ServiceSpecificException;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

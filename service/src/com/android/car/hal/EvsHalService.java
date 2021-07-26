@@ -22,6 +22,7 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVI
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
+import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceRequestIndex;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceState;
@@ -29,7 +30,6 @@ import android.hardware.automotive.vehicle.V2_0.EvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

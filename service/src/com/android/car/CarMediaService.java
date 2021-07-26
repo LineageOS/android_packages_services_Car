@@ -24,6 +24,7 @@ import android.annotation.TestApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -63,7 +64,6 @@ import android.text.TextUtils;
 import android.util.DebugUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;

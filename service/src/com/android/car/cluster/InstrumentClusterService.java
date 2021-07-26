@@ -22,6 +22,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
+import android.car.builtin.util.Slog;
 import android.car.cluster.IInstrumentClusterManagerCallback;
 import android.car.cluster.IInstrumentClusterManagerService;
 import android.car.cluster.renderer.IInstrumentCluster;
@@ -43,7 +44,6 @@ import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.view.KeyEvent;
 
 import com.android.car.CarInputService;

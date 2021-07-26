@@ -19,6 +19,7 @@ package com.android.car;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.ICarDiagnostic;
@@ -28,7 +29,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;

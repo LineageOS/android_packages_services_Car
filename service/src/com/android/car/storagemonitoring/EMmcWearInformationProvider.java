@@ -17,7 +17,7 @@ package com.android.car.storagemonitoring;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.util.Slog;
+import android.car.builtin.util.Slog;
 
 import com.android.car.CarLog;
 

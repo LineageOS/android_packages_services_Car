@@ -20,6 +20,7 @@ import static com.android.car.ICarImpl.assertAnyVmsPermission;
 import static com.android.car.ICarImpl.assertVmsPublisherPermission;
 import static com.android.car.ICarImpl.assertVmsSubscriberPermission;
 
+import android.car.builtin.util.Slog;
 import android.car.vms.IVmsBrokerService;
 import android.car.vms.IVmsClientCallback;
 import android.car.vms.VmsAssociatedLayer;
@@ -39,7 +40,6 @@ import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;

@@ -25,6 +25,7 @@ import android.annotation.RequiresPermission;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.car.ICarBugreportCallback;
 import android.car.ICarBugreportService;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.net.LocalSocket;
@@ -39,7 +40,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

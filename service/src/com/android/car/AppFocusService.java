@@ -19,6 +19,7 @@ import android.car.CarAppFocusManager;
 import android.car.IAppFocus;
 import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
@@ -28,7 +29,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;

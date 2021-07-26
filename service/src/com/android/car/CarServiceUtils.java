@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -25,7 +26,6 @@ import android.os.HandlerThread;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.internal.annotations.VisibleForTesting;
 

@@ -22,6 +22,7 @@ import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
+import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -42,7 +43,6 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.power.CarPowerManagementService;
 import com.android.internal.annotations.VisibleForTesting;

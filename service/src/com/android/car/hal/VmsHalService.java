@@ -19,6 +19,7 @@ import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
+import android.car.builtin.util.Slog;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsClient;
@@ -46,7 +47,6 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArraySet;
-import android.util.Slog;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;

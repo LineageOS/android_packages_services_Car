@@ -26,6 +26,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.util.Slog;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -45,7 +46,6 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 import android.util.ArraySet;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

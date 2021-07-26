@@ -23,11 +23,11 @@ import static android.util.Log.VERBOSE;
 import static com.android.car.CarLog.TAG_AUDIO;
 
 import android.annotation.NonNull;
+import android.car.builtin.util.Slog;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.Builder;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;

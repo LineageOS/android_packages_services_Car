@@ -21,6 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static java.lang.Integer.toHexString;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.hardware.CarSensorManager;
@@ -31,7 +32,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyChangeMode;
 import android.os.ServiceSpecificException;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

@@ -17,11 +17,11 @@
 package com.android.car.pm.blurredbackground;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.opengl.GLES30;
 import android.opengl.Matrix;
 import android.os.Build;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 

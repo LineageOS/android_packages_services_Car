@@ -19,6 +19,7 @@ package com.android.car;
 import android.app.ActivityManager;
 import android.car.ILocationManagerProxy;
 import android.car.IPerUserCarService;
+import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
@@ -40,7 +41,6 @@ import android.util.AtomicFile;
 import android.util.IndentingPrintWriter;
 import android.util.JsonReader;
 import android.util.JsonWriter;
-import android.util.Slog;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;

@@ -16,6 +16,7 @@
 
 package com.android.car.pm.blurredbackground;
 
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.graphics.Rect;
 import android.graphics.SurfaceTexture;
@@ -23,7 +24,6 @@ import android.opengl.GLES11Ext;
 import android.opengl.GLES30;
 import android.opengl.GLSurfaceView;
 import android.os.IBinder;
-import android.util.Slog;
 import android.view.Surface;
 import android.view.SurfaceControl;
 

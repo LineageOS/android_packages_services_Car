@@ -20,6 +20,7 @@ import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_M
 
 import android.annotation.Nullable;
 import android.annotation.XmlRes;
+import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
@@ -30,7 +31,6 @@ import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.Slog;
 import android.util.Xml;
 
 import org.xmlpull.v1.XmlPullParserException;

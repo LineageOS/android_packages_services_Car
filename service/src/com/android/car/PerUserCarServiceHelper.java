@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.IPerUserCarService;
+import android.car.builtin.util.Slog;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
@@ -26,7 +27,6 @@ import android.content.ServiceConnection;
 import android.os.IBinder;
 import android.os.UserHandle;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;

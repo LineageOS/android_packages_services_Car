@@ -25,6 +25,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.IActivityManager;
+import android.car.builtin.util.Slog;
 import android.car.settings.CarSettings;
 import android.car.userlib.UserHalHelper;
 import android.content.Context;
@@ -37,7 +38,6 @@ import android.os.UserManager;
 import android.provider.Settings;
 import android.sysprop.CarProperties;
 import android.util.Pair;
-import android.util.Slog;
 import android.util.TimingsTraceLog;
 
 import com.android.car.CarLog;
@@ -638,7 +638,7 @@ final class InitialUserSetter {
             }
         } catch (RemoteException e) {
             // should not happen for local call.
-            Slog.wtf("RemoteException from AMS", e);
+            Slog.wtf(TAG, "RemoteException from AMS", e);
         } finally {
             t.traceEnd();
         }

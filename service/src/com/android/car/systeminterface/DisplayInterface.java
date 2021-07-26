@@ -21,6 +21,7 @@ import static com.android.settingslib.display.BrightnessUtils.convertGammaToLine
 import static com.android.settingslib.display.BrightnessUtils.convertLinearToGamma;
 
 import android.app.ActivityManager;
+import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -37,7 +38,6 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
-import android.util.Slog;
 import android.view.Display;
 import android.view.InputDevice;
 

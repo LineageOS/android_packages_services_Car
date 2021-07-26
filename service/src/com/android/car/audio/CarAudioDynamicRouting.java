@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import android.car.builtin.util.Slog;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFormat;
@@ -23,7 +24,6 @@ import android.media.audiopolicy.AudioMix;
 import android.media.audiopolicy.AudioMixingRule;
 import android.media.audiopolicy.AudioPolicy;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;

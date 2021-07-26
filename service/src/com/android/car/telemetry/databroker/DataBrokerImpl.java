@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.car.builtin.util.Slog;
 import android.car.telemetry.IScriptExecutor;
 import android.car.telemetry.IScriptExecutorListener;
 import android.content.ComponentName;
@@ -31,7 +32,6 @@ import android.os.Message;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;

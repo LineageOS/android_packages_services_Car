@@ -20,11 +20,11 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V1_0.IAudioControl;
 import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext;

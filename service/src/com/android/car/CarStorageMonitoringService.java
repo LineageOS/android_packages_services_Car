@@ -17,6 +17,7 @@
 package com.android.car;
 
 import android.car.Car;
+import android.car.builtin.util.Slog;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.storagemonitoring.ICarStorageMonitoring;
 import android.car.storagemonitoring.IIoStatsListener;
@@ -37,7 +38,6 @@ import android.os.RemoteException;
 import android.util.IndentingPrintWriter;
 import android.util.JsonWriter;
 import android.util.Log;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.internal.CarPermission;

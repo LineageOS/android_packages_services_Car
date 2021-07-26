@@ -20,13 +20,13 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.IntDef;
 import android.app.admin.DevicePolicyManager;
+import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.util.DebugUtils;
 import android.util.IndentingPrintWriter;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;

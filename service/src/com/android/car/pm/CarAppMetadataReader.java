@@ -16,6 +16,7 @@
 package com.android.car.pm;
 
 import android.annotation.Nullable;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.ActivityInfo;
 import android.content.pm.PackageInfo;
@@ -23,7 +24,6 @@ import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Bundle;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 

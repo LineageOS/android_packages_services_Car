@@ -20,10 +20,10 @@ import android.annotation.Nullable;
 import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.car.builtin.util.Slog;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.TelemetryProto;

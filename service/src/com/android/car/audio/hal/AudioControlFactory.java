@@ -16,8 +16,8 @@
 
 package com.android.car.audio.hal;
 
+import android.car.builtin.util.Slog;
 import android.os.IBinder;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 

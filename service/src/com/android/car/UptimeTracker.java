@@ -16,9 +16,9 @@
 
 package com.android.car;
 
+import android.car.builtin.util.Slog;
 import android.util.JsonReader;
 import android.util.JsonWriter;
-import android.util.Slog;
 
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.systeminterface.TimeInterface;

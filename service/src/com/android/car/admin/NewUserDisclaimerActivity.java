@@ -21,10 +21,10 @@ import android.app.Activity;
 import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
+import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.util.Slog;
 import android.widget.Button;
 
 import com.android.car.CarLog;
