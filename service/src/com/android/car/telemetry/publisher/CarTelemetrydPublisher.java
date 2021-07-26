@@ -25,6 +25,7 @@ import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.util.Slog;
 
+import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
@@ -128,6 +129,13 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
                         == TelemetryProto.Publisher.PublisherCase.CARTELEMETRYD,
                 "Subscribers only with CarTelemetryd publisher are supported by this class.");
         int carDataId = publisherParam.getCartelemetryd().getId();
+        CarDataProto.CarData.PushedCase carDataCase =
+                CarDataProto.CarData.PushedCase.forNumber(carDataId);
+        Preconditions.checkArgument(
+                carDataCase != null
+                        && carDataCase != CarDataProto.CarData.PushedCase.PUSHED_NOT_SET,
+                "Invalid CarData ID " + carDataId
+                        + ". Please see CarData.proto for the list of available IDs.");
 
         synchronized (mLock) {
             try {
