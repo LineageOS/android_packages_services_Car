@@ -24,7 +24,9 @@ import android.car.hardware.CarPropertyValue;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.drawable.Drawable;
+import android.os.Build;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.SparseArray;
 import android.widget.SeekBar;
 
@@ -37,6 +39,9 @@ import com.android.systemui.car.hvac.HvacView;
 
 /** Custom seek bar to control fan speed. */
 public class FanSpeedSeekBar extends SeekBar implements HvacView {
+
+    private static final boolean DEBUG = Build.IS_ENG || Build.IS_USERDEBUG;
+    private static final String TAG = "FanSpeedSeekBar";
 
     private final SparseArray<Drawable> mIcons = new SparseArray<>();
 
@@ -155,6 +160,19 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
 
     @Override
     public void onPropertyChanged(CarPropertyValue value) {
+        if (value == null) {
+            if (DEBUG) {
+                Log.w(TAG, "onPropertyChanged: received null value");
+            }
+            return;
+        }
+
+        if (DEBUG) {
+            Log.w(TAG, "onPropertyChanged: property id: " + value.getPropertyId());
+            Log.w(TAG, "onPropertyChanged: area id: " + value.getAreaId());
+            Log.w(TAG, "onPropertyChanged: value: " + value.getValue());
+        }
+
         if (value.getPropertyId() == HVAC_FAN_SPEED) {
             int level = (int) value.getValue();
             setProgress(level, /* animate= */ true);
