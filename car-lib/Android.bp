@@ -74,22 +74,6 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
-// library to access settings from CarSettings
-java_library {
-    name: "android.car.settings",
-    srcs: ["src/android/car/settings/CarSettings.java"]
-}
-
-// library to access common constants between carlibrary and system server.
-java_library {
-    name: "com.android.car.internal.common",
-    srcs: [
-        "src/com/android/car/internal/common/**/*.java",
-        "src/com/android/car/internal/common/EventLogTags.logtags",
-        "src/com/android/car/internal/ExcludeFromCodeCoverageGeneratedReport.java",
-    ],
-}
-
 java_library {
     name: "android.car",
     srcs: [

@@ -118,10 +118,6 @@ java_library {
         "android.car",
     ],
 
-    static_libs: [
-        "com.android.car.internal.common",
-    ],
-
     product_variables: {
             pdk: {
                 enabled: false,
