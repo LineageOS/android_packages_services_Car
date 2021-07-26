@@ -23,6 +23,9 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.automotive.telemetry.internal.ICarDataListener;
@@ -107,6 +110,52 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(mCarDataListenerCaptor.getAllValues()).hasSize(0);
         assertThat(mPublisher.isConnectedToCarTelemetryd()).isFalse();
         assertThat(mPublisher.hasDataSubscriber(invalidDataSubscriber)).isFalse();
+    }
+
+    @Test
+    public void testRemoveDataSubscriber_ignoresIfNotFound() {
+        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+    }
+
+    @Test
+    public void testRemoveDataSubscriber_removesOnlySingleSubscriber() throws Exception {
+        mockICarTelemetryInternalBinder();
+        DataSubscriber subscriber2 = Mockito.mock(DataSubscriber.class);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(subscriber2);
+
+        mPublisher.removeDataSubscriber(subscriber2);
+
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(mPublisher.hasDataSubscriber(subscriber2)).isFalse();
+        verify(mMockCarTelemetryInternal, never()).clearListener();
+    }
+
+    @Test
+    public void testRemoveDataSubscriber_disconnectsFromICarTelemetry() throws Exception {
+        mockICarTelemetryInternalBinder();
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        verify(mMockCarTelemetryInternal, times(1)).clearListener();
+    }
+
+    @Test
+    public void testRemoveAllDataSubscribers_succeeds() throws Exception {
+        mockICarTelemetryInternalBinder();
+        DataSubscriber subscriber2 = Mockito.mock(DataSubscriber.class);
+        when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(subscriber2);
+
+        mPublisher.removeAllDataSubscribers();
+
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mPublisher.hasDataSubscriber(subscriber2)).isFalse();
+        verify(mMockCarTelemetryInternal, times(1)).clearListener();
     }
 
     // TODO(b/189142577): add test cases when connecting to cartelemetryd fails

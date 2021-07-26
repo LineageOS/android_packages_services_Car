@@ -124,16 +124,20 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     @Override
     public void removeDataSubscriber(DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
-        Preconditions.checkArgument(
-                publisherParam.getPublisherCase() == PublisherCase.VEHICLE_PROPERTY,
-                "Subscribers only with VehicleProperty publisher are supported by this class.");
+        if (publisherParam.getPublisherCase() != PublisherCase.VEHICLE_PROPERTY) {
+            Slog.w(CarLog.TAG_TELEMETRY,
+                    "Expected VEHICLE_PROPERTY publisher, but received "
+                            + publisherParam.getPublisherCase().name());
+            return;
+        }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
 
         synchronized (mLock) {
             ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-            if (subscribers == null || !subscribers.remove(subscriber)) {
-                throw new IllegalArgumentException("DataSubscriber was not found");
+            if (subscribers == null) {
+                return;
             }
+            subscribers.remove(subscriber);
             if (subscribers.isEmpty()) {
                 mCarPropertyToSubscribers.remove(propertyId);
                 // Doesn't throw exception as listener is not null. mCarPropertyService and

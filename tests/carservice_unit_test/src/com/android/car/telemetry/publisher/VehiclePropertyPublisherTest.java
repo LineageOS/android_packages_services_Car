@@ -166,11 +166,8 @@ public class VehiclePropertyPublisherTest {
     }
 
     @Test
-    public void testRemoveDataSubscriber_failsIfNotFound() {
-        Throwable error = assertThrows(IllegalArgumentException.class,
-                () -> mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber));
-
-        assertThat(error).hasMessageThat().contains("DataSubscriber was not found");
+    public void testRemoveDataSubscriber_ignoresIfNotFound() {
+        mVehiclePropertyPublisher.removeDataSubscriber(mMockDataSubscriber);
     }
 
     @Test
