@@ -1919,7 +1919,7 @@
     <string name="app_ops_never_used" msgid="8305262378162525813">"(Никада није коришћено)"</string>
     <string name="no_default_apps" msgid="4519038578011412532">"Нема подразумев. апл."</string>
     <string name="storageuse_settings_title" msgid="3390798597982116048">"Коришћење меморије"</string>
-    <string name="storageuse_settings_summary" msgid="3013328092465903687">"Преглед искоришћене меморије по апликацијама"</string>
+    <string name="storageuse_settings_summary" msgid="3013328092465903687">"Преглед употребе меморијског простора по апликацијама"</string>
     <string name="service_restarting" msgid="1190995225643385568">"Поновно покретање"</string>
     <string name="cached" msgid="4019482949725020855">"Кеширани позадински процес"</string>
     <string name="no_running_services" msgid="618823924559385173">"Нема покренутих услуга."</string>
@@ -3920,7 +3920,7 @@
     <string name="apps_summary" msgid="8355759446490212195">"Инсталираних апликација: <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="apps_summary_example" msgid="3011143598675185269">"Инсталиране су 24 апликације"</string>
     <string name="storage_summary" msgid="4835916510511133784">"У употреби <xliff:g id="PERCENTAGE">%1$s</xliff:g> – <xliff:g id="FREE_SPACE">%2$s</xliff:g> слободно"</string>
-    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Интерна меморија: <xliff:g id="PERCENTAGE">%1$s</xliff:g> је искоришћено – <xliff:g id="FREE_SPACE">%2$s</xliff:g> је слободно"</string>
+    <string name="storage_summary_with_sdcard" msgid="8742907204848352697">"Интерна меморија: <xliff:g id="PERCENTAGE">%1$s</xliff:g> је у употреби – <xliff:g id="FREE_SPACE">%2$s</xliff:g> је слободно"</string>
     <string name="display_summary" msgid="5725269449657325797">"Пређи у режим спавања после <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g>"</string>
     <string name="display_dashboard_summary" msgid="7678566148167010682">"Позадина, режим спавања, величина фонта"</string>
     <string name="display_dashboard_summary_with_style" msgid="8981059474501210956">"Стилови и позадине, спавање, величина фонта"</string>
