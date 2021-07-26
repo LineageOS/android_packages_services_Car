@@ -1129,7 +1129,7 @@
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"રિંગટોન"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"નોટિફિકેશન"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"સૂચનાઓ માટે ઇનકમિંગ કૉલ વોલ્યુમનો ઉપયોગ કરો"</string>
-    <string name="home_work_profile_not_supported" msgid="6137073723297076818">"કાર્ય પ્રોફાઇલ્સનું સમર્થન કરતું નથી"</string>
+    <string name="home_work_profile_not_supported" msgid="6137073723297076818">"ઑફિસની પ્રોફાઇલને સપોર્ટ કરતું નથી"</string>
     <string name="notification_sound_dialog_title" msgid="6653341809710423276">"ડિફૉલ્ટ નોટિફિકેશન સાઉન્ડ"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"મીડિયા"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"સંગીત અને વીડિઓ માટે વોલ્યૂમ સેટ કરો"</string>
@@ -1424,7 +1424,7 @@
     <string name="usb_mtp_title" msgid="6893938968831995500">"મીડિયા ઉપકરણ (MTP)"</string>
     <string name="usb_mtp_summary" msgid="4427354560399094322">"તમને મીડિયા ફાઇલોને Windows પર ટ્રાન્સફર કરવા દે છે અથવા Mac પર Android ફાઇલ સ્થાનાંતરનો ઉપયોગ કરવા દે છે (www.android.com/filetransfer જુઓ)"</string>
     <string name="usb_ptp_title" msgid="6629335976394685361">"કૅમેરો (PTP)"</string>
-    <string name="usb_ptp_summary" msgid="460425275251168189">"તમને કૅમેરા સૉફ્ટવેરની મદદથી ફોટો ટ્રાન્સફર કરવા દે છે અને MTP નું સમર્થન કરતાં ન હોય તેવા કમ્પ્યુટર્સ પર કોઈપણ ફાઇલોને ટ્રાન્સફર કરવા દે છે"</string>
+    <string name="usb_ptp_summary" msgid="460425275251168189">"તમને કૅમેરા સૉફ્ટવેરની મદદથી ફોટા ટ્રાન્સફર કરવા દે છે અને MTPને સપોર્ટ કરતા ન હોય તેવા કમ્પ્યુટર પર કોઈપણ ફાઇલોને ટ્રાન્સફર કરવા દે છે"</string>
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
     <string name="usb_midi_summary" msgid="3607444815743771712">"તમારા કમ્પ્યુટર પરના MIDI સોફ્ટવેર વડે MIDI સક્ષમ એપ્લિકેશન્સને USB પર કામ કરવા દે છે."</string>
     <string name="storage_other_users" msgid="1055693465220962928">"અન્ય વપરાશકર્તાઓ"</string>
@@ -2760,10 +2760,10 @@
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(સર્વર ચકાસશો નહીં)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(સર્વરમાંથી પ્રાપ્ત)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"આ VPN પ્રકાર હંમેશાં કનેક્ટ કરેલ રાખી શકાતો નથી"</string>
-    <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"હંમેશાં-ચાલુ VPN માત્ર સંખ્યાત્મક સર્વર સરનામાનું જ સમર્થન કરે છે"</string>
+    <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"હંમેશાં-ચાલુ VPN માત્ર સંખ્યાત્મક સર્વર ઍડ્રેસને જ સપોર્ટ કરે છે"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"હંમેશાં-ચાલુ VPN માટે DNS સર્વરનો ઉલ્લેખ કરેલો હોવો આવશ્યક છે"</string>
     <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"DNS સર્વર સરનામા હંમેશાં-ચાલુ VPN માટે સંખ્યાત્મક હોવા આવશ્યક છે"</string>
-    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"દાખલ કરેલી માહિતી હંમેશાં-ચાલુ VPNનું સમર્થન કરતી નથી"</string>
+    <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"દાખલ કરેલી માહિતી હંમેશાં-ચાલુ VPNને સપોર્ટ કરતી નથી"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"રદ કરો"</string>
     <string name="vpn_done" msgid="6314426362224527349">"છોડી દો"</string>
     <string name="vpn_save" msgid="1332625259182278316">"સાચવો"</string>
@@ -2784,7 +2784,7 @@
     <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"તમે પહેલાંથી VPN થી કનેક્ટ થયેલ છો. જો તમે કોઈ બીજાથી કનેક્ટ કરો છો, તો તમારા અસ્તિત્વમાંના VPN ને બદલવામાં આવશે."</string>
     <string name="vpn_turn_on" msgid="2334736319093953055">"ચાલુ કરો"</string>
     <string name="vpn_cant_connect_title" msgid="5803347131129293771">"<xliff:g id="VPN_NAME">%1$s</xliff:g> થી કનેક્ટ કરી શકાતું નથી"</string>
-    <string name="vpn_cant_connect_message" msgid="7729125036551401236">"આ ઍપ્લિકેશન હંમેશાં-ચાલુ VPNનું સમર્થન કરતી નથી"</string>
+    <string name="vpn_cant_connect_message" msgid="7729125036551401236">"આ ઍપ હંમેશાં-ચાલુ VPNને સપોર્ટ કરતી નથી"</string>
     <string name="vpn_title" msgid="7801918186865029203">"VPN"</string>
     <string name="vpn_create" msgid="2477570636472897359">"VPN પ્રોફાઇલ ઉમેરો"</string>
     <string name="vpn_menu_edit" msgid="8061437799373333593">"પ્રોફાઇલ સંપાદિત કરો"</string>
@@ -3385,7 +3385,7 @@
     <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"બ્લર ઘટાડો (ભલામણ કરેલ)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"ફ્લિકર ઘટાડો"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"ચિત્ર-માં-ચિત્ર"</string>
-    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"કોઈપણ ઇન્સ્ટૉલ કરેલી ઍપ્લિકેશન ચિત્ર-માં-ચિત્રને સમર્થન આપતી નથી"</string>
+    <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"કોઈપણ ઇન્સ્ટૉલ કરેલી ઍપ ચિત્ર-માં-ચિત્રને સપોર્ટ કરતી નથી"</string>
     <string name="picture_in_picture_keywords" msgid="7326958702002259262">"ચિત્ર-માં-ચિત્રમાં ચિત્ર"</string>
     <string name="picture_in_picture_app_detail_title" msgid="3916189052657425936">"ચિત્ર-માં-ચિત્ર"</string>
     <string name="picture_in_picture_app_detail_switch" msgid="747422998967185418">"ચિત્રમાં-ચિત્રને મંજૂરી આપો"</string>
