@@ -115,6 +115,22 @@ java_library {
     installable: true,
 }
 
+java_library {
+    name: "android.car.module",
+    srcs: [
+        "src/com/android/car/internal/ExcludeFromCodeCoverageGeneratedReport.java",
+    ],
+    sdk_version: "module_current",
+    libs: ["android.car.builtin-stubs",
+           "framework-annotations-lib"],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+        enabled: false,
+    },
+}
+
+
 stubs_defaults {
     name: "android.car-docs-default",
     srcs: [
