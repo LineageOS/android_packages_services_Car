@@ -904,6 +904,25 @@ public final class Car {
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
 
+    /**
+     * If some specific Activity should be launched on the designated TDA all the time, include this
+     * integer extra in the first launching Intent and ActivityOption with the launch TDA.
+     * If the value is {@link #LAUNCH_PERSISTENT_ADD}, CarLaunchParamsModifier will memorize
+     * the Activity and the TDA pair, and assign the TDA in the following Intents for the Activity.
+     * If there is any assigned Activity on the TDA, it'll be replaced with the new Activity.
+     * If the value is {@Link #LAUNCH_PERSISTENT_DELETE}, it'll remove the stored info for the given
+     * Activity.
+     *
+     * @hide
+     */
+    public static final String CAR_EXTRA_LAUNCH_PERSISTENT =
+            "android.car.intent.extra.launchparams.PERSISTENT";
+
+    /** @hide */
+    public static final int LAUNCH_PERSISTENT_DELETE = 0;
+    /** @hide */
+    public static final int LAUNCH_PERSISTENT_ADD = 1;
+
     /** @hide */
     public static final String CAR_SERVICE_INTERFACE_NAME = CommonConstants.CAR_SERVICE_INTERFACE;
 
