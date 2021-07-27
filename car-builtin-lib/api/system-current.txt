@@ -16,5 +16,12 @@ package android.car.builtin.util {
     method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
   }
 
+  public class TimingsTraceLog {
+    ctor public TimingsTraceLog(@NonNull String, long);
+    method public void logDuration(@NonNull String, long);
+    method public void traceBegin(@NonNull String);
+    method public void traceEnd();
+  }
+
 }
 

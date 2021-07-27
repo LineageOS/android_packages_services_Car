@@ -29,6 +29,7 @@ import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -50,7 +51,6 @@ import android.os.Trace;
 import android.os.UserManager;
 import android.util.EventLog;
 import android.util.IndentingPrintWriter;
-import android.util.TimingsTraceLog;
 
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.admin.FactoryResetActivity;
