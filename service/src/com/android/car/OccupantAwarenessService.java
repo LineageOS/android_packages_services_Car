@@ -234,7 +234,8 @@ public class OccupantAwarenessService
      * @return Flags indicating supported capabilities for the role.
      */
     public @DetectionTypeFlags int getCapabilityForRole(@VehicleOccupantRole int role) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
         connectToHalServiceIfNotConnected();
 
@@ -277,7 +278,8 @@ public class OccupantAwarenessService
      */
     @Override
     public void registerEventListener(@NonNull IOccupantAwarenessEventCallback listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
         connectToHalServiceIfNotConnected();
 
@@ -307,7 +309,8 @@ public class OccupantAwarenessService
      */
     @Override
     public void unregisterEventListener(@NonNull IOccupantAwarenessEventCallback listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE);
 
         connectToHalServiceIfNotConnected();
 

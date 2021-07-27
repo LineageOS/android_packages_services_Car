@@ -33,7 +33,7 @@ import com.android.car.AppFocusService.FocusOwnershipCallback;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
-import com.android.car.ICarImpl;
+import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
@@ -70,7 +70,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
 
     @Override
     public void onNavigationStateChanged(Bundle bundle) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
         assertNavigationFocus();
         ClusterNavigationServiceCallback callback;
         synchronized (mLock) {
@@ -82,7 +82,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
 
     @Override
     public CarNavigationInstrumentCluster getInstrumentClusterInfo() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
         ClusterNavigationServiceCallback callback;
         synchronized (mLock) {
             callback = mClusterServiceCallback;

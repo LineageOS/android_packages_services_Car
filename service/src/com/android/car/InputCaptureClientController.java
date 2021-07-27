@@ -246,7 +246,7 @@ public class InputCaptureClientController {
     public int requestInputEventCapture(ICarInputCallback callback,
             @DisplayTypeEnum int targetDisplayType,
             int[] inputTypes, int requestFlags) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_MONITOR_INPUT);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_MONITOR_INPUT);
 
         Preconditions.checkArgument(SUPPORTED_DISPLAY_TYPES.contains(targetDisplayType),
                 "Display not supported yet:" + targetDisplayType);
@@ -255,9 +255,9 @@ public class InputCaptureClientController {
                 (requestFlags & CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY) != 0;
         if (isRequestingAllEvents) {
             if (targetDisplayType != CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER) {
-                ICarImpl.assertCallingFromSystemProcessOrSelf();
+                CarServiceUtils.assertCallingFromSystemProcessOrSelf();
             } else {  // for DISPLAY_TYPE_INSTRUMENT_CLUSTER
-                if (!ICarImpl.isCallingFromSystemProcessOrSelf()) {
+                if (!CarServiceUtils.isCallingFromSystemProcessOrSelf()) {
                     CarServiceUtils.assertPackageName(mContext, mClusterHomePackage);
                 }
             }

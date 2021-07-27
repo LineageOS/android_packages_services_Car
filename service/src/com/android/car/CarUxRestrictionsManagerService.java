@@ -226,7 +226,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     @Override
     public List<CarUxRestrictionsConfiguration> getConfigs() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
         synchronized (mLock) {
             return new ArrayList<>(mCarUxRestrictionsConfigurations.values());
         }
@@ -445,7 +446,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public boolean saveUxRestrictionsConfigurationForNextBoot(
             List<CarUxRestrictionsConfiguration> configs) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
 
         validateConfigs(configs);
 
@@ -455,7 +457,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @Nullable
     public List<CarUxRestrictionsConfiguration> getStagedConfigs() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
 
         File stagedConfig = getFile(CONFIG_FILENAME_STAGED);
         if (stagedConfig.exists()) {
@@ -480,7 +483,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     @Override
     public boolean setRestrictionMode(@NonNull String mode) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
         Objects.requireNonNull(mode, "mode must not be null");
 
         synchronized (mLock) {
@@ -502,7 +506,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     @NonNull
     public String getRestrictionMode() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
+        CarServiceUtils.assertPermission(mContext,
+                Car.PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION);
 
         synchronized (mLock) {
             return mRestrictionMode;

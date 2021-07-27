@@ -530,27 +530,6 @@ public class ICarImpl extends ICar.Stub {
         }
     }
 
-    /**
-     * Assert if binder call is coming from system process like system server or if it is called
-     * from its own process even if it is not system. The latter can happen in test environment.
-     * Note that car service runs as system user but test like car service test will not.
-     */
-    public static void assertCallingFromSystemProcessOrSelf() {
-        if (isCallingFromSystemProcessOrSelf()) {
-            throw new SecurityException("Only allowed from system or self");
-        }
-    }
-
-    /**
-     * @return true if binder call is coming from system process like system server or if it is
-     * called from its own process even if it is not system.
-     */
-    public static boolean isCallingFromSystemProcessOrSelf() {
-        int uid = Binder.getCallingUid();
-        int pid = Binder.getCallingPid();
-        return uid != Process.SYSTEM_UID && pid != Process.myPid();
-    }
-
     @Override
     public IBinder getCarService(String serviceName) {
         if (!mFeatureController.isFeatureEnabled(serviceName)) {
@@ -565,7 +544,7 @@ public class ICarImpl extends ICar.Stub {
             case Car.PACKAGE_SERVICE:
                 return mCarPackageManagerService;
             case Car.DIAGNOSTIC_SERVICE:
-                assertAnyDiagnosticPermission(mContext);
+                CarServiceUtils.assertAnyDiagnosticPermission(mContext);
                 return mCarDiagnosticService;
             case Car.POWER_SERVICE:
                 return mCarPowerManagementService;
@@ -577,21 +556,21 @@ public class ICarImpl extends ICar.Stub {
             case Car.VENDOR_EXTENSION_SERVICE:
                 return mCarPropertyService;
             case Car.CAR_NAVIGATION_SERVICE:
-                assertNavigationManagerPermission(mContext);
+                CarServiceUtils.assertNavigationManagerPermission(mContext);
                 return mClusterNavigationService;
             case Car.CAR_INSTRUMENT_CLUSTER_SERVICE:
-                assertClusterManagerPermission(mContext);
+                CarServiceUtils.assertClusterManagerPermission(mContext);
                 return mInstrumentClusterService.getManagerService();
             case Car.PROJECTION_SERVICE:
                 return mCarProjectionService;
             case Car.VEHICLE_MAP_SERVICE:
-                assertAnyVmsPermission(mContext);
+                CarServiceUtils.assertAnyVmsPermission(mContext);
                 return mVmsBrokerService;
             case Car.VMS_SUBSCRIBER_SERVICE:
-                assertVmsSubscriberPermission(mContext);
+                CarServiceUtils.assertVmsSubscriberPermission(mContext);
                 return mVmsBrokerService;
             case Car.TEST_SERVICE: {
-                assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
+                CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
                 synchronized (mLock) {
                     if (mCarTestService == null) {
                         mCarTestService = new CarTestService(mContext, this);
@@ -602,10 +581,10 @@ public class ICarImpl extends ICar.Stub {
             case Car.BLUETOOTH_SERVICE:
                 return mCarBluetoothService;
             case Car.STORAGE_MONITORING_SERVICE:
-                assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
+                CarServiceUtils.assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
                 return mCarStorageMonitoringService;
             case Car.CAR_DRIVING_STATE_SERVICE:
-                assertDrivingStatePermission(mContext);
+                CarServiceUtils.assertDrivingStatePermission(mContext);
                 return mCarDrivingStateService;
             case Car.CAR_UX_RESTRICTION_SERVICE:
                 return mCarUXRestrictionsService;
@@ -648,85 +627,6 @@ public class ICarImpl extends ICar.Stub {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public int getCarConnectionType() {
         return Car.CONNECTION_TYPE_EMBEDDED;
-    }
-
-    public static void assertVehicleHalMockPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
-    }
-
-    public static void assertNavigationManagerPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
-    }
-
-    public static void assertClusterManagerPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
-    }
-
-    public static void assertPowerPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_POWER);
-    }
-
-    public static void assertProjectionPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
-    }
-
-    /** Verify the calling context has the {@link Car#PERMISSION_CAR_PROJECTION_STATUS} */
-    public static void assertProjectionStatusPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_PROJECTION_STATUS);
-    }
-
-    public static void assertAnyDiagnosticPermission(Context context) {
-        assertAnyPermission(context,
-                Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
-                Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
-    }
-
-    public static void assertDrivingStatePermission(Context context) {
-        assertPermission(context, Car.PERMISSION_CAR_DRIVING_STATE);
-    }
-
-    /**
-     * Verify the calling context has either {@link Car#PERMISSION_VMS_SUBSCRIBER} or
-     * {@link Car#PERMISSION_VMS_PUBLISHER}
-     */
-    public static void assertAnyVmsPermission(Context context) {
-        assertAnyPermission(context,
-                Car.PERMISSION_VMS_SUBSCRIBER,
-                Car.PERMISSION_VMS_PUBLISHER);
-    }
-
-    public static void assertVmsPublisherPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_VMS_PUBLISHER);
-    }
-
-    public static void assertVmsSubscriberPermission(Context context) {
-        assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
-    }
-
-    public static void assertPermission(Context context, String permission) {
-        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
-            throw new SecurityException("requires " + permission);
-        }
-    }
-
-    /**
-     * Checks to see if the caller has a permission.
-     *
-     * @return boolean TRUE if caller has the permission.
-     */
-    public static boolean hasPermission(Context context, String permission) {
-        return context.checkCallingOrSelfPermission(permission)
-                == PackageManager.PERMISSION_GRANTED;
-    }
-
-    public static void assertAnyPermission(Context context, String... permissions) {
-        for (String permission : permissions) {
-            if (context.checkCallingOrSelfPermission(permission)
-                    == PackageManager.PERMISSION_GRANTED) {
-                return;
-            }
-        }
-        throw new SecurityException("requires any of " + Arrays.toString(permissions));
     }
 
     @Override

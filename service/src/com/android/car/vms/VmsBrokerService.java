@@ -16,9 +16,9 @@
 
 package com.android.car.vms;
 
-import static com.android.car.ICarImpl.assertAnyVmsPermission;
-import static com.android.car.ICarImpl.assertVmsPublisherPermission;
-import static com.android.car.ICarImpl.assertVmsSubscriberPermission;
+import static com.android.car.CarServiceUtils.assertAnyVmsPermission;
+import static com.android.car.CarServiceUtils.assertVmsPublisherPermission;
+import static com.android.car.CarServiceUtils.assertVmsSubscriberPermission;
 
 import android.car.builtin.util.Slog;
 import android.car.vms.IVmsBrokerService;

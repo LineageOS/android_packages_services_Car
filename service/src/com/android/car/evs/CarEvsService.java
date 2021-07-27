@@ -67,7 +67,7 @@ import android.util.Log;
 
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
-import com.android.car.ICarImpl;
+import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.EvsHalService;
 import com.android.internal.annotations.GuardedBy;
@@ -825,7 +825,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public void registerStatusListener(@NonNull ICarEvsStatusListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
         Objects.requireNonNull(listener);
 
         if (DBG) {
@@ -844,7 +844,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public void unregisterStatusListener(@NonNull ICarEvsStatusListener listener) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
         Objects.requireNonNull(listener);
 
         mStatusListeners.unregister(listener);
@@ -861,7 +861,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public @CarEvsError int startActivity(int type) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
 
         return mStateEngine.execute(REQUEST_PRIORITY_NORMAL, SERVICE_STATE_REQUESTED, type);
     }
@@ -874,7 +874,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public void stopActivity() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_REQUEST_CAR_EVS_ACTIVITY);
 
         mStateEngine.execute(REQUEST_PRIORITY_NORMAL, SERVICE_STATE_INACTIVE);
     }
@@ -893,7 +893,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @Override
     public @CarEvsError int startVideoStream(@CarEvsServiceType int type, @Nullable IBinder token,
             @NonNull ICarEvsStreamCallback callback) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
         if (isSessionToken(token)) {
@@ -913,7 +913,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public void stopVideoStream(@NonNull ICarEvsStreamCallback callback) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(callback);
 
         synchronized (mLock) {
@@ -942,7 +942,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public void returnFrameBuffer(int bufferId) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
 
         boolean returnThisBuffer = false;
         synchronized (mLock) {
@@ -970,7 +970,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     @Override
     @Nullable
     public CarEvsStatus getCurrentStatus() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
 
         return mStateEngine.getStateAndServiceType();
     }
@@ -997,7 +997,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public IBinder generateSessionToken() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY);
 
         String systemUiPackageName = getSystemUiPackageName();
         IBinder token = new Binder();
@@ -1034,7 +1034,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @Override
     public boolean isSupported(@CarEvsServiceType int type) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
 
         switch (type) {
             case CarEvsManager.SERVICE_TYPE_REARVIEW:
@@ -1061,7 +1061,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      *         true.
      */
     public boolean setRearviewCameraIdFromCommand(@NonNull String id) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(id);
 
         if (!Build.IS_DEBUGGABLE) {
@@ -1091,7 +1091,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
      */
     @NonNull
     public String getRearviewCameraIdFromCommand() {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
+        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_MONITOR_CAR_EVS_STATUS);
         if (mUseCameraIdOverride) {
             return mCameraIdOverride;
         } else {

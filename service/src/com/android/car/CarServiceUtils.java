@@ -16,20 +16,24 @@
 
 package com.android.car;
 
+import android.car.Car;
 import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
+import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Looper;
+import android.os.Process;
 import android.os.SystemClock;
 import android.util.ArrayMap;
 
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.List;
 
 /** Utility class */
@@ -258,5 +262,117 @@ public final class CarServiceUtils {
         for (int i = 0; i < syncs.size(); i++) {
             syncs.get(i).waitForComplete();
         }
+    }
+
+    /**
+     * Assert if binder call is coming from system process like system server or if it is called
+     * from its own process even if it is not system. The latter can happen in test environment.
+     * Note that car service runs as system user but test like car service test will not.
+     */
+    public static void assertCallingFromSystemProcessOrSelf() {
+        if (isCallingFromSystemProcessOrSelf()) {
+            throw new SecurityException("Only allowed from system or self");
+        }
+    }
+
+    /**
+     * @return true if binder call is coming from system process like system server or if it is
+     * called from its own process even if it is not system.
+     */
+    public static boolean isCallingFromSystemProcessOrSelf() {
+        int uid = Binder.getCallingUid();
+        int pid = Binder.getCallingPid();
+        return uid != Process.SYSTEM_UID && pid != Process.myPid();
+    }
+
+
+    /** Utility for checking permission */
+    public static void assertVehicleHalMockPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_MOCK_VEHICLE_HAL);
+    }
+
+    /** Utility for checking permission */
+    public static void assertNavigationManagerPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_NAVIGATION_MANAGER);
+    }
+
+    /** Utility for checking permission */
+    public static void assertClusterManagerPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
+    }
+
+    /** Utility for checking permission */
+    public static void assertPowerPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_POWER);
+    }
+
+    /** Utility for checking permission */
+    public static void assertProjectionPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION);
+    }
+
+    /** Verify the calling context has the {@link Car#PERMISSION_CAR_PROJECTION_STATUS} */
+    public static void assertProjectionStatusPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_PROJECTION_STATUS);
+    }
+
+    /** Utility for checking permission */
+    public static void assertAnyDiagnosticPermission(Context context) {
+        assertAnyPermission(context,
+                Car.PERMISSION_CAR_DIAGNOSTIC_READ_ALL,
+                Car.PERMISSION_CAR_DIAGNOSTIC_CLEAR);
+    }
+
+    /** Utility for checking permission */
+    public static void assertDrivingStatePermission(Context context) {
+        assertPermission(context, Car.PERMISSION_CAR_DRIVING_STATE);
+    }
+
+    /**
+     * Verify the calling context has either {@link Car#PERMISSION_VMS_SUBSCRIBER} or
+     * {@link Car#PERMISSION_VMS_PUBLISHER}
+     */
+    public static void assertAnyVmsPermission(Context context) {
+        assertAnyPermission(context,
+                Car.PERMISSION_VMS_SUBSCRIBER,
+                Car.PERMISSION_VMS_PUBLISHER);
+    }
+
+    /** Utility for checking permission */
+    public static void assertVmsPublisherPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_VMS_PUBLISHER);
+    }
+
+    /** Utility for checking permission */
+    public static void assertVmsSubscriberPermission(Context context) {
+        assertPermission(context, Car.PERMISSION_VMS_SUBSCRIBER);
+    }
+
+    /** Utility for checking permission */
+    public static void assertPermission(Context context, String permission) {
+        if (context.checkCallingOrSelfPermission(permission) != PackageManager.PERMISSION_GRANTED) {
+            throw new SecurityException("requires " + permission);
+        }
+    }
+
+    /**
+     * Checks to see if the caller has a permission.
+     *
+     * @return boolean TRUE if caller has the permission.
+     */
+    public static boolean hasPermission(Context context, String permission) {
+        return context.checkCallingOrSelfPermission(permission)
+                == PackageManager.PERMISSION_GRANTED;
+    }
+
+    /** Utility for checking permission */
+    public static void assertAnyPermission(Context context, String... permissions) {
+        for (String permission : permissions) {
+            if (context.checkCallingOrSelfPermission(permission)
+                    == PackageManager.PERMISSION_GRANTED) {
+                return;
+            }
+        }
+        throw new SecurityException("requires any of " + Arrays.toString(permissions));
     }
 }

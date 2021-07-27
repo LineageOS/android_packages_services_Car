@@ -688,7 +688,7 @@ final class CarShellCommand extends ShellCommand {
 
     private void assertHasAtLeastOnePermission(String cmd, String[] requiredPermissions) {
         for (String requiredPermission : requiredPermissions) {
-            if (ICarImpl.hasPermission(mContext, requiredPermission)) return;
+            if (CarServiceUtils.hasPermission(mContext, requiredPermission)) return;
         }
         if (requiredPermissions.length == 1) {
             throw new SecurityException("The command '" + cmd + "' requires permission:"
