@@ -102,6 +102,30 @@ android_app {
     },
 }
 
+android_app {
+    name: "CarServiceModule",
+
+    manifest: "AndroidManifestForModuleBuildTest.xml",
+
+    srcs: ["src/com/android/car/CarLog.java"],
+
+    resource_dirs: ["res"],
+
+    sdk_version: "module_current",
+
+    platform_apis: false,
+
+    libs: [
+        "android.car.module",
+        "android.car.builtin-stubs"
+    ],
+
+    optimize: {
+        proguard_flags_files: ["proguard.flags"],
+        enabled: false,
+    },
+}
+
 java_library {
 
     name: "car-service-common-util-static-lib",
