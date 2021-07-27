@@ -21,6 +21,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.when;
 
@@ -39,12 +40,13 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 @RunWith(MockitoJUnitRunner.class)
 public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase {
     private static final String SERVICE_NAME = ICarTelemetryInternal.DESCRIPTOR + "/default";
-    private static final int CAR_DATA_ID_1 = 100;
+    private static final int CAR_DATA_ID_1 = 1;
     private static final TelemetryProto.Publisher PUBLISHER_PARAMS_1 =
             TelemetryProto.Publisher.newBuilder()
                     .setCartelemetryd(TelemetryProto.CarTelemetrydPublisher.newBuilder()
@@ -78,7 +80,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
-    public void testAddDataSubscriber_registersNewListener() throws Exception {
+    public void testAddDataSubscriber_registersNewListener() {
         mockICarTelemetryInternalBinder();
 
         mPublisher.addDataSubscriber(mMockDataSubscriber);
@@ -88,7 +90,24 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
     }
 
+    @Test
+    public void testAddDataSubscriber_withInvalidId_fails() {
+        mockICarTelemetryInternalBinder();
+        DataSubscriber invalidDataSubscriber = Mockito.mock(DataSubscriber.class);
+        when(invalidDataSubscriber.getPublisherParam()).thenReturn(
+                TelemetryProto.Publisher.newBuilder()
+                        .setCartelemetryd(TelemetryProto.CarTelemetrydPublisher.newBuilder()
+                                .setId(42000))  // invalid ID
+                        .build());
+
+        Throwable error = assertThrows(IllegalArgumentException.class,
+                () -> mPublisher.addDataSubscriber(invalidDataSubscriber));
+
+        assertThat(error).hasMessageThat().contains("Invalid CarData ID");
+        assertThat(mCarDataListenerCaptor.getAllValues()).hasSize(0);
+        assertThat(mPublisher.isConnectedToCarTelemetryd()).isFalse();
+        assertThat(mPublisher.hasDataSubscriber(invalidDataSubscriber)).isFalse();
+    }
+
     // TODO(b/189142577): add test cases when connecting to cartelemetryd fails
-
-
 }
