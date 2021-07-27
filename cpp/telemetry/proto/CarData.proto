@@ -41,8 +41,8 @@ message CarData {
     EvsFirstFrameLatency evs_first_frame_latency = 1;
   }
 
-  // DO NOT USE field numbers above 100,000 in AOSP.
-  // Field numbers 100,000 - 199,999 are reserved for non-AOSP (e.g. OEMs) to
-  // use. Field numbers 200,000 and above are reserved for future use; do not
+  // DO NOT USE field numbers above 10,000 in AOSP.
+  // Field numbers 10,000 - 19,999 are reserved for non-AOSP (e.g. OEMs) to
+  // use. Field numbers 20,000 and above are reserved for future use; do not
   // use them at all.
 }

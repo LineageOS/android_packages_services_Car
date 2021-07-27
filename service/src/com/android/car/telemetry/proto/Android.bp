@@ -22,5 +22,8 @@ java_library_static {
     proto: {
         type: "lite",
     },
-    srcs: ["*.proto"],
+    srcs: [
+        ":cartelemetry-cardata-proto-srcs",
+        "*.proto"
+    ],
 }
