@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerPolicy;
@@ -48,7 +49,6 @@ import android.os.Message;
 import android.os.PowerManager;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.UserHandle;
@@ -1403,7 +1403,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     private boolean makeBinderConnection() {
         long currentTimeMs = SystemClock.uptimeMillis();
-        IBinder binder = ServiceManager.getService(CAR_POWER_POLICY_DAEMON_INTERFACE);
+        IBinder binder = ServiceManagerHelper.getService(CAR_POWER_POLICY_DAEMON_INTERFACE);
         if (binder == null) {
             Slogf.w(TAG, "Finding car power policy daemon failed. Power policy management is not "
                     + "supported");
