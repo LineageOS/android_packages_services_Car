@@ -1523,9 +1523,18 @@ public final class VehiclePropertyIds {
      * Electronic Toll Collection card type.
      *
      * <p>This property indicates the type of ETC(Electronic Toll Collection) card in the vehicle.
-     * If the head unit is aware of an ETC card attached to the vehicle, this property should return
-     * the type of card attached; otherwise, this property should be UNAVAILABLE.
-     * The property value should be one of {@link VehicleElectronicTollCollectionCardType}.
+     * If the head unit is aware of an ETC card attached to the vehicle, this property should
+     * return the type of card attached; otherwise, this property should be UNAVAILABLE. The
+     * property value should be one of {@link VehicleElectronicTollCollectionCardType}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_TYPE = 289410873;
@@ -1533,10 +1542,19 @@ public final class VehiclePropertyIds {
     /**
      * Electronic Toll Collection card status.
      *
-     * <p>This property indicates the status of ETC(Electronic Toll Collection) card in the vehicle.
-     * If the head unit is aware of an ETC card attached to the vehicle, ETC_CARD_STATUS gives
-     * that status of the card; otherwise, this property should be UNAVAILABLE.
-     * The property value should be one of {@link VehicleElectronicTollCollectionCardStatus}.
+     * <p>This property indicates the status of ETC(Electronic Toll Collection) card in the
+     * vehicle. If the head unit is aware of an ETC card attached to the vehicle, ETC_CARD_STATUS
+     * gives that status of the card; otherwise, this property should be UNAVAILABLE. The property
+     * value should be one of {@link VehicleElectronicTollCollectionCardStatus}.
+     *
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_CAR_INFO}.
      */
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int ELECTRONIC_TOLL_COLLECTION_CARD_STATUS = 289410874;
