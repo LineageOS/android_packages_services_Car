@@ -32,7 +32,7 @@ android_test {
     privileged: true,
 
     libs: [
-        "android.car",
+        "android.car-system-stubs",
         "android.test.base",
         "android.test.mock",
         "android.test.runner",
