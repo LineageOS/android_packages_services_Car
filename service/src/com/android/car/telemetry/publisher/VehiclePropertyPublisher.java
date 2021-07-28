@@ -177,14 +177,17 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     private void onVehicleEvent(CarPropertyEvent event) {
         Bundle bundle = new Bundle();
         bundle.putParcelable(CAR_PROPERTY_EVENT_KEY, event);
+        ArraySet<DataSubscriber> subscribersClone;
 
         synchronized (mLock) {
-            ArraySet<DataSubscriber> subscribers =
-                    mCarPropertyToSubscribers.get(event.getCarPropertyValue().getPropertyId());
-            // DataSubscriber#push() doesn't block.
-            for (DataSubscriber subscriber : subscribers) {
-                subscriber.push(bundle);
-            }
+            subscribersClone = new ArraySet<>(
+                    mCarPropertyToSubscribers.get(event.getCarPropertyValue().getPropertyId()));
+        }
+
+        // Call external methods outside of mLock. If the external method invokes this class's
+        // methods again, it will cause a deadlock.
+        for (DataSubscriber subscriber : subscribersClone) {
+            subscriber.push(bundle);
         }
     }
 }
