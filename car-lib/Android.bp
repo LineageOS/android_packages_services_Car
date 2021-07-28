@@ -16,55 +16,6 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-filegroup {
-    name: "libcarpowermanager_aidl",
-    srcs: [
-        "src/android/car/ICar.aidl",
-        "src/android/car/hardware/power/CarPowerPolicy.aidl",
-        "src/android/car/hardware/power/CarPowerPolicyFilter.aidl",
-        "src/android/car/hardware/power/ICarPower.aidl",
-        "src/android/car/hardware/power/ICarPowerPolicyListener.aidl",
-        "src/android/car/hardware/power/ICarPowerStateListener.aidl",
-    ],
-    path: "src",
-}
-
-cc_library {
-    name: "libcarpowermanager",
-    vendor_available: true,
-
-    aidl: {
-        export_aidl_headers: true,
-        local_include_dirs: [
-            "src",
-        ],
-    },
-
-    cflags: [
-        "-Wall",
-        "-Werror",
-        "-Wextra",
-        "-Wno-unused-parameter",
-    ],
-
-    include_dirs: [
-        "packages/services/Car/car-lib/native/include",
-    ],
-
-    shared_libs: [
-        "libbinder",
-        "liblog",
-        "libutils",
-    ],
-
-    srcs: [
-        ":libcarpowermanager_aidl",
-        "native/CarPowerManager/CarPowerManager.cpp",
-        "native/CarPowerManager/CarPowerPolicy.cpp",
-        "native/CarPowerManager/CarPowerPolicyFilter.cpp",
-    ],
-}
-
 java_library {
     name: "android.car.cluster.navigation",
     proto: {
