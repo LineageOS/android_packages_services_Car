@@ -97,8 +97,8 @@
     <!-- no translation found for wifi_tether_security:1 (6136336549994615745) -->
   <string-array name="wifi_p2p_wps_setup">
     <item msgid="5390235347963255303">"પુશ બટન"</item>
-    <item msgid="7401896200768713930">"પીઅર ઉપકરણ પરથી પિન"</item>
-    <item msgid="4526848028011846710">"આ ઉપકરણ પરથી પિન"</item>
+    <item msgid="7401896200768713930">"પીઅર ડિવાઇસ પરથી પિન"</item>
+    <item msgid="4526848028011846710">"આ ડિવાઇસ પરથી પિન"</item>
   </string-array>
   <string-array name="wifi_p2p_status">
     <item msgid="8741947238021758201">"કનેક્ટ થયું"</item>
@@ -217,7 +217,7 @@
     <item msgid="6842381562497597649">"વ્યક્તિગત"</item>
     <item msgid="3966700236695683444">"મેસેજિંગ"</item>
     <item msgid="8563996233342430477">"મીડિયા"</item>
-    <item msgid="5323851085993963783">"ઉપકરણ"</item>
+    <item msgid="5323851085993963783">"ડિવાઇસ"</item>
   </string-array>
   <string-array name="app_ops_summaries">
     <item msgid="2585253854462134715">"ખરબચડું સ્થાન"</item>
@@ -243,7 +243,7 @@
     <item msgid="310463075729606765">"SMS મોકલો"</item>
     <item msgid="7338021933527689514">"ICC SMS વાંચો"</item>
     <item msgid="6130369335466613036">"ICC SMS લખો"</item>
-    <item msgid="6536865581421670942">"સેટિંગ્સ સંશોધિત કરો"</item>
+    <item msgid="6536865581421670942">"સેટિંગમાં ફેરફાર કરો"</item>
     <item msgid="4547203129183558973">"શીર્ષ પર ખેંચો"</item>
     <item msgid="9080347512916542840">"ઍક્સેસ સૂચનાઓ"</item>
     <item msgid="5332718516635907742">"કૅમેરો"</item>
@@ -310,7 +310,7 @@
     <item msgid="3037159047591081136">"SMS/MMS મોકલો"</item>
     <item msgid="4726682243833913568">"SMS/MMS વાંચો"</item>
     <item msgid="6555678522277865572">"SMS/MMS લખો"</item>
-    <item msgid="6981734935578130884">"સેટિંગ્સ સંશોધિત કરો"</item>
+    <item msgid="6981734935578130884">"સેટિંગમાં ફેરફાર કરો"</item>
     <item msgid="8705854389991425629">"શીર્ષ પર ખેંચો"</item>
     <item msgid="5861356020344153651">"સૂચનાઓ ઍક્સેસ કરો"</item>
     <item msgid="78432174621628659">"કૅમેરો"</item>
