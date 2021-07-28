@@ -24,10 +24,14 @@ import com.android.car.telemetry.TelemetryProto;
 /**
  * Subscriber class that receives published data and schedules tasks for execution.
  * The class is thread-safe as long as
- * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} does not change during runtime.
- * TODO(b/187743369): thread-safety can change if priority can be updated in runtime. Update
+ * {@link TelemetryProto.MetricsConfig} does not change during runtime.
+ *
+ * <p>TODO(b/187743369): thread-safety can change if priority can be updated in runtime. Update
  *                    javadoc once priority is concretely defined.
  *                    Must be thread-safe, as #push() method may be called by multiple threads.
+ *
+ * <p>TODO(b/187743369): implement equals() and hash() functions, as they are used in publishers
+ *                       to check equality of subscribers.
  */
 public class DataSubscriber {
 
@@ -53,7 +57,7 @@ public class DataSubscriber {
     }
 
     /**
-     * Returns the publisher param {@link com.android.car.telemetry.TelemetryProto.Publisher} that
+     * Returns the publisher param {@link TelemetryProto.Publisher} that
      * contains the data source and the config.
      */
     public TelemetryProto.Publisher getPublisherParam() {
@@ -72,9 +76,14 @@ public class DataSubscriber {
         mDataBroker.addTaskToQueue(task); // thread-safe
     }
 
-    /** Returns the {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}. */
+    /** Returns the {@link TelemetryProto.MetricsConfig}. */
     public TelemetryProto.MetricsConfig getMetricsConfig() {
         return mMetricsConfig;
+    }
+
+    /** Returns the {@link TelemetryProto.Subscriber}. */
+    public TelemetryProto.Subscriber getSubscriber() {
+        return mSubscriber;
     }
 
     /** Returns the priority of subscriber. */
