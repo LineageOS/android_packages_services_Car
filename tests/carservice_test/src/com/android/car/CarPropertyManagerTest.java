@@ -641,6 +641,8 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
 
     @Test
     public void testOnChangeEventInvalidPayload() throws Exception {
+        // init
+        mManager.setProperty(Integer.class, CUSTOM_SEAT_INT_PROP_1, DRIVER_SIDE_AREA_ID, 1);
         TestSequenceCallback callback = new TestSequenceCallback(0);
         mManager.registerCallback(callback, CUSTOM_SEAT_INT_PROP_1, 0);
         callback.assertRegisterCompleted();
