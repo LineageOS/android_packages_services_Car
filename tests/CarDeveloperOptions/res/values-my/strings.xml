@@ -467,7 +467,7 @@
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"ဖျက်ရန်"</string>
     <string name="security_settings_fingerprint_enroll_start_title" msgid="1346287821809975177">"အာရုံခံကိရိယာကို ထိပါ"</string>
     <string name="security_settings_fingerprint_enroll_start_message" msgid="750040530347336376">"သင့်လက်ချောင်းကို အာရုံခံကိရိယာပေါ်သို့ တင်လိုက်ပြီး တုန်ခါမှုကို ခံစားရချိန်တွင် ပြန်ရုပ်လိုက်ပါ"</string>
-    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"မြှောက်ပါ၊ ထို့နောက် ပြန်ထိပါ"</string>
+    <string name="security_settings_fingerprint_enroll_repeat_title" msgid="1764145704166303842">"မ လိုက်ပါ၊ ထို့နောက် ပြန်ထိပါ"</string>
     <string name="security_settings_fingerprint_enroll_repeat_message" msgid="4434560313661204448">"လက်ဗွေ၏ အစိတ်အပိုင်းအမျိုးမျိုးကို ထည့်ရန်အတွက် သင့်လက်ချောင်းကို အကြိမ်ကြိမ် ပြန်မြှောက်ပါ"</string>
     <string name="security_settings_fingerprint_enroll_finish_title" msgid="2987918958909117821">"လက်ဗွေကို ထည့်ပြီးပါပြီ"</string>
     <string name="security_settings_fingerprint_enroll_finish_message" msgid="5862643337893923347">"ဤသင်္ကေတကို မြင်ပါက အထောက်အထားတင်ပြရန် သို့မဟုတ် ဝယ်ယူမှုများကို အတည်ပြုရန် သင့်လက်ဗွေကို အသုံးပြုပါ"</string>
@@ -3831,7 +3831,7 @@
     <string name="camera_double_tap_power_gesture_title" msgid="8874747801078147525">"ကင်မရာအတွက် ပါဝါခလုတ်ကို နှစ်ကြိမ် နှိပ်ပါ"</string>
     <string name="camera_double_tap_power_gesture_desc" msgid="6166349645433682873">"သင်၏ မျက်နှာပြင်ကို သော့မဖွင့်ဘဲနှင့် ကင်မရာကို အမြန်ဖွင့်ပါ"</string>
     <string name="screen_zoom_title" msgid="164369086350486104">"ပြသမှု အရွယ်အစား"</string>
-    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"မျက်နှာပြင်ပေါ်ရှိ အရာဝတ္ထုများကို ပိုကြီးအောင် သို့မဟုတ် ပိုသေးအောင်ပြုလုပ်ပါ"</string>
+    <string name="screen_zoom_short_summary" msgid="5508079362742276703">"မျက်နှာပြင်ပေါ်ရှိ အရာများကို ပိုကြီးအောင် သို့မဟုတ် ပိုသေးအောင်ပြုလုပ်ပါ"</string>
     <string name="screen_zoom_keywords" msgid="8358462497896524092">"ဖော်ပြမှု သိပ်သည်းဆ၊ မျက်နှာပြင်ဇူးမ်းထည့်ခြင်း၊ စကေးလ်၊ စကေးလ်သတ်မှတ်ခြင်း"</string>
     <string name="screen_zoom_summary" msgid="5294003755961312560">"ဖန်သားပြင်ပေါ်ရှိ အရာများကို ပိုသေးအောင် သို့မဟုတ် ပိုကြီးအောင်ပြုလုပ်သည်။ ဖန်သားပြင်ပေါ်ရှိ အချို့အက်ပ်များ နေရာပြောင်းသွားနိုင်ပါသည်။"</string>
     <string name="screen_zoom_preview_title" msgid="2924312934036753091">"အစမ်းကြည့်မှု"</string>

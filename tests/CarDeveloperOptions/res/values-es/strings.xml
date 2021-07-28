@@ -747,7 +747,7 @@
     <string name="bluetooth_search_for_devices" msgid="6796307228261078451">"Actualizar"</string>
     <string name="bluetooth_searching_for_devices" msgid="7820814625522702494">"Buscando…"</string>
     <string name="bluetooth_preference_device_settings" msgid="4247085616427015908">"Ajustes del dispositivo"</string>
-    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo vinculado"</string>
+    <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"Dispositivo emparejado"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"Conexión a Internet"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"Teclado"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"Contactos e historial de llamadas"</string>
@@ -1265,7 +1265,7 @@
     <string name="doze_summary" msgid="6762274282827831706">"Activar pantalla al recibir notificaciones"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Siempre activa"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Mostrar la hora, iconos de notificación y otros datos. Aumenta el uso de la batería."</string>
-    <string name="title_font_size" msgid="5021464556860010851">"Tamaño de la fuente"</string>
+    <string name="title_font_size" msgid="5021464556860010851">"Tamaño de fuente"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Aumenta o disminuye el tamaño del texto"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Ajustes de bloqueo de tarjeta SIM"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Bloqueo de tarjeta SIM"</string>

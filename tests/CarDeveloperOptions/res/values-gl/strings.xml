@@ -183,7 +183,7 @@
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"Dispositivos previamente conectados"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"Conectados anteriormente"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"O Bluetooth está activado"</string>
-    <string name="previous_connected_see_all" msgid="7237095013087310923">"Ver todos os dispositivos"</string>
+    <string name="previous_connected_see_all" msgid="7237095013087310923">"Ver todo"</string>
     <string name="date_and_time" msgid="2957463607025909857">"Data e hora"</string>
     <string name="choose_timezone" msgid="8215332993926818147">"Seleccionar fuso horario"</string>
     <!-- no translation found for intent_sender_data_label (2009833999785758727) -->

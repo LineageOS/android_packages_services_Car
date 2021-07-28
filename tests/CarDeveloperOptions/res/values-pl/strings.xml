@@ -852,7 +852,7 @@
     <string name="rx_link_speed" msgid="3735337600274627581">"<xliff:g id="RECEIVE_LINK_SPEED">%1$d</xliff:g> Mb/s"</string>
     <string name="wifi_ask_enable" msgid="925862998663619616">"<xliff:g id="REQUESTER">%s</xliff:g> chce włączyć Wi-Fi"</string>
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> chce wyłączyć Wi-Fi"</string>
-    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Sprawdź kod bajtowy aplikacji do debugowania"</string>
+    <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Sprawdzaj kod bajtowy aplikacji do debugowania"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Zezwalaj ART na sprawdzanie kodu bajtowego aplikacji do debugowania"</string>
     <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"Komunikacja NFC"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Zezwalaj na wymianę danych, gdy tablet dotyka innego urządzenia"</string>
@@ -4626,10 +4626,10 @@
     <string name="mobile_data_ap_mode_disabled" msgid="2452716524753472885">"Niedostępne w trybie samolotowym"</string>
     <string name="force_desktop_mode" msgid="6973100177551040740">"Wymuś tryb pulpitu"</string>
     <string name="force_desktop_mode_summary" msgid="8865007610266954719">"Wymuś eksperymentalny tryb pulpitu na dodatkowych ekranach"</string>
-    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Zastąp wymuszanie trybu ciemnego"</string>
+    <string name="hwui_force_dark_title" msgid="3744825212652331461">"Zastępuj wymuszanie trybu ciemnego"</string>
     <string name="hwui_force_dark_summary" msgid="2051891908674765817">"Zastępuje ustawienie zawsze włączonej funkcji wymuszania trybu ciemnego"</string>
     <string name="privacy_dashboard_title" msgid="8764930992456607513">"Prywatność"</string>
-    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Uprawnienia, aktywność na koncie, dane osobowe"</string>
+    <string name="privacy_dashboard_summary" msgid="7916431309860824945">"Uprawnienia, aktywność na koncie, dane osobiste"</string>
     <string name="contextual_card_dismiss_remove" msgid="1750420285615827309">"Usuń"</string>
     <string name="contextual_card_dismiss_keep" msgid="3204450672928193661">"Zachowaj"</string>
     <string name="contextual_card_dismiss_confirm_message" msgid="2352465079667730312">"Usunąć tę propozycję?"</string>
