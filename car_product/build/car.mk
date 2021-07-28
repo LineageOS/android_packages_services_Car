@@ -110,7 +110,6 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
     CarService \
-    CarServiceModule \
     CarShell \
     CarDialerApp \
     CarRadioApp \
@@ -128,7 +127,6 @@ PRODUCT_PACKAGES += \
     CarUsbHandler \
     android.car \
     android.car.builtin \
-    android.car.module \
     car-frameworks-service \
     com.android.car.procfsinspector \
     libcar-framework-service-jni \
