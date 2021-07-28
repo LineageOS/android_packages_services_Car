@@ -820,19 +820,19 @@
     <string name="wifi_ask_disable" msgid="2146839060110412974">"<xliff:g id="REQUESTER">%s</xliff:g> souhaite désactiver le Wi-Fi"</string>
     <string name="art_verifier_for_debuggable_title" msgid="5223835619409464642">"Vérif. code à octets des applis déboguables"</string>
     <string name="art_verifier_for_debuggable_summary" msgid="2204242476996701111">"Autoriser ART à vérifier le code à octets pour les applications débogables"</string>
-    <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"NFC"</string>
+    <string name="nfc_quick_toggle_title" msgid="4990697912813795002">"CCP"</string>
     <string name="nfc_quick_toggle_summary" product="tablet" msgid="983451155092850657">"Autoriser l\'échange de données lorsque la tablette est en contact avec un autre appareil"</string>
     <string name="nfc_quick_toggle_summary" product="default" msgid="7141056939052895142">"Autoriser l\'échange de données lorsque le téléphone est en contact avec un autre appareil"</string>
-    <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Activer la fonction NFC"</string>
-    <string name="nfc_disclaimer_content" msgid="3066113577854565782">"La technologie NFC échange des données entre cet appareil et d\'autres appareils ou cibles à proximité, tels que les terminaux de paiement, les lecteurs d\'accès et les annonces ou les balises interactifs"</string>
-    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"NFC sécurisée"</string>
-    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Autoriser l\'utilisation de la technologie NFC pour les paiements et les transports en commun uniquement lorsque l\'écran est déverrouillé"</string>
+    <string name="nfc_disclaimer_title" msgid="4860231267351602970">"Activer la technologie CCP"</string>
+    <string name="nfc_disclaimer_content" msgid="3066113577854565782">"La technologie CCP échange des données entre cet appareil et d\'autres appareils ou cibles à proximité, tels que les terminaux de paiement, les lecteurs d\'accès et les annonces ou les balises interactifs"</string>
+    <string name="nfc_secure_settings_title" msgid="5153751163174916581">"CCP sécurisée"</string>
+    <string name="nfc_secure_toggle_summary" product="default" msgid="7631183023440112192">"Autoriser l\'utilisation de la technologie CCP pour les paiements et les transports en commun uniquement lorsque l\'écran est déverrouillé"</string>
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
-    <string name="android_beam_on_summary" msgid="8068287225180474199">"Prêt à partager le contenu de l\'application par NFC"</string>
+    <string name="android_beam_on_summary" msgid="8068287225180474199">"Prêt à partager le contenu de l\'application par CCP"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Désactivé"</string>
-    <string name="nfc_disabled_summary" msgid="2181777971122724361">"Non accessible, car la NFC est désactivée"</string>
+    <string name="nfc_disabled_summary" msgid="2181777971122724361">"Non accessible, car la CCP est désactivée"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
-    <string name="android_beam_explained" msgid="4501176353247859329">"Lorsque cette fonctionnalité est activée, vous pouvez partager le contenu d\'une application avec un appareil compatible NFC en rapprochant les appareils. Vous pouvez, par exemple, partager des pages Web, des vidéos YouTube, des contacts et plus encore.\n\nIl vous suffit de rapprocher les appareils (en les plaçant généralement dos à dos), puis de toucher votre écran. L\'application détermine le contenu à transférer."</string>
+    <string name="android_beam_explained" msgid="4501176353247859329">"Lorsque cette fonctionnalité est activée, vous pouvez partager le contenu d\'une application avec un appareil compatible CCP en rapprochant les appareils. Vous pouvez, par exemple, partager des pages Web, des vidéos YouTube, des contacts et plus encore.\n\nIl vous suffit de rapprocher les appareils (en les plaçant généralement dos à dos), puis de toucher votre écran. L\'application détermine le contenu à transférer."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
     <string name="wifi_quick_toggle_summary" msgid="2879870570547594266">"Activer le Wi-Fi"</string>
     <string name="wifi_settings" msgid="7486492317310514109">"Wi-Fi"</string>
@@ -2972,8 +2972,8 @@
     <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Autoriser les modifications des paramètres du Wi‑Fi et des données cellulaires"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"Bluetooth"</string>
     <string name="restriction_bluetooth_config_summary" msgid="5304900222614952895">"Autoriser les modifications des associations et des paramètres Bluetooth"</string>
-    <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"NFC"</string>
-    <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"Autoriser l\'échange de données lorsque cet appareil (<xliff:g id="DEVICE_NAME">%1$s</xliff:g>) touche un autre appareil NFC"</string>
+    <string name="restriction_nfc_enable_title" msgid="5146674482590550598">"CCP"</string>
+    <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"Autoriser l\'échange de données lorsque cet appareil (<xliff:g id="DEVICE_NAME">%1$s</xliff:g>) touche un autre appareil CCP"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Autoriser l\'échange de données lorsque la tablette est en contact avec un autre appareil"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"Autoriser l\'échange de données lorsque le téléphone est en contact avecun autre appareil"</string>
     <string name="restriction_location_enable_title" msgid="358506740636434856">"Position"</string>
@@ -3036,9 +3036,9 @@
     <string name="network_dashboard_summary_data_usage" msgid="4695629715072542102">"utilisation de données"</string>
     <string name="network_dashboard_summary_hotspot" msgid="3928610802321995214">"point d\'accès sans fil"</string>
     <string name="connected_devices_dashboard_title" msgid="7795222675849060444">"Appareils connectés"</string>
-    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, mode Voiture, NFC"</string>
+    <string name="connected_devices_dashboard_summary" msgid="1072664369515033179">"Bluetooth, mode Voiture, CCP"</string>
     <string name="connected_devices_dashboard_no_nfc_summary" msgid="2610085597733526722">"Bluetooth, mode Voiture"</string>
-    <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
+    <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, CCP"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"Applis et notifications"</string>
     <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, applications récentes, applications par défaut"</string>

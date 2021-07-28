@@ -368,7 +368,7 @@
     <string name="profile_info_settings_title" msgid="4855892878512562551">"प्रोफाइलको जानकारी"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"खाताहरू"</string>
     <string name="location_settings_title" msgid="2707201457572301030">"स्थान"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"स्थान प्रयोग गर्नुहोस्"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"लोकेसन प्रयोग गर्नुहोस्"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"निष्क्रिय"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
       <item quantity="other">सक्रिय - <xliff:g id="COUNT_1">%1$d</xliff:g> एपहरूले स्थानमाथि पहुँच राख्न सक्छन्‌</item>
@@ -766,7 +766,7 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"जटिल"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"जटिल ब्लुटुथ"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"ब्लुटुथ अन हुँदा तपाईंको डिभाइस नजिकैका अन्य ब्लुटुथ डिभाइससँग कनेक्ट हुन सक्छ"</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ब्लुटुथ सक्रिय गरिएको बेला तपाईंको यन्त्र वरपरका अन्य ब्लुटुथ यन्त्रहरूसँग सञ्चार गर्न सक्नुहुन्छ।, \n\nअनुभवमा सुधार गर्न एप तथा सेवाहरू अझै पनि जुनसुकै बेला (ब्लुटुथ अफ भएको बेलामा पनि) वरपरका यन्त्रहरू स्क्यान गर्न सक्छन्। यसलाई लोकेसनमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नका लागि प्रयोग गर्न सकिन्छ। तपाईं "<annotation id="link">"स्क्यानिङसम्बन्धी सेटिङहरू"</annotation>" मा गई यसलाई परिवर्तन गर्न सक्नुहुन्छ।"</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"ब्लुटुथ सक्रिय गरिएको बेला तपाईंको यन्त्र वरपरका अन्य ब्लुटुथ यन्त्रहरूसँग सञ्चार गर्न सक्नुहुन्छ।, \n\nअनुभवमा सुधार गर्न एप तथा सेवाहरू अझै पनि जुनसुकै बेला (ब्लुटुथ अफ भएको बेलामा पनि) वरपरका डिभाइसहरू स्क्यान गर्न सक्छन्। यसलाई लोकेसनमा आधारित सुविधा तथा सेवाहरू सुधार गर्ने जस्ता कार्यहरू गर्नका लागि प्रयोग गर्न सकिन्छ। तपाईं "<annotation id="link">"स्क्यानिङसम्बन्धी सेटिङहरू"</annotation>" मा गई यसलाई परिवर्तन गर्न सक्नुहुन्छ।"</string>
     <string name="ble_scan_notify_text" msgid="6290170236546386932">"स्थान पहिचान सामर्थ्यतामा सुधार गर्न, प्रणाली एपहरू र सेवाहरूले अझै पनि ब्लुटुथ यन्त्रहरूलाई पहिचान गर्न सक्छन्। तपाईँले यसलाई  <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g> स्क्यानिङ सेटिङहरू <xliff:g id="LINK_END_1">LINK_END</xliff:g> मा परिवर्तन गर्न सक्नुहुन्छ।"</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"जडान गर्न सकिएन। फेरि प्रयास गर्नुहोस्।"</string>
     <string name="device_details_title" msgid="726517818032923222">"डिभाइसको विवरण"</string>
@@ -781,8 +781,8 @@
     <string name="bluetooth_disconnect_headset_profile" msgid="8384028101155317339">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> ह्यान्ड फ्रि अडियोबाट विच्छेन गरिने छ।"</string>
     <string name="bluetooth_disconnect_hid_profile" msgid="6964226087090465662">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> इनपुट उपकरणबाट जडान हटाइने छ।"</string>
     <string name="bluetooth_disconnect_pan_user_profile" msgid="5523689915196343097">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>का माध्यमद्वारा हुने इन्टरनेट पहुँच काटिने छ।"</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस ट्याब्लेटको इन्टरनेट जडान साझा गर्नबाट विच्छेद गरिनेछ।"</string>
-    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस फोनको इन्टरनेट जडान सेझेदारी गर्नबाट विच्छेद गरिनेछ।"</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="tablet" msgid="8145126793699232403">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस ट्याब्लेटको इन्टरनेट जडान साझा गर्नबाट विच्छेद गरिने छ।"</string>
+    <string name="bluetooth_disconnect_pan_nap_profile" product="default" msgid="6040826983120279685">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> लाई यस फोनको इन्टरनेट जडान सेझेदारी गर्नबाट विच्छेद गरिने छ।"</string>
     <string name="bluetooth_device_advanced_title" msgid="5752155558126694036">"जोडा ब्लुटुथ उपकरण"</string>
     <string name="bluetooth_device_advanced_online_mode_title" msgid="7665622268007450665">"कनेक्ट गर्नुहोस्"</string>
     <string name="bluetooth_device_advanced_online_mode_summary" msgid="4180673788239241086">"ब्लुटुथ उपकरणसँग कनेक्ट गर्नुहोस्"</string>
@@ -1242,7 +1242,7 @@
     <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"शैली तथा वालपेपरहरू"</string>
     <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"डिफल्ट मान"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"आफू अनुकूल"</string>
-    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"वालपेपरलाई परिवर्तन गर्नुहोस्"</string>
+    <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"वालपेपर बदल्नुहोस्"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"तपाईँको स्क्रिनलाई निजीकृत गर्नुहोस्"</string>
     <string name="wallpaper_settings_fragment_title" msgid="1503701065297188901">"बाट वालपेपर छान्नुहोस्"</string>
     <string name="screensaver_settings_title" msgid="7720091234133721021">"स्क्रिन सेभर"</string>
@@ -1715,7 +1715,7 @@
     <string name="lockpassword_choose_your_pattern_message" msgid="1503075455752279687">"सुरक्षाका लागि प्याटर्न सेट गर्नुहोस्"</string>
     <string name="lockpassword_confirm_your_password_header" msgid="9055242184126838887">"आफ्नो पासवर्ड फेरि हाल्नुहोस्"</string>
     <string name="lockpassword_confirm_your_pattern_header" msgid="7137526922696316545">"तपाईंको प्याटर्न निश्चित गर्नुहोस्"</string>
-    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"आफ्नो PIN पुन: प्रविष्टि गर्नुहोस्"</string>
+    <string name="lockpassword_confirm_your_pin_header" msgid="4335593948303036343">"PIN फेरि हाल्नुहोस्"</string>
     <string name="lockpassword_confirm_passwords_dont_match" msgid="1783767008133345784">"पासवर्ड मिलेन"</string>
     <string name="lockpassword_confirm_pins_dont_match" msgid="5444357293637748942">"PIN मिलेन"</string>
     <string name="lockpassword_draw_your_pattern_again_header" msgid="9017394036814402348">"प्याटर्न फेरि बनाउनुहोस्"</string>
@@ -2038,8 +2038,8 @@
     <string name="accessibility_settings_title" msgid="1687226556576913576">"उपलब्धता सेटिङहरू"</string>
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"स्क्रिन रिडर, डिस्प्ले, अन्तर्क्रिया कन्ट्रोल"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"दृश्यका सेटिङहरू"</string>
-    <string name="vision_settings_description" msgid="3476589459009287332">"तपाईंले आफ्नो आवश्यकताहरूसँग मेल खाने बनाउन यस यन्त्रलाई आफू अनुकूल गर्न सक्नुहुन्छ। यी पहुँच सुविधाहरू सेटिङमा पछि परिवर्तन गर्न सकिनेछ।"</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"फन्ट साइज बदल्नुहोस्"</string>
+    <string name="vision_settings_description" msgid="3476589459009287332">"तपाईं यो डिभाइस आफ्नो आवश्यकताअनुसार कस्टोमाइज गर्न सक्नुहुन्छ । यी पहुँच सुविधाहरू पछि सेटिङमा गई परिवर्तन गर्न सकिने छ।"</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"फन्टको आकार बदल्नुहोस्"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"स्क्रिन रिडरहरू"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"अडियो तथा स्क्रिनमा देखिने टेक्स्ट म्यासेज"</string>
     <string name="display_category_title" msgid="545168481672250195">"प्रदर्शन"</string>
@@ -2048,7 +2048,7 @@
     <string name="experimental_category_title" msgid="3797000069740110717">"प्रयोगात्मक"</string>
     <string name="feature_flags_dashboard_title" msgid="3153034144122754381">"विशेष फ्ल्यागहरू"</string>
     <string name="talkback_title" msgid="3717960404234260050">"Talkback"</string>
-    <string name="talkback_summary" msgid="6602857105831641574">"मुख्तया दृष्टिविहीन र कम दृष्टि भएका व्यक्तिहरूको लागि स्क्रिन रिडर"</string>
+    <string name="talkback_summary" msgid="6602857105831641574">"मुख्तया दृष्टिविहीन र आँखा कम देख्ने व्यक्तिहरूको लागि स्क्रिन रिडर"</string>
     <string name="select_to_speak_summary" msgid="7514180457557735421">"ठुलो आवाजमा सुन्न आफ्नो स्क्रिनमा भएका वस्तुहरूमा ट्याप गर्नुहोस्"</string>
     <string name="accessibility_captioning_title" msgid="5878371993023439642">"क्याप्सन"</string>
     <string name="accessibility_screen_magnification_title" msgid="7250949681883917360">"म्याग्निफिकेसन"</string>
@@ -2780,8 +2780,8 @@
     <string name="vpn_set_vpn_title" msgid="6483554732067951052">"सधैँ-सक्रिय VPN लाई सेट गर्ने हो?"</string>
     <string name="vpn_first_always_on_vpn_message" msgid="7050017738816963855">"सेटिङ सक्रिय भएको बेला VPN सफलतापूर्वक जडान नहुन्जेलसम्म तपाईंसँग इन्टरनेट जडान हुने छैन"</string>
     <string name="vpn_replace_always_on_vpn_enable_message" msgid="4149931501300203205">"तपाईंको विद्यमान VPN लाई प्रतिस्थापन गरिने छ र त्यसपछि VPN सफलतापूर्वक जडान नहुन्जेलसम्म तपाईंसँग इन्टरनेट जडान हुने छैन"</string>
-    <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"तपाईँले पहिले नै एउटा सधैं-सक्रिय VPN मा जडान गर्नुभएको छ। तपाईंले अर्को कुनै VPN मा ज‍डान गर्नुभयो भने तपाईंको विद्यमान VPN लाई प्रतिस्थापन गरिनेछ र सधैं-सक्रिय मोड निष्क्रिय हुने छ।"</string>
-    <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"तपाईँले पहिले नै एउटा VPN मा जडान गर्नुभएको छ। तपाईँले कुनै नयाँ VPN मा ज‍डान गर्नुभयो भने तपाईँको विद्यमान VPN लाई प्रतिस्थापन गरिनेछ।"</string>
+    <string name="vpn_replace_always_on_vpn_disable_message" msgid="4924947523200883088">"तपाईँले पहिले नै एउटा सधैं-सक्रिय VPN मा जडान गर्नुभएको छ। तपाईंले अर्को कुनै VPN मा ज‍डान गर्नुभयो भने तपाईंको विद्यमान VPN लाई प्रतिस्थापन गरिने छ र सधैं-सक्रिय मोड निष्क्रिय हुने छ।"</string>
+    <string name="vpn_replace_vpn_message" msgid="8009433728523145393">"तपाईँले पहिले नै एउटा VPN मा जडान गर्नुभएको छ। तपाईँले कुनै नयाँ VPN मा ज‍डान गर्नुभयो भने तपाईँको विद्यमान VPN लाई प्रतिस्थापन गरिने छ।"</string>
     <string name="vpn_turn_on" msgid="2334736319093953055">"सक्रिय गर्नुहोस्"</string>
     <string name="vpn_cant_connect_title" msgid="5803347131129293771">"<xliff:g id="VPN_NAME">%1$s</xliff:g> जडान गर्न सक्दैन"</string>
     <string name="vpn_cant_connect_message" msgid="7729125036551401236">"यस एपले सधैँ सक्रिय रहने VPN लाई समर्थन गर्दैन"</string>
@@ -3291,7 +3291,7 @@
     <string name="work_sync_dialog_yes" msgid="2110726233746476066">"प्रतिस्थापन गर्नुहोस्"</string>
     <string name="work_sync_dialog_message" msgid="944233463059129156">"तपाईंको व्यक्तिगत प्रोफाइलको आवाज तपाईंको कार्य प्रोफाइलका लागि प्रयोग हुनेछ"</string>
     <string name="ringtones_install_custom_sound_title" msgid="210551218424553671">"आफू अनुकूल आवाज थप्ने हो?"</string>
-    <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"यो फाइल <xliff:g id="FOLDER_NAME">%s</xliff:g> फोल्डरमा प्रतिलिपि गरिनेछ"</string>
+    <string name="ringtones_install_custom_sound_content" msgid="6683649115132255452">"यो फाइल <xliff:g id="FOLDER_NAME">%s</xliff:g> फोल्डरमा प्रतिलिपि गरिने छ"</string>
     <string name="ringtones_category_preference_title" msgid="4491932700769815470">"रिङटोनहरू"</string>
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"ध्वनि र कम्पन सम्बन्धी अन्य कुराहरू"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"सूचनाहरू"</string>

@@ -3664,7 +3664,7 @@
     <string name="default_apps_title" msgid="3848048391400989931">"默认应用"</string>
     <string name="default_for_work" msgid="7290411716804495366">"默认工作应用"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"助手和语音输入"</string>
-    <string name="default_assist_title" msgid="2060846994203235317">"助手应用"</string>
+    <string name="default_assist_title" msgid="2060846994203235317">"辅助应用"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"要将<xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g>设为您的辅助应用吗？"</string>
     <string name="assistant_security_warning" msgid="1304057692847069938">"辅助应用将可读取您系统中使用的应用的相关信息，其中包括您屏幕上显示的信息或应用中可使用的信息。"</string>
     <string name="assistant_security_warning_agree" msgid="5105692801460137289">"同意"</string>

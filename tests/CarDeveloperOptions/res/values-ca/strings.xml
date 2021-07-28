@@ -2671,7 +2671,7 @@
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"En pausa al límit"</string>
     <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"Sincronització automàtica de dades"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"Sincr. dades personals autom."</string>
-    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Sincr. dades treball autom."</string>
+    <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"Sincronitza les dades de treball automàticament"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"Canvia el cicle..."</string>
     <string name="data_usage_pick_cycle_day" msgid="6319750879145917066">"Dia del mes per restablir el cicle d\'ús de dades:"</string>
     <string name="data_usage_empty" msgid="7981405723435034032">"Cap aplicació no ha utilitzat dades en aquest període."</string>
@@ -3323,7 +3323,7 @@
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"Amb el perfil de treball bloquejat"</string>
     <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"Mostra tot el contingut de les notificacions"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"Amaga el contingut sensible"</string>
-    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"No mostris les notificacions"</string>
+    <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"No mostris cap notificació"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"Com vols que es mostrin les notificacions quan el dispositiu estigui bloquejat?"</string>
     <string name="lock_screen_notifications_interstitial_title" msgid="2832587379332443505">"Notificacions"</string>
     <string name="lock_screen_notifications_summary_show_profile" msgid="8908775469657073273">"Mostra tot el contingut de notificacions de feina"</string>

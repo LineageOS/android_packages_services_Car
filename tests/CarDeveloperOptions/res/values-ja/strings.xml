@@ -4074,8 +4074,8 @@
     <string name="bluetooth_connected_summary" msgid="439920840053965217">"<xliff:g id="ID_1">%1$s</xliff:g> に接続しました"</string>
     <string name="bluetooth_connected_multiple_devices_summary" msgid="596205630653123250">"複数のデバイスに接続しました"</string>
     <string name="demo_mode" msgid="3831081808592541104">"システム UI デモモード"</string>
-    <string name="dark_ui_mode" msgid="703844190192599217">"テーマ"</string>
-    <string name="dark_ui_mode_title" msgid="8774932716427742413">"テーマを選択"</string>
+    <string name="dark_ui_mode" msgid="703844190192599217">"モード"</string>
+    <string name="dark_ui_mode_title" msgid="8774932716427742413">"モードを選択"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"この設定はアプリにも適用されます"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"サポートされているアプリもダークモードに切り替わります"</string>
     <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"クイック設定開発者用タイル"</string>

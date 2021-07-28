@@ -2507,7 +2507,7 @@
     <string name="voice_input_settings_title" msgid="6865032806501269306">"Дуугаар оруулах"</string>
     <string name="voice_service_preference_section_title" msgid="2984112696100778038">"Дуун оруулгын үйлчилгээ"</string>
     <string name="voice_interactor_preference_summary" msgid="7321365727286121067">"Бүрэн хотворд болон харилцан үйлчлэл"</string>
-    <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Энгийн яриаг текст болголт"</string>
+    <string name="voice_recognizer_preference_summary" msgid="3681161319745912594">"Энгийн яриаг бичвэрт буулгах"</string>
     <string name="voice_interaction_security_warning" msgid="4986261746316889768">"Энэ дуун оруулгын үйлчилгээ нь дуун хяналтыг байнга ажиллуулах болон дуугаар ажиллах апп-уудыг таны өмнөөс хянах боломжтой болно.Үүнийг <xliff:g id="VOICE_INPUT_SERVICE_APP_NAME">%s</xliff:g> аппликейшн нийлүүлдэг. Энэ үйлчилгээг идэвхжүүлэх үү?"</string>
     <string name="tts_engine_preference_title" msgid="1183116842356275061">"Давуу хөдөлгүүр"</string>
     <string name="tts_engine_settings_title" msgid="4079757915136562358">"Хөдөлгүүрийн тохиргоо"</string>
