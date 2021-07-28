@@ -16,7 +16,7 @@
 
 syntax = "proto2";
 
-package com.android.car.telemetry;
+package android.car.telemetry;
 
 option java_package = "com.android.car.telemetry";
 option java_outer_classname = "TelemetryProto";
@@ -30,11 +30,17 @@ option java_outer_classname = "TelemetryProto";
 message MetricsConfig {
   // Required.
   // The name of the configuration. Must be unique within a device.
+  //
+  // Changing the name of the config should be done carefully, by first removing the config
+  // with the old name, and creating a new config with a new name.
+  // The name is used to for persisting the configs and other internal state, not removing the
+  // configs with old name will result dangling data in the system.
+  //
   // Only alphanumeric and _ characters are allowed. Minimum length is 3 chars.
   optional string name = 1;
 
   // Required.
-  // Version number of the configuration.
+  // Version number of the configuration. Must be more than 0.
   optional int32 version = 2;
 
   // Required.
@@ -70,11 +76,26 @@ message CarTelemetrydPublisher {
   optional int32 id = 1;
 }
 
+// Publisher for various system metrics and stats.
+// It pushes metrics to the subscribers periodically or when garage mode starts.
+message StatsPublisher {
+  enum SystemMetric {
+    UNDEFINED = 0;  // default value, not used
+    // Collects all the app start events with the initial used RSS/CACHE/SWAP memory.
+    APP_START_MEMORY_STATE_CAPTURED = 1;
+  }
+
+  // Required.
+  // System metric for the publisher.
+  optional SystemMetric system_metric = 1;
+}
+
 // Specifies data publisher and its parameters.
 message Publisher {
   oneof publisher {
     VehiclePropertyPublisher vehicle_property = 1;
     CarTelemetrydPublisher cartelemetryd = 2;
+    StatsPublisher stats = 3;
   }
 }
 
