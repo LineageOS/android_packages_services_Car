@@ -53,7 +53,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             BluetoothProfile.PAN
     );
 
-    private final PerUserCarService mService;
+    private final PerUserCarServiceImpl mService;
     private final BluetoothAdapter mBluetoothAdapter;
 
     // Profile Proxies Objects to pair with above list. Access to these proxy objects will all be
@@ -78,7 +78,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
      * @param service - A reference to a PerUserCarService, so we can use its context to receive
      *                 updates as a particular user.
      */
-    public CarBluetoothUserService(PerUserCarService service) {
+    public CarBluetoothUserService(PerUserCarServiceImpl service) {
         mService = service;
         mConnectedProfiles = 0;
         mBluetoothProfileStatus = new SparseBooleanArray();

@@ -138,7 +138,7 @@ public class MockedCarTestBase {
      * }
      * </pre>
      */
-    protected synchronized void spyOnBeforeCarImplInit() {
+    protected synchronized void spyOnBeforeCarImplInit(ICarImpl carImpl) {
     }
 
     protected synchronized SystemInterface.Builder getSystemInterfaceBuilder() {
@@ -231,12 +231,13 @@ public class MockedCarTestBase {
 
         // This should be done here as feature property is accessed inside the constructor.
         initMockedHal();
-        mCarImpl = new ICarImpl(mMockedCarTestContext, mMockedVehicleHal, mFakeSystemInterface,
-                "MockedCar", mCarUserService, mCarWatchdogService,
+        ICarImpl carImpl = new ICarImpl(mMockedCarTestContext, null, mMockedVehicleHal,
+                mFakeSystemInterface, "MockedCar", mCarUserService, mCarWatchdogService,
                 mPowerPolicyDaemon);
 
-        spyOnBeforeCarImplInit();
-        mCarImpl.init();
+        spyOnBeforeCarImplInit(carImpl);
+        carImpl.init();
+        mCarImpl = carImpl;
         mCar = new Car(mMockedCarTestContext, mCarImpl, null /* handler */);
     }
 

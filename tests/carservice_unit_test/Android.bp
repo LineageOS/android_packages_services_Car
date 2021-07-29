@@ -55,6 +55,7 @@ android_test {
         "androidx.test.ext.junit",
         "androidx.test.rules",
         "car-service-test-static-lib",
+        "car-service-builtin-test-static-lib",
         "com.android.car.internal.system",
         "com.android.car.test.lib",
         "compatibility-device-util-axt",

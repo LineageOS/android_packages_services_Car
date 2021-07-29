@@ -154,7 +154,9 @@ public class PerUserCarServiceHelper implements CarServiceBase {
         if (DBG) {
             Slog.d(TAG, "Binding to User service");
         }
-        Intent startIntent = new Intent(mContext, PerUserCarService.class);
+        // This crosses both process and package boundary.
+        Intent startIntent = BuiltinPackageDependency.addClassNameToIntent(mContext, new Intent(),
+                BuiltinPackageDependency.PER_USER_CAR_SERVICE_CLASS);
         synchronized (mServiceBindLock) {
             mBound = true;
             boolean bindSuccess = mContext.bindServiceAsUser(startIntent, mUserServiceConnection,

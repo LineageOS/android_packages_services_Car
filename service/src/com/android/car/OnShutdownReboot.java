@@ -67,4 +67,9 @@ class OnShutdownReboot {
     void clearActions() {
         mActions.clear();
     }
+
+    void release() {
+        clearActions();
+        mContext.unregisterReceiver(mReceiver);
+    }
 }

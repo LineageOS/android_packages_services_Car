@@ -28,7 +28,6 @@ import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPower;
 import android.car.hardware.power.ICarPowerPolicyListener;
 import android.car.hardware.power.ICarPowerStateListener;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.UserInfo;
@@ -57,13 +56,13 @@ import android.util.AtomicFile;
 import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
+import com.android.car.BuiltinPackageDependency;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarStatsLogHelper;
 import com.android.car.R;
-import com.android.car.am.ContinuousBlankActivity;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
 import com.android.car.systeminterface.SystemInterface;
@@ -509,8 +508,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 Slogf.i(TAG, "Car user notice service will ignore all messages before user "
                         + "switch.");
                 Intent intent = new Intent();
-                intent.setComponent(new ComponentName(mContext.getPackageName(),
-                        ContinuousBlankActivity.class.getName()));
+                BuiltinPackageDependency.addClassNameToIntent(mContext, intent,
+                        BuiltinPackageDependency.BLANK_ACTIVITY_CLASS);
                 intent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
                 mContext.startActivityAsUser(intent, UserHandle.CURRENT);
                 carUserNoticeService.ignoreUserNotice(currentUserId);

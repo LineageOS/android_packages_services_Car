@@ -52,25 +52,23 @@ common_lib_deps = [
     "com.android.car.procfsinspector-client",
     "blestream-protos",
     "androidx.preference_preference",
-    // TODO(b/171603586): remove this after moving NewUserDisclaimerActivity
-    // to CarSettings
-    "car-admin-ui-lib",
     "cartelemetry-protos",
     "Slogf",
 ]
 
 android_app {
-    name: "CarService",
+    name: "CarServiceUpdatable",
 
     srcs: car_service_sources,
 
     resource_dirs: ["res"],
 
-    platform_apis: true,
+    // Resource is still com.android.car.R
+    aaptflags: [
+        "--custom-package com.android.car",
+    ],
 
-    // Each update should be signed by OEMs
-    certificate: "platform",
-    privileged: true,
+    platform_apis: true,
 
     optimize: {
         proguard_flags_files: ["proguard.flags"],
@@ -111,6 +109,11 @@ android_app {
 
     resource_dirs: ["res"],
 
+    // Resource is still com.android.car.R
+    aaptflags: [
+        "--custom-package com.android.car",
+    ],
+
     sdk_version: "module_current",
 
     platform_apis: false,
@@ -149,6 +152,21 @@ java_library {
     },
 }
 
+// Minimum code shared with carservice builtin.
+// Be careful with what is added here as it takes double space.
+// Also static instance sharing will not work.
+java_library {
+    name: "car-service-lib-for-builtin",
+
+    srcs: [
+        "src/com/android/car/CarLog.java",
+    ],
+
+    libs: [
+            "android.car",
+    ],
+}
+
 //####################################################################################
 // Build a static library to help mocking various car services in testing. This is meant to be used
 // for internal unit tests around the car service.
@@ -159,6 +177,11 @@ android_library {
     srcs: car_service_sources,
 
     resource_dirs: ["res"],
+
+    // Resource is still com.android.car.R
+    aaptflags: [
+        "--custom-package com.android.car",
+    ],
 
     libs: [
         "android.car",
@@ -186,6 +209,11 @@ android_library {
     srcs: car_service_sources,
 
     resource_dirs: ["res"],
+
+    // Resource is still com.android.car.R
+    aaptflags: [
+        "--custom-package com.android.car",
+    ],
 
     libs: common_lib_deps + [
         "android.car",

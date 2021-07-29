@@ -50,7 +50,6 @@ import androidx.test.core.app.ApplicationProvider;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
-import com.android.car.pm.CarSafetyAccessibilityService;
 import com.android.car.user.CarUserService;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.util.test.BroadcastInterceptingContext;
@@ -74,6 +73,9 @@ public class CarInputRotaryServiceTest {
     // TODO(b/152069895): decrease value once refactored. In fact, it should not even use
     // runWithScissors(), but only rely on CountdownLatches
     private static final long DEFAULT_TIMEOUT_MS = 5_000;
+    private static final String CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME =
+            BuiltinPackageDependency.getComponentName(
+                    BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS);
 
     @Mock private InputHalService mInputHalService;
     @Mock private TelecomManager mTelecomManager;
@@ -146,9 +148,7 @@ public class CarInputRotaryServiceTest {
     public void accessibilitySettingsUpdated_whenRotaryServiceIsNotEmpty() throws Exception {
         final String existingService = "com.android.temp/com.android.car.TempService";
         final String rotaryService = "com.android.car.rotary/com.android.car.rotary.RotaryService";
-        final String carSafetyAccessibilityService = mContext.getPackageName()
-                + "/"
-                + CarSafetyAccessibilityService.class.getName();
+
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
         final int userId = 11;
@@ -182,7 +182,7 @@ public class CarInputRotaryServiceTest {
         assertThat(enabledServices).isEqualTo(
                 existingService
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
-                        + carSafetyAccessibilityService
+                        + CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
                         + rotaryService);
 
@@ -196,9 +196,6 @@ public class CarInputRotaryServiceTest {
     @Test
     public void accessibilitySettingsUpdated_withoutRotaryService_whenRotaryServiceIsEmpty()
             throws Exception {
-        final String carSafetyAccessibilityService = mContext.getPackageName()
-                + "/"
-                + CarSafetyAccessibilityService.class.getName();
         final String rotaryService = "";
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
@@ -225,23 +222,20 @@ public class CarInputRotaryServiceTest {
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
                 userId);
-        assertThat(enabledServices).isEqualTo(carSafetyAccessibilityService);
+        assertThat(enabledServices).isEqualTo(CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME);
     }
 
     @Test
     public void accessibilitySettingsUpdated_accessibilityServicesAlreadyEnabled()
             throws Exception {
         final String rotaryService = "com.android.car.rotary/com.android.car.rotary.RotaryService";
-        final String carSafetyAccessibilityService = mContext.getPackageName()
-                + "/"
-                + CarSafetyAccessibilityService.class.getName();
         init(rotaryService);
         assertThat(mMockContext.getString(R.string.rotaryService)).isEqualTo(rotaryService);
         final int userId = 11;
         Settings.Secure.putStringForUser(
                 mMockContext.getContentResolver(),
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                carSafetyAccessibilityService
+                CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
                         + rotaryService,
                 userId);
@@ -260,7 +254,7 @@ public class CarInputRotaryServiceTest {
                 Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
                 userId);
         assertThat(enabledServices).isEqualTo(
-                carSafetyAccessibilityService
+                CAR_ACCESSIBILITY_SERVICE_COMPONENT_NAME
                         + ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR
                         + rotaryService);
 
