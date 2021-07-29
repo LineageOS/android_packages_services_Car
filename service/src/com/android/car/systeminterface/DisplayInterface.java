@@ -16,9 +16,9 @@
 
 package com.android.car.systeminterface;
 
-import static com.android.settingslib.display.BrightnessUtils.GAMMA_SPACE_MAX;
-import static com.android.settingslib.display.BrightnessUtils.convertGammaToLinear;
-import static com.android.settingslib.display.BrightnessUtils.convertLinearToGamma;
+import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
+import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
+import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
 
 import android.app.ActivityManager;
 import android.car.builtin.util.Slog;
