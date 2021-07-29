@@ -33,7 +33,11 @@ java_sdk_library {
     },
 
     sdk_version: "module_current",
-
+    // TODO(b/202884646) Change into T sdk version
+    min_sdk_version: "current",
+    apex_available: [
+        "com.android.car.framework"
+    ],
     shared_library: false, // added to bootclasspath
 
     libs: [
@@ -45,13 +49,13 @@ java_sdk_library {
     static_libs: [
         "android.car.internal.eventlogtag",
     ],
-
     // Stub build drops module api and breaks build. Add it here.
     stub_only_libs: [
         "framework-wifi",
     ],
+
     api_lint: {
-            enabled: true,
+        enabled: true,
     },
 
     default_to_stubs: true,

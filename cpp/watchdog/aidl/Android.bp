@@ -26,7 +26,11 @@ aidl_interface {
     backend: {
         java: {
             sdk_version: "module_current",
-            platform_apis: true,
+            min_sdk_version: "31",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework"
+            ],
             enabled: true,
         },
     },
@@ -46,7 +50,11 @@ aidl_interface {
     backend: {
         java: {
             sdk_version: "module_current",
-            platform_apis: true,
+            min_sdk_version: "31",
+            apex_available: [
+                "//apex_available:platform",
+                "com.android.car.framework"
+            ],
             enabled: true,
         },
     },

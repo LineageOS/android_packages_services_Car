@@ -16,22 +16,41 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+filegroup {
+    name: "android.car.cluster.navigation-src",
+    srcs: ["src/android/car/navigation/navigation_state.proto"],
+    visibility: [
+        "//packages/services/Car/car-lib",
+        "//packages/services/Car/service",
+    ],
+}
+
 java_library {
     name: "android.car.cluster.navigation",
     proto: {
         type: "lite",
     },
     sdk_version: "module_current",
+    min_sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
     static_libs: ["libprotobuf-java-lite"],
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
-// TODO(b/195961388) Remove this when megging android.car-module
+// TODO(b/195961388) Remove this when merging android.car-module
 // Added as eventlogtags cannot be passed as filegroup
 java_library {
     name: "android.car.internal.eventlogtag",
     srcs: ["src/com/android/car/internal/common/EventLogTags.logtags"],
     sdk_version: "module_current",
+    min_sdk_version: "31",
+    apex_available: [
+        "//apex_available:platform",
+        "com.android.car.framework",
+    ],
 }
 
 filegroup {
