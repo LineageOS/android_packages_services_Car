@@ -17,6 +17,11 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -177,39 +182,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private final PackageParsingEventReceiver mPackageParsingEventReceiver =
             new PackageParsingEventReceiver();
-
-    /**
-     * Name of blocked activity.
-     *
-     * @hide
-     */
-    public static final String BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME = "blocked_activity";
-    /**
-     * int task id of the blocked task.
-     *
-     * @hide
-     */
-    public static final String BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID = "blocked_task_id";
-    /**
-     * Name of root activity of blocked task.
-     *
-     * @hide
-     */
-    public static final String BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME = "root_activity_name";
-    /**
-     * Boolean indicating whether the root activity is distraction-optimized (DO).
-     * Blocking screen should show a button to restart the task if {@code true}.
-     *
-     * @hide
-     */
-    public static final String BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO = "is_root_activity_do";
-
-    /**
-     * int display id of the blocked task.
-     *
-     * @hide
-     */
-    public static final String BLOCKING_INTENT_EXTRA_DISPLAY_ID = "display_id";
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
