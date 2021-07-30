@@ -51,7 +51,6 @@ common_lib_deps = [
     "car-systemtest",
     "com.android.car.procfsinspector-client",
     "blestream-protos",
-    "SettingsLib",
     "androidx.preference_preference",
     // TODO(b/171603586): remove this after moving NewUserDisclaimerActivity
     // to CarSettings
