@@ -18,6 +18,7 @@ package com.android.car;
 
 import android.annotation.NonNull;
 import android.car.Car;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.occupantawareness.IOccupantAwarenessEventCallback;
 import android.car.occupantawareness.OccupantAwarenessDetection;
@@ -29,7 +30,6 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCallback;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.util.IndentingPrintWriter;
 
 import com.android.internal.annotations.GuardedBy;
@@ -150,7 +150,7 @@ public class OccupantAwarenessService
             logd("Attempting to connect to client at: " + OAS_SERVICE_ID);
             mOasHal =
                     android.hardware.automotive.occupant_awareness.IOccupantAwareness.Stub
-                            .asInterface(ServiceManager.getService(OAS_SERVICE_ID));
+                            .asInterface(ServiceManagerHelper.getService(OAS_SERVICE_ID));
 
             if (mOasHal == null) {
                 Slog.e(TAG, "Failed to find OAS hal_service at: [" + OAS_SERVICE_ID + "]");

@@ -20,6 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
@@ -30,7 +31,6 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.util.IndentingPrintWriter;
 import android.util.Log;
 
@@ -56,7 +56,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     private AudioControlDeathRecipient mDeathRecipient;
 
     static @Nullable IBinder getService() {
-        return Binder.allowBlocking(ServiceManager.waitForDeclaredService(
+        return Binder.allowBlocking(ServiceManagerHelper.waitForDeclaredService(
                 AUDIO_CONTROL_SERVICE));
     }
 

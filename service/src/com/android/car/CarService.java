@@ -20,6 +20,7 @@ import static android.os.SystemClock.elapsedRealtime;
 
 import android.annotation.Nullable;
 import android.app.Service;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -28,7 +29,6 @@ import android.os.IBinder;
 import android.os.IHwBinder.DeathRecipient;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Trace;
@@ -93,7 +93,7 @@ public class CarService extends Service {
 
         linkToDeath(mVehicle, mVehicleDeathRecipient);
 
-        ServiceManager.addService("car_service", mICarImpl);
+        ServiceManagerHelper.addService("car_service", mICarImpl);
         SystemProperties.set("boot.car_service_created", "1");
 
         super.onCreate();

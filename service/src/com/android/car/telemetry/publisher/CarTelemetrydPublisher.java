@@ -20,11 +20,11 @@ import android.annotation.Nullable;
 import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
@@ -91,7 +91,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         if (mCarTelemetryInternal != null) {
             return;  // already connected
         }
-        IBinder binder = ServiceManager.checkService(SERVICE_NAME);
+        IBinder binder = ServiceManagerHelper.checkService(SERVICE_NAME);
         if (binder == null) {
             throw new IllegalStateException(
                     "Failed to connect to ICarTelemetryInternal: service is not ready");
