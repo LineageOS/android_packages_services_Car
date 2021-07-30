@@ -63,12 +63,14 @@ PRODUCT_PACKAGES += \
     carbugreportd \
     vehicle_binding_util \
 
+# ENABLE_CAMERA_SERVICE must be set as true from the product's makefile if it wants to support
+# Android Camera service.
+ifneq ($(ENABLE_CAMERA_SERVICE), true)
+PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
+endif
+
 # EVS service
 include packages/services/Car/cpp/evs/manager/evsmanager.mk
-
-# EVS manager overrides cameraserver on automotive implementations so
-# we need to configure Camera API to not connect to it
-PRODUCT_PROPERTY_OVERRIDES += config.disable_cameraservice=true
 
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
