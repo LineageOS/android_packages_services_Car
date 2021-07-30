@@ -49,11 +49,3 @@ cc_library{
         "libutils",
     ],
 }
-
-// EVS Configuration override xml that EVS Sample Driver will use.
-prebuilt_etc {
-    name : "evs_configuration_override.xml",
-    soc_specific : true,
-    src: "evs_configuration.xml",
-    sub_dir: "automotive/evs",
-}
