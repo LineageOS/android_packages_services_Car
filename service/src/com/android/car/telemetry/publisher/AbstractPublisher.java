@@ -37,13 +37,14 @@ public abstract class AbstractPublisher {
      *
      * @param subscriber a subscriber to receive data
      * @throws IllegalArgumentException if the subscriber is invalid.
+     * @throws IllegalStateException if there are internal errors.
      */
     public abstract void addDataSubscriber(DataSubscriber subscriber);
 
     /**
      * Removes the subscriber from the publisher. Publisher stops if necessary.
      *
-     * @throws IllegalArgumentException if the subscriber was not found.
+     * @throws IllegalArgumentException if invalid subscriber was provided.
      */
     public abstract void removeDataSubscriber(DataSubscriber subscriber);
 
