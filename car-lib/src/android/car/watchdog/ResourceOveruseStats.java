@@ -24,7 +24,7 @@ import android.os.Parcelable;
 import android.os.UserHandle;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Resource overuse stats for a package.
@@ -260,7 +260,7 @@ public final class ResourceOveruseStats implements Parcelable {
             time = 1615396980834L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/ResourceOveruseStats.java",
-            inputSignatures = "private @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate @android.annotation.Nullable android.car.watchdog.IoOveruseStats mIoOveruseStats\nclass ResourceOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")
+            inputSignatures = "private @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.NonNull android.os.UserHandle mUserHandle\nprivate @android.annotation.Nullable android.car.watchdog.IoOveruseStats mIoOveruseStats\nclass ResourceOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

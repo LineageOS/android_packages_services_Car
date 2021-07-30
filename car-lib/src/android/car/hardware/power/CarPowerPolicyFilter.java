@@ -22,7 +22,7 @@ import android.annotation.NonNull;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Filter to receive power policy changes that a listener is interested in.
@@ -166,7 +166,7 @@ public final class CarPowerPolicyFilter implements Parcelable {
             time = 1618274906419L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/power/CarPowerPolicyFilter.java",
-            inputSignatures = "private @android.annotation.NonNull int[] mComponents\nclass CarPowerPolicyFilter extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genBuilder=true)")
+            inputSignatures = "private @android.annotation.NonNull int[] mComponents\nclass CarPowerPolicyFilter extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genBuilder=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

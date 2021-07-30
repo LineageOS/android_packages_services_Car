@@ -23,7 +23,7 @@ import android.annotation.SystemApi;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.List;
 import java.util.Map;
@@ -419,7 +419,7 @@ public final class IoOveruseConfiguration implements Parcelable {
             time = 1614359116384L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseConfiguration.java",
-            inputSignatures = "private @android.annotation.NonNull android.car.watchdog.PerStateBytes mComponentLevelThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mPackageSpecificThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mAppCategorySpecificThresholds\nprivate @android.annotation.NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold> mSystemWideThresholds\nclass IoOveruseConfiguration extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
+            inputSignatures = "private @android.annotation.NonNull android.car.watchdog.PerStateBytes mComponentLevelThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mPackageSpecificThresholds\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,android.car.watchdog.PerStateBytes> mAppCategorySpecificThresholds\nprivate @android.annotation.NonNull java.util.List<android.car.watchdog.IoOveruseAlertThreshold> mSystemWideThresholds\nclass IoOveruseConfiguration extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

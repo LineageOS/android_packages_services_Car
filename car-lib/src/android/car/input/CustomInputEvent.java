@@ -24,7 +24,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * {@code Parcelable} containing custom input event.
@@ -315,7 +315,7 @@ public final class CustomInputEvent implements Parcelable {
                     + "@android.car.input.CustomInputEvent.InputCode int mInputCode\nprivate "
                     + "final  int mTargetDisplayType\nprivate final  int mRepeatCounter\nclass "
                     + "CustomInputEvent extends java.lang.Object implements [android.os"
-                    + ".Parcelable]\n@com.android.internal.util.DataClass(genEqualsHashCode=true,"
+                    + ".Parcelable]\n@com.android.car.internal.util.DataClass(genEqualsHashCode=true,"
                     + " genAidl=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)

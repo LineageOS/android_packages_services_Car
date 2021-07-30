@@ -21,8 +21,8 @@ import android.annotation.Nullable;
 import android.car.user.CarUserManager.UserIdentificationAssociationValue;
 import android.os.Parcelable;
 
+import com.android.car.internal.util.DataClass;
 import com.android.internal.util.ArrayUtils;
-import com.android.internal.util.DataClass;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;
@@ -237,7 +237,7 @@ public final class UserIdentificationAssociationResponse implements Parcelable {
             time = 1604638584791L,
             codegenVersion = "1.0.20",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserIdentificationAssociationResponse.java",
-            inputSignatures = "private final  boolean mSuccess\nprivate final @android.annotation.Nullable java.lang.String mErrorMessage\nprivate final @android.annotation.Nullable int[] mValues\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forFailure()\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forFailure(java.lang.String)\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forSuccess(int[])\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forSuccess(int[],java.lang.String)\nclass UserIdentificationAssociationResponse extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=false, genHiddenConstDefs=true)")
+            inputSignatures = "private final  boolean mSuccess\nprivate final @android.annotation.Nullable java.lang.String mErrorMessage\nprivate final @android.annotation.Nullable int[] mValues\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forFailure()\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forFailure(java.lang.String)\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forSuccess(int[])\npublic static @android.annotation.NonNull android.car.user.UserIdentificationAssociationResponse forSuccess(int[],java.lang.String)\nclass UserIdentificationAssociationResponse extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=false, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 

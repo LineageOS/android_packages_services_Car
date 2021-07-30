@@ -22,7 +22,7 @@ import android.annotation.NonNull;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Disk I/O overuse stats for a package.
@@ -415,7 +415,7 @@ public final class IoOveruseStats implements Parcelable {
             time = 1615396980193L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/IoOveruseStats.java",
-            inputSignatures = "private  long mStartTime\nprivate  long mDurationInSeconds\nprivate  long mTotalOveruses\nprivate  long mTotalTimesKilled\nprivate  long mTotalBytesWritten\nprivate  boolean mKillableOnOveruse\nprivate @android.annotation.NonNull android.car.watchdog.PerStateBytes mRemainingWriteBytes\nclass IoOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")
+            inputSignatures = "private  long mStartTime\nprivate  long mDurationInSeconds\nprivate  long mTotalOveruses\nprivate  long mTotalTimesKilled\nprivate  long mTotalBytesWritten\nprivate  boolean mKillableOnOveruse\nprivate @android.annotation.NonNull android.car.watchdog.PerStateBytes mRemainingWriteBytes\nclass IoOveruseStats extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenBuilder=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

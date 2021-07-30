@@ -22,7 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.ArraySet;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.Collections;
 import java.util.Set;
@@ -233,7 +233,7 @@ public final class VmsAvailableLayers implements Parcelable {
             time = 1582066089314L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsAvailableLayers.java",
-            inputSignatures = "private final  int mSequenceNumber\nprivate @android.annotation.NonNull java.util.Set<android.car.vms.VmsAssociatedLayer> mAssociatedLayers\nprivate  void onConstructed()\nprivate  void parcelAssociatedLayers(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") java.util.Set<android.car.vms.VmsAssociatedLayer> unparcelAssociatedLayers(android.os.Parcel)\npublic @java.lang.Deprecated int getSequence()\nclass VmsAvailableLayers extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
+            inputSignatures = "private final  int mSequenceNumber\nprivate @android.annotation.NonNull java.util.Set<android.car.vms.VmsAssociatedLayer> mAssociatedLayers\nprivate  void onConstructed()\nprivate  void parcelAssociatedLayers(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") java.util.Set<android.car.vms.VmsAssociatedLayer> unparcelAssociatedLayers(android.os.Parcel)\npublic @java.lang.Deprecated int getSequence()\nclass VmsAvailableLayers extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
     @Deprecated
     private void __metadata() {}
 

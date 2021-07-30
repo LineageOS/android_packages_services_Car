@@ -19,7 +19,7 @@ package android.car.user;
 import android.annotation.IntDef;
 import android.os.Parcelable;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -280,7 +280,7 @@ public final class UserRemovalResult implements Parcelable, OperationResult {
             time = 1605129599402L,
             codegenVersion = "1.0.20",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserRemovalResult.java",
-            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_INVALID_REQUEST\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED\npublic static final  int STATUS_SUCCESSFUL_SET_EPHEMERAL\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL\nprivate final @android.car.user.UserRemovalResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_INVALID_REQUEST\npublic static final  int STATUS_USER_DOES_NOT_EXIST\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED\npublic static final  int STATUS_SUCCESSFUL_SET_EPHEMERAL\npublic static final  int STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL\nprivate final @android.car.user.UserRemovalResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserRemovalResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 

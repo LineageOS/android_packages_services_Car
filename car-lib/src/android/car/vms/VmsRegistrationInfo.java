@@ -20,7 +20,7 @@ import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.Objects;
 
@@ -157,7 +157,7 @@ public class VmsRegistrationInfo implements Parcelable {
             time = 1581406323727L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsRegistrationInfo.java",
-            inputSignatures = "private @android.annotation.NonNull android.car.vms.VmsAvailableLayers mAvailableLayers\nprivate @android.annotation.NonNull android.car.vms.VmsSubscriptionState mSubscriptionState\nclass VmsRegistrationInfo extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genEqualsHashCode=true, genAidl=true)")
+            inputSignatures = "private @android.annotation.NonNull android.car.vms.VmsAvailableLayers mAvailableLayers\nprivate @android.annotation.NonNull android.car.vms.VmsSubscriptionState mSubscriptionState\nclass VmsRegistrationInfo extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genEqualsHashCode=true, genAidl=true)")
     @Deprecated
     private void __metadata() {}
 
