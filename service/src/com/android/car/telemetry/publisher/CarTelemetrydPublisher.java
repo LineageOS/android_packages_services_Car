@@ -82,7 +82,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     }
 
     /**
-     * Returns true if connected, false if not connected.
+     * Connects to ICarTelemetryInternal service and starts listening for CarData.
      *
      * @throws IllegalStateException if it cannot connect to ICarTelemetryInternal service.
      */
@@ -112,6 +112,25 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
                     "Failed to connect to ICarTelemetryInternal: Cannot set CarData listener",
                     e);
         }
+    }
+
+    /**
+     * Disconnects from ICarTelemetryInternal service.
+     *
+     * @throws IllegalStateException if fails to clear the listener.
+     */
+    @GuardedBy("mLock")
+    private void disconnectFromCarTelemetrydLocked() {
+        if (mCarTelemetryInternal == null) {
+            return;  // already disconnected
+        }
+        try {
+            mCarTelemetryInternal.clearListener();
+        } catch (RemoteException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove ICarTelemetryInternal listener", e);
+        }
+        mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
+        mCarTelemetryInternal = null;
     }
 
     @VisibleForTesting
@@ -152,12 +171,20 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
 
     @Override
     public void removeDataSubscriber(DataSubscriber subscriber) {
-        // TODO(b/189142577): implement and disconnect from cartelemetryd if necessary
+        synchronized (mLock) {
+            mSubscribers.remove(subscriber);
+            if (mSubscribers.isEmpty()) {
+                disconnectFromCarTelemetrydLocked();
+            }
+        }
     }
 
     @Override
     public void removeAllDataSubscribers() {
-        // TODO(b/189142577): implement and disconnect from cartelemetryd
+        synchronized (mLock) {
+            mSubscribers.clear();
+            disconnectFromCarTelemetrydLocked();
+        }
     }
 
     @Override

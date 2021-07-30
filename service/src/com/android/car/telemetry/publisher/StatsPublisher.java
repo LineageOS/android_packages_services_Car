@@ -174,7 +174,7 @@ public class StatsPublisher extends AbstractPublisher {
                     .addAllowedLogSource("AID_SYSTEM")
                     .build();
         } else {
-            throw new IllegalArgumentException("Unsupported metric " + metric);
+            throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
     }
 }
