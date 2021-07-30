@@ -32,6 +32,14 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <!-- These two packages should only support one proxy device-wide, and that
+    the proxy depends on the network, which are independent of users. -->
+    <install-in-user-type package="com.android.pacprocessor">
+        <install-in user-type="SYSTEM"/>
+    </install-in-user-type>
+    <install-in-user-type package="com.android.proxyhandler">
+        <install-in user-type="SYSTEM"/>
+    </install-in-user-type>
 <!--
   Apps that need to run on SYSTEM and evaluated by package owner.
   Here the apps will have FULL and SYSTEM.
@@ -301,12 +309,6 @@
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.certinstaller">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.pacprocessor">
-        <install-in user-type="FULL" />
-    </install-in-user-type>
-    <install-in-user-type package="com.android.proxyhandler">
         <install-in user-type="FULL" />
     </install-in-user-type>
     <install-in-user-type package="com.android.vpndialogs">
