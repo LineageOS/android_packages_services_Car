@@ -3889,7 +3889,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"Anzeigen"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"Ausblenden"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Hotspot ist aktiv"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"Flugzeugmodus aktiviert"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"Flugmodus ist aktiviert"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Netzwerke nicht verfügbar"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"„Bitte nicht stören“ aktiviert"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Smartphone stummgeschaltet"</string>

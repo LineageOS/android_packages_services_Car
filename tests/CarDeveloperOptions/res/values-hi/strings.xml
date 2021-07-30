@@ -3411,8 +3411,8 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> ऐप्लिकेशन में सूचना पाने की सुविधा बंद है</item>
     </plurals>
     <plurals name="deleted_channels" formatted="false" msgid="7741359084299446208">
-      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> श्रेणियां हटाई गईं</item>
-      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> श्रेणियां हटाई गईं</item>
+      <item quantity="one"><xliff:g id="COUNT_1">%d</xliff:g> कैटगरी मिटाई गई</item>
+      <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> कैटगरी मिटाई गईं</item>
     </plurals>
     <string name="notification_toggle_on" msgid="5119816745741139542">"चालू"</string>
     <string name="notification_toggle_off" msgid="5289843670514922751">"बंद"</string>

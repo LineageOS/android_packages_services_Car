@@ -2103,7 +2103,7 @@
     <string name="accessibility_hearingaid_not_connected_summary" msgid="634573930469952213">"Geen hoortoestellen verbonden"</string>
     <string name="accessibility_hearingaid_adding_summary" msgid="4139031880828714300">"Hoortoestellen toevoegen"</string>
     <string name="accessibility_hearingaid_pair_instructions_first_message" msgid="2671518890909750740">"Tik op het volgende scherm op je hoortoestel om dit te koppelen."</string>
-    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Controleer of je hoortoestel zich in de koppelingsmodus bevindt."</string>
+    <string name="accessibility_hearingaid_pair_instructions_second_message" msgid="1584538735488464991">"Controleer of je hoortoestel in de koppelingsstand staat."</string>
     <string name="accessibility_hearingaid_active_device_summary" msgid="6081382497207168885">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> actief"</string>
     <plurals name="show_number_hearingaid_count" formatted="false" msgid="7906547154695855096">
       <item quantity="other"><xliff:g id="NUMBER_DEVICE_COUNT_1">%1$d</xliff:g> opgeslagen hoortoestellen</item>
@@ -3888,7 +3888,7 @@
     <string name="condition_expand_show" msgid="4118818022763913777">"Weergeven"</string>
     <string name="condition_expand_hide" msgid="1112721783024332643">"Verbergen"</string>
     <string name="condition_hotspot_title" msgid="4143299802283098506">"Hotspot is actief"</string>
-    <string name="condition_airplane_title" msgid="8484582712516148433">"Vliegmodus is ingeschakeld"</string>
+    <string name="condition_airplane_title" msgid="8484582712516148433">"Vliegtuigmodus staat aan"</string>
     <string name="condition_airplane_summary" msgid="3021193218494740742">"Netwerken niet beschikbaar"</string>
     <string name="condition_zen_title" msgid="2128184708916052585">"\'Niet storen\' is ingeschakeld"</string>
     <string name="condition_zen_summary_phone_muted" msgid="4396050395522974654">"Telefoon gedempt"</string>
