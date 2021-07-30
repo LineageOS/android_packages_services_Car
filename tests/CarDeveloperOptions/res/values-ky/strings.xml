@@ -272,7 +272,7 @@
       <item quantity="other">Тандалган тилдерди өчүрөсүзбү?</item>
       <item quantity="one">Тандалган тилди өчүрөсүзбү?</item>
     </plurals>
-    <string name="dlg_remove_locales_message" msgid="5179370688876343176">"Текст башка тилде көрсөтүлөт."</string>
+    <string name="dlg_remove_locales_message" msgid="5179370688876343176">"Текст башка тилде көрүнөт."</string>
     <string name="dlg_remove_locales_error_title" msgid="9090578326002163975">"Тилдердин баары алынбайт"</string>
     <string name="dlg_remove_locales_error_message" msgid="6799897638891903618">"Тандалган тилдерден кеминде бирөөсүн калтырыңыз"</string>
     <string name="locale_not_translated" msgid="7943669576006420058">"Айрым колдонмолордо жеткиликсиз болушу мүмкүн"</string>
@@ -1112,7 +1112,7 @@
     <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wi-Fi аркылуу чалуу күйгүзүлгөндө, телефонуңуз, жеке жөндөөлөрүңүзгө жана сигналдын күчтүүлүгүнө жараша, чалууларды Wi-Fi тармактары же операторуңуздун тармагы аркылуу багыттай алат. Бул функцияны күйгүзүүдөн мурда, төлөмдөрү жана башка маалымат боюнча операторуңузга кайрылыңыз.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Кырсыктаганда кайрыла турган дарек"</string>
-    <string name="emergency_address_summary" msgid="478668478569851714">"WiFi аркылуу өзгөчө кырдаалдар кызматынын номерине чалганыңызда куткаруучуларга жайгашкан жериңиз катары көрсөтүлөт"</string>
+    <string name="emergency_address_summary" msgid="478668478569851714">"WiFi аркылуу өзгөчө кырдаалдар кызматынын номерине чалганыңызда куткаруучуларга жайгашкан жериңиз катары көрүнөт"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650">"Жеке DNS функциялары жөнүндө "<annotation id="url">"кененирээк маалымат"</annotation>" алыңыз"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"Жөндөө байланыш оператору тарабынан башкарылат"</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Wi-Fi аркылуу чалууну жандыруу"</string>
@@ -3808,7 +3808,7 @@
     <string name="keywords_vr_listener" msgid="5312633527788917750">"vr виртуалдык дүйнө режими көмөкчү кызмат"</string>
     <string name="keywords_system_alert_window" msgid="3936658600272194599">"системдик шашылыш билдирүүлөр башка колдонмолордун үстүнөн көрүнөт"</string>
     <string name="overlay_settings" msgid="3325154759946433666">"Башка терезел-н үст-н көрсөтүү"</string>
-    <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_1">%2$d</xliff:g> колдонмодон <xliff:g id="COUNT_0">%1$d</xliff:g> колдонмо башка терезелердин үстүнөн көрсөтүлөт"</string>
+    <string name="system_alert_window_summary" msgid="7703582115861844158">"<xliff:g id="COUNT_1">%2$d</xliff:g> колдонмодон <xliff:g id="COUNT_0">%1$d</xliff:g> колдонмо башка терезелердин үстүнөн көрүнөт"</string>
     <string name="filter_overlay_apps" msgid="6336897660213304743">"Уруксаты бар колдонмолор"</string>
     <string name="app_permission_summary_allowed" msgid="6458476982015518778">"Уруксат берилген"</string>
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"Тыюу салынган"</string>
