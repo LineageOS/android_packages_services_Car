@@ -509,29 +509,11 @@ public final class WatchdogPerfHandler {
                 "Must provide at least one configuration");
         Preconditions.checkArgument((resourceOveruseFlag > 0),
                 "Must provide valid resource overuse flag");
-        ArraySet<Integer> seenComponentTypes = new ArraySet<>();
+        checkResourceOveruseConfigs(configurations, resourceOveruseFlag);
         List<android.automotive.watchdog.internal.ResourceOveruseConfiguration> internalConfigs =
                 new ArrayList<>();
         for (int i = 0; i < configurations.size(); ++i) {
-            ResourceOveruseConfiguration config = configurations.get(i);
-            /*
-             * TODO(b/186119640): Make sure the validation done here matches the validation done in
-             *  the daemon so set requests retried at a later time will complete successfully.
-             */
-            int componentType = config.getComponentType();
-            if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
-                throw new IllegalArgumentException("Invalid component type in the configuration");
-            }
-            if (seenComponentTypes.contains(componentType)) {
-                throw new IllegalArgumentException(
-                        "Cannot provide duplicate configurations for the same component type");
-            }
-            if ((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0
-                    && config.getIoOveruseConfiguration() == null) {
-                throw new IllegalArgumentException("Must provide I/O overuse configuration");
-            }
-            seenComponentTypes.add(config.getComponentType());
-            internalConfigs.add(toInternalResourceOveruseConfiguration(config,
+            internalConfigs.add(toInternalResourceOveruseConfiguration(configurations.get(i),
                     resourceOveruseFlag));
         }
         synchronized (mLock) {
@@ -1107,6 +1089,8 @@ public final class WatchdogPerfHandler {
                     metadata.appCategoryType = ApplicationCategoryType.MEDIA;
                     break;
                 default:
+                    Slogf.i(TAG, "Invalid application category type: %s skipping package: %s",
+                            entry.getValue(), metadata.packageName);
                     continue;
             }
             internalConfig.packageMetadata.add(metadata);
@@ -1283,6 +1267,72 @@ public final class WatchdogPerfHandler {
                     internalThresholds.get(i).writtenBytesPerSecond));
         }
         return thresholds;
+    }
+
+    private static void checkResourceOveruseConfigs(
+            List<ResourceOveruseConfiguration> configurations,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        ArraySet<Integer> seenComponentTypes = new ArraySet<>();
+        for (int i = 0; i < configurations.size(); ++i) {
+            ResourceOveruseConfiguration config = configurations.get(i);
+            if (seenComponentTypes.contains(config.getComponentType())) {
+                throw new IllegalArgumentException(
+                        "Cannot provide duplicate configurations for the same component type");
+            }
+            checkResourceOveruseConfig(config, resourceOveruseFlag);
+            seenComponentTypes.add(config.getComponentType());
+        }
+    }
+
+    private static void checkResourceOveruseConfig(ResourceOveruseConfiguration config,
+            @CarWatchdogManager.ResourceOveruseFlag int resourceOveruseFlag) {
+        int componentType = config.getComponentType();
+        if (toComponentTypeStr(componentType).equals("UNKNOWN")) {
+            throw new IllegalArgumentException(
+                    "Invalid component type in the configuration: " + componentType);
+        }
+        if ((resourceOveruseFlag & FLAG_RESOURCE_OVERUSE_IO) != 0
+                && config.getIoOveruseConfiguration() == null) {
+            throw new IllegalArgumentException("Must provide I/O overuse configuration");
+        }
+        checkIoOveruseConfig(config.getIoOveruseConfiguration(), componentType);
+    }
+
+    private static void checkIoOveruseConfig(IoOveruseConfiguration config, int componentType) {
+        if (config.getComponentLevelThresholds().getBackgroundModeBytes() <= 0
+                || config.getComponentLevelThresholds().getForegroundModeBytes() <= 0
+                || config.getComponentLevelThresholds().getGarageModeBytes() <= 0) {
+            throw new IllegalArgumentException(
+                    "For component: " + toComponentTypeStr(componentType)
+                            + " some thresholds are zero for: "
+                            + config.getComponentLevelThresholds().toString());
+        }
+        if (componentType == ComponentType.SYSTEM) {
+            List<IoOveruseAlertThreshold> systemThresholds = config.getSystemWideThresholds();
+            if (systemThresholds.isEmpty()) {
+                throw new IllegalArgumentException(
+                        "Empty system-wide alert thresholds provided in "
+                                + toComponentTypeStr(componentType)
+                                + " config.");
+            }
+            for (int i = 0; i < systemThresholds.size(); i++) {
+                checkIoOveruseAlertThreshold(systemThresholds.get(i));
+            }
+        }
+    }
+
+    private static void checkIoOveruseAlertThreshold(
+            IoOveruseAlertThreshold ioOveruseAlertThreshold) {
+        if (ioOveruseAlertThreshold.getDurationInSeconds() <= 0) {
+            throw new IllegalArgumentException(
+                    "System wide threshold duration must be greater than zero for: "
+                            + ioOveruseAlertThreshold);
+        }
+        if (ioOveruseAlertThreshold.getWrittenBytesPerSecond() <= 0) {
+            throw new IllegalArgumentException(
+                    "System wide threshold written bytes per second must be greater than zero for: "
+                            + ioOveruseAlertThreshold);
+        }
     }
 
     private static void replaceKey(Map<String, PerStateBytes> map, String oldKey, String newKey) {

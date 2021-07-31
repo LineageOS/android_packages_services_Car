@@ -83,12 +83,6 @@ const std::vector<std::string> toStringVector(const std::unordered_set<std::stri
     return output;
 }
 
-bool isZeroValueThresholds(const PerStateIoOveruseThreshold& thresholds) {
-    return thresholds.perStateWriteBytes.foregroundBytes == 0 &&
-            thresholds.perStateWriteBytes.backgroundBytes == 0 &&
-            thresholds.perStateWriteBytes.garageModeBytes == 0;
-}
-
 std::string toString(const PerStateIoOveruseThreshold& thresholds) {
     return StringPrintf("name=%s, foregroundBytes=%" PRId64 ", backgroundBytes=%" PRId64
                         ", garageModeBytes=%" PRId64,
@@ -102,23 +96,20 @@ Result<void> containsValidThresholds(const PerStateIoOveruseThreshold& threshold
         return Error() << "Doesn't contain threshold name";
     }
 
-    if (isZeroValueThresholds(thresholds)) {
-        return Error() << "Zero value thresholds for " << thresholds.name;
-    }
-
-    if (thresholds.perStateWriteBytes.foregroundBytes == 0 ||
-        thresholds.perStateWriteBytes.backgroundBytes == 0 ||
-        thresholds.perStateWriteBytes.garageModeBytes == 0) {
-        return Error() << "Some thresholds are zero: " << toString(thresholds);
+    if (thresholds.perStateWriteBytes.foregroundBytes <= 0 ||
+        thresholds.perStateWriteBytes.backgroundBytes <= 0 ||
+        thresholds.perStateWriteBytes.garageModeBytes <= 0) {
+        return Error() << "Some thresholds are less than or equal to zero: "
+                       << toString(thresholds);
     }
     return {};
 }
 
 Result<void> containsValidThreshold(const IoOveruseAlertThreshold& threshold) {
-    if (threshold.durationInSeconds == 0) {
+    if (threshold.durationInSeconds <= 0) {
         return Error() << "Duration must be greater than zero";
     }
-    if (threshold.writtenBytesPerSecond == 0) {
+    if (threshold.writtenBytesPerSecond <= 0) {
         return Error() << "Written bytes/second must be greater than zero";
     }
     return {};
