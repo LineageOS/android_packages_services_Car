@@ -25,6 +25,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.car.CarNotConnectedException;
+import android.car.builtin.app.KeyguardManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
@@ -47,8 +48,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.util.IndentingPrintWriter;
-import android.view.IWindowManager;
-import android.view.WindowManagerGlobal;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -80,6 +79,8 @@ public final class CarUserNoticeService implements CarServiceBase {
     private static final long KEYGUARD_POLLING_INTERVAL_MS = 100;
 
     private final Context mContext;
+
+    private final KeyguardManagerHelper mKeyguardManagerHelper;
 
     // null means feature disabled.
     @Nullable
@@ -214,12 +215,14 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     public CarUserNoticeService(Context context) {
-        this(context, new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()));
+        this(context, new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
+                new KeyguardManagerHelper());
     }
 
     @VisibleForTesting
-    CarUserNoticeService(Context context, Handler handler) {
+    CarUserNoticeService(Context context, Handler handler, KeyguardManagerHelper helper) {
         mCommonThreadHandler = handler;
+        mKeyguardManagerHelper = helper;
         Resources res = context.getResources();
         String componentName = res.getString(R.string.config_userNoticeUiService);
         if (componentName.isEmpty()) {
@@ -241,15 +244,7 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     private boolean checkKeyguardLockedWithPolling() {
         mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
-        IWindowManager wm = WindowManagerGlobal.getWindowManagerService();
-        boolean locked = true;
-        if (wm != null) {
-            try {
-                locked = wm.isKeyguardLocked();
-            } catch (RemoteException e) {
-                Slog.w(TAG, "system server crashed", e);
-            }
-        }
+        boolean locked = mKeyguardManagerHelper.isKeyguardLocked();
         if (locked) {
             mCommonThreadHandler.postDelayed(mKeyguardPollingRunnable,
                     KEYGUARD_POLLING_INTERVAL_MS);
