@@ -22,7 +22,6 @@ import android.content.Context;
 
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.systeminterface.SystemStateInterface;
-import com.android.settingslib.utils.ThreadUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -97,7 +96,7 @@ public class SystemStateInterfaceTest {
     // Invoke enterDeepSleep() before setting the helper.
     // Return the result from enterDeepSleep().
     private boolean sleepWithDelayedHelper(ICarServiceHelper serviceHelper) {
-        ThreadUtils.postOnBackgroundThread(() -> {
+        CarServiceUtils.runOnCommon(() -> {
             // Provide the helper after a delay
             try {
                 Thread.sleep(HELPER_DELAY_MS);
