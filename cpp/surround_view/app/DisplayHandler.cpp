@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#include "SurroundViewServiceCallback.h"
+#include "DisplayHandler.h"
 
 #include <android-base/logging.h>
 #include <math/mat4.h>
@@ -30,14 +30,14 @@ using android::hardware::Return;
 using android::sp;
 using std::string;
 
-EGLDisplay   SurroundViewServiceCallback::sGLDisplay;
-GLuint       SurroundViewServiceCallback::sFrameBuffer;
-GLuint       SurroundViewServiceCallback::sColorBuffer;
-GLuint       SurroundViewServiceCallback::sDepthBuffer;
-GLuint       SurroundViewServiceCallback::sTextureId;
-EGLImageKHR  SurroundViewServiceCallback::sKHRimage;
+EGLDisplay   DisplayHandler::sGLDisplay;
+GLuint       DisplayHandler::sFrameBuffer;
+GLuint       DisplayHandler::sColorBuffer;
+GLuint       DisplayHandler::sDepthBuffer;
+GLuint       DisplayHandler::sTextureId;
+EGLImageKHR  DisplayHandler::sKHRimage;
 
-const char* SurroundViewServiceCallback::getEGLError(void) {
+const char* DisplayHandler::getEGLError(void) {
     switch (eglGetError()) {
         case EGL_SUCCESS:
             return "EGL_SUCCESS";
@@ -74,7 +74,7 @@ const char* SurroundViewServiceCallback::getEGLError(void) {
     }
 }
 
-const string SurroundViewServiceCallback::getGLFramebufferError(void) {
+const string DisplayHandler::getGLFramebufferError(void) {
     switch (glCheckFramebufferStatus(GL_FRAMEBUFFER)) {
     case GL_FRAMEBUFFER_COMPLETE:
         return "GL_FRAMEBUFFER_COMPLETE";
@@ -91,7 +91,7 @@ const string SurroundViewServiceCallback::getGLFramebufferError(void) {
     }
 }
 
-bool SurroundViewServiceCallback::prepareGL() {
+bool DisplayHandler::prepareGL() {
     LOG(DEBUG) << __FUNCTION__;
 
     // Just trivially return success if we're already prepared
@@ -234,7 +234,29 @@ bool SurroundViewServiceCallback::prepareGL() {
     return true;
 }
 
-BufferDesc SurroundViewServiceCallback::convertBufferDesc(
+bool DisplayHandler::startDisplay() {
+    // Set the display state to VISIBLE_ON_NEXT_FRAME
+    if (mDisplay != nullptr) {
+        Return<EvsResult> result =
+            mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
+        if (result != EvsResult::OK) {
+          LOG(ERROR) << "Failed to setDisplayState";
+          return false;
+        }
+    } else {
+        LOG(WARNING) << "setDisplayState is ignored since EVS display"
+                     << " is null";
+    }
+
+    // Set up OpenGL (exit if fail)
+    if (!prepareGL()) {
+        LOG(ERROR) << "Error while setting up OpenGL!";
+        return false;
+    }
+    return true;
+}
+
+BufferDesc DisplayHandler::convertBufferDesc(
     const BufferDesc_1_0& src) {
     BufferDesc dst = {};
     AHardwareBuffer_Desc* pDesc =
@@ -253,7 +275,7 @@ BufferDesc SurroundViewServiceCallback::convertBufferDesc(
     return dst;
 }
 
-bool SurroundViewServiceCallback::attachRenderTarget(
+bool DisplayHandler::attachRenderTarget(
     const BufferDesc& tgtBuffer) {
     const AHardwareBuffer_Desc* pDesc =
         reinterpret_cast<const AHardwareBuffer_Desc *>(
@@ -343,7 +365,7 @@ bool SurroundViewServiceCallback::attachRenderTarget(
     return true;
 }
 
-void SurroundViewServiceCallback::detachRenderTarget() {
+void DisplayHandler::detachRenderTarget() {
     // Drop our external render target
     if (sKHRimage != EGL_NO_IMAGE_KHR) {
         eglDestroyImageKHR(sGLDisplay, sKHRimage);
@@ -351,76 +373,17 @@ void SurroundViewServiceCallback::detachRenderTarget() {
     }
 }
 
-SurroundViewServiceCallback::SurroundViewServiceCallback(
-    sp<IEvsDisplay> pDisplay,
-    sp<ISurroundViewSession> pSession) :
-    mDisplay(pDisplay),
-    mSession(pSession) {
+DisplayHandler::DisplayHandler(
+    sp<IEvsDisplay> pDisplay) :
+    mDisplay(pDisplay) {
     // Nothing but member initialization
 }
 
-Return<void> SurroundViewServiceCallback::notify(SvEvent svEvent) {
-    // Waiting for STREAM_STARTED event.
-    if (svEvent == SvEvent::STREAM_STARTED) {
-        LOG(INFO) << "Received STREAM_STARTED event";
-
-        // Set the display state to VISIBLE_ON_NEXT_FRAME
-        if (mDisplay != nullptr) {
-            Return<EvsResult> result =
-                mDisplay->setDisplayState(DisplayState::VISIBLE_ON_NEXT_FRAME);
-            if (result != EvsResult::OK) {
-              LOG(ERROR) << "Failed to setDisplayState";
-            }
-        } else {
-            LOG(WARNING) << "setDisplayState is ignored since EVS display"
-                         << " is null";
-        }
-
-        // Set up OpenGL (exit if fail)
-        if (!prepareGL()) {
-            LOG(ERROR) << "Error while setting up OpenGL!";
-            exit(EXIT_FAILURE);
-        }
-    } else if (svEvent == SvEvent::CONFIG_UPDATED) {
-        LOG(INFO) << "Received CONFIG_UPDATED event";
-    } else if (svEvent == SvEvent::STREAM_STOPPED) {
-        LOG(INFO) << "Received STREAM_STOPPED event";
-    } else if (svEvent == SvEvent::FRAME_DROPPED) {
-        LOG(INFO) << "Received FRAME_DROPPED event";
-    } else if (svEvent == SvEvent::TIMEOUT) {
-        LOG(INFO) << "Received TIMEOUT event";
-    } else {
-        LOG(INFO) << "Received unknown event";
-    }
-    return {};
-}
-
-Return<void> SurroundViewServiceCallback::receiveFrames(
-    const SvFramesDesc& svFramesDesc) {
-    LOG(INFO) << "Incoming frames with svBuffers size: "
-              << svFramesDesc.svBuffers.size();
-    if (svFramesDesc.svBuffers.size() == 0) {
-        return {};
-    }
-
+bool DisplayHandler::renderBufferToScreen(const HardwareBuffer& hardwareBuffer) {
     // Now we assume there is only one frame for both 2d and 3d.
-    auto handle =
-          svFramesDesc.svBuffers[0].hardwareBuffer.nativeHandle
-          .getNativeHandle();
+    auto handle = hardwareBuffer.nativeHandle.getNativeHandle();
     const AHardwareBuffer_Desc* pDesc =
-          reinterpret_cast<const AHardwareBuffer_Desc *>(
-              &svFramesDesc.svBuffers[0].hardwareBuffer.description);
-
-    LOG(INFO) << "App received frames";
-    LOG(INFO) << "descData: "
-              << pDesc->width
-              << pDesc->height
-              << pDesc->layers
-              << pDesc->format
-              << pDesc->usage
-              << pDesc->stride;
-    LOG(INFO) << "nativeHandle: "
-              << handle;
+          reinterpret_cast<const AHardwareBuffer_Desc *>(&hardwareBuffer.description);
 
     // Only process the frame when EVS display is valid. If
     // not, ignore the coming frame.
@@ -541,14 +504,6 @@ Return<void> SurroundViewServiceCallback::receiveFrames(
         }
 
         LOG(DEBUG) << "Rendering finished. Going to return the buffer";
-
-        // Call HIDL API "doneWithFrames" to return the ownership
-        // back to SV service
-        if (mSession == nullptr) {
-            LOG(WARNING) << "SurroundViewSession in callback is invalid";
-        } else {
-            mSession->doneWithFrames(svFramesDesc);
-        }
 
         // Return display buffer back to EVS display
         mDisplay->returnTargetBufferForDisplay(tgtBuffer);
