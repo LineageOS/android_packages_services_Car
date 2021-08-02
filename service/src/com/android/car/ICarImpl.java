@@ -24,10 +24,10 @@ import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT
 
 import android.annotation.MainThread;
 import android.annotation.Nullable;
-import android.app.ActivityManager;
 import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
@@ -226,7 +226,7 @@ public class ICarImpl extends ICar.Stub {
                     com.android.internal.R.integer.config_multiuserMaxRunningUsers);
             mCarUserService = constructWithTrace(t, CarUserService.class,
                     () -> new CarUserService(serviceContext, mHal.getUserHal(), userManager,
-                            ActivityManager.getService(), maxRunningUsers,
+                            ActivityManagerHelper.getInstance(), maxRunningUsers,
                             mCarUXRestrictionsService));
         }
         mCarOccupantZoneService = constructWithTrace(t, CarOccupantZoneService.class,

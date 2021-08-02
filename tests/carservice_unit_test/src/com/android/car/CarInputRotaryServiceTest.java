@@ -29,8 +29,8 @@ import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
-import android.app.IActivityManager;
 import android.bluetooth.BluetoothAdapter;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.content.ContentResolver;
@@ -289,9 +289,10 @@ public class CarInputRotaryServiceTest {
         UserInfo userInfo = mock(UserInfo.class);
         doReturn(userInfo).when(userManager).getUserInfo(anyInt());
         UserHalService userHal = mock(UserHalService.class);
-        IActivityManager iActivityManager = mock(IActivityManager.class);
+        ActivityManagerHelper activityManagerHelper = mock(ActivityManagerHelper.class);
         mCarUserService = new CarUserService(mMockContext, userHal,
-                userManager, iActivityManager, /* maxRunningUsers= */ 2, mUxRestrictionService);
+                userManager, activityManagerHelper, /* maxRunningUsers= */ 2,
+                mUxRestrictionService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
                 mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,

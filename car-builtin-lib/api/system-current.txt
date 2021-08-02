@@ -1,6 +1,14 @@
 // Signature format: 2.0
 package android.car.builtin.app {
 
+  public final class ActivityManagerHelper {
+    method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
+    method public boolean startUserInBackground(int);
+    method public void stopAllTasksForUser(int);
+    method public int stopUserWithDelayedLocking(int, boolean);
+    method public boolean unlockUser(int);
+  }
+
   public class KeyguardManagerHelper {
     ctor public KeyguardManagerHelper();
     method public boolean isKeyguardLocked();
