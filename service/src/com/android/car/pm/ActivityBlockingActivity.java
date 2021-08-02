@@ -15,10 +15,10 @@
  */
 package com.android.car.pm;
 
-import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
-import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
-import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
-import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME;
 
 import android.app.Activity;
 import android.app.ActivityManager;

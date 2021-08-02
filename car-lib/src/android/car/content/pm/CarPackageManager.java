@@ -77,6 +77,39 @@ public final class CarPackageManager extends CarManagerBase {
     @Deprecated
     public static final int FLAG_SET_POLICY_REMOVE = 0x4;
 
+    /**
+     * Name of blocked activity.
+     *
+     * @hide
+     */
+    public static final String BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME = "blocked_activity";
+    /**
+     * int task id of the blocked task.
+     *
+     * @hide
+     */
+    public static final String BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID = "blocked_task_id";
+    /**
+     * Name of root activity of blocked task.
+     *
+     * @hide
+     */
+    public static final String BLOCKING_INTENT_EXTRA_ROOT_ACTIVITY_NAME = "root_activity_name";
+    /**
+     * Boolean indicating whether the root activity is distraction-optimized (DO).
+     * Blocking screen should show a button to restart the task if {@code true}.
+     *
+     * @hide
+     */
+    public static final String BLOCKING_INTENT_EXTRA_IS_ROOT_ACTIVITY_DO = "is_root_activity_do";
+
+    /**
+     * int display id of the blocked task.
+     *
+     * @hide
+     */
+    public static final String BLOCKING_INTENT_EXTRA_DISPLAY_ID = "display_id";
+
     /** @hide */
     @IntDef(flag = true,
             value = {FLAG_SET_POLICY_WAIT_FOR_CHANGE, FLAG_SET_POLICY_ADD, FLAG_SET_POLICY_REMOVE})

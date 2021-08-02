@@ -15,7 +15,7 @@
  */
 package com.android.car;
 
-import static com.android.car.pm.CarPackageManagerService.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
+import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
