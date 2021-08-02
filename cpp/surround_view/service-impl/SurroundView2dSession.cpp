@@ -152,7 +152,16 @@ Return<void> SurroundView2dSession::FramesHandler::deliverFrame_1_1(
 
                 if (status != NO_ERROR) {
                     LOG(ERROR) << "Can't create AHardwareBuffer from handle. Error: " << status;
+                    mCamera->doneWithFrame_1_1(buffers);
                     return {};
+                }
+
+                // Release the old hardware buffer.
+                if (mSession->mInputPointers[i].gpu_data_pointer != nullptr) {
+                    AHardwareBuffer* buffer = reinterpret_cast<AHardwareBuffer*>(
+                            mSession->mInputPointers[i].gpu_data_pointer);
+                    AHardwareBuffer_release(buffer);
+                    mSession->mInputPointers[i].gpu_data_pointer = nullptr;
                 }
 
                 mSession->mInputPointers[i].gpu_data_pointer = static_cast<void*>(hardwareBuffer);
