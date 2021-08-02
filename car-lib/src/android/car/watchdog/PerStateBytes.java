@@ -21,7 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Number of bytes attributed to each application or system state.
@@ -168,7 +168,7 @@ public final class PerStateBytes implements Parcelable {
             time = 1614388529869L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/PerStateBytes.java",
-            inputSignatures = "private  long mForegroundModeBytes\nprivate  long mBackgroundModeBytes\nprivate  long mGarageModeBytes\nclass PerStateBytes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true)")
+            inputSignatures = "private  long mForegroundModeBytes\nprivate  long mBackgroundModeBytes\nprivate  long mGarageModeBytes\nclass PerStateBytes extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

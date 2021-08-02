@@ -22,7 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.ArraySet;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.Collections;
 import java.util.Objects;
@@ -216,7 +216,7 @@ public final class VmsAssociatedLayer implements Parcelable {
             time = 1582065953302L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsAssociatedLayer.java",
-            inputSignatures = "private final @android.annotation.NonNull android.car.vms.VmsLayer mVmsLayer\nprivate @android.annotation.NonNull android.car.vms.Set<java.lang.Integer> mProviderIds\nprivate  void onConstructed()\nprivate  void parcelProviderIds(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") android.car.vms.Set<java.lang.Integer> unparcelProviderIds(android.os.Parcel)\npublic @java.lang.Deprecated @android.annotation.NonNull android.car.vms.Set<java.lang.Integer> getPublisherIds()\nclass VmsAssociatedLayer extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
+            inputSignatures = "private final @android.annotation.NonNull android.car.vms.VmsLayer mVmsLayer\nprivate @android.annotation.NonNull android.car.vms.Set<java.lang.Integer> mProviderIds\nprivate  void onConstructed()\nprivate  void parcelProviderIds(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") android.car.vms.Set<java.lang.Integer> unparcelProviderIds(android.os.Parcel)\npublic @java.lang.Deprecated @android.annotation.NonNull android.car.vms.Set<java.lang.Integer> getPublisherIds()\nclass VmsAssociatedLayer extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
     @Deprecated
     private void __metadata() {}
 

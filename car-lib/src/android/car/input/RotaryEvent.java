@@ -23,7 +23,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.Arrays;
 
@@ -264,7 +264,7 @@ public final class RotaryEvent implements Parcelable {
             time = 1584120905236L,
             codegenVersion = "1.0.15",
             sourceFile = "packages/services/Car/car-lib/src/android/car/input/RotaryEvent.java",
-            inputSignatures = "private final @android.car.input.CarInputManager.InputTypeEnum int mInputType\nprivate final  boolean mClockwise\nprivate final @android.annotation.NonNull long[] mUptimeMillisForClicks\npublic  int getNumberOfClicks()\npublic  long getUptimeMillisForClick(int)\npublic @java.lang.Override java.lang.String toString()\nclass RotaryEvent extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genEqualsHashCode=true, genAidl=true)")
+            inputSignatures = "private final @android.car.input.CarInputManager.InputTypeEnum int mInputType\nprivate final  boolean mClockwise\nprivate final @android.annotation.NonNull long[] mUptimeMillisForClicks\npublic  int getNumberOfClicks()\npublic  long getUptimeMillisForClick(int)\npublic @java.lang.Override java.lang.String toString()\nclass RotaryEvent extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genEqualsHashCode=true, genAidl=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

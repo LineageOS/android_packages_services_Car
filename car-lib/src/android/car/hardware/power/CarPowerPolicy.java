@@ -22,7 +22,7 @@ import android.annotation.NonNull;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Car power policy definition.
@@ -187,7 +187,7 @@ public final class CarPowerPolicy implements Parcelable {
             time = 1614373490935L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/power/CarPowerPolicy.java",
-            inputSignatures = "private final @android.annotation.NonNull java.lang.String mPolicyId\nprivate final @android.annotation.NonNull int[] mEnabledComponents\nprivate final @android.annotation.NonNull int[] mDisabledComponents\nclass CarPowerPolicy extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genHiddenConstructor=true)")
+            inputSignatures = "private final @android.annotation.NonNull java.lang.String mPolicyId\nprivate final @android.annotation.NonNull int[] mEnabledComponents\nprivate final @android.annotation.NonNull int[] mDisabledComponents\nclass CarPowerPolicy extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genHiddenConstructor=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

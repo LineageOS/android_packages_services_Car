@@ -26,7 +26,7 @@ import android.annotation.SystemApi;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -535,7 +535,7 @@ public final class ResourceOveruseConfiguration implements Parcelable {
             time = 1615571828842L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/ResourceOveruseConfiguration.java",
-            inputSignatures = "public static final  int COMPONENT_TYPE_SYSTEM\npublic static final  int COMPONENT_TYPE_VENDOR\npublic static final  int COMPONENT_TYPE_THIRD_PARTY\npublic static final  java.lang.String APPLICATION_CATEGORY_TYPE_MAPS\npublic static final  java.lang.String APPLICATION_CATEGORY_TYPE_MEDIA\nprivate @android.car.watchdog.ResourceOveruseConfiguration.ComponentType int mComponentType\nprivate @android.annotation.NonNull java.util.List<java.lang.String> mSafeToKillPackages\nprivate @android.annotation.NonNull java.util.List<java.lang.String> mVendorPackagePrefixes\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,java.lang.String> mPackagesToAppCategoryTypes\nprivate @android.annotation.Nullable android.car.watchdog.IoOveruseConfiguration mIoOveruseConfiguration\nclass ResourceOveruseConfiguration extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int COMPONENT_TYPE_SYSTEM\npublic static final  int COMPONENT_TYPE_VENDOR\npublic static final  int COMPONENT_TYPE_THIRD_PARTY\npublic static final  java.lang.String APPLICATION_CATEGORY_TYPE_MAPS\npublic static final  java.lang.String APPLICATION_CATEGORY_TYPE_MEDIA\nprivate @android.car.watchdog.ResourceOveruseConfiguration.ComponentType int mComponentType\nprivate @android.annotation.NonNull java.util.List<java.lang.String> mSafeToKillPackages\nprivate @android.annotation.NonNull java.util.List<java.lang.String> mVendorPackagePrefixes\nprivate @android.annotation.NonNull java.util.Map<java.lang.String,java.lang.String> mPackagesToAppCategoryTypes\nprivate @android.annotation.Nullable android.car.watchdog.IoOveruseConfiguration mIoOveruseConfiguration\nclass ResourceOveruseConfiguration extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genBuilder=true, genHiddenConstDefs=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

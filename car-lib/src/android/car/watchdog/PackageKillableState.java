@@ -24,7 +24,7 @@ import android.annotation.UserIdInt;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * Killable state for a package.
@@ -244,7 +244,7 @@ public final class PackageKillableState implements Parcelable {
             time = 1615312251812L,
             codegenVersion = "1.0.22",
             sourceFile = "packages/services/Car/car-lib/src/android/car/watchdog/PackageKillableState.java",
-            inputSignatures = "public static final  int KILLABLE_STATE_YES\npublic static final  int KILLABLE_STATE_NO\npublic static final  int KILLABLE_STATE_NEVER\nprivate @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.UserIdInt int mUserId\nprivate @android.car.watchdog.PackageKillableState.KillableState int mKillableState\nclass PackageKillableState extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int KILLABLE_STATE_YES\npublic static final  int KILLABLE_STATE_NO\npublic static final  int KILLABLE_STATE_NEVER\nprivate @android.annotation.NonNull java.lang.String mPackageName\nprivate @android.annotation.UserIdInt int mUserId\nprivate @android.car.watchdog.PackageKillableState.KillableState int mKillableState\nclass PackageKillableState extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     private void __metadata() {}

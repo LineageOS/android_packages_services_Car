@@ -18,7 +18,7 @@ package android.car.user;
 
 import android.os.Parcelable;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 /**
  * User start results.
@@ -231,7 +231,7 @@ public final class UserStartResult implements Parcelable, OperationResult {
             time = 1618957103487L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/user/UserStartResult.java",
-            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\nprivate final @android.car.user.UserStartResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserStartResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
+            inputSignatures = "public static final  int STATUS_SUCCESSFUL\npublic static final  int STATUS_ANDROID_FAILURE\npublic static final  int STATUS_SUCCESSFUL_USER_IS_CURRENT_USER\npublic static final  int STATUS_USER_DOES_NOT_EXIST\nprivate final @android.car.user.UserStartResult.Status int mStatus\npublic @java.lang.Override boolean isSuccess()\nclass UserStartResult extends java.lang.Object implements [android.os.Parcelable, android.car.user.OperationResult]\n@com.android.car.internal.util.DataClass(genToString=true, genHiddenConstructor=true, genHiddenConstDefs=true)")
     @Deprecated
     private void __metadata() {}
 

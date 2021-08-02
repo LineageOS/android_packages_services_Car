@@ -22,7 +22,7 @@ import android.os.Parcel;
 import android.os.Parcelable;
 import android.util.ArraySet;
 
-import com.android.internal.util.DataClass;
+import com.android.car.internal.util.DataClass;
 
 import java.util.Collections;
 import java.util.Set;
@@ -207,7 +207,7 @@ public final class VmsLayersOffering implements Parcelable {
             time = 1582065871728L,
             codegenVersion = "1.0.14",
             sourceFile = "packages/services/Car/car-lib/src/android/car/vms/VmsLayersOffering.java",
-            inputSignatures = "private @android.annotation.NonNull java.util.Set<android.car.vms.VmsLayerDependency> mDependencies\nprivate final  int mPublisherId\nprivate  void onConstructed()\nprivate  void parcelDependencies(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") java.util.Set<android.car.vms.VmsLayerDependency> unparcelDependencies(android.os.Parcel)\nclass VmsLayersOffering extends java.lang.Object implements [android.os.Parcelable]\n@com.android.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
+            inputSignatures = "private @android.annotation.NonNull java.util.Set<android.car.vms.VmsLayerDependency> mDependencies\nprivate final  int mPublisherId\nprivate  void onConstructed()\nprivate  void parcelDependencies(android.os.Parcel,int)\nprivate @java.lang.SuppressWarnings(\"unchecked\") java.util.Set<android.car.vms.VmsLayerDependency> unparcelDependencies(android.os.Parcel)\nclass VmsLayersOffering extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genAidl=true, genEqualsHashCode=true, genToString=true)")
     @Deprecated
     private void __metadata() {}
 
