@@ -142,11 +142,16 @@ public class CarTest {
     @Test
     public void testApiVersion() throws Exception {
         int ApiVersionTooHigh = 1000000;
+        int MinorApiVersionTooHigh = 1000000;
         assertThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT)).isTrue();
         assertThat(Car.isApiVersionAtLeast(ApiVersionTooHigh)).isFalse();
 
+        assertThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT - 1,
+                MinorApiVersionTooHigh)).isTrue();
         assertThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
                 Car.API_VERSION_MINOR_INT)).isTrue();
+        assertThat(Car.isApiVersionAtLeast(Car.API_VERSION_MAJOR_INT,
+                MinorApiVersionTooHigh)).isFalse();
         assertThat(Car.isApiVersionAtLeast(ApiVersionTooHigh, 0)).isFalse();
 
         assertThat(Car.isApiAndPlatformVersionAtLeast(Car.API_VERSION_MAJOR_INT,
