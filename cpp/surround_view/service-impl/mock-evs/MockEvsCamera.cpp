@@ -25,29 +25,85 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
-// TODO(b/159733690): the number should come from xml
-const int kFramesCount = 4;
-const int kFrameGenerationDelayMillis = 30;
+namespace {
+// Index of the frame rate in the RawStreamConfiguration struct.
+const int kStreamConfigFrameRateIndex = 5;
 
-// Evs Camera Id names defined in sv_sample_config.xml.
-const char kEvsCameraDeviceIdNames[4][20] = {
-    "/dev/video60", "/dev/video61", "/dev/video62", "/dev/video63"
-};
+// Writes data provided into the graphicBuffer.
+bool WriteToGraphicBuffer(sp<GraphicBuffer> graphicBuffer, const void* data, int size) {
+    // Lock the input GraphicBuffer and map it to a pointer.  If we failed to
+    // lock, return false.
+    void* graphicBufferDataPtr;
+    graphicBuffer->lock(GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_RARELY,
+                        &graphicBufferDataPtr);
+    if (!graphicBufferDataPtr) {
+        LOG(ERROR) << "Failed to gain write access to GraphicBuffer";
+        graphicBuffer->unlock();
+        return false;
+    }
 
+    // Both source and destination are with 4 channels
+    memcpy(graphicBufferDataPtr, data, size);
+    graphicBuffer->unlock();
+    return true;
+}
 
-MockEvsCamera::MockEvsCamera(const string& cameraId, const Stream& streamCfg) {
+// Create a new GraphicBuffer and provides its BufferDesc_1_1 from inputs provided stream config,
+// deviceId and bufferId. Fills up the buffer with pixelGrayValue.
+bool InitializeGraphicsBuffer(const Stream& streamCfg, const char* deviceId, int bufferId,
+                              uint8_t pixelGrayValue, android::sp<GraphicBuffer>* graphicsBuffer,
+                              BufferDesc_1_1* bufferDesc) {
+    const string labelPrefix = "buffer_";
+    *graphicsBuffer =
+            new GraphicBuffer(streamCfg.width, streamCfg.height, HAL_PIXEL_FORMAT_RGBA_8888, 1,
+                              GRALLOC_USAGE_HW_TEXTURE, labelPrefix + (char)(bufferId + 48));
+    bufferDesc->buffer.nativeHandle = (*graphicsBuffer)->getNativeBuffer()->handle;
+    bufferDesc->deviceId = deviceId;
+    bufferDesc->bufferId = bufferId;
+    AHardwareBuffer_Desc* pDesc =
+            reinterpret_cast<AHardwareBuffer_Desc*>(&bufferDesc->buffer.description);
+    pDesc->width = streamCfg.width;
+    pDesc->height = streamCfg.height;
+    pDesc->layers = 1;
+    pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
+    pDesc->stride = (*graphicsBuffer)->getStride();
+    pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+
+    // Fill graphic buffer with pixelValue.
+    const std::vector<uint8_t> image(streamCfg.width * streamCfg.height * 4, pixelGrayValue);
+    if (!WriteToGraphicBuffer(*graphicsBuffer, image.data(), image.size())) {
+        LOG(ERROR) << "Failed to write to frame: " << bufferId;
+        return false;
+    }
+    return true;
+}
+
+} // namespace
+
+MockEvsCamera::MockEvsCamera(const string& cameraGroupId, const Stream& streamCfg) {
     mConfigManager = ConfigManager::Create();
 
     mStreamCfg.height = streamCfg.height;
     mStreamCfg.width = streamCfg.width;
 
-    mCameraDesc.v1.cameraId = cameraId;
+    mCameraDesc.v1.cameraId = cameraGroupId;
     unique_ptr<ConfigManager::CameraGroupInfo>& cameraGroupInfo =
             mConfigManager->getCameraGroupInfo(mCameraDesc.v1.cameraId);
     if (cameraGroupInfo != nullptr) {
         mCameraDesc.metadata.setToExternal(
                 (uint8_t*)cameraGroupInfo->characteristics,
                 get_camera_metadata_size(cameraGroupInfo->characteristics));
+    }
+
+    mPhysicalCameraIds = mConfigManager->getCameraIdList();
+    // Reverse the list as Config Manager populates the Cameras in reverse order.
+    std::reverse(mPhysicalCameraIds.begin(), mPhysicalCameraIds.end());
+
+    if (cameraGroupInfo->streamConfigurations.size() > 0) {
+        // Get the first valid configuration.
+        const RawStreamConfiguration rawStreamConfig =
+                cameraGroupInfo->streamConfigurations.begin()->second;
+        mFrameRate = rawStreamConfig[kStreamConfigFrameRateIndex];
     }
 }
 
@@ -244,36 +300,18 @@ Return<void> MockEvsCamera::importExternalBuffers(
 }
 
 void MockEvsCamera::initializeFrames(int framesCount) {
-    LOG(INFO) << "StreamCfg width: " << mStreamCfg.width
-              << " height: " << mStreamCfg.height;
-
-    string label = "EmptyBuffer_";
     mGraphicBuffers.resize(framesCount);
     mBufferDescs.resize(framesCount);
     for (int i = 0; i < framesCount; i++) {
-        mGraphicBuffers[i] = new GraphicBuffer(mStreamCfg.width,
-                                               mStreamCfg.height,
-                                               HAL_PIXEL_FORMAT_RGBA_8888,
-                                               1,
-                                               GRALLOC_USAGE_HW_TEXTURE,
-                                               label + (char)(i + 48));
-        mBufferDescs[i].buffer.nativeHandle =
-                mGraphicBuffers[i]->getNativeBuffer()->handle;
-        mBufferDescs[i].deviceId = kEvsCameraDeviceIdNames[i];
-        AHardwareBuffer_Desc* pDesc =
-                reinterpret_cast<AHardwareBuffer_Desc*>(
-                        &mBufferDescs[i].buffer.description);
-        pDesc->width = mStreamCfg.width;
-        pDesc->height = mStreamCfg.height;
-        pDesc->layers = 1;
-        pDesc->usage = GRALLOC_USAGE_HW_TEXTURE;
-        pDesc->stride = mGraphicBuffers[i]->getStride();
-        pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
+        // Sets the pixels values of the 4 cameras to 50, 100, 150 and 200.
+        const uint8_t pixelGrayValue = 50 + (i * 50);
+        InitializeGraphicsBuffer(mStreamCfg, mPhysicalCameraIds[i].c_str(), i, pixelGrayValue,
+                &mGraphicBuffers[i], &mBufferDescs[i]);
     }
 }
 
 void MockEvsCamera::generateFrames() {
-    initializeFrames(kFramesCount);
+    initializeFrames(mPhysicalCameraIds.size());
 
     while (true) {
         {
@@ -287,8 +325,7 @@ void MockEvsCamera::generateFrames() {
         }
 
         mStream->deliverFrame_1_1(mBufferDescs);
-        std::this_thread::sleep_for(
-                std::chrono::milliseconds(kFrameGenerationDelayMillis));
+        std::this_thread::sleep_for(std::chrono::milliseconds(1000 / mFrameRate));
     }
 
     {

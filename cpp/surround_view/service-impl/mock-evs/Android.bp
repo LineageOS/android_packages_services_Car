@@ -49,3 +49,11 @@ cc_library{
         "libutils",
     ],
 }
+
+// EVS Configuration xml to be use with Mock EVS.
+prebuilt_etc {
+    name : "mock_evs_configuration.xml",
+    soc_specific : true,
+    src: "mock_evs_configuration.xml",
+    sub_dir: "automotive/sv",
+}
