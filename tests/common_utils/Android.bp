@@ -27,5 +27,5 @@ java_library {
         "truth-prebuilt",
     ],
 
-    libs: ["android.car"],
+    libs: ["android.car-system-stubs"],
 }
