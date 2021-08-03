@@ -1193,13 +1193,16 @@ public final class Car {
      *
      * @param requiredApiVersionMajor Required major version number.
      * @param requiredApiVersionMinor Required minor version number.
-     * @return true if car API version in the system is same or newer than
-     *              {@code requiredApiVersionMajor}.
+     * @return true if car Major API version in the system is newer than
+     *         {@code requiredApiVersionMajor} or car Major API version in the system is same as
+     *         {@code requiredApiVersionMajor} with minor version same or newer than
+     *         {@code requiredApiVersionMinor}.
      */
     public static boolean isApiVersionAtLeast(int requiredApiVersionMajor,
             int requiredApiVersionMinor) {
-        return API_VERSION_MAJOR_INT >= requiredApiVersionMajor
-                && API_VERSION_MINOR_INT >= requiredApiVersionMinor;
+        return (API_VERSION_MAJOR_INT > requiredApiVersionMajor)
+                || (API_VERSION_MAJOR_INT == requiredApiVersionMajor
+                        && API_VERSION_MINOR_INT >= requiredApiVersionMinor);
     }
 
     /**
