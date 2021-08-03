@@ -246,9 +246,17 @@ public final class VehiclePropertyIds {
     /**
      * Speed of the vehicle in meters per second for displays.
      *
-     * Some cars display a slightly slower speed than the actual speed. This is
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Some cars display a slightly slower speed than the actual speed. This is
      * usually displayed on the speedometer.
-     * Requires permission: {@link Car#PERMISSION_SPEED}.
+     *
+     * <p>Requires permission: {@link Car#PERMISSION_SPEED}.
      */
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int PERF_VEHICLE_SPEED_DISPLAY = 291504648;
