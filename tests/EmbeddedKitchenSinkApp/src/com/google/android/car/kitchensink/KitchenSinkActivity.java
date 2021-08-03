@@ -66,6 +66,7 @@ import com.google.android.car.kitchensink.packageinfo.PackageInfoFragment;
 import com.google.android.car.kitchensink.power.PowerTestFragment;
 import com.google.android.car.kitchensink.projection.ProjectionFragment;
 import com.google.android.car.kitchensink.property.PropertyTestFragment;
+import com.google.android.car.kitchensink.qc.QCViewerFragment;
 import com.google.android.car.kitchensink.rotary.RotaryFragment;
 import com.google.android.car.kitchensink.sensor.SensorsTestFragment;
 import com.google.android.car.kitchensink.storagelifetime.StorageLifetimeFragment;
@@ -196,6 +197,7 @@ public class KitchenSinkActivity extends FragmentActivity {
             new FragmentMenuEntry("profile_user", ProfileUserFragment.class),
             new FragmentMenuEntry("projection", ProjectionFragment.class),
             new FragmentMenuEntry("property test", PropertyTestFragment.class),
+            new FragmentMenuEntry("qc viewer", QCViewerFragment.class),
             new FragmentMenuEntry("rotary", RotaryFragment.class),
             new FragmentMenuEntry("sensors", SensorsTestFragment.class),
             new FragmentMenuEntry("storage lifetime", StorageLifetimeFragment.class),
