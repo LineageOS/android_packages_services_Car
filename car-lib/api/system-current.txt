@@ -914,23 +914,6 @@ package android.car.hardware.property {
 
 package android.car.input {
 
-  @Deprecated public abstract class CarInputHandlingService extends android.app.Service {
-    ctor @Deprecated protected CarInputHandlingService(android.car.input.CarInputHandlingService.InputFilter[]);
-    method @Deprecated @CallSuper public android.os.IBinder onBind(android.content.Intent);
-    method @Deprecated @MainThread protected abstract void onKeyEvent(android.view.KeyEvent, int);
-    field @Deprecated public static final int INPUT_CALLBACK_BINDER_CODE = 1; // 0x1
-    field @Deprecated public static final String INPUT_CALLBACK_BINDER_KEY = "callback_binder";
-  }
-
-  @Deprecated public static final class CarInputHandlingService.InputFilter implements android.os.Parcelable {
-    ctor @Deprecated public CarInputHandlingService.InputFilter(int, int);
-    method @Deprecated public int describeContents();
-    method @Deprecated public void writeToParcel(android.os.Parcel, int);
-    field @Deprecated public static final android.os.Parcelable.Creator CREATOR;
-    field @Deprecated public final int mKeyCode;
-    field @Deprecated public final int mTargetDisplay;
-  }
-
   public final class CarInputManager {
     method @RequiresPermission(android.Manifest.permission.INJECT_EVENTS) public void injectKeyEvent(@NonNull android.view.KeyEvent, int);
     method public void releaseInputEventCapture(int);
