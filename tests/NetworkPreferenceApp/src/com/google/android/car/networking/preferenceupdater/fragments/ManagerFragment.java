@@ -29,7 +29,6 @@ import android.net.ConnectivityManager.NetworkCallback;
 import android.net.NetworkIdentity;
 import android.net.NetworkRequest;
 import android.net.NetworkTemplate;
-import android.net.wifi.WifiInfo;
 import android.net.wifi.WifiManager;
 import android.net.wifi.WifiNetworkSuggestion;
 import android.os.Bundle;
@@ -98,6 +97,7 @@ public final class ManagerFragment extends Fragment {
     private EditText mOEMPrivateOnlyAppsEditText;
     private TextView mCurrentPANSStatusTextView;
     private Switch mReapplyPANSOnBootSwitch;
+    private Switch mReapplyWifiSuggestionsOnBootSwitch;
     private Button mApplyConfigurationBtn;
     private Button mResetNetworkPreferencesBtn;
     private Button mApplyWifiCapabilitiesBtn;
@@ -156,6 +156,8 @@ public final class ManagerFragment extends Fragment {
         mOEMPrivateWifiSSIDsEditText = v.findViewById(R.id.OEMPrivateWifiSSIDsEditText);
         mCurrentPANSStatusTextView = v.findViewById(R.id.currentPANSStatusTextView);
         mReapplyPANSOnBootSwitch = v.findViewById(R.id.reapplyPANSOnBootSwitch);
+        mReapplyWifiSuggestionsOnBootSwitch = v.findViewById(
+                R.id.reapplyWifiSuggestionsOnBootSwitch);
         mApplyConfigurationBtn = v.findViewById(R.id.applyConfigurationBtn);
         mResetNetworkPreferencesBtn = v.findViewById(R.id.resetNetworkPreferencesBtn);
         mApplyWifiCapabilitiesBtn = v.findViewById(R.id.applyWifiCapabilitiesButton);
@@ -176,16 +178,16 @@ public final class ManagerFragment extends Fragment {
     private void updateMetricIndicatorByType(int type, long rx, long tx) {
         switch (type) {
             case NetworkIdentity.OEM_PAID:
-                mOemPaidRxBytesTextView.setText("RX: " + String.valueOf(rx));
-                mOemPaidTxBytesTextView.setText("TX: " + String.valueOf(tx));
+                mOemPaidRxBytesTextView.setText("RX: " + rx);
+                mOemPaidTxBytesTextView.setText("TX: " + tx);
                 break;
             case NetworkIdentity.OEM_PRIVATE:
-                mOemPrivateRxBytesTextView.setText("RX: " + String.valueOf(rx));
-                mOemPrivateTxBytesTextView.setText("TX: " + String.valueOf(tx));
+                mOemPrivateRxBytesTextView.setText("RX: " + rx);
+                mOemPrivateTxBytesTextView.setText("TX: " + tx);
                 break;
             case NetworkTemplate.OEM_MANAGED_YES:
-                mOemTotalRxBytesTextView.setText("RX: " + String.valueOf(rx));
-                mOemTotalTxBytesTextView.setText("TX: " + String.valueOf(tx));
+                mOemTotalRxBytesTextView.setText("RX: " + rx);
+                mOemTotalTxBytesTextView.setText("TX: " + tx);
                 break;
             default:
                 Log.e(TAG, "Unknown NetworkIdentity " + type);
@@ -199,7 +201,10 @@ public final class ManagerFragment extends Fragment {
         mResetWifiCapabilitiesBtn.setOnClickListener(view -> onResetWifiCapabilitiesBtnClick());
         mReapplyPANSOnBootSwitch.setOnCheckedChangeListener(
                 (buttonView, isChecked) ->
-                        mPersonalStorage.saveReapplyPansOnBootCompleteState(true));
+                        mPersonalStorage.saveReapplyPansOnBootCompleteState(isChecked));
+        mReapplyWifiSuggestionsOnBootSwitch.setOnCheckedChangeListener(
+                (buttonView, isChecked) ->
+                        mPersonalStorage.saveReapplyWifiOnBootCompleteState(isChecked));
         mResetNetworkPreferencesBtn.setOnClickListener(view -> resetNetworkPreferences());
 
         mConnectToOemPaidWifiSwitch.setOnCheckedChangeListener(
@@ -270,7 +275,7 @@ public final class ManagerFragment extends Fragment {
         mOEMPaidWifiSSIDsEditText.setText(Utils.toString(mPersonalStorage.getOemPaidWifiSsids()));
         mOEMPrivateWifiSSIDsEditText.setText(
                 Utils.toString(mPersonalStorage.getOemPrivateWifiSsids()));
-        updatePansPolicyInEffectStatus(false);
+        updatePansPolicyInEffectStatus(mPersonalStorage.getReapplyPansOnBootCompleteState());
     }
 
     private String getFromStorage(int type) {
@@ -284,21 +289,6 @@ public final class ManagerFragment extends Fragment {
         mCurrentPANSStatusTextView.setText(status ? "Yes" : "No");
     }
 
-    private WifiNetworkSuggestion buildWifiSuggestion(String ssid, boolean isOemPaid) {
-        WifiNetworkSuggestion.Builder builder = new WifiNetworkSuggestion.Builder();
-        String[] elements = ssid.split(":");
-        builder.setSsid(WifiInfo.sanitizeSsid(elements[0]));
-        if (elements.length > 1) {
-            builder.setWpa2Passphrase(elements[1]);
-        }
-        if (isOemPaid) {
-            builder.setOemPaid(true);
-        } else {
-            builder.setOemPrivate(true);
-        }
-        return builder.build();
-    }
-
     private void onApplyWifiCapabilitiesBtnClick() {
         Log.d(TAG, "Applying WiFi settings");
         Set<String> ssidsWithOemPaid = Utils.toSet(mOEMPaidWifiSSIDsEditText.getText().toString());
@@ -307,11 +297,11 @@ public final class ManagerFragment extends Fragment {
         try {
             ArrayList<WifiNetworkSuggestion> list = new ArrayList<>();
             for (String ssid : ssidsWithOemPaid) {
-                list.add(buildWifiSuggestion(ssid, true));
+                list.add(Utils.buildWifiSuggestion(ssid, true));
             }
 
             for (String ssid : ssidsWithOemPrivate) {
-                list.add(buildWifiSuggestion(ssid, false));
+                list.add(Utils.buildWifiSuggestion(ssid, false));
             }
 
             mWifiManager.removeNetworkSuggestions(new ArrayList<>());
