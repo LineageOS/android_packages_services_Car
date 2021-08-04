@@ -56,7 +56,8 @@ public final class UtilsTest {
                 new Utils.TransitionLog("serviceName", "state1", "state2", 1623777864000L);
         String result = transitionLog.toString();
 
-        assertThat(result).startsWith("06-15 17:24:24");
+        // Should match the date pattern "MM-dd HH:mm:ss".
+        assertThat(result).matches("^[01]\\d-[0-3]\\d [0-2]\\d:[0-6]\\d:[0-6]\\d\\s+.*");
         assertThat(result).contains("serviceName:");
         assertThat(result).contains("from state1 to state2");
     }
@@ -67,7 +68,8 @@ public final class UtilsTest {
                 new Utils.TransitionLog("serviceName", "state1", "state2", 1623777864000L, "extra");
         String result = transitionLog.toString();
 
-        assertThat(result).startsWith("06-15 17:24:24");
+        // Should match the date pattern "MM-dd HH:mm:ss".
+        assertThat(result).matches("^[01]\\d-[0-3]\\d [0-2]\\d:[0-6]\\d:[0-6]\\d\\s+.*");
         assertThat(result).contains("serviceName:");
         assertThat(result).contains("extra");
         assertThat(result).contains("from state1 to state2");
