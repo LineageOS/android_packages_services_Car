@@ -91,7 +91,12 @@
     <bool name="enableActivityBlockingForSafety">true</bool>
     <!--  Activity to be presented when un-safe activity is launched. Take a look at the javadoc of the
           default implementation. -->
-    <string name="activityBlockingActivity" translatable="false">com.android.car/com.android.car.pm.ActivityBlockingActivity</string>
+    <string name="activityBlockingActivity" translatable="false">
+        com.android.systemui/com.android.systemui.car.activity.ActivityBlockingActivity
+    </string>
+    <string name="continuousBlankActivity" translatable="false">
+        com.android.systemui/com.android.systemui.car.activity.ContinuousBlankActivity
+    </string>
     <!--  Comma separated list of activities that need to be exempted from getting
           blocked in a UX restricted state.
           Format of each entry is either to specify package name to allowlist the whole package or

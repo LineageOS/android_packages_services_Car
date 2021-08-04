@@ -17,7 +17,7 @@
 package androidx.car.app.activity;
 
 
-import static com.android.car.pm.ActivityBlockingActivityTest.DoActivity.DIALOG_TITLE;
+import static com.android.car.pm.CarPackageManagerServiceTest.DoActivity.DIALOG_TITLE;
 
 import android.app.Activity;
 import android.app.AlertDialog;

@@ -952,21 +952,6 @@
         </service>
 
         <!-- Do not add any new Activity. -->
-        <activity android:name="com.android.car.pm.ActivityBlockingActivity"
-             android:documentLaunchMode="always"
-             android:excludeFromRecents="true"
-             android:exported="false"
-             android:theme="@android:style/Theme.Translucent.NoTitleBar">
-            <intent-filter>
-                <action android:name="android.intent.action.MAIN"/>
-            </intent-filter>
-        </activity>
-        <activity android:name="com.android.car.am.ContinuousBlankActivity"
-             android:excludeFromRecents="true"
-             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-             android:exported="false"
-             android:launchMode="singleTask">
-        </activity>
         <activity android:name="com.android.car.admin.FactoryResetActivity"
              android:excludeFromRecents="true"
              android:theme="@android:style/Theme.NoTitleBar.Fullscreen"

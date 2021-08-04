@@ -51,10 +51,11 @@
             </intent-filter>
         </service>
 
-        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoNoHistoryActivity"
-             android:noHistory="true"/>
-        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$NonDoActivity"/>
-        <activity android:name="com.android.car.pm.ActivityBlockingActivityTest$DoActivity"
+        <activity
+            android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoNoHistoryActivity"
+            android:noHistory="true"/>
+        <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$NonDoActivity"/>
+        <activity android:name="com.android.car.pm.CarPackageManagerServiceTest$DoActivity"
              android:label="DoActivity">
             <meta-data android:name="distractionOptimized"
                  android:value="true"/>
