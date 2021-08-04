@@ -167,6 +167,10 @@
     <string name="cluster_start_activity" translatable="false">Start Nav Activity</string>
     <string name="cluster_start_activity_failed" translatable="false">Failed to start activity in cluster</string>
     <string name="cluster_not_started" translatable="false">Missing navigation focus</string>
+    <string name="cluster_activity_state" translatable="false">Cluster activity state</string>
+    <string name="cluster_activity_state_default" translatable="false">Default</string>
+    <string name="cluster_activity_state_enabled" translatable="false">On</string>
+    <string name="cluster_activity_state_disabled" translatable="false">Off</string>
 
     <!--  input test -->
     <string name="volume_up" translatable="false">Volume +</string>
