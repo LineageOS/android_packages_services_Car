@@ -21,8 +21,17 @@
     <item target="dimen/navigation_bar_height" value="@dimen/navigation_bar_height"/>
     <item target="dimen/navigation_bar_height_landscape" value="@dimen/navigation_bar_height_landscape"/>
     <item target="dimen/status_bar_height" value="@dimen/status_bar_height"/>
+    <item target="dimen/toast_elevation" value="@dimen/toast_elevation"/>
+    <item target="dimen/toast_width" value="@dimen/toast_width"/>
+    <item target="dimen/toast_y_offset" value="@dimen/toast_y_offset"/>
 
-    <item target="drawable/car_dialog_button_background" value="@drawable/car_dialog_button_background" />
+
+    <item target="drawable/car_dialog_button_background" value="@drawable/car_dialog_button_background"/>
+    <item target="drawable/toast_frame" value="@drawable/toast_frame"/>
+
+    <item target="layout/toast_frame" value="@drawable/toast_frame"/>
 
     <item target="bool/config_automotiveHideNavBarForKeyboard" value="@bool/config_automotiveHideNavBarForKeyboard"/>
+
+    <item target="style/TextAppearance.Toast" value="@style/TextAppearance_Toast"/>
 </overlay>
