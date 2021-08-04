@@ -901,6 +901,15 @@ public:
             const std::vector<SurroundViewInputBufferPointers>& input_pointers,
             const std::array<std::array<float, 4>, 4>& view_matrix) = 0;
 
+    // Updates the Surround View 3D Bowl in an external renderer scene with the
+    // images provided by `input_pointers` and view in `quaternion` and
+    // `translation`.
+    // Call is only valid if pipeline is started with Start3dPipelineExternal().
+    virtual bool Update3dSurroundViewExternal(
+            const std::vector<SurroundViewInputBufferPointers>& input_pointers,
+            const std::array<float, 4>& quaternion,
+            const std::array<float, 3>& translation) = 0;
+
     // Sets 3d overlays.
     virtual bool Set3dOverlay(const std::vector<Overlay>& overlays) = 0;
 
