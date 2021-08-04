@@ -3,13 +3,21 @@
     <Version>1.0</Version>
 
     <CameraConfig>
-        <UseMockEvs>false</UseMockEvs>
-        <EvsGroupId>v4l2loopback_group0</EvsGroupId>
+        <!-- Use a Mock EVS Impl. that mimicks cameras and provides frames at a fixed rate. -->
+        <!-- Set to false for using an actual EVS Impl. with real cameras. -->
+        <UseMockEvs>true</UseMockEvs>
+
+        <!-- Group name of logical camera containing physical cameras. -->
+        <!-- If using an actual EVS Impl. replace with id specified in the configuration XML. -->
+        <EvsGroupId>mock_group</EvsGroupId>
+
+        <!-- Device id name of the physical cameras. -->
+        <!-- If using an actual EVS Impl. replace with id's specified in the configuration XML. -->
         <EvsCameraIds>
-            <Front>/dev/video60</Front>
-            <Right>/dev/video61</Right>
-            <Rear>/dev/video62</Rear>
-            <Left>/dev/video63</Left>
+            <Front>mock_0</Front>
+            <Right>mock_1</Right>
+            <Rear>mock_2</Rear>
+            <Left>mock_3</Left>
         </EvsCameraIds>
         <Masks>
             <Front>/vendor/etc/automotive/sv/mask_front.png</Front>

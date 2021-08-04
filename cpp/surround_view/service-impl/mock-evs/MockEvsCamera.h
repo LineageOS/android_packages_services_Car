@@ -52,9 +52,11 @@ using IEvsEnumerator_1_1 = ::android::hardware::automotive::evs::V1_1::IEvsEnume
 
 // A simplified implementation for Evs Camera. Only necessary methods are
 // implemented.
+// Class mocks a logical EVS camera containing 4 physical cameras with calibration parameters as
+// specified by the EVS Configuration XML file.
 class MockEvsCamera : public IEvsCamera_1_1 {
 public:
-    MockEvsCamera(const std::string& cameraId, const Stream& streamCfg);
+    MockEvsCamera(const std::string& cameraGroupId, const Stream& streamCfg);
 
     // Methods from ::android::hardware::automotive::evs::V1_0::IEvsCamera follow.
     Return<void> getCameraInfo(getCameraInfo_cb _hidl_cb) override;
@@ -108,7 +110,9 @@ private:
     std::vector<BufferDesc_1_1> mBufferDescs;
     CameraDesc_1_1 mCameraDesc;
 
-    std::string mCameraId;
+    std::vector<std::string> mPhysicalCameraIds;
+    int mFrameRate;
+
     std::thread mCaptureThread;  // The thread we'll use to synthesize frames
 
     android::sp<IEvsCameraStream_1_1> mStream;

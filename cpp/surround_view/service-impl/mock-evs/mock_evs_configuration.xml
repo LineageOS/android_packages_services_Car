@@ -1,0 +1,207 @@
+<?xml version='1.0' encoding='utf-8'?>
+<!-- Copyright (C) 2021 The Android Open Source Project
+
+     Licensed under the Apache License, Version 2.0 (the "License");
+     you may not use this file except in compliance with the License.
+     You may obtain a copy of the License at
+
+          http://www.apache.org/licenses/LICENSE-2.0
+     Unless required by applicable law or agreed to in writing, software
+     distributed under the License is distributed on an "AS IS" BASIS,
+     WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
+     See the License for the specific language governing permissions and
+     limitations under the License.
+-->
+
+<!-- Exterior View System Configuration for Surround View.
+
+     Android Automotive axes are used to define coordinates.
+     See https://source.android.com/devices/sensors/sensor-types#auto_axes
+
+     Use evs_configuration.dtd with xmllint tool, to validate XML configuration file
+-->
+
+<configuration>
+    <!-- system configuration -->
+    <system>
+        <!-- number of cameras available to EVS -->
+        <num_cameras value='5'/>
+    </system>
+
+    <!-- camera device information -->
+    <camera>
+        <!-- camera group 0 -->
+        <group id='mock_group' synchronized='CALIBRATED'>
+            <caps>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+
+            <!-- list of parameters -->
+            <characteristics>
+                <parameter
+                    name='REQUEST_AVAILABLE_CAPABILITIES'
+                    type='enum'
+                    size='1'
+                    value='LOGICAL_MULTI_CAMERA'
+                />
+                <parameter
+                    name='LOGICAL_MULTI_CAMERA_PHYSICAL_IDS'
+                    type='byte[]'
+                    size='4'
+                    value='0,1,2,3'
+                />
+            </characteristics>
+        </group>
+        <device id='mock_0' position='front'>
+            <caps>
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+            <characteristics>
+                <parameter
+                    name='LENS_DISTORTION'
+                    type='float'
+                    size='5'
+                    value='-0.011132,-0.000847,-0.001817,0.000296,0'
+                />
+                <parameter
+                    name='LENS_INTRINSIC_CALIBRATION'
+                    type='float'
+                    size='5'
+                    value='360.0825290,360.082529066752,935.0093814036391,525.9054897958308,0.0'
+                />
+                <parameter
+                    name='LENS_POSE_TRANSLATION'
+                    type='float'
+                    size='3'
+                    value='7.4163786254798142e-03,1.7005139855923550e+00,-1.7076139481585957e+00'
+                />
+                <parameter
+                    name='LENS_POSE_ROTATION'
+                    type='float'
+                    size='4'
+                    value='0.8492954,0.0055018,-0.0043069,0.5278717'
+                />
+            </characteristics>
+        </device>
+        <device id='mock_1' position='right'>
+            <caps>
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+            <characteristics>
+                <parameter
+                    name='LENS_DISTORTION'
+                    type='float'
+                    size='5'
+                    value='-0.017041658129,-0.00034627456430,0.0015939576035,-0.00046665505079,0'
+                />
+                <parameter
+                    name='LENS_INTRINSIC_CALIBRATION'
+                    type='float'
+                    size='5'
+                    value='357.3225799,357.3225799913806,988.9732193490177,532.6859176203155,0.0'
+                />
+                <parameter
+                    name='LENS_POSE_TRANSLATION'
+                    type='float'
+                    size='3'
+                    value='6.2061817994768809e-01,1.4469708452125858e+00,2.0664202934427706e-01'
+                />
+                <parameter
+                    name='LENS_POSE_ROTATION'
+                    type='float'
+                    size='4'
+                    value='-0.5839847,0.7180469,-0.3088415,-0.2190605'
+                />
+            </characteristics>
+        </device>
+        <device id='mock_2' position='rear'>
+            <caps>
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+            <characteristics>
+                <parameter
+                    name='LENS_DISTORTION'
+                    type='float'
+                    size='5'
+                    value='-0.0160110683532,0.00586209379757,-0.00411895945795, 0.00040526203881,0'
+                />
+                <parameter
+                    name='LENS_INTRINSIC_CALIBRATION'
+                    type='float'
+                    size='5'
+                    value='358.97764263161,358.97764263161,966.67411272417,541.79065586469,0.0'
+                />
+                <parameter
+                    name='LENS_POSE_TRANSLATION'
+                    type='float'
+                    size='3'
+                    value='-4.3066217592790772e-02,1.6179538346408266e+00,-1.6481207744304269e+00'
+                />
+                <parameter
+                    name='LENS_POSE_ROTATION'
+                    type='float'
+                    size='4'
+                    value='0.0058662,0.8571191,-0.5150839,0.0009783'
+                />
+            </characteristics>
+        </device>
+        <device id='mock_3' position='left'>
+            <caps>
+                <!-- list of supported controls -->
+                <supported_controls>
+                    <control name='BRIGHTNESS' min='0' max='255'/>
+                    <control name='CONTRAST' min='0' max='255'/>
+                </supported_controls>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+            <!-- list of parameters -->
+            <characteristics>
+                <parameter
+                    name='LENS_DISTORTION'
+                    type='float'
+                    size='5'
+                    value='-0.013229119267,0.000477265854499,-0.00383647229306,0.00120131073672,0'
+                />
+                <parameter
+                    name='LENS_INTRINSIC_CALIBRATION'
+                    type='float'
+                    size='5'
+                    value='361.11005216940,361.11005216940,991.37778443634,514.66161023820,0.0'
+                />
+                <parameter
+                    name='LENS_POSE_TRANSLATION'
+                    type='float'
+                    size='3'
+                    value='-3.6929834405873380e-01,1.6569141792616264e+00,5.3329607349376137e-03'
+                />
+                <parameter
+                    name='LENS_POSE_ROTATION'
+                    type='float'
+                    size='4'
+                    value='0.6721251,0.6287301,-0.3042034,0.2457777'
+                />
+            </characteristics>
+        </device>
+    </camera>
+
+    <!-- display device starts -->
+    <display>
+        <device id='display0' position='driver'>
+            <caps>
+                <stream id='0' width='1920' height='1080' format='RGBA_8888' framerate='30'/>
+            </caps>
+        </device>
+    </display>
+</configuration>
