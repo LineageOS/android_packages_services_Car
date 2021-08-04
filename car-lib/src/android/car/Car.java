@@ -77,6 +77,7 @@ import android.os.TransactionTooLargeException;
 import android.os.UserHandle;
 import android.util.Log;
 
+import com.android.car.internal.VisibleForHiddenApiCheck;
 import com.android.car.internal.common.CommonConstants;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -121,6 +122,7 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String CAR_SERVICE_BINDER_SERVICE_NAME = "car_service";
 
     /**
@@ -507,6 +509,7 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String PERMISSION_CAR_DISPLAY_IN_CLUSTER =
             "android.car.permission.CAR_DISPLAY_IN_CLUSTER";
 
@@ -698,6 +701,7 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String PERMISSION_BIND_VMS_CLIENT =
             "android.car.permission.BIND_VMS_CLIENT";
 
@@ -740,6 +744,7 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String PERMISSION_CAR_UX_RESTRICTIONS_CONFIGURATION =
             "android.car.permission.CAR_UX_RESTRICTIONS_CONFIGURATION";
 
@@ -948,15 +953,19 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String CAR_EXTRA_LAUNCH_PERSISTENT =
             "android.car.intent.extra.launchparams.PERSISTENT";
 
     /** @hide */
+    @VisibleForHiddenApiCheck
     public static final int LAUNCH_PERSISTENT_DELETE = 0;
     /** @hide */
+    @VisibleForHiddenApiCheck
     public static final int LAUNCH_PERSISTENT_ADD = 1;
 
     /** @hide */
+    @VisibleForHiddenApiCheck
     public static final String CAR_SERVICE_INTERFACE_NAME = CommonConstants.CAR_SERVICE_INTERFACE;
 
     private static final String CAR_SERVICE_PACKAGE = "com.android.car";
@@ -970,6 +979,7 @@ public final class Car {
      *
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public static final String CAR_CATEGORY_NAVIGATION = "android.car.cluster.NAVIGATION";
 
     /**
@@ -1546,6 +1556,7 @@ public final class Car {
      * Car constructor when ICar binder is already available. The binder can be null.
      * @hide
      */
+    @VisibleForHiddenApiCheck
     public Car(Context context, @Nullable ICar service, @Nullable Handler handler) {
         this(context, service, null /*serviceConnectionListener*/, null /*statusChangeListener*/,
                 handler);
@@ -1830,6 +1841,7 @@ public final class Car {
     }
 
     /** @hide */
+    @VisibleForHiddenApiCheck
     public Context getContext() {
         return mContext;
     }
@@ -1848,7 +1860,8 @@ public final class Car {
     }
 
     /** @hide */
-    void handleRemoteExceptionFromCarService(RemoteException e) {
+    @VisibleForHiddenApiCheck
+    public void handleRemoteExceptionFromCarService(RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
             Log.w(TAG_CAR, "Car service threw TransactionTooLargeException", e);
             throw new CarTransactionException(e, "Car service threw TransactionTooLargException");
@@ -1888,6 +1901,7 @@ public final class Car {
     }
 
     /** @hide */
+    @VisibleForHiddenApiCheck
     public static <T> T handleRemoteExceptionFromCarService(Service service, RemoteException e,
             T returnValue) {
         handleRemoteExceptionFromCarService(service, e);
@@ -1895,6 +1909,7 @@ public final class Car {
     }
 
     /** @hide */
+    @VisibleForHiddenApiCheck
     public static  void handleRemoteExceptionFromCarService(Service service, RemoteException e) {
         if (e instanceof TransactionTooLargeException) {
             Log.w(TAG_CAR, "Car service threw TransactionTooLargeException, client:"

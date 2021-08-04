@@ -27,7 +27,7 @@ import android.view.WindowManagerGlobal;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class KeyguardManagerHelper {
+public final class KeyguardManagerHelper {
     private static final String TAG = "CAR.WM";
 
     private final IWindowManager mWindowManager = WindowManagerGlobal.getWindowManagerService();

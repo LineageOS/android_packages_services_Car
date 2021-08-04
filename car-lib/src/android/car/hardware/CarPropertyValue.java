@@ -20,6 +20,7 @@ import static java.lang.Integer.toHexString;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
+import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -124,10 +125,10 @@ public final class CarPropertyValue<T> implements Parcelable {
         }
 
         if (String.class.equals(valueClass)) {
-            byte[] bytes = in.readBlob();
+            byte[] bytes = ParcelHelper.readBlob(in);
             mValue = (T) new String(bytes, DEFAULT_CHARSET);
         } else if (byte[].class.equals(valueClass)) {
-            mValue = (T) in.readBlob();
+            mValue = (T) ParcelHelper.readBlob(in);
         } else {
             mValue = (T) in.readValue(valueClass.getClassLoader());
         }
@@ -162,9 +163,9 @@ public final class CarPropertyValue<T> implements Parcelable {
 
         // Special handling for String and byte[] to mitigate transaction buffer limitations.
         if (String.class.equals(valueClass)) {
-            dest.writeBlob(((String) mValue).getBytes(DEFAULT_CHARSET));
+            ParcelHelper.writeBlob(dest, ((String) mValue).getBytes(DEFAULT_CHARSET));
         } else if (byte[].class.equals(valueClass)) {
-            dest.writeBlob((byte[]) mValue);
+            ParcelHelper.writeBlob(dest, (byte[]) mValue);
         } else {
             dest.writeValue(mValue);
         }

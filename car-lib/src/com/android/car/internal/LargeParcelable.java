@@ -18,6 +18,7 @@ package com.android.car.internal;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.os.SharedMemoryHelper;
 import android.os.Parcel;
 import android.os.ParcelFileDescriptor;
 import android.os.Parcelable;
@@ -196,7 +197,7 @@ public class LargeParcelable extends LargeParcelableBase {
             }
             SharedMemory memory = LargeParcelableBase.serializeParcelToSharedMemory(dest,
                     startPosition, dest.dataPosition() - startPosition);
-            sharedMemoryFd = new ParcelFileDescriptor(memory.getFileDescriptor());
+            sharedMemoryFd = SharedMemoryHelper.createParcelFileDescriptor(memory);
             if (keepSharedMemory) {
                 try {
                     field.set(p, sharedMemoryFd);

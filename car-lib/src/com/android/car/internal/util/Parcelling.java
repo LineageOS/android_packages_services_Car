@@ -18,8 +18,8 @@ package com.android.car.internal.util;
 import static java.util.Collections.emptySet;
 
 import android.annotation.Nullable;
+import android.car.builtin.os.ParcelHelper;
 import android.os.Parcel;
-import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.ArraySet;
 
@@ -124,7 +124,7 @@ public interface Parcelling<T> {
             @Nullable
             @Override
             public String[] unparcel(Parcel source) {
-                String[] array = source.readStringArray();
+                String[] array = ParcelHelper.readStringArray(source);
                 if (array != null) {
                     int size = array.length;
                     for (int index = 0; index < size; index++) {

@@ -15,8 +15,6 @@
  */
 package com.android.car.internal.util;
 
-import static com.android.internal.util.BitUtils.flagsUpTo;
-
 import android.annotation.AppIdInt;
 import android.annotation.ColorInt;
 import android.annotation.FloatRange;
@@ -24,11 +22,7 @@ import android.annotation.IntRange;
 import android.annotation.NonNull;
 import android.annotation.Size;
 import android.annotation.UserIdInt;
-import android.content.Intent;
-import android.content.pm.PackageManager;
-import android.content.pm.PackageManager.PackageInfoFlags;
-import android.content.pm.PackageManager.PermissionResult;
-import android.os.UserHandle;
+import android.car.builtin.util.ValidationHelper;
 
 import java.lang.annotation.Annotation;
 
@@ -52,15 +46,14 @@ public class AnnotationValidations {
 
     /** Check class javadoc. */
     public static void validate(Class<UserIdInt> annotation, UserIdInt ignored, int value) {
-        if ((value != UserHandle.USER_NULL && value < -3)
-                || value > Integer.MAX_VALUE / UserHandle.PER_USER_RANGE) {
+        if (!ValidationHelper.isUserIdValid(value)) {
             invalid(annotation, value);
         }
     }
 
     /** Check class javadoc. */
     public static void validate(Class<AppIdInt> annotation, AppIdInt ignored, int value) {
-        if (value / UserHandle.PER_USER_RANGE != 0 || value < 0) {
+        if (!ValidationHelper.isAppIdValid(value)) {
             invalid(annotation, value);
         }
     }
@@ -173,26 +166,6 @@ public class AnnotationValidations {
             break;
         }
     }
-
-    /** Check class javadoc. */
-    public static void validate(
-            Class<PermissionResult> annotation, PermissionResult ignored, int value) {
-        validateIntEnum(annotation, value, PackageManager.PERMISSION_GRANTED);
-    }
-
-    /** Check class javadoc. */
-    public static void validate(
-            Class<PackageInfoFlags> annotation, PackageInfoFlags ignored, int value) {
-        validateIntFlags(annotation, value,
-                flagsUpTo(PackageManager.MATCH_HIDDEN_UNTIL_INSTALLED_COMPONENTS));
-    }
-
-    /** Check class javadoc. */
-    public static void validate(
-            Class<Intent.Flags> annotation, Intent.Flags ignored, int value) {
-        validateIntFlags(annotation, value, flagsUpTo(Intent.FLAG_RECEIVER_OFFLOAD));
-    }
-
 
     /** @deprecated Use other versions. */
     @Deprecated

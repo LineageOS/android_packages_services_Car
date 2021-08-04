@@ -28,7 +28,7 @@ import android.os.ServiceManager;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class ServiceManagerHelper {
+public final class ServiceManagerHelper {
 
     private ServiceManagerHelper()  {
         throw new UnsupportedOperationException();

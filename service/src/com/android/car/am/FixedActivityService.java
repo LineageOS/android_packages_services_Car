@@ -17,7 +17,6 @@ package com.android.car.am;
 
 import static android.app.ActivityTaskManager.INVALID_TASK_ID;
 import static android.os.Process.INVALID_UID;
-import static android.view.WindowManager.LayoutParams.TYPE_KEYGUARD_DIALOG;
 
 import static com.android.car.CarLog.TAG_AM;
 
@@ -58,7 +57,6 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
-import com.android.car.R;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -442,7 +440,8 @@ public final class FixedActivityService implements CarServiceBase {
                                     + displayIdForActivity);
                             return;
                         }
-                        Presentation p = new Presentation(mContext, display,
+                        // TODO(b/195836034) Change to launch blank activity instead.
+                        /*Presentation p = new Presentation(mContext, display,
                                 android.R.style.Theme_Black_NoTitleBar_Fullscreen,
                                 // TYPE_PRESENTATION can't be used in the internal display.
                                 // Select TYPE_KEYGUARD_DIALOG, since it's used in
@@ -457,7 +456,7 @@ public final class FixedActivityService implements CarServiceBase {
                             }
                             mBlockingPresentations.append(displayIdForActivity, p);
                         }
-                        p.show();
+                        p.show();*/
                     });
                 }
                 mRunningActivities.removeAt(i);

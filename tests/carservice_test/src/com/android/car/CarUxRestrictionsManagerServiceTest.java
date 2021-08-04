@@ -45,6 +45,7 @@ import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.CarUxRestrictionsConfiguration;
 import android.car.drivingstate.CarUxRestrictionsConfiguration.Builder;
 import android.car.drivingstate.ICarDrivingStateChangeListener;
+import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.content.Context;
@@ -54,7 +55,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.VirtualDisplay;
 import android.os.IBinder;
-import android.os.IRemoteCallback;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.JsonWriter;
@@ -111,7 +111,7 @@ public class CarUxRestrictionsManagerServiceTest {
     @Mock
     private IBinder mIBinder;
     @Mock
-    private IRemoteCallback mRemoteCallback;
+    private ICarUxRestrictionsChangeListener mClientListener;
     @Mock
     private DisplayManager mDisplayManager;
     @Mock
@@ -125,7 +125,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
     @Before
     public void setUp() throws Exception {
-        when(mRemoteCallback.asBinder()).thenReturn(mIBinder);
+        when(mClientListener.asBinder()).thenReturn(mIBinder);
         // Spy context because service needs to access xml resource during init.
         mSpyContext = spy(getInstrumentation().getTargetContext());
         CarLocalServices.removeServiceForTest(SystemInterface.class);
@@ -418,7 +418,7 @@ public class CarUxRestrictionsManagerServiceTest {
                 mMockDrivingStateService, mMockCarPropertyService);
         mService.init();
         // A CarActivityView would report this itself, but we fake the report here
-        mService.reportVirtualDisplayToPhysicalDisplay(mRemoteCallback, virtualDisplayId,
+        mService.reportVirtualDisplayToPhysicalDisplay(mClientListener, virtualDisplayId,
                 physicalDisplayIdForVirtualDisplayId2);
         mService.handleDrivingStateEventLocked(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING,

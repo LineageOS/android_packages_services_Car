@@ -35,7 +35,7 @@ import java.util.Locale;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class Slogf {
+public final class Slogf {
     // Entire class copied from {@code com.android.server.utils.Slogf}
     @GuardedBy("sMessageBuilder")
     private static final StringBuilder sMessageBuilder;

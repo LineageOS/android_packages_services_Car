@@ -24,8 +24,8 @@ import static android.car.drivingstate.CarUxRestrictionsManager.UX_RESTRICTION_M
 import android.annotation.FloatRange;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.os.BuildHelper;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
-import android.os.Build;
 import android.os.Parcel;
 import android.os.Parcelable;
 import android.os.SystemClock;
@@ -152,7 +152,7 @@ public final class CarUxRestrictionsConfiguration implements Parcelable {
         }
 
         if (restriction == null) {
-            if (Build.IS_ENG || Build.IS_USERDEBUG) {
+            if (BuildHelper.isEngBuild() || BuildHelper.isUserDebugBuild()) {
                 throw new IllegalStateException("No restrictions for driving state "
                         + getDrivingStateName(drivingState));
             }

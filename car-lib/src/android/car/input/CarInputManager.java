@@ -26,10 +26,11 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
+import android.car.builtin.PermissionHelper;
+import android.car.builtin.util.Slog;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.Slog;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
@@ -300,7 +301,7 @@ public final class CarInputManager extends CarManagerBase {
      * @return the input capture response indicating if registration succeed, failed or delayed
      * @see CarInputManager#requestInputEventCapture(int, int[], int, CarInputCaptureCallback)
      */
-    @RequiresPermission(android.Manifest.permission.MONITOR_INPUT)
+    @RequiresPermission(PermissionHelper.MONITOR_INPUT)
     @InputCaptureResponseEnum
     public int requestInputEventCapture(@DisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
@@ -328,7 +329,8 @@ public final class CarInputManager extends CarManagerBase {
     public void releaseInputEventCapture(@DisplayTypeEnum int targetDisplayType) {
         CallbackHolder callbackHolder;
         synchronized (mLock) {
-            callbackHolder = mCarInputCaptureCallbacks.removeReturnOld(targetDisplayType);
+            callbackHolder = mCarInputCaptureCallbacks.get(targetDisplayType);
+            mCarInputCaptureCallbacks.delete(targetDisplayType);
         }
         if (callbackHolder == null) {
             return;

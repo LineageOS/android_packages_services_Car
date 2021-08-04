@@ -18,12 +18,12 @@ package android.car;
 
 import android.annotation.NonNull;
 import android.car.annotation.ValueTypeDef;
+import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarProperty;
 import android.os.Bundle;
 import android.os.IBinder;
-import android.util.Slog;
 
 import java.util.Arrays;
 

@@ -27,11 +27,11 @@ import android.car.vms.VmsClientManager.VmsClientCallback;
 import android.content.Intent;
 import android.os.Binder;
 import android.os.Handler;
-import android.os.HandlerExecutor;
 import android.os.IBinder;
 import android.os.Looper;
 import android.util.Log;
 
+import com.android.car.internal.os.HandlerExecutor;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

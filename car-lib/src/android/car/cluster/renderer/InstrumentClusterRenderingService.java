@@ -21,16 +21,17 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
-import android.app.ActivityManager;
 import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarLibLog;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.cluster.ClusterActivityState;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ActivityNotFoundException;
 import android.content.ComponentName;
 import android.content.Intent;
+import android.content.pm.ActivityInfo;
 import android.content.pm.PackageManager;
 import android.content.pm.ProviderInfo;
 import android.content.pm.ResolveInfo;
@@ -393,15 +394,16 @@ public abstract class InstrumentClusterRenderingService extends Service {
                 .addCategory(Car.CAR_CATEGORY_NAVIGATION)
                 .setPackage(packageName);
         List<ResolveInfo> resolveList = packageManager.queryIntentActivitiesAsUser(intent,
-                PackageManager.GET_RESOLVED_FILTER, ActivityManager.getCurrentUser());
+                PackageManager.GET_RESOLVED_FILTER, UserHandle.CURRENT);
         if (resolveList == null || resolveList.isEmpty()
-                || resolveList.get(0).getComponentInfo() == null) {
+                || resolveList.get(0).activityInfo == null) {
             Log.i(TAG, "Failed to resolve an intent: " + intent);
             return null;
         }
 
         // In case of multiple matching activities in the same package, we pick the first one.
-        return resolveList.get(0).getComponentInfo().getComponentName();
+        ActivityInfo info = resolveList.get(0).activityInfo;
+        return new ComponentName(info.packageName, info.name);
     }
 
     /**
@@ -614,7 +616,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
             // Add user to URI to make the request to the right instance of content provider
             // (see ContentProvider#getUserIdFromAuthority()).
-            int userId = UserHandle.getUserId(contextOwner.mUid);
+            int userId = UserManagerHelper.getUserIdFromUid(contextOwner.mUid);
             Uri filteredUid = uri.buildUpon().encodedAuthority(userId + "@" + host).build();
 
             // Fetch the bitmap
@@ -694,7 +696,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
             // Add user to URI to make the request to the right instance of content provider
             // (see ContentProvider#getUserIdFromAuthority()).
-            int userId = UserHandle.getUserId(contextOwner.mUid);
+            int userId = UserManagerHelper.getUserIdFromUid(contextOwner.mUid);
             Uri filteredUid = uri.buildUpon().encodedAuthority(userId + "@" + host).build();
 
             Bitmap bitmap = mCache.get(uri.toString());

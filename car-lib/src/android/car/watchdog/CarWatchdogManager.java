@@ -16,8 +16,6 @@
 
 package android.car.watchdog;
 
-import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
-
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -57,8 +55,8 @@ public final class CarWatchdogManager extends CarManagerBase {
     private static final boolean DEBUG = false; // STOPSHIP if true
     private static final int INVALID_SESSION_ID = -1;
     private static final int NUMBER_OF_CONDITIONS_TO_BE_MET = 2;
-    // Message ID representing main thread activeness checking.
-    private static final int WHAT_CHECK_MAIN_THREAD = 1;
+
+    private final Runnable mMainThreadCheck = () -> checkMainThread();
 
     /**
      * Timeout for services which should be responsive. The length is 3,000 milliseconds.
@@ -748,7 +746,7 @@ public final class CarWatchdogManager extends CarManagerBase {
     private void checkClientStatus(int sessionId, int timeout) {
         CarWatchdogClientCallback client;
         Executor executor;
-        mMainHandler.removeMessages(WHAT_CHECK_MAIN_THREAD);
+        mMainHandler.removeCallbacks(mMainThreadCheck);
         synchronized (mLock) {
             if (mRegisteredClient == null) {
                 Log.w(TAG, "Cannot check client status. The client has not been registered.");
@@ -762,8 +760,7 @@ public final class CarWatchdogManager extends CarManagerBase {
         // For a car watchdog client to be active, 1) its main thread is active and 2) the client
         // responds within timeout. When each condition is met, the remaining task counter is
         // decreased. If the remaining task counter is zero, the client is considered active.
-        mMainHandler.sendMessage(obtainMessage(CarWatchdogManager::checkMainThread, this)
-                .setWhat(WHAT_CHECK_MAIN_THREAD));
+        mMainHandler.post(mMainThreadCheck);
         // Call the client callback to check if the client is active.
         executor.execute(() -> {
             boolean checkDone = client.onCheckHealthStatus(sessionId, timeout);

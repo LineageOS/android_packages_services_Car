@@ -24,7 +24,7 @@ import android.annotation.SystemApi;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class Slog {
+public final class Slog {
     private Slog() {
         throw new UnsupportedOperationException();
     }

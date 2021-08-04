@@ -48,7 +48,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
-import android.os.IRemoteCallback;
 import android.os.Process;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -1108,10 +1107,10 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     private static final class DisplayInfo {
-        final IRemoteCallback mOwner;
+        final ICarUxRestrictionsChangeListener mOwner;
         final int mPhysicalDisplayId;
 
-        DisplayInfo(IRemoteCallback owner, int physicalDisplayId) {
+        DisplayInfo(ICarUxRestrictionsChangeListener owner, int physicalDisplayId) {
             mOwner = owner;
             mPhysicalDisplayId = physicalDisplayId;
         }
@@ -1121,16 +1120,17 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final SparseArray<DisplayInfo> mActivityViewDisplayInfoMap = new SparseArray<>();
 
     @GuardedBy("mLock")
-    private final RemoteCallbackList<IRemoteCallback> mRemoteCallbackList =
+    private final RemoteCallbackList<ICarUxRestrictionsChangeListener>
+            mVirtualDisplayMapplingClientList =
             new RemoteCallbackList<>() {
                 @Override
-                public void onCallbackDied(IRemoteCallback callback) {
+                public void onCallbackDied(ICarUxRestrictionsChangeListener client) {
                     synchronized (mLock) {
                         // Descending order to delete items safely from SpareArray.gc().
                         for (int i = mActivityViewDisplayInfoMap.size() - 1; i >= 0; --i) {
                             DisplayInfo info = mActivityViewDisplayInfoMap.valueAt(i);
-                            if (info.mOwner == callback) {
-                                logd("onCallbackDied: clean up callback=" + callback);
+                            if (info.mOwner == client) {
+                                logd("onCallbackDied: clean up client=" + client);
                                 mActivityViewDisplayInfoMap.removeAt(i);
                                 mPortLookup.remove(mActivityViewDisplayInfoMap.keyAt(i));
                             }
@@ -1140,23 +1140,23 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             };
 
     @Override
-    public void reportVirtualDisplayToPhysicalDisplay(IRemoteCallback callback,
+    public void reportVirtualDisplayToPhysicalDisplay(ICarUxRestrictionsChangeListener clientToken,
             int virtualDisplayId, int physicalDisplayId) {
-        logd("reportVirtualDisplayToPhysicalDisplay: callback=" + callback
+        logd("reportVirtualDisplayToPhysicalDisplay: callback=" + clientToken
                 + ", virtualDisplayId=" + virtualDisplayId
                 + ", physicalDisplayId=" + physicalDisplayId);
         boolean release = physicalDisplayId == Display.INVALID_DISPLAY;
         checkCallerOwnsDisplay(virtualDisplayId, release);
         synchronized (mLock) {
             if (release) {
-                mRemoteCallbackList.unregister(callback);
+                mVirtualDisplayMapplingClientList.unregister(clientToken);
                 mActivityViewDisplayInfoMap.delete(virtualDisplayId);
                 mPortLookup.remove(virtualDisplayId);
                 return;
             }
-            mRemoteCallbackList.register(callback);
+            mVirtualDisplayMapplingClientList.register(clientToken);
             mActivityViewDisplayInfoMap.put(virtualDisplayId,
-                    new DisplayInfo(callback, physicalDisplayId));
+                    new DisplayInfo(clientToken, physicalDisplayId));
             Integer physicalPort = getPhysicalPortLocked(physicalDisplayId);
             if (physicalPort == null) {
                 // This should not happen.
