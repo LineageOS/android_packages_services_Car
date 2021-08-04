@@ -55,4 +55,9 @@
     <dimen name="hvac_panel_button_external_margin">24dp</dimen>
     <dimen name="hvac_panel_button_internal_margin">16dp</dimen>
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
+
+    <dimen name="toast_margin">24dp</dimen>
+    <dimen name="toast_icon_dimen">48dp</dimen>
+    <dimen name="toast_bottom_margin">32dp</dimen>
+
 </resources>
