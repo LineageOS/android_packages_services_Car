@@ -15,6 +15,8 @@
  */
 package com.google.android.car.networking.preferenceupdater.utils;
 
+import android.net.wifi.WifiInfo;
+import android.net.wifi.WifiNetworkSuggestion;
 import android.text.TextUtils;
 
 import java.util.Set;
@@ -31,5 +33,21 @@ public final class Utils {
     /** Converts comma separated string to set of strings */
     public static Set<String> toSet(String st) {
         return Stream.of(TextUtils.split(st, ",")).collect(Collectors.toSet());
+    }
+
+    /** Builds wifi suggestions based on provided ssid and whether it is oem paid */
+    public static WifiNetworkSuggestion buildWifiSuggestion(String ssid, boolean isOemPaid) {
+        WifiNetworkSuggestion.Builder builder = new WifiNetworkSuggestion.Builder();
+        String[] elements = ssid.split(":");
+        builder.setSsid(WifiInfo.sanitizeSsid(elements[0]));
+        if (elements.length > 1) {
+            builder.setWpa2Passphrase(elements[1]);
+        }
+        if (isOemPaid) {
+            builder.setOemPaid(true);
+        } else {
+            builder.setOemPrivate(true);
+        }
+        return builder.build();
     }
 }
