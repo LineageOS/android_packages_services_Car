@@ -36,6 +36,8 @@ public final class PersonalStorage {
 
     private static final String KEY_REAPPLY_PANS_ON_BOOT_COMPLETE =
             "key_reapply_pans_on_boot_complete";
+    private static final String KEY_REAPPLY_WIFI_ON_BOOT_COMPLETE =
+            "key_reapply_wifi_on_boot_complete";
     private static final String KEY_OEM_PAID_WIFI_SSIDS = "key_oem_paid_wifi_ssids";
     private static final String KEY_OEM_PRIVATE_WIFI_SSIDS = "key_oem_private_wifi_ssids";
 
@@ -80,21 +82,19 @@ public final class PersonalStorage {
     }
 
     public Set<String> getOemPaidWifiSsids() {
-        return mSharedPrefs.getStringSet(KEY_OEM_PAID_WIFI_SSIDS, new HashSet<String>());
+        return mSharedPrefs.getStringSet(KEY_OEM_PAID_WIFI_SSIDS, new HashSet<>());
     }
 
     public Set<String> getOemPrivateWifiSsids() {
-        return mSharedPrefs.getStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, new HashSet<String>());
-    }
-
-    public void saveReapplyPansOnBootCompleteState(boolean checked) {
-        SharedPreferences.Editor editor = mSharedPrefs.edit();
-        editor.putBoolean(KEY_REAPPLY_PANS_ON_BOOT_COMPLETE, checked);
-        editor.apply();
+        return mSharedPrefs.getStringSet(KEY_OEM_PRIVATE_WIFI_SSIDS, new HashSet<>());
     }
 
     public boolean getReapplyPansOnBootCompleteState() {
         return mSharedPrefs.getBoolean(KEY_REAPPLY_PANS_ON_BOOT_COMPLETE, false);
+    }
+
+    public boolean getReapplyWifiOnBootCompleteState() {
+        return mSharedPrefs.getBoolean(KEY_REAPPLY_WIFI_ON_BOOT_COMPLETE, false);
     }
 
     public SparseArray<Set<String>> getAllPrefApps() {
@@ -136,5 +136,17 @@ public final class PersonalStorage {
             default:
                 return Integer.toHexString(value);
         }
+    }
+
+    public void saveReapplyPansOnBootCompleteState(boolean isChecked) {
+        SharedPreferences.Editor editor = mSharedPrefs.edit();
+        editor.putBoolean(KEY_REAPPLY_PANS_ON_BOOT_COMPLETE, isChecked);
+        editor.apply();
+    }
+
+    public void saveReapplyWifiOnBootCompleteState(boolean isChecked) {
+        SharedPreferences.Editor editor = mSharedPrefs.edit();
+        editor.putBoolean(KEY_REAPPLY_WIFI_ON_BOOT_COMPLETE, isChecked);
+        editor.apply();
     }
 }
