@@ -572,27 +572,27 @@ package android.car.hardware.power {
     method public void onPolicyChanged(@NonNull android.car.hardware.power.CarPowerPolicy);
   }
 
-  @com.android.car.internal.util.DataClass(genHiddenConstructor=true) public final class CarPowerPolicy implements android.os.Parcelable {
-    method @com.android.car.internal.util.DataClass.Generated.Member public int describeContents();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public int[] getDisabledComponents();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public int[] getEnabledComponents();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public String getPolicyId();
+  public final class CarPowerPolicy implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public int[] getDisabledComponents();
+    method @NonNull public int[] getEnabledComponents();
+    method @NonNull public String getPolicyId();
     method public boolean isComponentEnabled(int);
-    method @com.android.car.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.car.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicy> CREATOR;
   }
 
-  @com.android.car.internal.util.DataClass(genBuilder=true) public final class CarPowerPolicyFilter implements android.os.Parcelable {
-    method @com.android.car.internal.util.DataClass.Generated.Member public int describeContents();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public int[] getComponents();
-    method @com.android.car.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.car.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
+  public final class CarPowerPolicyFilter implements android.os.Parcelable {
+    method public int describeContents();
+    method @NonNull public int[] getComponents();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.hardware.power.CarPowerPolicyFilter> CREATOR;
   }
 
-  @com.android.car.internal.util.DataClass.Generated.Member public static final class CarPowerPolicyFilter.Builder {
+  public static final class CarPowerPolicyFilter.Builder {
     ctor public CarPowerPolicyFilter.Builder();
     method @NonNull public android.car.hardware.power.CarPowerPolicyFilter build();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public android.car.hardware.power.CarPowerPolicyFilter.Builder setComponents(@NonNull int...);
+    method @NonNull public android.car.hardware.power.CarPowerPolicyFilter.Builder setComponents(@NonNull int...);
   }
 
   @java.lang.annotation.Retention(java.lang.annotation.RetentionPolicy.CLASS) public @interface PowerComponent {
@@ -725,36 +725,36 @@ package android.car.watchdog {
     method public void onOveruse(@NonNull android.car.watchdog.ResourceOveruseStats);
   }
 
-  @com.android.car.internal.util.DataClass(genToString=true, genHiddenBuilder=true) public final class IoOveruseStats implements android.os.Parcelable {
-    method @com.android.car.internal.util.DataClass.Generated.Member public int describeContents();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getDurationInSeconds();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public android.car.watchdog.PerStateBytes getRemainingWriteBytes();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getStartTime();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getTotalBytesWritten();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getTotalOveruses();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getTotalTimesKilled();
-    method @com.android.car.internal.util.DataClass.Generated.Member public boolean isKillableOnOveruse();
-    method @com.android.car.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.car.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseStats> CREATOR;
+  public final class IoOveruseStats implements android.os.Parcelable {
+    method public int describeContents();
+    method public long getDurationInSeconds();
+    method @NonNull public android.car.watchdog.PerStateBytes getRemainingWriteBytes();
+    method public long getStartTime();
+    method public long getTotalBytesWritten();
+    method public long getTotalOveruses();
+    method public long getTotalTimesKilled();
+    method public boolean isKillableOnOveruse();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.IoOveruseStats> CREATOR;
   }
 
-  @com.android.car.internal.util.DataClass(genToString=true) public final class PerStateBytes implements android.os.Parcelable {
-    ctor @com.android.car.internal.util.DataClass.Generated.Member public PerStateBytes(long, long, long);
-    method @com.android.car.internal.util.DataClass.Generated.Member public int describeContents();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getBackgroundModeBytes();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getForegroundModeBytes();
-    method @com.android.car.internal.util.DataClass.Generated.Member public long getGarageModeBytes();
-    method @com.android.car.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.car.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.watchdog.PerStateBytes> CREATOR;
+  public final class PerStateBytes implements android.os.Parcelable {
+    ctor public PerStateBytes(long, long, long);
+    method public int describeContents();
+    method public long getBackgroundModeBytes();
+    method public long getForegroundModeBytes();
+    method public long getGarageModeBytes();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.PerStateBytes> CREATOR;
   }
 
-  @com.android.car.internal.util.DataClass(genToString=true, genHiddenBuilder=true) public final class ResourceOveruseStats implements android.os.Parcelable {
-    method @com.android.car.internal.util.DataClass.Generated.Member public int describeContents();
-    method @Nullable @com.android.car.internal.util.DataClass.Generated.Member public android.car.watchdog.IoOveruseStats getIoOveruseStats();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public String getPackageName();
-    method @NonNull @com.android.car.internal.util.DataClass.Generated.Member public android.os.UserHandle getUserHandle();
-    method @com.android.car.internal.util.DataClass.Generated.Member public void writeToParcel(@NonNull android.os.Parcel, int);
-    field @NonNull @com.android.car.internal.util.DataClass.Generated.Member public static final android.os.Parcelable.Creator<android.car.watchdog.ResourceOveruseStats> CREATOR;
+  public final class ResourceOveruseStats implements android.os.Parcelable {
+    method public int describeContents();
+    method @Nullable public android.car.watchdog.IoOveruseStats getIoOveruseStats();
+    method @NonNull public String getPackageName();
+    method @NonNull public android.os.UserHandle getUserHandle();
+    method public void writeToParcel(@NonNull android.os.Parcel, int);
+    field @NonNull public static final android.os.Parcelable.Creator<android.car.watchdog.ResourceOveruseStats> CREATOR;
   }
 
 }

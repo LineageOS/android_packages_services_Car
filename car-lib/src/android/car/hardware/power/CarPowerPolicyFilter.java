@@ -22,6 +22,7 @@ import android.annotation.NonNull;
 import android.os.Parcelable;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.AnnotationValidations;
 import com.android.car.internal.util.DataClass;
 
 /**
@@ -57,7 +58,7 @@ public final class CarPowerPolicyFilter implements Parcelable {
     /* package-private */ CarPowerPolicyFilter(
             @NonNull int[] components) {
         this.mComponents = components;
-        com.android.internal.util.AnnotationValidations.validate(
+        AnnotationValidations.validate(
                 NonNull.class, null, mComponents);
 
         // onConstructed(); // You can define this method to get a callback
@@ -95,7 +96,7 @@ public final class CarPowerPolicyFilter implements Parcelable {
         int[] components = in.createIntArray();
 
         this.mComponents = components;
-        com.android.internal.util.AnnotationValidations.validate(
+        AnnotationValidations.validate(
                 NonNull.class, null, mComponents);
 
         // onConstructed(); // You can define this method to get a callback
@@ -163,7 +164,7 @@ public final class CarPowerPolicyFilter implements Parcelable {
     }
 
     @DataClass.Generated(
-            time = 1618274906419L,
+            time = 1628099142505L,
             codegenVersion = "1.0.23",
             sourceFile = "packages/services/Car/car-lib/src/android/car/hardware/power/CarPowerPolicyFilter.java",
             inputSignatures = "private @android.annotation.NonNull int[] mComponents\nclass CarPowerPolicyFilter extends java.lang.Object implements [android.os.Parcelable]\n@com.android.car.internal.util.DataClass(genBuilder=true)")
