@@ -16,8 +16,8 @@
 
 package com.android.car;
 
-import static com.android.car.CarService.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
-import static com.android.car.CarService.CAR_SERVICE_INIT_TIMING_TAG;
+import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS;
+import static com.android.car.CarServiceImpl.CAR_SERVICE_INIT_TIMING_TAG;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT;
@@ -53,7 +53,6 @@ import android.util.EventLog;
 import android.util.IndentingPrintWriter;
 
 import com.android.car.admin.CarDevicePolicyService;
-import com.android.car.admin.FactoryResetActivity;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.ClusterHomeService;
@@ -96,6 +95,7 @@ public class ICarImpl extends ICar.Stub {
     private static final int INITIAL_VHAL_GET_RETRY = 2;
 
     private final Context mContext;
+    private final Context mCarServiceBuiltinPackageContext;
     private final VehicleHal mHal;
 
     private final CarFeatureController mFeatureController;
@@ -158,16 +158,16 @@ public class ICarImpl extends ICar.Stub {
 
     private final ICarSystemServerClientImpl mICarSystemServerClientImpl;
 
-    public ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
-            String vehicleInterfaceName) {
-        this(serviceContext, vehicle, systemInterface, vehicleInterfaceName,
+    public ICarImpl(Context serviceContext, Context builtinContext, IVehicle vehicle,
+            SystemInterface systemInterface, String vehicleInterfaceName) {
+        this(serviceContext, builtinContext, vehicle, systemInterface, vehicleInterfaceName,
                 /* carUserService= */ null, /* carWatchdogService= */ null,
                 /* powerPolicyDaemon= */ null);
     }
 
     @VisibleForTesting
-    ICarImpl(Context serviceContext, IVehicle vehicle, SystemInterface systemInterface,
-            String vehicleInterfaceName,
+    ICarImpl(Context serviceContext, @Nullable Context builtinContext,
+            IVehicle vehicle, SystemInterface systemInterface, String vehicleInterfaceName,
             @Nullable CarUserService carUserService,
             @Nullable CarWatchdogService carWatchdogService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
@@ -177,6 +177,11 @@ public class ICarImpl extends ICar.Stub {
         t.traceBegin("ICarImpl.constructor");
 
         mContext = serviceContext;
+        if (builtinContext == null) {
+            mCarServiceBuiltinPackageContext = serviceContext;
+        } else {
+            mCarServiceBuiltinPackageContext = builtinContext;
+        }
         mSystemInterface = systemInterface;
         CarLocalServices.addService(SystemInterface.class, mSystemInterface);
         mHal = constructWithTrace(t, VehicleHal.class,
@@ -852,7 +857,13 @@ public class ICarImpl extends ICar.Stub {
             assertCallingFromSystemProcess();
 
             mCarPowerManagementService.setFactoryResetCallback(callback);
-            FactoryResetActivity.sendNotification(mContext, callback);
+            // Making following call with code in other package / classloader.
+            // FactoryResetActivity.sendNotification(mCarServieBuiltinPackageContext, callback);
+            CarServiceUtils.executeAMethod(mCarServiceBuiltinPackageContext.getClassLoader(),
+                    BuiltinPackageDependency.FACTORY_RESET_ACTIVITY_CLASS,
+                    BuiltinPackageDependency.FACTORY_RESET_ACTIVITY_SEND_NOTIFICATION, null,
+                    new Class[]{Context.class, IResultReceiver.class},
+                    new Object[]{mCarServiceBuiltinPackageContext, callback}, false);
         }
     }
 }

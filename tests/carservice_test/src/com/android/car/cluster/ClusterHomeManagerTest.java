@@ -48,6 +48,7 @@ import android.view.Display;
 import android.view.DisplayAddress;
 
 import com.android.car.CarLocalServices;
+import com.android.car.ICarImpl;
 import com.android.car.MockedCarTestBase;
 import com.android.car.am.FixedActivityService;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -164,7 +165,7 @@ public class ClusterHomeManagerTest extends MockedCarTestBase {
     }
 
     @Override
-    protected synchronized void spyOnBeforeCarImplInit() {
+    protected synchronized void spyOnBeforeCarImplInit(ICarImpl carImpl) {
         mFixedActivityService = CarLocalServices.getService(FixedActivityService.class);
         ExtendedMockito.spyOn(mFixedActivityService);
 

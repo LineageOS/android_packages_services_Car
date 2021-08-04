@@ -158,7 +158,7 @@ public class CarLocationServiceTest {
      * {@link LocationManager} injectLocation API.
      *
      * Note that this test will never fail even if the relevant permissions are removed from the
-     * manifest since {@link CarService} runs in a system process.
+     * manifest since {@link CarServiceImpl} runs in a system process.
      */
     @Test
     public void testCarLocationServiceShouldHavePermissions() {

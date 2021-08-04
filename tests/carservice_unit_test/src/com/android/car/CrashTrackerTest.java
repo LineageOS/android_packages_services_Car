@@ -20,7 +20,7 @@ import android.test.AndroidTestCase;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.MutableBoolean;
 
-import com.android.car.CarService.CrashTracker;
+import com.android.car.CarServiceImpl.CrashTracker;
 
 @SmallTest
 public class CrashTrackerTest extends AndroidTestCase {
@@ -29,7 +29,7 @@ public class CrashTrackerTest extends AndroidTestCase {
         final int SLIDING_WINDOW = 100;
         final MutableBoolean callbackTriggered = new MutableBoolean(false);
 
-        CarService.CrashTracker crashTracker = new CrashTracker(3, SLIDING_WINDOW,
+        CarServiceImpl.CrashTracker crashTracker = new CrashTracker(3, SLIDING_WINDOW,
                 () -> callbackTriggered.value = true);
 
 

@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.util.Slog;
 import android.content.Context;
@@ -32,6 +33,7 @@ import android.util.ArrayMap;
 
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.lang.reflect.Method;
 import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
@@ -374,5 +376,26 @@ public final class CarServiceUtils {
             }
         }
         throw new SecurityException("requires any of " + Arrays.toString(permissions));
+    }
+
+    /** Reflecion helper */
+    @Nullable
+    public static Object executeAMethod(ClassLoader classloader,
+            String className, String methodName,
+            @Nullable Object instance, Class[] argClasses, Object[] args,
+            boolean ignoreFailure) {
+        try {
+            Class loadedClass = classloader.loadClass(className);
+            Method m = loadedClass.getMethod(methodName, argClasses);
+            return m.invoke(instance, args);
+        } catch (Exception e) {
+            String msg = "cannot load class:" + className + " method:" + methodName;
+            if (ignoreFailure) {
+                Slog.w(TAG, msg, e);
+                return null;
+            } else {
+                throw new RuntimeException(msg, e);
+            }
+        }
     }
 }

@@ -19,6 +19,7 @@ import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
+import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -60,7 +61,6 @@ import android.view.ViewConfiguration;
 import com.android.car.hal.InputHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
-import com.android.car.pm.CarSafetyAccessibilityService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -83,6 +83,7 @@ import java.util.function.Supplier;
 public class CarInputService extends ICarInput.Stub
         implements CarServiceBase, InputHalService.InputListener {
     public static final String ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR = ":";
+
     private static final int MAX_RETRIES_FOR_ENABLING_ACCESSIBILITY_SERVICES = 5;
     private static final String TAG = CarLog.TAG_INPUT;
 
@@ -690,9 +691,8 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private List<String> getAccessibilityServicesToBeEnabled() {
-        String carSafetyAccessibilityServiceComponentName = mContext.getPackageName()
-                + "/"
-                + CarSafetyAccessibilityService.class.getName();
+        String carSafetyAccessibilityServiceComponentName =
+                BuiltinPackageDependency.getComponentName(CAR_ACCESSIBILITY_SERVICE_CLASS);
         ArrayList<String> accessibilityServicesToBeEnabled = new ArrayList<>();
         accessibilityServicesToBeEnabled.add(carSafetyAccessibilityServiceComponentName);
         if (!TextUtils.isEmpty(mRotaryServiceComponentName)) {

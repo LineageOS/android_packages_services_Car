@@ -111,6 +111,7 @@ PRODUCT_PROPERTY_OVERRIDES += \
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
     CarService \
+    CarServiceUpdatable \
     CarShell \
     CarDialerApp \
     CarRadioApp \

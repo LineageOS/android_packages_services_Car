@@ -50,6 +50,7 @@ android_test {
         "android.hardware.automotive.vehicle-V2.0-java",
         "car-frameworks-service",
         "car-service-test-static-lib",
+        "car-service-builtin-test-static-lib",
         "car-systemtest",
         "com.android.car.test.lib",
         "mockito-target-extended",
