@@ -157,7 +157,7 @@ droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
     args: "--hide UnavailableSymbol --stub-packages android.car* " +
-        "--hide-package com.android.internal ",
+        "--hide-package com.android.internal --hide-package com.android.car.internal ",
     installable: false,
     check_api: {
         last_released: {
@@ -187,7 +187,8 @@ droidstubs {
     // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
     args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
         "--stub-packages android.car* " +
-        "--show-annotation android.annotation.SystemApi --hide-package com.android.internal ",
+        "--show-annotation android.annotation.SystemApi --hide-package com.android.internal " +
+        "--hide-package com.android.car.internal ",
     installable: false,
     check_api: {
         last_released: {
@@ -274,7 +275,7 @@ droidstubs {
           "--hide CallbackInterface " +
           "--hide MissingPermission " +
           "--hide HiddenSuperclass --hide DeprecationMismatch --hide UnavailableSymbol " +
-          "--hide SdkConstant --hide HiddenTypeParameter --hide Todo --hide Typo " +
+          "--hide SdkConstant --hide HiddenTypeParameter " +
           "--hide Todo --hide Typo ",
     write_sdk_values: true,
 }
