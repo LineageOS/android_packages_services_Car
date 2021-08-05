@@ -922,7 +922,7 @@
     <string name="wifi_eap_identity" msgid="5280457017705738773">"Identiteit"</string>
     <string name="wifi_eap_anonymous" msgid="6352344972490839958">"Anonieme identiteit"</string>
     <string name="wifi_password" msgid="6942983531275177771">"Wachtwoord"</string>
-    <string name="wifi_show_password" msgid="7878398590772942202">"Wachtwoord weergeven"</string>
+    <string name="wifi_show_password" msgid="7878398590772942202">"Wachtwoord tonen"</string>
     <string name="wifi_ap_band_config" msgid="6565016368079288433">"Frequentieband voor toegangspunt selecteren"</string>
     <string name="wifi_ap_choose_auto" msgid="7927637960569365785">"Automatisch"</string>
     <string name="wifi_ap_choose_2G" msgid="43198403259714736">"2,4-GHz-frequentieband"</string>
