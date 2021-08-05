@@ -334,7 +334,7 @@ public final class VehiclePropertyIds {
      * which wheels are supported. configArray is set as follows:
      *
      * <ul>
-     *  <li>configArray[0], bits [0:3] = supported wheels.  Uses enum Wheel.
+     *  <li>configArray[0], bits [0:3] = supported wheels.  Uses {@link VehicleAreaWheel}.
      *  <li>configArray[1] = micrometers per front left wheel tick
      *  <li>configArray[2] = micrometers per front right wheel tick
      *  <li>configArray[3] = micrometers per rear right wheel tick
