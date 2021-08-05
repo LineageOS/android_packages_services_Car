@@ -228,10 +228,12 @@ public final class VehiclePropertyIds {
     /**
      * Speed of the vehicle in meters per second.
      *
-     * <p>PERF_VEHICLE_SPEED property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}, and returns
-     * a Float type value.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
      *
      * <p>When the vehicle is moving forward, PERF_VEHICLE_SPEED is positive and negative when the
      * vehicle is moving backward. Also, this value is independent of gear value (CURRENT_GEAR or
@@ -307,10 +309,12 @@ public final class VehiclePropertyIds {
     /**
      * Reports wheel ticks.
      *
-     * <p>WHEEL_TICK property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS} and returns a
-     * Long[] type value.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Long[]} property type
+     * </ul>
      *
      * <p>The first element in the array is a reset count.  A reset indicates
      * previous tick counts are not comparable with this and future ones.  Some
@@ -425,10 +429,12 @@ public final class VehiclePropertyIds {
     /**
      * Currently selected gear by user.
      *
-     * <p>GEAR_SELECTION property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
-     * Integer type value.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
      *
      * <p> See {@link VehicleGear} for gear value enum.
      *
@@ -521,10 +527,12 @@ public final class VehiclePropertyIds {
     /**
      * Parking brake state.
      *
-     * <p>PARKING_BRAKE_ON property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
-     * Boolean type value.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
      *
      * <p>Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
      */
@@ -553,10 +561,12 @@ public final class VehiclePropertyIds {
     /**
      * Night mode.
      *
-     * <p>NIGHT_MODE property is {@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}, {@link
-     * android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}, and returns a
-     * Boolean type value.
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
      *
      * <p>True indicates that the night mode sensor has detected that the car cabin environment has
      * low light.
