@@ -362,95 +362,94 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     }
 
     /**
-     * Get the priority of the given Bluetooth profile for the given remote device
+     * Get the connection policy of the given Bluetooth profile for the given remote device
      *
      * @param profile - Bluetooth profile
      * @param device - remote Bluetooth device
      */
     @Override
-    public int getProfilePriority(int profile, BluetoothDevice device) {
+    public int getConnectionPolicy(int profile, BluetoothDevice device) {
         if (device == null) {
             Slog.e(TAG, "Cannot get " + BluetoothUtils.getProfileName(profile)
-                    + " profile priority on null device");
-            return BluetoothProfile.PRIORITY_UNDEFINED;
+                    + " profile connection policy on null device");
+            return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
         }
-        int priority;
+        int policy;
         mBluetoothProxyLock.lock();
         try {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
                     Slog.e(TAG, "Cannot get " + BluetoothUtils.getProfileName(profile)
-                            + " profile priority. Proxy Unavailable");
-                    return BluetoothProfile.PRIORITY_UNDEFINED;
+                            + " profile connection policy. Proxy Unavailable");
+                    return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
                 }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
-                    priority = mBluetoothA2dpSink.getPriority(device);
+                    policy = mBluetoothA2dpSink.getConnectionPolicy(device);
                     break;
                 case BluetoothProfile.HEADSET_CLIENT:
-                    priority = mBluetoothHeadsetClient.getPriority(device);
+                    policy = mBluetoothHeadsetClient.getConnectionPolicy(device);
                     break;
                 case BluetoothProfile.MAP_CLIENT:
-                    priority = mBluetoothMapClient.getPriority(device);
+                    policy = mBluetoothMapClient.getConnectionPolicy(device);
                     break;
                 case BluetoothProfile.PBAP_CLIENT:
-                    priority = mBluetoothPbapClient.getPriority(device);
+                    policy = mBluetoothPbapClient.getConnectionPolicy(device);
                     break;
                 default:
                     Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));
-                    priority = BluetoothProfile.PRIORITY_UNDEFINED;
+                    policy = BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
                     break;
             }
         } finally {
             mBluetoothProxyLock.unlock();
         }
-        logd("%s priority for %s (%s) = %d", BluetoothUtils.getProfileName(profile),
-                device.getName(),
-                device.getAddress(), priority);
-        return priority;
+        logd("%s connection policy for %s (%s) = %d", BluetoothUtils.getProfileName(profile),
+                device.getName(), device.getAddress(), policy);
+        return policy;
     }
 
     /**
-     * Set the priority of the given Bluetooth profile for the given remote device
+     * Set the connection policy of the given Bluetooth profile for the given remote device
      *
      * @param profile - Bluetooth profile
      * @param device - remote Bluetooth device
-     * @param priority - priority to set
+     * @param policy - connection policy to set
      */
     @Override
-    public void setProfilePriority(int profile, BluetoothDevice device, int priority) {
+    public void setConnectionPolicy(int profile, BluetoothDevice device, int policy) {
         if (device == null) {
             Slog.e(TAG, "Cannot set " + BluetoothUtils.getProfileName(profile)
-                    + " profile priority on null device");
+                    + " profile connection policy on null device");
             return;
         }
-        logd("Setting %s priority for %s (%s) to %d",
-                BluetoothUtils.getProfileName(profile),
-                device.getName(), device.getAddress(), priority);
+        logd("Setting %s connection policy for %s (%s) to %d",
+                BluetoothUtils.getProfileName(profile), device.getName(), device.getAddress(),
+                policy);
         mBluetoothProxyLock.lock();
         try {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
                     Slog.e(TAG, "Cannot set " + BluetoothUtils.getProfileName(profile)
-                            + " profile priority. Proxy Unavailable");
+                            + " profile connection policy. Proxy Unavailable");
                     return;
                 }
             }
             switch (profile) {
                 case BluetoothProfile.A2DP_SINK:
-                    mBluetoothA2dpSink.setPriority(device, priority);
+                    mBluetoothA2dpSink.setConnectionPolicy(device, policy);
                     break;
                 case BluetoothProfile.HEADSET_CLIENT:
-                    mBluetoothHeadsetClient.setPriority(device, priority);
+                    mBluetoothHeadsetClient.setConnectionPolicy(device, policy);
                     break;
                 case BluetoothProfile.MAP_CLIENT:
-                    mBluetoothMapClient.setPriority(device, priority);
+                    mBluetoothMapClient.setConnectionPolicy(device, policy);
                     break;
                 case BluetoothProfile.PBAP_CLIENT:
-                    mBluetoothPbapClient.setPriority(device, priority);
+                    mBluetoothPbapClient.setConnectionPolicy(device, policy);
                     break;
                 default:
                     Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));

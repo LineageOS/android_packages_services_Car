@@ -102,16 +102,21 @@ public final class BluetoothUtils {
         return "(" + state + ") " + name;
     }
 
-    static String getProfilePriorityName(int priority) {
+    static String getConnectionPolicyName(int priority) {
         String name = "";
-        if (priority >= BluetoothProfile.PRIORITY_AUTO_CONNECT) {
-            name = "PRIORITY_AUTO_CONNECT";
-        } else if (priority >= BluetoothProfile.PRIORITY_ON) {
-            name = "PRIORITY_ON";
-        } else if (priority >= BluetoothProfile.PRIORITY_OFF) {
-            name = "PRIORITY_OFF";
-        } else {
-            name = "PRIORITY_UNDEFINED";
+        switch (priority) {
+            case BluetoothProfile.CONNECTION_POLICY_ALLOWED:
+                name = "CONNECTION_POLICY_ALLOWED";
+                break;
+            case BluetoothProfile.CONNECTION_POLICY_FORBIDDEN:
+                name = "CONNECTION_POLICY_FORBIDDEN";
+                break;
+            case BluetoothProfile.CONNECTION_POLICY_UNKNOWN:
+                name = "CONNECTION_POLICY_UNKNOWN";
+                break;
+            default:
+                name = "Unknown";
+                break;
         }
         return "(" + priority + ") " + name;
     }

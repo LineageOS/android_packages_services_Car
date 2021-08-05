@@ -371,11 +371,11 @@ public class BluetoothProfileInhibitManager {
 
             if (isNewlyAdded) {
                 try {
-                    int priority =
-                            mBluetoothUserProxies.getProfilePriority(
+                    int policy =
+                            mBluetoothUserProxies.getConnectionPolicy(
                                     params.getProfile(),
                                     params.getDevice());
-                    if (priority == BluetoothProfile.PRIORITY_OFF) {
+                    if (policy == BluetoothProfile.CONNECTION_POLICY_FORBIDDEN) {
                         // This profile was already disabled (and not as the result of an inhibit).
                         // Add it to the already-disabled list, and do nothing else.
                         mAlreadyDisabledProfiles.add(params);
@@ -384,10 +384,10 @@ public class BluetoothProfileInhibitManager {
                                 + " already disabled for device " + params.getDevice()
                                 + " - suppressing re-enable");
                     } else {
-                        mBluetoothUserProxies.setProfilePriority(
+                        mBluetoothUserProxies.setConnectionPolicy(
                                 params.getProfile(),
                                 params.getDevice(),
-                                BluetoothProfile.PRIORITY_OFF);
+                                BluetoothProfile.CONNECTION_POLICY_FORBIDDEN);
                         mBluetoothUserProxies.bluetoothDisconnectFromProfile(
                                 params.getProfile(),
                                 params.getDevice());
@@ -444,7 +444,7 @@ public class BluetoothProfileInhibitManager {
             // The profile should be re-enabled if this record is the only one left for that
             // device and profile combination.
             if (mProfileInhibits.get(params).size() == 1) {
-                if (!restoreProfilePriority(params)) {
+                if (!restoreConnectionPolicy(params)) {
                     return false;
                 }
             }
@@ -460,7 +460,7 @@ public class BluetoothProfileInhibitManager {
     /**
      * Re-enable and reconnect a given profile for a device.
      */
-    private boolean restoreProfilePriority(BluetoothConnection params) {
+    private boolean restoreConnectionPolicy(BluetoothConnection params) {
         if (!isProxyAvailable(params.getProfile())) {
             return false;
         }
@@ -475,10 +475,10 @@ public class BluetoothProfileInhibitManager {
         }
 
         try {
-            mBluetoothUserProxies.setProfilePriority(
+            mBluetoothUserProxies.setConnectionPolicy(
                     params.getProfile(),
                     params.getDevice(),
-                    BluetoothProfile.PRIORITY_ON);
+                    BluetoothProfile.CONNECTION_POLICY_ALLOWED);
             mBluetoothUserProxies.bluetoothConnectToProfile(
                     params.getProfile(),
                     params.getDevice());

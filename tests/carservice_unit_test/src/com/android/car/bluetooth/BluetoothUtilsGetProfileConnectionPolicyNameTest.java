@@ -28,21 +28,21 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class BluetoothUtilsGetProfilePriorityNameTest {
+public final class BluetoothUtilsGetProfileConnectionPolicyNameTest {
 
-    private final int mPriority;
+    private final int mPolicy;
     private final String mName;
 
-    public BluetoothUtilsGetProfilePriorityNameTest(int priority, String name) {
-        mPriority = priority;
+    public BluetoothUtilsGetProfileConnectionPolicyNameTest(int policy, String name) {
+        mPolicy = policy;
         mName = name;
     }
 
     @Test
     public void testGetProfilePriorityName() {
-        String result = BluetoothUtils.getProfilePriorityName(mPriority);
+        String result = BluetoothUtils.getConnectionPolicyName(mPolicy);
 
-        assertThat(result).contains(String.valueOf(mPriority));
+        assertThat(result).contains(String.valueOf(mPolicy));
         assertThat(result).ignoringCase().contains(mName);
     }
 
@@ -50,18 +50,15 @@ public final class BluetoothUtilsGetProfilePriorityNameTest {
     public static Collection provideParams() {
         return Arrays.asList(
             new Object[][] {
-                // Any value >= PRIORITY_AUTO_CONNECT maps to "PRIORITY_AUTO_CONNECT".
-                {1001, "PRIORITY_AUTO_CONNECT"},
-                {BluetoothProfile.PRIORITY_AUTO_CONNECT, "PRIORITY_AUTO_CONNECT"},
-                // PRIORITY_AUTO_CONNECT > value >= PRIORITY_ON maps to "PRIORITY_ON".
-                {999, "PRIORITY_ON"},
-                {BluetoothProfile.PRIORITY_ON, "PRIORITY_ON"},
-                // PRIORITY_ON > value >= PRIORITY_OFF mpas to "PRIORITY_OFF".
-                {99, "PRIORITY_OFF"},
-                {BluetoothProfile.PRIORITY_OFF, "PRIORITY_OFF"},
-                // value < PRIORITY_OFF maps to "PRIORITY_UNDEFINED".
-                {BluetoothProfile.PRIORITY_UNDEFINED, "PRIORITY_UNDEFINED"},
-                {-2, "PRIORITY_UNDEFINED"}
+                // CONNECTION_POLICY_ALLOWED maps to "CONNECTION_POLICY_ALLOWED".
+                {100, "CONNECTION_POLICY_ALLOWED"},
+                {BluetoothProfile.CONNECTION_POLICY_ALLOWED, "CONNECTION_POLICY_ALLOWED"},
+                // CONNECTION_POLICY_FORBIDDEN maps to "CONNECTION_POLICY_FORBIDDEN".
+                {0, "CONNECTION_POLICY_FORBIDDEN"},
+                {BluetoothProfile.CONNECTION_POLICY_FORBIDDEN, "CONNECTION_POLICY_FORBIDDEN"},
+                // CONNECTION_POLICY_UNKNOWN maps to "CONNECTION_POLICY_UNKNOWN".
+                {-1, "CONNECTION_POLICY_UNKNOWN"},
+                {BluetoothProfile.CONNECTION_POLICY_UNKNOWN, "CONNECTION_POLICY_UNKNOWN"}
             });
     }
 }
