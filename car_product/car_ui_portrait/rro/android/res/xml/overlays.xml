@@ -15,6 +15,7 @@
   -->
 <overlay>
     <item target="string/config_deviceSpecificDisplayAreaPolicyProvider" value="@string/config_deviceSpecificDisplayAreaPolicyProvider"/>
+    <item target="string/config_defaultListenerAccessPackages" value="@string/config_defaultListenerAccessPackages"/>
 
     <item target="dimen/button_layout_height" value="@dimen/button_layout_height"/>
     <item target="dimen/car_card_header_height" value="@dimen/car_card_header_height"/>
