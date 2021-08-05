@@ -23,4 +23,7 @@
     <string translatable="false" name="config_deviceSpecificDisplayAreaPolicyProvider">
         com.android.server.wm.CarDisplayAreaPolicyProvider
     </string>
+
+    <!-- Colon separated list of package names that should be granted Notification Listener access -->
+    <string name="config_defaultListenerAccessPackages" translatable="false">com.android.car.notification</string>
 </resources>
