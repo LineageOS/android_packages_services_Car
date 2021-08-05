@@ -284,6 +284,26 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     }
 
     /** @hide */
+    public void setUserDisclaimerShown(@NonNull UserHandle user) {
+        Objects.requireNonNull(user, "user cannot be null");
+        try {
+            mService.setUserDisclaimerShown(user.getIdentifier());
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /** @hide */
+    public void setUserDisclaimerAcknowledged(@NonNull UserHandle user) {
+        Objects.requireNonNull(user, "user cannot be null");
+        try {
+            mService.setUserDisclaimerAcknowledged(user.getIdentifier());
+        } catch (RemoteException e) {
+            handleRemoteExceptionFromCarService(e, null);
+        }
+    }
+
+    /** @hide */
     @Override
     public void onCarDisconnected() {
         // nothing to do

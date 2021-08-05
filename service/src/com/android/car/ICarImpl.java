@@ -53,9 +53,9 @@ import android.os.UserManager;
 import android.util.EventLog;
 
 import com.android.car.admin.CarDevicePolicyService;
+import com.android.car.admin.NotificationHelper;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
-import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.cluster.ClusterHomeService;
 import com.android.car.cluster.ClusterNavigationService;
@@ -860,13 +860,7 @@ public class ICarImpl extends ICar.Stub {
             assertCallingFromSystemProcess();
 
             mCarPowerManagementService.setFactoryResetCallback(callback);
-            // Making following call with code in other package / classloader.
-            // FactoryResetActivity.sendNotification(mCarServieBuiltinPackageContext, callback);
-            CarServiceUtils.executeAMethod(mCarServiceBuiltinPackageContext.getClassLoader(),
-                    BuiltinPackageDependency.FACTORY_RESET_ACTIVITY_CLASS,
-                    BuiltinPackageDependency.FACTORY_RESET_ACTIVITY_SEND_NOTIFICATION, null,
-                    new Class[]{Context.class, ICarResultReceiver.class},
-                    new Object[]{mCarServiceBuiltinPackageContext, callback}, false);
+            NotificationHelper.sendFactoryResetNotification(mContext, callback);
         }
     }
 }

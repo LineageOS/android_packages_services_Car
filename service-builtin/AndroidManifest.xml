@@ -952,18 +952,6 @@
         </service>
 
         <!-- Do not add any new Activity. -->
-        <activity android:name="com.android.car.admin.FactoryResetActivity"
-             android:excludeFromRecents="true"
-             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-             android:exported="false"
-             android:launchMode="singleTask">
-        </activity>
-        <activity android:name="com.android.car.admin.NewUserDisclaimerActivity"
-             android:excludeFromRecents="true"
-             android:theme="@android:style/Theme.NoTitleBar.Fullscreen"
-             android:exported="false"
-             android:launchMode="singleTask">
-        </activity>
         <activity android:name=".DistractionOptimizedActivityForTesting">
             <meta-data android:name="distractionOptimized" android:value="true"/>
         </activity>
