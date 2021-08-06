@@ -25,7 +25,11 @@ import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
-/** Annotation for making hidden APIs visible in droiddoc */
+/**
+ * Annotation for making hidden APIs visible in droiddoc
+ *
+ * @hide
+ */
 @Retention(RetentionPolicy.SOURCE)
 @Target({CONSTRUCTOR, FIELD, TYPE, METHOD})
 public @interface VisibleForHiddenApiCheck {

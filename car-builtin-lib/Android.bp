@@ -16,127 +16,48 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-java_library {
+// This library is internal only and should not be used outside core car stack.
+java_sdk_library {
     name: "android.car.builtin",
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
     ],
-    static_libs: [
-        "Slogf",
-    ],
 
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
+    default_to_stubs: true,
+
+    shared_library: false, // Added to bootclasspath
+
+    api_lint: {
+        enabled: true,
     },
-    installable: true,
-}
 
-stubs_defaults {
-    name: "android.car.builtin-docs-default",
-    srcs: [
-        "src/**/*.java",
-    ],
-    libs: [
-        "android.car.builtin",
-    ],
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
+    // First release, not enabled.
+    unsafe_ignore_missing_latest_api: true,
+
+    test: {
+        enabled: false,
     },
-}
-
-// This API has only system APIs and not for regular apps
-genrule {
-    name: "android-car-builtin-last-released-system-api",
-    srcs: [
-        "api/system-released/*.txt",
-    ],
-    cmd: "cp -f $$(echo $(in) | tr \" \" \"\\n\" | sort -n | tail -1) $(genDir)/last-released-system-api.txt",
-    out: [
-        "last-released-system-api.txt",
-    ],
-}
-
-droidstubs {
-    name: "android.car.builtin-stubs-docs",
-    defaults: ["android.car.builtin-docs-default"],
-    args: "--hide UnavailableSymbol --hide HiddenSuperclass " +
-        "--stub-packages android.car.builtin* " +
-        "--show-annotation android.annotation.SystemApi",
-    installable: false,
-    check_api: {
-        last_released: {
-            api_file: ":android-car-builtin-last-released-system-api",
-            removed_api_file: "api/system-removed.txt",
-            args: " -hide 2 -hide 3 -hide 4 -hide 5 -hide 6 -hide 24 -hide 25 -hide 26 -hide 27 " +
-                " -warning 7 -warning 8 -warning 9 -warning 10 -warning 11 -warning 12 " +
-                " -warning 13 -warning 14 -warning 15 -warning 16 -warning 17 -warning 18 -hide 113 ",
-        },
-        current: {
-            api_file: "api/system-current.txt",
-            removed_api_file: "api/system-removed.txt",
-            args: " -error 2 -error 3 -error 4 -error 5 -error 6 -error 7 -error 8 -error 9 -error 10 -error 11 " +
-                " -error 12 -error 13 -error 14 -error 15 -error 16 -error 17 -error 18 -error 19 -error 20 " +
-                " -error 21 -error 23 -error 24 -error 25 -hide 113 ",
-        },
-        api_lint: {
-            enabled: true,
-            baseline_file: "api/system-lint-baseline.txt",
-        }
+    system: {
+        enabled: true,
+        sdk_version: "module_current",
     },
-}
+    module_lib: {
+        enabled: true,
+        sdk_version: "module_current",
+    },
 
-java_library {
-    name: "android.car.builtin-stubs",
-    srcs: [
-        ":android.car.builtin-stubs-docs",
+    // Only allowed car modules only. Allowed to add tests here.
+    stubs_library_visibility: [
+        "//packages/services/Car/car-lib",
+        "//packages/services/Car/service-builtin",
+        "//packages/services/Car/service",
+        "//packages/services/Car/tests/carservice_test",
+        "//packages/services/Car/tests/carservice_unit_test",
+        "//frameworks/opt/car/services",
     ],
-    sdk_version: "system_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
-    installable: false,
-    dist: {
-        targets: ["dist_files"],
-    }
-}
 
-java_library {
-    name: "android.car.builtin-stubs-dex",
-    static_libs: ["android.car.builtin-stubs"],
-    sdk_version: "system_current",
-    product_variables: {
-        pdk: {
-            enabled: false,
-        },
-    },
     compile_dex: true,
-}
 
-// Export the api/system-current.txt file.
-filegroup {
-    name: "car-builtin-api-system-current.txt",
-    visibility: [
-        "//cts/tests/signature/api",
-    ],
-    srcs: [
-        "api/system-current.txt",
-    ],
-}
-
-// Export the api/system-removed.txt file.
-filegroup {
-    name: "car-builtin-api-system-removed.txt",
-    visibility: [
-        "//cts/tests/signature/api",
-    ],
-    srcs: [
-        "api/system-removed.txt",
-    ],
+    installable: true,
 }

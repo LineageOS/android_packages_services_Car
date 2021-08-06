@@ -1,0 +1,39 @@
+// Signature format: 2.0
+package android.car {
+
+  public final class CarAppFocusManager {
+    method public int[] getActiveAppTypes();
+  }
+
+  public class VehiclePropertyType {
+    field public static final int BOOLEAN = 2097152; // 0x200000
+    field public static final int BYTES = 7340032; // 0x700000
+    field public static final int FLOAT = 6291456; // 0x600000
+    field public static final int FLOAT_VEC = 6356992; // 0x610000
+    field public static final int INT32 = 4194304; // 0x400000
+    field public static final int INT32_VEC = 4259840; // 0x410000
+    field public static final int INT64 = 5242880; // 0x500000
+    field public static final int INT64_VEC = 5308416; // 0x510000
+    field public static final int MASK = 16711680; // 0xff0000
+    field public static final int MIXED = 14680064; // 0xe00000
+    field public static final int STRING = 1048576; // 0x100000
+  }
+
+}
+
+package android.car.content.pm {
+
+  public final class CarPackageManager {
+    method public void setEnableActivityBlocking(boolean);
+  }
+
+}
+
+package android.car.drivingstate {
+
+  public final class CarDrivingStateManager {
+    method public void injectDrivingState(int);
+  }
+
+}
+

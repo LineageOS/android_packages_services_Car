@@ -34,6 +34,11 @@ import java.lang.annotation.RetentionPolicy;
 import java.lang.annotation.Target;
 
 
+/**
+ * {@code com.android.internal.util.DataClass} replacement for car-lib.
+ *
+ * @hide
+ */
 @Retention(RetentionPolicy.SOURCE)
 @Target(ElementType.TYPE)
 public @interface DataClass {

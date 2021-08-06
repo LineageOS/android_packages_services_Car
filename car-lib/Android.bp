@@ -91,7 +91,7 @@ java_library {
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
     ],
     libs: [
-        "android.car.builtin-stubs",
+        "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
     ],
@@ -442,13 +442,13 @@ droidstubs {
         "--show-annotation com.android.car.internal.VisibleForHiddenApiCheck ",
 
     installable: false,
+
+    visibility: ["//packages/services/Car/car-lib-module"],
 }
 
-// TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
-java_library {
-    name: "android.car.module",
+filegroup {
+    name: "android.car-hidden-api-free-srcs",
     srcs: [
-        ":android.car-all-apis-for-hidden-api-check-docs",
         "src/android/car/*.java",
         "src/android/car/*.aidl",
         //"src/android/car/admin/**/*.java",
@@ -493,7 +493,6 @@ java_library {
         "src/android/car/watchdog/**/*.aidl",
         "src/com/android/car/**/*.java",
     ],
-
     // not converted yet.
     exclude_srcs: [
         "src/android/car/Car.java", // This can be added when all Car*Managers are done.
@@ -506,10 +505,20 @@ java_library {
         "src/android/car/admin/ICarDevicePolicyService.aidl",
         "src/com/android/car/internal/common/UserHelperLite.java",
     ],
+    visibility: ["//packages/services/Car/car-lib-module"],
+}
 
+
+// TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
+java_library {
+    name: "android.car.module",
+    srcs: [
+        ":android.car-all-apis-for-hidden-api-check-docs",
+        ":android.car-hidden-api-free-srcs",
+    ],
     sdk_version: "module_current",
     libs: [
-        "android.car.builtin-stubs",
+        "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
     ],
