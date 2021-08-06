@@ -256,7 +256,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     public CarPowerManagementService(Context context, PowerHalService powerHal,
             SystemInterface systemInterface, CarUserService carUserService,
             ICarPowerPolicySystemNotification powerPolicyDaemon) {
-        this(context, context.getResources(), powerHal, systemInterface, UserManager.get(context),
+        this(context, context.getResources(), powerHal, systemInterface,
+                context.getSystemService(UserManager.class),
                 carUserService, powerPolicyDaemon,
                 new PowerComponentHandler(context, systemInterface),
                 /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,

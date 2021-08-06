@@ -295,7 +295,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     public CarMediaService(Context context, CarUserService userService) {
         mContext = context;
-        mUserManager = (UserManager) mContext.getSystemService(Context.USER_SERVICE);
+        mUserManager = mContext.getSystemService(UserManager.class);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
         mMediaSourceListeners[MEDIA_SOURCE_MODE_PLAYBACK] = new RemoteCallbackList();
         mMediaSourceListeners[MEDIA_SOURCE_MODE_BROWSE] = new RemoteCallbackList();

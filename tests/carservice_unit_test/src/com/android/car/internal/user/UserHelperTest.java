@@ -52,7 +52,7 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUp() {
-        when(mContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
+        when(mContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
         when(mContext.getApplicationContext()).thenReturn(mContext);
         when(mContext.getResources()).thenReturn(mResources);
     }

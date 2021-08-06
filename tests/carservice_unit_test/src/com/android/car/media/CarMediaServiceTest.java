@@ -107,7 +107,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
 
         doReturn(mResources).when(mContext).getResources();
-        doReturn(mUserManager).when(mContext).getSystemService(Context.USER_SERVICE);
+        doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
         UserInfo userInfo = new UserInfo(TEST_USER_ID, "test_user", UserInfo.FLAG_PRIMARY);
         AndroidMockitoHelper.mockAmGetCurrentUser(TEST_USER_ID);
         AndroidMockitoHelper.mockUmGetUserInfo(mUserManager, userInfo);

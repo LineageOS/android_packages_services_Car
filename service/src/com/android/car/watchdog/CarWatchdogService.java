@@ -356,7 +356,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, "Cannot register to car watchdog daemon: %s", e);
         }
-        UserManager userManager = UserManager.get(mContext);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
+
         List<UserInfo> users = userManager.getUsers();
         try {
             // TODO(b/152780162): reduce the number of RPC calls(isUserRunning).

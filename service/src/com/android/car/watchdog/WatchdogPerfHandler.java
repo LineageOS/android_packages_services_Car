@@ -389,7 +389,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
-        UserManager userManager = UserManager.get(mContext);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserInfo> userInfos = userManager.getAliveUsers();
         String genericPackageName = null;
         synchronized (mLock) {
@@ -437,7 +437,7 @@ public final class WatchdogPerfHandler {
             return getPackageKillableStatesForUserId(userHandle.getIdentifier(), pm);
         }
         List<PackageKillableState> packageKillableStates = new ArrayList<>();
-        UserManager userManager = UserManager.get(mContext);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserInfo> userInfos = userManager.getAliveUsers();
         for (int i = 0; i < userInfos.size(); ++i) {
             packageKillableStates.addAll(
