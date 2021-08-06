@@ -371,10 +371,22 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int FUEL_LEVEL = 291504903;
     /**
-     * Fuel door open
-     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS} to read the property.
-     * Requires the signature permission: android.car.permission.CONTROL_CAR_ENERGY_PORTS to write
-     * the property.
+     * Fuel door open.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY_PORTS} to read property.
+     *  <li>Signature permission, android.car.permission.CONTROL_CAR_ENERGY_PORTS, to write
+     *  property.
+     * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
@@ -399,17 +411,42 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int EV_BATTERY_LEVEL = 291504905;
     /**
-     * EV charge port open
-     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS} to read the property.
-     * Requires the signature permission: android.car.permission.CONTROL_CAR_ENERGY_PORTS to write
-     * the property.
+     * EV charge port open.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY_PORTS} to read property.
+     *  <li>Signature permission, android.car.permission.CONTROL_CAR_ENERGY_PORTS, to write
+     *  property.
+     * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY_PORTS))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_CONTROL_ENERGY_PORTS))
     public static final int EV_CHARGE_PORT_OPEN = 287310602;
     /**
-     * EV charge port connected
-     * Requires permission: {@link Car#PERMISSION_ENERGY_PORTS}.
+     * EV charge port connected.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY_PORTS} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY_PORTS)
     public static final int EV_CHARGE_PORT_CONNECTED = 287310603;
