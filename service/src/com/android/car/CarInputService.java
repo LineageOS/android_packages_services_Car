@@ -449,6 +449,12 @@ public class CarInputService extends ICarInput.Stub
                 InputDevice.SOURCE_CLASS_BUTTON);
     }
 
+    /**
+     * Requests capturing of input event for the specified display for all requested input types.
+     *
+     * Currently this method requires {@code android.car.permission.CAR_MONITOR_INPUT} or
+     * {@code android.permission.MONITOR_INPUT} permissions (any of them will be acceptable).
+     */
     @Override
     public int requestInputEventCapture(ICarInputCallback callback,
             @DisplayTypeEnum int targetDisplayType,
@@ -457,6 +463,13 @@ public class CarInputService extends ICarInput.Stub
                 requestFlags);
     }
 
+    /**
+     * Overloads #requestInputEventCapture(int, int[], int, CarInputCaptureCallback) by providing
+     * a {@link java.util.concurrent.Executor} to be used when invoking the callback argument.
+     *
+     * Currently this method requires {@code android.car.permission.CAR_MONITOR_INPUT} or
+     * {@code android.permission.MONITOR_INPUT} permissions (any of them will be acceptable).
+     */
     @Override
     public void releaseInputEventCapture(ICarInputCallback callback,
             @DisplayTypeEnum int targetDisplayType) {
