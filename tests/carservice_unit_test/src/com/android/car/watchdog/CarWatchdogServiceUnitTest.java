@@ -81,7 +81,9 @@ import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.os.Binder;
+import android.os.Handler;
 import android.os.IBinder;
+import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -111,6 +113,7 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 /**
@@ -1209,6 +1212,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         int nonCriticalVndrPkgUid = getUid(2564);
         int thirdPartyPkgUid = getUid(2044);
 
+        mCarWatchdogService.setResourceOveruseKillingDelay(1000);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "system_package.critical", criticalSysPkgUid, null),
@@ -1259,6 +1263,13 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
 
         mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
 
+        /*
+         * Handling of packages that exceed I/O thresholds is done on the main thread. To ensure
+         * the handling completes before verification, wait for the message to be posted on the
+         * main thread and execute an empty block on the main thread.
+         */
+        delayedRunOnMainSync(() -> {}, /* delayMillis= */2000);
+
         List<ResourceOveruseStats> expectedStats = new ArrayList<>();
 
         expectedStats.add(constructResourceOveruseStats(criticalSysPkgUid,
@@ -1292,14 +1303,13 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         verifyActionsTakenOnResourceOveruse(expectedActions);
     }
 
-
-
     @Test
     public void testLatestIoOveruseStatsWithSharedUid() throws Exception {
         int criticalSysSharedUid = Binder.getCallingUid();
         int nonCriticalVndrSharedUid = getUid(2564);
         int thirdPartySharedUid = getUid(2044);
 
+        mCarWatchdogService.setResourceOveruseKillingDelay(1000);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "system_package.A", criticalSysSharedUid, "system_shared_package"),
@@ -1346,6 +1356,13 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                                 /* totalOveruses= */2)));
 
         mWatchdogServiceForSystemImpl.latestIoOveruseStats(packageIoOveruseStats);
+
+        /*
+         * Handling of packages that exceed I/O thresholds is done on the main thread. To ensure
+         * the handling completes before verification, wait for the message to be posted on the
+         * main thread and execute an empty block on the main thread.
+         */
+        delayedRunOnMainSync(() -> {}, /* delayMillis= */2000);
 
         List<ResourceOveruseStats> expectedStats = new ArrayList<>();
 
@@ -1795,9 +1812,14 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         ArgumentCaptor<List<PackageResourceOveruseAction>> resourceOveruseActionsCaptor =
                 ArgumentCaptor.forClass((Class) List.class);
 
-        verify(mMockCarWatchdogDaemon, timeout(MAX_WAIT_TIME_MS)).actionTakenOnResourceOveruse(
+        verify(mMockCarWatchdogDaemon,
+                timeout(MAX_WAIT_TIME_MS).times(2)).actionTakenOnResourceOveruse(
                 resourceOveruseActionsCaptor.capture());
-        List<PackageResourceOveruseAction> actual = resourceOveruseActionsCaptor.getValue();
+        List<PackageResourceOveruseAction> actual = new ArrayList<>();
+        for (List<PackageResourceOveruseAction> actions :
+                resourceOveruseActionsCaptor.getAllValues()) {
+            actual.addAll(actions);
+        }
 
         assertThat(actual).comparingElementsUsing(
                 Correspondence.from(
@@ -2008,6 +2030,24 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         action.resourceTypes = resourceTypes;
         action.resourceOveruseActionType = resourceOveruseActionType;
         return action;
+    }
+
+    private static void delayedRunOnMainSync(Runnable action, long delayMillis)
+            throws InterruptedException {
+        AtomicBoolean isComplete = new AtomicBoolean();
+        Handler handler = new Handler(Looper.getMainLooper());
+        handler.postDelayed(() -> {
+            action.run();
+            synchronized (action) {
+                isComplete.set(true);
+                action.notifyAll();
+            }
+        }, delayMillis);
+        synchronized (action) {
+            while (!isComplete.get()) {
+                action.wait();
+            }
+        }
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {

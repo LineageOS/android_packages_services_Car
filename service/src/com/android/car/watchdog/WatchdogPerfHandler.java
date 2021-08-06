@@ -75,6 +75,7 @@ import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
+import android.util.SparseBooleanArray;
 
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -99,6 +100,8 @@ public final class WatchdogPerfHandler {
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS = "MAPS";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA = "MEDIA";
     public static final String INTERNAL_APPLICATION_CATEGORY_TYPE_UNKNOWN = "UNKNOWN";
+
+    static final long RESOURCE_OVERUSE_KILLING_DELAY_MILLS = 10_000;
 
     private static final long MAX_WAIT_TIME_MILLS = 3_000;
 
@@ -134,6 +137,8 @@ public final class WatchdogPerfHandler {
             mPendingSetResourceOveruseConfigurationsRequest = null;
     @GuardedBy("mLock")
     boolean mIsConnectedToDaemon;
+    @GuardedBy("mLock")
+    long mResourceOveruseKillingDelayMills;
 
     public WatchdogPerfHandler(Context context, CarWatchdogDaemonHelper daemonHelper,
             PackageInfoHandler packageInfoHandler) {
@@ -142,6 +147,7 @@ public final class WatchdogPerfHandler {
         mPackageInfoHandler = packageInfoHandler;
         mMainHandler = new Handler(Looper.getMainLooper());
         mLastStatsReportUTC = ZonedDateTime.now(ZoneOffset.UTC);
+        mResourceOveruseKillingDelayMills = RESOURCE_OVERUSE_KILLING_DELAY_MILLS;
     }
 
     /** Initializes the handler. */
@@ -574,6 +580,7 @@ public final class WatchdogPerfHandler {
 
     /** Processes the latest I/O overuse stats */
     public void latestIoOveruseStats(List<PackageIoOveruseStats> packageIoOveruseStats) {
+        SparseBooleanArray recurringIoOverusesByUid = new SparseBooleanArray();
         int[] uids = new int[packageIoOveruseStats.size()];
         for (int i = 0; i < packageIoOveruseStats.size(); ++i) {
             uids[i] = packageIoOveruseStats.get(i).uid;
@@ -628,44 +635,18 @@ public final class WatchdogPerfHandler {
                     mOveruseActionsByUserPackage.add(overuseAction);
                     continue;
                 }
-                IPackageManager packageManager = ActivityThread.getPackageManager();
-                List<String> packages = Collections.singletonList(genericPackageName);
-                if (usage.isSharedPackage()) {
-                    packages = mPackageInfoHandler.getPackagesForUid(
-                            stats.uid, genericPackageName);
-                }
-                for (int pkgIdx = 0; pkgIdx < packages.size(); ++pkgIdx) {
-                    String pkg = packages.get(pkgIdx);
-                    try {
-                        int oldEnabledState = -1;
-                        if (!hasRecurringOveruse) {
-                            oldEnabledState = packageManager.getApplicationEnabledSetting(
-                                    pkg, userId);
-                            if (oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED
-                                    || oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
-                                    || oldEnabledState
-                                    == COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
-                                continue;
-                            }
-                        }
-                        packageManager.setApplicationEnabledSetting(pkg,
-                                COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
-                                mContext.getPackageName());
-                        overuseAction.resourceOveruseActionType = hasRecurringOveruse
-                                ? KILLED_RECURRING_OVERUSE : KILLED;
-                        if (oldEnabledState != -1) {
-                            usage.oldEnabledStateByPackage.put(pkg, oldEnabledState);
-                        }
-                    } catch (RemoteException e) {
-                        Slogf.e(TAG, "Failed to disable application for user %d, package '%s'",
-                                userId, pkg);
-                    }
-                }
-                mOveruseActionsByUserPackage.add(overuseAction);
+
+                recurringIoOverusesByUid.put(stats.uid, hasRecurringOveruse);
             }
             if (!mOveruseActionsByUserPackage.isEmpty()) {
                 mMainHandler.sendMessage(obtainMessage(
                         WatchdogPerfHandler::notifyActionsTakenOnOveruse, this));
+            }
+            if (recurringIoOverusesByUid.size() > 0) {
+                mMainHandler.sendMessageDelayed(
+                        obtainMessage(WatchdogPerfHandler::handleIoOveruseKilling,
+                                this, recurringIoOverusesByUid, genericPackageNamesByUid),
+                        mResourceOveruseKillingDelayMills);
             }
         }
         if (DEBUG) {
@@ -694,6 +675,65 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Handle packages that exceed resource overuse thresholds */
+    private void handleIoOveruseKilling(SparseBooleanArray recurringIoOverusesByUid,
+            SparseArray<String> genericPackageNamesByUid) {
+        IPackageManager packageManager = ActivityThread.getPackageManager();
+        synchronized (mLock) {
+            for (int i = 0; i < recurringIoOverusesByUid.size(); i++) {
+                int uid = recurringIoOverusesByUid.keyAt(i);
+                boolean hasRecurringOveruse = recurringIoOverusesByUid.valueAt(i);
+                String genericPackageName = genericPackageNamesByUid.get(uid);
+                int userId = UserHandle.getUserId(uid);
+                String key = getUserPackageUniqueId(userId, genericPackageName);
+                PackageResourceUsage usage = mUsageByUserPackage.get(key);
+
+                PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
+                overuseAction.packageIdentifier = new PackageIdentifier();
+                overuseAction.packageIdentifier.name = genericPackageName;
+                overuseAction.packageIdentifier.uid = uid;
+                overuseAction.resourceTypes = new int[]{ ResourceType.IO };
+                overuseAction.resourceOveruseActionType = NOT_KILLED;
+
+                List<String> packages = Collections.singletonList(genericPackageName);
+                if (usage.isSharedPackage()) {
+                    packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);
+                }
+                for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
+                    String packageName = packages.get(pkgIdx);
+                    try {
+                        int oldEnabledState = -1;
+                        if (!hasRecurringOveruse) {
+                            oldEnabledState = packageManager.getApplicationEnabledSetting(
+                                    packageName, userId);
+                            if (oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED
+                                    || oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
+                                    || oldEnabledState
+                                    == COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
+                                continue;
+                            }
+                        }
+                        packageManager.setApplicationEnabledSetting(packageName,
+                                COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
+                                mContext.getPackageName());
+                        overuseAction.resourceOveruseActionType = hasRecurringOveruse
+                                ? KILLED_RECURRING_OVERUSE : KILLED;
+                        if (oldEnabledState != -1) {
+                            usage.oldEnabledStateByPackage.put(packageName, oldEnabledState);
+                        }
+                    } catch (RemoteException e) {
+                        Slogf.e(TAG, "Failed to disable application for user %d, package '%s'",
+                                userId, packageName);
+                    }
+                }
+                mOveruseActionsByUserPackage.add(overuseAction);
+            }
+            if (!mOveruseActionsByUserPackage.isEmpty()) {
+                notifyActionsTakenOnOveruse();
+            }
+        }
+    }
+
     /** Resets the resource overuse stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
         synchronized (mLock) {
@@ -707,6 +747,13 @@ public final class WatchdogPerfHandler {
                      */
                 }
             }
+        }
+    }
+
+    /** Set the delay to kill a package after the package is notified of resource overuse. */
+    public void setResourceOveruseKillingDelay(long millis) {
+        synchronized (mLock) {
+            mResourceOveruseKillingDelayMills = millis;
         }
     }
 

@@ -475,6 +475,11 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
     }
 
+    @VisibleForTesting
+    void setResourceOveruseKillingDelay(long millis) {
+        mWatchdogPerfHandler.setResourceOveruseKillingDelay(millis);
+    }
+
     private static final class ICarWatchdogServiceForSystemImpl
             extends ICarWatchdogServiceForSystem.Stub {
         private final WeakReference<CarWatchdogService> mService;
