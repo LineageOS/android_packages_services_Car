@@ -16,7 +16,7 @@
 
 package com.android.car.garagemode;
 
-import static com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.app.job.JobScheduler;
 import android.car.builtin.util.Slogf;
@@ -31,7 +31,7 @@ import android.os.UserHandle;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
-import com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.VisibleForTesting;
 

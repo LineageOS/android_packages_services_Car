@@ -80,9 +80,7 @@ android_app {
         "android.car.builtin-stubs"
     ],
 
-    static_libs: common_lib_deps + [
-        "com.android.car.internal.system",
-    ],
+    static_libs: common_lib_deps,
 
     jni_libs: [
         "libcarservicejni",

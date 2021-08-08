@@ -15,9 +15,7 @@
  */
 package com.android.car.internal;
 
-import static com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
-
-import com.android.car.internal.testing.ExcludeFromCodeCoverageGeneratedReport;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 /**
  * Provides common constants for CarService, CarServiceHelperService and other packages.
