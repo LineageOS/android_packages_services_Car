@@ -160,6 +160,7 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         mockWatchdogDaemon();
         setupUsers();
         mCarWatchdogService.init();
+        verifyResourceOveruseConfigurationsSynced(1);
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
         captureBroadcastReceiver();
         captureDaemonBinderDeathRecipient();
@@ -899,6 +900,42 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
+    public void testGetPackageKillableStatesAsUserWithSafeToKillPackages() throws Exception {
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration systemConfig =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        systemConfig.componentType = ComponentType.SYSTEM;
+        systemConfig.safeToKillPackages = Collections.singletonList("system_package.non_critical");
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        vendorConfig.componentType = ComponentType.VENDOR;
+        vendorConfig.safeToKillPackages = Collections.singletonList("vendor_package.non_critical");
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
+                .thenReturn(Arrays.asList(systemConfig, vendorConfig));
+        mCarWatchdogService.init();
+        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("system_package.non_critical", 1102459, null),
+                constructPackageManagerPackageInfo("third_party_package", 1103456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 1101278, null),
+                constructPackageManagerPackageInfo("vendor_package.non_critical", 1105573, null),
+                constructPackageManagerPackageInfo("third_party_package", 1203456, null),
+                constructPackageManagerPackageInfo("vendor_package.critical", 1201278, null)));
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                .containsExactly(
+                        new PackageKillableState("system_package.non_critical", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.critical", 11,
+                                PackageKillableState.KILLABLE_STATE_NEVER),
+                        new PackageKillableState("vendor_package.non_critical", 11,
+                                PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
     public void testGetPackageKillableStatesAsUserWithSharedUids() throws Exception {
         mockUmGetAliveUsers(mMockUserManager, 11, 12);
         injectPackageInfos(Arrays.asList(
@@ -925,6 +962,78 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                         new PackageKillableState("third_party_package.C", 11,
                                 PackageKillableState.KILLABLE_STATE_YES),
                         new PackageKillableState("third_party_package.D", 11,
+                                PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillPackages()
+            throws Exception {
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        vendorConfig.componentType = ComponentType.VENDOR;
+        vendorConfig.safeToKillPackages = Collections.singletonList(
+                "vendor_package.non_critical.A");
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
+                .thenReturn(Arrays.asList(vendorConfig));
+        mCarWatchdogService.init();
+        mockUmGetAliveUsers(mMockUserManager, 11);
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical.A", 1103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "system_package.A", 1103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.B", 1103456, "vendor_shared_package.A"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.C", 1105678, "third_party_shared_package"),
+                constructPackageManagerPackageInfo(
+                        "third_party_package.D", 1105678, "third_party_shared_package")));
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                .containsExactly(
+                        new PackageKillableState("vendor_package.non_critical.A", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("system_package.A", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.B", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.C", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("third_party_package.D", 11,
+                                PackageKillableState.KILLABLE_STATE_YES));
+    }
+
+    @Test
+    public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillSharedPackage()
+            throws Exception {
+        android.automotive.watchdog.internal.ResourceOveruseConfiguration vendorConfig =
+                new android.automotive.watchdog.internal.ResourceOveruseConfiguration();
+        vendorConfig.componentType = ComponentType.VENDOR;
+        vendorConfig.safeToKillPackages = Collections.singletonList(
+                "shared:vendor_shared_package.B");
+        when(mMockCarWatchdogDaemon.getResourceOveruseConfigurations())
+                .thenReturn(Arrays.asList(vendorConfig));
+        mCarWatchdogService.init();
+        mockUmGetAliveUsers(mMockUserManager, 11);
+
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical.A", 1103456, "vendor_shared_package.B"),
+                constructPackageManagerPackageInfo(
+                        "system_package.non_critical.A", 1103456, "vendor_shared_package.B"),
+                constructPackageManagerPackageInfo(
+                        "vendor_package.non_critical.B", 1103456, "vendor_shared_package.B")));
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(new UserHandle(11)))
+                .containsExactly(
+                        new PackageKillableState("vendor_package.non_critical.A", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("system_package.non_critical.A", 11,
+                                PackageKillableState.KILLABLE_STATE_YES),
+                        new PackageKillableState("vendor_package.non_critical.B", 11,
                                 PackageKillableState.KILLABLE_STATE_YES));
     }
 
@@ -988,6 +1097,9 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
         assertThat(mCarWatchdogService.setResourceOveruseConfigurations(
                 sampleResourceOveruseConfigurations(), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO))
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
+
+        /* Expect two calls, the first is made at car watchdog service init */
+        verifyResourceOveruseConfigurationsSynced(2);
 
         InternalResourceOveruseConfigurationSubject
                 .assertThat(captureOnSetResourceOveruseConfigurations())
@@ -1133,7 +1245,8 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
                 () -> mCarWatchdogService.getResourceOveruseConfigurations(
                         CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
 
-        verify(mMockCarWatchdogDaemon, never()).getResourceOveruseConfigurations();
+        /* Method initially called in CarWatchdogService init */
+        verify(mMockCarWatchdogDaemon, times(1)).getResourceOveruseConfigurations();
     }
 
     @Test
@@ -1713,6 +1826,18 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     private void setupUsers() {
         when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mMockUserManager);
         mockUmGetAllUsers(mMockUserManager, new UserInfo[0]);
+    }
+
+    private void verifyResourceOveruseConfigurationsSynced(int wantedNumberOfInvocations)
+            throws Exception {
+        /*
+         * Syncing the resource configuration in the service with the daemon is done on the main
+         * thread. To ensure the sync completes before verification, execute an empty block on the
+         * main thread.
+         */
+        CarServiceUtils.runOnMainSync(() -> {});
+        verify(mMockCarWatchdogDaemon,
+                times(wantedNumberOfInvocations)).getResourceOveruseConfigurations();
     }
 
     private ICarWatchdogServiceForSystem registerCarWatchdogService() throws Exception {
