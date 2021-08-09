@@ -36,7 +36,6 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
-        "car-frameworks-service",
         "compatibility-device-util-axt",
         "mockito-target-minus-junit4",
         "testng",

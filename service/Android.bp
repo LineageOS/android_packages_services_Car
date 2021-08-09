@@ -94,6 +94,30 @@ android_app {
     },
 }
 
+// TODO(b/194941497): SHIPSTOP - remove this
+// This will generate empty stub version for the added source. This is useful to add dependency
+// which is still using hidden API. Any component added to android.car.module should be removed
+// from this.
+droidstubs {
+    name: "carservice-stub-for-hidden-api-check-docs",
+    // Code under here are still having hidden API inside
+    srcs: [
+    ],
+    // metalava still hides hidden methods even with --hidden, so needs additional annotation
+    // to include them
+    args: "--hide CallbackInterface " +
+        "--stub-packages com.android.car* --package " +
+        "--show-annotation android.annotation.SystemApi " +
+        "--show-annotation com.android.internal.annotations.VisibleForTesting " +
+        "--show-annotation android.car.annotation.MandatoryFeature " +
+        "--show-annotation android.car.annotation.OptionalFeature " +
+        "--show-annotation com.android.car.internal.VisibleForHiddenApiCheck ",
+
+    installable: false,
+
+    visibility: ["//packages/services/Car/service"],
+}
+
 // TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
 android_app {
     name: "CarServiceModule",
@@ -101,30 +125,41 @@ android_app {
     manifest: "AndroidManifestForModuleBuildTest.xml",
 
     srcs: [
+        //":carservice-stub-for-hidden-api-check-docs",
+        ":statslog-Car-java-gen",
+        //"src/com/android/car/CarFeatureController.java",
         "src/com/android/car/CarLog.java",
+        //"src/com/android/car/CarLocalServices.java",
+        "src/com/android/car/CarServiceBase.java",
+        "src/com/android/car/CarServiceUtils.java",
+        "src/com/android/car/CarStatsLogHelper.java",
+        "src/com/android/car/CommonThread.java",
+        //"src/com/android/car/PermissionHelper.java",
         //"src/com/android/car/*.java",
         //"src/com/android/car/admin/**/*.java",
         //"src/com/android/car/am/**/*.java",
         //"src/com/android/car/audio/**/*.java",
+        //"src/com/android/car/bluetooth/**/*.java",
         //"src/com/android/car/cluster/**/*.java",
         //"src/com/android/car/evs/**/*.java",
         //"src/com/android/car/garagemode/**/*.java",
         //"src/com/android/car/hal/**/*.java",
         //"src/com/android/car/pm/**/*.java",
         //"src/com/android/car/power/**/*.java",
-        //"src/com/android/car/stats/**/*.java",
+        "src/com/android/car/stats/**/*.java",
         //"src/com/android/car/storagemonitoring/**/*.java",
         //"src/com/android/car/systeminterface/**/*.java",
         //"src/com/android/car/telemetry/**/*.java",
         //"src/com/android/car/user/**/*.java",
         "src/com/android/car/util/*.java",
-        //"src/com/android/car/vms/**/*.java",
+        "src/com/android/car/vms/**/*.java",
         //"src/com/android/car/watchdog/**/*.java",
     ],
 
     exclude_srcs: [
         "src/com/android/car/CarServiceImpl.java",
         "src/com/android/car/ICarImpl.java",
+        "src/com/android/car/hal/UserHalService.java",
     ],
 
     resource_dirs: ["res"],
@@ -140,7 +175,30 @@ android_app {
 
     libs: [
         "android.car-module.impl",
-        "android.car.builtin"
+        "android.car.builtin",
+        "framework-annotations-lib",
+        "framework-statsd",
+        "modules-utils-preconditions",
+    ],
+
+    static_libs: [
+        "android.automotive.telemetry.internal-java",  // ICarTelemetryInternal
+        "android.car.cluster.navigation",
+        //"android.car.userlib",
+        "android.car.watchdoglib",
+        "android.frameworks.automotive.powerpolicy.internal-java",
+        "android.hidl.base-V1.0-java",
+        "android.hardware.automotive.audiocontrol-V1.0-java",
+        "android.hardware.automotive.audiocontrol-V2.0-java",
+        "android.hardware.automotive.audiocontrol-V1-java",
+        "android.hardware.automotive.vehicle-V2.0-java",
+        "android.hardware.health-V1.0-java",
+        "android.hardware.health-V2.0-java",
+        "android.hardware.automotive.occupant_awareness-V1-java",
+        "vehicle-hal-support-lib",
+        //"car-systemtest",
+        "com.android.car.procfsinspector-client",
+        "cartelemetry-protos",
     ],
 
     optimize: {
@@ -157,7 +215,8 @@ java_library {
         "src/com/android/car/CarServiceBase.java",
         "src/com/android/car/CarServiceUtils.java",
         "src/com/android/car/CarLog.java",
-        "src/com/android/car/Utils.java",
+        "src/com/android/car/util/IndentingPrintWriter.java",
+        "src/com/android/car/util/TransitionLog.java",
     ],
 
     libs: [
@@ -180,6 +239,7 @@ java_library {
 
     srcs: [
         "src/com/android/car/CarLog.java",
+        "src/com/android/car/util/IndentingPrintWriter.java",
     ],
 
     libs: [
@@ -206,7 +266,6 @@ android_library {
     libs: [
         "android.car",
         "android.car.builtin",
-        "car-frameworks-service",
     ],
 
     static_libs: common_lib_deps,
@@ -238,7 +297,6 @@ android_library {
     libs: common_lib_deps + [
         "android.car",
         "android.car.builtin",
-        "car-frameworks-service",
     ],
 
     product_variables: {

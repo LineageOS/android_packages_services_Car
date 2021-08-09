@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,19 +28,19 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UtilsGetProfileNameTest {
+public final class BluetoothUtilsGetProfileNameTest {
 
     private final int mProfile;
     private final String mName;
 
-    public UtilsGetProfileNameTest(int profile, String name) {
+    public BluetoothUtilsGetProfileNameTest(int profile, String name) {
         mProfile = profile;
         mName = name;
     }
 
     @Test
     public void testGetProfileName() {
-        String result = Utils.getProfileName(mProfile);
+        String result = BluetoothUtils.getProfileName(mProfile);
 
         assertThat(result).contains(String.valueOf(mProfile));
         assertThat(result).ignoringCase().contains(mName);

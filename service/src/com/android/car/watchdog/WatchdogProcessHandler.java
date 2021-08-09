@@ -34,10 +34,10 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;

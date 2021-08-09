@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_A2DP_SINK_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_HFP_CLIENT_DEVICES;
@@ -43,10 +43,12 @@ import android.os.Parcelable;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -189,7 +191,7 @@ public class BluetoothProfileDeviceManager {
      */
     private void handleDeviceConnectionStateChange(BluetoothDevice device, int state) {
         logd("Connection state changed [device: " + device + ", state: "
-                        + Utils.getConnectionStateName(state) + "]");
+                        + BluetoothUtils.getConnectionStateName(state) + "]");
         if (state == BluetoothProfile.STATE_CONNECTED) {
             if (isAutoConnecting() && isAutoConnectingDevice(device)) {
                 continueAutoConnecting();
@@ -217,7 +219,7 @@ public class BluetoothProfileDeviceManager {
      */
     private void handleDeviceBondStateChange(BluetoothDevice device, int state) {
         logd("Bond state has changed [device: " + device + ", state: "
-                + Utils.getBondStateName(state) + "]");
+                + BluetoothUtils.getBondStateName(state) + "]");
         if (state == BluetoothDevice.BOND_NONE) {
             mBondingDevices.remove(device.getAddress());
             // Note: We have seen cases of unbonding events being sent without actually
@@ -264,7 +266,7 @@ public class BluetoothProfileDeviceManager {
      * @param state - The new state of the Bluetooth adapter
      */
     private void handleAdapterStateChange(int state) {
-        logd("Bluetooth Adapter state changed: " + Utils.getAdapterStateName(state));
+        logd("Bluetooth Adapter state changed: " + BluetoothUtils.getAdapterStateName(state));
         // Crashes of the BT stack mean we're not promised to see all the state changes we
         // might want to see. In order to be a bit more robust to crashes, we'll treat any
         // non-ON state as a time to cancel auto-connect. This gives us a better chance of
@@ -320,8 +322,8 @@ public class BluetoothProfileDeviceManager {
         mPrioritizedDevices = new ArrayList<>();
         BluetoothProfileInfo bpi = sProfileActions.get(profileId);
         if (bpi == null) {
-            throw new IllegalArgumentException("Provided profile " + Utils.getProfileName(profileId)
-                    + " is unrecognized");
+            throw new IllegalArgumentException("Provided profile "
+                    + BluetoothUtils.getProfileName(profileId) + " is unrecognized");
         }
         mProfileId = profileId;
         mSettingsKey = bpi.mSettingsKey;
@@ -595,7 +597,8 @@ public class BluetoothProfileDeviceManager {
      * @return true on success, false otherwise
      */
     private boolean setProfilePriority(BluetoothDevice device, int priority) {
-        logd("Set " + device + " stack priority to " + Utils.getProfilePriorityName(priority));
+        logd("Set " + device + " stack priority to "
+                + BluetoothUtils.getProfilePriorityName(priority));
         try {
             mBluetoothUserProxies.setProfilePriority(mProfileId, device, priority);
         } catch (RemoteException e) {
@@ -760,7 +763,7 @@ public class BluetoothProfileDeviceManager {
         if (BluetoothUuid.containsAnyUuid(uuids, mProfileUuids)) {
             int devicePriority = getProfilePriority(device);
             logd("Device " + device + " supports this profile. Priority: "
-                    + Utils.getProfilePriorityName(devicePriority));
+                    + BluetoothUtils.getProfilePriorityName(devicePriority));
             // Transition from PRIORITY_OFF to any other Bluetooth stack priority value is supposed
             // to be a user choice, enabled through the Settings applications. That's why we don't
             // do it here for them.
@@ -783,7 +786,8 @@ public class BluetoothProfileDeviceManager {
      */
     private void triggerConnections(BluetoothDevice device) {
         for (int profile : mProfileTriggers) {
-            logd("Trigger connection to " + Utils.getProfileName(profile) + "on " + device);
+            logd("Trigger connection to " + BluetoothUtils.getProfileName(profile) + "on "
+                    + device);
             try {
                 mBluetoothUserProxies.bluetoothConnectToProfile(profile, device);
             } catch (RemoteException e) {
@@ -798,7 +802,7 @@ public class BluetoothProfileDeviceManager {
      * @param writer PrintWriter object to write lines to
      */
     public void dump(IndentingPrintWriter writer) {
-        writer.printf("%s [%s]\n", TAG, Utils.getProfileName(mProfileId));
+        writer.printf("%s [%s]\n", TAG, BluetoothUtils.getProfileName(mProfileId));
         writer.increaseIndent();
         writer.printf("User: %d\n", mUserId);
         writer.printf("Settings Location: %s\n", mSettingsKey);
@@ -821,8 +825,9 @@ public class BluetoothProfileDeviceManager {
      */
     private void logd(String msg) {
         if (DBG) {
-            Slog.d(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
-                    + msg);
+            Slog.d(TAG,
+                    "[" + BluetoothUtils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
+                            + msg);
         }
     }
 
@@ -830,6 +835,7 @@ public class BluetoothProfileDeviceManager {
      * Log a message to WARN
      */
     private void logw(String msg) {
-        Slog.w(TAG, "[" + Utils.getProfileName(mProfileId) + " - User: " + mUserId + "] " + msg);
+        Slog.w(TAG, "[" + BluetoothUtils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
+                + msg);
     }
 }

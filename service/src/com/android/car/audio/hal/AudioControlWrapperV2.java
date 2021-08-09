@@ -28,12 +28,12 @@ import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 
 import java.util.List;
 import java.util.NoSuchElementException;

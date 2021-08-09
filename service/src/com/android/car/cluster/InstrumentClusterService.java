@@ -42,7 +42,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.view.KeyEvent;
 
@@ -56,6 +55,7 @@ import com.android.car.am.FixedActivityService;
 import com.android.car.cluster.ClusterNavigationService.ContextOwner;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

@@ -25,8 +25,8 @@ import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.annotation.Retention;

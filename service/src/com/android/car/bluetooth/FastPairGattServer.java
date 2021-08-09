@@ -33,10 +33,10 @@ import android.content.IntentFilter;
 import android.os.Handler;
 import android.os.ParcelUuid;
 import android.util.Base64;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
 import com.android.car.CarServiceUtils;
+import com.android.car.util.IndentingPrintWriter;
 
 import java.math.BigInteger;
 import java.nio.ByteBuffer;

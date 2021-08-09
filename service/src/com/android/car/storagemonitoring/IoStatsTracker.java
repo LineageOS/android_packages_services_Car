@@ -20,9 +20,9 @@ import android.car.storagemonitoring.IoStatsEntry;
 import android.car.storagemonitoring.UidIoRecord;
 import android.util.SparseArray;
 
-import com.android.car.SparseArrayStream;
 import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.util.SparseArrayStream;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.List;

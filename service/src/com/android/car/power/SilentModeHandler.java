@@ -21,9 +21,9 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slogf;
 import android.os.FileObserver;
 import android.os.SystemProperties;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

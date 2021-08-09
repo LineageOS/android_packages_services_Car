@@ -31,12 +31,12 @@ import android.car.user.UserStopResult;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.infra.AndroidFuture;
 
 /**

@@ -58,16 +58,17 @@ import android.net.wifi.WifiScanner;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerExecutor;
 import android.os.IBinder;
 import android.os.Message;
 import android.os.Messenger;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.BinderInterfaceContainer.BinderInterface;
+import com.android.car.bluetooth.CarBluetoothService;
+import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

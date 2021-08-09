@@ -36,8 +36,9 @@ import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.util.IndentingPrintWriter;
 
+import com.android.car.util.IndentingPrintWriter;
+import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -72,7 +73,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
 
     // For dumpsys logging
     @GuardedBy("mLock")
-    private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
+    private final LinkedList<TransitionLog> mTransitionLogs = new LinkedList<>();
 
     @GuardedBy("mLock")
     private int mLastGear;
@@ -253,7 +254,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
         mDrivingStateClients.dump(writer, "Driving State Clients ");
         writer.println("Driving state change log:");
         synchronized (mLock) {
-            for (Utils.TransitionLog tLog : mTransitionLogs) {
+            for (TransitionLog tLog : mTransitionLogs) {
                 writer.println(tLog);
             }
             writer.println("Current Driving State: " + mCurrentDrivingState.eventValue);
@@ -382,7 +383,7 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
             mTransitionLogs.remove();
         }
 
-        Utils.TransitionLog tLog = new Utils.TransitionLog(name, from, to, timestamp);
+        TransitionLog tLog = new TransitionLog(name, from, to, timestamp);
         mTransitionLogs.add(tLog);
     }
 

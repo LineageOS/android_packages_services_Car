@@ -31,12 +31,12 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

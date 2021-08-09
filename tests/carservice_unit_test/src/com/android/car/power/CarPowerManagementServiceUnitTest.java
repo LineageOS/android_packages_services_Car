@@ -27,7 +27,6 @@ import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
@@ -50,7 +49,6 @@ import android.os.UserManager;
 import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -70,6 +68,7 @@ import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IVoiceInteractionManagerService;
 import com.android.internal.os.IResultReceiver;

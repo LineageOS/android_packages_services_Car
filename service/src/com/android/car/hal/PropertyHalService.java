@@ -26,6 +26,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -35,7 +36,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
-import android.os.Build;
 import android.os.ServiceSpecificException;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -425,7 +425,7 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
                 // Check payload if it is a userdebug build.
-                if (Build.IS_DEBUGGABLE && !mPropIds.checkPayload(v)) {
+                if (BuildHelper.isDebuggableBuild() && !mPropIds.checkPayload(v)) {
                     Slog.e(TAG, "Drop event for property: " + v + " because it is failed "
                             + "in payload checking.");
                     continue;

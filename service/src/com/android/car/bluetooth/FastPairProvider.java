@@ -25,11 +25,11 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.res.Resources;
 import android.os.Handler;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
+import com.android.car.util.IndentingPrintWriter;
 
 /**
  * An advertiser for the Bluetooth LE based Fast Pair service. FastPairProvider enables easy

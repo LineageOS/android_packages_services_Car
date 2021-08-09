@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
@@ -36,6 +36,7 @@ import android.provider.Settings;
 import android.test.mock.MockContentResolver;
 import android.util.Log;
 
+import com.android.car.CarLocalServices;
 import com.android.dx.mockito.inline.extended.StaticMockitoSessionBuilder;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.test.BroadcastInterceptingContext;

@@ -22,9 +22,16 @@ java_library {
 
     name: "com.android.car.procfsinspector-client",
 
+    sdk_version: "module_current",
+
     srcs: [
         "src/**/*.java",
         "src/**/I*.aidl",
     ],
+
+    libs: [
+        "android.car.builtin",
+        "framework-annotations-lib",
+    ]
 
 }

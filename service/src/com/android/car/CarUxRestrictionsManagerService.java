@@ -54,7 +54,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.ArraySet;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
@@ -64,6 +63,8 @@ import android.view.Display;
 import android.view.DisplayAddress;
 
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.util.IndentingPrintWriter;
+import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -182,7 +183,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     // For dumpsys logging
     @GuardedBy("mLock")
-    private final LinkedList<Utils.TransitionLog> mTransitionLogs = new LinkedList<>();
+    private final LinkedList<TransitionLog> mTransitionLogs = new LinkedList<>();
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
             CarPropertyService propertyService) {
@@ -707,7 +708,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 config.dump(writer);
             }
             writer.println("UX Restriction change log:");
-            for (Utils.TransitionLog tlog : mTransitionLogs) {
+            for (TransitionLog tlog : mTransitionLogs) {
                 writer.println(tlog);
             }
             writer.println("UX Restriction display info:");
@@ -1080,7 +1081,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             mTransitionLogs.remove();
         }
 
-        Utils.TransitionLog tLog = new Utils.TransitionLog(name, from, to, timestamp, extra);
+        TransitionLog tLog = new TransitionLog(name, from, to, timestamp, extra);
         mTransitionLogs.add(tLog);
     }
 
@@ -1094,7 +1095,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         extra.append(oldRestrictions.isRequiresDistractionOptimization() ? "DO -> " : "No DO -> ");
         extra.append(newRestrictions.isRequiresDistractionOptimization() ? "DO" : "No DO");
 
-        Utils.TransitionLog tLog = new Utils.TransitionLog(TAG,
+        TransitionLog tLog = new TransitionLog(TAG,
                 oldRestrictions.getActiveRestrictions(), newRestrictions.getActiveRestrictions(),
                 System.currentTimeMillis(), extra.toString());
         mTransitionLogs.add(tLog);

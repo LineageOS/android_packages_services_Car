@@ -21,9 +21,9 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.media.AudioAttributes;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 
 import java.util.List;
 import java.util.Objects;

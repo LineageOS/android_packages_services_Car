@@ -28,9 +28,9 @@ import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.ManifestKey;
 import android.content.Context;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarServiceBase;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;

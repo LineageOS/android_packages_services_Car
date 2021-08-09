@@ -45,7 +45,6 @@ import static org.testng.Assert.assertThrows;
 import android.annotation.NonNull;
 import android.app.ActivityManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.mocks.AbstractExtendedMockitoTestCase.CustomMockitoSessionBuilder;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;

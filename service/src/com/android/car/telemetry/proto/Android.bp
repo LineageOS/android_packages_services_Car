@@ -21,6 +21,7 @@ java_library {
     proto: {
         type: "lite",
     },
+    sdk_version: "module_current",
     srcs: [
         ":cartelemetry-cardata-proto-srcs",
         "atoms.proto",

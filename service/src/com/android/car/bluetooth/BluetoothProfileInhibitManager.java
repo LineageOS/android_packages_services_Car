@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PROFILES_INHIBITED;
 
@@ -30,9 +30,12 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.provider.Settings;
 import android.text.TextUtils;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
+import com.android.car.CarLog;
+import com.android.car.CarServiceUtils;
+import com.android.car.util.IndentingPrintWriter;
+import com.android.car.util.SetMultimap;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.HashSet;
@@ -209,7 +212,7 @@ public class BluetoothProfileInhibitManager {
         @Override
         public void binderDied() {
             logd("Releasing inhibit request on profile "
-                    + Utils.getProfileName(mParams.getProfile())
+                    + BluetoothUtils.getProfileName(mParams.getProfile())
                     + " for device " + mParams.getDevice()
                     + ": requesting process died");
             removeSelf();
@@ -307,7 +310,7 @@ public class BluetoothProfileInhibitManager {
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
     boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Request profile inhibit: profile " + Utils.getProfileName(profile)
+        logd("Request profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
                 + ", device " + device.getAddress());
         BluetoothConnection params = new BluetoothConnection(profile, device);
         InhibitRecord record = new InhibitRecord(params, token);
@@ -325,7 +328,7 @@ public class BluetoothProfileInhibitManager {
      * @return True if the request was released, false if an error occurred.
      */
     boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Release profile inhibit: profile " + Utils.getProfileName(profile)
+        logd("Release profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
                 + ", device " + device.getAddress());
 
         BluetoothConnection params = new BluetoothConnection(profile, device);
@@ -377,7 +380,7 @@ public class BluetoothProfileInhibitManager {
                         // Add it to the already-disabled list, and do nothing else.
                         mAlreadyDisabledProfiles.add(params);
 
-                        logd("Profile " + Utils.getProfileName(params.getProfile())
+                        logd("Profile " + BluetoothUtils.getProfileName(params.getProfile())
                                 + " already disabled for device " + params.getDevice()
                                 + " - suppressing re-enable");
                     } else {
@@ -389,7 +392,7 @@ public class BluetoothProfileInhibitManager {
                                 params.getProfile(),
                                 params.getDevice());
                         logd("Disabled profile "
-                                + Utils.getProfileName(params.getProfile())
+                                + BluetoothUtils.getProfileName(params.getProfile())
                                 + " for device " + params.getDevice());
                     }
                 } catch (RemoteException e) {
@@ -466,7 +469,7 @@ public class BluetoothProfileInhibitManager {
             // The profile does not need any state changes, since it was disabled
             // before it was inhibited. Leave it disabled.
             logd("Not restoring profile "
-                    + Utils.getProfileName(params.getProfile()) + " for device "
+                    + BluetoothUtils.getProfileName(params.getProfile()) + " for device "
                     + params.getDevice() + " - was manually disabled");
             return true;
         }
@@ -479,7 +482,7 @@ public class BluetoothProfileInhibitManager {
             mBluetoothUserProxies.bluetoothConnectToProfile(
                     params.getProfile(),
                     params.getDevice());
-            logd("Restored profile " + Utils.getProfileName(params.getProfile())
+            logd("Restored profile " + BluetoothUtils.getProfileName(params.getProfile())
                     + " for device " + params.getDevice());
             return true;
         } catch (RemoteException e) {
@@ -566,8 +569,8 @@ public class BluetoothProfileInhibitManager {
         try {
             return mBluetoothUserProxies.isBluetoothConnectionProxyAvailable(profile);
         } catch (RemoteException e) {
-            loge("Car BT Service Remote Exception. Proxy for " + Utils.getProfileName(profile)
-                    + " not available.");
+            loge("Car BT Service Remote Exception. Proxy for "
+                    + BluetoothUtils.getProfileName(profile) + " not available.");
         }
         return false;
     }

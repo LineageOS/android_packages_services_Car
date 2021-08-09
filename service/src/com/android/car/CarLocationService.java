@@ -38,11 +38,11 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;

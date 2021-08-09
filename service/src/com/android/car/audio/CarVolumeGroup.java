@@ -25,12 +25,12 @@ import android.car.builtin.util.Slog;
 import android.car.media.CarAudioManager;
 import android.media.AudioDevicePort;
 import android.os.UserHandle;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;

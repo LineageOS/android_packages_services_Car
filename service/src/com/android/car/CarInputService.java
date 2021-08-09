@@ -19,7 +19,7 @@ import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
-import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
+import static com.android.car.bluetooth.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
@@ -53,15 +53,16 @@ import android.provider.CallLog.Calls;
 import android.provider.Settings;
 import android.telecom.TelecomManager;
 import android.text.TextUtils;
-import android.util.IndentingPrintWriter;
 import android.view.InputDevice;
 import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
+import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.hal.InputHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;

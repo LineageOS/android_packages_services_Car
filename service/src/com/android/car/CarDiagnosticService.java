@@ -28,12 +28,12 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.ArrayMap;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.Listeners.ClientWithRate;
 import com.android.car.hal.DiagnosticHalService;
 import com.android.car.hal.DiagnosticHalService.DiagnosticCapabilities;
 import com.android.car.internal.CarPermission;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Arrays;

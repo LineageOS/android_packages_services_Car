@@ -18,42 +18,23 @@ package com.android.car;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.Mockito.when;
-
-import android.bluetooth.BluetoothDevice;
 import android.text.TextUtils;
+
+import com.android.car.util.TransitionLog;
+import com.android.car.util.Utils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.UUID;
 
 @RunWith(MockitoJUnitRunner.class)
 public final class UtilsTest {
-
-    @Mock
-    private BluetoothDevice mMockBluetoothDevice;
-
-    @Test
-    public void testGetDeviceDebugInfo() {
-        when(mMockBluetoothDevice.getName()).thenReturn("deviceName");
-        when(mMockBluetoothDevice.getAddress()).thenReturn("deviceAddress");
-
-        assertThat(Utils.getDeviceDebugInfo(mMockBluetoothDevice))
-            .isEqualTo("(name = deviceName, addr = deviceAddress)");
-    }
-
-    @Test
-    public void testGetDeviceDebugInfo_nullDevice() {
-        assertThat(Utils.getDeviceDebugInfo(null)).isEqualTo("(null)");
-    }
-
     @Test
     public void testTransitionLogToString() {
-        Utils.TransitionLog transitionLog =
-                new Utils.TransitionLog("serviceName", "state1", "state2", 1623777864000L);
+        TransitionLog transitionLog =
+                new TransitionLog("serviceName", "state1", "state2", 1623777864000L);
         String result = transitionLog.toString();
 
         // Should match the date pattern "MM-dd HH:mm:ss".
@@ -64,8 +45,8 @@ public final class UtilsTest {
 
     @Test
     public void testTransitionLogToString_withExtra() {
-        Utils.TransitionLog transitionLog =
-                new Utils.TransitionLog("serviceName", "state1", "state2", 1623777864000L, "extra");
+        TransitionLog transitionLog =
+                new TransitionLog("serviceName", "state1", "state2", 1623777864000L, "extra");
         String result = transitionLog.toString();
 
         // Should match the date pattern "MM-dd HH:mm:ss".

@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -41,10 +41,14 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
+import com.android.car.CarDrivingStateService;
+import com.android.car.CarLocalServices;
+import com.android.car.CarLog;
+import com.android.car.CarPropertyService;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
@@ -116,7 +120,8 @@ public class BluetoothDeviceConnectionPolicy {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                logd("Bluetooth Adapter state changed: ", Utils.getAdapterStateName(state));
+                logd("Bluetooth Adapter state changed: ",
+                        BluetoothUtils.getAdapterStateName(state));
                 if (state == BluetoothAdapter.STATE_ON) {
                     connectDevices();
                 }

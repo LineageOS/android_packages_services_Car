@@ -28,6 +28,7 @@ aidl_interface {
             enabled: true,
         },
         java: {
+            sdk_version: "module_current",
             platform_apis: true,
             enabled: true,
         },

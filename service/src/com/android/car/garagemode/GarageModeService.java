@@ -18,9 +18,9 @@ package com.android.car.garagemode;
 
 import android.content.Context;
 import android.os.Looper;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarServiceBase;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 /**

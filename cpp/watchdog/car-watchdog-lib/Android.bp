@@ -21,10 +21,18 @@ java_library {
     srcs: [
         "src/**/*.java",
     ],
+
+    sdk_version: "module_current",
+
     static_libs: [
-        "androidx.preference_preference",
         "android.automotive.watchdog.internal-java",
     ],
+
+    libs: [
+        "android.car.builtin",
+        "framework-annotations-lib",
+    ],
+
     product_variables: {
         pdk: {
             enabled: false,

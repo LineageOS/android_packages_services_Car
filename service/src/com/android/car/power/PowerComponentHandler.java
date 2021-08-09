@@ -38,12 +38,12 @@ import android.content.pm.PackageManager;
 import android.net.wifi.WifiManager;
 import android.os.RemoteException;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;
