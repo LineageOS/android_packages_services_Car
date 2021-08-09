@@ -41,7 +41,6 @@ import java.io.File;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
-@Ignore("b/195836042")
 @RunWith(AndroidJUnit4.class)
 @LargeTest
 public class CarBugreportManagerTest extends CarApiTestBase {
@@ -72,6 +71,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         }
     }
 
+    @Ignore("b/195836042")
     @Test
     public void test_requestBugreport_failsWhenNoPermission() throws Exception {
         dropPermissions();
@@ -118,6 +118,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
                 CarBugreportManagerCallback.CAR_BUGREPORT_IN_PROGRESS);
     }
 
+    @Ignore("b/195836042")
     @Test
     public void test_cancelBugreport_works() throws Exception {
         getPermissions();
