@@ -40,7 +40,6 @@ import org.junit.Test;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-@Ignore("b/195835795")
 @MediumTest
 public class CarAppFocusManagerTest extends CarApiTestBase {
     private static final String TAG = CarAppFocusManagerTest.class.getSimpleName();
@@ -90,6 +89,7 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         mManager.removeFocusListener(listener2);  // Double-unregister is OK
     }
 
+    @Ignore("b/195835795")
     @Test
     public void testRegisterUnregisterSpecificApp() throws Exception {
         FocusChangedListener listener1 = new FocusChangedListener();
