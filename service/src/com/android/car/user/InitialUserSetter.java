@@ -24,7 +24,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
@@ -32,7 +32,6 @@ import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.os.RemoteException;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -615,33 +614,26 @@ final class InitialUserSetter {
     @VisibleForTesting
     void unlockSystemUser() {
         Slog.i(TAG, "unlocking system user");
-        IActivityManager am = ActivityManager.getService();
+        ActivityManagerHelper am = ActivityManagerHelper.getInstance();
 
         TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
         t.traceBegin("UnlockSystemUser");
-        try {
-            // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
-            // update the state and USER_SYSTEM unlock happens twice.
-            t.traceBegin("am.startUser");
-            boolean started = am.startUserInBackground(UserHandle.USER_SYSTEM);
+        // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
+        // update the state and USER_SYSTEM unlock happens twice.
+        t.traceBegin("am.startUser");
+        boolean started = am.startUserInBackground(UserHandle.USER_SYSTEM);
+        t.traceEnd();
+        if (!started) {
+            Slog.w(TAG, "could not restart system user in foreground; trying unlock instead");
+            t.traceBegin("am.unlockUser");
+            boolean unlocked = am.unlockUser(UserHandle.USER_SYSTEM);
             t.traceEnd();
-            if (!started) {
-                Slog.w(TAG, "could not restart system user in foreground; trying unlock instead");
-                t.traceBegin("am.unlockUser");
-                boolean unlocked = am.unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
-                        /* secret= */ null, /* listener= */ null);
-                t.traceEnd();
-                if (!unlocked) {
-                    Slog.w(TAG, "could not unlock system user neither");
-                    return;
-                }
+            if (!unlocked) {
+                Slog.w(TAG, "could not unlock system user neither");
+                return;
             }
-        } catch (RemoteException e) {
-            // should not happen for local call.
-            Slog.wtf(TAG, "RemoteException from AMS", e);
-        } finally {
-            t.traceEnd();
         }
+        t.traceEnd();
     }
 
     @VisibleForTesting
@@ -650,12 +642,7 @@ final class InitialUserSetter {
             // System User doesn't associate with real person, can not be switched to.
             return false;
         }
-        try {
-            return ActivityManager.getService().startUserInForegroundWithListener(userId, null);
-        } catch (RemoteException e) {
-            Slog.w(TAG, "failed to start user " + userId, e);
-            return false;
-        }
+        return ActivityManagerHelper.getInstance().startUserInForeground(userId);
     }
 
     private void notifyListener(@Nullable UserInfo initialUser) {

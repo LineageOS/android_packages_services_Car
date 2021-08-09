@@ -13,6 +13,7 @@ package android.car.builtin.app {
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
     method public boolean startUserInBackground(int);
+    method public boolean startUserInForeground(int);
     method public void stopAllTasksForUser(int);
     method public int stopUserWithDelayedLocking(int, boolean);
     method public boolean unlockUser(int);
