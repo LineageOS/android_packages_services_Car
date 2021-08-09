@@ -42,8 +42,6 @@ import android.util.Log;
 
 import androidx.test.filters.FlakyTest;
 
-import com.google.android.collect.Lists;
-
 import org.junit.Before;
 import org.junit.Test;
 
@@ -54,6 +52,7 @@ import org.junit.Test;
 public class CarNavigationManagerTest extends CarApiTestBase {
 
     private static final String TAG = CarNavigationManagerTest.class.getSimpleName();
+    private static final String NAV_STATE_PROTO_BUNDLE_KEY = "navstate2";
 
     private CarNavigationStatusManager mCarNavigationManager;
     private CarAppFocusManager mCarAppFocusManager;
@@ -122,11 +121,9 @@ public class CarNavigationManagerTest extends CarApiTestBase {
             return;
         }
 
+        NavigationStateProto state = NavigationStateProto.newBuilder().build();
         Bundle bundle = new Bundle();
-        bundle.putInt("BUNDLE_INTEGER_VALUE", 1234);
-        bundle.putFloat("BUNDLE_FLOAT_VALUE", 12.3456f);
-        bundle.putStringArrayList("BUNDLE_ARRAY_OF_STRINGS",
-                Lists.newArrayList("Value A", "Value B", "Value Z"));
+        bundle.putByteArray(NAV_STATE_PROTO_BUNDLE_KEY, state.toByteArray());
 
         assertThrows(IllegalStateException.class, () -> mCarNavigationManager.sendEvent(1, bundle));
 
