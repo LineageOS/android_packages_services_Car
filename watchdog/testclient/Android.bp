@@ -29,7 +29,7 @@ cc_binary {
         "-Wunused-parameter",
     ],
     shared_libs: [
-        "carwatchdog_aidl_interface-V2-ndk_platform",
+        "carwatchdog_aidl_interface-V2-ndk",
         "libbase",
         "libbinder_ndk",
         "liblog",
