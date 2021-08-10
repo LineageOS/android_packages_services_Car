@@ -1916,7 +1916,7 @@
     <string name="running_processes_item_description_s_p" msgid="9015888668808019478">"<xliff:g id="NUMPROCESS">%1$d</xliff:g> प्रक्रिया और <xliff:g id="NUMSERVICES">%2$d</xliff:g> सेवाएं"</string>
     <string name="running_processes_item_description_p_s" msgid="707216865096533078">"<xliff:g id="NUMPROCESS">%1$d</xliff:g> प्रक्रियाएं और <xliff:g id="NUMSERVICES">%2$d</xliff:g> सेवा"</string>
     <string name="running_processes_item_description_p_p" msgid="8039478314818162001">"<xliff:g id="NUMPROCESS">%1$d</xliff:g> प्रक्रियाएं और <xliff:g id="NUMSERVICES">%2$d</xliff:g> सेवाएं"</string>
-    <string name="running_processes_header_title" msgid="6505983796524910467">"डिवाइस की मेमोरी"</string>
+    <string name="running_processes_header_title" msgid="6505983796524910467">"डिवाइस का स्टोरेज"</string>
     <string name="running_processes_header_footer" msgid="6365963816942632771">"ऐप्लिकेशन RAM उपयोग"</string>
     <string name="running_processes_header_system_prefix" msgid="3812089317725567449">"सिस्‍टम"</string>
     <string name="running_processes_header_apps_prefix" msgid="4024980745400903746">"ऐप्लिकेशन"</string>

@@ -2755,7 +2755,7 @@
     <string name="vpn_routes" msgid="3393989650778663742">"Desbideratze-ibilbideak (adibidez, 10.0.0.0/8)"</string>
     <string name="vpn_username" msgid="5357878823189445042">"Erabiltzaile-izena"</string>
     <string name="vpn_password" msgid="5325943601523662246">"Pasahitza"</string>
-    <string name="vpn_save_login" msgid="6215503139606646915">"Gorde kontuaren informazioa"</string>
+    <string name="vpn_save_login" msgid="6215503139606646915">"Gorde kontuari buruzko informazioa"</string>
     <string name="vpn_not_used" msgid="2889520789132261454">"(ez da erabiltzen)"</string>
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(ez egiaztatu zerbitzaria)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(zerbitzaritik jasoa)"</string>
