@@ -24,6 +24,7 @@ import static com.android.car.CarLog.TAG_AUDIO;
 
 import android.annotation.NonNull;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.media.AudioManager;
 import android.media.audiopolicy.AudioPolicy;
 import android.media.audiopolicy.AudioPolicy.Builder;
@@ -31,8 +32,6 @@ import android.util.Log;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.server.utils.Slogf;
-
 
 import java.util.Objects;
 
