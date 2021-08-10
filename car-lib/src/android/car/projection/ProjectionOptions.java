@@ -21,6 +21,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.content.ComponentName;
 import android.os.Bundle;
 
@@ -65,7 +66,7 @@ public class ProjectionOptions {
     public ProjectionOptions(Bundle bundle) {
         Bundle activityOptionsBundle = bundle.getBundle(KEY_ACTIVITY_OPTIONS);
         mActivityOptions = activityOptionsBundle != null
-                ? new ActivityOptions(activityOptionsBundle) : null;
+                ? ActivityManagerHelper.createActivityOptions(activityOptionsBundle) : null;
         mUiMode = bundle.getInt(KEY_UI_MODE, UI_MODE_DEFAULT);
         mConsentActivity = bundle.getParcelable(KEY_CONSENT_ACTIVITY);
     }
