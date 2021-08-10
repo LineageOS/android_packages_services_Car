@@ -447,7 +447,7 @@ public final class FixedActivityService implements CarServiceBase {
                                 // Select TYPE_KEYGUARD_DIALOG, since it's used in
                                 // {@Code KeyguardDisplayManager.KeyguardPresentation}.
                                 TYPE_KEYGUARD_DIALOG);
-                        p.setContentView(R.layout.activity_continuous_blank);
+                        p.setContentView(R.layout.layout_blank);
                         synchronized (mLock) {
                             RunningActivityInfo info = mRunningActivities.get(displayIdForActivity);
                             if (info != null && info.userId == ActivityManager.getCurrentUser()) {
