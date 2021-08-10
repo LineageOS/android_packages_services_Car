@@ -618,7 +618,7 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s\n", COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES);
         pw.println("\t  Gets third-party apps foreground I/O overuse threshold");
 
-        pw.printf("\t%s true|false\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
+        pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
         pw.println("\t  Set to true to disable the process health check.");
     }
@@ -2216,12 +2216,12 @@ final class CarShellCommand extends ShellCommand {
             showInvalidArguments(writer);
             return;
         }
-        boolean newState = Boolean.parseBoolean(args[1]);
-        if (!newState && !args[1].equalsIgnoreCase("false")) {
-            writer.println("Failed to parse argument. Valid arguments: true | false");
+        if (!args[1].equals("enable") && !args[1].equals("disable")) {
+            writer.println("Failed to parse argument. Valid arguments: enable | disable");
             return;
         }
-        mCarWatchdogService.controlProcessHealthCheck(newState);
+        mCarWatchdogService.controlProcessHealthCheck(args[1].equals("disable"));
+        writer.printf("Watchdog health checking is now %sd \n", args[1]);
     }
 
     // Check if the given property is global
