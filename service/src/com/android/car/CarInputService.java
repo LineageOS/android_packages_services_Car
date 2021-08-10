@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-import static android.hardware.input.InputManager.INJECT_INPUT_EVENT_MODE_ASYNC;
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
 import static com.android.car.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
@@ -31,6 +30,7 @@ import android.bluetooth.BluetoothHeadsetClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
+import android.car.builtin.input.InputManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -252,9 +252,8 @@ public class CarInputService extends ICarInput.Stub
         this(context, inputHalService, userService, occupantZoneService,
                 new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class), new AssistUtils(context),
-                event ->
-                        context.getSystemService(InputManager.class)
-                                .injectInputEvent(event, INJECT_INPUT_EVENT_MODE_ASYNC),
+                event -> InputManagerHelper.injectInputEvent(
+                        context.getSystemService(InputManager.class), event),
                 () -> Calls.getLastOutgoingCall(context),
                 () -> getViewLongPressDelay(context.getContentResolver()),
                 () -> context.getResources().getBoolean(R.bool.config_callButtonEndsOngoingCall),

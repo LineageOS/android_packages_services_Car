@@ -32,6 +32,14 @@ package android.car.builtin.content {
 
 }
 
+package android.car.builtin.input {
+
+  public class InputManagerHelper {
+    method public static boolean injectInputEvent(@NonNull android.hardware.input.InputManager, @NonNull android.view.InputEvent);
+  }
+
+}
+
 package android.car.builtin.os {
 
   public final class BuildHelper {
