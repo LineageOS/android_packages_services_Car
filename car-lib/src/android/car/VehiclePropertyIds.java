@@ -583,8 +583,24 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_EXTERIOR_LIGHTS)
     public static final int TURN_SIGNAL_STATE = 289408008;
     /**
-     * Represents ignition state
-     * Requires permission: {@link Car#PERMISSION_POWERTRAIN}.
+     * Vehicle's ignition state.
+     *
+     * <p>See {@link android.hardware.automotive.vehicle.V2_0.VehicleIgnitionState} for possible
+     * values.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Integer} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_POWERTRAIN} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_POWERTRAIN)
     public static final int IGNITION_STATE = 289408009;
