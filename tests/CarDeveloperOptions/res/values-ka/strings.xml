@@ -1609,7 +1609,7 @@
     <string name="master_clear_progress_title" msgid="378953167274114857">"ამოშლა"</string>
     <string name="master_clear_progress_text" msgid="5418958116008976218">"გთხოვთ, დაელოდოთ..."</string>
     <string name="call_settings_title" msgid="5033906789261282752">"დარეკვის პარამეტრები"</string>
-    <string name="call_settings_summary" msgid="2119161087671450035">"ხმოვანი ფოსტის, ზარის გადამისამართების, ზარის დალოდების, დამრეკავის ID-ის დაყენება"</string>
+    <string name="call_settings_summary" msgid="2119161087671450035">"ხმოვანი ფოსტის, ზარის გადამისამართების, ზარის დალოდების, დამრეკავის ID-ს დაყენება"</string>
     <string name="tether_settings_title_usb" msgid="4265582654602420357">"USB ტეტერინგი"</string>
     <string name="tether_settings_title_wifi" msgid="2060965130234484613">"პორტატული უსადენო ქსელი"</string>
     <string name="tether_settings_title_bluetooth" msgid="1999590158102569959">"Bluetooth ტეტერინგი"</string>
