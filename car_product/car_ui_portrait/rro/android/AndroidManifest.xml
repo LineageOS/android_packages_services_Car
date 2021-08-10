@@ -21,6 +21,5 @@
         android:targetPackage="android"
         android:isStatic="true"
         android:priority="20"
-        android:resourcesMap="@xml/overlays"
         android:category="caruiportrait.rro"/>
 </manifest>
