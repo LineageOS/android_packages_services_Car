@@ -45,6 +45,7 @@ java_library {
         "src/android/car/test/**/*.java",
     ],
     libs: [
+        "android.car",
         "android.hardware.automotive.vehicle-V2.0-java",
         "mockito-target-extended",
         "compatibility-device-util-axt",

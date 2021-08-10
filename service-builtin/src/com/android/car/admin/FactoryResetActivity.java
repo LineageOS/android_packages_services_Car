@@ -27,6 +27,7 @@ import android.app.Notification;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.ICarResultReceiver;
 import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
@@ -40,7 +41,6 @@ import android.widget.Toast;
 
 import com.android.car.CarLog;
 import com.android.car.R;
-import com.android.internal.os.IResultReceiver;
 
 // TODO(b/171603586): STOPSHIP move this class to CarSettings
 /**
@@ -55,14 +55,14 @@ public final class FactoryResetActivity extends Activity {
 
     private Button mNowButton;
     private Button mLaterButton;
-    private IResultReceiver mCallback;
+    private ICarResultReceiver mCallback;
 
     private Car mCar;
     private CarDrivingStateManager mCarDrivingStateManager;
     /**
      * Sends the notification warning the user about the factory reset.
      */
-    public static void sendNotification(Context context, IResultReceiver callback) {
+    public static void sendNotification(Context context, ICarResultReceiver callback) {
         // The factory request is received by CarService - which runs on system user - but the
         // notification will be sent to all users.
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
@@ -102,14 +102,14 @@ public final class FactoryResetActivity extends Activity {
 
         try {
             binder = intent.getExtra(EXTRA_CALLBACK);
-            mCallback = IResultReceiver.Stub.asInterface((IBinder) binder);
+            mCallback = ICarResultReceiver.Stub.asInterface((IBinder) binder);
         } catch (Exception e) {
             Slog.w(TAG, "error getting IResultReveiver from " + EXTRA_CALLBACK + " extra ("
                     + binder + ") on " + intent, e);
         }
 
         if (mCallback == null) {
-            Slog.wtf(TAG, "no IResultReceiver / " + EXTRA_CALLBACK + " extra  on " + intent);
+            Slog.wtf(TAG, "no ICarResultReceiver / " + EXTRA_CALLBACK + " extra  on " + intent);
             finish();
             return;
         }

@@ -33,6 +33,7 @@ import static org.testng.Assert.assertThrows;
 
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.ICarResultReceiver;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -72,7 +73,6 @@ import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IVoiceInteractionManagerService;
-import com.android.internal.os.IResultReceiver;
 
 import org.junit.After;
 import org.junit.Before;
@@ -406,7 +406,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
     @Test
     public void testFactoryResetOnResume() throws Exception {
-        IResultReceiver callback = mock(IResultReceiver.class);
+        ICarResultReceiver callback = mock(ICarResultReceiver.class);
         mService.setFactoryResetCallback(callback);
 
         // TODO: shouldn't need to expose handleOn() but rather emulate the steps as it's done on

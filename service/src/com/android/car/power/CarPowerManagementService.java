@@ -20,6 +20,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
+import android.car.ICarResultReceiver;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -70,7 +71,6 @@ import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.os.IResultReceiver;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.function.pooled.PooledLambda;
 
@@ -221,7 +221,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
 
     @GuardedBy("mLock")
     @Nullable
-    private IResultReceiver mFactoryResetCallback;
+    private ICarResultReceiver mFactoryResetCallback;
 
     private final PowerManagerCallbackList<ICarPowerPolicyListener> mPowerPolicyListeners =
             new PowerManagerCallbackList<>(
@@ -560,7 +560,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private boolean factoryResetIfNeeded() {
-        IResultReceiver callback;
+        ICarResultReceiver callback;
         synchronized (mLock) {
             if (mFactoryResetCallback == null) return false;
             callback = mFactoryResetCallback;
@@ -594,7 +594,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     /**
      * Sets the callback used to factory reset the device on resume when the user delayed it.
      */
-    public void setFactoryResetCallback(IResultReceiver callback) {
+    public void setFactoryResetCallback(ICarResultReceiver callback) {
         synchronized (mLock) {
             mFactoryResetCallback = callback;
         }
