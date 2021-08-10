@@ -32,6 +32,7 @@ import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
+import android.bluetooth.BluetoothManager;
 import android.car.VehicleAreaSeat;
 import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
@@ -40,6 +41,7 @@ import android.car.hardware.CarPropertyValue;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.content.Context;
 import android.content.Intent;
 import android.provider.Settings;
 import android.util.Log;
@@ -88,12 +90,16 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
     private MockContext mMockContext;
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
+    @Mock private BluetoothManager mMockBluetoothManager;
     @Mock private CarBluetoothService mMockBluetoothService;
     @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private CarDrivingStateService mMockCarDrivingStateService;
+
+    private Context mTargetContext;
+    private BluetoothAdapter mBluetoothAdapter;
 
     private BluetoothDeviceConnectionPolicy mPolicy;
     @Captor private ArgumentCaptor<ICarPropertyEventListener> mSeatListenerCaptor;
@@ -109,7 +115,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(BluetoothAdapter.class);
         session.spyStatic(CarLocalServices.class);
     }
 
@@ -119,9 +124,16 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
     @Before
     public void setUp() {
-        mMockContext = new MockContext(InstrumentationRegistry.getTargetContext());
+        mTargetContext = InstrumentationRegistry.getTargetContext();
+        mMockContext = new MockContext(mTargetContext);
+        BluetoothManager bluetoothManager =
+                mTargetContext.getSystemService(BluetoothManager.class);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        Assert.assertTrue(mBluetoothAdapter != null);
 
-        mockGetDefaultAdapter(mMockBluetoothAdapter);
+        mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+
         /**
          * Mocks {@code mBluetoothAdapter.enable()}
          */
@@ -177,12 +189,10 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
 
     @After
     public void tearDown() {
-        mPolicy.release();
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
-        if (mMockContext != null) {
-            mMockContext.release();
-            mMockContext = null;
+        if (mPolicy != null) {
+            mPolicy.release();
         }
+        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
     }
 
     //--------------------------------------------------------------------------------------------//

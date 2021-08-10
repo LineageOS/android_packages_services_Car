@@ -35,9 +35,11 @@ import static org.mockito.Mockito.when;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
 import android.car.ICarBluetoothUserService;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.Looper;
@@ -125,15 +127,12 @@ public class BluetoothProfileDeviceManagerTest
     private Handler mHandler;
     private static final Object HANDLER_TOKEN = new Object();
 
+    private Context mTargetContext;
     private MockContext mMockContext;
 
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
+    @Mock private BluetoothManager mMockBluetoothManager;
     private BluetoothAdapter mBluetoothAdapter;
-
-    @Override
-    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(BluetoothAdapter.class);
-    }
 
     //--------------------------------------------------------------------------------------------//
     // Setup/TearDown                                                                             //
@@ -141,14 +140,19 @@ public class BluetoothProfileDeviceManagerTest
 
     @Before
     public void setUp() {
-        mMockContext = new MockContext(InstrumentationRegistry.getTargetContext());
+        mTargetContext = InstrumentationRegistry.getTargetContext();
+        mMockContext = new MockContext(mTargetContext);
         setSettingsDeviceList("");
         assertSettingsContains("");
 
-        mBluetoothAdapter = BluetoothAdapter.getDefaultAdapter();
+        BluetoothManager bluetoothManager =
+                mTargetContext.getSystemService(BluetoothManager.class);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
         Assert.assertTrue(mBluetoothAdapter != null);
 
-        mockGetDefaultAdapter(mMockBluetoothAdapter);
+        mMockContext.addMockedSystemService(BluetoothManager.class, mMockBluetoothManager);
+        when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+
         /**
          * Mocks {@link BluetoothAdapter#getRemoteDevice(boolean)}
          */

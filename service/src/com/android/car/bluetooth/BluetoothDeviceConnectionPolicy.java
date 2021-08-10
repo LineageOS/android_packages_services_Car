@@ -18,6 +18,7 @@ package com.android.car.bluetooth;
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
@@ -306,7 +307,9 @@ public class BluetoothDeviceConnectionPolicy {
         mContext = Objects.requireNonNull(context);
         mCarBluetoothService = bluetoothService;
         mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
-        mBluetoothAdapter = Objects.requireNonNull(BluetoothAdapter.getDefaultAdapter());
+        BluetoothManager bluetoothManager =
+                Objects.requireNonNull(mContext.getSystemService(BluetoothManager.class));
+        mBluetoothAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
         mCarHelper = new CarServicesHelper();
         mUserManager = mContext.getSystemService(UserManager.class);
     }

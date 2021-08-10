@@ -20,6 +20,7 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PROFILES_INH
 
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
 import android.car.builtin.util.Slog;
@@ -54,6 +55,7 @@ public class BluetoothProfileInhibitManager {
     private static final long RESTORE_BACKOFF_MILLIS = 1000L;
 
     private final Context mContext;
+    private final BluetoothAdapter mBluetoothAdapter;
 
     // Per-User information
     private final int mUserId;
@@ -84,7 +86,7 @@ public class BluetoothProfileInhibitManager {
      *    device - the device we're connecting to, can be null
      *    profile - the profile we're connecting on, can be null
      */
-    public static class BluetoothConnection {
+    public class BluetoothConnection {
         // Examples:
         // 01:23:45:67:89:AB/9
         // null/0
@@ -94,6 +96,33 @@ public class BluetoothProfileInhibitManager {
 
         private final BluetoothDevice mBluetoothDevice;
         private final Integer mBluetoothProfile;
+
+        /**
+         * Creates a {@link BluetoothConnection} from a previous output of {@link #encode()}.
+         *
+         * @param flattenedParams A flattened string representation of a {@link BluetoothConnection}
+         */
+        public BluetoothConnection(String flattenedParams) {
+            if (!flattenedParams.matches(FLATTENED_PATTERN)) {
+                throw new IllegalArgumentException("Bad format for flattened BluetoothConnection");
+            }
+
+            BluetoothDevice device = null;
+            Integer profile = null;
+
+            if (mBluetoothAdapter != null) {
+                String[] parts = flattenedParams.split("/");
+                if (!"null".equals(parts[0])) {
+                    device = mBluetoothAdapter.getRemoteDevice(parts[0]);
+                }
+                if (!"null".equals(parts[1])) {
+                    profile = Integer.valueOf(parts[1]);
+                }
+            }
+
+            mBluetoothDevice = device;
+            mBluetoothProfile = profile;
+        }
 
         public BluetoothConnection(Integer profile, BluetoothDevice device) {
             mBluetoothProfile = profile;
@@ -138,40 +167,6 @@ public class BluetoothProfileInhibitManager {
          */
         public String encode() {
             return mBluetoothDevice + "/" + mBluetoothProfile;
-        }
-
-        /**
-         * Creates a {@link BluetoothConnection} from a previous output of {@link #encode()}.
-         *
-         * @param flattenedParams A flattened string representation of a {@link BluetoothConnection}
-         */
-        public static BluetoothConnection decode(String flattenedParams) {
-            if (!flattenedParams.matches(FLATTENED_PATTERN)) {
-                throw new IllegalArgumentException("Bad format for flattened BluetoothConnection");
-            }
-
-            BluetoothAdapter adapter = BluetoothAdapter.getDefaultAdapter();
-            if (adapter == null) {
-                return new BluetoothConnection(null, null);
-            }
-
-            String[] parts = flattenedParams.split("/");
-
-            BluetoothDevice device;
-            if (!"null".equals(parts[0])) {
-                device = adapter.getRemoteDevice(parts[0]);
-            } else {
-                device = null;
-            }
-
-            Integer profile;
-            if (!"null".equals(parts[1])) {
-                profile = Integer.valueOf(parts[1]);
-            } else {
-                profile = null;
-            }
-
-            return new BluetoothConnection(profile, device);
         }
     }
 
@@ -233,6 +228,8 @@ public class BluetoothProfileInhibitManager {
         mContext = context;
         mUserId = userId;
         mBluetoothUserProxies = bluetoothUserProxies;
+        BluetoothManager bluetoothManager = mContext.getSystemService(BluetoothManager.class);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
     }
 
     /**
@@ -250,7 +247,7 @@ public class BluetoothProfileInhibitManager {
 
         for (String paramsStr : savedBluetoothConnection.split(SETTINGS_DELIMITER)) {
             try {
-                BluetoothConnection params = BluetoothConnection.decode(paramsStr);
+                BluetoothConnection params = new BluetoothConnection(paramsStr);
                 InhibitRecord record = new InhibitRecord(params, RESTORED_PROFILE_INHIBIT_TOKEN);
                 mProfileInhibits.put(params, record);
                 mRestoredInhibits.add(record);

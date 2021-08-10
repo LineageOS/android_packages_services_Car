@@ -26,6 +26,7 @@ import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
+import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothMapClient;
 import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
@@ -329,7 +330,9 @@ public class BluetoothProfileDeviceManager {
         mProfileTriggers = bpi.mProfileTriggers;
 
         mBluetoothBroadcastReceiver = new BluetoothBroadcastReceiver();
-        mBluetoothAdapter = Objects.requireNonNull(BluetoothAdapter.getDefaultAdapter());
+        BluetoothManager bluetoothManager =
+                Objects.requireNonNull(mContext.getSystemService(BluetoothManager.class));
+        mBluetoothAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
     }
 
     /**

@@ -94,7 +94,7 @@ class FastPairGattServer {
 
     private ArrayList<AccountKey> mKeys = new ArrayList<>();
     private BluetoothGattServer mBluetoothGattServer;
-    private BluetoothManager mBluetoothManager;
+    private final BluetoothAdapter mBluetoothAdapter;
     private int mPairingPasskey = -1;
     private int mFailureCount = 0;
     private int mSuccessCount = 0;
@@ -274,12 +274,12 @@ class FastPairGattServer {
         mCallbacks = callbacks;
         mPrivateAntiSpoof = antiSpoof;
         mAutomaticPasskeyConfirmation = automaticAcceptance;
-        mBluetoothManager = context.getSystemService(BluetoothManager.class);
-
-        mBluetoothGattServer = mBluetoothManager
+        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
+        mBluetoothAdapter = bluetoothManager.getAdapter();
+        mBluetoothGattServer = bluetoothManager
                 .openGattServer(context, mBluetoothGattServerCallback);
         if (DBG) {
-            Log.d(TAG, "mBTManager: " + mBluetoothManager.toString() + " GATT: "
+            Log.d(TAG, "mBTManager: " + bluetoothManager.toString() + " GATT: "
                     + mBluetoothGattServer);
         }
         ByteBuffer modelIdBytes = ByteBuffer.allocate(4).order(ByteOrder.LITTLE_ENDIAN).putInt(
@@ -476,14 +476,12 @@ class FastPairGattServer {
         }
         // Check that the request is either a Key-based Pairing Request or an Action Request
         if (decryptedRequest[0] == 0 || decryptedRequest[0] == 0x10) {
-            String localAddress = BluetoothAdapter.getDefaultAdapter().getAddress();
+            String localAddress = mBluetoothAdapter.getAddress();
             byte[] localAddressBytes = FastPairUtils.getBytesFromAddress(localAddress);
             // Extract the remote address bytes from the message
             byte[] remoteAddressBytes = Arrays.copyOfRange(decryptedRequest, 2, 8);
-            BluetoothDevice localDevice = BluetoothAdapter.getDefaultAdapter()
-                    .getRemoteDevice(localAddress);
-            BluetoothDevice reportedDevice = BluetoothAdapter.getDefaultAdapter()
-                    .getRemoteDevice(remoteAddressBytes);
+            BluetoothDevice localDevice = mBluetoothAdapter.getRemoteDevice(localAddress);
+            BluetoothDevice reportedDevice = mBluetoothAdapter.getRemoteDevice(remoteAddressBytes);
             if (DBG) {
                 Log.d(TAG, "Local RPA = " + mLocalRpaDevice);
                 Log.d(TAG, "Decrypted, LocalMacAddress" + localAddress + "remoteAddress"
@@ -609,7 +607,7 @@ class FastPairGattServer {
                 new BluetoothGattCharacteristic(DEVICE_NAME_CHARACTERISTIC_CONFIG.getUuid(),
                         BluetoothGattCharacteristic.PROPERTY_READ,
                         BluetoothGattCharacteristic.PERMISSION_READ);
-        mDeviceNameCharacteristic.setValue(BluetoothAdapter.getDefaultAdapter().getName());
+        mDeviceNameCharacteristic.setValue(mBluetoothAdapter.getName());
         mFastPairService.addCharacteristic(mDeviceNameCharacteristic);
     }
 

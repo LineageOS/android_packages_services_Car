@@ -22,7 +22,6 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.bluetooth.BluetoothAdapter;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -50,6 +49,7 @@ import org.mockito.quality.Strictness;
 import org.mockito.session.MockitoSessionBuilder;
 
 import java.util.ArrayList;
+import java.util.HashMap;
 import java.util.List;
 
 /**
@@ -175,19 +175,6 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
     }
 
     /**
-     * Mocks a call to {@link BluetoothAdapter#getDefaultAdapter()}.
-     *
-     * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
-     * called {@code spyStatic(BluetoothAdapter.class)} on the session passed to it.
-     */
-    protected final void mockGetDefaultAdapter(@NonNull BluetoothAdapter adapter) {
-        if (VERBOSE) Log.v(TAG, "mockGetDefaultAdapter()");
-        assertSpied(BluetoothAdapter.class);
-
-        doReturn(adapter).when(() -> BluetoothAdapter.getDefaultAdapter());
-    }
-
-    /**
      * Mocks a call to {@link CarLocalServices#getService(Class)}.
      *
      * @throws IllegalStateException if class didn't override {@link #newSessionBuilder()} and
@@ -209,12 +196,15 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         private MockContentResolver mContentResolver;
         private FakeSettingsProvider mContentProvider;
 
+        private final HashMap<String, Object> mMockedServices;
+
         MockContext(Context base) {
             super(base);
             FakeSettingsProvider.clearSettingsProvider();
             mContentResolver = new MockContentResolver(this);
             mContentProvider = new FakeSettingsProvider();
             mContentResolver.addProvider(Settings.AUTHORITY, mContentProvider);
+            mMockedServices = new HashMap<String, Object>();
         }
 
         public void release() {
@@ -234,11 +224,20 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
             return super.registerReceiver(receiver, filter);
         }
 
+        public void addMockedSystemService(Class<?> serviceClass, Object service) {
+            if (service == null) return;
+            String name = getSystemServiceName(serviceClass);
+            if (name == null) return;
+            mMockedServices.put(name, service);
+        }
+
         @Override
         public @Nullable Object getSystemService(String name) {
             if ((name != null) && name.equals(getSystemServiceName(UserManager.class))) {
                 when(mMockUserManager.isUserUnlocked(mUserId)).thenReturn(true);
                 return mMockUserManager;
+            } else if ((name != null) && mMockedServices.containsKey(name)) {
+                return mMockedServices.get(name);
             }
             return super.getSystemService(name);
         }
