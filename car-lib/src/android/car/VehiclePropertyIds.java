@@ -352,8 +352,21 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_SPEED)
     public static final int WHEEL_TICK = 290521862;
     /**
-     * Fuel remaining in the the vehicle, in milliliters
-     * Requires permission: {@link Car#PERMISSION_ENERGY}.
+     * Fuel remaining in the vehicle in milliliters.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int FUEL_LEVEL = 291504903;
@@ -368,7 +381,20 @@ public final class VehiclePropertyIds {
     public static final int FUEL_DOOR_OPEN = 287310600;
     /**
      * EV battery level in watt-hours (Wh), if EV or hybrid.
-     * Requires permission: {@link Car#PERMISSION_ENERGY}.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int EV_BATTERY_LEVEL = 291504905;
@@ -388,20 +414,46 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_ENERGY_PORTS)
     public static final int EV_CHARGE_PORT_CONNECTED = 287310603;
     /**
-     * EV instantaneous charge rate in milliwatts
-     * Requires permission: {@link Car#PERMISSION_ENERGY}.
+     * EV instantaneous charge rate in milliwatts.
+     *
+     * <p>Positive rate indicates battery is being charged, and Negative rate indicates battery
+     * being discharged.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int EV_BATTERY_INSTANTANEOUS_CHARGE_RATE = 291504908;
     /**
-     * Range remaining
+     * Range remaining in meters.
      *
-     * Meters remaining of fuel and charge.  Range remaining shall account for
-     * all energy sources in a vehicle.  For example, a hybrid car's range will
-     * be the sum of the ranges based on fuel and battery.
-     * Requires permission: {@link Car#PERMISSION_ENERGY} to read the property.
-     * Requires the signature permission: android.car.permission.ADJUST_RANGE_REMAINING to write
-     * the property.
+     * <p>Range remaining accounts for all energy sources in a vehicle.  For example, a hybrid car's
+     * range will be the sum of the ranges based on fuel and battery.
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ_WRITE}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_CONTINUOUS}
+     *  <li>{@code Float} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Signature permission, android.car.permission.ADJUST_RANGE_REMAINING, to write property.
+     * </ul>
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_ENERGY))
     @RequiresPermission.Write(@RequiresPermission(Car.PERMISSION_ADJUST_RANGE_REMAINING))
@@ -554,7 +606,30 @@ public final class VehiclePropertyIds {
     public static final int PARKING_BRAKE_AUTO_APPLY = 287310851;
     /**
      * Warning for fuel low level.
-     * Requires permission: {@link Car#PERMISSION_ENERGY}.
+     *
+     * <p>{@code FUEL_LEVEL_LOW} corresponds to the low fuel warning on the dashboard. Once {@code
+     * FUEL_LEVEL_LOW} is set, it should not be cleared until more fuel is added to the vehicle.
+     * This property may take into account all fuel sources for a vehicle - for example:
+     * <ul>
+     *  <li>For a gas powered vehicle, this property is based solely on gas level.
+     *  <li>For a battery powered vehicle, this property is based solely on battery level.
+     *  <li>For a hybrid vehicle, this property may be based on the combination of gas and
+     *  battery levels, at the OEM's discretion.
+     * </ul>
+     *
+     * <p>Property Config:
+     * <ul>
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}
+     *  <li>{@link VehicleAreaType#VEHICLE_AREA_TYPE_GLOBAL}
+     *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_CHANGE_MODE_ONCHANGE}
+     *  <li>{@code Boolean} property type
+     * </ul>
+     *
+     * <p>Required Permissions:
+     * <ul>
+     *  <li>{@link Car#PERMISSION_ENERGY} to read property.
+     *  <li>Property is not writable.
+     * </ul>
      */
     @RequiresPermission(Car.PERMISSION_ENERGY)
     public static final int FUEL_LEVEL_LOW = 287310853;
