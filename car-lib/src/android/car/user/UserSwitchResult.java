@@ -18,6 +18,7 @@ package android.car.user;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
+import android.annotation.TestApi;
 import android.os.Parcelable;
 
 import com.android.car.internal.util.DataClass;
@@ -34,6 +35,7 @@ import java.lang.annotation.RetentionPolicy;
         genToString = true,
         genHiddenConstructor = true,
         genHiddenConstDefs = true)
+@TestApi
 public final class UserSwitchResult implements Parcelable, OperationResult {
 
     /**
