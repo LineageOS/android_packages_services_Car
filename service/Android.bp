@@ -50,10 +50,7 @@ common_lib_deps = [
     "vehicle-hal-support-lib",
     "car-systemtest",
     "com.android.car.procfsinspector-client",
-    "blestream-protos",
-    "androidx.preference_preference",
     "cartelemetry-protos",
-    "Slogf",
 ]
 
 android_app {
@@ -77,7 +74,7 @@ android_app {
 
     libs: [
         "android.car",
-        "android.car.builtin-stubs"
+        "android.car.builtin"
     ],
 
     static_libs: common_lib_deps,
@@ -103,7 +100,32 @@ android_app {
 
     manifest: "AndroidManifestForModuleBuildTest.xml",
 
-    srcs: ["src/com/android/car/CarLog.java"],
+    srcs: [
+        "src/com/android/car/CarLog.java",
+        //"src/com/android/car/*.java",
+        //"src/com/android/car/admin/**/*.java",
+        //"src/com/android/car/am/**/*.java",
+        //"src/com/android/car/audio/**/*.java",
+        //"src/com/android/car/cluster/**/*.java",
+        //"src/com/android/car/evs/**/*.java",
+        //"src/com/android/car/garagemode/**/*.java",
+        //"src/com/android/car/hal/**/*.java",
+        //"src/com/android/car/pm/**/*.java",
+        //"src/com/android/car/power/**/*.java",
+        //"src/com/android/car/stats/**/*.java",
+        //"src/com/android/car/storagemonitoring/**/*.java",
+        //"src/com/android/car/systeminterface/**/*.java",
+        //"src/com/android/car/telemetry/**/*.java",
+        //"src/com/android/car/user/**/*.java",
+        "src/com/android/car/util/*.java",
+        //"src/com/android/car/vms/**/*.java",
+        //"src/com/android/car/watchdog/**/*.java",
+    ],
+
+    exclude_srcs: [
+        "src/com/android/car/CarServiceImpl.java",
+        "src/com/android/car/ICarImpl.java",
+    ],
 
     resource_dirs: ["res"],
 
@@ -117,8 +139,8 @@ android_app {
     platform_apis: false,
 
     libs: [
-        "android.car.module",
-        "android.car.builtin-stubs"
+        "android.car-module.impl",
+        "android.car.builtin"
     ],
 
     optimize: {
@@ -139,7 +161,7 @@ java_library {
     ],
 
     libs: [
-        "android.car.builtin-stubs",
+        "android.car.builtin",
         "android.car",
     ],
 
@@ -183,7 +205,7 @@ android_library {
 
     libs: [
         "android.car",
-        "android.car.builtin-stubs",
+        "android.car.builtin",
         "car-frameworks-service",
     ],
 
@@ -215,7 +237,7 @@ android_library {
 
     libs: common_lib_deps + [
         "android.car",
-        "android.car.builtin-stubs",
+        "android.car.builtin",
         "car-frameworks-service",
     ],
 

@@ -19,6 +19,8 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 /**
  * Provides common constants for CarService, CarServiceHelperService and other packages.
+ *
+ * @hide
  */
 public final class SystemConstants {
 

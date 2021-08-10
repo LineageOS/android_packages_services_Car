@@ -236,8 +236,7 @@ PRODUCT_HIDDENAPI_STUBS := \
 
 # android.car.builtin is system api only.
 PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
-    android.car-system-stubs-dex \
-    android.car.builtin-stubs-dex
+    android.car-system-stubs-dex
 
 PRODUCT_HIDDENAPI_STUBS_TEST := \
     android.car-test-stubs-dex

@@ -1556,7 +1556,6 @@ public final class Car {
      * Car constructor when ICar binder is already available. The binder can be null.
      * @hide
      */
-    @VisibleForHiddenApiCheck
     public Car(Context context, @Nullable ICar service, @Nullable Handler handler) {
         this(context, service, null /*serviceConnectionListener*/, null /*statusChangeListener*/,
                 handler);

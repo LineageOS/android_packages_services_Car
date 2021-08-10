@@ -1,0 +1,129 @@
+// Signature format: 2.0
+package android.car.builtin {
+
+  public final class PermissionHelper {
+    field public static final String MONITOR_INPUT = "android.permission.MONITOR_INPUT";
+  }
+
+}
+
+package android.car.builtin.app {
+
+  public final class ActivityManagerHelper {
+    method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
+    method public boolean startUserInBackground(int);
+    method public void stopAllTasksForUser(int);
+    method public int stopUserWithDelayedLocking(int, boolean);
+    method public boolean unlockUser(int);
+  }
+
+  public final class KeyguardManagerHelper {
+    ctor public KeyguardManagerHelper();
+    method public boolean isKeyguardLocked();
+  }
+
+}
+
+package android.car.builtin.content {
+
+  public final class ContextHelper {
+    method public static int getDisplayId(@NonNull android.content.Context);
+  }
+
+}
+
+package android.car.builtin.os {
+
+  public final class BuildHelper {
+    method public static boolean isEngBuild();
+    method public static boolean isUserBuild();
+    method public static boolean isUserDebugBuild();
+  }
+
+  public final class ParcelHelper {
+    method @Nullable public static android.util.ArraySet<?> readArraySet(@NonNull android.os.Parcel, @Nullable ClassLoader);
+    method @Nullable public static byte[] readBlob(@NonNull android.os.Parcel);
+    method @Nullable public static String[] readStringArray(@NonNull android.os.Parcel);
+    method public static void writeArraySet(@NonNull android.os.Parcel, @Nullable android.util.ArraySet<?>);
+    method public static void writeBlob(@NonNull android.os.Parcel, @Nullable byte[]);
+  }
+
+  public final class ServiceManagerHelper {
+    method public static void addService(@NonNull String, @NonNull android.os.IBinder);
+    method @Nullable public static android.os.IBinder checkService(@NonNull String);
+    method @Nullable public static android.os.IBinder getService(@NonNull String);
+    method @Nullable public static android.os.IBinder waitForDeclaredService(@NonNull String);
+  }
+
+  public final class SharedMemoryHelper {
+    method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory);
+  }
+
+  public final class UserManagerHelper {
+    method public static int getUserIdFromUid(int);
+    field public static final int USER_NULL = -10000; // 0xffffd8f0
+  }
+
+}
+
+package android.car.builtin.util {
+
+  public final class Slog {
+    method public static int d(@NonNull String, @NonNull String);
+    method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int e(@NonNull String, @NonNull String);
+    method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int i(@NonNull String, @NonNull String);
+    method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int v(@NonNull String, @NonNull String);
+    method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int w(@NonNull String, @NonNull String);
+    method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int wtf(@NonNull String, @NonNull String);
+    method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
+  }
+
+  public final class Slogf {
+    method public static int d(@NonNull String, @NonNull String);
+    method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void d(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static int e(@NonNull String, @NonNull String);
+    method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void e(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void e(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static int i(@NonNull String, @NonNull String);
+    method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void i(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static boolean isLoggable(@NonNull String, int);
+    method public static int println(int, @NonNull String, @NonNull String);
+    method public static int v(@NonNull String, @NonNull String);
+    method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void v(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static int w(@NonNull String, @NonNull String);
+    method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static int w(@NonNull String, @NonNull Throwable);
+    method public static void w(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void w(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static int wtf(@NonNull String, @NonNull String);
+    method public static int wtf(@NonNull String, @NonNull Throwable);
+    method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
+    method public static void wtf(@NonNull String, @NonNull String, @Nullable java.lang.Object...);
+    method public static void wtf(@NonNull String, @NonNull Exception, @NonNull String, @Nullable java.lang.Object...);
+    method public static void wtfQuiet(@NonNull String, @NonNull String);
+    method public static int wtfStack(@NonNull String, @NonNull String);
+  }
+
+  public class TimingsTraceLog {
+    ctor public TimingsTraceLog(@NonNull String, long);
+    method public void logDuration(@NonNull String, long);
+    method public void traceBegin(@NonNull String);
+    method public void traceEnd();
+  }
+
+  public final class ValidationHelper {
+    method public static boolean isAppIdValid(int);
+    method public static boolean isUserIdValid(int);
+  }
+
+}
+
