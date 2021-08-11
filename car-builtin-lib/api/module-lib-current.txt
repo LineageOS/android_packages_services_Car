@@ -10,6 +10,7 @@ package android.car.builtin {
 package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
+    method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
     method public boolean startUserInBackground(int);
     method public void stopAllTasksForUser(int);

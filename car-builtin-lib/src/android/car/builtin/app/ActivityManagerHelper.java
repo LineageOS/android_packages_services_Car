@@ -20,9 +20,11 @@ import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
+import android.app.ActivityOptions;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.car.builtin.util.Slog;
+import android.os.Bundle;
 import android.os.RemoteException;
 
 import com.android.internal.annotations.GuardedBy;
@@ -124,5 +126,15 @@ public final class ActivityManagerHelper {
             Slog.e(TAG, "could not get stack info", e);
             throw new IllegalStateException(e);
         }
+    }
+
+    /**
+     *  Creates an ActivityOptions from the Bundle generated from ActivityOptions.
+     *  TODO(b/195598146): Replace the usage of this with {@code ActivityOptions.fromBundle}
+     *  as soon as it is exposed as ModuleApi.
+     */
+    @NonNull
+    public static ActivityOptions createActivityOptions(@NonNull Bundle bOptions) {
+        return new ActivityOptions(bOptions);
     }
 }
