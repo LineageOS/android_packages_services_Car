@@ -3153,7 +3153,7 @@
     <string name="docking_sounds_title" msgid="2573137471605541366">"Sonidos al conectar"</string>
     <string name="touch_sounds_title" msgid="165237488496165652">"Sonidos al tocar"</string>
     <string name="vibrate_on_touch_title" msgid="6360155469279157684">"Vibración al tocar la pantalla"</string>
-    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Respuesta táctil al tocar, usar el teclado y más"</string>
+    <string name="vibrate_on_touch_summary" msgid="5504424764028676043">"Vibración al pulsar, usar el teclado y más"</string>
     <string name="dock_audio_media_title" msgid="1859521680502040781">"Reproducciones altavoz base"</string>
     <string name="dock_audio_media_disabled" msgid="4300752306178486302">"Todo el audio"</string>
     <string name="dock_audio_media_enabled" msgid="2873275045878628153">"Solo audio multimedia"</string>
