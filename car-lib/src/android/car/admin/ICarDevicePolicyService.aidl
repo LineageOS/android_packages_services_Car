@@ -20,7 +20,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
-import com.android.internal.infra.AndroidFuture;
+import android.car.util.concurrent.AndroidFuture;
 
 /** @hide */
 interface ICarDevicePolicyService {

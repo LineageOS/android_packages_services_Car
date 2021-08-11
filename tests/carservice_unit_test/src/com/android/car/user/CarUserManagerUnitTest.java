@@ -48,6 +48,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
@@ -57,8 +58,6 @@ import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationTyp
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.os.RemoteException;
 import android.os.UserManager;
-
-import com.android.internal.infra.AndroidFuture;
 
 import org.junit.Before;
 import org.junit.Test;

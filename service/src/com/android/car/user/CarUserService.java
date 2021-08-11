@@ -55,6 +55,7 @@ import android.car.user.UserSwitchResult;
 import android.car.userlib.HalCallback;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -113,7 +114,6 @@ import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.infra.AndroidFuture;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
 

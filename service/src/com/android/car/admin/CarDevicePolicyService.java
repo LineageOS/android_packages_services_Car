@@ -28,6 +28,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
@@ -38,7 +39,6 @@ import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.user.CarUserService;
 import com.android.car.util.IndentingPrintWriter;
-import com.android.internal.infra.AndroidFuture;
 
 /**
  * Service for device policy related features.

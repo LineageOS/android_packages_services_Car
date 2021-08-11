@@ -34,11 +34,10 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
-
-import com.android.internal.infra.AndroidFuture;
 
 import org.junit.Before;
 import org.junit.Test;

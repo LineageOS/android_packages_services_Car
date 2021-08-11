@@ -36,12 +36,11 @@ import android.car.user.CarUserManager;
 import android.car.user.ExperimentalCarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserSwitchResult;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-
-import com.android.internal.infra.AndroidFuture;
 
 import org.junit.Before;
 import org.junit.Test;
