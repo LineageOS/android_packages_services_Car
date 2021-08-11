@@ -55,7 +55,7 @@ import android.car.navigation.CarNavigationStatusManager;
 import android.car.occupantawareness.OccupantAwarenessManager;
 import android.car.storagemonitoring.CarStorageMonitoringManager;
 import android.car.telemetry.CarTelemetryManager;
-import android.car.test.CarTestManagerBinderWrapper;
+import android.car.test.CarTestManager;
 import android.car.user.CarUserManager;
 import android.car.vms.VmsClientManager;
 import android.car.vms.VmsSubscriberManager;
@@ -1976,7 +1976,7 @@ public final class Car {
             case TEST_SERVICE:
                 /* CarTestManager exist in static library. So instead of constructing it here,
                  * only pass binder wrapper so that CarTestManager can be constructed outside. */
-                manager = new CarTestManagerBinderWrapper(this, binder);
+                manager = new CarTestManager(this, binder);
                 break;
             case VEHICLE_MAP_SERVICE:
                 manager = new VmsClientManager(this, binder);

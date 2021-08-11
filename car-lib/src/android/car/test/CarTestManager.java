@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2015 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -15,8 +15,9 @@
  */
 package android.car.test;
 
+import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
-import android.annotation.SystemApi;
+import android.annotation.TestApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.os.IBinder;
@@ -24,19 +25,28 @@ import android.os.RemoteException;
 
 /**
  * API for testing only. Allows mocking vehicle hal.
+ *
  * @hide
  */
-@SystemApi
+@TestApi
 public final class CarTestManager extends CarManagerBase {
 
     private final ICarTest mService;
 
-
-    public CarTestManager(Car car, IBinder carServiceBinder) {
+    /**
+     * Constructs a new {@link CarTestManager}
+     *
+     * @hide
+     */
+    @TestApi
+    public CarTestManager(@NonNull Car car, @NonNull IBinder carServiceBinder) {
         super(car);
         mService = ICarTest.Stub.asInterface(carServiceBinder);
     }
 
+    /**
+     * @hide
+     */
     @Override
     public void onCarDisconnected() {
         // test will fail. nothing to do.
@@ -47,9 +57,12 @@ public final class CarTestManager extends CarManagerBase {
      * interference between testing and real instances of Car Service. For example changing audio
      * focus in CarAudioService may affect framework's AudioManager listeners. AudioManager has a
      * lot of complex logic which is hard to mock.
+     *
+     * @hide
      */
+    @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    public void stopCarService(IBinder token) {
+    public void stopCarService(@NonNull IBinder token) {
         try {
             mService.stopCarService(token);
         } catch (RemoteException e) {
@@ -61,9 +74,12 @@ public final class CarTestManager extends CarManagerBase {
      * Re-initializes previously released car service.
      *
      * @see {@link #stopCarService(IBinder)}
+     *
+     * @hide
      */
+    @TestApi
     @RequiresPermission(Car.PERMISSION_CAR_TEST_SERVICE)
-    public void startCarService(IBinder token) {
+    public void startCarService(@NonNull IBinder token) {
         try {
             mService.startCarService(token);
         } catch (RemoteException e) {

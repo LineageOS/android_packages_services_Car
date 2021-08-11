@@ -104,6 +104,16 @@ package android.car.media {
 
 }
 
+package android.car.test {
+
+  public final class CarTestManager {
+    ctor public CarTestManager(@NonNull android.car.Car, @NonNull android.os.IBinder);
+    method @RequiresPermission("android.car.permission.CAR_TEST_SERVICE") public void startCarService(@NonNull android.os.IBinder);
+    method @RequiresPermission("android.car.permission.CAR_TEST_SERVICE") public void stopCarService(@NonNull android.os.IBinder);
+  }
+
+}
+
 package android.car.user {
 
   public final class CarUserManager {
