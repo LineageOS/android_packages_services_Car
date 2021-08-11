@@ -29,6 +29,8 @@ import android.os.RemoteException;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.concurrent.Callable;
+
 /**
  * Provide access to {@code android.app.IActivityManager} calls.
  * @hide
@@ -64,31 +66,35 @@ public final class ActivityManagerHelper {
     }
 
     /**
-     * Check {@code android.app.IActivityManager.startUserInBackground}.
+     * See {@code android.app.IActivityManager.startUserInBackground}.
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
     public boolean startUserInBackground(@UserIdInt int userId) {
-        try {
-            return mAm.startUserInBackground(userId);
-        } catch (RemoteException e) {
-            Slog.e(TAG, "error while startUserInBackground " + userId, e);
-            throw new IllegalStateException(e);
-        }
+        return runRemotely(() -> mAm.startUserInBackground(userId),
+                "error while startUserInBackground %d", userId);
     }
 
     /**
-     * Check {@code android.app.IActivityManager.stopUserWithDelayedLocking}.
+     * See {@code android.app.IActivityManager.startUserInForegroundWithListener}.
+     *
+     * @throws IllegalStateException if ActivityManager binder throws RemoteException
+     */
+    public boolean startUserInForeground(@UserIdInt int userId) {
+        return runRemotely(
+                () -> mAm.startUserInForegroundWithListener(userId, /* listener= */ null),
+                "error while startUserInForeground %d", userId);
+    }
+
+    /**
+     * See {@code android.app.IActivityManager.stopUserWithDelayedLocking}.
      *
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
     public int stopUserWithDelayedLocking(@UserIdInt int userId, boolean force) {
-        try {
-            return mAm.stopUserWithDelayedLocking(userId, force, null);
-        } catch (RemoteException e) {
-            Slog.e(TAG, "error while stopUserWithDelayedLocking " + userId, e);
-            throw new IllegalStateException(e);
-        }
+        return runRemotely(
+                () -> mAm.stopUserWithDelayedLocking(userId, force, /* callback= */ null),
+                "error while stopUserWithDelayedLocking %d", userId);
     }
 
     /**
@@ -97,12 +103,9 @@ public final class ActivityManagerHelper {
      * @throws IllegalStateException if ActivityManager binder throws RemoteException
      */
     public boolean unlockUser(@UserIdInt int userId) {
-        try {
-            return mAm.unlockUser(userId, null, null, null);
-        } catch (RemoteException e) {
-            Slog.e(TAG, "error while unlocking user " + userId, e);
-            throw new IllegalStateException(e);
-        }
+        return runRemotely(() -> mAm.unlockUser(userId,
+                /* token= */ null, /* secret= */ null, /* listener= */ null),
+                "error while unlocking user %d", userId);
     }
 
     /**
@@ -123,8 +126,7 @@ public final class ActivityManagerHelper {
                 }
             }
         } catch (RemoteException e) {
-            Slog.e(TAG, "could not get stack info", e);
-            throw new IllegalStateException(e);
+            throw logAndReThrow(e, "could not get stack info for user %d", userId);
         }
     }
 
@@ -136,5 +138,19 @@ public final class ActivityManagerHelper {
     @NonNull
     public static ActivityOptions createActivityOptions(@NonNull Bundle bOptions) {
         return new ActivityOptions(bOptions);
+    }
+
+    private <T> T runRemotely(Callable<T> callable, String format, Object...args) {
+        try {
+            return callable.call();
+        } catch (Exception e) {
+            throw logAndReThrow(e, format, args);
+        }
+    }
+
+    private RuntimeException logAndReThrow(Exception e, String format, Object...args) {
+        String msg = String.format(format, args);
+        Slog.e(TAG, msg, e);
+        return new IllegalStateException(msg, e);
     }
 }

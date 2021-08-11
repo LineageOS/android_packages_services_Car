@@ -44,14 +44,13 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.IActivityManager;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -84,7 +83,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private Context mContext;
 
     @Mock
-    private IActivityManager mIActivityManager;
+    private ActivityManagerHelper mAmHelper;
 
     @Mock
     private UserManager mUm;
@@ -104,6 +103,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(ActivityManager.class)
+            .spyStatic(ActivityManagerHelper.class)
             .spyStatic(CarProperties.class)
             .spyStatic(UserManager.class);
     }
@@ -112,8 +112,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void setFixtures() {
         mSetter = spy(new InitialUserSetter(mContext, mUm, mCarUserService, mListener,
                 mLockPatternUtils, OWNER_NAME, GUEST_NAME));
-
-        doReturn(mIActivityManager).when(() -> ActivityManager.getService());
+        doReturn(mAmHelper).when(() -> ActivityManagerHelper.getInstance());
         mockGetCurrentUser(CURRENT_USER_ID);
     }
 
@@ -747,12 +746,11 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Test
     public void testUnlockSystemUser_startedOk() throws Exception {
-        when(mIActivityManager.startUserInBackground(UserHandle.USER_SYSTEM)).thenReturn(true);
+        when(mAmHelper.startUserInBackground(UserHandle.USER_SYSTEM)).thenReturn(true);
 
         mSetter.unlockSystemUser();
 
-        verify(mIActivityManager, never()).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
-                /* secret= */ null, /* listener= */ null);
+        verify(mAmHelper, never()).unlockUser(UserHandle.USER_SYSTEM);
     }
 
     @Test
@@ -761,8 +759,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         mSetter.unlockSystemUser();
 
-        verify(mIActivityManager).unlockUser(UserHandle.USER_SYSTEM, /* token= */ null,
-                /* secret= */ null, /* listener= */ null);
+        verify(mAmHelper).unlockUser(UserHandle.USER_SYSTEM);
     }
 
     @Test
@@ -775,13 +772,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     @Test
     public void testStartForegroundUser_fail() {
         // startUserInForegroundWithListener will return false by default
-
-        assertThat(mSetter.startForegroundUser(10)).isFalse();
-    }
-
-    @Test
-    public void testStartForegroundUser_remoteException() throws Exception {
-        expectAmStartFgUserThrowsException(10);
 
         assertThat(mSetter.startForegroundUser(10)).isFalse();
     }
@@ -800,8 +790,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
         assertThat(mSetter.startForegroundUser(UserHandle.USER_SYSTEM)).isFalse();
 
-        verify(mIActivityManager, never()).startUserInForegroundWithListener(UserHandle.USER_SYSTEM,
-                null);
+        verify(mAmHelper, never()).startUserInForeground(UserHandle.USER_SYSTEM);
     }
 
     @Test
@@ -1093,12 +1082,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void expectAmStartFgUser(@UserIdInt int userId) throws Exception {
-        when(mIActivityManager.startUserInForegroundWithListener(userId, null)).thenReturn(true);
-    }
-
-    private void expectAmStartFgUserThrowsException(@UserIdInt int userId) throws Exception {
-        when(mIActivityManager.startUserInForegroundWithListener(userId, null))
-                .thenThrow(new RemoteException("D'OH! Cannot switch to " + userId));
+        when(mAmHelper.startUserInForeground(userId)).thenReturn(true);
     }
 
     private void verifyUserSwitched(@UserIdInt int userId) throws Exception {
