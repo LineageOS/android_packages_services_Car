@@ -102,10 +102,14 @@ droidstubs {
     name: "carservice-stub-for-hidden-api-check-docs",
     // Code under here are still having hidden API inside
     srcs: [
+        "src/com/android/car/CarLocalServices.java",
+        //"src/com/android/car/hal/UserHalService.java",
+        //"src/com/android/car/systeminterface/SystemStateInterface.java",
+        //"src/com/android/car/systeminterface/DisplayInterface.java",
     ],
     // metalava still hides hidden methods even with --hidden, so needs additional annotation
     // to include them
-    args: "--hide CallbackInterface " +
+    args: "--hide CallbackInterface --hide UnhiddenSystemApi " +
         "--stub-packages com.android.car* --package " +
         "--show-annotation android.annotation.SystemApi " +
         "--show-annotation com.android.internal.annotations.VisibleForTesting " +
@@ -115,6 +119,13 @@ droidstubs {
 
     installable: false,
 
+    libs: [
+        "android.car-module.impl",
+        "android.car.builtin",
+        "framework-annotations-lib",
+        "framework-statsd",
+        "modules-utils-preconditions",
+    ],
     visibility: ["//packages/services/Car/service"],
 }
 
@@ -125,16 +136,16 @@ android_app {
     manifest: "AndroidManifestForModuleBuildTest.xml",
 
     srcs: [
-        //":carservice-stub-for-hidden-api-check-docs",
+        ":carservice-stub-for-hidden-api-check-docs",
         ":statslog-Car-java-gen",
-        //"src/com/android/car/CarFeatureController.java",
+        //"src/com/android/car/CarFeatureController.java", // blocked due to Power
         "src/com/android/car/CarLog.java",
         //"src/com/android/car/CarLocalServices.java",
         "src/com/android/car/CarServiceBase.java",
         "src/com/android/car/CarServiceUtils.java",
         "src/com/android/car/CarStatsLogHelper.java",
         "src/com/android/car/CommonThread.java",
-        //"src/com/android/car/PermissionHelper.java",
+        "src/com/android/car/PermissionHelper.java",
         //"src/com/android/car/*.java",
         //"src/com/android/car/admin/**/*.java",
         //"src/com/android/car/am/**/*.java",
@@ -159,7 +170,6 @@ android_app {
     exclude_srcs: [
         "src/com/android/car/CarServiceImpl.java",
         "src/com/android/car/ICarImpl.java",
-        "src/com/android/car/hal/UserHalService.java",
     ],
 
     resource_dirs: ["res"],

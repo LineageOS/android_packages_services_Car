@@ -106,14 +106,14 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.util.ArrayUtils;
+import com.android.car.internal.util.FunctionalUtils;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.util.ArrayUtils;
-import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
 
@@ -375,7 +375,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(@NonNull IndentingPrintWriter writer) {
-        checkHasDumpPermissionGranted("dump()");
+        checkHasDumpPermissionGranted(mContext, "dump()");
 
         writer.println("*CarUserService*");
         handleDumpListeners(writer);
@@ -2256,14 +2256,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return users;
     }
 
-    private static void checkManageUsersOrDumpPermission(String message) {
-        checkHasAtLeastOnePermissionGranted(message,
+    private void checkManageUsersOrDumpPermission(String message) {
+        checkHasAtLeastOnePermissionGranted(mContext, message,
                 android.Manifest.permission.MANAGE_USERS,
                 android.Manifest.permission.DUMP);
     }
 
     private void checkInteractAcrossUsersPermission(String message) {
-        checkHasAtLeastOnePermissionGranted(message,
+        checkHasAtLeastOnePermissionGranted(mContext, message,
                 android.Manifest.permission.INTERACT_ACROSS_USERS,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
     }

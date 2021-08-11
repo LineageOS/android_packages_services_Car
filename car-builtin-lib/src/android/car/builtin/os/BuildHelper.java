@@ -30,22 +30,22 @@ public final class BuildHelper {
         throw new UnsupportedOperationException();
     }
 
-    /** Tells if it is user build. */
+    /** Tells if it is {@code user} build. */
     public static boolean isUserBuild() {
         return Build.IS_USER;
     }
 
-    /** Tells if it is eng build. */
+    /** Tells if it is {@code eng} build. */
     public static boolean isEngBuild() {
         return Build.IS_ENG;
     }
 
-    /** Tells if it is userdebug build. */
+    /** Tells if it is {@code userdebug} build. */
     public static boolean isUserDebugBuild() {
         return Build.IS_USERDEBUG;
     }
 
-    /** Tells if the build is debuggable (eng or userdebug) */
+    /** Tells if the build is debuggable ({@code eng} or {@code userdebug}) */
     public static boolean isDebuggableBuild() {
         return Build.IS_DEBUGGABLE;
     }

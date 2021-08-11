@@ -27,10 +27,10 @@ java_library {
         },
     },
     static_libs: [
-        "android.car",
         "car-service-test-lib",
     ],
     libs: [
+        "android.car",
         "mockito",
     ],
     installable: false,

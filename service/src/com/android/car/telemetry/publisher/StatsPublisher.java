@@ -17,8 +17,8 @@
 package com.android.car.telemetry.publisher;
 
 import android.app.StatsManager.StatsUnavailableException;
+import android.car.builtin.util.Slog;
 import android.content.SharedPreferences;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.StatsdConfigProto;

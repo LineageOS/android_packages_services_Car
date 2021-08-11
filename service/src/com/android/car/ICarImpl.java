@@ -338,7 +338,8 @@ public class ICarImpl extends ICar.Stub {
             mCarWatchdogService = carWatchdogService;
         }
         mCarDevicePolicyService = constructWithTrace(
-                t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mCarUserService));
+                t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
+                        mCarUserService));
         if (mFeatureController.isFeatureEnabled(Car.CLUSTER_HOME_SERVICE)) {
             if (!mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
                 mClusterHomeService = constructWithTrace(

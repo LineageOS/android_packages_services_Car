@@ -51,10 +51,9 @@ import android.util.SparseArray;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.Lists;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-
-import com.google.android.collect.Lists;
 
 import java.io.PrintWriter;
 import java.lang.ref.WeakReference;

@@ -21,8 +21,8 @@ import android.annotation.Nullable;
 import android.car.user.CarUserManager.UserIdentificationAssociationValue;
 import android.os.Parcelable;
 
+import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.DataClass;
-import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;

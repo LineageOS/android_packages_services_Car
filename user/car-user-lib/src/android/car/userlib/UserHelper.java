@@ -24,11 +24,10 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.Log;
 
+import com.android.car.internal.util.Sets;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.internal.util.UserIcons;
-
-import com.google.android.collect.Sets;
 
 import java.util.Set;
 

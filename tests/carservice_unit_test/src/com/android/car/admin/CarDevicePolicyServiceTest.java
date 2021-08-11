@@ -28,6 +28,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
+import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.UserManager;
@@ -44,6 +45,9 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
     @Mock
     private CarUserService mCarUserService;
 
+    @Mock
+    private Context mContext;
+
     private CarDevicePolicyService mService;
 
     private AndroidFuture<UserRemovalResult> mUserRemovalResult = new AndroidFuture<>();
@@ -56,7 +60,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Before
     public void setFixtures() {
-        mService = new CarDevicePolicyService(mCarUserService);
+        mService = new CarDevicePolicyService(mContext, mCarUserService);
     }
 
     @Test
