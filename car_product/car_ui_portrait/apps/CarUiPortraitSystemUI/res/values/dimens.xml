@@ -16,16 +16,18 @@
   -->
 
 <resources>
-    <dimen name="hvac_container_padding">16dp</dimen>
-    <dimen name="hvac_temperature_text_size">48sp</dimen>
-    <dimen name="hvac_temperature_text_padding">0dp</dimen>
+    <dimen name="hvac_container_padding">24dp</dimen>
+    <dimen name="hvac_temperature_text_size">56sp</dimen>
+    <dimen name="hvac_temperature_text_padding">12dp</dimen>
+    <dimen name="hvac_temperature_button_size">64dp</dimen>
 
     <dimen name="system_bar_icon_drawing_size">56dp</dimen>
     <dimen name="system_bar_button_size">88dp</dimen>
     <!-- Margin between the system bar buttons -->
-    <dimen name="system_bar_button_margin">32dp</dimen>
+    <dimen name="system_bar_button_margin">40dp</dimen>
     <!-- Padding between the system bar button and the icon within it -->
     <dimen name="system_bar_button_padding">16dp</dimen>
+    <dimen name="system_bar_button_corner_radius">24dp</dimen>
 
     <dimen name="system_bar_user_icon_drawing_size">44dp</dimen>
     <dimen name="status_bar_system_icon_spacing">32dp</dimen>

@@ -58,7 +58,7 @@
                 systemui:clearBackStack="true"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
-                android:id="@+id/notifications"
+                android:id="@+id/standalone_notifications"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.notification/.CarNotificationCenterActivity"
                 systemui:highlightWhenSelected="true"
@@ -78,7 +78,7 @@
                 style="@style/SystemBarButton"
                 systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_mic"
-                systemui:useDefaultAppIconForRole="false"/>
+                systemui:useDefaultAppIconForRole="true"/>
         </LinearLayout>
 
         <com.android.systemui.car.hvac.TemperatureControlView
