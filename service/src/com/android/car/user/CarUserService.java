@@ -163,6 +163,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     public static final String HANDLER_THREAD_NAME = "UserService";
 
+    // Constants below must match value of same constants defined by ActivityManager
+    public static final int USER_OP_SUCCESS = 0;
+    public static final int USER_OP_UNKNOWN_USER = -1;
+    public static final int USER_OP_IS_CURRENT = -2;
+    public static final int USER_OP_ERROR_IS_SYSTEM = -3;
+    public static final int USER_OP_ERROR_RELATED_USERS_CANNOT_STOP = -4;
+
     private final Context mContext;
     private final ActivityManagerHelper mAmHelper;
     private final ActivityManager mAm;
@@ -1988,15 +1995,15 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private @UserStopResult.Status int stopBackgroundUserInternal(@UserIdInt int userId) {
         int r = mAmHelper.stopUserWithDelayedLocking(userId, true);
         switch(r) {
-            case ActivityManager.USER_OP_SUCCESS:
+            case USER_OP_SUCCESS:
                 return UserStopResult.STATUS_SUCCESSFUL;
-            case ActivityManager.USER_OP_ERROR_IS_SYSTEM:
+            case USER_OP_ERROR_IS_SYSTEM:
                 Slogf.w(TAG, "Cannot stop the system user: %d", userId);
                 return UserStopResult.STATUS_FAILURE_SYSTEM_USER;
-            case ActivityManager.USER_OP_IS_CURRENT:
+            case USER_OP_IS_CURRENT:
                 Slogf.w(TAG, "Cannot stop the current user: %d", userId);
                 return UserStopResult.STATUS_FAILURE_CURRENT_USER;
-            case ActivityManager.USER_OP_UNKNOWN_USER:
+            case USER_OP_UNKNOWN_USER:
                 Slogf.w(TAG, "Cannot stop the user that does not exist: %d", userId);
                 return UserStopResult.STATUS_USER_DOES_NOT_EXIST;
             default:
