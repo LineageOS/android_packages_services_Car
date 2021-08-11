@@ -33,8 +33,6 @@ import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
 
-import com.google.android.collect.Lists;
-
 import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
@@ -109,7 +107,9 @@ public class MockedVehicleHal extends IVehicle.Stub {
 
         for (IVehicleCallback callback: callbacks) {
             try {
-                callback.onPropertyEvent(Lists.newArrayList(value));
+                ArrayList<VehiclePropValue> values = new ArrayList<>(1);
+                values.add(value);
+                callback.onPropertyEvent(values);
             } catch (RemoteException e) {
                 e.printStackTrace();
                 fail("Remote exception while injecting events.");

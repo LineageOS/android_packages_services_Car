@@ -25,7 +25,6 @@ import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Bundle;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
 import com.android.car.AppFocusService;
@@ -35,6 +34,7 @@ import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Objects;

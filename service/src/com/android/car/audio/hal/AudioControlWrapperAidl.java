@@ -31,12 +31,12 @@ import android.media.AudioAttributes.AttributeUsage;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;

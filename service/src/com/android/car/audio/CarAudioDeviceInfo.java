@@ -26,10 +26,10 @@ import android.media.AudioGain;
 import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPort;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.Objects;

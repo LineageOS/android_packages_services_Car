@@ -66,7 +66,6 @@ import android.os.UserHandle;
 import android.telephony.Annotation.CallState;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
@@ -83,6 +82,7 @@ import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

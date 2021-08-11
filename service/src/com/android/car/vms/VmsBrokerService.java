@@ -39,15 +39,15 @@ import android.os.RemoteException;
 import android.os.SharedMemory;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.internal.util.FunctionalUtils.ThrowingConsumer;
 import com.android.car.stats.CarStatsService;
 import com.android.car.stats.VmsClientLogger;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.FunctionalUtils.ThrowingConsumer;
 
 import java.util.ArrayList;
 import java.util.Collection;

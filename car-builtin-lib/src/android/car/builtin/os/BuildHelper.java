@@ -44,4 +44,9 @@ public final class BuildHelper {
     public static boolean isUserDebugBuild() {
         return Build.IS_USERDEBUG;
     }
+
+    /** Tells if the build is debuggable (eng or userdebug) */
+    public static boolean isDebuggableBuild() {
+        return Build.IS_DEBUGGABLE;
+    }
 }

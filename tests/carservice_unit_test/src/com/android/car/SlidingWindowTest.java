@@ -17,10 +17,13 @@ package com.android.car;
 
 import android.test.suitebuilder.annotation.MediumTest;
 
+import com.android.car.util.SlidingWindow;
+
+import junit.framework.TestCase;
+
 import java.util.Arrays;
 import java.util.Iterator;
 import java.util.List;
-import junit.framework.TestCase;
 
 @MediumTest
 public class SlidingWindowTest extends TestCase {

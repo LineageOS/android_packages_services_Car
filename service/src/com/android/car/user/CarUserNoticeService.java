@@ -47,7 +47,6 @@ import android.os.PowerManager;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
@@ -55,6 +54,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

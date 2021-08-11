@@ -29,11 +29,11 @@ import android.os.Handler;
 import android.os.Looper;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 

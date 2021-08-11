@@ -30,8 +30,8 @@ import android.hardware.automotive.occupant_awareness.IOccupantAwareness;
 import android.hardware.automotive.occupant_awareness.IOccupantAwarenessClientCallback;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

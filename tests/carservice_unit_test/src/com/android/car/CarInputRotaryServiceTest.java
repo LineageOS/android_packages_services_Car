@@ -47,6 +47,7 @@ import android.test.mock.MockContentResolver;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;

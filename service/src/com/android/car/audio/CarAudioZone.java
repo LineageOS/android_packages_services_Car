@@ -23,10 +23,10 @@ import android.car.media.CarAudioManager;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioPlaybackConfiguration;
-import android.util.IndentingPrintWriter;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;

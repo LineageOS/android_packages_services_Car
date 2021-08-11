@@ -35,12 +35,12 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;

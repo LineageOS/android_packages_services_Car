@@ -19,6 +19,7 @@ import static com.android.car.CarServiceUtils.toByteArray;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.VehicleAreaType;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slog;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
@@ -40,9 +41,7 @@ import android.hardware.automotive.vehicle.V2_0.VmsMessageWithLayerIntegerValues
 import android.hardware.automotive.vehicle.V2_0.VmsOfferingMessageIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsPublisherInformationIntegerValuesIndex;
 import android.hardware.automotive.vehicle.V2_0.VmsStartSessionMessageIntegerValuesIndex;
-import android.os.Build;
 import android.os.Handler;
-import android.os.HandlerExecutor;
 import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -52,6 +51,7 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.vms.VmsBrokerService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -134,7 +134,7 @@ public class VmsHalService extends HalServiceBase {
      */
     VmsHalService(Context context, VehicleHal vehicleHal) {
         this(context, vehicleHal, SystemClock::uptimeMillis, VmsHalService::initVmsClient,
-                Build.IS_DEBUGGABLE);
+                BuildHelper.isDebuggableBuild());
     }
 
     @VisibleForTesting

@@ -70,6 +70,7 @@ java_library {
     proto: {
         type: "lite",
     },
+    sdk_version: "module_current",
     static_libs: ["libprotobuf-java-lite"],
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }

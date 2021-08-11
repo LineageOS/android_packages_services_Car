@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.util;
 
 import java.util.ArrayDeque;
 import java.util.Iterator;
@@ -24,16 +24,20 @@ import java.util.stream.Stream;
  * This class keeps track of a limited fixed number of sample data points, correctly removing
  * older samples as new ones are added, and it allows inspecting the samples, as well as
  * easily answering N out of M questions.
+ *
+ * @param <T> data to iterate
  */
-class SlidingWindow<T> implements Iterable<T> {
+public class SlidingWindow<T> implements Iterable<T> {
     private final ArrayDeque<T> mElements;
     private final int mMaxSize;
 
+    /** TODO: add javadoc */
     public SlidingWindow(int size) {
         mMaxSize = size;
         mElements = new ArrayDeque<>(mMaxSize);
     }
 
+    /** TODO: add javadoc */
     public void add(T sample) {
         if (mElements.size() == mMaxSize) {
             mElements.removeFirst();
@@ -41,6 +45,7 @@ class SlidingWindow<T> implements Iterable<T> {
         mElements.addLast(sample);
     }
 
+    /** TODO: add javadoc */
     public void addAll(Iterable<T> elements) {
         elements.forEach(this::add);
     }
@@ -50,15 +55,18 @@ class SlidingWindow<T> implements Iterable<T> {
         return mElements.iterator();
     }
 
+    /** TODO: add javadoc */
     public Stream<T> stream() {
         return mElements.stream();
     }
 
+    /** TODO: add javadoc */
     public int size() {
         return mElements.size();
     }
 
+    /** TODO: add javadoc */
     public int count(Predicate<T> predicate) {
-        return (int)stream().filter(predicate).count();
+        return (int) stream().filter(predicate).count();
     }
 }

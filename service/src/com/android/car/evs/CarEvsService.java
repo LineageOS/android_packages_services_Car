@@ -62,7 +62,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
 import com.android.car.CarPropertyService;
@@ -70,6 +69,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.EvsHalService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;

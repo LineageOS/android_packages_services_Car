@@ -22,7 +22,8 @@ import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
-import android.util.IndentingPrintWriter;
+
+import com.android.car.util.IndentingPrintWriter;
 
 /** Wraps a {@link LocationManager}. */
 public class LocationManagerProxy extends ILocationManagerProxy.Stub {

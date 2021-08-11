@@ -28,11 +28,11 @@ import android.content.pm.PackageManager;
 import android.os.Process;
 import android.os.UserHandle;
 import android.util.ArrayMap;
-import android.util.IntArray;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;

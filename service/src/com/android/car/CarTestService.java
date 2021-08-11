@@ -21,8 +21,8 @@ import android.car.test.ICarTest;
 import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Arrays;

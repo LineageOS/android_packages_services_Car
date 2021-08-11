@@ -35,7 +35,6 @@ import android.content.Intent;
 import android.content.res.Resources;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.util.IndentingPrintWriter;
 import android.util.JsonWriter;
 import android.util.Log;
 import android.util.SparseArray;
@@ -48,6 +47,9 @@ import com.android.car.storagemonitoring.WearHistory;
 import com.android.car.storagemonitoring.WearInformation;
 import com.android.car.storagemonitoring.WearInformationProvider;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.util.IndentingPrintWriter;
+import com.android.car.util.SlidingWindow;
+import com.android.car.util.SparseArrayStream;
 import com.android.internal.annotations.GuardedBy;
 
 import org.json.JSONArray;

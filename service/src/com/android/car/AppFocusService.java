@@ -23,7 +23,6 @@ import android.car.IAppFocusOwnershipCallback;
 import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.PermissionChecker;
-import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -31,9 +30,9 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

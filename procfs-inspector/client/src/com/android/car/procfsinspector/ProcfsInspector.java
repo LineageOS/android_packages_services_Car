@@ -16,13 +16,12 @@
 package com.android.car.procfsinspector;
 
 import android.annotation.Nullable;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.util.Log;
-import java.util.Arrays;
+
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 
 public final class ProcfsInspector {
     private static final String TAG = "car.procfsinspector";
@@ -36,7 +35,7 @@ public final class ProcfsInspector {
     @Nullable
     private static IProcfsInspector tryGet() {
         return IProcfsInspector.Stub.asInterface(
-            ServiceManager.getService(SERVICE_NAME));
+            ServiceManagerHelper.checkService(SERVICE_NAME));
     }
 
     public static List<ProcessInfo> readProcessTable() {

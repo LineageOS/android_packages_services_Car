@@ -67,7 +67,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.text.TextUtils;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 import android.util.LocalLog;
 import android.util.Log;
 import android.util.Pair;
@@ -82,6 +81,7 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

@@ -52,6 +52,8 @@ import android.os.RemoteException;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.bluetooth.CarBluetoothService;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;

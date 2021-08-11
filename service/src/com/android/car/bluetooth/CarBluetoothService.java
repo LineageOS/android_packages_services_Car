@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2017 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package com.android.car;
+package com.android.car.bluetooth;
 
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
@@ -27,10 +27,14 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 import android.util.SparseArray;
 
+import com.android.car.CarLog;
+import com.android.car.CarServiceBase;
+import com.android.car.PerUserCarServiceHelper;
+import com.android.car.R;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;
@@ -263,18 +267,18 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
                 deviceManager.stop();
                 mProfileDeviceManagers.remove(profileId);
                 logd("Existing device manager removed for profile "
-                        + Utils.getProfileName(profileId));
+                        + BluetoothUtils.getProfileName(profileId));
             }
 
             deviceManager = BluetoothProfileDeviceManager.create(mContext, mUserId,
                     mCarBluetoothUserService, profileId);
             if (deviceManager == null) {
                 logd("Failed to create profile device manager for "
-                        + Utils.getProfileName(profileId));
+                        + BluetoothUtils.getProfileName(profileId));
                 continue;
             }
             mProfileDeviceManagers.put(profileId, deviceManager);
-            logd("Created profile device manager for " + Utils.getProfileName(profileId));
+            logd("Created profile device manager for " + BluetoothUtils.getProfileName(profileId));
         }
 
         for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
@@ -446,8 +450,8 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *                owning the token dies, the request will automatically be released
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
-    boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Request profile inhibit: profile " + Utils.getProfileName(profile)
+    public boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        logd("Request profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
                 + ", device " + device.getAddress());
         synchronized (mPerUserLock) {
             if (mInhibitManager == null) return false;
@@ -465,8 +469,8 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *                {@link #requestBluetoothProfileInhibit}.
      * @return True if the request was released, false if an error occurred.
      */
-    boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Release profile inhibit: profile " + Utils.getProfileName(profile)
+    public boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
+        logd("Release profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
                 + ", device " + device.getAddress());
         synchronized (mPerUserLock) {
             if (mInhibitManager == null) return false;

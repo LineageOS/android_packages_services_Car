@@ -32,9 +32,9 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
-import android.util.IntArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.PrintWriter;

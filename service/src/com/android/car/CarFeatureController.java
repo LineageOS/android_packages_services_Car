@@ -20,15 +20,15 @@ import android.annotation.NonNull;
 import android.car.Car;
 import android.car.Car.FeaturerRequestEnum;
 import android.car.CarFeatures;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slog;
 import android.content.Context;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.AtomicFile;
-import android.util.IndentingPrintWriter;
 import android.util.Pair;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -145,7 +145,7 @@ public final class CarFeatureController implements CarServiceBase {
     public CarFeatureController(@NonNull Context context,
             @NonNull String[] defaultEnabledFeaturesFromConfig,
             @NonNull String[] disabledFeaturesFromVhal, @NonNull File dataDir) {
-        if (!Build.IS_USER) {
+        if (!BuildHelper.isUserBuild()) {
             OPTIONAL_FEATURES.addAll(NON_USER_ONLY_FEATURES);
         }
         mContext = context;
@@ -303,7 +303,7 @@ public final class CarFeatureController implements CarServiceBase {
      */
     public boolean setAvailableExperimentalFeatureList(List<String> experimentalFeatures) {
         assertPermission();
-        if (Build.IS_USER) {
+        if (BuildHelper.isUserBuild()) {
             Slog.e(TAG, "Experimental feature list set for USER build",
                     new RuntimeException());
             return false;
@@ -339,7 +339,7 @@ public final class CarFeatureController implements CarServiceBase {
 
     /** Returns currently enabled experimental features */
     public @NonNull List<String> getEnabledExperimentalFeatures() {
-        if (Build.IS_USER) {
+        if (BuildHelper.isUserBuild()) {
             Slog.e(TAG, "getEnabledExperimentalFeatures called in USER build",
                     new RuntimeException());
             return Collections.emptyList();

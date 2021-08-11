@@ -92,7 +92,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.ArrayMap;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 import android.view.KeyEvent;
 
@@ -107,6 +106,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 

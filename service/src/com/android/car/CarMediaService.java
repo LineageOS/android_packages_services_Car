@@ -54,7 +54,6 @@ import android.media.session.MediaSessionManager.OnActiveSessionsChangedListener
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.Handler;
-import android.os.HandlerExecutor;
 import android.os.HandlerThread;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
@@ -63,11 +62,12 @@ import android.os.UserManager;
 import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
 import android.util.DebugUtils;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
 
+import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

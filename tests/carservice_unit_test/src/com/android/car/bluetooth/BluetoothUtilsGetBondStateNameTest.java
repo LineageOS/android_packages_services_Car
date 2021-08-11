@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,19 +28,19 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UtilsGetBondStateNameTest {
+public final class BluetoothUtilsGetBondStateNameTest {
 
     private final int mState;
     private final String mName;
 
-    public UtilsGetBondStateNameTest(int state, String name) {
+    public BluetoothUtilsGetBondStateNameTest(int state, String name) {
         mState = state;
         mName = name;
     }
 
     @Test
     public void testGetBondStateName() {
-        String result = Utils.getBondStateName(mState);
+        String result = BluetoothUtils.getBondStateName(mState);
 
         assertThat(result).contains(String.valueOf(mState));
         assertThat(result).ignoringCase().contains(mName);

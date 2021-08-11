@@ -48,12 +48,15 @@ java_sdk_library {
     },
 
     // Only allowed car modules only. Allowed to add tests here.
-    stubs_library_visibility: [
+    visibility: [
         "//packages/services/Car/car-lib",
+        "//packages/services/Car/car-lib-module",
+        "//packages/services/Car/procfs-inspector/client",
         "//packages/services/Car/service-builtin",
         "//packages/services/Car/service",
         "//packages/services/Car/tests/carservice_test",
         "//packages/services/Car/tests/carservice_unit_test",
+        "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
         "//frameworks/opt/car/services",
     ],
 

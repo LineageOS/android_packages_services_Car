@@ -36,6 +36,7 @@ package android.car.builtin.content {
 package android.car.builtin.os {
 
   public final class BuildHelper {
+    method public static boolean isDebuggableBuild();
     method public static boolean isEngBuild();
     method public static boolean isUserBuild();
     method public static boolean isUserDebugBuild();

@@ -26,8 +26,9 @@ import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.util.IndentingPrintWriter;
 import android.util.Log;
+
+import com.android.car.util.IndentingPrintWriter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

@@ -16,8 +16,6 @@
 
 package android.car.watchdoglib;
 
-import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
-
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.automotive.watchdog.internal.ICarWatchdog;
@@ -25,11 +23,11 @@ import android.automotive.watchdog.internal.ICarWatchdogMonitor;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.ResourceOveruseConfiguration;
+import android.car.builtin.os.ServiceManagerHelper;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.SystemClock;
 import android.util.Log;
 
@@ -79,8 +77,7 @@ public final class CarWatchdogDaemonHelper {
             for (OnConnectionChangeListener listener : mConnectionListeners) {
                 listener.onConnectionChange(/* isConnected= */false);
             }
-            mHandler.sendMessageDelayed(obtainMessage(CarWatchdogDaemonHelper::connectToDaemon,
-                    CarWatchdogDaemonHelper.this, CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY),
+            mHandler.postDelayed(() -> connectToDaemon(CAR_WATCHDOG_DAEMON_BIND_MAX_RETRY),
                     CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS);
         }
     };
@@ -325,14 +322,14 @@ public final class CarWatchdogDaemonHelper {
             Log.i(mTag, "Connected to car watchdog daemon");
             return;
         }
-        mHandler.sendMessageDelayed(obtainMessage(CarWatchdogDaemonHelper::connectToDaemon,
-                CarWatchdogDaemonHelper.this, retryCount - 1),
+        final int nextRetry = retryCount - 1;
+        mHandler.postDelayed(() -> connectToDaemon(nextRetry),
                 CAR_WATCHDOG_DAEMON_BIND_RETRY_INTERVAL_MS);
     }
 
     private boolean makeBinderConnection() {
         long currentTimeMs = SystemClock.uptimeMillis();
-        IBinder binder = ServiceManager.getService(CAR_WATCHDOG_DAEMON_INTERFACE);
+        IBinder binder = ServiceManagerHelper.getService(CAR_WATCHDOG_DAEMON_INTERFACE);
         if (binder == null) {
             Log.w(mTag, "Getting car watchdog daemon binder failed");
             return false;

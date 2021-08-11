@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -28,19 +28,19 @@ import java.util.Arrays;
 import java.util.Collection;
 
 @RunWith(Parameterized.class)
-public final class UtilsGetConnectionStateNameTest {
+public final class BluetoothUtilsGetAdapterStateNameTest {
 
     private final int mState;
     private final String mName;
 
-    public UtilsGetConnectionStateNameTest(int state, String name) {
+    public BluetoothUtilsGetAdapterStateNameTest(int state, String name) {
         mState = state;
         mName = name;
     }
 
     @Test
-    public void testGetConnectionStateName() {
-        String result = Utils.getConnectionStateName(mState);
+    public void testGetAdapterStateName() {
+        String result = BluetoothUtils.getAdapterStateName(mState);
 
         assertThat(result).contains(String.valueOf(mState));
         assertThat(result).ignoringCase().contains(mName);
@@ -50,12 +50,12 @@ public final class UtilsGetConnectionStateNameTest {
     public static Collection provideParams() {
         return Arrays.asList(
             new Object[][] {
-                {BluetoothAdapter.STATE_CONNECTED, "connected"},
-                {BluetoothAdapter.STATE_DISCONNECTED, "disconnected"},
-                {BluetoothAdapter.STATE_CONNECTING, "connecting"},
-                {BluetoothAdapter.STATE_DISCONNECTING, "disconnecting"},
-                {-1, "unknown"},
-                {4, "unknown"}
+                {BluetoothAdapter.STATE_ON, "on"},
+                {BluetoothAdapter.STATE_OFF, "off"},
+                {BluetoothAdapter.STATE_TURNING_ON, "turning on"},
+                {BluetoothAdapter.STATE_TURNING_OFF, "turning off"},
+                {9, "unknown"},
+                {14, "unknown"}
             });
     }
 }

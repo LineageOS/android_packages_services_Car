@@ -74,10 +74,10 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.IndentingPrintWriter;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;

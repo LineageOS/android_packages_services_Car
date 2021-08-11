@@ -52,10 +52,10 @@ import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.util.ArrayUtils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.infra.AndroidFuture;
-import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;

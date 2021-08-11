@@ -1,5 +1,5 @@
 /*
- * Copyright (C) 2019 The Android Open Source Project
+ * Copyright (C) 2021 The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car;
+package com.android.car.bluetooth;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -30,6 +30,9 @@ import android.provider.Settings;
 import android.test.mock.MockContentProvider;
 import android.test.mock.MockContentResolver;
 
+import com.android.car.CarLocalServices;
+import com.android.car.PerUserCarServiceHelper;
+import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.app.IVoiceInteractionManagerService;

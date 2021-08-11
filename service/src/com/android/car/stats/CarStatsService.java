@@ -22,14 +22,14 @@ import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.util.ArrayMap;
-import android.util.IndentingPrintWriter;
 import android.util.StatsEvent;
 
 import com.android.car.CarLog;
 import com.android.car.CarStatsLog;
+import com.android.car.internal.util.ConcurrentUtils;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
+import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.ConcurrentUtils;
 
 import java.util.Arrays;
 import java.util.Comparator;
