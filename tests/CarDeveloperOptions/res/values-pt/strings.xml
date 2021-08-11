@@ -2039,7 +2039,7 @@
     <string name="accessibility_settings_summary" msgid="5742379519336396561">"Controles de interação, leitores de tela, exibição"</string>
     <string name="vision_settings_title" msgid="7315352351051423944">"Configuração visual"</string>
     <string name="vision_settings_description" msgid="3476589459009287332">"É possível personalizar este dispositivo para atender às suas necessidades. Esses recursos de acessibilidade podem ser alterados posteriormente em \"Configurar\"."</string>
-    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Alterar tamanho da fonte"</string>
+    <string name="vision_settings_suggestion_title" msgid="7268661419110951128">"Mudar o tamanho da fonte"</string>
     <string name="screen_reader_category_title" msgid="6300714148519645544">"Leitores de tela"</string>
     <string name="audio_and_captions_category_title" msgid="6140472938769619212">"Áudio e texto na tela"</string>
     <string name="display_category_title" msgid="545168481672250195">"Tela"</string>

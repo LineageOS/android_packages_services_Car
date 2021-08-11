@@ -1680,7 +1680,7 @@
     <string name="location_access_title" msgid="8587974819606800029">"Accés a la meva ubicació"</string>
     <string name="location_access_summary" msgid="6919495149026354355">"Permet que les aplicacions que hagin demanat permís utilitzin la informació sobre la ubicació"</string>
     <string name="location_sources_heading" msgid="8526658357120282741">"Fonts d\'ubicació"</string>
-    <string name="about_settings" product="tablet" msgid="4869626690708456341">"Informació sobre la tauleta"</string>
+    <string name="about_settings" product="tablet" msgid="4869626690708456341">"Informació de la tauleta"</string>
     <string name="about_settings" product="default" msgid="6019547763377294261">"Informació del telèfon"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"Informació sobre el dispositiu"</string>
     <string name="about_settings" product="emulator" msgid="4497482494770487014">"Sobre el dispositiu emulat"</string>
