@@ -21,7 +21,7 @@ interface ICar {
     /**
      * Helper binder is for ICarServiceHelper. It is for the communication from CarService ->
      * CarServiceHelperService.
-     * Receiver binder is type of IResultReceiver. It would set ICarSystemServerClient binder for
+     * Receiver binder is type of ICarResultReceiver. It would set ICarSystemServerClient binder for
      * CarServiceHelperService.
      * DO NOT CHANGE the number.
      */

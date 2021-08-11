@@ -16,9 +16,8 @@
 
 package com.android.car.internal;
 
+import android.car.ICarResultReceiver;
 import android.content.pm.UserInfo;
-
-import com.android.internal.os.IResultReceiver;
 
 /**
  * API to communicate from CarServiceHelperService to car service.
@@ -52,5 +51,5 @@ oneway interface ICarSystemServerClient {
       *
       * @param callback used to trigger the factory reset.
       */
-    void onFactoryReset(IResultReceiver callback);
+    void onFactoryReset(ICarResultReceiver callback);
 }
