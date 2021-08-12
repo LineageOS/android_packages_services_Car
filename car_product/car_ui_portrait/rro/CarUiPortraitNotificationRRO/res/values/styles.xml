@@ -24,7 +24,7 @@
     </style>
 
     <style name="NotificationBodyContentText">
-        <item name="android:textSize">24sp</item>
+        <item name="android:textSize">28sp</item>
         <item name="android:ellipsize">end</item>
         <item name="android:textColor">@color/secondary_text_color</item>
         <item name="android:textAlignment">viewStart</item>
@@ -32,11 +32,10 @@
 
     <style name="NotificationActionViewLayout">
         <item name="android:layout_gravity">center</item>
-        <item name="android:minHeight">88dp</item>
-        <item name="android:layout_marginLeft">24dp</item>
-        <item name="android:layout_marginRight">24dp</item>
-        <item name="android:layout_marginTop">36dp</item>
-        <item name="android:layout_marginBottom">24dp</item>
+        <item name="android:layout_marginLeft">8dp</item>
+        <item name="android:layout_marginRight">8dp</item>
+        <item name="android:layout_marginTop">8dp</item>
+        <item name="android:layout_marginBottom">8dp</item>
     </style>
 
     <style name="NotificationActionButtonBase" parent="@android:Widget.DeviceDefault.Button.Borderless.Colored">
