@@ -61,7 +61,7 @@
     <string name="car_permission_label_bind_instrument_cluster_rendering" msgid="8627480897198377418">"పరికర గుంపు రెండరింగ్"</string>
     <string name="car_permission_desc_bind_instrument_cluster_rendering" msgid="5073596870485006783">"పరికర గుంపు డేటాని పొందండి"</string>
     <string name="car_permission_label_car_ux_restrictions_configuration" msgid="6801393970411049725">"UX పరిమితుల కాన్ఫిగరేషన్"</string>
-    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX పరిమితులను కాన్ఫిగర్ చెయ్యండి"</string>
+    <string name="car_permission_desc_car_ux_restrictions_configuration" msgid="5711926927484813777">"UX పరిమితులను కాన్ఫిగర్ చేయండి"</string>
     <string name="car_permission_label_access_private_display_id" msgid="6712116114341634316">"ప్రైవేట్ డిస్‌ప్లే idకి చదివే యాక్సెస్"</string>
     <string name="car_permission_desc_access_private_display_id" msgid="8535974477610944721">"ప్రైవేట్ డిస్‌ప్లే idకి చదివే యాక్సెస్‌ను అనుమతిస్తుంది"</string>
     <string name="car_permission_label_car_handle_usb_aoap_device" msgid="72783989504378036">"AOAP మోడ్‌లో USB పరికరాన్ని కమ్యూనికేట్ చేయండి"</string>
@@ -84,9 +84,9 @@
     <string name="car_permission_label_diag_clear" msgid="4783070510879698157">"సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు"</string>
     <string name="car_permission_desc_diag_clear" msgid="7453222114866042786">"కారు నుండి సమస్య విశ్లేషణ డేటాను క్లియర్ చేయగలవు."</string>
     <string name="car_permission_label_vms_publisher" msgid="3049934078926106641">"VMS ప్రచురణకర్త"</string>
-    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS సందేశాలను ప్రచురించండి"</string>
+    <string name="car_permission_desc_vms_publisher" msgid="5589489298597386828">"VMS మెసేజ్‌లను ప్రచురించండి"</string>
     <string name="car_permission_label_vms_subscriber" msgid="5648841182059222299">"VMS సభ్యులు"</string>
-    <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS సందేశాలను పొందడానికి సభ్యత్వం తీసుకోండి"</string>
+    <string name="car_permission_desc_vms_subscriber" msgid="7551009457847673620">"VMS మెసేజ్‌లను పొందడానికి సభ్యత్వం తీసుకోండి"</string>
     <string name="car_permission_label_bind_vms_client" msgid="4889732900973280313">"VMS క్లయింట్ సేవ"</string>
     <string name="car_permission_desc_bind_vms_client" msgid="4062835325264330564">"VMS క్లయింట్‌లను ఆచరించండి"</string>
     <string name="car_permission_label_storage_monitoring" msgid="2327639346522530549">"ఫ్లాష్ నిల్వ పర్యవేక్షణ"</string>
