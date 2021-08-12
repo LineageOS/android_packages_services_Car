@@ -61,4 +61,7 @@
     <item target="style/NotificationBodContentText" value="@style/NotificationBodyContentText" />
     <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
 
+
+    <item target="dimen/card_min_bottom_padding" value="@dimen/card_min_bottom_padding"/>
+    <item target="dimen/card_min_top_padding" value="@dimen/card_min_top_padding"/>
 </overlay>
