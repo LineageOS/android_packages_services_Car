@@ -1105,8 +1105,6 @@ public final class VehiclePropertyIds {
      *  <li>Signature permissions, android.car.permission.CONTROL_CAR_DISPLAY_UNITS and
      *  android.car.permission.CAR_VENDOR_EXTENSION, to write property.
      * </ul>
-     *
-     * @hide
      */
     @RequiresPermission.Read(@RequiresPermission(Car.PERMISSION_READ_DISPLAY_UNITS))
     @RequiresPermission.Write(@RequiresPermission(allOf = {Car.PERMISSION_CONTROL_DISPLAY_UNITS,
