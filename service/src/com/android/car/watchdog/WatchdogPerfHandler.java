@@ -162,7 +162,6 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             checkAndHandleDateChangeLocked();
         }
-        mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
         if (DEBUG) {
             Slogf.d(TAG, "WatchdogPerfHandler is initialized");
         }
@@ -185,15 +184,26 @@ public final class WatchdogPerfHandler {
 
     /** Retries any pending requests on re-connecting to the daemon */
     public void onDaemonConnectionChange(boolean isConnected) {
+        boolean hasPendingRequest;
         synchronized (mLock) {
             mIsConnectedToDaemon = isConnected;
+            hasPendingRequest = mPendingSetResourceOveruseConfigurationsRequest != null;
         }
         if (isConnected) {
-            /*
-             * Retry pending set resource overuse configuration request before processing any new
-             * set/get requests. Thus notify the waiting requests only after the retry completes.
-             */
-            retryPendingSetResourceOveruseConfigurations();
+            if (hasPendingRequest) {
+                /*
+                 * Retry pending set resource overuse configuration request before processing any
+                 * new set/get requests. Thus notify the waiting requests only after the retry
+                 * completes.
+                 */
+                retryPendingSetResourceOveruseConfigurations();
+            } else {
+                /* Start fetch/sync configs only when there are no pending set requests because the
+                 * above retry starts fetch/sync configs on success. If the retry fails, the daemon
+                 * has crashed and shouldn't start fetchAndSyncResourceOveruseConfigurations.
+                 */
+                mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
+            }
         }
         synchronized (mLock) {
             mLock.notifyAll();
@@ -667,8 +677,6 @@ public final class WatchdogPerfHandler {
                 boolean hasRecurringOveruse = recurringIoOverusesByUid.valueAt(i);
                 String genericPackageName = genericPackageNamesByUid.get(uid);
                 int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
-                String key = getUserPackageUniqueId(userId, genericPackageName);
-                PackageResourceUsage usage = mUsageByUserPackage.get(key);
 
                 PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
                 overuseAction.packageIdentifier = new PackageIdentifier();
@@ -677,6 +685,13 @@ public final class WatchdogPerfHandler {
                 overuseAction.resourceTypes = new int[]{ ResourceType.IO };
                 overuseAction.resourceOveruseActionType = NOT_KILLED;
 
+                String key = getUserPackageUniqueId(userId, genericPackageName);
+                PackageResourceUsage usage = mUsageByUserPackage.get(key);
+                if (usage == null) {
+                    /* This case shouldn't happen but placed here as a fail safe. */
+                    mOveruseActionsByUserPackage.add(overuseAction);
+                    continue;
+                }
                 List<String> packages = Collections.singletonList(genericPackageName);
                 if (usage.isSharedPackage()) {
                     packages = mPackageInfoHandler.getPackagesForUid(uid, genericPackageName);
