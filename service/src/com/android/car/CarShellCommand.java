@@ -172,6 +172,10 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_APPLY_POWER_POLICY = "apply-power-policy";
     private static final String COMMAND_DEFINE_POWER_POLICY_GROUP = "define-power-policy-group";
     private static final String COMMAND_SET_POWER_POLICY_GROUP = "set-power-policy-group";
+    private static final String COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY =
+            "apply-cts-verifier-power-off-policy";
+    private static final String COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY =
+            "apply-cts-verifier-power-on-policy";
     private static final String COMMAND_POWER_OFF = "power-off";
     private static final String POWER_OFF_SKIP_GARAGEMODE = "--skip-garagemode";
     private static final String POWER_OFF_SHUTDOWN = "--shutdown";
@@ -251,6 +255,10 @@ final class CarShellCommand extends ShellCommand {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY_GROUP,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SET_POWER_POLICY_GROUP,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SILENT_MODE,
                 PERMISSION_CAR_POWER);
@@ -599,6 +607,14 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Sets power policy group which is defined in /vendor/etc/power_policy.xml ");
         pw.printf("\t  or by %s command\n", COMMAND_DEFINE_POWER_POLICY_GROUP);
 
+        pw.printf("\t%s\n", COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY);
+        pw.println("\t  Define and apply the cts_verifier_off power policy with "
+                + "--disable WIFI,LOCATION,BLUETOOTH");
+
+        pw.printf("\t%s\n", COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY);
+        pw.println("\t  Define and apply the cts_verifier_on power policy with "
+                + "--enable WIFI,LOCATION,BLUETOOTH");
+
         pw.printf("\t%s [%s] [%s]\n", COMMAND_POWER_OFF, POWER_OFF_SKIP_GARAGEMODE,
                 POWER_OFF_SHUTDOWN);
         pw.println("\t  Powers off the car.");
@@ -934,6 +950,10 @@ final class CarShellCommand extends ShellCommand {
                 return definePowerPolicyGroup(args, writer);
             case COMMAND_SET_POWER_POLICY_GROUP:
                 return setPowerPolicyGroup(args, writer);
+            case COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY:
+                return applyCtsVerifierPowerOffPolicy(args, writer);
+            case COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY:
+                return applyCtsVerifierPowerOnPolicy(args, writer);
             case COMMAND_POWER_OFF:
                 powerOff(args, writer);
                 break;
@@ -1996,6 +2016,29 @@ final class CarShellCommand extends ShellCommand {
         writer.printf("\nUsage: cmd car_service %s <POLICY_GROUP_ID>\n",
                 COMMAND_SET_POWER_POLICY_GROUP);
         return RESULT_ERROR;
+    }
+
+    private int applyCtsVerifierPowerPolicy(String policyId, String ops, String cmdName,
+            IndentingPrintWriter writer) {
+        String[] defArgs = {"define-power-policy", policyId, ops, "WIFI,BLUETOOTH,LOCATION"};
+        mCarPowerManagementService.definePowerPolicyFromCommand(defArgs, writer);
+
+        String[] appArgs = {"apply-power-policy", policyId};
+        boolean result = mCarPowerManagementService.applyPowerPolicyFromCommand(appArgs, writer);
+        if (result) return RESULT_OK;
+
+        writer.printf("\nUsage: cmd car_service %s\n", cmdName);
+        return RESULT_ERROR;
+    }
+
+    private int applyCtsVerifierPowerOffPolicy(String[] unusedArgs, IndentingPrintWriter writer) {
+        return applyCtsVerifierPowerPolicy("cts_verifier_off", "--disable",
+                COMMAND_APPLY_CTS_VERIFIER_POWER_OFF_POLICY, writer);
+    }
+
+    private int applyCtsVerifierPowerOnPolicy(String[] unusedArgs, IndentingPrintWriter writer) {
+        return applyCtsVerifierPowerPolicy("cts_verifier_on", "--enable",
+                COMMAND_APPLY_CTS_VERIFIER_POWER_ON_POLICY, writer);
     }
 
     private void powerOff(String[] args, IndentingPrintWriter writer) {
