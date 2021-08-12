@@ -178,6 +178,7 @@ android_app {
         "android.car.builtin",
         "framework-annotations-lib",
         "framework-statsd",
+        "modules-utils-os",
         "modules-utils-preconditions",
     ],
 
