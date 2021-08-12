@@ -13,34 +13,61 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<selector xmlns:android="http://schemas.android.com/apk/res/android">
+<selector xmlns:android="http://schemas.android.com/apk/res/android"
+          xmlns:aapt="http://schemas.android.com/aapt">
     <item android:state_activated="true">
         <layer-list>
             <item>
-                <shape android:shape="oval">
+                <shape android:shape="rectangle">
                     <size android:width="@dimen/system_bar_button_size"
                           android:height="@dimen/system_bar_button_size"/>
-                    <solid android:color="@color/car_nav_icon_fill_color"/>
+                    <corners
+                        android:radius="@dimen/system_bar_button_corner_radius"/>
+                    <solid
+                        android:color="@color/car_nav_icon_fill_color"/>
                 </shape>
             </item>
             <item>
-                <ripple android:color="@color/car_ui_ripple_color"
-                        android:radius="@dimen/system_bar_icon_drawing_size"/>
+                <ripple android:color="@color/car_ui_ripple_color">
+                    <item>
+                        <shape android:shape="rectangle">
+                            <size android:width="@dimen/system_bar_button_size"
+                                  android:height="@dimen/system_bar_button_size"/>
+                            <corners
+                                android:radius="@dimen/system_bar_button_corner_radius"/>
+                            <solid
+                                android:color="@color/car_nav_icon_fill_color"/>
+                        </shape>
+                    </item>
+                </ripple>
             </item>
         </layer-list>
     </item>
     <item>
         <layer-list>
             <item>
-                <shape android:shape="oval">
+                <shape android:shape="rectangle">
                     <size android:width="@dimen/system_bar_button_size"
                           android:height="@dimen/system_bar_button_size"/>
-                    <solid android:color="@color/car_nav_icon_background_color"/>
+                    <corners
+                        android:radius="@dimen/system_bar_button_corner_radius"/>
+                    <solid
+                        android:color="@color/car_nav_icon_background_color"/>
                 </shape>
             </item>
             <item>
-                <ripple android:color="@color/car_ui_ripple_color"
-                        android:radius="@dimen/system_bar_icon_drawing_size"/>
+                <ripple android:color="@color/car_ui_ripple_color">
+                    <item>
+                        <shape android:shape="rectangle">
+                            <size android:width="@dimen/system_bar_button_size"
+                                  android:height="@dimen/system_bar_button_size"/>
+                            <corners
+                                android:radius="@dimen/system_bar_button_corner_radius"/>
+                            <solid
+                                android:color="@color/car_nav_icon_background_color"/>
+                        </shape>
+                    </item>
+                </ripple>
             </item>
         </layer-list>
     </item>
