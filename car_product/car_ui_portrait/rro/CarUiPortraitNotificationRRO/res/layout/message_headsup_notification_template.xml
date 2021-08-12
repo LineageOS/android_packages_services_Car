@@ -55,6 +55,8 @@
                 android:id="@+id/notification_body"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:minHeight="@dimen/notification_touch_target_size"
+                android:gravity="center_vertical"
                 android:layout_toEndOf="@id/notification_body_icon"
                 android:layout_alignParentTop="true"
                 android:layout_toStartOf="@id/message_count"
