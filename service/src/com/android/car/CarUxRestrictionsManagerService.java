@@ -28,6 +28,7 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.os.BinderHelper;
 import android.car.builtin.util.Slog;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
@@ -694,7 +695,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarUxRestrictionsManagerService*");
-            mUxRClients.dump(writer, "UX Restrictions Clients ");
+            BinderHelper.dumpRemoteCallbackList(mUxRClients, writer, "UX Restrictions Clients ");
             for (int port : mCurrentUxRestrictions.keySet()) {
                 CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
                 writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());

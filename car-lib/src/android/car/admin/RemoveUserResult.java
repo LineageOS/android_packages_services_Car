@@ -20,8 +20,8 @@ import android.annotation.IntDef;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.user.UserRemovalResult;
-import android.util.DebugUtils;
 
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;

@@ -19,8 +19,8 @@ package android.car.admin;
 import android.annotation.IntDef;
 import android.annotation.TestApi;
 import android.car.user.UserStartResult;
-import android.util.DebugUtils;
 
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
