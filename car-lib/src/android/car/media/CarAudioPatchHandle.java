@@ -16,9 +16,8 @@
 
 package android.car.media;
 
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.media.AudioDevicePort;
-import android.media.AudioPatch;
 import android.os.Parcel;
 import android.os.Parcelable;
 
@@ -45,17 +44,15 @@ public final class CarAudioPatchHandle implements Parcelable {
      *
      * @hide
      */
-    public CarAudioPatchHandle(AudioPatch patch) {
-        Preconditions.checkArgument(patch.sources().length == 1
-                && patch.sources()[0].port() instanceof AudioDevicePort,
-                "Accepts exactly one device port as source");
-        Preconditions.checkArgument(patch.sinks().length == 1
-                && patch.sinks()[0].port() instanceof AudioDevicePort,
-                "Accepts exactly one device port as sink");
+    public CarAudioPatchHandle(int patchId,
+            @NonNull String sourceAddress,
+            @NonNull String sinkAddress) {
+        mSourceAddress = Preconditions.checkNotNull(sourceAddress,
+                "Patch id %d Source's Address device can not be null", patchId);
+        mSinkAddress = Preconditions.checkNotNull(sinkAddress,
+                "Patch id %d Sink's Address device can not be null", patchId);
 
-        mHandleId = patch.id();
-        mSourceAddress = ((AudioDevicePort) patch.sources()[0].port()).address();
-        mSinkAddress = ((AudioDevicePort) patch.sinks()[0].port()).address();
+        mHandleId = patchId;
     }
 
     /**
@@ -69,8 +66,8 @@ public final class CarAudioPatchHandle implements Parcelable {
      *
      * @hide
      */
-    public boolean represents(AudioPatch patch) {
-        return patch.id() == mHandleId;
+    public boolean represents(int patchId) {
+        return patchId == mHandleId;
     }
 
     @Override

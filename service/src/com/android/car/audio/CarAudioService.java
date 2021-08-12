@@ -45,8 +45,6 @@ import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
-import android.media.AudioAttributes.AttributeSystemUsage;
-import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
@@ -81,6 +79,7 @@ import com.android.car.audio.hal.AudioControlWrapper;
 import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
@@ -118,7 +117,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             "/system/etc/car_audio_configuration.xml"
     };
 
-    private static final @AttributeSystemUsage int[] SYSTEM_USAGES = new int[] {
+    private static final int[] SYSTEM_USAGES = new int[] {
             AudioAttributes.USAGE_CALL_ASSISTANT,
             AudioAttributes.USAGE_EMERGENCY,
             AudioAttributes.USAGE_SAFETY,
@@ -760,8 +759,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     @Override
     public CarAudioPatchHandle createAudioPatch(String sourceAddress,
             @AttributeUsage int usage, int gainInMillibels) {
+        enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
         synchronized (mImplLock) {
-            enforcePermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS);
             return createAudioPatchLocked(sourceAddress, usage, gainInMillibels);
         }
     }
@@ -833,7 +832,22 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         setGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId,
                 getGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId), 0);
 
-        return new CarAudioPatchHandle(patch[0]);
+        return createAudioPatch(patch[0]);
+    }
+
+    private CarAudioPatchHandle createAudioPatch(AudioPatch patch) {
+        Preconditions.checkArgument(patch.sources().length == 1
+                        && patch.sources()[0].port() instanceof AudioDevicePort,
+                "Accepts exactly one device port as source");
+        Preconditions.checkArgument(patch.sinks().length == 1
+                        && patch.sinks()[0].port() instanceof AudioDevicePort,
+                "Accepts exactly one device port as sink");
+
+
+        String sourceAddress = ((AudioDevicePort) patch.sources()[0].port()).address();
+        String sinkAddress = ((AudioDevicePort) patch.sinks()[0].port()).address();
+
+        return new CarAudioPatchHandle(patch.id(), sourceAddress, sinkAddress);
     }
 
     private void releaseAudioPatchLocked(CarAudioPatchHandle carPatch) {
@@ -848,7 +862,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Look for a patch that matches the provided user side handle
         for (AudioPatch patch : patches) {
-            if (carPatch.represents(patch)) {
+            if (carPatch.represents(patch.id())) {
                 // Found it!
                 result = AudioManager.releaseAudioPatch(patch);
                 if (result != AudioManager.SUCCESS) {

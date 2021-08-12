@@ -25,12 +25,12 @@ import static com.android.car.audio.CarAudioUtils.hasExpired;
 
 import android.annotation.IntDef;
 import android.annotation.NonNull;
-import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioPlaybackConfiguration;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.car.audio.CarAudioContext.AudioContext;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

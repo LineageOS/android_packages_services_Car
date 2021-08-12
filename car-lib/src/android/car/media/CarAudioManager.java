@@ -28,7 +28,6 @@ import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
-import android.media.AudioManager.AudioDeviceRole;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -36,6 +35,8 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.car.internal.annotation.AttributeUsage;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
@@ -396,8 +397,8 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public CarAudioPatchHandle createAudioPatch(String sourceAddress,
-            @AudioAttributes.AttributeUsage int usage, int gainInMillibels) {
+    public CarAudioPatchHandle createAudioPatch(String sourceAddress, @AttributeUsage int usage,
+            int gainInMillibels) {
         try {
             return mService.createAudioPatch(sourceAddress, usage, gainInMillibels);
         } catch (RemoteException e) {
@@ -462,7 +463,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getVolumeGroupIdForUsage(@AudioAttributes.AttributeUsage int usage) {
+    public int getVolumeGroupIdForUsage(@AttributeUsage int usage) {
         return getVolumeGroupIdForUsage(PRIMARY_AUDIO_ZONE, usage);
     }
 
@@ -476,7 +477,7 @@ public final class CarAudioManager extends CarManagerBase {
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_VOLUME)
-    public int getVolumeGroupIdForUsage(int zoneId, @AudioAttributes.AttributeUsage int usage) {
+    public int getVolumeGroupIdForUsage(int zoneId, @AttributeUsage int usage) {
         try {
             return mService.getVolumeGroupIdForUsage(zoneId, usage);
         } catch (RemoteException e) {
@@ -623,8 +624,7 @@ public final class CarAudioManager extends CarManagerBase {
     @SystemApi
     @Nullable
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
-    public AudioDeviceInfo getOutputDeviceForUsage(int zoneId,
-            @AudioAttributes.AttributeUsage int usage) {
+    public AudioDeviceInfo getOutputDeviceForUsage(int zoneId, @AttributeUsage int usage) {
         try {
             String deviceAddress = mService.getOutputDeviceAddressForUsage(zoneId, usage);
             if (deviceAddress == null) {
@@ -771,7 +771,7 @@ public final class CarAudioManager extends CarManagerBase {
     }
 
     private List<AudioDeviceInfo> convertInputDevicesToDeviceInfos(
-            List<AudioDeviceAttributes> devices, @AudioDeviceRole int flag) {
+            List<AudioDeviceAttributes> devices, int flag) {
         int addressesSize = devices.size();
         Set<String> deviceAddressMap = new HashSet<>(addressesSize);
         for (int i = 0; i < addressesSize; ++i) {

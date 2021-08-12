@@ -20,11 +20,11 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 
 import android.annotation.IntDef;
 import android.media.AudioAttributes;
-import android.media.AudioAttributes.AttributeUsage;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;

@@ -450,8 +450,6 @@ filegroup {
     exclude_srcs: [
         "src/android/car/Car.java", // This can be added when all Car*Managers are done.
         "src/android/car/CarProjectionManager.java",
-        "src/android/car/media/CarAudio*.java",
-        "src/android/car/media/ICarAudio.aidl",
         "src/android/car/ICarUserService.aidl",
         "src/android/car/ICarProjection.aidl",
         "src/android/car/ICarProjectionStatusListener.aidl",

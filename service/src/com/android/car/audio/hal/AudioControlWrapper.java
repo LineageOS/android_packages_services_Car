@@ -22,10 +22,10 @@ import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.hardware.automotive.audiocontrol.MutingInfo;
-import android.media.AudioAttributes.AttributeUsage;
 
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.util.IndentingPrintWriter;
 
 import java.lang.annotation.Retention;
