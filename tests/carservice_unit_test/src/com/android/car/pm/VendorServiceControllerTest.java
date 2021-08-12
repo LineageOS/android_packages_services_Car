@@ -64,6 +64,7 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.CountDownLatch;
+import java.util.concurrent.Executor;
 import java.util.concurrent.TimeUnit;
 
 public final class VendorServiceControllerTest extends AbstractExtendedMockitoTestCase {
@@ -246,7 +247,13 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         }
 
         @Override
-        public ComponentName startServiceAsUser(Intent service, UserHandle user) {
+        public Context createContextAsUser(UserHandle user, int flags) {
+            Log.v(TAG, "using same context for user " + user);
+            return this;
+        }
+
+        @Override
+        public ComponentName startService(Intent service) {
             synchronized (mLock) {
                 mStartedServicesIntents.add(service);
             }
@@ -255,8 +262,8 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
         }
 
         @Override
-        public boolean bindServiceAsUser(Intent service, ServiceConnection conn, int flags,
-                Handler handler, UserHandle user) {
+        public boolean bindService(Intent service, int flags, Executor executor,
+                ServiceConnection conn) {
             synchronized (mLock) {
                 mBoundIntents.add(service);
                 Log.v(TAG, "Added service (" + service + ") to bound intents");
@@ -264,12 +271,6 @@ public final class VendorServiceControllerTest extends AbstractExtendedMockitoTe
             conn.onServiceConnected(service.getComponent(), null);
             countdown(mBoundLatches, service, "bound");
             return true;
-        }
-
-        @Override
-        public boolean bindServiceAsUser(Intent service, ServiceConnection conn,
-                int flags, UserHandle user) {
-            return bindServiceAsUser(service, conn, flags, null, user);
         }
 
         @Override
