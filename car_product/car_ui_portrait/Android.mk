@@ -14,6 +14,7 @@
 #
 
 car_ui_portrait_modules := \
+    rro/alert-dialog-customizations \
     rro/car-ui-customizations \
     apps/HideApps
 
