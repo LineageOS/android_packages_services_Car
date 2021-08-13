@@ -82,6 +82,7 @@ import android.car.userlib.HalCallback;
 import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.car.userlib.UserHalHelper;
 import android.car.userlib.UserHelper;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
@@ -127,7 +128,6 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.R;
-import com.android.internal.infra.AndroidFuture;
 import com.android.internal.util.Preconditions;
 
 import org.junit.Before;

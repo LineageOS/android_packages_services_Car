@@ -363,3 +363,4 @@ public final class UserSwitchResult implements Parcelable, OperationResult {
     // End of generated code
 
 }
+

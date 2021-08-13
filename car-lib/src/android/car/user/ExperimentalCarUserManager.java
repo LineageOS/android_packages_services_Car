@@ -24,12 +24,11 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
 import android.car.annotation.ExperimentalFeature;
+import android.car.util.concurrent.AndroidFuture;
 import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
-
-import com.android.internal.infra.AndroidFuture;
 
 import java.util.ArrayList;
 import java.util.Collections;

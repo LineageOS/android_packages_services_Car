@@ -1,4 +1,8 @@
 // Baseline format: 1.0
+BadFuture: android.car.util.concurrent.AndroidFuture:
+    AndroidFuture should not extend `java.util.concurrent.CompletableFuture`. In AndroidX, use (but do not extend) ListenableFuture. In platform, use a combination of Consumer<T>, Executor, and CancellationSignal`.
+
+
 CallbackInterface: android.car.CarAppFocusManager.OnAppFocusOwnershipCallback:
     Callbacks must be abstract class instead of interface to enable extension in future API levels: OnAppFocusOwnershipCallback
 CallbackInterface: android.car.hardware.property.CarPropertyManager.CarPropertyEventCallback:
@@ -59,10 +63,18 @@ IntentName: android.car.Car#CAR_INTENT_ACTION_MEDIA_TEMPLATE:
     Intent action constant name must be ACTION_FOO: CAR_INTENT_ACTION_MEDIA_TEMPLATE
 
 
+KotlinOperator: android.car.util.concurrent.AndroidFuture#get(long, java.util.concurrent.TimeUnit):
+    Method can be invoked with an indexing operator from Kotlin: `get` (this is usually desirable; just make sure it makes sense for this type of object)
+
+
 ListenerLast: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `abandonAppFocus`)
 ListenerLast: android.car.CarAppFocusManager#isOwningFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback, int) parameter #1:
     Listeners should always be at end of argument list (method `isOwningFocus`)
+
+
+MissingGetterMatchingBuilder: android.car.drivingstate.CarUxRestrictions.Builder#setMaxStringLength(int):
+    android.car.drivingstate.CarUxRestrictions does not declare a `getMaxStringLength()` method matching method android.car.drivingstate.CarUxRestrictions.Builder.setMaxStringLength(int)
 
 
 MissingNullability: android.car.Car#createCar(android.content.Context) parameter #0:
@@ -167,6 +179,48 @@ MissingNullability: android.car.settings.SpeedBumpConfiguration#CREATOR:
     Missing nullability on field `CREATOR` in class `class android.car.settings.SpeedBumpConfiguration`
 MissingNullability: android.car.settings.SpeedBumpConfiguration#writeToParcel(android.os.Parcel, int) parameter #0:
     Missing nullability on parameter `desk` in method `writeToParcel`
+MissingNullability: android.car.util.concurrent.AndroidFuture#AndroidFuture(android.os.Parcel) parameter #0:
+    Missing nullability on parameter `in` in method `AndroidFuture`
+MissingNullability: android.car.util.concurrent.AndroidFuture#cancelTimeout():
+    Missing nullability on method `cancelTimeout` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#get(long, java.util.concurrent.TimeUnit) parameter #1:
+    Missing nullability on parameter `unit` in method `get`
+MissingNullability: android.car.util.concurrent.AndroidFuture#orTimeout(long, java.util.concurrent.TimeUnit):
+    Missing nullability on method `orTimeout` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#setTimeoutHandler(android.os.Handler):
+    Missing nullability on method `setTimeoutHandler` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#supply(java.util.function.Supplier<T>):
+    Missing nullability on method `supply` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#supply(java.util.function.Supplier<T>) parameter #0:
+    Missing nullability on parameter `supplier` in method `supply`
+MissingNullability: android.car.util.concurrent.AndroidFuture#supplyAsync(java.util.function.Supplier<T>, java.util.concurrent.Executor):
+    Missing nullability on method `supplyAsync` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#supplyAsync(java.util.function.Supplier<T>, java.util.concurrent.Executor) parameter #0:
+    Missing nullability on parameter `supplier` in method `supplyAsync`
+MissingNullability: android.car.util.concurrent.AndroidFuture#supplyAsync(java.util.function.Supplier<T>, java.util.concurrent.Executor) parameter #1:
+    Missing nullability on parameter `executor` in method `supplyAsync`
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenApply(java.util.function.Function<? super T,? extends U>):
+    Missing nullability on method `thenApply` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenApplyAsync(java.util.function.Function<? super T,? extends U>, java.util.concurrent.Executor):
+    Missing nullability on method `thenApplyAsync` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenCombine(java.util.concurrent.CompletionStage<? extends U>, java.util.function.BiFunction<? super T,? super U,? extends V>):
+    Missing nullability on method `thenCombine` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenCombine(java.util.concurrent.CompletionStage<java.lang.Void>):
+    Missing nullability on method `thenCombine` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenCompose(java.util.function.Function<? super T,? extends java.util.concurrent.CompletionStage<U>>):
+    Missing nullability on method `thenCompose` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#thenComposeAsync(java.util.function.Function<? super T,? extends java.util.concurrent.CompletionStage<U>>, java.util.concurrent.Executor):
+    Missing nullability on method `thenComposeAsync` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#whenComplete(java.util.function.BiConsumer<? super T,? super java.lang.Throwable>):
+    Missing nullability on method `whenComplete` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#whenCompleteAsync(java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, java.util.concurrent.Executor):
+    Missing nullability on method `whenCompleteAsync` return
+MissingNullability: android.car.util.concurrent.AndroidFuture#whenCompleteAsync(java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, java.util.concurrent.Executor) parameter #0:
+    Missing nullability on parameter `action` in method `whenCompleteAsync`
+MissingNullability: android.car.util.concurrent.AndroidFuture#whenCompleteAsync(java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, java.util.concurrent.Executor) parameter #1:
+    Missing nullability on parameter `executor` in method `whenCompleteAsync`
+MissingNullability: android.car.util.concurrent.AndroidFuture#writeToParcel(android.os.Parcel, int) parameter #0:
+    Missing nullability on parameter `arg0` in method `writeToParcel`
 
 
 MutableBareField: android.car.CarOccupantZoneManager.OccupantZoneInfo#zoneId:
@@ -183,6 +237,22 @@ MutableBareField: android.car.hardware.CarSensorEvent.EnvironmentData#timestamp:
 
 NotCloseable: android.car.Car:
     Classes that release resources (disconnect()) should implement AutoClosable and CloseGuard: class android.car.Car
+
+
+ParcelConstructor: android.car.util.concurrent.AndroidFuture#AndroidFuture(android.os.Parcel):
+    Parcelable inflation is exposed through CREATOR, not raw constructors, in android.car.util.concurrent.AndroidFuture
+
+
+ParcelCreator: android.car.util.concurrent.AndroidFuture:
+    Parcelable requires a `CREATOR` field; missing in android.car.util.concurrent.AndroidFuture
+
+
+ParcelNotFinal: android.car.util.concurrent.AndroidFuture:
+    Parcelable classes must be final: android.car.util.concurrent.AndroidFuture is not final
+
+
+ProtectedMember: android.car.util.concurrent.AndroidFuture#onCompleted(T, Throwable):
+    Protected methods not allowed; must be public: method android.car.util.concurrent.AndroidFuture.onCompleted(T,Throwable)}
 
 
 PublicTypedef: android.car.drivingstate.CarUxRestrictions.CarUxRestrictionsInfo:
@@ -215,6 +285,10 @@ SamShouldBeLast: android.car.hardware.CarSensorManager#registerListener(android.
     SAM-compatible parameters (such as parameter 1, "listener", in android.car.hardware.CarSensorManager.registerListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions
 SamShouldBeLast: android.car.hardware.CarSensorManager#unregisterListener(android.car.hardware.CarSensorManager.OnSensorChangedListener, int):
     SAM-compatible parameters (such as parameter 1, "listener", in android.car.hardware.CarSensorManager.unregisterListener) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions
+SamShouldBeLast: android.car.util.concurrent.AndroidFuture#supplyAsync(java.util.function.Supplier<T>, java.util.concurrent.Executor):
+    SAM-compatible parameters (such as parameter 1, "supplier", in android.car.util.concurrent.AndroidFuture.supplyAsync) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions
+SamShouldBeLast: android.car.util.concurrent.AndroidFuture#whenCompleteAsync(java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, java.util.concurrent.Executor):
+    SAM-compatible parameters (such as parameter 1, "action", in android.car.util.concurrent.AndroidFuture.whenCompleteAsync) should be last to improve Kotlin interoperability; see https://kotlinlang.org/docs/reference/java-interop.html#sam-conversions
 
 
 ServiceName: android.car.Car#CAR_CONFIGURATION_SERVICE:
@@ -227,13 +301,17 @@ ServiceName: android.car.Car#CAR_UX_RESTRICTION_SERVICE:
     Inconsistent service value; expected `CAR_UX_RESTRICTION`, was `uxrestriction`
 
 
+StaticFinalBuilder: android.car.drivingstate.CarUxRestrictions.Builder:
+    Builder must be final: android.car.drivingstate.CarUxRestrictions.Builder
+
+
 StaticUtils: android.car.VehiclePropertyIds:
     Fully-static utility classes must not have constructor
 StaticUtils: android.car.settings.CarSettings.Global:
     Fully-static utility classes must not have constructor
 
 
-VisiblySynchronized: PsiThisExpression:this:
+VisiblySynchronized: PsiThisExpression:
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method android.car.CarAppFocusManager.addFocusListener(android.car.CarAppFocusManager.OnAppFocusChangedListener,int)
 VisiblySynchronized: android.car.CarAppFocusManager#abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback):
     Internal locks must not be exposed (synchronizing on this or class is still externally observable): method android.car.CarAppFocusManager.abandonAppFocus(android.car.CarAppFocusManager.OnAppFocusOwnershipCallback)

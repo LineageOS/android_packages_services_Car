@@ -35,6 +35,7 @@ import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.util.concurrent.AndroidAsyncFuture;
+import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
@@ -55,7 +56,6 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.infra.AndroidFuture;
 import com.android.internal.util.Preconditions;
 
 import java.lang.annotation.Retention;

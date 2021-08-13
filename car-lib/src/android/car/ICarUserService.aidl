@@ -22,8 +22,8 @@ import android.car.user.UserRemovalResult;
 import android.car.user.UserIdentificationAssociationResponse;
 import android.car.user.UserSwitchResult;
 
-import com.android.internal.infra.AndroidFuture;
 import android.car.ICarResultReceiver;
+import android.car.util.concurrent.AndroidFuture;
 
 /** @hide */
 interface ICarUserService {
