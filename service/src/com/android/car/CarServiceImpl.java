@@ -23,12 +23,10 @@ import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
-import android.os.Build;
 import android.os.IBinder;
 import android.os.IHwBinder.DeathRecipient;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.SystemClock;
 import android.os.SystemProperties;
 import android.os.Trace;
 import android.util.EventLog;
@@ -36,8 +34,6 @@ import android.util.EventLog;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.LimitedTimingsTraceLog;
-import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.RingBufferIndices;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;
@@ -47,11 +43,6 @@ import java.util.NoSuchElementException;
 public class CarServiceImpl extends ProxiedService {
     public static final String CAR_SERVICE_INIT_TIMING_TAG = "CAR.InitTiming";
     public static final int CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS = 5;
-
-    private static final boolean RESTART_CAR_SERVICE_WHEN_VHAL_CRASH = true;
-
-
-    private static final boolean IS_USER_BUILD = "user".equals(Build.TYPE);
 
     private ICarImpl mICarImpl;
     private IVehicle mVehicle;
@@ -187,42 +178,6 @@ public class CarServiceImpl extends ProxiedService {
             vehicle.linkToDeath(recipient, 0);
         } catch (RemoteException e) {
             throw new IllegalStateException("Failed to linkToDeath Vehicle HAL");
-        }
-    }
-
-    @VisibleForTesting
-    static class CrashTracker {
-        private final int mMaxCrashCountLimit;
-        private final int mSlidingWindowMillis;
-
-        private final long[] mCrashTimestamps;
-        private final RingBufferIndices mCrashTimestampsIndices;
-        private final Runnable mCallback;
-
-        /**
-         * If maxCrashCountLimit number of crashes occurred within slidingWindowMillis time frame
-         * then call provided callback function.
-         */
-        CrashTracker(int maxCrashCountLimit, int slidingWindowMillis, Runnable callback) {
-            mMaxCrashCountLimit = maxCrashCountLimit;
-            mSlidingWindowMillis = slidingWindowMillis;
-            mCallback = callback;
-
-            mCrashTimestamps = new long[maxCrashCountLimit];
-            mCrashTimestampsIndices = new RingBufferIndices(mMaxCrashCountLimit);
-        }
-
-        void crashDetected() {
-            long lastCrash = SystemClock.elapsedRealtime();
-            mCrashTimestamps[mCrashTimestampsIndices.add()] = lastCrash;
-
-            if (mCrashTimestampsIndices.size() == mMaxCrashCountLimit) {
-                long firstCrash = mCrashTimestamps[mCrashTimestampsIndices.indexOf(0)];
-
-                if (lastCrash - firstCrash < mSlidingWindowMillis) {
-                    mCallback.run();
-                }
-            }
         }
     }
 }
