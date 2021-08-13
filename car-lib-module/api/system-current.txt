@@ -755,8 +755,8 @@ package android.car.input {
   public final class CarInputManager {
     method @RequiresPermission(android.Manifest.permission.INJECT_EVENTS) public void injectKeyEvent(@NonNull android.view.KeyEvent, int);
     method public void releaseInputEventCapture(int);
-    method @RequiresPermission(android.car.Car.PERMISSION_CAR_MONITOR_INPUT) public int requestInputEventCapture(int, @NonNull int[], int, @NonNull android.car.input.CarInputManager.CarInputCaptureCallback);
-    method @RequiresPermission(android.car.builtin.PermissionHelper.MONITOR_INPUT) public int requestInputEventCapture(int, @NonNull int[], int, @NonNull java.util.concurrent.Executor, @NonNull android.car.input.CarInputManager.CarInputCaptureCallback);
+    method @RequiresPermission(anyOf={"android.permission.MONITOR_INPUT", android.car.Car.PERMISSION_CAR_MONITOR_INPUT}) public int requestInputEventCapture(int, @NonNull int[], int, @NonNull android.car.input.CarInputManager.CarInputCaptureCallback);
+    method @RequiresPermission(anyOf={"android.permission.MONITOR_INPUT", android.car.Car.PERMISSION_CAR_MONITOR_INPUT}) public int requestInputEventCapture(int, @NonNull int[], int, @NonNull java.util.concurrent.Executor, @NonNull android.car.input.CarInputManager.CarInputCaptureCallback);
     field public static final int CAPTURE_REQ_FLAGS_ALLOW_DELAYED_GRANT = 1; // 0x1
     field public static final int INPUT_CAPTURE_RESPONSE_DELAYED = 2; // 0x2
     field public static final int INPUT_CAPTURE_RESPONSE_FAILED = 1; // 0x1

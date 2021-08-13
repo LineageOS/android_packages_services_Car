@@ -26,7 +26,6 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
-import android.car.builtin.PermissionHelper;
 import android.car.builtin.util.Slog;
 import android.os.Handler;
 import android.os.IBinder;
@@ -56,6 +55,9 @@ public final class CarInputManager extends CarManagerBase {
     private static final String TAG = CarInputManager.class.getSimpleName();
 
     private static final boolean DEBUG = false;
+
+    private static final String PERMISSION_FRAMEWORK_MONITOR_INPUT =
+            "android.permission.MONITOR_INPUT";
 
     /**
      * Callback for capturing input events.
@@ -265,8 +267,9 @@ public final class CarInputManager extends CarManagerBase {
      * same {@link CarInputManager} instance, then only the last registered callback will receive
      * events, even if they were registered for different input event types.
      *
-     * @throws SecurityException is caller doesn't have android.car.permission.CAR_MONITOR_INPUT
-     *                           permission granted
+     * @throws SecurityException if caller doesn't have one of the following permissions granted:
+     *                           {@code android.car.permission.CAR_MONITOR_INPUT} nor
+     *                           {@code android.Manifest.permission.MONITOR_INPUT}
      * @throws IllegalArgumentException if targetDisplayType parameter correspond to a non supported
      *                                  display type
      * @throws IllegalArgumentException if inputTypes parameter contains invalid or non supported
@@ -277,7 +280,8 @@ public final class CarInputManager extends CarManagerBase {
      * @param callback the callback to receive the input events
      * @return the input capture response indicating if registration succeed, failed or delayed
      */
-    @RequiresPermission(Car.PERMISSION_CAR_MONITOR_INPUT)
+    @RequiresPermission(anyOf = {PERMISSION_FRAMEWORK_MONITOR_INPUT,
+            Car.PERMISSION_CAR_MONITOR_INPUT})
     @InputCaptureResponseEnum
     public int requestInputEventCapture(@DisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
@@ -293,6 +297,9 @@ public final class CarInputManager extends CarManagerBase {
      * CarInputCaptureCallback)} except that callbacks are invoked using
      * the executor passed as parameter.
      *
+     * @throws SecurityException if caller doesn't have one of the following permissions granted:
+     *                           {@code android.car.permission.CAR_MONITOR_INPUT} nor
+     *                           {@code android.Manifest.permission.MONITOR_INPUT}
      * @param targetDisplayType the display type to register callback against
      * @param inputTypes the input type to register callback against
      * @param requestFlags the capture request flag
@@ -301,7 +308,8 @@ public final class CarInputManager extends CarManagerBase {
      * @return the input capture response indicating if registration succeed, failed or delayed
      * @see CarInputManager#requestInputEventCapture(int, int[], int, CarInputCaptureCallback)
      */
-    @RequiresPermission(PermissionHelper.MONITOR_INPUT)
+    @RequiresPermission(anyOf = {PERMISSION_FRAMEWORK_MONITOR_INPUT,
+            Car.PERMISSION_CAR_MONITOR_INPUT})
     @InputCaptureResponseEnum
     public int requestInputEventCapture(@DisplayTypeEnum int targetDisplayType,
             @NonNull @InputTypeEnum int[] inputTypes,
