@@ -23,20 +23,20 @@
 
 #include <cstdint>
 
-namespace com {
 namespace android {
-namespace car {
-namespace scriptexecutor {
+namespace automotive {
+namespace telemetry {
+namespace script_executor {
 
 extern "C" {
 
-JNIEXPORT jlong JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_nativeInitLuaEngine(
-        JNIEnv* env, jobject object) {
+JNIEXPORT jlong JNICALL
+Java_com_android_car_telemetry_ScriptExecutor_nativeInitLuaEngine(JNIEnv* env, jobject object) {
     // Cast first to intptr_t to ensure int can hold the pointer without loss.
     return static_cast<jlong>(reinterpret_cast<intptr_t>(new LuaEngine()));
 }
 
-JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_nativeDestroyLuaEngine(
+JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeDestroyLuaEngine(
         JNIEnv* env, jobject object, jlong luaEnginePtr) {
     delete reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
 }
@@ -67,7 +67,7 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
 //
 // Finally, once parsing and pushing to Lua stack is complete, we go on to the final step,
 // Step 6: Attempt to run the provided function.
-JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_nativeInvokeScript(
+JNIEXPORT void JNICALL Java_com_android_car_telemetry_ScriptExecutor_nativeInvokeScript(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring scriptBody, jstring functionName,
         jobject publishedData, jobject savedState, jobject listener) {
     if (!luaEnginePtr) {
@@ -130,7 +130,7 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
 
 }  // extern "C"
 
-}  // namespace scriptexecutor
-}  // namespace car
+}  // namespace script_executor
+}  // namespace telemetry
+}  // namespace automotive
 }  // namespace android
-}  // namespace com

@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.scriptexecutor;
+package android.car.telemetry;
 
 import android.os.Bundle;
 

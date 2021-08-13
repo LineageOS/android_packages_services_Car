@@ -69,6 +69,8 @@ android_test {
     // mockito-target-inline dependency
     jni_libs: [
         "libdexmakerjvmtiagent",
+	"libscriptexecutorjni",
+        "libscriptexecutorjniutils-test",
         "libstaticjvmtiagent",
     ],
 }

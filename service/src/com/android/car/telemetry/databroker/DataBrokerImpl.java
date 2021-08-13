@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.car.telemetry.IScriptExecutor;
+import android.car.telemetry.IScriptExecutorListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -33,9 +35,8 @@ import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.scriptexecutor.IScriptExecutor;
-import com.android.car.scriptexecutor.IScriptExecutorListener;
 import com.android.car.telemetry.CarTelemetryService;
+import com.android.car.telemetry.ScriptExecutor;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.publisher.AbstractPublisher;
@@ -60,8 +61,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DataBrokerImpl implements DataBroker {
 
     private static final int MSG_HANDLE_TASK = 1;
-    @VisibleForTesting
-    static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
+    @VisibleForTesting static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
 
     private final Context mContext;
     private final PublisherFactory mPublisherFactory;
@@ -127,11 +127,8 @@ public class DataBrokerImpl implements DataBroker {
         if (mDisabled.get() || mScriptExecutorRef.get() != null) {
             return;
         }
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.android.car.scriptexecutor",
-                "com.android.car.scriptexecutor.ScriptExecutor"));
         boolean success = mContext.bindServiceAsUser(
-                intent,
+                new Intent(mContext, ScriptExecutor.class),
                 mServiceConnection,
                 Context.BIND_AUTO_CREATE,
                 UserHandle.SYSTEM);
@@ -286,8 +283,8 @@ public class DataBrokerImpl implements DataBroker {
      * the handler handles message in the order they come in, this means the task will be polled
      * sequentially instead of concurrently. Every task that is scheduled and run will be distinct.
      * TODO(b/187743369): If the threading behavior in DataSubscriber changes, ScriptExecutionTask
-     * will also have different threading behavior. Update javadoc when the
-     * behavior is decided.
+     *                    will also have different threading behavior. Update javadoc when the
+     *                    behavior is decided.
      */
     @Override
     public void scheduleNextTask() {

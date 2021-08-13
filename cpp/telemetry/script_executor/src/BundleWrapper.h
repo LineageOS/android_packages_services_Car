@@ -14,15 +14,15 @@
  * limitations under the License.
  */
 
-#ifndef PACKAGES_SCRIPTEXECUTOR_SRC_BUNDLEWRAPPER_H_
-#define PACKAGES_SCRIPTEXECUTOR_SRC_BUNDLEWRAPPER_H_
+#ifndef CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_BUNDLEWRAPPER_H_
+#define CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_BUNDLEWRAPPER_H_
 
 #include "jni.h"
 
-namespace com {
 namespace android {
-namespace car {
-namespace scriptexecutor {
+namespace automotive {
+namespace telemetry {
+namespace script_executor {
 
 // Used to create a java bundle object and populate its fields one at a time.
 class BundleWrapper {
@@ -55,9 +55,9 @@ private:
     JNIEnv* mJNIEnv;  // not owned
 };
 
-}  // namespace scriptexecutor
-}  // namespace car
+}  // namespace script_executor
+}  // namespace telemetry
+}  // namespace automotive
 }  // namespace android
-}  // namespace com
 
-#endif  // PACKAGES_SCRIPTEXECUTOR_SRC_BUNDLEWRAPPER_H_
+#endif  // CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_BUNDLEWRAPPER_H_

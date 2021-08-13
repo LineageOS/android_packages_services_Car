@@ -13,16 +13,16 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-#ifndef PACKAGES_SCRIPTEXECUTOR_SRC_JNIUTILS_H_
-#define PACKAGES_SCRIPTEXECUTOR_SRC_JNIUTILS_H_
+#ifndef CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_JNIUTILS_H_
+#define CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_JNIUTILS_H_
 
 #include "LuaEngine.h"
 #include "jni.h"
 
-namespace com {
 namespace android {
-namespace car {
-namespace scriptexecutor {
+namespace automotive {
+namespace telemetry {
+namespace script_executor {
 
 // Helper function which takes android.os.Bundle object in "bundle" argument
 // and converts it to Lua table on top of Lua stack. All key-value pairs are
@@ -31,9 +31,9 @@ namespace scriptexecutor {
 // integer, double and String types in Java.
 void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle);
 
-}  // namespace scriptexecutor
-}  // namespace car
+}  // namespace script_executor
+}  // namespace telemetry
+}  // namespace automotive
 }  // namespace android
-}  // namespace com
 
-#endif  // PACKAGES_SCRIPTEXECUTOR_SRC_JNIUTILS_H_
+#endif  // CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_JNIUTILS_H_
