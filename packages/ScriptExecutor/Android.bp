@@ -18,21 +18,28 @@ package {
 
 cc_defaults {
     name: "scriptexecutor_defaults",
+
     cflags: [
         "-Wno-unused-parameter",
     ],
-    static_libs: [
+
+    shared_libs: [
         "libbase",
         "liblog",
+    ],
+
+    static_libs: [
         "liblua",
     ],
 }
 
 cc_library {
     name: "libscriptexecutor",
+
     defaults: [
         "scriptexecutor_defaults",
     ],
+
     srcs: [
         ":iscriptexecutorconstants_aidl",
         "src/BundleWrapper.cpp",
@@ -40,46 +47,66 @@ cc_library {
         "src/LuaEngine.cpp",
         "src/ScriptExecutorListener.cpp",
     ],
+
     shared_libs: [
         "libandroid_runtime",
-        "libbase",
         "libbinder",
         "libnativehelper",
         "libutils",
     ],
-    // Allow dependents to use the header files.
-    export_include_dirs: [
-        "src",
-    ],
-    aidl: {
-        include_dirs: ["packages/services/Car/car-lib/src/android/car/telemetry"],
-    },
-}
 
-cc_library_shared {
-    name: "libscriptexecutorjniutils-test",
-    defaults: [
-        "scriptexecutor_defaults",
-    ],
-    srcs: [
-        "src/tests/JniUtilsTestHelper.cpp",
-    ],
-    shared_libs: [
-        "libnativehelper",
-        "libscriptexecutor",
-    ],
+    // Allow dependents to use the header files.
+    export_include_dirs: ["src"],
 }
 
 cc_library {
     name: "libscriptexecutorjni",
+
     defaults: [
         "scriptexecutor_defaults",
     ],
+
     srcs: [
         "src/ScriptExecutorJni.cpp",
     ],
+
     shared_libs: [
         "libnativehelper",
         "libscriptexecutor",
+    ],
+}
+
+android_app {
+    name: "ScriptExecutor",
+
+    srcs: [
+        ":iscriptexecutor_aidl",
+        "src/**/*.java"
+    ],
+
+    resource_dirs: ["res"],
+
+    // TODO(197006437): Make this build against sdk_version: "module_current" instead.
+    platform_apis: true,
+
+    privileged: false,
+
+    // TODO(b/196053524): Enable optimization.
+    optimize: {
+        enabled: false,
+    },
+
+    jni_libs: [
+        "libscriptexecutorjni",
+    ]
+}
+
+java_test_helper_library {
+    name: "scriptexecutor-test-lib",
+
+    srcs: [
+        ":iscriptexecutor_aidl",
+        ":iscriptexecutorconstants_aidl",
+        "src/**/*.java",
     ],
 }

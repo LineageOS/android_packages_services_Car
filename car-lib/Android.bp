@@ -385,8 +385,3 @@ filegroup {
     ],
 }
 
-filegroup {
-    name: "iscriptexecutorconstants_aidl",
-    srcs: ["src/android/car/telemetry/IScriptExecutorConstants.aidl"],
-    path: "src",
-}

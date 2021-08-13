@@ -29,6 +29,7 @@ genrule {
 }
 
 car_service_sources = [
+    ":iscriptexecutor_aidl",
     "src/**/*.java",
     ":statslog-Car-java-gen",
 ]
@@ -80,7 +81,6 @@ android_app {
 
     jni_libs: [
         "libcarservicejni",
-        "libscriptexecutorjni",
     ],
 
     required: ["allowed_privapp_com.android.car"],
@@ -313,4 +313,21 @@ android_library {
             enabled: false,
         },
     },
+}
+
+filegroup {
+    name: "iscriptexecutor_aidl",
+    srcs: [
+        "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutor.aidl",
+        "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl",
+    ],
+    path: "src",
+}
+
+filegroup {
+    name: "iscriptexecutorconstants_aidl",
+    srcs: [
+        "src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.aidl",
+    ],
+    path: "src",
 }

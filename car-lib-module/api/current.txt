@@ -728,56 +728,6 @@ package android.car.media {
 
 }
 
-package android.car.telemetry {
-
-  public interface IScriptExecutorConstants extends android.os.IInterface {
-    field public static final String DESCRIPTOR = "android.car.telemetry.IScriptExecutorConstants";
-    field public static final int ERROR_TYPE_LUA_RUNTIME_ERROR = 2; // 0x2
-    field public static final int ERROR_TYPE_LUA_SCRIPT_ERROR = 3; // 0x3
-    field public static final int ERROR_TYPE_SCRIPT_EXECUTOR_ERROR = 1; // 0x1
-    field public static final int ERROR_TYPE_UNSPECIFIED = 0; // 0x0
-  }
-
-  public static class IScriptExecutorConstants.Default implements android.car.telemetry.IScriptExecutorConstants {
-    ctor public IScriptExecutorConstants.Default();
-    method public android.os.IBinder asBinder();
-  }
-
-  public abstract static class IScriptExecutorConstants.Stub extends android.os.Binder implements android.car.telemetry.IScriptExecutorConstants {
-    ctor public IScriptExecutorConstants.Stub();
-    method public android.os.IBinder asBinder();
-    method public static android.car.telemetry.IScriptExecutorConstants asInterface(android.os.IBinder);
-    method public static android.car.telemetry.IScriptExecutorConstants getDefaultImpl();
-    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
-    method public static boolean setDefaultImpl(android.car.telemetry.IScriptExecutorConstants);
-  }
-
-  public interface IScriptExecutorListener extends android.os.IInterface {
-    method public void onError(int, String, String) throws android.os.RemoteException;
-    method public void onScriptFinished(byte[]) throws android.os.RemoteException;
-    method public void onSuccess(android.os.Bundle) throws android.os.RemoteException;
-    field public static final String DESCRIPTOR = "android.car.telemetry.IScriptExecutorListener";
-  }
-
-  public static class IScriptExecutorListener.Default implements android.car.telemetry.IScriptExecutorListener {
-    ctor public IScriptExecutorListener.Default();
-    method public android.os.IBinder asBinder();
-    method public void onError(int, String, String) throws android.os.RemoteException;
-    method public void onScriptFinished(byte[]) throws android.os.RemoteException;
-    method public void onSuccess(android.os.Bundle) throws android.os.RemoteException;
-  }
-
-  public abstract static class IScriptExecutorListener.Stub extends android.os.Binder implements android.car.telemetry.IScriptExecutorListener {
-    ctor public IScriptExecutorListener.Stub();
-    method public android.os.IBinder asBinder();
-    method public static android.car.telemetry.IScriptExecutorListener asInterface(android.os.IBinder);
-    method public static android.car.telemetry.IScriptExecutorListener getDefaultImpl();
-    method public boolean onTransact(int, android.os.Parcel, android.os.Parcel, int) throws android.os.RemoteException;
-    method public static boolean setDefaultImpl(android.car.telemetry.IScriptExecutorListener);
-  }
-
-}
-
 package android.car.watchdog {
 
   public final class CarWatchdogManager {

@@ -14,16 +14,14 @@
  * limitations under the License.
  */
 
-package android.car.telemetry;
+package com.android.car.telemetry.scriptexecutorinterface;
 
-import android.car.telemetry.IScriptExecutorListener;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 import android.os.Bundle;
 
 /**
  * An internal API provided by isolated Script Executor process
  * for executing Lua scripts in a sandboxed environment
- *
- * @hide
  */
 interface IScriptExecutor {
   /**

@@ -26,6 +26,10 @@
         <install-in user-type="SYSTEM" />
     </install-in-user-type>
 
+    <install-in-user-type package="com.android.car.scriptexecutor">
+        <install-in user-type="SYSTEM"/>
+    </install-in-user-type>
+
     <!-- Failed to complete CtsShortcutHostTestCases if LocalTransport is not
     installed for system user  -->
     <install-in-user-type package="com.android.localtransport">
