@@ -14,14 +14,10 @@
  * limitations under the License.
  */
 
-package android.car.userlib;
+package com.android.car.hal;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
-import static android.car.userlib.UserHalHelper.CREATE_USER_PROPERTY;
-import static android.car.userlib.UserHalHelper.REMOVE_USER_PROPERTY;
-import static android.car.userlib.UserHalHelper.SWITCH_USER_PROPERTY;
-import static android.car.userlib.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -34,6 +30,11 @@ import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssocia
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.ASSOCIATED_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.NOT_ASSOCIATED_ANY_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue.UNKNOWN;
+
+import static com.android.car.hal.UserHalHelper.CREATE_USER_PROPERTY;
+import static com.android.car.hal.UserHalHelper.REMOVE_USER_PROPERTY;
+import static com.android.car.hal.UserHalHelper.SWITCH_USER_PROPERTY;
+import static com.android.car.hal.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;

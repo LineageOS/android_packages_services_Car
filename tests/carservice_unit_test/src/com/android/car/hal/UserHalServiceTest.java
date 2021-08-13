@@ -47,8 +47,6 @@ import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.car.hardware.property.VehicleHalStatusCode;
-import android.car.userlib.HalCallback;
-import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;

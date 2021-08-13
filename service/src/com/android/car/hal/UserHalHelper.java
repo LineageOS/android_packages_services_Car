@@ -13,14 +13,13 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.userlib;
+package com.android.car.hal;
 
 import static com.android.internal.util.Preconditions.checkArgument;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.car.userlib.HalCallback.HalCallbackStatus;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
@@ -46,6 +45,7 @@ import android.os.UserManager;
 import android.text.TextUtils;
 import android.util.Log;
 
+import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.internal.util.DebugUtils;
 import com.android.internal.util.Preconditions;
 

@@ -15,8 +15,7 @@
  */
 package com.android.car.user;
 
-import static android.car.userlib.UserHalHelper.userFlagsToString;
-
+import static com.android.car.hal.UserHalHelper.userFlagsToString;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.IntDef;
@@ -28,7 +27,6 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
-import android.car.userlib.UserHalHelper;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -40,6 +38,7 @@ import android.sysprop.CarProperties;
 import android.util.Pair;
 
 import com.android.car.CarLog;
+import com.android.car.hal.UserHalHelper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.internal.annotations.VisibleForTesting;

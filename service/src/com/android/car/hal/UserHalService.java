@@ -30,8 +30,6 @@ import android.app.ActivityManager;
 import android.car.builtin.util.Slog;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.user.CarUserManager;
-import android.car.userlib.HalCallback;
-import android.car.userlib.UserHalHelper;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserResponse;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;

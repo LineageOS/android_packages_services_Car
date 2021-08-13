@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.userlib;
+package com.android.car.hal;
 
 import android.annotation.IntDef;
 import android.annotation.Nullable;
