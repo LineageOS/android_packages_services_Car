@@ -1265,7 +1265,7 @@
     <string name="doze_summary" msgid="6762274282827831706">"Riattiva lo schermo quando ricevi notifiche"</string>
     <string name="doze_always_on_title" msgid="8555184965031789941">"Sempre attivo"</string>
     <string name="doze_always_on_summary" msgid="7654436900436328950">"Mostra ora, icone di notifica e altre informazioni. Utilizzo elevato della batteria."</string>
-    <string name="title_font_size" msgid="5021464556860010851">"Dimensioni carattere"</string>
+    <string name="title_font_size" msgid="5021464556860010851">"Dimensione carattere"</string>
     <string name="short_summary_font_size" msgid="4141077908728522946">"Ingrandisci o riduci il testo"</string>
     <string name="sim_lock_settings" msgid="1986924650622642189">"Impostazioni blocco SIM"</string>
     <string name="sim_lock_settings_category" msgid="1126759898277681516">"Blocco della scheda SIM"</string>
