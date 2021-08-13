@@ -28,7 +28,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.content.res.Resources;
-import android.os.Debug;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -138,14 +137,14 @@ class VendorServiceController implements UserLifecycleListener {
                     MSG_USER_LOCK_CHANGED,
                     event.getUserId(),
                     /* unlocked= */ 1);
-            mHandler.executeOrSendMessage(msg);
+            mHandler.sendMessage(msg);
         } else if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             mHandler.removeMessages(MSG_SWITCH_USER);
             Message msg = mHandler.obtainMessage(
                     MSG_SWITCH_USER,
                     event.getUserId(),
                     /* unlocked= */ 0);
-            mHandler.executeOrSendMessage(msg);
+            mHandler.sendMessage(msg);
         }
     }
 
@@ -304,7 +303,7 @@ class VendorServiceController implements UserLifecycleListener {
             if (DBG) {
                 Slog.d(TAG, "startOrBindService "
                         + mVendorServiceInfo.toShortString() + ", as user: " + mUser + ", bind: "
-                        + mVendorServiceInfo.shouldBeBound() + ", stack:  " + Debug.getCallers(5));
+                        + mVendorServiceInfo.shouldBeBound());
             }
             mStopRequested = false;
 

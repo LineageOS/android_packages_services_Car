@@ -44,7 +44,7 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
-import android.os.HandlerThread;
+import android.os.Handler;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
@@ -233,7 +233,7 @@ public final class FixedActivityService implements CarServiceBase {
         }
     };
 
-    private final HandlerThread mHandlerThread;
+    private final Handler mHandler;
 
     private final Runnable mActivityCheckRunnable = () -> {
         launchIfNecessary();
@@ -279,8 +279,8 @@ public final class FixedActivityService implements CarServiceBase {
         mAm = activityManager;
         mUm = userManager;
         mDm = displayManager;
-        mHandlerThread = CarServiceUtils.getHandlerThread(
-                FixedActivityService.class.getSimpleName());
+        mHandler = new Handler(CarServiceUtils.getHandlerThread(
+                FixedActivityService.class.getSimpleName()).getLooper());
     }
 
     @Override
@@ -321,7 +321,7 @@ public final class FixedActivityService implements CarServiceBase {
     }
 
     private void postRecheck(long delayMs) {
-        mHandlerThread.getThreadHandler().postDelayed(mActivityCheckRunnable, delayMs);
+        mHandler.postDelayed(mActivityCheckRunnable, delayMs);
     }
 
     private void startMonitoringEvents() {
@@ -371,7 +371,7 @@ public final class FixedActivityService implements CarServiceBase {
         if (carPowerManager != null) {
             carPowerManager.clearListener();
         }
-        mHandlerThread.getThreadHandler().removeCallbacks(mActivityCheckRunnable);
+        mHandler.removeCallbacks(mActivityCheckRunnable);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         userService.removeUserLifecycleListener(mUserLifecycleListener);
         try {
