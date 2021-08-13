@@ -42,6 +42,7 @@
     <item target="drawable/car_ui_recyclerview_ic_down" value="@drawable/car_ui_recyclerview_ic_down" />
     <item target="drawable/car_ui_recyclerview_scrollbar_thumb" value="@drawable/car_ui_recyclerview_scrollbar_thumb" />
     <item target="drawable/car_ui_activity_background" value="@drawable/car_ui_activity_background" />
+    <item target="drawable/car_ui_toolbar_menu_item_icon_background" value="@drawable/car_ui_toolbar_menu_item_icon_background" />
 
     <item target="attr/state_ux_restricted" value="@attr/state_ux_restricted"/>
     <item target="attr/layout_constraintGuide_begin" value="@attr/layout_constraintGuide_begin"/>
