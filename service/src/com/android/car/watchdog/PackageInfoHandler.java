@@ -195,7 +195,7 @@ public final class PackageInfoHandler {
         packageInfo.componentType = ComponentType.UNKNOWN;
         /* Application category type mapping is handled on the daemon side. */
         packageInfo.appCategoryType = ApplicationCategoryType.OTHERS;
-        int userId = UserHandle.getUserId(uid);
+        int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
         int appId = UserHandle.getAppId(uid);
         packageInfo.uidType = appId >= Process.FIRST_APPLICATION_UID ? UidType.APPLICATION :
                 UidType.NATIVE;

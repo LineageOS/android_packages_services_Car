@@ -163,7 +163,7 @@ public final class FixedActivityService implements CarServiceBase {
                     return;
                 }
                 int uid = intent.getIntExtra(Intent.EXTRA_UID, INVALID_UID);
-                int userId = UserHandle.getUserId(uid);
+                int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
                 boolean tryLaunch = false;
                 synchronized (mLock) {
                     for (int i = 0; i < mRunningActivities.size(); i++) {

@@ -1003,7 +1003,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             if (mUidToZoneMap.containsKey(uid)) {
                 return mUidToZoneMap.get(uid);
             }
-            int userId = UserHandle.getUserId(uid);
+            int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
             return getZoneIdForUserIdLocked(userId);
         }
     }

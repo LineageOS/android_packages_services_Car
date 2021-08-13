@@ -33,7 +33,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
@@ -146,7 +145,7 @@ public final class WatchdogProcessHandler {
                 }
             }
             int pid = Binder.getCallingPid();
-            int userId = UserHandle.getUserId(Binder.getCallingUid());
+            int userId = Binder.getCallingUserHandle().getIdentifier();
             ClientInfo clientInfo = new ClientInfo(client, pid, userId, timeout);
             try {
                 clientInfo.linkToDeath();
