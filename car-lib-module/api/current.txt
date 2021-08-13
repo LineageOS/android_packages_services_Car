@@ -173,18 +173,18 @@ package android.car {
     method public void onAppFocusOwnershipLost(int);
   }
 
-  public final class CarInfoManager {
-    method public int getDriverSeat();
-    method public float getEvBatteryCapacity();
-    method public int[] getEvConnectorTypes();
-    method public int getEvPortLocation();
-    method public float getFuelCapacity();
-    method public int getFuelDoorLocation();
-    method public int[] getFuelTypes();
-    method @NonNull public String getManufacturer();
-    method @NonNull public String getModel();
+  @Deprecated public final class CarInfoManager {
+    method @Deprecated public int getDriverSeat();
+    method @Deprecated public float getEvBatteryCapacity();
+    method @Deprecated public int[] getEvConnectorTypes();
+    method @Deprecated public int getEvPortLocation();
+    method @Deprecated public float getFuelCapacity();
+    method @Deprecated public int getFuelDoorLocation();
+    method @Deprecated public int[] getFuelTypes();
+    method @Deprecated @NonNull public String getManufacturer();
+    method @Deprecated @NonNull public String getModel();
     method @Deprecated @NonNull public String getModelYear();
-    method public int getModelYearInInteger();
+    method @Deprecated public int getModelYearInInteger();
     method @Deprecated public String getVehicleId();
   }
 
@@ -230,20 +230,20 @@ package android.car {
     field public int zoneId;
   }
 
-  public final class EvConnectorType {
-    field public static final int CHADEMO = 3; // 0x3
-    field public static final int COMBO_1 = 4; // 0x4
-    field public static final int COMBO_2 = 5; // 0x5
-    field public static final int GBT = 9; // 0x9
-    field public static final int GBT_DC = 10; // 0xa
-    field public static final int J1772 = 1; // 0x1
-    field public static final int MENNEKES = 2; // 0x2
-    field public static final int OTHER = 101; // 0x65
-    field public static final int SCAME = 11; // 0xb
-    field public static final int TESLA_HPWC = 7; // 0x7
-    field public static final int TESLA_ROADSTER = 6; // 0x6
-    field public static final int TESLA_SUPERCHARGER = 8; // 0x8
-    field public static final int UNKNOWN = 0; // 0x0
+  @Deprecated public final class EvConnectorType {
+    field @Deprecated public static final int CHADEMO = 3; // 0x3
+    field @Deprecated public static final int COMBO_1 = 4; // 0x4
+    field @Deprecated public static final int COMBO_2 = 5; // 0x5
+    field @Deprecated public static final int GBT = 9; // 0x9
+    field @Deprecated public static final int GBT_DC = 10; // 0xa
+    field @Deprecated public static final int J1772 = 1; // 0x1
+    field @Deprecated public static final int MENNEKES = 2; // 0x2
+    field @Deprecated public static final int OTHER = 101; // 0x65
+    field @Deprecated public static final int SCAME = 11; // 0xb
+    field @Deprecated public static final int TESLA_HPWC = 7; // 0x7
+    field @Deprecated public static final int TESLA_ROADSTER = 6; // 0x6
+    field @Deprecated public static final int TESLA_SUPERCHARGER = 8; // 0x8
+    field @Deprecated public static final int UNKNOWN = 0; // 0x0
   }
 
   public final class FuelType {
@@ -765,6 +765,23 @@ package android.car.hardware.property {
     method public void onChangeEvent(android.car.hardware.CarPropertyValue);
     method public void onErrorEvent(int, int);
     method public default void onErrorEvent(int, int, int);
+  }
+
+  public final class EvChargingConnectorType {
+    method @NonNull public static String toString(int);
+    field public static final int GBT_AC = 10; // 0xa
+    field public static final int GBT_DC = 11; // 0xb
+    field public static final int IEC_TYPE_1_AC = 1; // 0x1
+    field public static final int IEC_TYPE_1_CCS_DC = 5; // 0x5
+    field public static final int IEC_TYPE_2_AC = 2; // 0x2
+    field public static final int IEC_TYPE_2_CCS_DC = 6; // 0x6
+    field public static final int IEC_TYPE_3_AC = 3; // 0x3
+    field public static final int IEC_TYPE_4_DC = 4; // 0x4
+    field public static final int OTHER = 101; // 0x65
+    field public static final int TESLA_HPWC = 8; // 0x8
+    field public static final int TESLA_ROADSTER = 7; // 0x7
+    field public static final int TESLA_SUPERCHARGER = 9; // 0x9
+    field public static final int UNKNOWN = 0; // 0x0
   }
 
   public class PropertyAccessDeniedSecurityException extends java.lang.SecurityException {

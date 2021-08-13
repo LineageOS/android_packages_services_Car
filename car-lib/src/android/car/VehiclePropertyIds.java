@@ -124,7 +124,7 @@ public final class VehiclePropertyIds {
     @RequiresPermission(Car.PERMISSION_CAR_INFO)
     public static final int INFO_EV_BATTERY_CAPACITY = 291504390;
     /**
-     * List of {@link EvConnectorType}s this vehicle may use.
+     * List of {@link android.car.hardware.property.EvChargingConnectorType}s this vehicle may use.
      *
      * <ul>
      *  <li>{@link android.car.hardware.CarPropertyConfig#VEHICLE_PROPERTY_ACCESS_READ}

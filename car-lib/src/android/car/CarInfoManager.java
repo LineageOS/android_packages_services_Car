@@ -31,7 +31,10 @@ import java.util.Arrays;
 /**
  * Utility to retrieve various static information from car. Each data are grouped as {@link Bundle}
  * and relevant data can be checked from {@link Bundle} using pre-specified keys.
+ *
+ * @deprecated Use {@link CarPropertyManager} instead.
  */
+@Deprecated
 public final class CarInfoManager extends CarManagerBase {
 
     private static final String TAG = CarInfoManager.class.getSimpleName();
