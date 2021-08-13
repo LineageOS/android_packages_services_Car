@@ -72,7 +72,6 @@ import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.util.function.pooled.PooledLambda;
 
 import java.io.BufferedReader;
 import java.io.BufferedWriter;
@@ -1394,9 +1393,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             initializePowerPolicy();
             return;
         }
-        mHandler.sendMessageDelayed(PooledLambda.obtainMessage(
-                CarPowerManagementService::connectToDaemonHelper,
-                CarPowerManagementService.this, retryCount - 1),
+        final int numRetry = retryCount - 1;
+        mHandler.postDelayed(() -> connectToDaemonHelper(numRetry),
                 CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS);
     }
 
@@ -1445,9 +1443,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mCarPowerPolicyDaemon = null;
                 mHasControlOverDaemon = false;
             }
-            mHandler.sendMessageDelayed(PooledLambda.obtainMessage(
-                    CarPowerManagementService::connectToDaemonHelper,
-                    CarPowerManagementService.this, CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY),
+            mHandler.postDelayed(
+                    () -> connectToDaemonHelper(CAR_POWER_POLICY_DAEMON_BIND_MAX_RETRY),
                     CAR_POWER_POLICY_DAEMON_BIND_RETRY_INTERVAL_MS);
         }
 

@@ -67,10 +67,10 @@ import com.android.car.CarStatsLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.util.FunctionalUtils;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.FunctionalUtils;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;

@@ -45,7 +45,7 @@ public final class ParcelableException extends RuntimeException implements Parce
         super(t);
     }
 
-    /** TODO add javadoc */
+    /** Check class javadoc. */
     @SuppressWarnings("unchecked")
     public <T extends Throwable> void maybeRethrow(Class<T> clazz) throws T {
         if (clazz.isAssignableFrom(getCause().getClass())) {
@@ -53,7 +53,7 @@ public final class ParcelableException extends RuntimeException implements Parce
         }
     }
 
-    /** {@hide} */
+    /** Check class javadoc. */
     public static Throwable readFromParcel(Parcel in) {
         final String name = in.readString();
         final String msg = in.readString();
@@ -67,7 +67,7 @@ public final class ParcelableException extends RuntimeException implements Parce
         return new RuntimeException(name + ": " + msg);
     }
 
-    /** {@hide} */
+    /** Check class javadoc. */
     public static void writeToParcel(Parcel out, Throwable t) {
         out.writeString(t.getClass().getName());
         out.writeString(t.getMessage());

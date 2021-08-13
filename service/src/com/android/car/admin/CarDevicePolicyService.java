@@ -28,6 +28,7 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
+import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
 import android.sysprop.CarProperties;
@@ -51,9 +52,12 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
 
     private final CarUserService mCarUserService;
+    private final Context mContext;
 
-    public CarDevicePolicyService(@NonNull CarUserService carUserService) {
+    public CarDevicePolicyService(@NonNull Context context,
+            @NonNull CarUserService carUserService) {
         mCarUserService = carUserService;
+        mContext = context;
     }
 
     @Override
@@ -116,7 +120,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
     @Override
     public void dump(@NonNull IndentingPrintWriter writer) {
-        checkHasDumpPermissionGranted("dump()");
+        checkHasDumpPermissionGranted(mContext, "dump()");
 
         writer.println("*CarDevicePolicyService*");
 

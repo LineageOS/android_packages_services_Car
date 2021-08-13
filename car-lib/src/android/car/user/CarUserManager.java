@@ -20,7 +20,7 @@ import static android.Manifest.permission.INTERACT_ACROSS_USERS;
 import static android.Manifest.permission.INTERACT_ACROSS_USERS_FULL;
 import static android.os.Process.myUid;
 
-import static com.android.internal.util.FunctionalUtils.getLambdaName;
+import static com.android.car.internal.util.FunctionalUtils.getLambdaName;
 
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
