@@ -16,10 +16,10 @@
 
 #include "JniUtils.h"
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
 void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
     lua_newtable(luaEngine->getLuaState());
@@ -89,7 +89,7 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
     }
 }
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com
