@@ -23,6 +23,9 @@ import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
 
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
+
 /**
  * Executes Lua code in an isolated process with provided source code
  * and input arguments.

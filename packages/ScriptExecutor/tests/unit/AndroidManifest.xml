@@ -16,13 +16,19 @@
   -->
 
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
-          package="com.android.car.scriptexecutor_unittest">
+          package="com.android.car.scriptexecutor_test">
+
+    <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL" />
+
+    <queries>
+        <package android:name="com.android.car.scriptexecutor" />
+    </queries>
 
     <application>
         <uses-library android:name="android.test.runner" />
     </application>
 
     <instrumentation android:name="androidx.test.runner.AndroidJUnitRunner"
-                     android:targetPackage="com.android.car.scriptexecutor_unittest"
-                     android:label="Unit Tests for ScriptExecutor"/>
+                     android:targetPackage="com.android.car.scriptexecutor_test"
+                     android:label="Tests for ScriptExecutor"/>
 </manifest>

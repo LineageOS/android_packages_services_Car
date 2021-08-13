@@ -27,10 +27,6 @@ android_test {
 
     certificate: "platform",
 
-    optimize: {
-        enabled: true,
-    },
-
     instrumentation_for: "ScriptExecutor",
 
     static_libs: [
@@ -46,5 +42,22 @@ android_test {
     jni_libs: [
         "libscriptexecutorjni",
         "libscriptexecutorjniutils-test",
+    ],
+}
+
+cc_library_shared {
+    name: "libscriptexecutorjniutils-test",
+
+    defaults: [
+        "scriptexecutor_defaults",
+    ],
+
+    srcs: [
+        "src/com/android/car/scriptexecutor/JniUtilsTestHelper.cpp",
+    ],
+
+    shared_libs: [
+        "libnativehelper",
+        "libscriptexecutor",
     ],
 }

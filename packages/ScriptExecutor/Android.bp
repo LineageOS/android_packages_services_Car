@@ -11,9 +11,6 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
-//
-//
-
 
 package {
     default_applicable_licenses: ["Android-Apache-2.0"],
@@ -26,9 +23,12 @@ cc_defaults {
         "-Wno-unused-parameter",
     ],
 
-    static_libs: [
+    shared_libs: [
         "libbase",
         "liblog",
+    ],
+
+    static_libs: [
         "liblua",
     ],
 }
@@ -78,14 +78,15 @@ cc_library {
 android_app {
     name: "ScriptExecutor",
 
-    srcs: ["src/**/*.java"],
+    srcs: [
+        ":iscriptexecutor_aidl",
+        "src/**/*.java"
+    ],
 
     resource_dirs: ["res"],
 
+    // TODO(197006437): Make this build against sdk_version: "module_current" instead.
     platform_apis: true,
-
-    // Each update should be signed by OEMs
-    certificate: "platform",
 
     privileged: false,
 
@@ -94,47 +95,18 @@ android_app {
         enabled: false,
     },
 
-    static_libs: [
-        "com.android.car.scriptexecutor-interface-lib",
-    ],
-
     jni_libs: [
         "libscriptexecutorjni",
-    ],
-
-}
-
-
-android_library {
-    name: "com.android.car.scriptexecutor-interface-lib",
-
-    srcs: [
-        "interface/**/*.aidl",
-    ],
-
-    sdk_version: "system_current",
-
-    aidl: {
-        local_include_dirs: [
-            "interface",
-        ],
-    },
+    ]
 }
 
 java_test_helper_library {
     name: "scriptexecutor-test-lib",
 
     srcs: [
+        ":iscriptexecutor_aidl",
+        ":iscriptexecutorconstants_aidl",
         "src/**/*.java",
     ],
-
-    static_libs: ["com.android.car.scriptexecutor-interface-lib"],
 }
 
-filegroup {
-    name: "iscriptexecutorconstants_aidl",
-
-    srcs: ["interface/com/android/car/scriptexecutor/IScriptExecutorConstants.aidl"],
-
-    path: "interface",
-}
