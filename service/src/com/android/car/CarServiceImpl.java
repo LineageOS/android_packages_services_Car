@@ -20,6 +20,7 @@ import static android.os.SystemClock.elapsedRealtime;
 
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
+import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.util.Slog;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -85,7 +86,7 @@ public class CarServiceImpl extends ProxiedService {
         linkToDeath(mVehicle, mVehicleDeathRecipient);
 
         ServiceManagerHelper.addService("car_service", mICarImpl);
-        SystemProperties.set("boot.car_service_created", "1");
+        SystemPropertiesHelper.set("boot.car_service_created", "1");
 
         super.onCreate();
 

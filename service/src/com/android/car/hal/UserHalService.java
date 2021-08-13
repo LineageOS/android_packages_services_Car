@@ -52,7 +52,6 @@ import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.os.Handler;
 import android.os.ServiceSpecificException;
-import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.EventLog;
 import android.util.SparseArray;
@@ -65,6 +64,7 @@ import com.android.car.CarStatsLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.FunctionalUtils;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
@@ -1115,8 +1115,9 @@ public final class UserHalService extends HalServiceBase {
         String indent = "  ";
         writer.printf("*User HAL*\n");
 
-        writer.printf("Relevant CarProperties\n");
-        dumpSystemProperty(writer, indent, "user_hal_timeout", CarProperties.user_hal_timeout());
+        writer.printf("Relevant CarSystemProperties\n");
+        dumpSystemProperty(writer, indent, "user_hal_timeout",
+                CarSystemProperties.getUserHalTimeout());
 
         synchronized (mLock) {
             if (!isSupported()) {

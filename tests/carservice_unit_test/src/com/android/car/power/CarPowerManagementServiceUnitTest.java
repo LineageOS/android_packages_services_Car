@@ -47,7 +47,6 @@ import android.frameworks.automotive.powerpolicy.internal.PolicyState;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.os.UserManager;
-import android.sysprop.CarProperties;
 import android.test.suitebuilder.annotation.SmallTest;
 import android.util.AtomicFile;
 import android.util.Log;
@@ -133,9 +132,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session
-            .spyStatic(ActivityManager.class)
-            .spyStatic(CarProperties.class);
+        session.spyStatic(ActivityManager.class);
     }
 
     @Before

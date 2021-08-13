@@ -74,6 +74,10 @@ package android.car.builtin.os {
     method @NonNull public static android.os.ParcelFileDescriptor createParcelFileDescriptor(@NonNull android.os.SharedMemory);
   }
 
+  public final class SystemPropertiesHelper {
+    method public static void set(@NonNull String, @Nullable String);
+  }
+
   public final class UserManagerHelper {
     method public static int getUserIdFromUid(int);
     field public static final int USER_NULL = -10000; // 0xffffd8f0
