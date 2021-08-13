@@ -27,6 +27,8 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
+import android.car.telemetry.IScriptExecutor;
+import android.car.telemetry.IScriptExecutorListener;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Bundle;
@@ -36,8 +38,6 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 
 import com.android.car.CarPropertyService;
-import com.android.car.scriptexecutor.IScriptExecutor;
-import com.android.car.scriptexecutor.IScriptExecutorListener;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
 

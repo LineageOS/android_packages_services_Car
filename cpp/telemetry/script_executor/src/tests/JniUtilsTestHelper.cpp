@@ -21,41 +21,40 @@
 #include <cstdint>
 #include <cstring>
 
-namespace com {
 namespace android {
-namespace car {
-namespace scriptexecutor {
+namespace automotive {
+namespace telemetry {
+namespace script_executor {
 namespace {
 
 extern "C" {
 
 #include "lua.h"
 
-JNIEXPORT jlong JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeCreateLuaEngine(
-        JNIEnv* env, jobject object) {
+JNIEXPORT jlong JNICALL
+Java_com_android_car_telemetry_JniUtilsTest_nativeCreateLuaEngine(JNIEnv* env, jobject object) {
     // Cast first to intptr_t to ensure int can hold the pointer without loss.
     return static_cast<jlong>(reinterpret_cast<intptr_t>(new LuaEngine()));
 }
 
-JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeDestroyLuaEngine(
+JNIEXPORT void JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeDestroyLuaEngine(
         JNIEnv* env, jobject object, jlong luaEnginePtr) {
     delete reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
 }
 
-JNIEXPORT void JNICALL
-Java_com_android_car_scriptexecutor_JniUtilsTest_nativePushBundleToLuaTableCaller(
+JNIEXPORT void JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativePushBundleToLuaTableCaller(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundle) {
     pushBundleToLuaTable(env, reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr)),
                          bundle);
 }
 
-JNIEXPORT jint JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeGetObjectSize(
+JNIEXPORT jint JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeGetObjectSize(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jint index) {
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     return lua_rawlen(engine->getLuaState(), static_cast<int>(index));
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasBooleanValue(
+JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasBooleanValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jboolean value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
@@ -72,7 +71,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasIntValue(
+JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasIntValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jint value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
@@ -90,7 +89,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasDoubleValue(
+JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasDoubleValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jdouble value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
@@ -108,7 +107,7 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
     return result;
 }
 
-JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasStringValue(
+JNIEXPORT bool JNICALL Java_com_android_car_telemetry_JniUtilsTest_nativeHasStringValue(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jstring value) {
     const char* rawKey = env->GetStringUTFChars(key, nullptr);
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
@@ -132,8 +131,8 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
 
 }  //  extern "C"
 
-}  // namespace
-}  // namespace scriptexecutor
-}  // namespace car
-}  // namespace android
-}  // namespace com
+}  //  namespace
+}  //  namespace script_executor
+}  //  namespace telemetry
+}  //  namespace automotive
+}  //  namespace android

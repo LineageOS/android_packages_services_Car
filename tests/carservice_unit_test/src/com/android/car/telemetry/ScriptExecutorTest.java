@@ -14,12 +14,15 @@
  * limitations under the License.
  */
 
-package com.android.car.scriptexecutor;
+package com.android.car.telemetry;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
 
+import android.car.telemetry.IScriptExecutor;
+import android.car.telemetry.IScriptExecutorConstants;
+import android.car.telemetry.IScriptExecutorListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -141,12 +144,11 @@ public final class ScriptExecutorTest {
 
     @Before
     public void setUp() throws InterruptedException {
-        Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.android.car.scriptexecutor",
-                "com.android.car.scriptexecutor.ScriptExecutor"));
-        mContext.bindService(intent, mScriptExecutorConnection, Context.BIND_AUTO_CREATE);
+        mContext.bindIsolatedService(new Intent(mContext, ScriptExecutor.class),
+                Context.BIND_AUTO_CREATE, "scriptexecutor", mContext.getMainExecutor(),
+                mScriptExecutorConnection);
         if (!mBindLatch.await(BIND_SERVICE_TIMEOUT_SEC, TimeUnit.SECONDS)) {
-            fail("Failed to bind to ScriptExecutor service");
+            fail("Failed to bind to ScripExecutor service");
         }
     }
 
