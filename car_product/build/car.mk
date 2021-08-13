@@ -129,7 +129,6 @@ PRODUCT_PACKAGES += \
     car-frameworks-service \
     com.android.car.procfsinspector \
     libcar-framework-service-jni \
-    ScriptExecutor \
 
 # RROs
 PRODUCT_PACKAGES += \

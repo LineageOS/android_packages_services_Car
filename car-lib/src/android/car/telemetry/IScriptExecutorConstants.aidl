@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.scriptexecutor;
+package android.car.telemetry;
 
 // TODO(b/194324369): Investigate if we could combine it
 // with IScriptExecutorListener.aidl
