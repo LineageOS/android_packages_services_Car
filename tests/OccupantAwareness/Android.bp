@@ -42,7 +42,7 @@ android_test {
     ],
 
     static_libs: [
-        "android-support-test",
+        "androidx.test.rules",
         "truth-prebuilt",
         "android.hardware.automotive.occupant_awareness-V1-java",
         "android.test.base.stubs",

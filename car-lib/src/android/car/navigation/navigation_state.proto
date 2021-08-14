@@ -493,7 +493,6 @@ message Step {
   Cue cue = 5;
 
   // Indicates whether this step is about to be executed.
-  // @added 2020-09
   bool is_imminent = 6;
 }
 

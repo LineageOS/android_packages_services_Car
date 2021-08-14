@@ -35,4 +35,23 @@
     <uses-permission android:name="android.permission.MEDIA_CONTENT_CONTROL" />
     <!-- Permissions required for ATS tests - AtsDeviceInfo -->
     <uses-permission android:name="android.car.permission.CAR_DIAGNOSTICS" />
+    <!-- Permission required for 'adb shell cmd car_service silent-mode' -->
+    <uses-permission android:name="android.car.permission.CAR_POWER" />
+    <!-- Permission required for ATS tests - AtsCarTests#CarPowerManagerTest-->
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_POWER_POLICY" />
+    <!-- Permissions required for ATS tests - AtsCarTests#CarWatchdogManagerTest-->
+    <uses-permission android:name="android.car.permission.USE_CAR_WATCHDOG" />
+    <uses-permission android:name="android.car.permission.COLLECT_CAR_WATCHDOG_METRICS" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG" />
+    <!-- Permission required for 'adb shell cmd car_service day-night-mode [day|night]' -->
+    <uses-permission android:name="android.car.permission.MODIFY_DAY_NIGHT_MODE" />
+    <!-- Permission required for ATS tests - AtsDeviceInfo -->
+    <uses-permission android:name="android.car.permission.CAR_TIRES" />
+    <!-- Permission required for ATS tests - AtsDeviceInfo -->
+    <uses-permission android:name="android.car.permission.READ_CAR_STEERING" />
+    <!-- Permissions required for ATS tests - CarEvsManagerTest -->
+    <uses-permission android:name="android.car.permission.REQUEST_CAR_EVS_ACTIVITY" />
+    <uses-permission android:name="android.car.permission.CONTROL_CAR_EVS_ACTIVITY" />
+    <uses-permission android:name="android.car.permission.USE_CAR_EVS_CAMERA" />
+    <uses-permission android:name="android.car.permission.MONITOR_CAR_EVS_STATUS" />
 </manifest>

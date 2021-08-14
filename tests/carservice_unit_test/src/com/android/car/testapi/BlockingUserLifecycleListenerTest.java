@@ -34,9 +34,10 @@ import android.annotation.UserIdInt;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
-import android.car.user.CarUserManager.UserLifecycleEventType;
 import android.os.UserHandle;
 import android.util.Log;
+
+import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 
 import org.junit.Test;
 

@@ -18,9 +18,14 @@ package {
 }
 
 java_library {
-    name: "com.android.car.test.utils",
+    name: "com.android.car.test.lib",
 
     srcs: ["src/**/*.java"],
 
-    static_libs: ["mockito-target-extended"],
+    static_libs: [
+        "mockito-target-extended",
+        "truth-prebuilt",
+    ],
+
+    libs: ["android.car"],
 }
