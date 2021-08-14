@@ -222,9 +222,11 @@ public class ICarImpl extends ICar.Stub {
         mCarDrivingStateService = constructWithTrace(
                 t, CarDrivingStateService.class,
                 () -> new CarDrivingStateService(serviceContext, mCarPropertyService));
+        mCarOccupantZoneService = constructWithTrace(t, CarOccupantZoneService.class,
+                () -> new CarOccupantZoneService(serviceContext));
         mCarUXRestrictionsService = constructWithTrace(t, CarUxRestrictionsManagerService.class,
                 () -> new CarUxRestrictionsManagerService(serviceContext, mCarDrivingStateService,
-                        mCarPropertyService));
+                        mCarPropertyService, mCarOccupantZoneService));
         if (carUserService != null) {
             mCarUserService = carUserService;
             CarLocalServices.addService(CarUserService.class, carUserService);
@@ -242,8 +244,6 @@ public class ICarImpl extends ICar.Stub {
                 () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
                         serviceContext.getSystemService(UserManager.class),
                         ActivityManagerHelper.getInstance()));
-        mCarOccupantZoneService = constructWithTrace(t, CarOccupantZoneService.class,
-                () -> new CarOccupantZoneService(serviceContext));
         mSystemActivityMonitoringService = constructWithTrace(
                 t, SystemActivityMonitoringService.class,
                 () -> new SystemActivityMonitoringService(serviceContext));
@@ -265,7 +265,7 @@ public class ICarImpl extends ICar.Stub {
         }
         mCarPackageManagerService = constructWithTrace(t, CarPackageManagerService.class,
                 () -> new CarPackageManagerService(serviceContext, mCarUXRestrictionsService,
-                        mSystemActivityMonitoringService));
+                        mSystemActivityMonitoringService, mCarOccupantZoneService));
         mPerUserCarServiceHelper = constructWithTrace(
                 t, PerUserCarServiceHelper.class,
                 () -> new PerUserCarServiceHelper(serviceContext, mCarUserService));
@@ -376,6 +376,7 @@ public class ICarImpl extends ICar.Stub {
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
         allServices.add(mFeatureController);
+        allServices.add(mCarOccupantZoneService);
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
         allServices.add(mExperimentalCarUserService);
@@ -383,7 +384,6 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);
         allServices.add(mCarDrivingStateService);
-        allServices.add(mCarOccupantZoneService);
         addServiceIfNonNull(allServices, mOccupantAwarenessService);
         allServices.add(mCarPackageManagerService);
         allServices.add(mCarInputService);

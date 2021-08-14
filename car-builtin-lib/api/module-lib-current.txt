@@ -201,3 +201,13 @@ package android.car.builtin.util {
 
 }
 
+package android.car.builtin.view {
+
+  public final class DisplayHelper {
+    method public static int getPhysicalPort(android.view.Display);
+    method public static String getUniqueId(android.view.Display);
+    field public static final int INVALID_PORT = -1; // 0xffffffff
+  }
+
+}
+

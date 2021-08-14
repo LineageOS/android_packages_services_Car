@@ -17,6 +17,7 @@
 package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
+import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -71,9 +72,9 @@ import android.util.Log;
 import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
-import android.view.DisplayAddress;
 
 import com.android.car.CarLog;
+import com.android.car.CarOccupantZoneService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
@@ -81,6 +82,7 @@ import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
 import com.android.internal.annotations.GuardedBy;
@@ -158,6 +160,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     private final LinkedList<CarAppBlockingPolicy> mWaitingPolicies = new LinkedList<>();
 
     private final CarUxRestrictionsManagerService mCarUxRestrictionsService;
+    private final CarOccupantZoneService mCarOccupantZoneService;
     private boolean mEnableActivityBlocking;
     private final ComponentName mActivityBlockingActivity;
     private final boolean mPreventTemplatedAppsFromShowingDialog;
@@ -184,10 +187,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     public CarPackageManagerService(Context context,
             CarUxRestrictionsManagerService uxRestrictionsService,
-            SystemActivityMonitoringService systemActivityMonitoringService) {
+            SystemActivityMonitoringService systemActivityMonitoringService,
+            CarOccupantZoneService carOccupantZoneService) {
         mContext = context;
         mCarUxRestrictionsService = uxRestrictionsService;
         mSystemActivityMonitoringService = systemActivityMonitoringService;
+        mCarOccupantZoneService = carOccupantZoneService;
         mPackageManager = mContext.getPackageManager();
         mActivityManager = mContext.getSystemService(ActivityManager.class);
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
@@ -511,18 +516,12 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mContext.registerReceiverAsUser(mPackageParsingEventReceiver, UserHandle.ALL,
                 pkgParseIntent, null, null);
 
-        List<Display> physicalDisplays = getPhysicalDisplays();
+        // CarOccupantZoneService makes it sure that the default display is a driver display.
+        IntArray displayIdsForDriver = mCarOccupantZoneService.getAllDisplayIdsForDriver(
+                DISPLAY_TYPE_MAIN);
 
-        // Assume default display (display 0) is always a physical display.
-        Display defaultDisplay = mDisplayManager.getDisplay(Display.DEFAULT_DISPLAY);
-        if (!physicalDisplays.contains(defaultDisplay)) {
-            if (Log.isLoggable(TAG, Log.INFO)) {
-                Slog.i(TAG, "Adding default display to physical displays.");
-            }
-            physicalDisplays.add(defaultDisplay);
-        }
-        for (Display physicalDisplay : physicalDisplays) {
-            int displayId = physicalDisplay.getDisplayId();
+        for (int i = 0; i < displayIdsForDriver.size(); ++i) {
+            int displayId = displayIdsForDriver.get(i);
             UxRestrictionsListener listener = new UxRestrictionsListener(mCarUxRestrictionsService);
             mUxRestrictionsListeners.put(displayId, listener);
             mCarUxRestrictionsService.registerUxRestrictionsChangeListener(listener, displayId);
@@ -1057,19 +1056,6 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         sb.append(mConfiguredBlocklist + "\n");
 
         return sb.toString();
-    }
-
-    /**
-     * Returns display with physical address.
-     */
-    private List<Display> getPhysicalDisplays() {
-        List<Display> displays = new ArrayList<>();
-        for (Display display : mDisplayManager.getDisplays()) {
-            if (display.getAddress() instanceof DisplayAddress.Physical) {
-                displays.add(display);
-            }
-        }
-        return displays;
     }
 
     /**
