@@ -38,6 +38,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleAreaSeat;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyGroup;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropertyType;
+import android.hardware.automotive.vehicle.V2_0.VehicleVendorPermission;
 import android.os.Build;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
@@ -59,6 +60,7 @@ import org.junit.runner.RunWith;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
 import java.util.concurrent.ConcurrentHashMap;
@@ -145,6 +147,22 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
     private static final int PROP_CAUSE_STATUS_CODE_ACCESS_DENIED =
             0x1205 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
 
+    // Vendor properties for testing permissions
+    private static final int PROP_WITH_READ_ONLY_PERMISSION =
+            0x1301 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+    private static final int PROP_WITH_WRITE_ONLY_PERMISSION =
+            0x1302 | VehiclePropertyGroup.VENDOR | VehiclePropertyType.INT32 | VehicleArea.GLOBAL;
+    private static final int SUPPORT_CUSTOM_PERMISSION = 287313669;
+    private static final java.util.Collection<Integer> VENDOR_PERMISSION_CONFIG =
+            Collections.unmodifiableList(
+                    Arrays.asList(PROP_WITH_READ_ONLY_PERMISSION,
+                    VehicleVendorPermission.PERMISSION_GET_VENDOR_CATEGORY_1,
+                    VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
+                    PROP_WITH_WRITE_ONLY_PERMISSION,
+                    VehicleVendorPermission.PERMISSION_NOT_ACCESSIBLE,
+                    VehicleVendorPermission.PERMISSION_SET_VENDOR_CATEGORY_1));
+
+
     // Use FAKE_PROPERTY_ID to test api return null or throw exception.
     private static final int FAKE_PROPERTY_ID = 0x111;
 
@@ -221,6 +239,9 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                 case FLOAT_PROP_STATUS_UNAVAILABLE:
                 case VehiclePropertyIds.INFO_VIN:
                 case NULL_VALUE_PROP:
+                case SUPPORT_CUSTOM_PERMISSION:
+                case PROP_WITH_READ_ONLY_PERMISSION:
+                case PROP_WITH_WRITE_ONLY_PERMISSION:
                     break;
                 default:
                     Assert.fail("Unexpected CarPropertyConfig: " + cfg.toString());
@@ -369,6 +390,26 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
         assertThat(config.getPropertyId()).isEqualTo(CUSTOM_SEAT_MIXED_PROP_ID_1);
         // return null if can not find the propertyConfig for the property.
         assertThat(mManager.getCarPropertyConfig(FAKE_PROPERTY_ID)).isNull();
+    }
+
+    @Test
+    public void testGetPropertyConfig_withReadOnlyPermission() {
+        CarPropertyConfig configForReadOnlyProperty = mManager
+                .getCarPropertyConfig(PROP_WITH_READ_ONLY_PERMISSION);
+
+        assertThat(configForReadOnlyProperty).isNotNull();
+        assertThat(configForReadOnlyProperty.getPropertyId())
+                .isEqualTo(PROP_WITH_READ_ONLY_PERMISSION);
+    }
+
+    @Test
+    public void testGetPropertyConfig_withWriteOnlyPermission() {
+        CarPropertyConfig configForWriteOnlyProperty = mManager
+                .getCarPropertyConfig(PROP_WITH_WRITE_ONLY_PERMISSION);
+
+        assertThat(configForWriteOnlyProperty).isNotNull();
+        assertThat(configForWriteOnlyProperty.getPropertyId())
+                .isEqualTo(PROP_WITH_WRITE_ONLY_PERMISSION);
     }
 
     @Test
@@ -816,6 +857,11 @@ public class CarPropertyManagerTest extends MockedCarTestBase {
                                                         .addAreaConfig(PASSENGER_SIDE_AREA_ID);
 
         addProperty(NULL_VALUE_PROP, handler);
+
+        // Add properties for permission testing.
+        addProperty(SUPPORT_CUSTOM_PERMISSION, handler).setConfigArray(VENDOR_PERMISSION_CONFIG);
+        addProperty(PROP_WITH_READ_ONLY_PERMISSION, handler);
+        addProperty(PROP_WITH_WRITE_ONLY_PERMISSION, handler);
     }
 
     private class PropertyHandler implements VehicleHalPropertyHandler {

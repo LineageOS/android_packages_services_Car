@@ -387,13 +387,14 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         for (int propId : propIds) {
             String readPermission = getReadPermission(propId);
-            if (readPermission == null) {
+            String writePermission = getWritePermission(propId);
+            if (readPermission == null && writePermission == null) {
                 continue;
             }
             // Check if context already granted permission first
-            if (grantedPermission.contains(readPermission)
-                    || CarServiceUtils.hasPermission(mContext, readPermission)) {
-                grantedPermission.add(readPermission);
+            if (checkAndUpdateGrantedPermissionSet(mContext, grantedPermission, readPermission)
+                    || checkAndUpdateGrantedPermissionSet(mContext, grantedPermission,
+                    writePermission)) {
                 synchronized (mLock) {
                     availableProp.add(mConfigs.get(propId));
                 }
@@ -403,6 +404,16 @@ public class CarPropertyService extends ICarProperty.Stub
             Slog.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
         return availableProp;
+    }
+
+    private static boolean checkAndUpdateGrantedPermissionSet(Context context,
+            Set<String> grantedPermissions, @Nullable String permission) {
+        if (permission != null && (grantedPermissions.contains(permission)
+                || CarServiceUtils.hasPermission(context, permission))) {
+            grantedPermissions.add(permission);
+            return true;
+        }
+        return false;
     }
 
     @Override
