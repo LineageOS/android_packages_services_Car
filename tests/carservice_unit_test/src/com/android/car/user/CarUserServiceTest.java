@@ -114,7 +114,6 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
 import android.sysprop.CarProperties;
-import android.util.DebugUtils;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -127,6 +126,7 @@ import com.android.car.hal.UserHalService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.R;
 import com.android.internal.util.Preconditions;
 

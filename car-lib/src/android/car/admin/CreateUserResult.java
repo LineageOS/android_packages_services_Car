@@ -23,9 +23,9 @@ import android.annotation.TestApi;
 import android.car.user.UserCreationResult;
 import android.content.pm.UserInfo;
 import android.os.UserHandle;
-import android.util.DebugUtils;
 import android.util.Log;
 
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;

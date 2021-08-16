@@ -44,9 +44,9 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.text.TextUtils;
-import android.util.DebugUtils;
 import android.util.Log;
 
+import com.android.car.internal.util.DebugUtils;
 import com.android.internal.util.Preconditions;
 
 import java.util.Arrays;

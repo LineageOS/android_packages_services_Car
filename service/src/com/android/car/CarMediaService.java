@@ -61,10 +61,10 @@ import android.os.UserHandle;
 import android.os.UserManager;
 import android.service.media.MediaBrowserService;
 import android.text.TextUtils;
-import android.util.DebugUtils;
 import android.util.Log;
 
 import com.android.car.internal.os.HandlerExecutor;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
 import com.android.car.util.IndentingPrintWriter;

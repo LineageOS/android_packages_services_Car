@@ -28,7 +28,6 @@ import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
-import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -56,8 +55,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     private AudioControlDeathRecipient mDeathRecipient;
 
     static @Nullable IBinder getService() {
-        return Binder.allowBlocking(ServiceManagerHelper.waitForDeclaredService(
-                AUDIO_CONTROL_SERVICE));
+        return ServiceManagerHelper.waitForDeclaredService(AUDIO_CONTROL_SERVICE);
     }
 
     AudioControlWrapperAidl(IBinder binder) {

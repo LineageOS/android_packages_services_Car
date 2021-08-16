@@ -36,6 +36,10 @@ package android.car.builtin.content {
 
 package android.car.builtin.os {
 
+  public class BinderHelper {
+    method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList, @NonNull java.io.PrintWriter, @NonNull String);
+  }
+
   public final class BuildHelper {
     method public static boolean isDebuggableBuild();
     method public static boolean isEngBuild();
