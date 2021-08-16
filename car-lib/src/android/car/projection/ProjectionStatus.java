@@ -22,7 +22,8 @@ import android.annotation.SystemApi;
 import android.os.Bundle;
 import android.os.Parcel;
 import android.os.Parcelable;
-import android.util.IntArray;
+
+import com.android.car.internal.util.IntArray;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
