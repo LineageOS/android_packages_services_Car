@@ -49,3 +49,4 @@ PRODUCT_PACKAGES += \
     generated_caruiportrait_alertdialog-com-google-android-tts \
     generated_caruiportrait_alertdialog-com-android-htmlviewer \
     generated_caruiportrait_alertdialog-com-android-vending
+
