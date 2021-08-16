@@ -852,6 +852,66 @@ package android.car.navigation {
 
 }
 
+package android.car.projection {
+
+  public class ProjectionOptions {
+    ctor public ProjectionOptions(android.os.Bundle);
+    method @Nullable public android.app.ActivityOptions getActivityOptions();
+    method @Nullable public android.content.ComponentName getConsentActivity();
+    method public int getUiMode();
+    method @NonNull public android.os.Bundle toBundle();
+    field public static final int UI_MODE_BLENDED = 1; // 0x1
+    field public static final int UI_MODE_FULL_SCREEN = 0; // 0x0
+  }
+
+  public final class ProjectionStatus implements android.os.Parcelable {
+    method @NonNull public static android.car.projection.ProjectionStatus.Builder builder(String, int);
+    method public int describeContents();
+    method @NonNull public java.util.List<android.car.projection.ProjectionStatus.MobileDevice> getConnectedMobileDevices();
+    method @NonNull public android.os.Bundle getExtras();
+    method @NonNull public String getPackageName();
+    method public int getState();
+    method public int getTransport();
+    method public boolean isActive();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.projection.ProjectionStatus> CREATOR;
+    field public static final int PROJECTION_STATE_ACTIVE_BACKGROUND = 3; // 0x3
+    field public static final int PROJECTION_STATE_ACTIVE_FOREGROUND = 2; // 0x2
+    field public static final int PROJECTION_STATE_INACTIVE = 0; // 0x0
+    field public static final int PROJECTION_STATE_READY_TO_PROJECT = 1; // 0x1
+    field public static final int PROJECTION_TRANSPORT_NONE = 0; // 0x0
+    field public static final int PROJECTION_TRANSPORT_USB = 1; // 0x1
+    field public static final int PROJECTION_TRANSPORT_WIFI = 2; // 0x2
+  }
+
+  public static final class ProjectionStatus.Builder {
+    method @NonNull public android.car.projection.ProjectionStatus.Builder addMobileDevice(android.car.projection.ProjectionStatus.MobileDevice);
+    method public android.car.projection.ProjectionStatus build();
+    method @NonNull public android.car.projection.ProjectionStatus.Builder setExtras(android.os.Bundle);
+    method @NonNull public android.car.projection.ProjectionStatus.Builder setProjectionTransport(int);
+  }
+
+  public static final class ProjectionStatus.MobileDevice implements android.os.Parcelable {
+    method @NonNull public static android.car.projection.ProjectionStatus.MobileDevice.Builder builder(int, String);
+    method public int describeContents();
+    method @NonNull public java.util.List<java.lang.Integer> getAvailableTransports();
+    method @NonNull public android.os.Bundle getExtras();
+    method public int getId();
+    method @NonNull public String getName();
+    method public boolean isProjecting();
+    method public void writeToParcel(android.os.Parcel, int);
+    field public static final android.os.Parcelable.Creator<android.car.projection.ProjectionStatus.MobileDevice> CREATOR;
+  }
+
+  public static final class ProjectionStatus.MobileDevice.Builder {
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder addTransport(int);
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice build();
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setExtras(android.os.Bundle);
+    method @NonNull public android.car.projection.ProjectionStatus.MobileDevice.Builder setProjecting(boolean);
+  }
+
+}
+
 package android.car.settings {
 
   public class CarSettings {
