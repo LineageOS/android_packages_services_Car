@@ -1,4 +1,5 @@
-# Copyright (C) 2021 The Android Open Source Project
+#
+# Copyright (C) 2021 The Android Open-Source Project
 #
 # Licensed under the Apache License, Version 2.0 (the "License");
 # you may not use this file except in compliance with the License.
@@ -13,9 +14,8 @@
 # limitations under the License.
 #
 
-car_ui_portrait_modules := \
-    rro/car-ui-customizations \
-    rro/car-ui-toolbar-customizations \
-    apps/HideApps
-
-include $(call all-named-subdir-makefiles,$(car_ui_portrait_modules))
+# Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
+# Include generated RROs
+PRODUCT_PACKAGES += \
+    generated_caruiportrait-com-android-car-media \
+    generated_caruiportrait-com-android-car-dialer \
