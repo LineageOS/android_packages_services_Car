@@ -29,6 +29,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
@@ -36,6 +37,7 @@ import android.util.ArrayMap;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.telemetry.CarTelemetryService;
+import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.ScriptExecutor;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
@@ -65,6 +67,7 @@ public class DataBrokerImpl implements DataBroker {
 
     private final Context mContext;
     private final PublisherFactory mPublisherFactory;
+    private final ResultStore mResultStore;
     private final ScriptExecutorListener mScriptExecutorListener;
     private final Object mLock = new Object();
     private final HandlerThread mWorkerThread = CarServiceUtils.getHandlerThread(
@@ -75,11 +78,11 @@ public class DataBrokerImpl implements DataBroker {
     private final AtomicInteger mPriority = new AtomicInteger(1);
 
     /**
-     * Thread-safe boolean to indicate whether a script is running, which can prevent DataBroker
-     * from making multiple ScriptExecutor binder calls.
-     * TODO(b/187743369): replace flag with current script name
+     * Name of the script that's currently running. If no script is running, value is null.
+     * A non-null script name indicates a script is running, which means DataBroker should not
+     * make another ScriptExecutor binder call.
      */
-    private final AtomicBoolean mTaskRunning = new AtomicBoolean(false);
+    private final AtomicReference<String> mCurrentScriptName = new AtomicReference<>(null);
 
     /**
      * If something irrecoverable happened, DataBroker should enter into a disabled state to prevent
@@ -97,26 +100,28 @@ public class DataBrokerImpl implements DataBroker {
      */
     @GuardedBy("mLock")
     private final Map<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
-    private final AtomicReference<IScriptExecutor> mScriptExecutorRef = new AtomicReference<>();
+    private final AtomicReference<IScriptExecutor> mScriptExecutor = new AtomicReference<>();
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mScriptExecutorRef.set(IScriptExecutor.Stub.asInterface(service));
+            mScriptExecutor.set(IScriptExecutor.Stub.asInterface(service));
             scheduleNextTask();
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mScriptExecutorRef.set(null);
+            mScriptExecutor.set(null);
             cleanupBoundService();
         }
     };
 
     private ScriptFinishedCallback mScriptFinishedCallback;
 
-    public DataBrokerImpl(Context context, PublisherFactory publisherFactory) {
+    public DataBrokerImpl(
+            Context context, PublisherFactory publisherFactory, ResultStore resultStore) {
         mContext = context;
         mPublisherFactory = publisherFactory;
+        mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);
         bindScriptExecutor();
     }
@@ -124,7 +129,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Binds to ScriptExecutor. */
     private void bindScriptExecutor() {
         // do not re-bind if broker is in a disabled state or script executor is nonnull
-        if (mDisabled.get() || mScriptExecutorRef.get() != null) {
+        if (mDisabled.get() || mScriptExecutor.get() != null) {
             return;
         }
         boolean success = mContext.bindServiceAsUser(
@@ -155,7 +160,7 @@ public class DataBrokerImpl implements DataBroker {
     private void cleanupBoundService() {
         // TODO(b/187743369): clean up the state after script executor disconnects
         unbindScriptExecutor();
-        mTaskRunning.set(false);
+        mCurrentScriptName.set(null);
     }
 
     /** Enters into a disabled state because something irrecoverable happened. */
@@ -287,7 +292,7 @@ public class DataBrokerImpl implements DataBroker {
      */
     @Override
     public void scheduleNextTask() {
-        if (mDisabled.get() || mTaskRunning.get() || mTaskQueue.peek() == null) {
+        if (mDisabled.get() || mCurrentScriptName.get() != null || mTaskQueue.peek() == null) {
             return;
         }
         mWorkerHandler.sendMessage(mWorkerHandler.obtainMessage(MSG_HANDLE_TASK));
@@ -340,12 +345,13 @@ public class DataBrokerImpl implements DataBroker {
         }
         // all checks are thread-safe
         if (mDisabled.get()
-                || mTaskRunning.get()
+                || mCurrentScriptName.get() != null
                 || mTaskQueue.peek() == null
                 || mTaskQueue.peek().getPriority() > mPriority.get()) {
             return;
         }
-        if (mScriptExecutorRef.get() == null) {
+        IScriptExecutor scriptExecutor = mScriptExecutor.get();
+        if (scriptExecutor == null) {
             Slog.w(CarLog.TAG_TELEMETRY, "script executor is null, cannot execute task");
             bindScriptExecutor();
             return;
@@ -354,31 +360,55 @@ public class DataBrokerImpl implements DataBroker {
         if (task == null) {
             return;
         }
-        mTaskRunning.set(true); // signal the start of script execution
+        MetricsConfig metricsConfig = task.getMetricsConfig();
+        mCurrentScriptName.set(metricsConfig.getName()); // signal the start of script execution
         try {
-            mScriptExecutorRef.get().invokeScript(
-                    task.getMetricsConfig().getScript(),
+            scriptExecutor.invokeScript(
+                    metricsConfig.getScript(),
                     task.getHandlerName(),
                     task.getData(),
-                    null, // TODO(b/187743369): pass in savedState
+                    null, // TODO(b/197027637): PersistableBundle cannot be converted into Bundle
                     mScriptExecutorListener);
         } catch (RemoteException e) {
             Slog.d(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
             mTaskQueue.add(task); // will not trigger scheduleNextTask()
-            mTaskRunning.set(false);
-        } catch (NullPointerException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "ScriptExecutor is null", e);
-            mTaskQueue.add(task); // will not trigger scheduleNextTask()
-            mTaskRunning.set(false);
-            bindScriptExecutor();
+            mCurrentScriptName.set(null);
         }
     }
 
-    /**
-     * Signals the end of script execution and schedules the next task. This method is thread-safe.
-     */
-    private void scriptExecutionFinished() {
-        mTaskRunning.set(false);
+    /** Stores final metrics and schedules the next task. */
+    private void onScriptFinished(byte[] result) {
+        // TODO(b/197027637): update API to use PersistableBundle
+        //                    mResultStore.putFinalResult(mCurrentScriptName.get(), result);
+        mCurrentScriptName.set(null);
+        scheduleNextTask();
+    }
+
+    /** Stores interim metrics and schedules the next task. */
+    private void onScriptSuccess(Bundle stateToPersist) {
+        // TODO(b/197027637): update API to use PersistableBundle
+        PersistableBundle persistableBundle = new PersistableBundle();
+        for (String key : stateToPersist.keySet()) {
+            Object value = stateToPersist.get(key);
+            if (value instanceof Integer) {
+                persistableBundle.putInt(key, (int) value);
+            } else if (value instanceof Double) {
+                persistableBundle.putDouble(key, (double) value);
+            } else if (value instanceof Boolean) {
+                persistableBundle.putBoolean(key, (boolean) value);
+            } else if (value instanceof String) {
+                persistableBundle.putString(key, (String) value);
+            }
+        }
+        mResultStore.putInterimResult(mCurrentScriptName.get(), persistableBundle);
+        mCurrentScriptName.set(null);
+        scheduleNextTask();
+    }
+
+    /** Stores telemetry error and schedules the next task. */
+    private void onScriptError(int errorType, String message, String stackTrace) {
+        // TODO(b/197027637): create error object
+        mCurrentScriptName.set(null);
         scheduleNextTask();
     }
 
@@ -396,8 +426,7 @@ public class DataBrokerImpl implements DataBroker {
             if (dataBroker == null) {
                 return;
             }
-            dataBroker.scriptExecutionFinished();
-            // TODO(b/187743369): implement update config store and push results
+            dataBroker.onScriptFinished(result);
         }
 
         @Override
@@ -406,8 +435,7 @@ public class DataBrokerImpl implements DataBroker {
             if (dataBroker == null) {
                 return;
             }
-            dataBroker.scriptExecutionFinished();
-            // TODO(b/187743369): implement persist states
+            dataBroker.onScriptSuccess(stateToPersist);
         }
 
         @Override
@@ -416,8 +444,7 @@ public class DataBrokerImpl implements DataBroker {
             if (dataBroker == null) {
                 return;
             }
-            dataBroker.scriptExecutionFinished();
-            // TODO(b/187743369): implement push errors
+            dataBroker.onScriptError(errorType, message, stackTrace);
         }
     }
 

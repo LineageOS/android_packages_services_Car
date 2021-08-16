@@ -22,6 +22,7 @@ import static com.google.common.truth.Truth.assertWithMessage;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -34,10 +35,12 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
 
 import com.android.car.CarPropertyService;
+import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
 
@@ -96,6 +99,8 @@ public class DataBrokerUnitTest {
     private CarPropertyService mMockCarPropertyService;
     @Mock
     private IBinder mMockScriptExecutorBinder;
+    @Mock
+    private ResultStore mMockResultStore;
 
     @Captor
     private ArgumentCaptor<ServiceConnection> mServiceConnectionCaptor;
@@ -107,7 +112,7 @@ public class DataBrokerUnitTest {
         // bind service should return true, otherwise broker is disabled
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         PublisherFactory factory = new PublisherFactory(mMockCarPropertyService);
-        mDataBroker = new DataBrokerImpl(mMockContext, factory);
+        mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
         mHandler = mDataBroker.getWorkerHandler();
 
         mFakeScriptExecutor = new FakeScriptExecutor();
@@ -196,7 +201,7 @@ public class DataBrokerUnitTest {
         mDataBroker.scheduleNextTask(); // start a task
         waitForHandlerThreadToFinish();
         // end a task, should automatically schedule the next task
-        mFakeScriptExecutor.notifyScriptSuccess();
+        mFakeScriptExecutor.notifyScriptSuccess(DATA);
 
         waitForHandlerThreadToFinish();
         // verify queue is empty, both tasks are polled and executed
@@ -205,6 +210,23 @@ public class DataBrokerUnitTest {
     }
 
     @Ignore("fix after split")
+    @Test
+    public void testScheduleNextTask_onScriptSuccess_shouldStoreInterimResult() {
+        mDataBroker.getTaskQueue().add(mHighPriorityTask);
+        ArgumentCaptor<PersistableBundle> persistableBundleCaptor =
+                ArgumentCaptor.forClass(PersistableBundle.class);
+
+        mDataBroker.scheduleNextTask();
+        waitForHandlerThreadToFinish();
+        mFakeScriptExecutor.notifyScriptSuccess(new Bundle()); // pass in empty bundle
+
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+        verify(mMockResultStore).putInterimResult(eq(METRICS_CONFIG_FOO.getName()),
+                persistableBundleCaptor.capture());
+        assertThat(persistableBundleCaptor.getValue().toString()).isEqualTo(
+                new PersistableBundle().toString()); // expect empty persistable bundle
+    }
+
     @Test
     public void testScheduleNextTask_whenBindScriptExecutorFailed_shouldDisableBroker() {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
@@ -324,10 +346,10 @@ public class DataBrokerUnitTest {
             return null;
         }
 
-        /** Mocks script completion. */
-        public void notifyScriptSuccess() {
+        /** Mocks script temporary completion. */
+        public void notifyScriptSuccess(Bundle bundle) {
             try {
-                mListener.onSuccess(new Bundle());
+                mListener.onSuccess(bundle);
             } catch (RemoteException e) {
                 // nothing to do
             }
