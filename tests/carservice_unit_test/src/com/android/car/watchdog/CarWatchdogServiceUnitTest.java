@@ -1215,6 +1215,64 @@ public class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
+    public void testFailsSetResourceOveruseConfigurationsOnZeroComponentLevelIoOveruseThresholds()
+            throws Exception {
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs =
+                Collections.singletonList(
+                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
+                                        .setComponentLevelThresholds(new PerStateBytes(200, 0, 200))
+                                        .build())
+                                .build());
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsOnEmptyIoOveruseSystemWideThresholds()
+            throws Exception {
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs =
+                Collections.singletonList(
+                        sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
+                                        .setSystemWideThresholds(new ArrayList<>())
+                                        .build())
+                                .build());
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
+    public void testFailsSetResourceOveruseConfigurationsOnIoOveruseInvalidSystemWideThreshold()
+            throws Exception {
+        List<ResourceOveruseConfiguration> resourceOveruseConfigs = new ArrayList<>();
+        resourceOveruseConfigs.add(sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
+                        .setSystemWideThresholds(Collections.singletonList(
+                                new IoOveruseAlertThreshold(30, 0)))
+                        .build())
+                .build());
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(
+                        resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+
+        resourceOveruseConfigs.set(0,
+                sampleResourceOveruseConfigurationBuilder(ComponentType.SYSTEM,
+                        sampleIoOveruseConfigurationBuilder(ComponentType.SYSTEM)
+                                .setSystemWideThresholds(Collections.singletonList(
+                                        new IoOveruseAlertThreshold(0, 300)))
+                                .build())
+                        .build());
+        assertThrows(IllegalArgumentException.class,
+                () -> mCarWatchdogService.setResourceOveruseConfigurations(
+                        resourceOveruseConfigs,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO));
+    }
+
+    @Test
     public void testFailsSetResourceOveruseConfigurationsOnNullIoOveruseConfiguration()
             throws Exception {
         List<ResourceOveruseConfiguration> resourceOveruseConfigs = Collections.singletonList(
