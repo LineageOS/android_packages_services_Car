@@ -83,6 +83,10 @@ package android.car.builtin.os {
 
 package android.car.builtin.util {
 
+  public final class AtomicFileHelper {
+    method public static boolean exists(android.util.AtomicFile);
+  }
+
   public final class Slog {
     method public static int d(@NonNull String, @NonNull String);
     method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
