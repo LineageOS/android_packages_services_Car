@@ -87,13 +87,14 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private IBinder mDaemonBinder;
     @Mock private IBinder mServiceBinder;
     @Mock private ICarWatchdog mCarWatchdogDaemon;
+    @Mock private WatchdogStorage mMockWatchdogStorage;
 
     private CarWatchdogService mCarWatchdogService;
     private ICarWatchdogServiceForSystem mWatchdogServiceForSystemImpl;
 
     @Before
     public void setUpMocks() throws Exception {
-        mCarWatchdogService = new CarWatchdogService(mMockContext);
+        mCarWatchdogService = new CarWatchdogService(mMockContext, mMockWatchdogStorage);
 
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mDaemonBinder, mCarWatchdogDaemon);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
