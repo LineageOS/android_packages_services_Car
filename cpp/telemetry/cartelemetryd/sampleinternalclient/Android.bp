@@ -28,7 +28,7 @@ cc_binary {
         "-Wno-unused-parameter",
     ],
     shared_libs: [
-        "android.automotive.telemetry.internal-ndk",
+        "android.automotive.telemetry.internal-V1-ndk",
         "libbase",
         "libbinder_ndk",
         "libutils",
