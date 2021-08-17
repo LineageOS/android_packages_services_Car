@@ -91,6 +91,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private final Context mContext;
     private final ICarWatchdogServiceForSystemImpl mWatchdogServiceForSystem;
     private final PackageInfoHandler mPackageInfoHandler;
+    private final WatchdogStorage mWatchdogStorage;
     private final WatchdogProcessHandler mWatchdogProcessHandler;
     private final WatchdogPerfHandler mWatchdogPerfHandler;
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
@@ -109,6 +110,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 isGarageMode = true;
             } else if (!action.equals(ACTION_GARAGE_MODE_OFF)) {
                 return;
+            }
+            if (isGarageMode) {
+                mWatchdogStorage.shrinkDatabase();
             }
             try {
                 mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.GARAGE_MODE,
@@ -131,14 +135,20 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private boolean mIsConnected;
 
     public CarWatchdogService(Context context) {
+        this(context, new WatchdogStorage(context));
+    }
+
+    @VisibleForTesting
+    CarWatchdogService(Context context, WatchdogStorage watchdogStorage) {
         mContext = context;
+        mWatchdogStorage = watchdogStorage;
         mPackageInfoHandler = new PackageInfoHandler(mContext.getPackageManager());
         mCarWatchdogDaemonHelper = new CarWatchdogDaemonHelper(TAG_WATCHDOG);
         mWatchdogServiceForSystem = new ICarWatchdogServiceForSystemImpl(this);
         mWatchdogProcessHandler = new WatchdogProcessHandler(mWatchdogServiceForSystem,
                 mCarWatchdogDaemonHelper);
         mWatchdogPerfHandler = new WatchdogPerfHandler(mContext, mCarWatchdogDaemonHelper,
-                mPackageInfoHandler);
+                mPackageInfoHandler, mWatchdogStorage);
         mConnectionListener = (isConnected) -> {
             mWatchdogPerfHandler.onDaemonConnectionChange(isConnected);
             synchronized (mLock) {
@@ -151,12 +161,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     public void init() {
         mWatchdogProcessHandler.init();
+        mWatchdogPerfHandler.init();
         subscribePowerCycleChange();
         subscribeUserStateChange();
         subscribeBroadcastReceiver();
         mCarWatchdogDaemonHelper.addOnConnectionChangeListener(mConnectionListener);
         mCarWatchdogDaemonHelper.connect();
-        mWatchdogPerfHandler.init();
         // To make sure the main handler is ready for responding to car watchdog daemon, registering
         // to the daemon is done through the main handler. Once the registration is completed, we
         // can assume that the main handler is not too busy handling other stuffs.
@@ -169,7 +179,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     @Override
     public void release() {
         mContext.unregisterReceiver(mBroadcastReceiver);
-        mWatchdogPerfHandler.release();
+        mWatchdogStorage.release();
         unregisterFromDaemon();
         mCarWatchdogDaemonHelper.disconnect();
     }
@@ -208,11 +218,6 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     public void tellClientAlive(ICarWatchdogServiceCallback client, int sessionId) {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_WATCHDOG);
         mWatchdogProcessHandler.tellClientAlive(client, sessionId);
-    }
-
-    @VisibleForTesting
-    int getClientCount(int timeout) {
-        return mWatchdogProcessHandler.getClientCount(timeout);
     }
 
     /** Returns {@link android.car.watchdog.ResourceOveruseStats} for the calling package. */
@@ -345,6 +350,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogProcessHandler.controlProcessHealthCheck(disable);
     }
 
+    @VisibleForTesting
+    int getClientCount(int timeout) {
+        return mWatchdogProcessHandler.getClientCount(timeout);
+    }
+
+    @VisibleForTesting
+    void setTimeSource(TimeSourceInterface timeSource) {
+        mWatchdogPerfHandler.setTimeSource(timeSource);
+    }
+
     private void postRegisterToDaemonMessage() {
         CarServiceUtils.runOnMain(() -> {
             synchronized (mLock) {
@@ -379,9 +394,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE, info.id,
                         userState);
                 if (userState == UserState.USER_STATE_STOPPED) {
-                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/true);
+                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/ true);
                 } else {
-                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/false);
+                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/ false);
                 }
             }
         } catch (RemoteException | RuntimeException e) {
@@ -419,6 +434,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     case CarPowerStateListener.SHUTDOWN_ENTER:
                     case CarPowerStateListener.SUSPEND_ENTER:
                         powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
+                        mWatchdogPerfHandler.writeToDatabase();
                     // ON covers resume.
                     case CarPowerStateListener.ON:
                         powerCycle = PowerCycle.POWER_CYCLE_RESUME;
@@ -454,12 +470,12 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             String userStateDesc;
             switch (event.getEventType()) {
                 case USER_LIFECYCLE_EVENT_TYPE_STARTING:
-                    mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/false);
+                    mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ false);
                     userState = UserState.USER_STATE_STARTED;
                     userStateDesc = "STARTING";
                     break;
                 case USER_LIFECYCLE_EVENT_TYPE_STOPPED:
-                    mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/true);
+                    mWatchdogProcessHandler.updateUserState(userId, /*isStopped=*/ true);
                     userState = UserState.USER_STATE_STOPPED;
                     userStateDesc = "STOPPING";
                     break;
