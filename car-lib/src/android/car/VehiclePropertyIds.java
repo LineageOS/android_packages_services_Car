@@ -697,16 +697,7 @@ public final class VehiclePropertyIds {
     /**
      * Vehicle's ignition state.
      *
-     * <p>The property value can be one of:
-     * <ul>
-     *     <li>{@code 0}: Steering wheel is locked.
-     *     <li>{@code 1}: Steering wheel is not locked, engine and all accessories are OFF.
-     *     <li>{@code 2}: Typically in this state accessories become available (e.g. radio).
-     *     Instrument cluster and engine are turned off
-     *     <li>{@code 3}: Ignition is in state ON. Accessories and instrument cluster available,
-     *     engine might be running or ready to be started.
-     *     <li>{@code 4}: Typically in this state engine is starting (cranking).
-     * </>
+     * <p>See {@link VehicleIgnitionState} for possible values for {@code IGNITION_STATE}.
      *
      * <p>Property Config:
      * <ul>
