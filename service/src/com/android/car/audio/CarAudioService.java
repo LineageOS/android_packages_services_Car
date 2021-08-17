@@ -63,7 +63,6 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.SystemClock;
 import android.os.UserHandle;
-import android.telephony.Annotation.CallState;
 import android.telephony.TelephonyManager;
 import android.text.TextUtils;
 import android.util.Log;
@@ -944,7 +943,12 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 getActiveHalUsagesForZone(zoneId));
     }
 
-    private @CallState int getCallStateForZone(int zoneId) {
+    /**
+     *
+     * returns the current call state ({@code CALL_STATE_OFFHOOK}, {@code CALL_STATE_RINGING},
+     * {@code CALL_STATE_IDLE}) from the telephony manager.
+     */
+    private int getCallStateForZone(int zoneId) {
         synchronized (mImplLock) {
             // Only driver can use telephony stack
             if (getUserIdForZoneLocked(zoneId) == mOccupantZoneService.getDriverUserId()) {
