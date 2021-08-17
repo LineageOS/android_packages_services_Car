@@ -283,11 +283,11 @@ public class BluetoothProfileDeviceManagerTest
                 }
                 return null;
             }
-        }).when(mMockProxies).setProfilePriority(mProfileId, device, anyInt());
+        }).when(mMockProxies).setConnectionPolicy(mProfileId, device, anyInt());
     }
 
     private void mockDevicePriority(BluetoothDevice device, int priority) throws Exception {
-        when(mMockProxies.getProfilePriority(mProfileId, device)).thenReturn(priority);
+        when(mMockProxies.getConnectionPolicy(mProfileId, device)).thenReturn(priority);
     }
 
     private void sendAdapterStateChanged(int newState) {
@@ -869,35 +869,11 @@ public class BluetoothProfileDeviceManagerTest
 
     /**
      * Preconditions:
-     * - The device manager is initialized, there are no devices in the list. We are not auto
-     *   connecting
-     *
-     * Actions:
-     * - A connection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_AUTO_CONNECT.
-     *
-     * Outcome:
-     * - The device is added to the list. Related/configured trigger profiles are connected.
-     */
-    @Test
-    public void testReceiveDeviceConnectPriorityAutoConnect_deviceAdded() throws Exception {
-        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
-        assertDeviceList(SINGLE_DEVICE_LIST);
-        for (int profile : mProfileTriggers) {
-            verify(mMockProxies, times(1)).bluetoothConnectToProfile(profile, device);
-        }
-    }
-
-    /**
-     * Preconditions:
      * - The device manager is initialized, there are no devices in the list.
      *
      * Actions:
      * - A connection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_ON.
+     *   CONNECTION_POLICY_ALLOWED.
      *
      * Outcome:
      * - The device is added to the list. Related/configured trigger profiles are connected.
@@ -906,7 +882,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceConnectPriorityOn_deviceAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
@@ -920,7 +896,7 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A connection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_OFF.
+     *   CONNECTION_POLICY_FORBIDDEN.
      *
      * Outcome:
      * - The device is not added to the list. Related/configured trigger profiles are connected.
@@ -929,7 +905,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceConnectPriorityOff_deviceNotAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_FORBIDDEN);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(EMPTY_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
@@ -943,7 +919,7 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A connection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_UNDEFINED.
+     *   CONNECTION_POLICY_UNKNOWN.
      *
      * Outcome:
      * - The device is not added to the list. Related/configured trigger profiles are connected.
@@ -952,7 +928,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceConnectPriorityUndefined_deviceNotAdded() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_CONNECTED);
         assertDeviceList(EMPTY_DEVICE_LIST);
         for (int profile : mProfileTriggers) {
@@ -966,27 +942,7 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A disconnection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_AUTO_CONNECT.
-     *
-     * Outcome:
-     * - The device list is unchanged.
-     */
-    @Test
-    public void testReceiveDeviceDisconnectPriorityAutoConnect_listUnchanged() throws Exception {
-        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
-        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
-        assertDeviceList(SINGLE_DEVICE_LIST);
-    }
-
-    /**
-     * Preconditions:
-     * - The device manager is initialized, there are is one device in the list.
-     *
-     * Actions:
-     * - A disconnection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_ON.
+     *   CONNECTION_POLICY_ALLOWED.
      *
      * Outcome:
      * - The device list is unchanged.
@@ -995,7 +951,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceDisconnectPriorityOn_listUnchanged() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
     }
@@ -1006,7 +962,7 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A disconnection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_OFF.
+     *   CONNECTION_POLICY_FORBIDDEN.
      *
      * Outcome:
      * - The device list is unchanged.
@@ -1015,7 +971,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceDisconnectPriorityOff_deviceRemoved() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_FORBIDDEN);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
     }
@@ -1026,7 +982,7 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A disconnection action comes in for the profile we're tracking and the device's priority is
-     *   PRIORITY_OFF.
+     *   CONNECTION_POLICY_FORBIDDEN.
      *
      * Outcome:
      * - The device list is unchanged.
@@ -1035,7 +991,7 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveDeviceDisconnectPriorityUndefined_listUnchanged() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, SINGLE_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
         sendConnectionStateChanged(device, BluetoothProfile.STATE_DISCONNECTED);
         assertDeviceList(SINGLE_DEVICE_LIST);
     }
@@ -1113,28 +1069,7 @@ public class BluetoothProfileDeviceManagerTest
      * - The device manager is initialized, there are no devices in the list.
      *
      * Actions:
-     * - A Uuid set is received for a device that has PRIORITY_AUTO_CONNECT
-     *
-     * Outcome:
-     * - The device is ignored, no priority update is made.
-     */
-    @Test
-    public void testReceiveUuidDevicePriorityAutoConnect_doNothing() throws Exception {
-        setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
-        BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_AUTO_CONNECT);
-        sendDeviceUuids(device, mUuids);
-        assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
-                any(BluetoothDevice.class), anyInt());
-    }
-
-    /**
-     * Preconditions:
-     * - The device manager is initialized, there are no devices in the list.
-     *
-     * Actions:
-     * - A Uuid set is received for a device that has PRIORITY_ON
+     * - A Uuid set is received for a device that has CONNECTION_POLICY_ALLOWED
      *
      * Outcome:
      * - The device is ignored, no priority update is made.
@@ -1143,10 +1078,10 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveUuidDevicePriorityOn_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_ON);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
+        verify(mMockProxies, times(0)).setConnectionPolicy(eq(mProfileId),
                 any(BluetoothDevice.class), anyInt());
     }
 
@@ -1155,7 +1090,7 @@ public class BluetoothProfileDeviceManagerTest
      * - The device manager is initialized, there are no devices in the list.
      *
      * Actions:
-     * - A Uuid set is received for a device that has PRIORITY_OFF
+     * - A Uuid set is received for a device that has CONNECTION_POLICY_FORBIDDEN
      *
      * Outcome:
      * - The device is ignored, no priority update is made.
@@ -1164,10 +1099,10 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveUuidDevicePriorityOff_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_OFF);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_FORBIDDEN);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(0)).setProfilePriority(eq(mProfileId),
+        verify(mMockProxies, times(0)).setConnectionPolicy(eq(mProfileId),
                 any(BluetoothDevice.class), anyInt());
     }
 
@@ -1177,21 +1112,21 @@ public class BluetoothProfileDeviceManagerTest
      *
      * Actions:
      * - A Bonding state change with state == BOND_BONDING is received
-     * - A Uuid set is received for a device that has PRIORITY_UNDEFINED
+     * - A Uuid set is received for a device that has CONNECTION_POLICY_UNKNOWN
      *
      * Outcome:
-     * - The device has its priority updated to PRIORITY_ON.
+     * - The device has its priority updated to CONNECTION_POLICY_ALLOWED.
      */
     @Test
     public void testReceiveUuidDevicePriorityUndefinedBonding_setPriorityOn() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
         sendBondStateChanged(device, BluetoothDevice.BOND_BONDING);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(1)).setProfilePriority(mProfileId, device,
-                BluetoothProfile.PRIORITY_ON);
+        verify(mMockProxies, times(1)).setConnectionPolicy(mProfileId, device,
+                BluetoothProfile.CONNECTION_POLICY_ALLOWED);
     }
 
         /**
@@ -1200,20 +1135,20 @@ public class BluetoothProfileDeviceManagerTest
      * - The designated device is not in a bonding state.
      *
      * Actions:
-     * - A Uuid set is received for a device that has PRIORITY_UNDEFINED
+     * - A Uuid set is received for a device that has CONNECTION_POLICY_UNKNOWN
      *
      * Outcome:
-     * - The device has its priority updated to PRIORITY_ON.
+     * - The device has its priority updated to CONNECTION_POLICY_ALLOWED.
      */
     @Test
     public void testReceiveUuidDevicePriorityUndefined_setPriorityOn() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
         sendDeviceUuids(device, mUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(0)).setProfilePriority(mProfileId, device,
-                BluetoothProfile.PRIORITY_ON);
+        verify(mMockProxies, times(0)).setConnectionPolicy(mProfileId, device,
+                BluetoothProfile.CONNECTION_POLICY_ALLOWED);
     }
 
     /**
@@ -1230,10 +1165,10 @@ public class BluetoothProfileDeviceManagerTest
     public void testReceiveUuidsDeviceUnsupported_doNothing() throws Exception {
         setPreconditionsAndStart(ADAPTER_STATE_ANY, EMPTY_SETTINGS_STRING, EMPTY_DEVICE_LIST);
         BluetoothDevice device = createDevice(SINGLE_DEVICE_LIST.get(0));
-        mockDevicePriority(device, BluetoothProfile.PRIORITY_UNDEFINED);
+        mockDevicePriority(device, BluetoothProfile.CONNECTION_POLICY_UNKNOWN);
         sendDeviceUuids(device, mBadUuids);
         assertDeviceList(EMPTY_DEVICE_LIST);
-        verify(mMockProxies, times(0)).getProfilePriority(eq(mProfileId),
+        verify(mMockProxies, times(0)).getConnectionPolicy(eq(mProfileId),
                 any(BluetoothDevice.class));
     }
 

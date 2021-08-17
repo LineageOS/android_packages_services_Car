@@ -183,9 +183,6 @@ public class BluetoothProfileDeviceManager {
      *    see if we can move on to the next device in the list. Otherwise, If the device connected
      *    then add it to our priority list if it's not on their already.
      *
-     *    On disconnected, if the device that disconnected also has had its profile priority set to
-     *    PRIORITY_OFF, then remove it from our list.
-     *
      * @param device - The Bluetooth device the state change is for
      * @param state - The new profile connection state of the device
      */
@@ -196,14 +193,14 @@ public class BluetoothProfileDeviceManager {
             if (isAutoConnecting() && isAutoConnectingDevice(device)) {
                 continueAutoConnecting();
             } else {
-                if (getProfilePriority(device) >= BluetoothProfile.PRIORITY_ON) {
+                if (getConnectionPolicy(device) >= BluetoothProfile.CONNECTION_POLICY_ALLOWED) {
                     addDevice(device); // No-op if device is in the list.
                 }
                 triggerConnections(device);
             }
         }
-        // NOTE: We wanted check on disconnect if a device is priority off and use that as an
-        // indicator to remove a device from the list, but priority reporting can be flaky and
+        // NOTE: We wanted check on disconnect if a device is policy forbidden and use that as an
+        // indicator to remove a device from the list, but policy reporting can be flaky and
         // was leading to us removing devices when we didn't want to.
     }
 
@@ -237,9 +234,9 @@ public class BluetoothProfileDeviceManager {
      * Handles an incoming device UUID set update event for bonding devices.
      *
      * On BluetoothDevice.ACTION_UUID:
-     *    If the UUID is one this profile cares about, set the profile priority for the device that
-     *    the UUID was found on to PRIORITY_ON if its not PRIORITY_OFF already (meaning inhibited or
-     *    disabled by the user through settings).
+     *    If the UUID is one this profile cares about, set the connection policy for the device
+     *    that the UUID was found on to ALLOWED if it's not FORBIDDEN already (meaning
+     *    inhibited or disabled by the user through settings).
      *
      * @param device - The Bluetooth device the UUID event is for
      * @param uuids - The incoming set of supported UUIDs for the device
@@ -576,33 +573,34 @@ public class BluetoothProfileDeviceManager {
     }
 
     /**
-     * Gets the Bluetooth stack priority on this profile for a specific device.
+     * Gets the Bluetooth stack connection policy for this profile for a specific device.
      *
-     * @param device - The device to get the Bluetooth stack priority of
-     * @return The Bluetooth stack priority on this profile for the given device
+     * @param device - The device to get the Bluetooth stack connection policy of
+     * @return The Bluetooth stack connection policy on this profile for the given device
      */
-    private int getProfilePriority(BluetoothDevice device) {
+    private int getConnectionPolicy(BluetoothDevice device) {
         try {
-            return mBluetoothUserProxies.getProfilePriority(mProfileId, device);
+            return mBluetoothUserProxies.getConnectionPolicy(mProfileId, device);
         } catch (RemoteException e) {
-            logw("Failed to get bluetooth stack priority for " + device + ", Reason: " + e);
+            logw("Failed to get stack connection policy for " + device + ", Reason: " + e);
         }
-        return BluetoothProfile.PRIORITY_UNDEFINED;
+        return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
     }
 
     /**
-     * Gets the Bluetooth stack priority on this profile for a specific device.
+     * Gets the Bluetooth stack connection policy for this profile for a specific device.
      *
-     * @param device - The device to set the Bluetooth stack priority of
+     * @param device - The device to set the Bluetooth stack connection policy of
+     * @param policy - The Bluetooth stack connection policy value to set
      * @return true on success, false otherwise
      */
-    private boolean setProfilePriority(BluetoothDevice device, int priority) {
-        logd("Set " + device + " stack priority to "
-                + BluetoothUtils.getProfilePriorityName(priority));
+    private boolean setConnectionPolicy(BluetoothDevice device, int policy) {
+        logd("Set " + device + " stack connection policy to "
+                + BluetoothUtils.getConnectionPolicyName(policy));
         try {
-            mBluetoothUserProxies.setProfilePriority(mProfileId, device, priority);
+            mBluetoothUserProxies.setConnectionPolicy(mProfileId, device, policy);
         } catch (RemoteException e) {
-            logw("Failed to set bluetooth stack priority for " + device + ", Reason: " + e);
+            logw("Failed to set stack connection policy for " + device + ", Reason: " + e);
             return false;
         }
         return true;
@@ -737,7 +735,7 @@ public class BluetoothProfileDeviceManager {
     /**
      * Given a device, will check the cached UUID set and see if it supports this profile. If it
      * does then we will add it to the end of our prioritized set and attempt a connection if and
-     * only if the Bluetooth device priority allows a connection.
+     * only if the Bluetooth device connection policy allows a connection.
      *
      * Will do nothing if the device isn't bonded.
      */
@@ -745,15 +743,15 @@ public class BluetoothProfileDeviceManager {
         logd("Add device " + device + " if it is supported");
         if (device.getBondState() != BluetoothDevice.BOND_BONDED) return;
         if (BluetoothUuid.containsAnyUuid(device.getUuids(), mProfileUuids)
-                && getProfilePriority(device) >= BluetoothProfile.PRIORITY_ON) {
+                && getConnectionPolicy(device) >= BluetoothProfile.CONNECTION_POLICY_ALLOWED) {
             addDevice(device);
         }
     }
 
     /**
      * Checks the reported UUIDs for a device to see if the device supports this profile. If it does
-     * then it will update the underlying Bluetooth stack with PRIORITY_ON so long as the device
-     * doesn't have a PRIORITY_OFF value set.
+     * then it will update the underlying Bluetooth stack with ALLOWED so long as the device
+     * doesn't have a FORBIDDEN value set.
      *
      * @param device - The device that may support our profile
      * @param uuids - The set of UUIDs for the device, which may include our profile
@@ -761,22 +759,22 @@ public class BluetoothProfileDeviceManager {
     private void provisionDeviceIfSupported(BluetoothDevice device, ParcelUuid[] uuids) {
         logd("Checking UUIDs for device: " + device);
         if (BluetoothUuid.containsAnyUuid(uuids, mProfileUuids)) {
-            int devicePriority = getProfilePriority(device);
-            logd("Device " + device + " supports this profile. Priority: "
-                    + BluetoothUtils.getProfilePriorityName(devicePriority));
-            // Transition from PRIORITY_OFF to any other Bluetooth stack priority value is supposed
+            int policy = getConnectionPolicy(device);
+            logd("Device " + device + " supports this profile. Connection Policy: "
+                    + BluetoothUtils.getConnectionPolicyName(policy));
+            // Transition from FORBIDDEN to any other Bluetooth stack policy value is supposed
             // to be a user choice, enabled through the Settings applications. That's why we don't
             // do it here for them.
-            if (devicePriority == BluetoothProfile.PRIORITY_UNDEFINED) {
+            if (policy == BluetoothProfile.CONNECTION_POLICY_UNKNOWN) {
                 // As a note, UUID updates happen during pairing, as well as each time the adapter
                 // turns on. Initiating connections to bonded device following UUID verification
                 // would defeat the purpose of the priority list. They don't arrive in a predictable
                 // order either. Since we call this function on UUID discovery, don't connect here!
-                setProfilePriority(device, BluetoothProfile.PRIORITY_ON);
+                setConnectionPolicy(device, BluetoothProfile.CONNECTION_POLICY_ALLOWED);
                 return;
             }
         }
-        logd("Provisioning of " + device + " has ended without priority being set");
+        logd("Provisioning of " + device + " has ended without connection policy being set");
     }
 
     /**
