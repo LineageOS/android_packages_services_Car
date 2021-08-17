@@ -14,19 +14,14 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry;
+package com.android.car.scriptexecutor;
 
 import android.app.Service;
-import android.car.telemetry.IScriptExecutor;
-import android.car.telemetry.IScriptExecutorListener;
 import android.content.Intent;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
-import android.util.Log;
-
-import com.android.car.CarServiceUtils;
 
 /**
  * Executes Lua code in an isolated process with provided source code
@@ -54,6 +49,7 @@ public final class ScriptExecutor extends Service {
                             savedState, listener));
         }
     }
+
     private IScriptExecutorImpl mScriptExecutorBinder;
 
     // Memory location of Lua Engine object which is allocated in native code.
@@ -63,11 +59,8 @@ public final class ScriptExecutor extends Service {
     public void onCreate() {
         super.onCreate();
 
-        mNativeHandlerThread = CarServiceUtils.getHandlerThread(
-            ScriptExecutor.class.getSimpleName());
-        // TODO(b/192284628): Remove this once start handling all recoverable errors via onError
-        // callback.
-        mNativeHandlerThread.setUncaughtExceptionHandler((t, e) -> Log.e(TAG, e.getMessage()));
+        mNativeHandlerThread = new HandlerThread(ScriptExecutor.class.getSimpleName());
+        mNativeHandlerThread.start();
         mNativeHandler = new Handler(mNativeHandlerThread.getLooper());
 
         mLuaEnginePtr = nativeInitLuaEngine();
@@ -87,10 +80,10 @@ public final class ScriptExecutor extends Service {
     }
 
     /**
-    * Initializes Lua Engine.
-    *
-    * <p>Returns memory location of Lua Engine.
-    */
+     * Initializes Lua Engine.
+     *
+     * <p>Returns memory location of Lua Engine.
+     */
     private native long nativeInitLuaEngine();
 
     /**
@@ -101,13 +94,15 @@ public final class ScriptExecutor extends Service {
     /**
      * Calls provided Lua function.
      *
-     * @param luaEnginePtr memory address of the stored LuaEngine instance.
-     * @param scriptBody complete body of Lua script that also contains the function to be invoked.
-     * @param functionName the name of the function to execute.
+     * @param luaEnginePtr  memory address of the stored LuaEngine instance.
+     * @param scriptBody    complete body of Lua script that also contains the function to be
+     *                      invoked.
+     * @param functionName  the name of the function to execute.
      * @param publishedData input data provided by the source which the function handles.
-     * @param savedState key-value pairs preserved from the previous invocation of the function.
-     * @param listener callback for the sandboxed environent to report back script execution results
-     * and errors.
+     * @param savedState    key-value pairs preserved from the previous invocation of the function.
+     * @param listener      callback for the sandboxed environent to report back script execution
+     *                      results
+     *                      and errors.
      */
     private native void nativeInvokeScript(long luaEnginePtr, String scriptBody,
             String functionName, Bundle publishedData, Bundle savedState,

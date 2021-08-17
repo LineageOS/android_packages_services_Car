@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry;
+package com.android.car.scriptexecutor;
 
 import static com.google.common.truth.Truth.assertThat;
 

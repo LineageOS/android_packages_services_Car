@@ -19,10 +19,10 @@
 #include <android-base/logging.h>
 #include <android_runtime/AndroidRuntime.h>
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
 BundleWrapper::BundleWrapper(JNIEnv* env) {
     mJNIEnv = env;
@@ -73,7 +73,7 @@ jobject BundleWrapper::getBundle() {
     return mBundle;
 }
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com

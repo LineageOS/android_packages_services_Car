@@ -11,16 +11,17 @@
 // WITHOUT WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied.
 // See the License for the specific language governing permissions and
 // limitations under the License.
+//
+//
 
-package {
-    default_applicable_licenses: ["Android-Apache-2.0"],
-}
 
 cc_defaults {
     name: "scriptexecutor_defaults",
+
     cflags: [
         "-Wno-unused-parameter",
     ],
+
     static_libs: [
         "libbase",
         "liblog",
@@ -30,9 +31,11 @@ cc_defaults {
 
 cc_library {
     name: "libscriptexecutor",
+
     defaults: [
         "scriptexecutor_defaults",
     ],
+
     srcs: [
         ":iscriptexecutorconstants_aidl",
         "src/BundleWrapper.cpp",
@@ -40,46 +43,95 @@ cc_library {
         "src/LuaEngine.cpp",
         "src/ScriptExecutorListener.cpp",
     ],
+
     shared_libs: [
         "libandroid_runtime",
-        "libbase",
         "libbinder",
         "libnativehelper",
         "libutils",
     ],
-    // Allow dependents to use the header files.
-    export_include_dirs: [
-        "src",
-    ],
-    aidl: {
-        include_dirs: ["packages/services/Car/car-lib/src/android/car/telemetry"],
-    },
-}
 
-cc_library_shared {
-    name: "libscriptexecutorjniutils-test",
-    defaults: [
-        "scriptexecutor_defaults",
-    ],
-    srcs: [
-        "src/tests/JniUtilsTestHelper.cpp",
-    ],
-    shared_libs: [
-        "libnativehelper",
-        "libscriptexecutor",
-    ],
+    // Allow dependents to use the header files.
+    export_include_dirs: ["src"],
 }
 
 cc_library {
     name: "libscriptexecutorjni",
+
     defaults: [
         "scriptexecutor_defaults",
     ],
+
     srcs: [
         "src/ScriptExecutorJni.cpp",
     ],
+
     shared_libs: [
         "libnativehelper",
         "libscriptexecutor",
     ],
+}
+
+android_app {
+    name: "ScriptExecutor",
+
+    srcs: ["src/**/*.java"],
+
+    resource_dirs: ["res"],
+
+    platform_apis: true,
+
+    // Each update should be signed by OEMs
+    certificate: "platform",
+
+    privileged: false,
+
+    // TODO(b/196053524): Enable optimization.
+    optimize: {
+        enabled: false,
+    },
+
+    static_libs: [
+        "com.android.car.scriptexecutor-interface-lib",
+    ],
+
+    jni_libs: [
+        "libscriptexecutorjni",
+    ],
+
+}
+
+
+android_library {
+    name: "com.android.car.scriptexecutor-interface-lib",
+
+    srcs: [
+        "interface/**/*.aidl",
+    ],
+
+    sdk_version: "system_current",
+
+    aidl: {
+        local_include_dirs: [
+            "interface",
+        ],
+    },
+}
+
+java_test_helper_library {
+    name: "scriptexecutor-test-lib",
+
+    srcs: [
+        "src/**/*.java",
+    ],
+
+    static_libs: ["com.android.car.scriptexecutor-interface-lib"],
+}
+
+filegroup {
+    name: "iscriptexecutorconstants_aidl",
+
+    srcs: ["interface/com/android/car/scriptexecutor/IScriptExecutorConstants.aidl"],
+
+    path: "interface",
 }

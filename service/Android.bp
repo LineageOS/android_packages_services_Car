@@ -50,6 +50,7 @@ common_lib_deps = [
     "vehicle-hal-support-lib",
     "car-systemtest",
     "com.android.car.procfsinspector-client",
+    "com.android.car.scriptexecutor-interface-lib",
     "blestream-protos",
     "SettingsLib",
     "androidx.preference_preference",
@@ -86,7 +87,6 @@ android_app {
 
     jni_libs: [
         "libcarservicejni",
-        "libscriptexecutorjni",
     ],
 
     required: ["allowed_privapp_com.android.car"],

@@ -14,17 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
-#define CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
+#ifndef PACKAGES_SCRIPTEXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
+#define PACKAGES_SCRIPTEXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
 
 #include "jni.h"
 
 #include <string>
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
 //  Wrapper class for IScriptExecutorListener.aidl.
 class ScriptExecutorListener {
@@ -51,9 +51,9 @@ private:
     JavaVM* mJavaVM;
 };
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com
 
-#endif  // CPP_TELEMETRY_SCRIPT_EXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
+#endif  // PACKAGES_SCRIPTEXECUTOR_SRC_SCRIPTEXECUTORLISTENER_H_
