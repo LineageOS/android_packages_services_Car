@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.userlib;
+package com.android.car.internal.user;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 

@@ -456,6 +456,7 @@ filegroup {
         "src/android/car/ICarProjectionStatusListener.aidl",
         "src/android/car/admin/ICarDevicePolicyService.aidl",
         "src/com/android/car/internal/common/UserHelperLite.java",
+        "src/com/android/car/internal/user/UserHelper.java",
     ],
     visibility: ["//packages/services/Car/car-lib-module"],
 }

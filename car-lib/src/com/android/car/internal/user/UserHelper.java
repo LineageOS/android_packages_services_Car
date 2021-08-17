@@ -13,7 +13,7 @@
  * See the License for the specific language governing permissions and
  * limitations under the License.
  */
-package android.car.userlib;
+package com.android.car.internal.user;
 
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
@@ -33,6 +33,8 @@ import java.util.Set;
 
 /**
  * Provides utility methods for generic user-related functionalities that don't require a manager.
+ *
+ * @hide
  */
 public final class UserHelper {
 
@@ -102,6 +104,8 @@ public final class UserHelper {
      * @param context Current application context
      * @param user User to set restrictions on.
      * @param enable If true, restriction is ON, If false, restriction is OFF.
+     *
+     * @hide
      */
     public static void setDefaultNonAdminRestrictions(@NonNull Context context,
             @NonNull UserInfo user, boolean enable) {
@@ -120,6 +124,8 @@ public final class UserHelper {
      * @param context Current application context
      * @param user User whose avatar is set to default icon.
      * @return Bitmap of the user icon.
+     *
+     * @hide
      */
     @NonNull
     public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserInfo user) {

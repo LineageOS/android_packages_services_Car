@@ -62,7 +62,6 @@ android_test {
 
     libs: [
         "android.car",
-        "android.car.userlib",
         "android.car.watchdoglib",
         "android.test.runner",
         "android.test.base",
