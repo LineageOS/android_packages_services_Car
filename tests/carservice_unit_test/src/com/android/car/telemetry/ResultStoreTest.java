@@ -40,6 +40,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
 public class ResultStoreTest {
@@ -112,6 +113,28 @@ public class ResultStoreTest {
         assertThat(interimData.toString()).isEqualTo(TEST_INTERIM_BUNDLE.toString());
         PersistableBundle finalData = readBundleFromFile(mTestFinalResultDir, testFinalFileName);
         assertThat(finalData.toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
+    }
+
+    @Test
+    public void testShutdown_shouldRemoveStaleData() throws Exception {
+        File staleTestFile1 = new File(mTestInterimResultDir, "stale_test_file_1");
+        File staleTestFile2 = new File(mTestFinalResultDir, "stale_test_file_2");
+        File activeTestFile3 = new File(mTestInterimResultDir, "active_test_file_3");
+        writeBundleToFile(staleTestFile1, TEST_INTERIM_BUNDLE);
+        writeBundleToFile(staleTestFile2, TEST_FINAL_BUNDLE);
+        writeBundleToFile(activeTestFile3, TEST_INTERIM_BUNDLE);
+        long currTimeMs = System.currentTimeMillis();
+        staleTestFile1.setLastModified(0L); // stale
+        staleTestFile2.setLastModified(
+                currTimeMs - TimeUnit.MILLISECONDS.convert(31, TimeUnit.DAYS)); // stale
+        activeTestFile3.setLastModified(
+                currTimeMs - TimeUnit.MILLISECONDS.convert(29, TimeUnit.DAYS)); // active
+
+        mResultStore.shutdown();
+
+        assertThat(staleTestFile1.exists()).isFalse();
+        assertThat(staleTestFile2.exists()).isFalse();
+        assertThat(activeTestFile3.exists()).isTrue();
     }
 
     @Test
@@ -193,6 +216,25 @@ public class ResultStoreTest {
     }
 
     @Test
+    public void testPutInterimResultAndShutdown_shouldWriteDirtyResultsOnly() throws Exception {
+        File fileFoo = new File(mTestInterimResultDir, "foo");
+        File fileBar = new File(mTestInterimResultDir, "bar");
+        writeBundleToFile(fileFoo, TEST_INTERIM_BUNDLE);
+        writeBundleToFile(fileBar, TEST_INTERIM_BUNDLE);
+        mResultStore = new ResultStore(mMockHandler, mMockHandler, mTestRootDir); // re-load data
+        PersistableBundle newData = new PersistableBundle();
+        newData.putDouble("pi", 3.1415926);
+
+        mResultStore.putInterimResult("bar", newData); // make bar dirty
+        fileFoo.delete(); // delete the clean file from the file system
+        mResultStore.shutdown(); // write dirty data
+
+        // foo is a clean file that should not be written in shutdown
+        assertThat(fileFoo.exists()).isFalse();
+        assertThat(readBundleFromFile(fileBar).toString()).isEqualTo(newData.toString());
+    }
+
+    @Test
     public void testPutFinalResultAndShutdown_shouldRemoveInterimResultFile() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
@@ -204,25 +246,31 @@ public class ResultStoreTest {
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isTrue();
     }
 
+    private void writeBundleToFile(
+            File dir, String fileName, PersistableBundle persistableBundle) throws Exception {
+        writeBundleToFile(new File(dir, fileName), persistableBundle);
+    }
+
     /**
      * Writes a persistable bundle to the result directory with the given directory and file name,
      * and verifies that it was successfully written.
      */
     private void writeBundleToFile(
-            File dir, String fileName, PersistableBundle persistableBundle) throws Exception {
-        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-        persistableBundle.writeToStream(byteArrayOutputStream);
-        Files.write(
-                new File(dir, fileName).toPath(),
-                byteArrayOutputStream.toByteArray());
+            File file, PersistableBundle persistableBundle) throws Exception {
+        try (ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream()) {
+            persistableBundle.writeToStream(byteArrayOutputStream);
+            Files.write(file.toPath(), byteArrayOutputStream.toByteArray());
+        }
         assertWithMessage("bundle is not written to the result directory")
-                .that(new File(dir, fileName).exists()).isTrue();
+                .that(file.exists()).isTrue();
+    }
+
+    private PersistableBundle readBundleFromFile(File dir, String fileName) throws Exception {
+        return readBundleFromFile(new File(dir, fileName));
     }
 
     /** Reads a persistable bundle from the given path. */
-    private PersistableBundle readBundleFromFile(
-            File dir, String fileName) throws Exception {
-        File file = new File(dir, fileName);
+    private PersistableBundle readBundleFromFile(File file) throws Exception {
         try (FileInputStream fis = new FileInputStream(file)) {
             return PersistableBundle.readFromStream(fis);
         }
