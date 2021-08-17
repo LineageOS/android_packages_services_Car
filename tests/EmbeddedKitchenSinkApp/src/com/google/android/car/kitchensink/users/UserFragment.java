@@ -179,7 +179,7 @@ public final class UserFragment extends Fragment {
             message.append("Timed out creating user");
         } else {
             if (result.isSuccess()) {
-                message.append("User created: ").append(result.getUser().toFullString());
+                message.append("User created: ").append(result.getUser().toString());
             } else {
                 int status = result.getStatus();
                 message.append("Failed with code ").append(status).append('(')

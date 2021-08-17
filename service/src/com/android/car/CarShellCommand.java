@@ -1492,10 +1492,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
             UserCreationResult result = waitForFuture(writer, future, timeout);
             if (result == null) return;
 
-            android.content.pm.UserInfo user = result.getUser();
+            UserHandle user = result.getUser();
             writer.printf("UserCreationResult: status=%s, user=%s",
                     UserCreationResult.statusToString(result.getStatus()),
-                    user == null ? "N/A" : user.toFullString());
+                    user == null ? "N/A" : user.toString());
             String msg = result.getErrorMessage();
             if (!TextUtils.isEmpty(msg)) {
                 writer.printf(", errorMessage=%s", msg);
