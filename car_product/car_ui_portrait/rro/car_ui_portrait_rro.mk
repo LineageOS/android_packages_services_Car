@@ -19,12 +19,13 @@ $(call inherit-product, packages/services/Car/car_product/car_ui_portrait/rro/ca
 
 # All RROs to be included in car_ui_portrait builds.
 PRODUCT_PACKAGES += \
+    CarEvsCameraPreviewAppRRO \
     CarUiPortraitDialerRRO \
     CarUiPortraitMediaRRO \
     CarUiPortraitLauncherRRO \
     CarUiPortraitNotificationRRO \
     CarUiPortraitFrameworkResRRO \
-    CarUiPortraitFrameworkResRROTest \
+    CarUiPortraitFrameworkResRROTest
 
 ifneq ($(INCLUDE_SEAHAWK_ONLY_RROS),)
 PRODUCT_PACKAGES += \
