@@ -37,3 +37,13 @@ package android.car.drivingstate {
 
 }
 
+package android.car.util.concurrent {
+
+  public interface AsyncFuture<T> {
+    method @Nullable public T get() throws java.util.concurrent.ExecutionException, java.lang.InterruptedException;
+    method @Nullable public T get(long, @NonNull java.util.concurrent.TimeUnit) throws java.util.concurrent.ExecutionException, java.lang.InterruptedException, java.util.concurrent.TimeoutException;
+    method @NonNull public android.car.util.concurrent.AsyncFuture<T> whenCompleteAsync(@NonNull java.util.function.BiConsumer<? super T,? super java.lang.Throwable>, @NonNull java.util.concurrent.Executor);
+  }
+
+}
+
