@@ -227,8 +227,7 @@ public class ICarImpl extends ICar.Stub {
             mCarUserService = carUserService;
             CarLocalServices.addService(CarUserService.class, carUserService);
         } else {
-            UserManager userManager =
-                    (UserManager) serviceContext.getSystemService(Context.USER_SERVICE);
+            UserManager userManager = serviceContext.getSystemService(UserManager.class);
             int maxRunningUsers = res.getInteger(
                     com.android.internal.R.integer.config_multiuserMaxRunningUsers);
             mCarUserService = constructWithTrace(t, CarUserService.class,

@@ -1342,11 +1342,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
     }
 
     private UsersInfo generateUsersInfo() {
-        return UserHalHelper.newUsersInfo(UserManager.get(mContext));
+        return UserHalHelper.newUsersInfo(mContext.getSystemService(UserManager.class));
     }
 
     private int getUserHalFlags(@UserIdInt int userId) {
-        return UserHalHelper.getFlags(UserManager.get(mContext), userId);
+        return UserHalHelper.getFlags(mContext.getSystemService(UserManager.class), userId);
     }
 
     private static void waitForHal(IndentingPrintWriter writer, CountDownLatch latch,
@@ -1509,7 +1509,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         CreateUserRequest request = new CreateUserRequest();
 
-        UserManager um = UserManager.get(mContext);
+        UserManager um = mContext.getSystemService(UserManager.class);
         android.content.pm.UserInfo newUser =
                 isGuest ? um.createGuest(mContext, name) : um.createUser(name, flags);
         if (newUser == null) {

@@ -78,7 +78,7 @@ public final class UserHelper {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
-        UserManager userManager = UserManager.get(context);
+        UserManager userManager = context.getSystemService(UserManager.class);
 
         if (!userManager.isAdminUser()) {
             Log.w(TAG, "Only admin users can assign admin permissions.");
@@ -112,7 +112,7 @@ public final class UserHelper {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
-        UserManager userManager = UserManager.get(context);
+        UserManager userManager = context.getSystemService(UserManager.class);
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
             userManager.setUserRestriction(restriction, enable, user.getUserHandle());
         }
@@ -135,7 +135,8 @@ public final class UserHelper {
         int idForIcon = user.isGuest() ? UserHandle.USER_NULL : user.id;
         Bitmap bitmap = UserIcons.convertToBitmap(
                 UserIcons.getDefaultUserIcon(context.getResources(), idForIcon, false));
-        UserManager.get(context).setUserIcon(user.id, bitmap);
+        UserManager userManager = context.getSystemService(UserManager.class);
+        userManager.setUserIcon(user.id, bitmap);
         return bitmap;
     }
 }

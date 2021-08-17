@@ -133,7 +133,7 @@ final class InitialUserSetter {
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
             @NonNull Consumer<UserInfo> listener, @Nullable String newGuestName) {
-        this(context, UserManager.get(context), carUserService, listener,
+        this(context, context.getSystemService(UserManager.class), carUserService, listener,
                 new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
