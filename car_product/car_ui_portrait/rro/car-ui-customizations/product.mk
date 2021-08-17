@@ -17,5 +17,35 @@
 # Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
 # Include generated RROs
 PRODUCT_PACKAGES += \
-    generatedcaruiportrait-com-android-car-media \
-    generatedcaruiportrait-com-android-car-dialer \
+    generated_caruiportrait_customization-com-android-car-ui-paintbooth \
+    generated_caruiportrait_customization-com-google-android-car-ui-paintbooth \
+    generated_caruiportrait_customization-com-google-android-carui-ats \
+    generated_caruiportrait_customization-com-android-car-rotaryplayground \
+    generated_caruiportrait_customization-com-android-car-themeplayground \
+    generated_caruiportrait_customization-com-android-car-carlauncher \
+    generated_caruiportrait_customization-com-android-car-home \
+    generated_caruiportrait_customization-com-android-car-media \
+    generated_caruiportrait_customization-com-android-car-radio \
+    generated_caruiportrait_customization-com-android-car-calendar \
+    generated_caruiportrait_customization-com-android-car-companiondevicesupport \
+    generated_caruiportrait_customization-com-android-car-systemupdater \
+    generated_caruiportrait_customization-com-android-car-dialer \
+    generated_caruiportrait_customization-com-android-car-linkviewer \
+    generated_caruiportrait_customization-com-android-car-settings \
+    generated_caruiportrait_customization-com-android-car-voicecontrol \
+    generated_caruiportrait_customization-com-android-car-faceenroll \
+    generated_caruiportrait_customization-com-android-car-developeroptions \
+    generated_caruiportrait_customization-com-android-managedprovisioning \
+    generated_caruiportrait_customization-com-android-settings-intelligence \
+    generated_caruiportrait_customization-com-google-android-apps-automotive-inputmethod \
+    generated_caruiportrait_customization-com-google-android-apps-automotive-inputmethod-dev \
+    generated_caruiportrait_customization-com-google-android-apps-automotive-templates-host \
+    generated_caruiportrait_customization-com-google-android-embedded-projection \
+    generated_caruiportrait_customization-com-google-android-gms \
+    generated_caruiportrait_customization-com-google-android-gsf \
+    generated_caruiportrait_customization-com-google-android-packageinstaller \
+    generated_caruiportrait_customization-com-google-android-permissioncontroller \
+    generated_caruiportrait_customization-com-google-android-carassistant \
+    generated_caruiportrait_customization-com-google-android-tts \
+    generated_caruiportrait_customization-com-android-htmlviewer \
+    generated_caruiportrait_customization-com-android-vending
