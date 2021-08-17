@@ -243,6 +243,26 @@ public class DataBrokerTest {
     }
 
     @Test
+    public void testScheduleNextTask_onScriptError_shouldStoreErrorObject() throws Exception {
+        mDataBroker.getTaskQueue().add(mHighPriorityTask);
+        TelemetryProto.TelemetryError.ErrorType errorType =
+                TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR;
+        String errorMessage = "test onError";
+        TelemetryProto.TelemetryError expectedError = TelemetryProto.TelemetryError.newBuilder()
+                .setErrorType(errorType)
+                .setMessage(errorMessage)
+                .build();
+
+        mDataBroker.scheduleNextTask();
+        waitForHandlerThreadToFinish();
+        mFakeScriptExecutor.notifyScriptError(errorType.getNumber(), errorMessage);
+
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+        verify(mMockResultStore).putError(eq(METRICS_CONFIG_FOO.getName()), eq(expectedError));
+    }
+
+    @Test
     public void testScheduleNextTask_whenScriptFinishes_shouldStoreFinalResult()
             throws Exception {
         mData.putBoolean("script is finished", true);
@@ -408,6 +428,15 @@ public class DataBrokerTest {
         public void notifyScriptFinish(PersistableBundle bundle) {
             try {
                 mListener.onScriptFinished(bundle);
+            } catch (RemoteException e) {
+                // nothing to do
+            }
+        }
+
+        /** Mocks script finished with error. */
+        public void notifyScriptError(int errorType, String errorMessage) {
+            try {
+                mListener.onError(errorType, errorMessage, null);
             } catch (RemoteException e) {
                 // nothing to do
             }
