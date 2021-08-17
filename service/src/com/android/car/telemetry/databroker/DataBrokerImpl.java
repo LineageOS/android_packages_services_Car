@@ -211,8 +211,7 @@ public class DataBrokerImpl implements DataBroker {
             DataSubscriber dataSubscriber = new DataSubscriber(
                     this,
                     metricsConfig,
-                    subscriber,
-                    /* priority= */ 1); // TODO(b/187743369): remove hardcoded priority
+                    subscriber);
             dataSubscribers.add(dataSubscriber);
 
             try {
