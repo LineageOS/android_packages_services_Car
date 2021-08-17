@@ -31,20 +31,24 @@ import java.io.FileInputStream;
 import java.io.IOException;
 import java.nio.file.Files;
 import java.util.Map;
+import java.util.concurrent.TimeUnit;
 
 /**
  * Disk storage for interim and final metrics statistics.
  */
 class ResultStore {
 
+    private static final long STALE_THRESHOLD_MILLIS =
+            TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
     @VisibleForTesting
     static final String INTERIM_RESULT_DIR = "interim";
     @VisibleForTesting
     static final String FINAL_RESULT_DIR = "final";
 
     private final Object mLock = new Object();
+    /** Map keys are MetricsConfig names, which are also the file names in disk. */
     @GuardedBy("mLock")
-    private final Map<String, PersistableBundle> mInterimResultCache = new ArrayMap<>();
+    private final Map<String, InterimResult> mInterimResultCache = new ArrayMap<>();
 
     private final File mInterimResultDirectory;
     private final File mFinalResultDirectory;
@@ -71,9 +75,10 @@ class ResultStore {
             try (FileInputStream fis = new FileInputStream(file)) {
                 mInterimResultCache.put(
                         file.getName(),
-                        PersistableBundle.readFromStream(fis));
+                        new InterimResult(PersistableBundle.readFromStream(fis)));
             } catch (IOException e) {
                 Slog.w(CarLog.TAG_TELEMETRY, "Failed to read result from disk.", e);
+                // TODO(b/195422219): record failure
             }
         }
     }
@@ -84,7 +89,10 @@ class ResultStore {
      */
     PersistableBundle getInterimResult(String metricsConfigName) {
         synchronized (mLock) {
-            return mInterimResultCache.get(metricsConfigName);
+            if (!mInterimResultCache.containsKey(metricsConfigName)) {
+                return null;
+            }
+            return mInterimResultCache.get(metricsConfigName).getBundle();
         }
     }
 
@@ -94,7 +102,9 @@ class ResultStore {
      */
     void putInterimResult(String metricsConfigName, PersistableBundle result) {
         synchronized (mLock) {
-            mInterimResultCache.put(metricsConfigName, result);
+            mInterimResultCache.put(
+                    metricsConfigName,
+                    new InterimResult(result, /* dirty = */ true));
         }
     }
 
@@ -158,16 +168,35 @@ class ResultStore {
         mIoHandler.post(() -> {
             synchronized (mLock) {
                 writeInterimResultsToFileLockedOnIoThread();
+                deleteStaleDataOnIoThread(mInterimResultDirectory, mFinalResultDirectory);
             }
         });
     }
 
-    /** Writes interim results to disk. */
+    /** Writes dirty interim results to disk. */
     @GuardedBy("mLock")
     private void writeInterimResultsToFileLockedOnIoThread() {
-        mInterimResultCache.forEach((metricsConfigName, persistableBundle) ->
-                writeSingleResultToFileOnIoThread(
-                        mInterimResultDirectory, metricsConfigName, persistableBundle));
+        mInterimResultCache.forEach((metricsConfigName, interimResult) -> {
+            // only write dirty data
+            if (!interimResult.isDirty()) {
+                return;
+            }
+            writeSingleResultToFileOnIoThread(
+                    mInterimResultDirectory, metricsConfigName, interimResult.getBundle());
+        });
+    }
+
+    /** Deletes data that are older than some threshold in the given directories. */
+    private void deleteStaleDataOnIoThread(File... dirs) {
+        long currTimeMs = System.currentTimeMillis();
+        for (File dir : dirs) {
+            for (File file : dir.listFiles()) {
+                // delete stale data
+                if (file.lastModified() + STALE_THRESHOLD_MILLIS < currTimeMs) {
+                    file.delete();
+                }
+            }
+        }
     }
 
     /**
@@ -175,28 +204,50 @@ class ResultStore {
      */
     private void writeSingleResultToFileOnIoThread(
             File dir, String metricsConfigName, PersistableBundle result) {
-        try {
-            ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
             result.writeToStream(outputStream);
             Files.write(
                     new File(dir, metricsConfigName).toPath(),
                     outputStream.toByteArray());
         } catch (IOException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
+            // TODO(b/195422219): record failure
         }
     }
 
     /** Deletes a the given file in the given directory if it exists. */
     private void deleteSingleFileOnIoThread(File interimResultDirectory, String metricsConfigName) {
         File file = new File(interimResultDirectory, metricsConfigName);
-        if (file.exists()) {
-            file.delete();
-        }
+        file.delete();
     }
 
     /** Callback for receiving final metrics output. */
     interface FinalResultCallback {
         void onFinalResult(String metricsConfigName, PersistableBundle result);
+    }
+
+    /** Wrapper around a result and whether the result should be written to disk. */
+    static final class InterimResult {
+        private final PersistableBundle mBundle;
+        private final boolean mDirty;
+
+        InterimResult(PersistableBundle bundle) {
+            mBundle = bundle;
+            mDirty = false;
+        }
+
+        InterimResult(PersistableBundle bundle, boolean dirty) {
+            mBundle = bundle;
+            mDirty = dirty;
+        }
+
+        PersistableBundle getBundle() {
+            return mBundle;
+        }
+
+        boolean isDirty() {
+            return mDirty;
+        }
     }
 
     // TODO(b/195422227): Implement deletion of stale data based on system time
