@@ -14,13 +14,8 @@
   See the License for the specific language governing permissions and
   limitations under the License.
   -->
-<overlay>
-    <item target="layout/car_ui_alert_dialog_title_with_subtitle" value="@layout/car_ui_alert_dialog_title_with_subtitle"/>
 
-    <item target="id/car_ui_alert_icon" value="@id/car_ui_alert_icon"/>
-    <item target="id/car_ui_alert_title" value="@id/car_ui_alert_title"/>
-    <item target="id/car_ui_alert_subtitle" value="@id/car_ui_alert_subtitle"/>
-
-    <item target="dimen/car_ui_body1_size" value="@dimen/car_ui_body1_size"/>
-    <item target="dimen/car_ui_body3_size" value="@dimen/car_ui_body3_size"/>
-</overlay>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:color="@color/car_ui_text_color_primary" android:state_activated="true"/>
+    <item android:color="@color/car_ui_text_color_secondary"/>
+</selector>
