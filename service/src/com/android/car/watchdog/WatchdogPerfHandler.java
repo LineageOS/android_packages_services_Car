@@ -31,7 +31,6 @@ import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED
 import static com.android.car.watchdog.CarWatchdogService.DEBUG;
 import static com.android.car.watchdog.CarWatchdogService.TAG;
 import static com.android.car.watchdog.PackageInfoHandler.SHARED_PACKAGE_PREFIX;
-import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
@@ -163,9 +162,7 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             checkAndHandleDateChangeLocked();
         }
-        mMainHandler.sendMessage(
-                obtainMessage(WatchdogPerfHandler::fetchAndSyncResourceOveruseConfigurations,
-                        this));
+        mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
         if (DEBUG) {
             Slogf.d(TAG, "WatchdogPerfHandler is initialized");
         }
@@ -625,13 +622,12 @@ public final class WatchdogPerfHandler {
                 recurringIoOverusesByUid.put(stats.uid, hasRecurringOveruse);
             }
             if (!mOveruseActionsByUserPackage.isEmpty()) {
-                mMainHandler.sendMessage(obtainMessage(
-                        WatchdogPerfHandler::notifyActionsTakenOnOveruse, this));
+                mMainHandler.post(this::notifyActionsTakenOnOveruse);
             }
             if (recurringIoOverusesByUid.size() > 0) {
-                mMainHandler.sendMessageDelayed(
-                        obtainMessage(WatchdogPerfHandler::handleIoOveruseKilling,
-                                this, recurringIoOverusesByUid, genericPackageNamesByUid),
+                mMainHandler.postDelayed(
+                        () -> handleIoOveruseKilling(
+                                recurringIoOverusesByUid, genericPackageNamesByUid),
                         mResourceOveruseKillingDelayMills);
             }
         }
@@ -1014,9 +1010,7 @@ public final class WatchdogPerfHandler {
         boolean doClearPendingRequest = isPendingRequest;
         try {
             mCarWatchdogDaemonHelper.updateResourceOveruseConfigurations(configs);
-            mMainHandler.sendMessage(
-                    obtainMessage(WatchdogPerfHandler::fetchAndSyncResourceOveruseConfigurations,
-                            this));
+            mMainHandler.post(this::fetchAndSyncResourceOveruseConfigurations);
         } catch (RemoteException e) {
             if (e instanceof TransactionTooLargeException) {
                 throw e;
