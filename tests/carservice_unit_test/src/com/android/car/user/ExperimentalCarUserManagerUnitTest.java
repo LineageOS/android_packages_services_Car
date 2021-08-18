@@ -37,7 +37,6 @@ import android.car.user.ExperimentalCarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
-import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -46,6 +45,7 @@ import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
 
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 
@@ -137,16 +137,23 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
 
     @Test
     public void testGetAllDrivers() throws Exception {
-        List<UserInfo> userInfos = UserTestingHelper.newUsers(10, 20, 30);
-        when(mService.getAllDrivers()).thenReturn(userInfos);
+        List<UserHandle> userHandles = new ArrayList<UserHandle>();
+        userHandles.add(UserHandle.of(10));
+        userHandles.add(UserHandle.of(20));
+        userHandles.add(UserHandle.of(30));
+        when(mService.getAllDrivers()).thenReturn(userHandles);
         List<Integer> drivers = mManager.getAllDrivers();
         assertThat(drivers).containsExactly(10, 20, 30);
     }
 
     @Test
     public void testGetAllPassengers() throws Exception {
-        List<UserInfo> userInfos = UserTestingHelper.newUsers(100, 101, 102);
-        when(mService.getPassengers(10)).thenReturn(userInfos);
+        List<UserHandle> userHandles = new ArrayList<UserHandle>();
+        userHandles.add(UserHandle.of(100));
+        userHandles.add(UserHandle.of(101));
+        userHandles.add(UserHandle.of(102));
+
+        when(mService.getPassengers(10)).thenReturn(userHandles);
         when(mService.getPassengers(20)).thenReturn(Arrays.asList());
 
         List<Integer> passengers = mManager.getPassengers(10);
@@ -197,8 +204,8 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     }
 
     private void expectCreatePassengerSucceed() throws Exception {
-        UserInfo userInfo = UserTestingHelper.newUser(100);
-        when(mService.createPassenger("test passenger", /* driverId = */ 10)).thenReturn(userInfo);
+        when(mService.createPassenger("test passenger", /* driverId = */ 10))
+                .thenReturn(UserHandle.of(100));
     }
 
     private void expectCreatePassengerFail() throws Exception {

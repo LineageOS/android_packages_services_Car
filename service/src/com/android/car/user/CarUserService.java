@@ -395,20 +395,20 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
 
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
-        List<UserInfo> allDrivers = getAllDrivers();
+        List<UserHandle> allDrivers = getAllDrivers();
         int driversSize = allDrivers.size();
         writer.println("NumberOfDrivers: " + driversSize);
         writer.increaseIndent();
         for (int i = 0; i < driversSize; i++) {
-            int driverId = allDrivers.get(i).id;
+            int driverId = allDrivers.get(i).getIdentifier();
             writer.printf("#%d: id=%d", i, driverId);
-            List<UserInfo> passengers = getPassengers(driverId);
+            List<UserHandle> passengers = getPassengers(driverId);
             int passengersSize = passengers.size();
             writer.print(" NumberPassengers: " + passengersSize);
             if (passengersSize > 0) {
                 writer.print(" [");
                 for (int j = 0; j < passengersSize; j++) {
-                    writer.print(passengers.get(j).id);
+                    writer.print(passengers.get(j).getIdentifier());
                     if (j < passengersSize - 1) {
                         writer.print(" ");
                     }
@@ -539,7 +539,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     @Nullable
     @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
             details = "TODO(b/172262561) remove annotation after refactoring")
-    public UserInfo createPassenger(@NonNull String name, @UserIdInt int driverId) {
+    public UserHandle createPassenger(@NonNull String name, @UserIdInt int driverId) {
         checkManageUsersPermission("createPassenger");
         Objects.requireNonNull(name, "name cannot be null");
         UserInfo driver = mUserManager.getUserInfo(driverId);
@@ -562,7 +562,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // Passenger user should be a non-admin user.
         UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
         assignDefaultIcon(user);
-        return user;
+        return user.getUserHandle();
     }
 
     /**
@@ -595,10 +595,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     @NonNull
-    public List<UserInfo> getAllDrivers() {
+    public List<UserHandle> getAllDrivers() {
         checkManageUsersOrDumpPermission("getAllDrivers");
-        return getUsers((user) -> !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
-                && !user.isManagedProfile() && !user.isEphemeral());
+        return getUsersHandle(
+                (user) -> !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
+                        && !user.isManagedProfile() && !user.isEphemeral());
     }
 
     /**
@@ -609,9 +610,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @Override
     @NonNull
-    public List<UserInfo> getPassengers(@UserIdInt int driverId) {
+    public List<UserHandle> getPassengers(@UserIdInt int driverId) {
         checkManageUsersOrDumpPermission("getPassengers");
-        return getUsers((user) -> {
+        return getUsersHandle((user) -> {
             return !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
                     && user.isManagedProfile() && user.profileGroupId == driverId;
         });
@@ -2244,16 +2245,18 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     /** Returns all users who are matched by the given filter. */
-    private List<UserInfo> getUsers(UserFilter filter) {
+    private List<UserHandle> getUsersHandle(UserFilter filter) {
         List<UserInfo> users = mUserManager.getAliveUsers();
+        List<UserHandle> usersHandle = new ArrayList<UserHandle>();
 
         for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
             UserInfo user = iterator.next();
-            if (!filter.isEligibleUser(user)) {
-                iterator.remove();
+            if (filter.isEligibleUser(user)) {
+                usersHandle.add(user.getUserHandle());
             }
         }
-        return users;
+
+        return usersHandle;
     }
 
     private void checkManageUsersOrDumpPermission(String message) {
@@ -2293,14 +2296,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             Slog.w(TAG, "passenger occupant zone is not found");
             return false;
         }
-        List<UserInfo> passengers = getPassengers(driverId);
+        List<UserHandle> passengers = getPassengers(driverId);
         if (passengers.size() < 1) {
             Slog.w(TAG, "passenger is not found");
             return false;
         }
         // Only one passenger is supported. If there are two or more passengers, the first passenger
         // is chosen.
-        int passengerId = passengers.get(0).id;
+        int passengerId = passengers.get(0).getIdentifier();
         if (!startPassenger(passengerId, zoneId)) {
             Slog.w(TAG, "cannot start passenger " + passengerId);
             return false;
@@ -2332,7 +2335,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return;
         }
         // TODO(b/140311342): Use resource string for the default passenger name.
-        UserInfo passenger = createPassenger("Passenger", currentUser);
+        UserHandle passenger = createPassenger("Passenger", currentUser);
         if (passenger == null) {
             // Couldn't create user, most likely because there are too many.
             Slog.w(TAG, "cannot create a passenger user");

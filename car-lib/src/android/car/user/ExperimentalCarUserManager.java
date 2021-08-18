@@ -25,7 +25,6 @@ import android.car.CarManagerBase;
 import android.car.ICarUserService;
 import android.car.annotation.ExperimentalFeature;
 import android.car.util.concurrent.AndroidFuture;
-import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
@@ -102,8 +101,8 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @Nullable
     public int createPassenger(@NonNull String name, @UserIdInt int driverId) {
         try {
-            UserInfo ui = mService.createPassenger(name, driverId);
-            return ui != null ? ui.id : INVALID_USER_ID;
+            UserHandle ui = mService.createPassenger(name, driverId);
+            return ui != null ? ui.getIdentifier() : INVALID_USER_ID;
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, null);
         }
@@ -152,7 +151,7 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @NonNull
     public List<Integer> getAllDrivers() {
         try {
-            return getUserIdsFromUserInfos(mService.getAllDrivers());
+            return getUserIdsFromUserHandles(mService.getAllDrivers());
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
@@ -170,7 +169,7 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     @NonNull
     public List<Integer> getPassengers(@UserIdInt int driverId) {
         try {
-            return getUserIdsFromUserInfos(mService.getPassengers(driverId));
+            return getUserIdsFromUserHandles(mService.getPassengers(driverId));
         } catch (RemoteException e) {
             return handleRemoteExceptionFromCarService(e, Collections.emptyList());
         }
@@ -218,10 +217,10 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
         // nothing to do
     }
 
-    private List<Integer> getUserIdsFromUserInfos(List<UserInfo> infos) {
+    private List<Integer> getUserIdsFromUserHandles(List<UserHandle> infos) {
         List<Integer> ids = new ArrayList<>(infos.size());
-        for (UserInfo ui : infos) {
-            ids.add(ui.id);
+        for (UserHandle ui : infos) {
+            ids.add(ui.getIdentifier());
         }
         return ids;
     }
