@@ -17,7 +17,6 @@ package com.android.car;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.mockitoSession;
 
-import static org.junit.Assert.assertNotNull;
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.doAnswer;
@@ -25,7 +24,6 @@ import static org.mockito.Mockito.mock;
 
 import android.car.Car;
 import android.car.test.CarTestManager;
-import android.car.test.CarTestManagerBinderWrapper;
 import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
@@ -370,12 +368,8 @@ public class MockedCarTestBase {
 
         if (car.isConnected()) {
             Log.i(TAG, "Connected to real car service");
-            CarTestManagerBinderWrapper binderWrapper =
-                    (CarTestManagerBinderWrapper) car.getCarManager(Car.TEST_SERVICE);
-            assertNotNull(binderWrapper);
-
-            CarTestManager mgr = new CarTestManager(car, binderWrapper.binder);
-            mgr.stopCarService(sCarServiceToken);
+            CarTestManager carTestManager = (CarTestManager) car.getCarManager(Car.TEST_SERVICE);
+            carTestManager.stopCarService(sCarServiceToken);
         }
     }
 

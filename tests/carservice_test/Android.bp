@@ -50,7 +50,6 @@ android_test {
         "android.hardware.automotive.vehicle-V2.0-java",
         "car-service-test-static-lib",
         "car-service-builtin-test-static-lib",
-        "car-systemtest",
         "com.android.car.test.lib",
         "mockito-target-extended",
         // testng imported to use assertThrows, we can remove it once it's ported to JUnit's.

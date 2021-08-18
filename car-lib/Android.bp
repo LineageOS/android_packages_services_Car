@@ -435,6 +435,7 @@ filegroup {
         "src/android/car/telemetry/**/*.java",
         "src/android/car/telemetry/**/*.aidl",
         "src/android/car/test/**/*.java",
+        "src/android/car/test/**/*.aidl",
         //"src/android/car/user/**/*.java",
         //"src/android/car/user/**/*.aidl",
         "src/android/car/util/**/*.java",
