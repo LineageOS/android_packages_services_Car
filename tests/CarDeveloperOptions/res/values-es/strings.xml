@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Seleccionar tema"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Esta configuración también se utiliza para las aplicaciones"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Las aplicaciones que lo admitan también se cambiarán al tema oscuro"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Iconos para desarrolladores en ajustes rápidos"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Recuadros para desarrolladores en ajustes rápidos"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Rastro de Winscope"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Sensores desactivados"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Ajustes de perfil de trabajo"</string>
