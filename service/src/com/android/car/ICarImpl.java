@@ -35,7 +35,6 @@ import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -49,6 +48,7 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.Trace;
+import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.EventLog;
 
@@ -848,11 +848,12 @@ public class ICarImpl extends ICar.Stub {
         }
 
         @Override
-        public void onUserRemoved(UserInfo user) throws RemoteException {
+        public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
-            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.id);
-            if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toFullString());
-            mCarUserService.onUserRemoved(user);
+            EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.getIdentifier());
+            if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toString());
+            mCarUserService.onUserRemoved(
+                    mContext.getSystemService(UserManager.class).getUserInfo(user.getIdentifier()));
         }
 
         @Override
