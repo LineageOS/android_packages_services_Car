@@ -561,7 +561,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return null;
         }
         // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
+        UserHelper.setDefaultNonAdminRestrictions(mContext, user.getUserHandle(),
+                /* enable= */ true);
         assignDefaultIcon(user);
         return user.getUserHandle();
     }

@@ -17,8 +17,8 @@ package com.android.car.internal.user;
 
 import android.annotation.NonNull;
 import android.annotation.RequiresPermission;
+import android.car.builtin.os.UserManagerHelper;
 import android.content.Context;
-import android.content.pm.UserInfo;
 import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -27,7 +27,6 @@ import android.util.Log;
 import com.android.car.internal.util.Sets;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.util.UserIcons;
 
 import java.util.Set;
 
@@ -74,7 +73,7 @@ public final class UserHelper {
             android.Manifest.permission.INTERACT_ACROSS_USERS_FULL,
             android.Manifest.permission.MANAGE_USERS
     })
-    public static void grantAdminPermissions(@NonNull Context context, @NonNull UserInfo user) {
+    public static void grantAdminPermissions(@NonNull Context context, @NonNull UserHandle user) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
@@ -85,16 +84,17 @@ public final class UserHelper {
             return;
         }
 
-        userManager.setUserAdmin(user.id);
+        UserManagerHelper.setUserAdmin(userManager, user);
 
-        UserHandle userHandle = user.getUserHandle();
         // Remove restrictions imposed on non-admins.
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            userManager.setUserRestriction(restriction, /* enable= */ false, userHandle);
+            UserManagerHelper.setUserRestriction(userManager, restriction, /* enable= */ false,
+                    user);
         }
 
         for (String restriction : OPTIONAL_NON_ADMIN_RESTRICTIONS) {
-            userManager.setUserRestriction(restriction, /* enable= */ false, userHandle);
+            UserManagerHelper.setUserRestriction(userManager, restriction, /* enable= */ false,
+                    user);
         }
     }
 
@@ -108,13 +108,13 @@ public final class UserHelper {
      * @hide
      */
     public static void setDefaultNonAdminRestrictions(@NonNull Context context,
-            @NonNull UserInfo user, boolean enable) {
+            @NonNull UserHandle user, boolean enable) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
         UserManager userManager = context.getSystemService(UserManager.class);
         for (String restriction : DEFAULT_NON_ADMIN_RESTRICTIONS) {
-            userManager.setUserRestriction(restriction, enable, user.getUserHandle());
+            UserManagerHelper.setUserRestriction(userManager, restriction, enable, user);
         }
     }
 
@@ -128,15 +128,10 @@ public final class UserHelper {
      * @hide
      */
     @NonNull
-    public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserInfo user) {
+    public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
-        int idForIcon = user.isGuest() ? UserHandle.USER_NULL : user.id;
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(context.getResources(), idForIcon, false));
-        UserManager userManager = context.getSystemService(UserManager.class);
-        userManager.setUserIcon(user.id, bitmap);
-        return bitmap;
+        return UserManagerHelper.assignDefaultIcon(context, user);
     }
 }

@@ -46,6 +46,7 @@ java_library {
         "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
+        "framework-wifi",
     ],
     product_variables: {
         pdk: {
@@ -53,6 +54,7 @@ java_library {
         },
     },
     installable: true,
+    sdk_version: "module_current",
 }
 
 stubs_defaults {

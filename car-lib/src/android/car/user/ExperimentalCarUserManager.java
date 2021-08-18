@@ -24,6 +24,7 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarUserService;
 import android.car.annotation.ExperimentalFeature;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.util.concurrent.AndroidFuture;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -48,7 +49,7 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
     /**
      *  User id representing invalid user.
      */
-    private static final int INVALID_USER_ID = UserHandle.USER_NULL;
+    private static final int INVALID_USER_ID = UserManagerHelper.USER_NULL;
 
     private final ICarUserService mService;
 

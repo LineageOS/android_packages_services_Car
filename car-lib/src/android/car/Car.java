@@ -32,6 +32,7 @@ import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
+import android.car.builtin.os.ServiceManagerHelper;;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.ClusterHomeManager;
@@ -72,9 +73,7 @@ import android.os.IBinder;
 import android.os.Looper;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ServiceManager;
 import android.os.TransactionTooLargeException;
-import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.VisibleForHiddenApiCheck;
@@ -1173,7 +1172,7 @@ public final class Car {
     @Nullable
     private final ServiceConnection mServiceConnectionListenerClient;
 
-    /** Can be added after ServiceManager.getService call */
+    /** Can be added after ServiceManagerHelper.getService call */
     @Nullable
     private final CarServiceLifecycleListener mStatusChangeCallback;
 
@@ -1335,7 +1334,7 @@ public final class Car {
         boolean started = false;
         int retryCount = 0;
         while (true) {
-            service = ServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
+            service = ServiceManagerHelper.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
             if (car == null) {
                 // service can be still null. The constructor is safe for null service.
                 car = new Car(context, ICar.Stub.asInterface(service),
@@ -1443,7 +1442,7 @@ public final class Car {
         }
         boolean isMainThread = Looper.myLooper() == Looper.getMainLooper();
         while (true) {
-            service = ServiceManager.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
+            service = ServiceManagerHelper.getService(CAR_SERVICE_BINDER_SERVICE_NAME);
             if (car == null) {
                 // service can be still null. The constructor is safe for null service.
                 car = new Car(context, ICar.Stub.asInterface(service), null, statusChangeListener,

@@ -34,11 +34,10 @@ import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.util.concurrent.AndroidAsyncFuture;
 import android.car.util.concurrent.AndroidFuture;
 import android.car.util.concurrent.AsyncFuture;
-import android.content.pm.UserInfo;
-import android.content.pm.UserInfo.UserInfoFlag;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -387,7 +386,7 @@ public final class CarUserManager extends CarManagerBase {
     }
 
     private AsyncFuture<UserCreationResult> createUser(@Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags) {
+            @NonNull String userType, int flags) {
         int uid = myUid();
         try {
             AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
@@ -397,7 +396,7 @@ public final class CarUserManager extends CarManagerBase {
                         EventLog.writeEvent(EventLogTags.CAR_USER_MGR_CREATE_USER_RESP, uid,
                                 result.getStatus(), result.getErrorMessage());
                     } else {
-                        Log.w(TAG, "createUser(" + userType + "," + UserInfo.flagsToString(flags)
+                        Log.w(TAG, "createUser(" + userType + "," + flags
                                 + ") failed: " + err);
                     }
                     super.onCompleted(result, err);
@@ -424,7 +423,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createGuest(@Nullable String name) {
-        return createUser(name, UserManager.USER_TYPE_FULL_GUEST, /* flags= */ 0);
+        return createUser(name, UserManagerHelper.USER_TYPE_FULL_GUEST, /* flags= */ 0);
     }
 
     /**
@@ -435,7 +434,7 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public AsyncFuture<UserCreationResult> createUser(@Nullable String name,
-            @UserInfoFlag int flags) {
+            int flags) {
         return createUser(name, UserManager.USER_TYPE_FULL_SECONDARY, flags);
     }
 
@@ -754,7 +753,8 @@ public final class CarUserManager extends CarManagerBase {
                 Log.w(TAG, "Received result (" + resultCode + ") without data");
                 return;
             }
-            int from = resultData.getInt(BUNDLE_PARAM_PREVIOUS_USER_ID, UserHandle.USER_NULL);
+            int from = resultData.getInt(BUNDLE_PARAM_PREVIOUS_USER_ID,
+                    UserManagerHelper.USER_NULL);
             int to = resultCode;
             int eventType = resultData.getInt(BUNDLE_PARAM_ACTION);
             UserLifecycleEvent event = new UserLifecycleEvent(eventType, from, to);
@@ -834,10 +834,10 @@ public final class CarUserManager extends CarManagerBase {
     @RequiresPermission(anyOf = {android.Manifest.permission.MANAGE_USERS,
             android.Manifest.permission.CREATE_USERS})
     public boolean isValidUser(@UserIdInt int userId) {
-        List<UserInfo> allUsers = mUserManager.getAliveUsers();
+        List<UserHandle> allUsers = mUserManager.getUserHandles(/* excludeDying=*/ true);
         for (int i = 0; i < allUsers.size(); i++) {
-            UserInfo user = allUsers.get(i);
-            if (user.id == userId && (userId != UserHandle.USER_SYSTEM
+            UserHandle user = allUsers.get(i);
+            if (user.getIdentifier() == userId && (userId != UserHandle.SYSTEM.getIdentifier()
                     || !UserManager.isHeadlessSystemUserMode())) {
                 return true;
             }
@@ -867,7 +867,7 @@ public final class CarUserManager extends CarManagerBase {
 
         /** @hide */
         public UserLifecycleEvent(@UserLifecycleEventType int eventType, @UserIdInt int to) {
-            this(eventType, UserHandle.USER_NULL, to);
+            this(eventType, UserManagerHelper.USER_NULL, to);
         }
 
         /**
@@ -924,14 +924,15 @@ public final class CarUserManager extends CarManagerBase {
          */
         @Nullable
         public UserHandle getPreviousUserHandle() {
-            return mPreviousUserId == UserHandle.USER_NULL ? null : UserHandle.of(mPreviousUserId);
+            return mPreviousUserId == UserManagerHelper.USER_NULL ? null
+                    : UserHandle.of(mPreviousUserId);
         }
 
         @Override
         public String toString() {
             StringBuilder builder = new StringBuilder("Event[type=")
                     .append(lifecycleEventTypeToString(mEventType));
-            if (mPreviousUserId != UserHandle.USER_NULL) {
+            if (mPreviousUserId != UserManagerHelper.USER_NULL) {
                 builder
                     .append(",from=").append(mPreviousUserId)
                     .append(",to=").append(mUserId);
