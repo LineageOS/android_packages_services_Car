@@ -1306,7 +1306,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             return null;
         }
         try {
-            return mICarServiceHelper.createUserEvenWhenDisallowed(name, userType, flags);
+            ICarServiceHelper iCarServiceHelper;
+            synchronized (mLockUser) {
+                iCarServiceHelper = mICarServiceHelper;
+            }
+            UserHandle userHandle = iCarServiceHelper.createUserEvenWhenDisallowed(name,
+                    userType, flags);
+            return userHandle == null ? null
+                    : mUserManager.getUserInfo(userHandle.getIdentifier());
         } catch (RemoteException e) {
             Slog.e(TAG, "createUserEvenWhenDisallowed(" + UserHelperLite.safeName(name) + ", "
                     + userType + ", " + UserInfo.flagsToString(flags) + ") failed", e);
