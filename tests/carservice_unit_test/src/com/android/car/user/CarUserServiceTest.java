@@ -1904,7 +1904,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 .build();
         mCarUserService.setCarServiceHelper(mICarServiceHelper);
         when(mICarServiceHelper.createUserEvenWhenDisallowed("name",
-                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN)).thenReturn(user);
+                UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN))
+                        .thenReturn(user.getUserHandle());
+        when(mMockedUserManager.getUserInfo(user.id)).thenReturn(user);
 
         UserInfo actualUser = mCarUserService.createUserEvenWhenDisallowed("name",
                 UserManager.USER_TYPE_FULL_SECONDARY, UserInfo.FLAG_ADMIN);

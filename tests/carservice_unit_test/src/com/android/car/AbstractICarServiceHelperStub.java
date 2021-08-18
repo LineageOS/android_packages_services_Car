@@ -17,8 +17,8 @@ package com.android.car;
 
 import android.annotation.UserIdInt;
 import android.content.ComponentName;
-import android.content.pm.UserInfo;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.ICarServiceHelper;
@@ -68,7 +68,7 @@ abstract class AbstractICarServiceHelperStub extends ICarServiceHelper.Stub {
     }
 
     @Override
-    public UserInfo createUserEvenWhenDisallowed(String name, String userType, int flags) {
+    public UserHandle createUserEvenWhenDisallowed(String name, String userType, int flags) {
         Log.d(TAG, "createUserEvenWhenDisallowed(name=" + name + ", userType=" + userType
                 + ", flags=" + flags + ")");
         return null;

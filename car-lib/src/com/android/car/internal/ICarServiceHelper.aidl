@@ -17,7 +17,7 @@
 package com.android.car.internal;
 
 import android.content.ComponentName;
-import android.content.pm.UserInfo;
+import android.os.UserHandle;
 
 import java.util.List;
 
@@ -54,5 +54,5 @@ interface ICarServiceHelper {
     /**
      * Creates the given user, even when it's disallowed by DevicePolicyManager.
      */
-    UserInfo createUserEvenWhenDisallowed(String name, String userType, int flags);
+    UserHandle createUserEvenWhenDisallowed(String name, String userType, int flags);
 }
