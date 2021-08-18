@@ -17,7 +17,7 @@
 package com.android.car.internal;
 
 import android.car.ICarResultReceiver;
-import android.content.pm.UserInfo;
+import android.os.UserHandle;
 
 /**
  * API to communicate from CarServiceHelperService to car service.
@@ -39,7 +39,7 @@ oneway interface ICarSystemServerClient {
      *
      * @param user info about the user that was removed.
      */
-    void onUserRemoved(in UserInfo user);
+    void onUserRemoved(in UserHandle user);
 
     /**
      * Notify to init boot user.
