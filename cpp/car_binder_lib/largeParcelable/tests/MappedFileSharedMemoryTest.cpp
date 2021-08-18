@@ -29,6 +29,7 @@ namespace {
 using ::android::OK;
 using ::android::automotive::car_binder_lib::MappedFile;
 using ::android::automotive::car_binder_lib::SharedMemory;
+using ::android::base::borrowed_fd;
 using ::android::base::unique_fd;
 
 constexpr size_t TEST_SIZE = 1024;
@@ -92,7 +93,7 @@ void testSharedMemoryMapWriteAndRead(const SharedMemory& sm) {
     ASSERT_EQ(0, memcmp(readAddr, buffer, sizeof(buffer)));
 }
 
-TEST(MappedFileSharedMemoryTest, testSharedMemoryWithFdMapWriteAndRead) {
+TEST(MappedFileSharedMemoryTest, testSharedMemoryWithOwnedFdMapWriteAndRead) {
     unique_fd fd(ashmem_create_region("SharedMemory", TEST_SIZE));
     ASSERT_TRUE(fd.ok());
     SharedMemory sm(std::move(fd));
@@ -105,6 +106,19 @@ TEST(MappedFileSharedMemoryTest, testSharedMemoryWithFdMapWriteAndRead) {
 
 TEST(MappedFileSharedMemoryTest, testSharedMemoryWithSizeMapWriteAndRead) {
     SharedMemory sm(TEST_SIZE);
+
+    ASSERT_TRUE(sm.isValid());
+    ASSERT_EQ(OK, sm.getErr());
+
+    testSharedMemoryMapWriteAndRead(sm);
+}
+
+TEST(MappedFileSharedMemoryTest, testSharedMemoryWithBorrowedFdMapWriteAndRead) {
+    unique_fd fd(ashmem_create_region("SharedMemory", TEST_SIZE));
+    ASSERT_TRUE(fd.ok());
+
+    borrowed_fd bfd(fd);
+    SharedMemory sm(bfd);
 
     ASSERT_TRUE(sm.isValid());
     ASSERT_EQ(OK, sm.getErr());

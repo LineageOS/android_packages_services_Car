@@ -37,32 +37,44 @@ namespace car_binder_lib {
 
 using ::android::OK;
 using ::android::status_t;
+using ::android::base::borrowed_fd;
 using ::android::base::unique_fd;
 
-SharedMemory::SharedMemory(unique_fd fd) {
+SharedMemory::SharedMemory(unique_fd fd) : mBorrowedFd(-1), mOwned(true) {
     int size = ashmem_get_size_region(fd.get());
     if (size < 0) {
         ALOGE("ashmem_get_size_region failed, error: %s", std::strerror(errno));
         mErrno = errno;
         return;
     }
-    mFd = std::move(fd);
+    mOwnedFd = std::move(fd);
     mSize = size;
 }
 
-SharedMemory::SharedMemory(size_t size) {
+SharedMemory::SharedMemory(borrowed_fd fd) : mBorrowedFd(-1), mOwned(false) {
+    int size = ashmem_get_size_region(fd.get());
+    if (size < 0) {
+        ALOGE("ashmem_get_size_region failed, error: %s", std::strerror(errno));
+        mErrno = errno;
+        return;
+    }
+    mBorrowedFd = std::move(fd);
+    mSize = size;
+}
+
+SharedMemory::SharedMemory(size_t size) : mBorrowedFd(-1), mOwned(true) {
     int fd = ashmem_create_region("SharedMemory", size);
     if (fd < 0) {
         ALOGE("ASharedMemory_create failed, error: %s", std::strerror(errno));
         mErrno = errno;
         return;
     }
-    mFd.reset(fd);
+    mOwnedFd.reset(fd);
     mSize = size;
 }
 
 status_t SharedMemory::lock() {
-    int result = ashmem_set_prot_region(mFd.get(), PROT_READ);
+    int result = ashmem_set_prot_region(getFd(), PROT_READ);
     if (result != 0) {
         ALOGE("ASharedMemory_setProt failed, error: %s", std::strerror(errno));
         mErrno = errno;

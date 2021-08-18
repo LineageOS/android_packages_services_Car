@@ -24,7 +24,8 @@ cc_defaults {
         "-Werror",
     ],
     shared_libs: [
-        "libbinder",
+        "libbase",
+        "libbinder_ndk",
         "libcutils",
         "liblog",
         "libutils",
@@ -38,6 +39,9 @@ cc_library {
     ],
     vendor: true,
     srcs: [
+        "LargeParcelable.cpp",
+        "LargeParcelableBase.cpp",
+        "LargeParcelableVector.cpp",
         "MappedFile.cpp",
         "SharedMemory.cpp",
     ],

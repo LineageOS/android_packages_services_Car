@@ -28,8 +28,6 @@ namespace android {
 namespace automotive {
 namespace car_binder_lib {
 
-using ::android::status_t;
-
 MappedFile::MappedFile(int memoryFd, int32_t fileSize, bool writtable) {
     mAddr = mmap(/*addr=*/NULL, fileSize, (writtable ? PROT_WRITE : PROT_READ), MAP_SHARED,
                  memoryFd, /*offset=*/0);
