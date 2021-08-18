@@ -35,7 +35,6 @@ import com.android.car.telemetry.TelemetryProto;
  */
 public class DataSubscriber {
 
-    private final int mPriority;
     private final DataBroker mDataBroker;
     private final TelemetryProto.MetricsConfig mMetricsConfig;
     private final TelemetryProto.Subscriber mSubscriber;
@@ -43,12 +42,10 @@ public class DataSubscriber {
     public DataSubscriber(
             DataBroker dataBroker,
             TelemetryProto.MetricsConfig metricsConfig,
-            TelemetryProto.Subscriber subscriber,
-            int priority) {
+            TelemetryProto.Subscriber subscriber) {
         mDataBroker = dataBroker;
         mMetricsConfig = metricsConfig;
         mSubscriber = subscriber;
-        mPriority = priority;
     }
 
     /** Returns the handler function name for this subscriber. */
@@ -88,6 +85,6 @@ public class DataSubscriber {
 
     /** Returns the priority of subscriber. */
     public int getPriority() {
-        return mPriority;
+        return mSubscriber.getPriority();
     }
 }
