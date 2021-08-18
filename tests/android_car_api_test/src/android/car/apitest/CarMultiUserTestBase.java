@@ -224,12 +224,13 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
                 .that(result).isNotNull();
         assertWithMessage("user creation result (%s) success for user named %s", result, name)
                 .that(result.isSuccess()).isTrue();
-        UserInfo user = result.getUser();
+        UserHandle user = result.getUser();
         assertWithMessage("user on result %s", result).that(user).isNotNull();
-        mUsersToRemove.add(user.id);
-        assertWithMessage("new user %s is guest", user.toFullString()).that(user.isGuest())
+        mUsersToRemove.add(user.getIdentifier());
+        assertWithMessage("new user %s is guest", user.toString())
+                .that(mUserManager.isGuestUser(user.getIdentifier()))
                 .isEqualTo(isGuest);
-        return result.getUser();
+        return mUserManager.getUserInfo(result.getUser().getIdentifier());
     }
 
     protected String getTestName() {

@@ -513,7 +513,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     Slog.w(TAG, "createDriver(" + name + "," + admin + ") failed: " + err);
                 } else {
                     if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        assignDefaultIcon(result.getUser());
+                        assignDefaultIcon(
+                                mUserManager.getUserInfo(result.getUser().getIdentifier()));
                     }
                 }
                 super.onCompleted(result, err);
@@ -1645,7 +1646,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         if (TextUtils.isEmpty(errorMessage)) {
             errorMessage = null;
         }
-        receiver.complete(new UserCreationResult(status, user, errorMessage));
+        receiver.complete(new UserCreationResult(status, user == null ? null : user.getUserHandle(),
+                errorMessage));
     }
 
     /**

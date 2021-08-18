@@ -57,6 +57,7 @@ import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSet
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationType;
 import android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationValue;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import org.junit.Before;
@@ -300,12 +301,9 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getErrorMessage()).isNull();
 
-        UserInfo newUser = result.getUser();
+        UserHandle newUser = result.getUser();
         assertThat(newUser).isNotNull();
-        assertThat(newUser.id).isEqualTo(108);
-        assertThat(newUser.name).isEqualTo("dude");
-        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_SECONDARY);
-        assertThat(newUser.flags).isEqualTo(42);
+        assertThat(newUser.getIdentifier()).isEqualTo(108);
     }
 
     @Test
@@ -351,12 +349,9 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
         assertThat(result.isSuccess()).isTrue();
         assertThat(result.getErrorMessage()).isNull();
 
-        UserInfo newUser = result.getUser();
+        UserHandle newUser = result.getUser();
         assertThat(newUser).isNotNull();
-        assertThat(newUser.id).isEqualTo(108);
-        assertThat(newUser.name).isEqualTo("dudeGuest");
-        assertThat(newUser.userType).isEqualTo(UserManager.USER_TYPE_FULL_GUEST);
-        assertThat(newUser.flags).isEqualTo(0);
+        assertThat(newUser.getIdentifier()).isEqualTo(108);
     }
 
     @Test
@@ -585,7 +580,8 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
                     (AndroidFuture<UserCreationResult>) invocation.getArguments()[4];
             UserInfo newUser = new UserTestingHelper.UserInfoBuilder(108)
                     .setName(name).setType(userType).setFlags(flags).build();
-            future.complete(new UserCreationResult(status, newUser, /* errorMessage= */ null));
+            future.complete(new UserCreationResult(status, newUser.getUserHandle(),
+                    /* errorMessage=*/ null));
             return null;
         }).when(mService).createUser(eq(name), eq(userType), eq(flags), anyInt(), notNull());
     }

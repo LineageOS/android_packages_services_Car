@@ -21,7 +21,6 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.TestApi;
 import android.car.user.UserCreationResult;
-import android.content.pm.UserInfo;
 import android.os.UserHandle;
 import android.util.Log;
 
@@ -85,8 +84,7 @@ public final class CreateUserResult {
         }
         int status = result.getStatus();
         if (status == UserCreationResult.STATUS_SUCCESSFUL) {
-            UserInfo user = result.getUser();
-            mUserHandle = user == null ? null : user.getUserHandle();
+            mUserHandle = result.getUser();
             if (mUserHandle == null) {
                 Log.w(TAG, "Successful UserCreationResult with no user: " + result);
                 mStatus = STATUS_FAILURE_GENERIC;
