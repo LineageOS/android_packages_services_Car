@@ -44,7 +44,7 @@
     <string name="dsds_dialog_confirm" msgid="4858826679303698086">"మళ్లీ ప్రారంభించండి"</string>
     <string name="dsds_dialog_cancel" msgid="5436928622826294809">"రద్దు చేయి"</string>
     <string name="radio_info_radio_power" msgid="1377208736090161142">"మొబైల్ రేడియో పవర్"</string>
-    <string name="radioInfo_menu_viewADN" msgid="8833699138060620935">"SIM చిరునామా పుస్తకాన్ని చూడండి"</string>
+    <string name="radioInfo_menu_viewADN" msgid="8833699138060620935">"SIM అడ్రస్‌ పుస్తకాన్ని చూడండి"</string>
     <string name="radioInfo_menu_viewFDN" msgid="617578481953919839">"ఫిక్స్‌డ్ డయలింగ్ నంబర్‌లను చూడండి"</string>
     <string name="radioInfo_menu_viewSDN" msgid="5723902253834152619">"సర్వీస్ డయలింగ్ నంబర్‌లను చూడండి"</string>
     <string name="radioInfo_menu_getIMS" msgid="165918168050375324">"IMS సేవ స్థితి"</string>
@@ -116,15 +116,15 @@
     <string name="bluetooth_pairing_pref_title" msgid="2904954138013884029">"కొత్త పరికరాన్ని పెయిర్ చేయండి"</string>
     <string name="bluetooth_is_visible_message" msgid="6341088682252805612">"బ్లూటూత్ సెట్టింగ్‌లను తెరిచి ఉన్నప్పుడు <xliff:g id="DEVICE_NAME">%1$s</xliff:g> సమీప పరికరాలకు కనిపిస్తుంది."</string>
     <string name="bluetooth_footer_mac_message" product="default" msgid="335341476746836260">"ఫోన్ బ్లూటూత్ అడ్రస్: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
-    <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"టాబ్లెట్ యొక్క బ్లూటూత్ చిరునామా: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
+    <string name="bluetooth_footer_mac_message" product="tablet" msgid="6033609611245782463">"టాబ్లెట్ యొక్క బ్లూటూత్ అడ్రస్‌: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_footer_mac_message" product="device" msgid="7639919867088358038">"పరికర బ్లూటూత్ అడ్రస్: <xliff:g id="BLUETOOTH_MAC_ADDRESS">%1$s</xliff:g>"</string>
     <string name="bluetooth_is_disconnect_question" msgid="6180709281434591654">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>ను డిస్‌కనెక్ట్ చేయాలా?"</string>
     <string name="bluetooth_broadcasting" msgid="8926408584599563760">"ప్రసారం"</string>
     <string name="bluetooth_device" msgid="3170974107364990008">"పేరులేని బ్లూటూత్ పరికరం"</string>
     <string name="progress_scanning" msgid="633923400401041181">"శోధించడం"</string>
     <string name="bluetooth_no_devices_found" msgid="4396050022213494322">"సమీపంలో బ్లూటూత్ పరికరాలు ఏవీ కనుగొనబడలేదు."</string>
-    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"బ్లూటూత్ జత చేయడానికి అభ్యర్థన"</string>
-    <string name="bluetooth_notif_title" msgid="5090288898529286011">"జత చేయడానికి అభ్యర్థన"</string>
+    <string name="bluetooth_notif_ticker" msgid="8398481099943141819">"బ్లూటూత్ జత చేయడానికి రిక్వెస్ట్‌"</string>
+    <string name="bluetooth_notif_title" msgid="5090288898529286011">"జత చేయడానికి రిక్వెస్ట్‌"</string>
     <string name="bluetooth_notif_message" msgid="6612367890895077938">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>తో జత చేయడానికి నొక్కండి."</string>
     <string name="bluetooth_show_received_files" msgid="5060846395852236652">"స్వీకరించిన ఫైళ్లు"</string>
     <string name="bluetooth_show_files_received_via_bluetooth" msgid="1699095577431389560">"బ్లూటూత్ ద్వారా అందుకున్న ఫైళ్లు"</string>
@@ -151,16 +151,16 @@
     <string name="bluetooth_ask_enablement_and_lasting_discovery_no_name" product="default" msgid="3541668604020109525">"యాప్ బ్లూటూత్‌ను ఆన్ చేసి, మీ ఫోన్‌ను ఇతర డివైజ్‌లకు కనిపించేలా చేయాలనుకుంటోంది. మీరు దీన్ని తర్వాత బ్లూటూత్ సెట్టింగ్‌లలో మార్చవచ్చు."</string>
     <string name="bluetooth_turning_on" msgid="6935183036449748493">"బ్లూటూత్‌ను ఆన్ చేస్తోంది…"</string>
     <string name="bluetooth_turning_off" msgid="9214026723789756620">"బ్లూటూత్ ఆఫ్ చేస్తోంది..."</string>
-    <string name="bluetooth_connection_permission_request" msgid="2382506002340643398">"బ్లూటూత్ కనెక్షన్ అభ్యర్థన"</string>
+    <string name="bluetooth_connection_permission_request" msgid="2382506002340643398">"బ్లూటూత్ కనెక్షన్ రిక్వెస్ట్‌"</string>
     <string name="bluetooth_connection_notif_message" msgid="6824654400460127108">"\"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"కి కనెక్ట్ చేయడానికి నొక్కండి."</string>
     <string name="bluetooth_connection_dialog_text" msgid="5454660775522235951">"మీరు \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"కు కనెక్ట్ చేయాలనుకుంటున్నారా?"</string>
-    <string name="bluetooth_phonebook_request" msgid="3728325388092719230">"ఫోన్ పుస్తకం యాక్సెస్ అభ్యర్థన"</string>
+    <string name="bluetooth_phonebook_request" msgid="3728325388092719230">"ఫోన్ పుస్తకం యాక్సెస్ రిక్వెస్ట్‌"</string>
     <string name="bluetooth_pb_acceptance_dialog_text" msgid="2880630715123354820">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> మీ పరిచయాలు మరియు కాల్ చరిత్రకు యాక్సెస్ కోరుతోంది. <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>కి యాక్సెస్ ఇవ్వాలా?"</string>
     <string name="bluetooth_remember_choice" msgid="5557832673688613557">"మళ్లీ అడగవద్దు"</string>
     <string name="bluetooth_pb_remember_choice" msgid="3983194742712379543">"మళ్లీ అడగవద్దు"</string>
-    <string name="bluetooth_map_request" msgid="34345631620551756">"సందేశ యాక్సెస్ అభ్యర్థన"</string>
+    <string name="bluetooth_map_request" msgid="34345631620551756">"సందేశ యాక్సెస్ రిక్వెస్ట్‌"</string>
     <string name="bluetooth_map_acceptance_dialog_text" msgid="736507842082640410">"%1$s మీ మెసేజ్‌లను యాక్సెస్ చేయాలనుకుంటోంది. %2$sకు యాక్సెస్ అందించాలా?"</string>
-    <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM యాక్సెస్ అభ్యర్థన"</string>
+    <string name="bluetooth_sap_request" msgid="6318039677671263261">"SIM యాక్సెస్ రిక్వెస్ట్‌"</string>
     <string name="bluetooth_sap_acceptance_dialog_text" msgid="1909352413109340355">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> మీ SIM కార్డ్‌ను యాక్సెస్ చేయాలనుకుంటోంది. SIM కార్డ్‌కి యాక్సెస్ మంజూరు చేయడం వలన మీ పరికరంలో కనెక్షన్ కాలంలో డేటా కనెక్టివిటీ నిలిపివేయబడుతుంది. <xliff:g id="DEVICE_NAME_1">%2$s?</xliff:g>కి యాక్సెస్ మంజూరు చేయండి"</string>
     <string name="bluetooth_device_name_summary" msgid="8661066392056595005">"ఇతర పరికరాలకు “<xliff:g id="DEVICE_NAME">^1</xliff:g>” లాగా కనిపిస్తుంది"</string>
     <string name="bluetooth_off_footer" msgid="7658444560543730571">"ఇతర పరికరాలతో కనెక్ట్ చేయడానికి బ్లూటూత్‌ను ఆన్ చేయండి"</string>
@@ -203,7 +203,7 @@
     <string name="proxy_error" msgid="5036164133669802299">"సావధానత"</string>
     <string name="proxy_error_dismiss" msgid="883805570485635650">"సరే"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"మీరు టైప్ చేసిన హోస్ట్‌పేరు చెల్లదు."</string>
-    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"మీరు టైప్ చేసిన మినహాయింపు జాబితా సరిగ్గా ఆకృతీకరించబడలేదు. మినహాయించిన డొమైన్‌ల యొక్క కామాతో వేరుచేసిన జాబితాను టైప్ చేయండి."</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"మీరు టైప్ చేసిన మినహాయింపు లిస్ట్‌ సరిగ్గా ఆకృతీకరించబడలేదు. మినహాయించిన డొమైన్‌ల యొక్క కామాతో వేరుచేసిన లిస్ట్‌ను టైప్ చేయండి."</string>
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"మీరు పోర్ట్ ఫీల్డ్‌ను పూర్తి చేయాల్సి ఉంటుంది."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"హోస్ట్ ఫీల్డ్ ఖాళీగా ఉంటే పోర్ట్ ఫీల్డ్ తప్పనిసరిగా ఖాళీగా ఉండాలి."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"మీరు టైప్ చేసిన పోర్ట్ చెల్లదు."</string>
@@ -242,7 +242,7 @@
     <string name="radio_info_toggle_dns_check_label" msgid="3058615074503857400">"DNS తనిఖీని టోగుల్ చేయండి"</string>
     <string name="oem_radio_info_label" msgid="8679815523111164378">"OEM-నిర్దిష్ట సమాచారం/సెట్టింగ్‌లు"</string>
     <string name="band_mode_title" msgid="8180320100446559884">"రేడియో బ్యాండ్ మోడ్‌ను సెట్ చేయండి"</string>
-    <string name="band_mode_loading" msgid="918672949915983700">"బ్యాండ్ జాబితాను లోడ్ చేస్తోంది…"</string>
+    <string name="band_mode_loading" msgid="918672949915983700">"బ్యాండ్ లిస్ట్‌ను లోడ్ చేస్తోంది…"</string>
     <string name="band_mode_set" msgid="4962130364076526789">"సెట్ చేయి"</string>
     <string name="band_mode_failed" msgid="8350123391471974137">"విఫలమైంది"</string>
     <string name="band_mode_succeeded" msgid="5516613616395402809">"విజయవంతమైంది"</string>
@@ -899,8 +899,8 @@
     <string name="wifi_settings_scanning_required_turn_on" msgid="4327570180594277049">"ఆన్ చేయి"</string>
     <string name="wifi_settings_scanning_required_enabled" msgid="3336102100425307040">"Wi-Fi స్కానింగ్ ఆన్ చేయబడింది"</string>
     <string name="wifi_show_advanced" msgid="8199779277168030597">"అధునాతన ఎంపికలు"</string>
-    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"అధునాతన ఎంపికల డ్రాప్ డౌన్ జాబితా. కుదించడానికి రెండుసార్లు నొక్కండి."</string>
-    <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"అధునాతన ఎంపికల డ్రాప్ డౌన్ జాబితా. విస్తరింపజేయడానికి రెండుసార్లు నొక్కండి."</string>
+    <string name="wifi_advanced_toggle_description_expanded" msgid="1506697245302596510">"అధునాతన ఎంపికల డ్రాప్ డౌన్ లిస్ట్‌. కుదించడానికి రెండుసార్లు నొక్కండి."</string>
+    <string name="wifi_advanced_toggle_description_collapsed" msgid="3014965593695454879">"అధునాతన ఎంపికల డ్రాప్ డౌన్ లిస్ట్‌. విస్తరింపజేయడానికి రెండుసార్లు నొక్కండి."</string>
     <string name="wifi_ssid" msgid="6746270925975522641">"నెట్‌వర్క్ పేరు"</string>
     <string name="wifi_ssid_hint" msgid="5010024648106585165">"SSIDని ఎంటర్ చేయండి"</string>
     <string name="wifi_security" msgid="9136702039496152831">"భద్రత"</string>
@@ -981,7 +981,7 @@
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"క్యారియర్ Wi‑Fi నెట్‌వర్క్"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"<xliff:g id="NAME">%1$s</xliff:g> ద్వారా కనెక్ట్ చేయండి"</string>
     <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"స్థాన ఖచ్చితత్వాన్ని మెరుగుపరచడానికి మరియు ఇతర ప్రయోజనాల దృష్ట్యా, <xliff:g id="APP_NAME">%1$s</xliff:g> Wi-Fi ఆఫ్‌లో ఉన్నప్పటికీ, నెట్‌వర్క్‌ను స్కాన్ చేయడం ప్రారంభించాలనుకుంటుంది.\n\nస్కాన్ చేయాలనుకునే అన్ని యాప్‌ల కోసం దీన్ని అనుమతించాలా?"</string>
-    <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"దీన్ని ఆఫ్ చేయడానికి, ఓవర్‌ఫ్లో మెనులో అధునాతనంకి వెళ్లండి."</string>
+    <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"దీన్ని ఆఫ్ చేయడానికి, ఓవర్‌ఫ్లో మెనూలో అధునాతనంకి వెళ్లండి."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"అనుమతించు"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"తిరస్కరించు"</string>
     <string name="wifi_hotspot_title" msgid="2631956539767069385">"కనెక్ట్ చేయడానికి సైన్ ఇన్ చేయాలా?"</string>
@@ -1018,12 +1018,12 @@
     </plurals>
     <string name="wifi_advanced_titlebar" msgid="4899310977865228904">"అధునాతన Wi‑Fi"</string>
     <string name="wifi_advanced_ssid_title" msgid="4229741334913894856">"SSID"</string>
-    <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC చిరునామా"</string>
+    <string name="wifi_advanced_mac_address_title" msgid="1162782083754021737">"MAC అడ్రస్‌"</string>
     <string name="wifi_advanced_ip_address_title" msgid="2708185994512829071">"IP అడ్రస్"</string>
     <string name="wifi_details_title" msgid="2164042631550920157">"నెట్‌వర్క్ వివరాలు"</string>
     <string name="wifi_details_subnet_mask" msgid="53396707004763012">"సబ్‌నెట్ మాస్క్"</string>
     <string name="wifi_details_dns" msgid="1118251455740116559">"DNS"</string>
-    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 చిరునామాలు"</string>
+    <string name="wifi_details_ipv6_address_header" msgid="1642310137145363299">"IPv6 అడ్రస్‌లు"</string>
     <string name="wifi_saved_access_points_label" msgid="3790693285928292563">"సేవ్ చేసిన నెట్‌వర్క్‌లు"</string>
     <string name="wifi_subscribed_access_points_tab" msgid="7498765485953257229">"సబ్‌స్క్రిప్షన్‌లు"</string>
     <!-- no translation found for wifi_saved_access_points_tab (4677730543624191122) -->
@@ -1032,9 +1032,9 @@
     <string name="wifi_advanced_not_available" msgid="5751084989400195009">"ఈ వినియోగదారుకి Wi‑Fi అధునాతన సెట్టింగ్‌లు అందుబాటులో లేవు"</string>
     <string name="wifi_ip_settings_menu_save" msgid="6557330818360425933">"సేవ్ చేయి"</string>
     <string name="wifi_ip_settings_menu_cancel" msgid="8098696509412462494">"రద్దు చేయి"</string>
-    <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"చెల్లుబాటు అయ్యే IP చిరునామాను టైప్ చేయండి."</string>
-    <string name="wifi_ip_settings_invalid_gateway" msgid="7602732367437862422">"చెల్లుబాటు అయ్యే గేట్‌వే చిరునామాను టైప్ చేయండి."</string>
-    <string name="wifi_ip_settings_invalid_dns" msgid="4471473055625376300">"చెల్లుబాటు అయ్యే DNS చిరునామాను టైప్ చేయండి."</string>
+    <string name="wifi_ip_settings_invalid_ip_address" msgid="7764507690387286292">"చెల్లుబాటు అయ్యే IP అడ్రస్‌ను టైప్ చేయండి."</string>
+    <string name="wifi_ip_settings_invalid_gateway" msgid="7602732367437862422">"చెల్లుబాటు అయ్యే గేట్‌వే అడ్రస్‌ను టైప్ చేయండి."</string>
+    <string name="wifi_ip_settings_invalid_dns" msgid="4471473055625376300">"చెల్లుబాటు అయ్యే DNS అడ్రస్‌ను టైప్ చేయండి."</string>
     <string name="wifi_ip_settings_invalid_network_prefix_length" msgid="392977552691002076">"నెట్‌వర్క్ ఆదిప్రత్యయ పొడవు 0 మరియు 32 మధ్య ఉండేలా టైప్ చేయండి."</string>
     <string name="wifi_dns1" msgid="5250809981658822505">"DNS 1"</string>
     <string name="wifi_dns2" msgid="1905876166783761641">"DNS 2"</string>
@@ -1111,7 +1111,7 @@
     <string name="wifi_calling_mode_wifi_only_summary" msgid="6928556021002500522">"Wi‑Fi ద్వారా కాల్ చేయగలరు. Wi‑Fiని కోల్పోతే, కాల్ ముగిసిపోతుంది."</string>
     <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wi-Fi కాలింగ్ ఆన్‌లో ఉన్నప్పుడు, మీ ఫోన్ మీ ప్రాధాన్యత మరియు ఏ సిగ్నల్ సామర్థ్యం ఎక్కువగా ఉంది వంటి అంశాల ఆధారంగా Wi-Fi నెట్‌వర్క్‌లు లేదా మీ క్యారియర్ నెట్‌వర్క్ ద్వారా కాల్స్‌ వెళ్లేలా చేస్తుంది. ఈ ఫీచర్‌ను ఆన్ చేయడానికి ముందు, రుసుములు మరియు ఇతర వివరాల గురించి తెలుసుకోవడానికి మీ క్యారియర్‌ను సంప్రదించండి.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
-    <string name="emergency_address_title" msgid="5779915349686787024">"అత్యవసర చిరునామా"</string>
+    <string name="emergency_address_title" msgid="5779915349686787024">"అత్యవసర అడ్రస్‌"</string>
     <string name="emergency_address_summary" msgid="478668478569851714">"Wi-Fi ద్వారా అత్యవసర కాల్ చేసినప్పుడు మీ స్థానాన్ని ఉపయోగించబడుతుంది"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650">"ప్రైవేట్ DNS ఫీచర్‌ల గురించి "<annotation id="url">"మరింత తెలుసుకోండి"</annotation></string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"క్యారియర్ ద్వారా నిర్వహించబడుతున్న సెట్టింగ్"</string>
@@ -1787,7 +1787,7 @@
     <string name="manageapplications_settings_title" msgid="6876782217962262376">"యాప్‌లను నిర్వహించు"</string>
     <string name="manageapplications_settings_summary" msgid="5092964799412478962">"ఇన్‌స్టాల్ చేయబడిన యాప్‌లను నిర్వహించండి మరియు తీసివేయండి"</string>
     <string name="applications_settings" msgid="368331725658793179">"యాప్ సమాచారం"</string>
-    <string name="applications_settings_summary" msgid="8888258399577123906">"యాప్‌లను నిర్వహించండి, శీఘ్ర ప్రారంభ సత్వరమార్గాలను సెటప్ చేయండి"</string>
+    <string name="applications_settings_summary" msgid="8888258399577123906">"యాప్‌లను నిర్వహించండి, శీఘ్ర ప్రారంభ షార్ట్‌కట్‌లను సెటప్ చేయండి"</string>
     <string name="applications_settings_header" msgid="3766501606045211098">"యాప్‌ సెట్టింగ్‌లు"</string>
     <string name="install_applications" msgid="7745902974984889179">"తెలియని మూలాలు"</string>
     <string name="install_applications_title" msgid="8164828577588659496">"అన్ని అనువ. మూలాలను అనుమతించు"</string>
@@ -1865,7 +1865,7 @@
     <string name="dlg_ok" msgid="4666570206507476557">"సరే"</string>
     <string name="dlg_cancel" msgid="2434951039156262467">"రద్దు చేయి"</string>
     <string name="app_not_found_dlg_title" msgid="394147475018718483"></string>
-    <string name="app_not_found_dlg_text" msgid="8807428608938210212">"ఇన్‌స్టాల్ చేసిన యాప్‌ల జాబితాలో యాప్ కనుగొనబడలేదు."</string>
+    <string name="app_not_found_dlg_text" msgid="8807428608938210212">"ఇన్‌స్టాల్ చేసిన యాప్‌ల లిస్ట్‌లో యాప్ కనుగొనబడలేదు."</string>
     <string name="clear_failed_dlg_text" msgid="8072859778950498232">"యాప్ నిల్వను తీసివేయడం సాధ్యపడలేదు."</string>
     <string name="join_two_items" msgid="3833831843199356403">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g> మరియు <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
     <string name="join_two_unrelated_items" msgid="8257688498236358394">"<xliff:g id="FIRST_ITEM">%1$s</xliff:g>, <xliff:g id="SECOND_ITEM">%2$s</xliff:g>"</string>
@@ -2179,7 +2179,7 @@
     <string name="color_magenta" msgid="721976999611563071">"మెజెంటా"</string>
     <string name="enable_service_title" msgid="2746143093464928251">"<xliff:g id="SERVICE">%1$s</xliff:g>ని ఉపయోగించాలా?"</string>
     <string name="capabilities_list_title" msgid="8177719542886123788">"<xliff:g id="SERVICE">%1$s</xliff:g> ఇవి చేయాల్సి ఉంటుంది:"</string>
-    <string name="touch_filtered_warning" msgid="3072665526993043879">"అనుమతి అభ్యర్థనకు ఒక యాప్ అడ్డు తగులుతున్నందున సెట్టింగ్‌లు మీ ప్రతిస్పందనను ధృవీకరించలేకపోయాయి."</string>
+    <string name="touch_filtered_warning" msgid="3072665526993043879">"అనుమతి రిక్వెస్ట్‌కు ఒక యాప్ అడ్డు తగులుతున్నందున సెట్టింగ్‌లు మీ ప్రతిస్పందనను ధృవీకరించలేకపోయాయి."</string>
     <string name="enable_service_encryption_warning" msgid="3580275420826492351">"మీరు <xliff:g id="SERVICE">%1$s</xliff:g>ని ఆన్ చేస్తే, డేటా గుప్తీకరణను మెరుగుపరచడానికి మీ పరికరం మీ స్క్రీన్ లాక్‌ను ఉపయోగించదు."</string>
     <string name="secure_lock_encryption_warning" msgid="8724670910924531152">"మీరు యాక్సెస్ సేవను ఆన్ చేసినందున, డేటా గుప్తీకరణను మెరుగుపరచడానికి మీ పరికరం మీ స్క్రీన్ లాక్‌ను ఉపయోగించదు."</string>
     <string name="enable_service_pattern_reason" msgid="7415969807374459848">"<xliff:g id="SERVICE">%1$s</xliff:g>ని ఆన్‌ చేయడం వలన డేటా ఎన్‌క్రిప్షన్ ప్రభావితమవుతుంది, కనుక మీరు మీ నమూనాను నిర్ధారించడం అవసరం."</string>
@@ -2237,8 +2237,8 @@
     <string name="background_activity_summary" msgid="582372194738538145">"నేపథ్యంలో అమలు కావడానికి యాప్‌ను అనుమతించండి"</string>
     <string name="background_activity_summary_disabled" msgid="457944930942085876">"నేపథ్యంలో అమలు కావడానికి యాప్ అనుమతించబడలేదు"</string>
     <string name="background_activity_summary_whitelisted" msgid="4713321059375873828">"నేపథ్య వినియోగం పరిమితం చేయబడదు"</string>
-    <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"నేపథ్య కార్యకలాపాన్ని పరిమితం చేయాలా?"</string>
-    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"మీరు యాప్ నేపథ్య కార్యకలాపాన్ని పరిమితం చేస్తే, అది సరిగ్గా పని చేయకపోవచ్చు."</string>
+    <string name="background_activity_warning_dialog_title" msgid="2170790412855899678">"నేపథ్య యాక్టివిటీని పరిమితం చేయాలా?"</string>
+    <string name="background_activity_warning_dialog_text" msgid="8242749826732375096">"మీరు యాప్ నేపథ్య యాక్టివిటీని పరిమితం చేస్తే, అది సరిగ్గా పని చేయకపోవచ్చు."</string>
     <string name="background_activity_disabled_dialog_text" msgid="4234598000779459640">"ఈ యాప్ బ్యాటరీని ఆప్టిమైజ్ చేయికి సెట్ చేయబడలేదు కనుక, దీన్ని మీరు పరిమితం చేయలేరు.\n\nయాప్‌ను పరిమితం చేయడానికి, మొదట బ్యాటరీ ఆప్టిమైజేషన్‌ను ఆన్ చేయండి."</string>
     <string name="device_screen_usage" msgid="4470485475363132750">"పూర్తిగా ఛార్జ్ చేసినప్పటి నుండి స్క్రీన్ వినియోగం"</string>
     <string name="power_usage_list_summary" msgid="4314438658308211057">"ఫుల్‌ ఛార్జ్ చేసినప్పటి నుండి ఇప్పటి దాకా బ్యాటరీ వినియోగం"</string>
@@ -2582,20 +2582,20 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"ఈ \'నిర్వాహకుల యాప్‌\'ను యాక్టివేట్‌ చేస్తే, కింది చర్యలను చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్ అనుమతించబడుతుంది:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"ఈ అడ్మిన్ యాప్ యాక్టివ్‌గా ఉంది. కింది చర్యలు చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్‌ను అనుమతిస్తుంది:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"ప్రొఫైల్ నిర్వాహకుడిని సక్రియం చేయాలా?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"కొనసాగిస్తే, మీ వినియోగదారును మీ నిర్వాహకులు నిర్వహించగలరు, దాని వలన మీ వ్యక్తిగత డేటాతో పాటు అనుబంధితంగా ఉన్న డేటా కూడా నిల్వ చేయబడవచ్చు.\n\nమీ నిర్వాహకులు నెట్‌వర్క్ కార్యకలాపం మరియు మీ డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకు అనుబంధితంగా ఉన్న సెట్టింగ్‌లు, యాక్సెస్, యాప్‌లు మరియు డేటాని పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"కొనసాగిస్తే, మీ వినియోగదారును మీ నిర్వాహకులు నిర్వహించగలరు, దాని వలన మీ వ్యక్తిగత డేటాతో పాటు అనుబంధితంగా ఉన్న డేటా కూడా నిల్వ చేయబడవచ్చు.\n\nమీ నిర్వాహకులు నెట్‌వర్క్ యాక్టివిటీ మరియు మీ డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకు అనుబంధితంగా ఉన్న సెట్టింగ్‌లు, యాక్సెస్, యాప్‌లు మరియు డేటాని పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"ఇతర ఎంపికలను మీ నిర్వాహకులు నిలిపివేసారు"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"మరిన్ని వివరాలు"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"నోటిఫికేషన్ లాగ్"</string>
     <string name="sound_category_call_ringtone_vibrate_title" msgid="4678065664534722153">"కాల్ రింగ్‌టోన్ &amp; వైబ్రేట్"</string>
     <string name="wifi_setup_detail" msgid="3551227109377008779">"నెట్‌వర్క్ వివరాలు"</string>
-    <string name="accessibility_sync_enabled" msgid="4620153705473448002">"సమకాలీకరణ ప్రారంభించబడింది"</string>
-    <string name="accessibility_sync_disabled" msgid="3810092470274708197">"సమకాలీకరణ నిలిపివేయబడింది"</string>
+    <string name="accessibility_sync_enabled" msgid="4620153705473448002">"సింక్‌ ప్రారంభించబడింది"</string>
+    <string name="accessibility_sync_disabled" msgid="3810092470274708197">"సింక్‌ నిలిపివేయబడింది"</string>
     <string name="accessibility_sync_in_progress" msgid="440606222479878898">"ఇప్పుడు సమకాలీకరిస్తోంది"</string>
-    <string name="accessibility_sync_error" msgid="4073939442217191866">"సమకాలీకరణ ఎర్రర్."</string>
-    <string name="sync_failed" msgid="3142663443336915051">"సమకాలీకరణ విఫలమైంది"</string>
-    <string name="sync_active" msgid="1112604707180806364">"సమకాలీకరణ సక్రియంగా ఉంది"</string>
-    <string name="account_sync_settings_title" msgid="3344538161552327748">"సమకాలీకరణ"</string>
-    <string name="sync_is_failing" msgid="8284618104132302644">"సమకాలీకరణ ప్రస్తుతం సమస్యలను ఎదుర్కొంటోంది. ఇది త్వరలో అందుబాటులోకి వస్తుంది."</string>
+    <string name="accessibility_sync_error" msgid="4073939442217191866">"సింక్‌ ఎర్రర్."</string>
+    <string name="sync_failed" msgid="3142663443336915051">"సింక్‌ విఫలమైంది"</string>
+    <string name="sync_active" msgid="1112604707180806364">"సింక్‌ సక్రియంగా ఉంది"</string>
+    <string name="account_sync_settings_title" msgid="3344538161552327748">"సింక్‌"</string>
+    <string name="sync_is_failing" msgid="8284618104132302644">"సింక్‌ ప్రస్తుతం సమస్యలను ఎదుర్కొంటోంది. ఇది త్వరలో అందుబాటులోకి వస్తుంది."</string>
     <string name="add_account_label" msgid="4461298847239641874">"ఖాతాను జోడించు"</string>
     <string name="managed_profile_not_available_label" msgid="8784246681719821917">"కార్యాలయ ప్రొఫైల్ ఇప్పటికీ అందుబాటులో లేదు"</string>
     <string name="work_mode_label" msgid="6845849194740195757">"కార్యాలయ ప్రొఫైల్"</string>
@@ -2607,23 +2607,23 @@
     <string name="background_data_dialog_title" msgid="8306650658158895976">"నేపథ్య డేటాను నిలిపివేయాలా?"</string>
     <string name="background_data_dialog_message" msgid="8126774244911656527">"నేపథ్య డేటాను నిలిపివేయడం వలన బ్యాటరీ జీవితకాలం పెరుగుతుంది మరియు డేటా వినియోగం తగ్గుతుంది. కొన్ని యాప్‌లు అప్పటికీ నేపథ్య డేటా కనెక్షన్‌ను ఉపయోగించవచ్చు."</string>
     <string name="sync_automatically" msgid="5746117156896468099">"యాప్‌ డేటాను ఆటోమేటిక్‌గా సమకాలీకరించు"</string>
-    <string name="sync_enabled" msgid="535172627223336983">"సమకాలీకరణ ఆన్‌లో ఉంది"</string>
-    <string name="sync_disabled" msgid="713721807204805062">"సమకాలీకరణ ఆఫ్‌లో ఉంది"</string>
-    <string name="sync_error" msgid="988155155932442765">"సమకాలీకరణ ఎర్రర్"</string>
+    <string name="sync_enabled" msgid="535172627223336983">"సింక్‌ ఆన్‌లో ఉంది"</string>
+    <string name="sync_disabled" msgid="713721807204805062">"సింక్‌ ఆఫ్‌లో ఉంది"</string>
+    <string name="sync_error" msgid="988155155932442765">"సింక్‌ ఎర్రర్"</string>
     <string name="last_synced" msgid="4511434057768999129">"చివరిగా సమకాలీకరించినది <xliff:g id="LAST_SYNC_TIME">%1$s</xliff:g>"</string>
     <string name="sync_in_progress" msgid="1311828882739675714">"ఇప్పుడు సమకాలీకరిస్తోంది…"</string>
     <string name="settings_backup" msgid="3261579634252074247">"బ్యాకప్ సెట్టింగ్‌లు"</string>
     <string name="settings_backup_summary" msgid="2563360505501354777">"నా సెట్టింగ్‌లను బ్యాకప్ చేయి"</string>
     <string name="sync_menu_sync_now" msgid="3840755364554567507">"ఇప్పుడే సమకాలీకరించు"</string>
-    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"సమకాలీకరణను రద్దు చేయి"</string>
+    <string name="sync_menu_sync_cancel" msgid="5111231351104284704">"సింక్‌ను రద్దు చేయి"</string>
     <string name="sync_one_time_sync" msgid="6005174168405784256">"ఇప్పుడే సమకాలీకరించడానికి నొక్కండి<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"కాంటాక్ట్‌లు"</string>
-    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సమకాలీకరణకు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ పరిచయాలు, నియామకాలు మరియు మరిన్నింటికి యాక్సెస్‌ను అనుమతించడం కోసం డేటాను సమకాలీకరించడానికి Google అవలంబించే విధానం."</string>
-    <string name="header_application_sync_settings" msgid="4581847153669774489">"యాప్‌ సమకాలీకరణ సెట్టింగ్‌లు"</string>
-    <string name="header_data_and_synchronization" msgid="400831816068697286">"డేటా &amp; సమకాలీకరణ"</string>
+    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సింక్‌కు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ పరిచయాలు, నియామకాలు మరియు మరిన్నింటికి యాక్సెస్‌ను అనుమతించడం కోసం డేటాను సమకాలీకరించడానికి Google అవలంబించే విధానం."</string>
+    <string name="header_application_sync_settings" msgid="4581847153669774489">"యాప్‌ సింక్‌ సెట్టింగ్‌లు"</string>
+    <string name="header_data_and_synchronization" msgid="400831816068697286">"డేటా &amp; సింక్‌"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"పాస్‌వర్డ్‌ని మార్చండి"</string>
     <string name="header_account_settings" msgid="8586173964125512219">"ఖాతా సెట్టింగ్‌లు"</string>
     <string name="remove_account_label" msgid="5885425720323823387">"ఖాతాను తీసివేయి"</string>
@@ -2634,7 +2634,7 @@
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"ఈ ఖాతాను తీసివేయడం వలన పరికరం నుండి దానికి సంబంధించిన అన్ని మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"ఈ మార్పును మీ నిర్వాహకులు అనుమతించలేదు"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"మాన్యువల్‌గా సమకాలీకరించడం సాధ్యపడదు"</string>
-    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"ఈ అంశం యొక్క సమకాలీకరణ ప్రస్తుతం నిలిపివేయబడింది. ఈ సెట్టింగ్‌ను మార్చడానికి, నేపథ్య డేటాను మరియు ఆటోమేటిక్‌ సమకాలీకరణను తాత్కాలికంగా ప్రారంభించండి."</string>
+    <string name="cant_sync_dialog_message" msgid="3467126947262857534">"ఈ అంశం యొక్క సింక్‌ ప్రస్తుతం నిలిపివేయబడింది. ఈ సెట్టింగ్‌ను మార్చడానికి, నేపథ్య డేటాను మరియు ఆటోమేటిక్‌ సింక్‌ను తాత్కాలికంగా ప్రారంభించండి."</string>
     <string name="enter_password" msgid="2963496904625715235">"Androidని ప్రారంభించడానికి, మీ పాస్‌వర్డ్‌ని నమోదు చేయండి"</string>
     <string name="enter_pin" msgid="7140938268709546890">"Androidని ప్రారంభించడానికి, మీ పిన్‌ను నమోదు చేయండి"</string>
     <string name="enter_pattern" msgid="1653841963422825336">"Androidని ప్రారంభించడానికి, మీ నమూనాను గీయండి"</string>
@@ -2666,10 +2666,10 @@
     <string name="data_usage_menu_show_ethernet" msgid="2130574690318410238">"ఈథర్‌నెట్ వినియోగాన్ని చూపు"</string>
     <string name="data_usage_menu_hide_ethernet" msgid="1191233197312414533">"ఈథర్‌నెట్ వినియోగాన్ని దాచు"</string>
     <string name="data_usage_menu_metered" msgid="3087525150259956831">"నెట్‌వర్క్ పరిమితులు"</string>
-    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"డేటా స్వీయ-సమకాలీకరణ"</string>
+    <string name="data_usage_menu_auto_sync" msgid="3350154877737572146">"డేటా స్వీయ-సింక్‌"</string>
     <string name="data_usage_menu_sim_cards" msgid="8508154611676507088">"సిమ్ కార్డులు"</string>
     <string name="data_usage_cellular_data_summary" msgid="9162777397135709280">"పరిమితి చేరు. పాజ్ చేయబ."</string>
-    <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"డేటా స్వీయ-సమకాలీకరణ"</string>
+    <string name="account_settings_menu_auto_sync" msgid="2673669556006027506">"డేటా స్వీయ-సింక్‌"</string>
     <string name="account_settings_menu_auto_sync_personal" msgid="3235831897309033754">"వ్యక్తిగత డేటా ఆటో-సింక్"</string>
     <string name="account_settings_menu_auto_sync_work" msgid="5721442464286552815">"ఆఫీస్ డేటాను ఆటో-సింక్ చేయి"</string>
     <string name="data_usage_change_cycle" msgid="447761920472170031">"సైకిల్‌ను మార్చు…"</string>
@@ -2760,9 +2760,9 @@
     <string name="vpn_no_ca_cert" msgid="486605757354800838">"(సర్వర్‌ను ధృవీకరించదు)"</string>
     <string name="vpn_no_server_cert" msgid="679622228649855629">"(సర్వర్ నుండి స్వీకరించబడింది)"</string>
     <string name="vpn_always_on_invalid_reason_type" msgid="165810330614905489">"ఈ రకమైన VPNని ఎల్లప్పుడూ కనెక్ట్ చేసి ఉంచడం సాధ్యం కాదు"</string>
-    <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPNలో కేవలం సంఖ్యాత్మక సర్వర్ చిరునామాలకు మాత్రమే మద్దతు ఉంటుంది"</string>
+    <string name="vpn_always_on_invalid_reason_server" msgid="3864424127328210700">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPNలో కేవలం సంఖ్యాత్మక సర్వర్ అడ్రస్‌లకు మాత్రమే మద్దతు ఉంటుంది"</string>
     <string name="vpn_always_on_invalid_reason_no_dns" msgid="3814114757059738225">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN కోసం DNS సర్వర్‌ని తప్పనిసరిగా పేర్కొనాలి"</string>
-    <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN కోసం DNS సర్వర్ చిరునామాలు తప్పనిసరిగా సంఖ్యలు అయి ఉండాలి"</string>
+    <string name="vpn_always_on_invalid_reason_dns" msgid="501388894176868973">"ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN కోసం DNS సర్వర్ అడ్రస్‌లు తప్పనిసరిగా సంఖ్యలు అయి ఉండాలి"</string>
     <string name="vpn_always_on_invalid_reason_other" msgid="8504512156730364447">"ఎంటర్ చేసిన సమాచారానికి ఎల్లప్పుడూ ఆన్‌లో ఉండే VPN సపోర్ట్ చేయదు"</string>
     <string name="vpn_cancel" msgid="440645172381062337">"రద్దు చేయి"</string>
     <string name="vpn_done" msgid="6314426362224527349">"తీసివేయి"</string>
@@ -2798,7 +2798,7 @@
     <string name="vpn_require_connection_title" msgid="8361434328767853717">"VPN కనెక్షన్ అవసరమా?"</string>
     <string name="vpn_lockdown_summary" msgid="6770030025737770861">"ఎల్లప్పుడూ కనెక్ట్ చేయబడి ఉండటానికి VPN ప్రొఫైల్‌ను ఎంచుకోండి. ఈ VPNకి కనెక్ట్ అయి ఉన్నప్పుడు మాత్రమే నెట్‌వర్క్ ట్రాఫిక్ అనుమతించబడుతుంది."</string>
     <string name="vpn_lockdown_none" msgid="3789288793603394679">"ఏదీ వద్దు"</string>
-    <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"ఎల్లప్పుడూ-ఆన్‌లో ఉండే VPNకి సర్వర్ మరియు DNS రెండింటి IP చిరునామా అవసరం."</string>
+    <string name="vpn_lockdown_config_error" msgid="8761770968704589885">"ఎల్లప్పుడూ-ఆన్‌లో ఉండే VPNకి సర్వర్ మరియు DNS రెండింటి IP అడ్రస్‌ అవసరం."</string>
     <string name="vpn_no_network" msgid="8313250136194588023">"నెట్‌వర్క్ కనెక్షన్ లేదు. దయచేసి తర్వాత మళ్లీ ప్రయత్నించండి."</string>
     <string name="vpn_disconnected" msgid="4597953053220332539">"VPN నుండి డిస్‌కనెక్ట్ చేయబడింది"</string>
     <string name="vpn_disconnected_summary" msgid="3784118965271376808">"దేనికీ కనెక్ట్ కాలేదు"</string>
@@ -2835,12 +2835,12 @@
       <item quantity="one">ప్రమాణపత్రాన్ని విశ్వసించండి లేదా తీసివేయండి</item>
     </plurals>
     <plurals name="ssl_ca_cert_info_message_device_owner" formatted="false" msgid="9046046586061880100">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> మీ పరికరంలో సర్టిఫికెట్ అధికారాలను ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా మీ పరికర నెట్‌వర్క్ కార్యకలాపాన్ని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ల గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> మీ పరికరంలో సర్టిఫికెట్ అధికారాన్ని ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా మీ పరికర నెట్‌వర్క్ కార్యకలాపాన్ని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> మీ పరికరంలో సర్టిఫికెట్ అధికారాలను ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా మీ పరికర నెట్‌వర్క్ యాక్టివిటీని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ల గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> మీ పరికరంలో సర్టిఫికెట్ అధికారాన్ని ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా మీ పరికర నెట్‌వర్క్ యాక్టివిటీని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
     </plurals>
     <plurals name="ssl_ca_cert_info_message" formatted="false" msgid="8271858091418779584">
-      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> మీ కార్యాలయ ప్రొఫైల్ కోసం సర్టిఫికెట్ అధికారాలను ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా కార్యాలయ నెట్‌వర్క్ కార్యకలాపాన్ని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ల గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
-      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> మీ కార్యాలయ ప్రొఫైల్ కోసం సర్టిఫికెట్ అధికారాన్ని ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా కార్యాలయ నెట్‌వర్క్ కార్యకలాపాన్ని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
+      <item quantity="other"><xliff:g id="MANAGING_DOMAIN_1">%s</xliff:g> మీ కార్యాలయ ప్రొఫైల్ కోసం సర్టిఫికెట్ అధికారాలను ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా కార్యాలయ నెట్‌వర్క్ యాక్టివిటీని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ల గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
+      <item quantity="one"><xliff:g id="MANAGING_DOMAIN_0">%s</xliff:g> మీ కార్యాలయ ప్రొఫైల్ కోసం సర్టిఫికెట్ అధికారాన్ని ఇన్‌స్టాల్ చేసింది, దీని వల్ల వారు ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షితమైన వెబ్‌సైట్‌లతో సహా కార్యాలయ నెట్‌వర్క్ యాక్టివిటీని పర్యవేక్షించడానికి అనుమతించబడవచ్చు.\n\nఈ సర్టిఫికెట్ గురించి మరింత సమాచారం కోసం, మీ నిర్వాహకులను సంప్రదించండి.</item>
     </plurals>
     <string name="ssl_ca_cert_warning_message" msgid="8692156828262606685">"మూడవ పక్షం ఇమెయిల్‌లు, యాప్‌లు మరియు సురక్షిత వెబ్‌సైట్‌లతో సహా మీ నెట్‌వర్క్ కార్యాచరణను పర్యవేక్షించగలిగే సామర్థ్యాన్ని కలిగి ఉంటారు.\n\nమీ పరికరంలో ఇన్‌స్టాల్ చేయబడిన విశ్వసనీయ ఆధారాల వలన ఇది సాధ్యపడుతుంది."</string>
     <plurals name="ssl_ca_cert_settings_button" formatted="false" msgid="3227175122066058245">
@@ -3199,15 +3199,15 @@
     <string name="zen_mode_restrict_notifications_mute" msgid="2673665450311184875">"నోటిఫికేషన్‌ల నుండి శబ్దం లేదు"</string>
     <string name="zen_mode_restrict_notifications_mute_summary" msgid="1696217042353376674">"మీ స్క్రీన్‌పై మీకు నోటిఫికేషన్‌లు కనిపిస్తాయి"</string>
     <string name="zen_mode_restrict_notifications_mute_footer" msgid="3049522809520549054">"నోటిఫికేషన్‌లు వచ్చినప్పుడు మీ ఫోన్ శబ్దం చేయదు లేదా వైబ్రేట్‌ అవదు"</string>
-    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"నోటిఫికేషన్‌ల నుండి దృశ్య జాబితాలు లేదా శబ్దం లేవు"</string>
+    <string name="zen_mode_restrict_notifications_hide" msgid="3296933643539682552">"నోటిఫికేషన్‌ల నుండి దృశ్య లిస్ట్‌లు లేదా శబ్దం లేవు"</string>
     <string name="zen_mode_restrict_notifications_hide_summary" msgid="1449301153755270168">"మీరు నోటిఫికేషన్‌లను చూడలేరు లేదా వినలేరు"</string>
-    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"మీ ఫోన్ ఈ మోడ్‌లో ఉన్నప్పుడు కొత్తగా వచ్చే లేదా ఇప్పటికే ఉన్న నోటిఫికేషన్‌లను చూపడం, వైబ్రేట్ చేయడం లేదంటే శబ్దం చేయడం జరగదు. అయితే ఫోన్ కార్యకలాపం మరియు దాని స్థితికి సంబంధించిన కొన్ని ముఖ్యమైన నోటిఫికేషన్‌లు మాత్రం ఇప్పటికీ కనిపిస్తాయి అని గుర్తుంచుకోండి.\n\n అలాగే అంతరాయం కలిగించవద్దు ఫీచర్‌ను ఆఫ్ చేసినప్పుడు మీకొచ్చిన నోటిఫికేషన్‌లను చూసేందుకు మీ స్క్రీన్ పై నుండి కిందికి స్వైప్ చేస్తే చాలు."</string>
+    <string name="zen_mode_restrict_notifications_hide_footer" msgid="7617688597593946765">"మీ ఫోన్ ఈ మోడ్‌లో ఉన్నప్పుడు కొత్తగా వచ్చే లేదా ఇప్పటికే ఉన్న నోటిఫికేషన్‌లను చూపడం, వైబ్రేట్ చేయడం లేదంటే శబ్దం చేయడం జరగదు. అయితే ఫోన్ యాక్టివిటీ మరియు దాని స్థితికి సంబంధించిన కొన్ని ముఖ్యమైన నోటిఫికేషన్‌లు మాత్రం ఇప్పటికీ కనిపిస్తాయి అని గుర్తుంచుకోండి.\n\n అలాగే అంతరాయం కలిగించవద్దు ఫీచర్‌ను ఆఫ్ చేసినప్పుడు మీకొచ్చిన నోటిఫికేషన్‌లను చూసేందుకు మీ స్క్రీన్ పై నుండి కిందికి స్వైప్ చేస్తే చాలు."</string>
     <string name="zen_mode_restrict_notifications_custom" msgid="3167252482570424133">"అనుకూలం"</string>
     <string name="zen_mode_restrict_notifications_enable_custom" msgid="6376983315529894440">"అనుకూల సెట్టింగ్‌ని ప్రారంభించండి"</string>
     <string name="zen_mode_restrict_notifications_disable_custom" msgid="8004212081465043044">"అనుకూల సెట్టింగ్‌ని తీసివేయండి"</string>
     <string name="zen_mode_restrict_notifications_summary_muted" msgid="1075196788469381282">"నోటిఫికేషన్‌ల నుండి శబ్దం లేదు"</string>
     <string name="zen_mode_restrict_notifications_summary_custom" msgid="4982187708274505748">"పాక్షికంగా దాచబడింది"</string>
-    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"నోటిఫికేషన్‌ల నుండి దృశ్య జాబితాలు లేదా శబ్దం లేవు"</string>
+    <string name="zen_mode_restrict_notifications_summary_hidden" msgid="7637206880685474111">"నోటిఫికేషన్‌ల నుండి దృశ్య లిస్ట్‌లు లేదా శబ్దం లేవు"</string>
     <string name="zen_mode_what_to_block_title" msgid="2142809942549840800">"అనుకూల పరిమితులు"</string>
     <string name="zen_mode_block_effects_screen_on" msgid="1042489123800404560">"స్క్రీన్ ఆన్‌లో ఉన్నప్పుడు"</string>
     <string name="zen_mode_block_effects_screen_off" msgid="6380935819882837552">"స్క్రీన్ ఆఫ్‌లో ఉన్నప్పుడు"</string>
@@ -3218,13 +3218,13 @@
     <string name="zen_mode_block_effect_status" msgid="6516614225115681068">"స్క్రీన్ ఎగువన స్థితి బార్ చిహ్నాలను దాచు"</string>
     <string name="zen_mode_block_effect_badge" msgid="3891743027347075136">"యాప్ చిహ్నాలలో నోటిఫికేషన్ డాట్‌లను దాచు"</string>
     <string name="zen_mode_block_effect_ambient" msgid="6382013125863616197">"నోటిఫికేషన్‌ల కోసం యాక్టివేట్ చేయొద్దు"</string>
-    <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"నోటిఫికేషన్ జాబితా నుండి దాచు"</string>
+    <string name="zen_mode_block_effect_list" msgid="6081548478844912181">"నోటిఫికేషన్ లిస్ట్‌ నుండి దాచు"</string>
     <string name="zen_mode_block_effect_summary_none" msgid="7166175186759564510">"ఎన్నడూ వద్దు"</string>
     <string name="zen_mode_block_effect_summary_screen_off" msgid="2985086455557755722">"స్క్రీన్ ఆఫ్‌లో ఉన్నప్పుడు"</string>
     <string name="zen_mode_block_effect_summary_screen_on" msgid="6183282342145215594">"స్క్రీన్ ఆన్‌లో ఉన్నప్పుడు"</string>
     <string name="zen_mode_block_effect_summary_sound" msgid="4907185880913861880">"ధ్వని మరియు వైబ్రేషన్"</string>
-    <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"ధ్వని, వైబ్రేషన్ మరియు కొన్ని నోటిఫికేషన్‌ల యొక్క దృశ్య జాబితా చిహ్నాలు"</string>
-    <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"ధ్వని, వైబ్రేషన్ మరియు నోటిఫికేషన్‌ల యొక్క దృశ్య జాబితా చిహ్నాలు"</string>
+    <string name="zen_mode_block_effect_summary_some" msgid="6035118904496072665">"ధ్వని, వైబ్రేషన్ మరియు కొన్ని నోటిఫికేషన్‌ల యొక్క దృశ్య లిస్ట్‌ చిహ్నాలు"</string>
+    <string name="zen_mode_block_effect_summary_all" msgid="2830443565687247759">"ధ్వని, వైబ్రేషన్ మరియు నోటిఫికేషన్‌ల యొక్క దృశ్య లిస్ట్‌ చిహ్నాలు"</string>
     <string name="zen_mode_blocked_effects_footer" msgid="4375156159613413924">"ఫోన్‌లోని ప్రాథమిక యాక్టివిటీలకు, దాని స్టేటస్‌కు అవసరమైన నోటిఫికేషన్‌లు ఎప్పటికీ దాచబడవు"</string>
     <string name="zen_mode_no_exceptions" msgid="3099578343994492857">"ఏదీ కాదు"</string>
     <string name="zen_mode_other_options" msgid="7216192179063769057">"ఇతర ఎంపికలు"</string>
@@ -3275,7 +3275,7 @@
     <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"అంతరాయం కలిగించవద్దు మోడ్ ఆన్‌లో ఉన్నప్పుడు, మీరు పైన అనుమతించే అంశాలు మినహా, మెసేజ్‌లు, రిమైండర్‌లు మరియు ఈవెంట్‌లు మ్యూట్ చేయబడతాయి. మీ స్నేహితులు, కుటుంబ సభ్యులు లేదా ఇతర పరిచయస్తులు మిమ్మల్ని సంప్రదించడానికి అనుమతించేలా మెసేజ్‌ల సెట్టింగ్‌లను మీరు సర్దుబాటు చేయవచ్చు."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"పూర్తయింది"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"సెట్టింగ్‌లు"</string>
-    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"నోటిఫికేషన్‌ల నుండి దృశ్య జాబితాలు లేదా శబ్దం లేవు"</string>
+    <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"నోటిఫికేషన్‌ల నుండి దృశ్య లిస్ట్‌లు లేదా శబ్దం లేవు"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"నోటిఫికేషన్‌ల నుండి శబ్దం లేదు"</string>
     <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"మీరు నోటిఫికేషన్‌లను చూడలేరు లేదా వినలేరు. నక్షత్రం గుర్తు ఉన్న పరిచయాల మరియు రిపీట్ కాలర్‌‌ల నుండి కాల్స్‌ అనుమతించబడతాయి."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ప్రస్తుత సెట్టింగ్)"</string>
@@ -3882,9 +3882,9 @@
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"ఈ యాప్‌ని తెరవలేరు"</string>
     <string name="default_admin_support_msg" msgid="5789424433689798637">"మీకు ఏవైనా ప్రశ్నలు ఉంటే, మీ IT నిర్వాహకుడిని సంప్రదించండి"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"మరిన్ని వివరాలు"</string>
-    <string name="admin_profile_owner_message" msgid="3199544166281052845">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ కార్యకలాపం మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు మీ కార్యాలయ ప్రొఫైల్‌కి అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు ."</string>
-    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ కార్యకలాపం మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకి అనుబంధితంగా ఉన్న యాప్‌లు  మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
-    <string name="admin_device_owner_message" msgid="1823477572459610869">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ కార్యకలాపం మరియు డివైజ్  యొక్క స్థాన సమాచారంతో పాటు ఈ డివైజ్‌కు అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="admin_profile_owner_message" msgid="3199544166281052845">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు మీ కార్యాలయ ప్రొఫైల్‌కి అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు ."</string>
+    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకి అనుబంధితంగా ఉన్న యాప్‌లు  మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="admin_device_owner_message" msgid="1823477572459610869">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్  యొక్క స్థాన సమాచారంతో పాటు ఈ డివైజ్‌కు అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
     <string name="condition_turn_off" msgid="4395150881365143558">"ఆఫ్ చేయి"</string>
     <string name="condition_turn_on" msgid="1699088245481841159">"ఆన్ చేయండి"</string>
     <string name="condition_expand_show" msgid="4118818022763913777">"చూపుతుంది"</string>
@@ -4063,7 +4063,7 @@
     <string name="confirm_convert_to_fbe_warning" msgid="4972595831034280189">"నిజంగా వినియోగదారు డేటాను తొలగించి, ఫైల్ గుప్తీకరణకు మార్చాలా?"</string>
     <string name="button_confirm_convert_fbe" msgid="419832223125147297">"తొలగించి, మార్చు"</string>
     <string name="reset_shortcut_manager_throttling" msgid="1912184636360233397">"షార్ట్‌కట్‌ మేనేజర్ రేట్-పరిమిత ప్రక్రియను రీసెట్ చేయండి"</string>
-    <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"సత్వరమార్గ నిర్వాహికి రేట్-పరిమిత ప్రక్రియను రీసెట్ చేయబడింది"</string>
+    <string name="reset_shortcut_manager_throttling_complete" msgid="2932990541160593632">"షార్ట్‌కట్‌ నిర్వాహికి రేట్-పరిమిత ప్రక్రియను రీసెట్ చేయబడింది"</string>
     <string name="notification_suggestion_title" msgid="3292107671498148560">"లాక్ స్క్రీన్‌పై నియంత్రణ సమాచారం"</string>
     <string name="notification_suggestion_summary" msgid="6516827892359614597">"నోటిఫికేషన్ కంటెంట్‌ను చూపు లేదా దాచు"</string>
     <string name="page_tab_title_summary" msgid="4824744863994538006">"అన్నీ"</string>
@@ -4084,8 +4084,8 @@
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"విన్‌స్కోప్ ట్రేస్"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"సెన్సార్‌లు ఆపివేయబడ్డాయి"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"కార్యాలయ ప్రొఫైల్ సెట్టింగ్‌లు"</string>
-    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"పరిచయ శోధన"</string>
-    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"కాలర్‌లు మరియు పరిచయాలను గుర్తించడానికి మీ సంస్థ ద్వారా పరిచయ శోధనలను చేయడానికి అనుమతిస్తుంది"</string>
+    <string name="managed_profile_contact_search_title" msgid="7337225196804457095">"కాంటాక్ట్ సెర్చ్"</string>
+    <string name="managed_profile_contact_search_summary" msgid="7278267480246726951">"కాలర్‌లు, కాంటాక్ట్‌లను గుర్తించడానికి మీ సంస్థ ద్వారా కాంటాక్ట్ సెర్చ్‌లు చేయడానికి అనుమతించండి"</string>
     <string name="cross_profile_calendar_title" msgid="2351605904015067145">"క్యాలెండర్‌లో ఇతర-ప్రొఫైల్‌లను కూడా చూపు"</string>
     <string name="cross_profile_calendar_summary" msgid="3196258680438896098">"మీ వ్యక్తిగత క్యాలెండర్‌లో కార్యాలయానికి సంబంధించిన ఈవెంట్‌లను చూపుతుంది"</string>
     <string name="cross_profile_calendar_restricted_summary" msgid="6892589892357409107">"మీ కార్యాలయ క్యాలెండర్‌ను యాక్సెస్ చేయడానికి మీ సంస్థ వ్యక్తిగత యాప్‌లను అనుమతించదు"</string>
@@ -4258,7 +4258,7 @@
     <string name="autofill_confirmation_message" msgid="1385894598730361304">"&lt;b&gt;ఈ యాప్‌ను మీరు విశ్వసిస్తున్నట్లు నిర్ధారించండి&lt;/b&gt; &lt;br/&gt; &lt;br/&gt; &lt;xliff:g id=app_name example=Google Autofill&gt;%1$s&lt;/xliff:g&gt; మీ స్క్రీన్‌పై ఉన్నవాటిని పరిగణనలోకి తీసుకొని వేటిని ఆటోమేటిక్‌గా పూరించాలో నిశ్చయిస్తుంది."</string>
     <string name="debug_autofill_category" msgid="6262526615416295645">"ఆటోఫిల్"</string>
     <string name="autofill_logging_level_title" msgid="2577340324541102626">"లాగింగ్ స్థాయి"</string>
-    <string name="autofill_max_partitions" msgid="125269645910590057">"ఒక్కో సెషన్‌లో చేయగల గరిష్ఠ అభ్యర్థనలు"</string>
+    <string name="autofill_max_partitions" msgid="125269645910590057">"ఒక్కో సెషన్‌లో చేయగల గరిష్ఠ రిక్వెస్ట్‌లు"</string>
     <string name="autofill_max_visible_datasets" msgid="2791081640248423492">"కనిపించగల గరిష్ఠ డేటాసమితులు"</string>
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ఆటోమేటిక్ సెట్టింగ్ విలువలకు రీసెట్ చేయి"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"స్వీయ పూరింపు డెవలపర్ ఎంపికలు రీసెట్ చేయబడ్డాయి"</string>
@@ -4283,8 +4283,8 @@
     <string name="enable_gnss_raw_meas_full_tracking_summary" msgid="2469305990718976105">"డ్యూటీ సైక్లింగ్ లేకుండా అన్ని GNSS నక్షత్రరాశులను మరియు ఫ్రీక్వెన్సీలను ట్రాక్ చేయండి"</string>
     <string name="enable_user_switch_message" msgid="8613014373053051092">"యూజర్‌ను మార్చేటప్పుడు డీబగ్ చేయి"</string>
     <string name="enable_user_switch_message_summary" msgid="3354160264601132060">"యూజర్‌ను మార్చేటప్పుడు వివరణాత్మక సమాచారాన్ని చూపించు"</string>
-    <string name="allow_background_activity_starts" msgid="6754016668813082728">"బ్యాక్‌గ్రౌండ్ కార్యకలాపం మొదలవ్వడానికి అనుమతి ఇవ్వు"</string>
-    <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"మొత్తం బ్యాక్‌గ్రౌండ్ కార్యకలాపం మొదలవ్వడానికి అనుమతిస్తుంది"</string>
+    <string name="allow_background_activity_starts" msgid="6754016668813082728">"బ్యాక్‌గ్రౌండ్ యాక్టివిటీ మొదలవ్వడానికి అనుమతి ఇవ్వు"</string>
+    <string name="allow_background_activity_starts_summary" msgid="8170749270869606692">"మొత్తం బ్యాక్‌గ్రౌండ్ యాక్టివిటీ మొదలవ్వడానికి అనుమతిస్తుంది"</string>
     <string name="show_first_crash_dialog" msgid="3682063068903692710">"ఎల్లప్పుడూ క్రాష్ డైలాగ్‌ని చూపు"</string>
     <string name="show_first_crash_dialog_summary" msgid="8197987550025401754">"యాప్ క్రాష్ అయిన ప్రతిసారి డైలాగ్‌ని చూపు"</string>
     <string name="angle_enabled_app" msgid="4359266182151708733">"కోణం ప్రారంభించబడిన యాప్‌ను ఎంచుకోండి"</string>
@@ -4453,7 +4453,7 @@
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"<xliff:g id="APPNAME">%1$s</xliff:g>తో ఉపయోగించుకునే పరికరం"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"పరికరాలు ఏవీ కనుగొనబడలేదు. పరికరాలు ఆన్‌లో ఉన్నాయని మరియు కనెక్ట్ చేయడానికి అందుబాటులో ఉన్నాయని నిర్ధారించుకోండి."</string>
     <string name="network_connection_timeout_dialog_ok" msgid="5156496438627748361">"మళ్లీ ప్రయత్నించు"</string>
-    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"ఏదో తప్పు జరిగింది. ఈ అప్లికేషన్ పరికరాన్ని ఎంచుకునే అభ్యర్థనని రద్దు చేసింది."</string>
+    <string name="network_connection_errorstate_dialog_message" msgid="1599445930536043943">"ఏదో తప్పు జరిగింది. ఈ అప్లికేషన్ పరికరాన్ని ఎంచుకునే రిక్వెస్ట్‌ను రద్దు చేసింది."</string>
     <string name="network_connection_connect_successful" msgid="888912275986965748">"విజయవంతంగా కనెక్ట్ చేయబడింది"</string>
     <string name="network_connection_request_dialog_showall" msgid="396928496030183071">"అన్నింటినీ చూపు"</string>
     <plurals name="show_bluetooth_devices" formatted="false" msgid="7451733907387872891">
@@ -4514,7 +4514,7 @@
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"మీరు ఏదైనా మిగిలిన సమయం లేదా డేటాకు యాక్సెస్‌ను కోల్పోవచ్చు. తీసివేసే ముందు మీ ప్రదాతతో తనిఖీ చేయండి."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"కంటెంట్ క్యాప్చర్, స్మార్ట్ సూచనలు"</string>
     <string name="content_capture" msgid="1709538093513983279">"స్మార్ట్ సూచనలు"</string>
-    <string name="content_capture_summary" msgid="2675659095218714681">"మీ స్క్రీన్‌పై చూసిన సమాచారాన్ని లేదా వీడియో లేదా ఆడియో కంటెంట్‌లో విన్న దానిని సేవ్ చేయడానికి Androidను అనుమతించండి. మీ పరికర కార్యకలాపం ఆధారంగా Android సహాయకరమైన సూచనలను అందిస్తుంది."</string>
+    <string name="content_capture_summary" msgid="2675659095218714681">"మీ స్క్రీన్‌పై చూసిన సమాచారాన్ని లేదా వీడియో లేదా ఆడియో కంటెంట్‌లో విన్న దానిని సేవ్ చేయడానికి Androidను అనుమతించండి. మీ పరికర యాక్టివిటీ ఆధారంగా Android సహాయకరమైన సూచనలను అందిస్తుంది."</string>
     <string name="capture_system_heap_dump_title" msgid="7417508823603305421">"సిస్టమ్ హీప్ డంప్‌ను క్యాప్చర్ చేయి"</string>
     <string name="capturing_system_heap_dump_message" msgid="5108339625760845950">"సిస్టమ్ హీప్ డంప్‌ను క్యాప్చర్ చేస్తోంది"</string>
     <string name="error_capturing_system_heap_dump_message" msgid="5431592130805893098">"సిస్టమ్ హీప్ డంప్‌ను క్యాప్చర్ చేయలేకపోయింది"</string>

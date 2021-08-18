@@ -183,7 +183,7 @@
     <string name="connected_device_previously_connected_title" msgid="225918223397410428">"याआधी कनेक्ट केलेली डिव्हाइस"</string>
     <string name="connected_device_previously_connected_screen_title" msgid="2018789662358162716">"याआधी कनेक्ट केलेले"</string>
     <string name="connected_device_bluetooth_turned_on_toast" msgid="4652326177920814476">"ब्लूटूथ सुरू केले"</string>
-    <string name="previous_connected_see_all" msgid="7237095013087310923">"सर्व पाहा"</string>
+    <string name="previous_connected_see_all" msgid="7237095013087310923">"सर्व पहा"</string>
     <string name="date_and_time" msgid="2957463607025909857">"तारीख आणि वेळ"</string>
     <string name="choose_timezone" msgid="8215332993926818147">"टाइम झोन निवडा"</string>
     <!-- no translation found for intent_sender_data_label (2009833999785758727) -->
@@ -668,7 +668,7 @@
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> अंकापेक्षा कमी असणे आवश्यक आहे</item>
     </plurals>
     <string name="lockpassword_pin_recently_used" msgid="5556148774911741103">"डिव्हाइस प्रशासक अलीकडील पिन वापरण्याची अनुमती देत नाही"</string>
-    <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"सामान्यत: वापरले जाणारे पिन तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पिन वापरून पाहा."</string>
+    <string name="lockpassword_pin_blacklisted_by_admin" msgid="2752037810571200697">"सामान्यत: वापरले जाणारे पिन तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पिन वापरून पहा."</string>
     <string name="lockpassword_illegal_character" msgid="3577712947676261351">"यामध्ये अवैध वर्ण समाविष्ट असू शकत नाही"</string>
     <string name="lockpassword_password_requires_alpha" msgid="7017799931349816346">"कमीत कमी एक अक्षर असणे आवश्यक आहे"</string>
     <string name="lockpassword_password_requires_digit" msgid="6856775151626646011">"कमीत कमी एक अंक असणे आवश्यक आहे"</string>
@@ -702,7 +702,7 @@
       <item quantity="one">किमान एक अंक नसलेला वर्ण असणे आवश्यक आहे</item>
     </plurals>
     <string name="lockpassword_password_recently_used" msgid="6944729699375087431">"डिव्हाइस प्रशासक अलीकडील पासवर्ड वापरण्याची अनुमती देत नाही"</string>
-    <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"सामान्यत: वापरले जाणारे पासवर्ड तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पासवर्ड वापरून पाहा."</string>
+    <string name="lockpassword_password_blacklisted_by_admin" msgid="4988166770148440755">"सामान्यत: वापरले जाणारे पासवर्ड तुमच्या IT प्रशासनाने ब्लॉक केलेले आहेत. दुसरा एखादा पासवर्ड वापरून पहा."</string>
     <string name="lockpassword_pin_no_sequential_digits" msgid="3902387296149848324">"अंकांच्या चढत्या, उतरत्या किंवा पुनरावृत्त क्रमाला अनुमती नाही"</string>
     <string name="lockpassword_confirm_label" msgid="1512364313516715624">"खात्री करा"</string>
     <string name="lockpassword_cancel_label" msgid="3799907375604482766">"रद्द करा"</string>
@@ -2533,7 +2533,7 @@
     <string name="trusted_credentials" msgid="6989242522455395200">"विश्वसनीय क्रेडेंशियल"</string>
     <string name="trusted_credentials_summary" msgid="7411781319056251582">"विश्वसनीय CA प्रमाणपत्रे प्रदर्शित करा"</string>
     <string name="user_credentials" msgid="8365731467650306757">"वापरकर्ता क्रेडेंशियल"</string>
-    <string name="user_credentials_summary" msgid="7350223899317423252">"स्टोअर केलेली क्रेडेंशियल पाहा आणि त्यांत सुधारणा करा"</string>
+    <string name="user_credentials_summary" msgid="7350223899317423252">"स्टोअर केलेली क्रेडेंशियल पहा आणि त्यांत सुधारणा करा"</string>
     <string name="advanced_security_title" msgid="286883005673855845">"प्रगत"</string>
     <string name="credential_storage_type" msgid="2585337320206095255">"स्टोरेज प्रकार"</string>
     <string name="credential_storage_type_hardware" msgid="5054143224259023600">"हार्डवेअर बॅकअप घेतला"</string>
@@ -3238,7 +3238,7 @@
     <string name="zen_mode_settings_dnd_automatic_rule" msgid="2843297614114625408">"(<xliff:g id="RULE_NAME">%s</xliff:g>) शेड्युलने व्यत्यय आणू नका आपोआप सुरू केले"</string>
     <string name="zen_mode_settings_dnd_automatic_rule_app" msgid="5103454923160912313">"<xliff:g id="APP_NAME">%s</xliff:g> या ॲपने व्यत्यय आणू नका आपोआप सुरू केले"</string>
     <string name="zen_mode_settings_dnd_custom_settings_footer" msgid="6335108298640066560">"<xliff:g id="RULE_NAMES">%s</xliff:g>साठी व्यत्यय आणू नका कस्टम सेटिंग्ज सह सुरू आहे."</string>
-    <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" कस्टम सेटिंग्ज पाहा"</annotation></string>
+    <string name="zen_mode_settings_dnd_custom_settings_footer_link" msgid="4007974052885089379"><annotation id="link">" कस्टम सेटिंग्ज पहा"</annotation></string>
     <string name="zen_interruption_level_priority" msgid="9178419297408319234">"केवळ प्राधान्य"</string>
     <string name="zen_mode_and_condition" msgid="4123722186007123567">"<xliff:g id="ZEN_MODE">%1$s</xliff:g>. <xliff:g id="EXIT_CONDITION">%2$s</xliff:g>"</string>
     <string name="zen_mode_sound_summary_on_with_info" msgid="2539952366467518398">"सुरू आहे / <xliff:g id="ID_1">%1$s</xliff:g>"</string>
@@ -3259,7 +3259,7 @@
     <string name="zen_category_behavior" msgid="7695750848671443532">"डिव्हाइस म्यूट करा पण अपवादांना अनुमती द्या"</string>
     <string name="zen_category_exceptions" msgid="2139670640033601899">"अपवाद"</string>
     <string name="zen_category_schedule" msgid="989629666210114164">"शेड्युल"</string>
-    <string name="zen_sound_title" msgid="3429086967245473870">"सर्व अपवाद पाहा"</string>
+    <string name="zen_sound_title" msgid="3429086967245473870">"सर्व अपवाद पहा"</string>
     <string name="zen_sound_footer" msgid="1778673975517424878">"जेव्हा व्यत्यय आणू नका सुरू असते, तेव्हा फोनचा आवाज आणि व्हायब्रेशन म्यूट होतात, वरील आयटमसाठी दिलेल्या अनुमती व्यतिरिक्त"</string>
     <string name="zen_sound_category_title" msgid="2109447208414722786">"व्यतिरिक्त सर्व म्यूट करा"</string>
     <string name="zen_sound_all_muted" msgid="4844094866910870591">"म्यूट केले आहे"</string>
@@ -3297,7 +3297,7 @@
     <string name="other_sound_category_preference_title" msgid="2045757472469840859">"इतर आवाज आणि कंपने"</string>
     <string name="configure_notification_settings" msgid="291914315140851270">"सूचना"</string>
     <string name="recent_notifications" msgid="8125865995065032049">"नुकतेच पाठवलेले"</string>
-    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"गेल्या ७ दिवसांपासूनचे सर्व पाहा"</string>
+    <string name="recent_notifications_see_all_title" msgid="4089007770442871469">"गेल्या ७ दिवसांपासूनचे सर्व पहा"</string>
     <string name="advanced_section_header" msgid="984680389373090015">"प्रगत"</string>
     <string name="profile_section_header" msgid="5471479005472037417">"कार्य सूचना"</string>
     <string name="asst_capability_prioritizer_title" msgid="3488284760645922160">"ऑटोमॅटिक सूचना प्रायरटायझर"</string>
@@ -3488,7 +3488,7 @@
       <item quantity="one">एक अन्य</item>
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"एसएमएसला अनुमती द्या"</string>
-    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"अनुमती असलेले मेसेज आल्यावर आवाज होईल याची खात्री करण्यासाठी तुमचे डिव्हाइस रिंग होण्यासाठी, कंपन किंवा सायलंटवर सेट केले आहे की नाही ते पाहा."</string>
+    <string name="zen_mode_messages_footer" msgid="5048951937714668561">"अनुमती असलेले मेसेज आल्यावर आवाज होईल याची खात्री करण्यासाठी तुमचे डिव्हाइस रिंग होण्यासाठी, कंपन किंवा सायलंटवर सेट केले आहे की नाही ते पहा."</string>
     <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ साठी इनकमिंग एसएमएस ब्लॉक केले आहेत. तुमच्या मित्रमैत्रिणींना, कुटुंबीयांना किंवा इतर संपर्कांना तुमच्याशी संपर्क साधण्याची अनुमती देण्यासाठी तुम्ही सेटिंग्ज अ‍ॅडजस्ट करू शकता."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"एसएमएस, MMS आणि मेसेजिंग अ‍ॅप्स"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"कोणालाही"</string>
@@ -4119,7 +4119,7 @@
     <string name="double_twist_for_camera_mode_summary" msgid="8979914206876018137"></string>
     <string name="double_twist_for_camera_suggestion_title" msgid="5932411386316771246">"अधिक जलद सेल्फी घ्या"</string>
     <string name="swipe_up_to_switch_apps_summary" msgid="4644068184114154787">"अ‍ॅप्स स्विच करण्यासाठी, होम बटणास वरील बाजूस स्वाइप करा. सर्व अ‍ॅप्स पाहण्यासाठी पुन्हा वर स्वाइप करा. हे कोणत्याही स्क्रीनवरून काम करते. तुमच्या स्क्रीनच्या तळाशी उजवीकडे यापुढे ओव्हरव्ह्यू बटण असणार नाही."</string>
-    <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"नवीन होम बटण वापरून पाहा"</string>
+    <string name="swipe_up_to_switch_apps_suggestion_title" msgid="7641846365137536128">"नवीन होम बटण वापरून पहा"</string>
     <string name="swipe_up_to_switch_apps_suggestion_summary" msgid="7338653224520387852">"अ‍ॅप्स स्विच करण्यासाठी नवीन जेश्चर सुरू करा"</string>
     <string name="ambient_display_title" product="default" msgid="6785677099744344088">"फोन तपासण्‍यासाठी दोनदा टॅप करा"</string>
     <string name="ambient_display_title" product="tablet" msgid="1106285490888683613">"टॅब्लेट तपासण्‍यासाठी दोनदा-टॅप करा"</string>
@@ -4447,7 +4447,7 @@
     <string name="mobile_network_apn_title" msgid="5628635067747404382">"ॲक्सेस पॉइंट"</string>
     <string name="manual_mode_disallowed_summary" msgid="799800630000340665">"<xliff:g id="CARRIER">%1$s</xliff:g>शी कनेक्ट केले असल्यास उपलब्ध नाही"</string>
     <string name="emergency_info_contextual_card_summary" msgid="5541444321969803486">"वैद्यकीय माहिती, आणीबाणी संपर्क"</string>
-    <string name="see_more" msgid="7463940160389802632">"आणखी पाहा"</string>
+    <string name="see_more" msgid="7463940160389802632">"आणखी पहा"</string>
     <string name="see_less" msgid="3718892257002813387">"कमी पहा"</string>
     <string name="network_connection_request_dialog_title" msgid="3150489262902506588">"डिव्हाइस <xliff:g id="APPNAME">%1$s</xliff:g> सह वापरा"</string>
     <string name="network_connection_timeout_dialog_message" msgid="7036704569274087733">"डिव्हाइस सापडले नाही. डिव्हाइस सुरू केली आहेत आणि ती कनेक्ट करण्यासाठी उपलब्ध आहेत याची खात्री करा."</string>
