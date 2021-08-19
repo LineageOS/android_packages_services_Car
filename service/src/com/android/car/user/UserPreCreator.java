@@ -21,12 +21,12 @@ import android.annotation.Nullable;
 import android.car.builtin.util.Slog;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
-import android.sysprop.CarProperties;
 import android.util.EventLog;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.common.EventLogTags;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
@@ -36,7 +36,7 @@ import java.util.List;
  * Manages the pre-created users.
  *
  * <p>
- * It creates (and remove) new pre-created users based on the values of {@link CarProperties} and
+ * It creates (and remove) new pre-created users based on the values of {@code CarProperties} and
  * the number of existing pre-created users.
  */
 public final class UserPreCreator {
@@ -54,8 +54,8 @@ public final class UserPreCreator {
      */
     public void managePreCreatedUsers() {
         // First gets how many pre-createad users are defined by the OEM
-        int numberRequestedGuests = CarProperties.number_pre_created_guests().orElse(0);
-        int numberRequestedUsers = CarProperties.number_pre_created_users().orElse(0);
+        int numberRequestedGuests = CarSystemProperties.getNumberPreCreatedGuests().orElse(0);
+        int numberRequestedUsers = CarSystemProperties.getNumberPreCreatedUsers().orElse(0);
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_PRE_CREATION_REQUESTED, numberRequestedUsers,
                 numberRequestedGuests);
         Slog.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests

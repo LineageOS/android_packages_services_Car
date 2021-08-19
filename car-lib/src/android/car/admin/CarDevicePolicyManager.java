@@ -34,11 +34,11 @@ import android.car.util.concurrent.AndroidFuture;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
-import android.sysprop.CarProperties;
 import android.util.EventLog;
 
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
@@ -90,8 +90,8 @@ public final class CarDevicePolicyManager extends CarManagerBase {
     /** @hide - Used on test cases only */
     public static final int LAST_USER_TYPE = USER_TYPE_GUEST;
 
-    private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS = CarProperties
-            .device_policy_manager_timeout().orElse(60_000);
+    private static final int DEVICE_POLICY_MANAGER_TIMEOUT_MS =
+            CarSystemProperties.getDevicePolicyManagerTimeout().orElse(60_000);
 
     /** @hide */
     @IntDef(prefix = PREFIX_USER_TYPE, value = {

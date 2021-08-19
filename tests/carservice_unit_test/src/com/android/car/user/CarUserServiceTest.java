@@ -109,7 +109,6 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
-import android.sysprop.CarProperties;
 import android.util.Log;
 import android.util.SparseArray;
 import android.view.Display;
@@ -125,6 +124,7 @@ import com.android.car.hal.UserHalService;
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.DebugUtils;
 import com.android.internal.R;
@@ -236,7 +236,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
             // mocking UserHelper.isHeadlessSystemUser() (on mockIsHeadlessSystemUser()) instead...
             .spyStatic(UserHelper.class)
             .spyStatic(UserHelperLite.class)
-            .spyStatic(CarProperties.class)
+            .spyStatic(CarSystemProperties.class)
             .spyStatic(Binder.class);
     }
 
@@ -258,7 +258,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(1).when(mMockedDrawable).getIntrinsicHeight();
         mockUserHalSupported(true);
         mockUserHalUserAssociationSupported(true);
-        doReturn(Optional.of(mAsyncCallTimeoutMs)).when(() -> CarProperties.user_hal_timeout());
+        doReturn(Optional.of(mAsyncCallTimeoutMs)).when(
+                () -> CarSystemProperties.getUserHalTimeout());
 
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
 

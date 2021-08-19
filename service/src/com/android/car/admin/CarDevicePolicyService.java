@@ -32,11 +32,11 @@ import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
-import android.sysprop.CarProperties;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.user.CarUserService;
 import com.android.car.util.IndentingPrintWriter;
 
@@ -49,7 +49,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
     static final boolean DEBUG = false;
 
-    private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
+    private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
 
     private final CarUserService mCarUserService;
     private final Context mContext;

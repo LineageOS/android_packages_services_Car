@@ -34,13 +34,13 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.sysprop.CarProperties;
 import android.util.Pair;
 
 import com.android.car.CarLog;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.internal.widget.LockPatternUtils;
@@ -225,7 +225,7 @@ final class InitialUserSetter {
         }
 
         /**
-         * Sets whether the {@link CarProperties#boot_user_override_id()} should be taking in
+         * Sets whether the {@code CarProperties#boot_user_override_id()} should be taking in
          * account when using the default behavior.
          */
         @NonNull
@@ -694,7 +694,7 @@ final class InitialUserSetter {
      *
      * This method checks for the initial user via three mechanisms in this order:
      * <ol>
-     *     <li>Check for a boot user override via {@link CarProperties#boot_user_override_id()}</li>
+     *     <li>Check for a boot user override via {@code CarProperties#boot_user_override_id()}</li>
      *     <li>Check for the last active user in the system</li>
      *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
      * </ol>
@@ -716,7 +716,7 @@ final class InitialUserSetter {
 
         //TODO(b/150416512): Check if it is still supported, if not remove it.
         if (usesOverrideUserIdProperty) {
-            int bootUserOverride = CarProperties.boot_user_override_id()
+            int bootUserOverride = CarSystemProperties.getBootUserOverrideId()
                     .orElse(BOOT_USER_NOT_FOUND);
 
             // If an override user is present and a real user, return it

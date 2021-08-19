@@ -44,7 +44,6 @@ import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.sysprop.CarProperties;
 import android.util.ArrayMap;
 import android.util.EventLog;
 import android.util.Log;
@@ -53,6 +52,7 @@ import com.android.car.internal.common.CommonConstants;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
@@ -79,7 +79,7 @@ import java.util.stream.Collectors;
 public final class CarUserManager extends CarManagerBase {
 
     private static final String TAG = CarUserManager.class.getSimpleName();
-    private static final int HAL_TIMEOUT_MS = CarProperties.user_hal_timeout().orElse(5_000);
+    private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
     private static final boolean DBG = false;

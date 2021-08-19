@@ -25,6 +25,7 @@ import android.annotation.RequiresPermission;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.car.ICarBugreportCallback;
 import android.car.ICarBugreportService;
+import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.content.pm.PackageManager;
@@ -38,7 +39,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
-import android.os.SystemProperties;
 
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
@@ -158,14 +158,14 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             // setting a system property which is not thread-safe. So the lock here offers
             // thread-safety only among callers of the API.
             try {
-                SystemProperties.set("ctl.stop", BUGREPORTD_SERVICE);
+                SystemPropertiesHelper.set("ctl.stop", BUGREPORTD_SERVICE);
             } catch (RuntimeException e) {
                 Slog.e(TAG, "Failed to stop " + BUGREPORTD_SERVICE, e);
             }
             try {
                 // Stop DUMPSTATEZ_SERVICE service too, because stopping BUGREPORTD_SERVICE doesn't
                 // guarantee stopping DUMPSTATEZ_SERVICE.
-                SystemProperties.set("ctl.stop", DUMPSTATEZ_SERVICE);
+                SystemPropertiesHelper.set("ctl.stop", DUMPSTATEZ_SERVICE);
             } catch (RuntimeException e) {
                 Slog.e(TAG, "Failed to stop " + DUMPSTATEZ_SERVICE, e);
             }
@@ -178,7 +178,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
     /** See {@code dumpstate} docs to learn about dry_run. */
     private void setDumpstateDryRun(boolean dryRun) {
         try {
-            SystemProperties.set("dumpstate.dry_run", dryRun ? "true" : null);
+            SystemPropertiesHelper.set("dumpstate.dry_run", dryRun ? "true" : null);
         } catch (RuntimeException e) {
             Slog.e(TAG, "Failed to set dumpstate.dry_run", e);
         }
@@ -228,7 +228,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             // This tells init to start the service. Note that this is achieved through
             // setting a system property which is not thread-safe. So the lock here offers
             // thread-safety only among callers of the API.
-            SystemProperties.set("ctl.start", BUGREPORTD_SERVICE);
+            SystemPropertiesHelper.set("ctl.start", BUGREPORTD_SERVICE);
         } catch (RuntimeException e) {
             mIsServiceRunning.set(false);
             Slog.e(TAG, "Failed to start " + BUGREPORTD_SERVICE, e);

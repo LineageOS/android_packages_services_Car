@@ -54,8 +54,8 @@ import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.sysprop.CarProperties;
 
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.user.InitialUserSetter.Builder;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
 import com.android.internal.widget.LockPatternUtils;
@@ -104,7 +104,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
         session
             .spyStatic(ActivityManager.class)
             .spyStatic(ActivityManagerHelper.class)
-            .spyStatic(CarProperties.class)
+            .spyStatic(CarSystemProperties.class)
             .spyStatic(UserManager.class);
     }
 
@@ -995,7 +995,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void setDefaultBootUserOverride(@UserIdInt int userId) {
-        doReturn(Optional.of(userId)).when(() -> CarProperties.boot_user_override_id());
+        doReturn(Optional.of(userId)).when(() -> CarSystemProperties.getBootUserOverrideId());
     }
 
     private UserInfo expectHasInitialUser(@UserIdInt int userId) {

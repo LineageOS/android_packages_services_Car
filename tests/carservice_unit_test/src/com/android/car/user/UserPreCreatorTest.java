@@ -36,7 +36,8 @@ import android.car.test.mocks.SyncAnswer;
 import android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import android.content.pm.UserInfo;
 import android.os.UserManager;
-import android.sysprop.CarProperties;
+
+import com.android.car.internal.os.CarSystemProperties;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -60,7 +61,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(CarProperties.class);
+        builder.spyStatic(CarSystemProperties.class);
     }
 
     @Before
@@ -188,11 +189,13 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void setNumberRequestedUsersProperty(int numberUser) {
-        doReturn(Optional.of(numberUser)).when(() -> CarProperties.number_pre_created_users());
+        doReturn(Optional.of(numberUser)).when(
+                () -> CarSystemProperties.getNumberPreCreatedUsers());
     }
 
     private void setNumberRequestedGuestsProperty(int numberGuest) {
-        doReturn(Optional.of(numberGuest)).when(() -> CarProperties.number_pre_created_guests());
+        doReturn(Optional.of(numberGuest)).when(
+                () -> CarSystemProperties.getNumberPreCreatedGuests());
     }
 
     private SyncAnswer<UserInfo> mockPreCreateUser(boolean isGuest) {

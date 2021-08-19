@@ -85,7 +85,6 @@ import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
-import android.sysprop.CarProperties;
 import android.text.TextUtils;
 import android.util.ArrayMap;
 import android.util.EventLog;
@@ -106,6 +105,7 @@ import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
+import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.FunctionalUtils;
@@ -230,7 +230,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     @GuardedBy("mLockUser")
     private int mRequestIdForUserSwitchInProcess;
-    private final int mHalTimeoutMs = CarProperties.user_hal_timeout().orElse(5_000);
+    private final int mHalTimeoutMs = CarSystemProperties.getUserHalTimeout().orElse(5_000);
 
     private final CopyOnWriteArrayList<PassengerCallback> mPassengerCallbacks =
             new CopyOnWriteArrayList<>();
