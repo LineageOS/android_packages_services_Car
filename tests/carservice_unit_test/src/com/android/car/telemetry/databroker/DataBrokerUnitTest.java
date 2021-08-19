@@ -58,7 +58,7 @@ public class DataBrokerUnitTest {
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
-    private static final int PRIORITY_LOW = 10;
+    private static final int PRIORITY_LOW = 100;
     private static final long TIMEOUT_MS = 5_000L;
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
@@ -73,13 +73,13 @@ public class DataBrokerUnitTest {
                     VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION).build();
     private static final TelemetryProto.Subscriber SUBSCRIBER_FOO =
             TelemetryProto.Subscriber.newBuilder().setHandler("function_name_foo").setPublisher(
-                    PUBLISHER_CONFIGURATION).build();
+                    PUBLISHER_CONFIGURATION).setPriority(PRIORITY_HIGH).build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_FOO =
             TelemetryProto.MetricsConfig.newBuilder().setName("Foo").setVersion(
                     1).addSubscribers(SUBSCRIBER_FOO).build();
     private static final TelemetryProto.Subscriber SUBSCRIBER_BAR =
             TelemetryProto.Subscriber.newBuilder().setHandler("function_name_bar").setPublisher(
-                    PUBLISHER_CONFIGURATION).build();
+                    PUBLISHER_CONFIGURATION).setPriority(PRIORITY_LOW).build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_BAR =
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
@@ -120,11 +120,11 @@ public class DataBrokerUnitTest {
                 null, mMockScriptExecutorBinder);
 
         mHighPriorityTask = new ScriptExecutionTask(
-                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO, PRIORITY_HIGH),
+                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
                 DATA,
                 SystemClock.elapsedRealtime());
         mLowPriorityTask = new ScriptExecutionTask(
-                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO, PRIORITY_LOW),
+                new DataSubscriber(mDataBroker, METRICS_CONFIG_BAR, SUBSCRIBER_BAR),
                 DATA,
                 SystemClock.elapsedRealtime());
     }
@@ -272,21 +272,21 @@ public class DataBrokerUnitTest {
     public void testRemoveMetricsConfiguration_shouldRemoveAllAssociatedTasks() {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
-        ScriptExecutionTask taskWithMetricsConfigBar = new ScriptExecutionTask(
-                new DataSubscriber(mDataBroker, METRICS_CONFIG_BAR, SUBSCRIBER_BAR, PRIORITY_HIGH),
-                new Bundle(),
+        ScriptExecutionTask taskWithMetricsConfigFoo = new ScriptExecutionTask(
+                new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
+                DATA,
                 SystemClock.elapsedRealtime());
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
-        taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_FOO
-        taskQueue.add(taskWithMetricsConfigBar); // associated with METRICS_CONFIG_BAR
+        taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_BAR
+        taskQueue.add(taskWithMetricsConfigFoo); // associated with METRICS_CONFIG_FOO
         assertThat(taskQueue).hasSize(3);
 
         mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
 
         waitForHandlerThreadToFinish();
         assertThat(taskQueue).hasSize(1);
-        assertThat(taskQueue.poll()).isEqualTo(taskWithMetricsConfigBar);
+        assertThat(taskQueue.poll()).isEqualTo(mLowPriorityTask);
     }
 
     @Test
