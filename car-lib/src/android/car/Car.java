@@ -74,7 +74,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.TransactionTooLargeException;
-import android.os.UserHandle;
 import android.util.Log;
 
 import com.android.car.internal.VisibleForHiddenApiCheck;
@@ -2067,8 +2066,8 @@ public final class Car {
         Intent intent = new Intent();
         intent.setPackage(CAR_SERVICE_PACKAGE);
         intent.setAction(Car.CAR_SERVICE_INTERFACE_NAME);
-        boolean bound = mContext.bindServiceAsUser(intent, mServiceConnectionListener,
-                Context.BIND_AUTO_CREATE, UserHandle.CURRENT_OR_SELF);
+        boolean bound = mContext.bindService(intent, mServiceConnectionListener,
+                Context.BIND_AUTO_CREATE);
         synchronized (mLock) {
             if (!bound) {
                 mConnectionRetryCount++;

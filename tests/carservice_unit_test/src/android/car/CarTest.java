@@ -154,8 +154,7 @@ public class CarTest {
     }
 
     private void expectBindService() {
-        when(mContext.bindServiceAsUser(anyObject(), anyObject(), anyInt(),
-                anyObject())).thenReturn(true);
+        when(mContext.bindService(anyObject(), anyObject(), anyInt())).thenReturn(true);
     }
 
     private void returnServiceAfterNSereviceManagerCalls(int returnNonNullAfterThisCall) {
@@ -170,8 +169,7 @@ public class CarTest {
     }
 
     private void assertServiceBoundOnce() {
-        verify(mContext, times(1)).bindServiceAsUser(anyObject(), anyObject(), anyInt(),
-                anyObject());
+        verify(mContext, times(1)).bindService(anyObject(), anyObject(), anyInt());
     }
 
     private void assertOneListenerCallAndClear(Car expectedCar, boolean ready) {
@@ -265,8 +263,7 @@ public class CarTest {
             Car car = Car.createCar(mContext, null,
                     Car.CAR_WAIT_TIMEOUT_WAIT_FOREVER, mLifecycleListener);
             assertThat(car).isNotNull();
-            verify(mContext, times(1)).bindServiceAsUser(anyObject(), anyObject(), anyInt(),
-                    anyObject());
+            verify(mContext, times(1)).bindService(anyObject(), anyObject(), anyInt());
             // mLifecycleListener should have been called as this is main thread.
             assertOneListenerCallAndClear(car, true);
         });
