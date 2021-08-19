@@ -23,7 +23,12 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.Bundle;
+import android.view.LayoutInflater;
+import android.view.ViewGroup;
 
+import androidx.recyclerview.widget.RecyclerView;
+
+import com.android.car.ui.recyclerview.CarUiRecyclerView;
 import com.android.car.ui.toolbar.MenuItem;
 import com.android.car.ui.toolbar.Toolbar;
 import com.android.car.ui.toolbar.ToolbarController;
@@ -74,6 +79,20 @@ public class CarDevelopmentSettingsDashboardFragment extends DevelopmentSettings
                     PackageManager.COMPONENT_ENABLED_STATE_DISABLED,
                     PackageManager.DONT_KILL_APP);
             finish();
+        }
+    }
+
+    @Override
+    public RecyclerView onCreateRecyclerView(LayoutInflater inflater, ViewGroup parent,
+            Bundle savedInstanceState) {
+        Object carUiRecyclerView = parent.findViewById(R.id.recycler_view);
+        RecyclerView recyclerView = (carUiRecyclerView instanceof CarUiRecyclerView)
+                ? ((CarUiRecyclerView) carUiRecyclerView).getRecyclerView()
+                : (RecyclerView) carUiRecyclerView;
+        if (recyclerView != null) {
+            return recyclerView;
+        } else {
+            return super.onCreateRecyclerView(inflater, parent, savedInstanceState);
         }
     }
 
