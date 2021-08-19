@@ -22,7 +22,6 @@ import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
 import android.car.builtin.util.Slog;
 import android.content.Context;
-import android.content.PermissionChecker;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -50,6 +49,10 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         BinderInterfaceContainer.BinderEventHandler<IAppFocusOwnershipCallback> {
     private static final boolean DBG = false;
     private static final boolean DBG_EVENT = false;
+
+    // This constant should be equal to PermissionChecker.PERMISSION_GRANTED.
+    @VisibleForTesting
+    static final int PERMISSION_CHECKER_PERMISSION_GRANTED = 0;
 
     private final SystemActivityMonitoringService mSystemActivityMonitoringService;
 
@@ -217,7 +220,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
     private boolean hasPrivilegedPermission() {
         return mContext.checkCallingOrSelfPermission(Car.PERMISSION_CAR_DISPLAY_IN_CLUSTER)
-                == PermissionChecker.PERMISSION_GRANTED;
+                == PERMISSION_CHECKER_PERMISSION_GRANTED;
     }
 
     @Override
