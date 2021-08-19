@@ -1700,11 +1700,11 @@
     <string name="settings_manual_activity_unavailable" msgid="4872502775018655343">"ਮੈਨੁਅਲ ਲੋਡ ਕਰਨ ਵਿੱਚ ਇੱਕ ਸਮੱਸਿਆ ਹੋਈ ਸੀ।"</string>
     <string name="settings_license_activity_title" msgid="1099045216283677608">"ਤੀਜੀ-ਧਿਰ ਦੇ ਲਾਇਸੰਸ"</string>
     <string name="settings_license_activity_unavailable" msgid="1039356188263821287">"ਲਾਇਸੰਸ ਲੋਡ ਕਰਨ ਵਿੱਚ ਇੱਕ ਸਮੱਸਿਆ ਹੋਈ ਸੀ।"</string>
-    <string name="settings_license_activity_loading" msgid="7272151895113843742">"ਲੋਡ ਕਰ ਰਿਹਾ ਹੈ…"</string>
+    <string name="settings_license_activity_loading" msgid="7272151895113843742">"ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…"</string>
     <string name="settings_safetylegal_title" msgid="2681094772308772633">"ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ"</string>
     <string name="settings_safetylegal_activity_title" msgid="8455437862683602240">"ਸੁਰੱਖਿਆ ਜਾਣਕਾਰੀ"</string>
     <string name="settings_safetylegal_activity_unreachable" msgid="3541894966476445833">"ਤੁਹਾਡੇ ਕੋਲ ਕੋਈ ਡਾਟਾ ਕਨੈਕਸ਼ਨ ਨਹੀਂ ਹੈ। ਹੁਣ ਇਸ ਜਾਣਕਾਰੀ ਨੂੰ ਦੇਖਣ ਲਈ, ਇੰਟਰਨੈੱਟ ਨਾਲ ਕਨੈਕਟ ਕੀਤੇ ਕਿਸੇ ਵੀ ਕੰਪਿਊਟਰ ਤੋਂ %s \'ਤੇ ਜਾਓ।"</string>
-    <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"ਲੋਡ ਕਰ ਰਿਹਾ ਹੈ…"</string>
+    <string name="settings_safetylegal_activity_loading" msgid="7680998654145172">"ਲੋਡ ਕੀਤਾ ਜਾ ਰਿਹਾ ਹੈ…"</string>
     <string name="confirm_device_credential_use_alternate_method" msgid="1279869272895739941">"ਕਿਸੇ ਹੋਰ ਵਿਧੀ ਦੀ ਵਰਤੋਂ ਕਰੋ"</string>
     <string name="lockpassword_choose_your_screen_lock_header" msgid="6283518876031424798">"ਸਕ੍ਰੀਨ ਲਾਕ ਸੈੱਟ ਕਰੋ"</string>
     <string name="lockpassword_choose_your_password_message" msgid="2838273977481046536">"ਸੁਰੱਖਿਆ ਲਈ, ਪਾਸਵਰਡ ਸੈੱਟ ਕਰੋ"</string>
