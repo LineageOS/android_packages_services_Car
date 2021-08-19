@@ -53,7 +53,7 @@
     <string name="car_permission_label_control_app_blocking" msgid="9112678596919993386">"యాప్ బ్లాక్ చేయడం"</string>
     <string name="car_permission_desc_control_app_blocking" msgid="7539378161760696190">"డ్రైవింగ్‌లో ఉన్నప్పుడు అప్లికేషన్‌లను బ్లాక్ చేయండి"</string>
     <string name="car_permission_car_navigation_manager" msgid="5895461364007854077">"నావిగేషన్ మేనేజర్"</string>
-    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"పరికర గుంపుకు నావిగేషన్ డేటాని నివేదించండి"</string>
+    <string name="car_permission_desc_car_navigation_manager" msgid="6188751054665471537">"పరికర గుంపుకు నావిగేషన్ డేటాని రిపోర్ట్ చేయండి"</string>
     <string name="car_permission_car_display_in_cluster" msgid="4005987646292458684">"పరికర గుంపుకు ప్రత్యక్ష రెండరింగ్"</string>
     <string name="car_permission_desc_car_display_in_cluster" msgid="2668300546822672927">"పరికర గుంపులో ప్రదర్శించాల్సిన కార్యకలాపలని తెలియచెప్పడానికి అప్లికేషన్‌ను అనుమతించండి."</string>
     <string name="car_permission_car_cluster_control" msgid="1382247204230165674">"పరికర గుంపు నియంత్రణ"</string>
