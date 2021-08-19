@@ -14,9 +14,11 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <!-- Height of the bottom navigation / climate bar. -->
-    <!--    TODO: remove-->
-    <dimen name="navigation_bar_height">160dp</dimen>
-    <dimen name="navigation_bar_height_landscape">160dp</dimen>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="android.caruiportrait.rro.test">
+    <application android:hasCode="false" />
+    <overlay
+        android:targetPackage="android"
+        android:priority="21"
+        android:category="caruiportrait.rro"/>
+</manifest>
