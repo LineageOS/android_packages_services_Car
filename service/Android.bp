@@ -136,7 +136,7 @@ android_app {
     srcs: [
         ":carservice-stub-for-hidden-api-check-docs",
         ":statslog-Car-java-gen",
-        //"src/com/android/car/CarFeatureController.java", // blocked due to Power
+        //"src/com/android/car/CarFeatureController.java", // Car not complete yet
         "src/com/android/car/CarLog.java",
         //"src/com/android/car/CarLocalServices.java",
         "src/com/android/car/CarServiceBase.java",

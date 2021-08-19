@@ -21,6 +21,7 @@ import android.car.Car;
 import android.car.Car.FeaturerRequestEnum;
 import android.car.CarFeatures;
 import android.car.builtin.os.BuildHelper;
+import android.car.builtin.util.AtomicFileHelper;
 import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.os.Handler;
@@ -154,8 +155,8 @@ public final class CarFeatureController implements CarServiceBase {
         Slog.i(TAG, "mDefaultEnabledFeaturesFromConfig:" + mDefaultEnabledFeaturesFromConfig
                 + ",mDisabledFeaturesFromVhal:" + mDisabledFeaturesFromVhal);
         mEnabledFeatures = new HashSet<>(MANDATORY_FEATURES);
-        mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME), TAG);
-        boolean shouldLoadDefaultConfig = !mFeatureConfigFile.exists();
+        mFeatureConfigFile = new AtomicFile(new File(dataDir, FEATURE_CONFIG_FILE_NAME));
+        boolean shouldLoadDefaultConfig = !AtomicFileHelper.exists(mFeatureConfigFile);
         if (!shouldLoadDefaultConfig) {
             if (!loadFromConfigFileLocked()) {
                 shouldLoadDefaultConfig = true;
