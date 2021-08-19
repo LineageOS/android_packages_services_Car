@@ -14,9 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources>
-    <!-- Height of the bottom navigation / climate bar. -->
-    <!--    TODO: remove-->
-    <dimen name="navigation_bar_height">160dp</dimen>
-    <dimen name="navigation_bar_height_landscape">160dp</dimen>
-</resources>
+<!-- Please see tertiary_text_material_dark.xml -->
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item android:state_enabled="false"
+          android:alpha="?android:attr/disabledAlpha"
+          android:color="@*android:color/system_neutral2_500"/>
+    <item android:color="@*android:color/system_neutral2_500"/>
+</selector>
