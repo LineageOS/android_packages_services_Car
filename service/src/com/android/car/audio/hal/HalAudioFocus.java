@@ -27,7 +27,6 @@ import android.annotation.NonNull;
 import android.car.builtin.util.Slog;
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
-import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioFocusRequest;
 import android.media.AudioManager;
 import android.os.Bundle;
@@ -36,6 +35,7 @@ import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;

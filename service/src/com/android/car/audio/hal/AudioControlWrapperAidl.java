@@ -27,7 +27,6 @@ import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.media.AudioAttributes;
-import android.media.AudioAttributes.AttributeUsage;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -35,6 +34,7 @@ import android.util.Log;
 import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
+import com.android.car.internal.annotation.AttributeUsage;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
