@@ -266,10 +266,13 @@ public class LargeParcelable extends LargeParcelableBase {
             }
             return p;
         }
-        SharedMemory memory = SharedMemory.create(sharedMemoryFd);
-        Parcel in = LargeParcelableBase.copyFromSharedMemory(memory);
+        Parcel in = null;
         Parcelable retParcelable;
         try {
+            // SharedMemory.fromFileDescriptor take ownership, so we need to dupe to keep
+            // sharedMemoryFd the Parcelable valid.
+            SharedMemory memory = SharedMemory.fromFileDescriptor(sharedMemoryFd.dup());
+            in = LargeParcelableBase.copyFromSharedMemory(memory);
             retParcelable = (Parcelable) parcelableClass.newInstance();
             // runs retParcelable.readFromParcel(in)
             Method readMethod = parcelableClass.getMethod(STABLE_AIDL_PARCELABLE_READ_FROM_PARCEL,
@@ -285,7 +288,9 @@ public class LargeParcelable extends LargeParcelableBase {
         } catch (Exception e) {
             throw new IllegalArgumentException("Cannot access Parcelable constructor/method", e);
         } finally {
-            in.recycle();
+            if (in != null) {
+                in.recycle();
+            }
         }
         return retParcelable;
     }
