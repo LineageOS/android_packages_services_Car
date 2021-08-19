@@ -21,6 +21,7 @@
 #include "AnimationModule.h"
 #include "IOModule.h"
 #include "VhalHandler.h"
+#include "core_lib.h"
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware/automotive/sv/1.0/types.h>
@@ -58,6 +59,13 @@ public:
         const sp<ISurroundView3dSession>& sv3dSession) override;
 
     static sp<SurroundViewService> getInstance();
+
+#ifdef SURROUND_VIEW_LIBRARY
+    // Start a 3d session with external rendering.
+    // TODO(b/196727179): Add function to a SurroundViewLibrary class.
+    bool start3dSessionExternalRender(const RendererInfo& renderingInfo,
+            const OpenGlInitInfo& openglInitInfo, sp<SurroundView3dSession>* pSv3dsession);
+#endif  // SURROUND_VIEW_LIBRARY
 private:
     SurroundViewService();
     ~SurroundViewService();

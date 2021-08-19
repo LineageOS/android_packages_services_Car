@@ -42,19 +42,40 @@ public:
     // Initializes OpenGLES and sets EVS Display state.
     bool startDisplay();
 
+    // Returns the OpenGLES display handler. Returns null if not initialized.
+    EGLDisplay getDisplay();
+
+    // Returns the OpenGLES surface handler. Returns null if not initialized.
+    EGLSurface getSurface();
+
+    // Returns the OpenGLES context handler. Returns null if not initialized.
+    EGLContext getContext();
+
     // Renders the provided Hardware buffer to the screen.
+    // To be used for SV2D and SV3D without external rendering.
     bool renderBufferToScreen(const HardwareBuffer& hardwareBuffer);
 
+    // Renders the current OpenGLES target buffer to screen and adds a new target buffer.
+    // To be used for SV3D with external rendering support.
+    bool renderGlTargetToScreen();
 private:
     bool prepareGL();
+    bool makeContextCurrent();
+    bool clearContext();
     static const char* getEGLError(void);
     static const std::string getGLFramebufferError(void);
 
     BufferDesc convertBufferDesc(const BufferDesc_1_0& src);
-    bool attachRenderTarget(const BufferDesc& tgtBuffer);
-    void detachRenderTarget();
+
+    // Obtains a new EVS Display buffer and attaches it as OpenGLES target render buffer.
+    bool attachNewRenderTarget();
+
+    // Detaches OpenGLES target render buffer and displays it onto the screen.
+    bool detachAndDisplayCurrRenderTarget();
 
     static EGLDisplay   sGLDisplay;
+    static EGLSurface   sGLSurface;
+    static EGLContext   sGLContext;
     static GLuint       sFrameBuffer;
     static GLuint       sColorBuffer;
     static GLuint       sDepthBuffer;
@@ -62,4 +83,5 @@ private:
     static EGLImageKHR  sKHRimage;
 
     android::sp<IEvsDisplay> mDisplay;
+    BufferDesc_1_0 mTgtBuffer;
 };

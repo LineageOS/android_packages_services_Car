@@ -22,36 +22,12 @@ namespace automotive {
 namespace sv {
 namespace app {
 
-bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay) {
-    LOG(INFO) << "Run 2d Surround View demo";
-
-    // Call HIDL API "start2dSession"
-    sp<ISurroundView2dSession> surroundView2dSession;
-
-    SvResult svResult;
-    pSurroundViewService->start2dSession(
-            [&surroundView2dSession, &svResult](const sp<ISurroundView2dSession>& session,
-                                                SvResult result) {
-                surroundView2dSession = session;
-                svResult = result;
-            });
-
-    if (surroundView2dSession == nullptr || svResult != SvResult::OK) {
-        LOG(ERROR) << "Failed to start2dSession";
-        return false;
-    } else {
-        LOG(INFO) << "start2dSession succeeded";
-    }
-
-    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-
-    sp<SurroundViewCallback> sv2dCallback =
-            new SurroundViewCallback(displayHandler, surroundView2dSession);
-
+bool runSurroundView2dSession(sp<ISurroundView2dSession> sv2dSession,
+        sp<SurroundViewCallback> svCallback) {
     // Start 2d stream with callback with default quality and resolution.
     // The quality is defaulted to be HIGH_QUALITY, and the default resolution
     // is set in the sv config file.
-    if (surroundView2dSession->startStream(sv2dCallback) != SvResult::OK) {
+    if (sv2dSession->startStream(svCallback) != SvResult::OK) {
         LOG(ERROR) << "Failed to start 2d stream";
         return false;
     }
@@ -63,8 +39,9 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
 
     // Switch to low quality and lower resolution
     Sv2dConfig config = {.width = kLowResolutionWidth, .blending = SvQuality::LOW};
-    if (surroundView2dSession->set2dConfig(config) != SvResult::OK) {
+    if (sv2dSession->set2dConfig(config) != SvResult::OK) {
         LOG(ERROR) << "Failed to set2dConfig";
+        sv2dSession->stopStream();
         return false;
     }
 
@@ -73,18 +50,12 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
 
     // TODO(b/150412555): wait for the last frame
     // Stop the 2d stream and session
-    surroundView2dSession->stopStream();
-
-    pSurroundViewService->stop2dSession(surroundView2dSession);
-    surroundView2dSession = nullptr;
-
-    LOG(INFO) << "SV 2D session finished.";
-
+    sv2dSession->stopStream();
     return true;
 };
 
 // Given a valid sv 3d session and pose, viewid and hfov parameters, sets the view.
-bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId, uint32_t poseIndex,
+bool setView(sp<ISurroundView3dSession> sv3dSession, uint32_t viewId, uint32_t poseIndex,
              float hfov) {
     const View3d view3d = {
             .viewId = viewId,
@@ -102,40 +73,16 @@ bool setView(sp<ISurroundView3dSession> surroundView3dSession, uint32_t viewId, 
     };
 
     const std::vector<View3d> views = {view3d};
-    if (surroundView3dSession->setViews(views) != SvResult::OK) {
+    if (sv3dSession->setViews(views) != SvResult::OK) {
         return false;
     }
     return true;
 }
 
-bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay) {
-    LOG(INFO) << "Run 3d Surround View demo";
-
-    // Call HIDL API "start3dSession"
-    sp<ISurroundView3dSession> surroundView3dSession;
-
-    SvResult svResult;
-    pSurroundViewService->start3dSession(
-            [&surroundView3dSession, &svResult](const sp<ISurroundView3dSession>& session,
-                                                SvResult result) {
-                surroundView3dSession = session;
-                svResult = result;
-            });
-
-    if (surroundView3dSession == nullptr || svResult != SvResult::OK) {
-        LOG(ERROR) << "Failed to start3dSession";
-        return false;
-    } else {
-        LOG(INFO) << "start3dSession succeeded";
-    }
-
-    sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-
-    sp<SurroundViewCallback> sv3dCallback =
-            new SurroundViewCallback(displayHandler, surroundView3dSession);
-
+bool runSurroundView3dSession(sp<ISurroundView3dSession> sv3dSession,
+        sp<SurroundViewCallback> svCallback) {
     // A view must be set before the 3d stream is started.
-    if (!setView(surroundView3dSession, /*viewId=*/0, /*poseIndex=*/0, kHorizontalFov)) {
+    if (!setView(sv3dSession, /*viewId=*/0, /*poseIndex=*/0, kHorizontalFov)) {
         LOG(ERROR) << "Failed to setView of pose index :" << 0;
         return false;
     }
@@ -143,7 +90,7 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
     // Start 3d stream with callback with default quality and resolution.
     // The quality is defaulted to be HIGH_QUALITY, and the default resolution
     // is set in the sv config file.
-    if (surroundView3dSession->startStream(sv3dCallback) != SvResult::OK) {
+    if (sv3dSession->startStream(svCallback) != SvResult::OK) {
         LOG(ERROR) << "Failed to start 3d stream";
         return false;
     }
@@ -153,7 +100,7 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
     const std::chrono::milliseconds perPoseSleepTimeMs(kTotalViewingTimeSecs * 1000 / kPoseCount);
     // Iterate through the pre-set views.
     for (uint32_t i = 0; i < kPoseCount; i++) {
-        if (!setView(surroundView3dSession, /*viewId=*/i, /*poseIndex=*/i, kHorizontalFov)) {
+        if (!setView(sv3dSession, /*viewId=*/i, /*poseIndex=*/i, kHorizontalFov)) {
             LOG(WARNING) << "Failed to setView of pose index :" << i;
         }
         std::this_thread::sleep_for(perPoseSleepTimeMs);
@@ -164,14 +111,15 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
                          .height = kLowResolutionHeight,
                          .carDetails = SvQuality::LOW};
 
-    if (surroundView3dSession->set3dConfig(config) != SvResult::OK) {
+    if (sv3dSession->set3dConfig(config) != SvResult::OK) {
         LOG(ERROR) << "Failed to set3dConfig";
+        sv3dSession->stopStream();
         return false;
     }
 
     // Let the SV algorithm run for 10 seconds for LOW_QUALITY
     for (uint32_t i = 0; i < kPoseCount; i++) {
-        if (!setView(surroundView3dSession, i + kPoseCount, i, kHorizontalFov)) {
+        if (!setView(sv3dSession, i + kPoseCount, i, kHorizontalFov)) {
             LOG(WARNING) << "Failed to setView of pose index :" << i;
         }
         std::this_thread::sleep_for(perPoseSleepTimeMs);
@@ -179,15 +127,10 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
 
     // TODO(b/150412555): wait for the last frame
     // Stop the 3d stream and session
-    surroundView3dSession->stopStream();
-
-    pSurroundViewService->stop3dSession(surroundView3dSession);
-    surroundView3dSession = nullptr;
-
-    LOG(DEBUG) << "SV 3D session finished.";
-
+    sv3dSession->stopStream();
     return true;
-};
+}
+
 }  // namespace app
 }  // namespace sv
 }  // namespace automotive

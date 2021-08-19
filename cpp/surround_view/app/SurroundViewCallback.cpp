@@ -24,10 +24,10 @@ using android::sp;
 using std::string;
 
 SurroundViewCallback::SurroundViewCallback(
-    sp<DisplayHandler> pDisplayHandler,
-    sp<ISurroundViewSession> pSession) :
-    mDisplayHandler(pDisplayHandler),
-    mSession(pSession) {
+    sp<ISurroundViewSession> pSession,
+    const std::function<bool(const HardwareBuffer& hardwareBuffer)>& onSvFrameReceiveFn) :
+    mSession(pSession),
+    mOnSvFrameReceiveFn(onSvFrameReceiveFn) {
     // Nothing but member initialization
 }
 
@@ -35,11 +35,6 @@ Return<void> SurroundViewCallback::notify(SvEvent svEvent) {
     // Waiting for STREAM_STARTED event.
     if (svEvent == SvEvent::STREAM_STARTED) {
         LOG(INFO) << "Received STREAM_STARTED event";
-        if(!mDisplayHandler->startDisplay()) {
-            LOG(ERROR) << "Failed to start display, exiting.";
-            exit(EXIT_FAILURE);
-        }
-
     } else if (svEvent == SvEvent::CONFIG_UPDATED) {
         LOG(INFO) << "Received CONFIG_UPDATED event";
     } else if (svEvent == SvEvent::STREAM_STOPPED) {
@@ -61,18 +56,17 @@ Return<void> SurroundViewCallback::receiveFrames(
         return {};
     }
 
-    // Now we assume there is only one frame for both 2d and 3d.
-    mDisplayHandler->renderBufferToScreen(svFramesDesc.svBuffers[0].hardwareBuffer);
+    // Note: Only single frame is currently supported.
+    if(!mOnSvFrameReceiveFn(svFramesDesc.svBuffers[0].hardwareBuffer)) {
+        LOG(ERROR) << "Failed OnSvFrameReceiveFn() call.";
+    }
 
-    // Call HIDL API "doneWithFrames" to return the ownership
-    // back to SV service
-    if (mSession == nullptr) {
-        LOG(WARNING) << "SurroundViewSession in callback is invalid";
+    // Call HIDL API "doneWithFrames" to return the ownership.
+    if (!mSession) {
+        LOG(WARNING) << "SurroundViewSession in callback is invalid.";
     } else {
         mSession->doneWithFrames(svFramesDesc);
     }
 
-    // // Return display buffer back to EVS display
-    // mDisplay->returnTargetBufferForDisplay(tgtBuffer);
     return {};
 }

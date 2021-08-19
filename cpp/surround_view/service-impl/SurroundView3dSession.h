@@ -29,6 +29,10 @@
 #include "AnimationModule.h"
 #include "VhalHandler.h"
 
+#ifdef SURROUND_VIEW_LIBRARY
+#include "core_lib.h"
+#endif  // SURROUND_VIEW_LIBRARY
+
 #include <thread>
 
 #include <ui/GraphicBuffer.h>
@@ -87,7 +91,15 @@ public:
                           AnimationModule* animationModule,
                           IOModuleConfig* pConfig);
     ~SurroundView3dSession();
+
+    // Initialize without any external rendering support.
     bool initialize();
+
+#ifdef SURROUND_VIEW_LIBRARY
+    // Initialize with external rendering.
+    bool initializeExternalRender(const RendererInfo& renderingInfo,
+            const OpenGlInitInfo& openglInitInfo);
+#endif
 
     // Methods from ::android::hardware::automotive::sv::V1_0::ISurroundViewSession.
     Return<SvResult> startStream(
@@ -196,6 +208,11 @@ private:
     std::vector<VehiclePropValue> mPropertyValues;
 
     hidl_vec<BufferDesc_1_1> mEvsGraphicBuffers;
+
+    // External Rendering.
+    bool mUseExternalRendering GUARDED_BY(mAccessLock) = false;
+    RendererInfo mRenderingInfo GUARDED_BY(mAccessLock);
+    OpenGlInitInfo mOpenglInitInfo GUARDED_BY(mAccessLock);
 };
 
 }  // namespace implementation
