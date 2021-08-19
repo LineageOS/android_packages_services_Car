@@ -17,5 +17,5 @@
 # Inherit from this product to include the "Car Ui Portrait" RROs for CarUi
 # Include generated RROs
 PRODUCT_PACKAGES += \
-    generated_caruiportrait-com-android-car-media \
-    generated_caruiportrait-com-android-car-dialer \
+    generated_caruiportrait_toolbar-com-android-car-media \
+    generated_caruiportrait_toolbar-com-android-car-dialer \
