@@ -97,13 +97,13 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testShutdown_shouldWriteResultsToFileAndCheckContent() throws Exception {
+    public void testFlushToDisk_shouldWriteResultsToFileAndCheckContent() throws Exception {
         String testInterimFileName = "test_file_1";
         String testFinalFileName = "test_file_2";
         writeBundleToFile(mTestInterimResultDir, testInterimFileName, TEST_INTERIM_BUNDLE);
         writeBundleToFile(mTestFinalResultDir, testFinalFileName, TEST_FINAL_BUNDLE);
 
-        mResultStore.shutdown();
+        mResultStore.flushToDisk();
 
         assertThat(new File(mTestInterimResultDir, testInterimFileName).exists()).isTrue();
         assertThat(new File(mTestFinalResultDir, testFinalFileName).exists()).isTrue();
@@ -116,7 +116,7 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testShutdown_shouldRemoveStaleData() throws Exception {
+    public void testFlushToDisk_shouldRemoveStaleData() throws Exception {
         File staleTestFile1 = new File(mTestInterimResultDir, "stale_test_file_1");
         File staleTestFile2 = new File(mTestFinalResultDir, "stale_test_file_2");
         File activeTestFile3 = new File(mTestInterimResultDir, "active_test_file_3");
@@ -130,7 +130,7 @@ public class ResultStoreTest {
         activeTestFile3.setLastModified(
                 currTimeMs - TimeUnit.MILLISECONDS.convert(29, TimeUnit.DAYS)); // active
 
-        mResultStore.shutdown();
+        mResultStore.flushToDisk();
 
         assertThat(staleTestFile1.exists()).isFalse();
         assertThat(staleTestFile2.exists()).isFalse();
@@ -200,7 +200,7 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutInterimResultAndShutdown_shouldReplaceExistingFile() throws Exception {
+    public void testPutInterimResultAndFlushToDisk_shouldReplaceExistingFile() throws Exception {
         String newKey = "new key";
         String newValue = "new value";
         String metricsConfigName = "my_metrics_config";
@@ -208,7 +208,7 @@ public class ResultStoreTest {
         TEST_INTERIM_BUNDLE.putString(newKey, newValue);
 
         mResultStore.putInterimResult(metricsConfigName, TEST_INTERIM_BUNDLE);
-        mResultStore.shutdown();
+        mResultStore.flushToDisk();
 
         PersistableBundle bundle = readBundleFromFile(mTestInterimResultDir, metricsConfigName);
         assertThat(bundle.getString(newKey)).isEqualTo(newValue);
@@ -216,7 +216,7 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutInterimResultAndShutdown_shouldWriteDirtyResultsOnly() throws Exception {
+    public void testPutInterimResultAndFlushToDisk_shouldWriteDirtyResultsOnly() throws Exception {
         File fileFoo = new File(mTestInterimResultDir, "foo");
         File fileBar = new File(mTestInterimResultDir, "bar");
         writeBundleToFile(fileFoo, TEST_INTERIM_BUNDLE);
@@ -227,7 +227,7 @@ public class ResultStoreTest {
 
         mResultStore.putInterimResult("bar", newData); // make bar dirty
         fileFoo.delete(); // delete the clean file from the file system
-        mResultStore.shutdown(); // write dirty data
+        mResultStore.flushToDisk(); // write dirty data
 
         // foo is a clean file that should not be written in shutdown
         assertThat(fileFoo.exists()).isFalse();
@@ -235,12 +235,12 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutFinalResultAndShutdown_shouldRemoveInterimResultFile() throws Exception {
+    public void testPutFinalResultAndFlushToDisk_shouldRemoveInterimResultFile() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
         mResultStore.putFinalResult(metricsConfigName, TEST_FINAL_BUNDLE);
-        mResultStore.shutdown();
+        mResultStore.flushToDisk();
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isTrue();
