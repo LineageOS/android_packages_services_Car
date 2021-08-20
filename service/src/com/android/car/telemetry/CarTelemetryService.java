@@ -27,14 +27,20 @@ import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.ManifestKey;
 import android.content.Context;
+import android.os.Handler;
+import android.os.HandlerThread;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
+import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
+import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.File;
 import java.util.HashMap;
 import java.util.Map;
 
@@ -49,22 +55,35 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private static final boolean DEBUG = false;
     private static final int DEFAULT_VERSION = 0;
     private static final String TAG = CarTelemetryService.class.getSimpleName();
+    public static final String TELEMETRY_DIR = "telemetry";
 
     private final Context mContext;
+    private final File mRootDirectory;
+    private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
+            CarTelemetryService.class.getSimpleName());
+    private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
     @GuardedBy("mLock")
     private final Map<String, Integer> mNameVersionMap = new HashMap<>();
     private final Object mLock = new Object();
 
     @GuardedBy("mLock")
     private ICarTelemetryServiceListener mListener;
+    private MetricsConfigStore mMetricsConfigStore;
 
     public CarTelemetryService(Context context) {
         mContext = context;
+        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+        // full root directory path is /data/system/car/telemetry
+        mRootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
     }
 
     @Override
     public void init() {
-        // nothing to do
+        mTelemetryHandler.post(() -> {
+            mMetricsConfigStore = new MetricsConfigStore(mRootDirectory);
+            mMetricsConfigStore.getActiveMetricsConfigs();
+            // TODO(b/197343030): mDataBroker.addMetricsConfig to start metrics collection
+        });
     }
 
     @Override
