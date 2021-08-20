@@ -427,9 +427,13 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                 Slog.i(TAG, "rebind null service");
                 return;
             }
-            service.mRendererBound = service.bindInstrumentClusterRendererService();
 
-            if (!service.mRendererBound) {
+            boolean bound = service.bindInstrumentClusterRendererService();
+            synchronized (service.mLock) {
+                service.mRendererBound = bound;
+            }
+
+            if (!bound) {
                 removeMessages(0);
                 sendMessageDelayed(obtainMessage(0, NUMBER_OF_ATTEMPTS, 0),
                         NEXT_REBIND_ATTEMPT_DELAY_MS);
@@ -443,15 +447,20 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                 Slog.i(TAG, "handleMessage null service");
                 return;
             }
-            service.mRendererBound = service.bindInstrumentClusterRendererService();
 
-            if (service.mRendererBound) {
+            boolean bound = service.bindInstrumentClusterRendererService();
+            synchronized (service.mLock) {
+                service.mRendererBound = bound;
+            }
+
+            if (!bound) {
                 Slog.w(TAG, "Failed to bound to render service, next attempt in "
                         + NEXT_REBIND_ATTEMPT_DELAY_MS + "ms.");
 
                 int attempts = msg.arg1;
                 if (--attempts >= 0) {
-                    sendMessageDelayed(obtainMessage(0, attempts, 0), NEXT_REBIND_ATTEMPT_DELAY_MS);
+                    sendMessageDelayed(obtainMessage(0, attempts, 0),
+                            NEXT_REBIND_ATTEMPT_DELAY_MS);
                 } else {
                     Slog.wtf(TAG, "Failed to rebind with cluster rendering service");
                 }
