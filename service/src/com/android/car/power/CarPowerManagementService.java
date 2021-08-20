@@ -487,7 +487,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                 mHal.sendWaitForVhal();
                 break;
             case CarPowerStateListener.SHUTDOWN_CANCELLED:
-                mShutdownOnNextSuspend = false; // This cancels the "NextSuspend"
+                synchronized (mLock) {
+                    mShutdownOnNextSuspend = false; // This cancels the "NextSuspend"
+                }
                 mHal.sendShutdownCancel();
                 break;
             case CarPowerStateListener.SUSPEND_EXIT:
@@ -689,7 +691,9 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         } else {
             doHandleDeepSleep(simulatedMode);
         }
-        mShutdownOnNextSuspend = false;
+        synchronized (mLock) {
+            mShutdownOnNextSuspend = false;
+        }
     }
 
     private void restoreWifi() {
@@ -791,10 +795,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         shutdownPrepareTimeOverrideInSecs);
             }
         }
-        Slogf.i(TAG, "processing before shutdown expected for: %dms, adding polling:%d",
-                mShutdownPrepareTimeMs, pollingCount);
         boolean allAreComplete;
         synchronized (mLock) {
+            Slogf.i(TAG, "processing before shutdown expected for: %dms, adding polling:%d",
+                    mShutdownPrepareTimeMs, pollingCount);
             mProcessingStartTime = SystemClock.elapsedRealtime();
             releaseTimerLocked();
             allAreComplete = mListenersWeAreWaitingFor.isEmpty();
@@ -904,6 +908,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         onApPowerStateChange(CpmsState.WAIT_FOR_VHAL, nextListenerState);
     }
 
+    @GuardedBy("mLock")
     private boolean needPowerStateChangeLocked(@NonNull CpmsState newState) {
         if (mCurrentState == null) {
             return true;
@@ -1165,11 +1170,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     }
 
     private void signalComplete() {
-        if (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE
-                || mCurrentState.mState == CpmsState.SIMULATE_SLEEP) {
-            PowerHandler powerHandler;
-            // All apps are ready to shutdown/suspend.
-            synchronized (mLock) {
+        boolean shouldHandleProcessingComplete = false;
+        synchronized (mLock) {
+            if (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE
+                    || mCurrentState.mState == CpmsState.SIMULATE_SLEEP) {
+                // All apps are ready to shutdown/suspend.
                 if (!mShutdownOnFinish) {
                     if (mLastSleepEntryTime > mProcessingStartTime
                             && mLastSleepEntryTime < SystemClock.elapsedRealtime()) {
@@ -1177,10 +1182,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                         return;
                     }
                 }
-                powerHandler = mHandler;
+                shouldHandleProcessingComplete = true;
             }
+        }
+
+        if (shouldHandleProcessingComplete) {
             Slogf.i(TAG, "Apps are finished, call handleProcessingComplete()");
-            powerHandler.handleProcessingComplete();
+            mHandler.handleProcessingComplete();
         }
     }
 
@@ -1787,10 +1795,10 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         synchronized (mSimulationWaitObject) {
             mInSimulatedDeepSleepMode = true;
             mWakeFromSimulatedSleep = false;
-            mGarageModeShouldExitImmediately = false;
         }
         PowerHandler handler;
         synchronized (mLock) {
+            mGarageModeShouldExitImmediately = false;
             mRebootAfterGarageMode = shouldReboot;
             mPendingPowerStates.addFirst(new CpmsState(CpmsState.SIMULATE_SLEEP,
                                                        CarPowerStateListener.SHUTDOWN_PREPARE));

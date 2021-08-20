@@ -222,6 +222,7 @@ public final class PowerComponentHandler {
      *
      * @return {@code true} if power state is changed. Otherwise, {@code false}
      */
+    @GuardedBy("mLock")
     private boolean setComponentEnabledLocked(int component, boolean enabled) {
         boolean oldState = mComponentStates.get(component, /* valueIfKeyNotFound= */ false);
         if (oldState == enabled) {
@@ -258,6 +259,7 @@ public final class PowerComponentHandler {
         return true;
     }
 
+    @GuardedBy("mLock")
     private void readUserOffComponentsLocked() {
         boolean invalid = false;
         mComponentsOffByPolicy.clear();
