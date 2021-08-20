@@ -251,7 +251,7 @@
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/top_guideline"
             systemui:hvacAreaId="117"
-            systemui:hvacPropertyId="354419986"
+            systemui:hvacPropertyId="354419976"
             systemui:hvacTurnOffIfAutoOn="true"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_recirculate_on"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_recirculate_off"/>
