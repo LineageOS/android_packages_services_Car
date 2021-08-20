@@ -139,9 +139,9 @@ public class EvsHalService extends HalServiceBase {
             for (VehiclePropConfig config : configs) {
                 mProperties.put(config.prop, config);
             }
-        }
 
-        mIsEvsServiceRequestSupported = mProperties.contains(EVS_SERVICE_REQUEST);
+            mIsEvsServiceRequestSupported = mProperties.contains(EVS_SERVICE_REQUEST);
+        }
     }
 
     @Override

@@ -300,9 +300,10 @@ public class PowerHalService extends HalServiceBase {
         } else if (brightness > 100) {
             brightness = 100;
         }
-        VehiclePropConfig prop = mProperties.get(DISPLAY_BRIGHTNESS);
-        if (prop == null) {
-            return;
+        synchronized (mLock) {
+            if (mProperties.get(DISPLAY_BRIGHTNESS) == null) {
+                return;
+            }
         }
         try {
             mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightness);

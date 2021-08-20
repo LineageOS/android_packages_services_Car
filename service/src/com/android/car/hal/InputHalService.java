@@ -441,8 +441,10 @@ public class InputHalService extends HalServiceBase {
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(PrintWriter writer) {
-        writer.println("*Input HAL*");
-        writer.println("mKeyInputSupported:" + mKeyInputSupported);
-        writer.println("mRotaryInputSupported:" + mRotaryInputSupported);
+        synchronized (mLock) {
+            writer.println("*Input HAL*");
+            writer.println("mKeyInputSupported:" + mKeyInputSupported);
+            writer.println("mRotaryInputSupported:" + mRotaryInputSupported);
+        }
     }
 }
