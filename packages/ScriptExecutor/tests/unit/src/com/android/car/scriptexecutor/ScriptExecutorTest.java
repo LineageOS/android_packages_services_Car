@@ -24,8 +24,8 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -51,7 +51,7 @@ public final class ScriptExecutorTest {
 
 
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {
-        public Bundle mSavedBundle;
+        public PersistableBundle mSavedBundle;
         public int mErrorType;
         public String mMessage;
         public String mStackTrace;
@@ -63,7 +63,7 @@ public final class ScriptExecutorTest {
         }
 
         @Override
-        public void onSuccess(Bundle stateToPersist) {
+        public void onSuccess(PersistableBundle stateToPersist) {
             mSavedBundle = stateToPersist;
             mSuccessLatch.countDown();
         }
@@ -82,8 +82,8 @@ public final class ScriptExecutorTest {
 
     // TODO(b/189241508). Parsing of publishedData is not implemented yet.
     // Null is the only accepted input.
-    private final Bundle mPublishedData = null;
-    private final Bundle mSavedState = new Bundle();
+    private final PersistableBundle mPublishedData = null;
+    private final PersistableBundle mSavedState = new PersistableBundle();
 
     private static final String LUA_SCRIPT =
             "function hello(state)\n"
@@ -114,7 +114,8 @@ public final class ScriptExecutorTest {
             };
 
     // Helper method to invoke the script and wait for it to complete and return the result.
-    private void runScriptAndWaitForResult(String script, String function, Bundle previousState)
+    private void runScriptAndWaitForResult(String script, String function,
+            PersistableBundle previousState)
             throws RemoteException {
         mScriptExecutor.invokeScript(script, function, mPublishedData, previousState,
                 mFakeScriptExecutorListener);
@@ -130,7 +131,7 @@ public final class ScriptExecutorTest {
     }
 
     private void runScriptAndWaitForError(String script, String function) throws RemoteException {
-        mScriptExecutor.invokeScript(script, function, mPublishedData, new Bundle(),
+        mScriptExecutor.invokeScript(script, function, mPublishedData, new PersistableBundle(),
                 mFakeScriptExecutorListener);
         try {
             if (!mFakeScriptExecutorListener.mErrorLatch.await(SCRIPT_ERROR_TIMEOUT_SEC,
@@ -251,7 +252,7 @@ public final class ScriptExecutorTest {
                         + "    result = {y = state.x+1}\n"
                         + "    on_success(result)\n"
                         + "end\n";
-        Bundle previousState = new Bundle();
+        PersistableBundle previousState = new PersistableBundle();
         previousState.putInt("x", 1);
 
 
@@ -277,7 +278,7 @@ public final class ScriptExecutorTest {
                         + "    result.string = state.string .. \"CADABRA\"\n"
                         + "    on_success(result)\n"
                         + "end\n";
-        Bundle previousState = new Bundle();
+        PersistableBundle previousState = new PersistableBundle();
         previousState.putInt("integer", 1);
         previousState.putDouble("number", 0.1);
         previousState.putBoolean("boolean", false);

@@ -83,6 +83,13 @@ android_app {
         "libcarservicejni",
     ],
 
+    aidl: {
+        include_dirs: [
+            // TODO(b/198195711): Remove once we compile against SDK.
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
+    },
+
     required: ["allowed_privapp_com.android.car"],
 
     // Disable build in PDK, missing aidl import breaks build
@@ -279,6 +286,13 @@ android_library {
 
     static_libs: common_lib_deps,
 
+    aidl: {
+        include_dirs: [
+            // TODO(b/198195711): Remove once we compile against SDK.
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
+    },
+
     product_variables: {
         pdk: {
             enabled: false,
@@ -307,6 +321,13 @@ android_library {
         "android.car",
         "android.car.builtin",
     ],
+
+    aidl: {
+        include_dirs: [
+            // TODO(b/198195711): Remove once we compile against SDK.
+	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+	],
+    },
 
     product_variables: {
         pdk: {

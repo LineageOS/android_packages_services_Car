@@ -21,7 +21,7 @@ import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
-import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.SparseArray;
@@ -181,8 +181,8 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
      * worker thread.
      */
     private void onVehicleEvent(CarPropertyEvent event) {
-        Bundle bundle = new Bundle();
-        bundle.putParcelable(CAR_PROPERTY_EVENT_KEY, event);
+        PersistableBundle bundle = new PersistableBundle();
+        // TODO(b/197269115): Properly populate PersistableBundle with car property data.
         ArraySet<DataSubscriber> subscribersClone;
 
         synchronized (mLock) {
