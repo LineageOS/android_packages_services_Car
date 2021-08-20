@@ -43,7 +43,7 @@ void ScriptExecutorListener::onSuccess(jobject bundle) {
     }
     jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
     jmethodID onSuccessMethod =
-            env->GetMethodID(listenerClass, "onSuccess", "(Landroid/os/Bundle;)V");
+            env->GetMethodID(listenerClass, "onSuccess", "(Landroid/os/PersistableBundle;)V");
     env->CallVoidMethod(mScriptExecutorListener, onSuccessMethod, bundle);
 }
 
