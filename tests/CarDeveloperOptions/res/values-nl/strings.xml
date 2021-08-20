@@ -18,7 +18,7 @@
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="yes" msgid="39117354665111159">"Ja"</string>
     <string name="no" msgid="4709057267400907161">"Nee"</string>
-    <string name="create" msgid="5131953868544187847">"Aanmaken"</string>
+    <string name="create" msgid="5131953868544187847">"Maken"</string>
     <string name="allow" msgid="128867119174713893">"Toestaan"</string>
     <string name="deny" msgid="3998166389989144025">"Weigeren"</string>
     <string name="device_info_default" msgid="1548919563979154348">"Onbekend"</string>
