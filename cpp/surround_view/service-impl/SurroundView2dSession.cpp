@@ -950,10 +950,8 @@ bool SurroundView2dSession::setupEvs() {
                        << "physical camera: " << id;
             return false;
         }
+        mCameraParams.emplace_back(convertToSurroundViewCameraParams(params));
     }
-
-    mCameraParams =
-            convertToSurroundViewCameraParams(cameraIdToAndroidParameters);
 
     for (auto& camera : mCameraParams) {
         camera.size.width = targetCfg->width;

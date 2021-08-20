@@ -58,10 +58,9 @@ bool getAndroidCameraParams(android::sp<IEvsCamera> camera,
                             const std::string& cameraId,
                             AndroidCameraParams& params);
 
-// Converts the camera parameters from Android Camera format into Surround View
-// core lib format.
-std::vector<SurroundViewCameraParams> convertToSurroundViewCameraParams(
-        const std::map<std::string, AndroidCameraParams>& androidCameraParamsMap);
+// Converts the camera parameters from Android Camera format into Surround View core lib format.
+SurroundViewCameraParams convertToSurroundViewCameraParams(
+        const AndroidCameraParams& androidParams);
 
 }  // namespace implementation
 }  // namespace V1_0
