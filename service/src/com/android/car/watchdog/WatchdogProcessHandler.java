@@ -73,9 +73,10 @@ public final class WatchdogProcessHandler {
     private final SparseArray<Boolean> mClientCheckInProgress = new SparseArray<>();
     @GuardedBy("mLock")
     private final ArrayList<ClientInfo> mClientsNotResponding = new ArrayList<>();
-    @GuardedBy("mMainHandler")
+    // mLastSessionId should only be accessed from the main thread.
+    @GuardedBy("mLock")
     private int mLastSessionId;
-    @GuardedBy("mMainHandler")
+    @GuardedBy("mLock")
     private final SparseBooleanArray mStoppedUser = new SparseBooleanArray();
 
     public WatchdogProcessHandler(ICarWatchdogServiceForSystem serviceImpl,
@@ -86,10 +87,12 @@ public final class WatchdogProcessHandler {
 
     /** Initializes the handler. */
     public void init() {
-        for (int timeout : ALL_TIMEOUTS) {
-            mClientMap.put(timeout, new ArrayList<ClientInfo>());
-            mPingedClientMap.put(timeout, new SparseArray<ClientInfo>());
-            mClientCheckInProgress.put(timeout, false);
+        synchronized (mLock) {
+            for (int timeout : ALL_TIMEOUTS) {
+                mClientMap.put(timeout, new ArrayList<ClientInfo>());
+                mPingedClientMap.put(timeout, new SparseArray<ClientInfo>());
+                mClientCheckInProgress.put(timeout, false);
+            }
         }
         if (CarWatchdogService.DEBUG) {
             Slogf.d(CarWatchdogService.TAG, "WatchdogProcessHandler is initialized");
@@ -266,8 +269,8 @@ public final class WatchdogProcessHandler {
     private void analyzeClientResponse(int timeout) {
         // Clients which are not responding are stored in mClientsNotResponding, and will be dumped
         // and killed at the next response of CarWatchdogService to car watchdog daemon.
-        SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
         synchronized (mLock) {
+            SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
             for (int i = 0; i < pingedClients.size(); i++) {
                 ClientInfo clientInfo = pingedClients.valueAt(i);
                 if (mStoppedUser.get(clientInfo.userId)) {
@@ -281,9 +284,9 @@ public final class WatchdogProcessHandler {
     }
 
     private void sendPingToClients(int timeout) {
-        SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
         ArrayList<ClientInfo> clientsToCheck;
         synchronized (mLock) {
+            SparseArray<ClientInfo> pingedClients = mPingedClientMap.get(timeout);
             pingedClients.clear();
             clientsToCheck = new ArrayList<>(mClientMap.get(timeout));
             for (int i = 0; i < clientsToCheck.size(); i++) {
@@ -297,15 +300,17 @@ public final class WatchdogProcessHandler {
             }
             mClientCheckInProgress.setValueAt(timeout, true);
         }
+
         for (int i = 0; i < clientsToCheck.size(); i++) {
             ClientInfo clientInfo = clientsToCheck.get(i);
             try {
                 clientInfo.client.onCheckHealthStatus(clientInfo.sessionId, timeout);
             } catch (RemoteException e) {
                 Slogf.w(CarWatchdogService.TAG,
-                        "Sending a ping message to client(pid: %d) failed: %s", clientInfo.pid, e);
+                        "Sending a ping message to client(pid: %d) failed: %s",
+                        clientInfo.pid, e);
                 synchronized (mLock) {
-                    pingedClients.remove(clientInfo.sessionId);
+                    mPingedClientMap.get(timeout).remove(clientInfo.sessionId);
                 }
             }
         }
@@ -323,12 +328,15 @@ public final class WatchdogProcessHandler {
     }
 
     private int getNewSessionId() {
-        if (++mLastSessionId <= 0) {
-            mLastSessionId = 1;
+        synchronized (mLock) {
+            if (++mLastSessionId <= 0) {
+                mLastSessionId = 1;
+            }
+            return mLastSessionId;
         }
-        return mLastSessionId;
     }
 
+    @GuardedBy("mLock")
     private void removeClientLocked(IBinder clientBinder, int timeout) {
         ArrayList<ClientInfo> clients = mClientMap.get(timeout);
         for (int i = 0; i < clients.size(); i++) {
