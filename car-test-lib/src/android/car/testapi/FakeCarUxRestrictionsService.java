@@ -110,17 +110,6 @@ public class FakeCarUxRestrictionsService extends ICarUxRestrictionsManager.Stub
     }
 
     @Override
-    public void reportVirtualDisplayToPhysicalDisplay(ICarUxRestrictionsChangeListener binder,
-            int virtualDisplayId, int physicalDisplayId) throws RemoteException {
-
-    }
-
-    @Override
-    public int getMappedPhysicalDisplayOfVirtualDisplay(int displayId) throws RemoteException {
-        return 0;
-    }
-
-    @Override
     public boolean saveUxRestrictionsConfigurationForNextBoot(
             List<CarUxRestrictionsConfiguration> config) {
         return true;

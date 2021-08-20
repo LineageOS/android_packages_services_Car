@@ -393,45 +393,4 @@ public final class CarUxRestrictionsManager extends CarManagerBase {
 
         return mDisplayId;
     }
-
-    /**
-     * Reports the mapping the virtual display to the physical display.
-     *
-     * @param virtualDisplayId the display id of the embedded virtual display.
-     * @parom physicalDisplayId the display id where the ActivityView is placed in.
-     * @hide
-     */
-    public void reportVirtualDisplayToPhysicalDisplay(int virtualDisplayId, int physicalDisplayId) {
-        CarUxRestrictionsChangeListenerToService serviceListener;
-        synchronized (mLock) {
-            if (mListenerToService == null) {
-                mListenerToService = new CarUxRestrictionsChangeListenerToService(this);
-            }
-            serviceListener = mListenerToService;
-        }
-        try {
-            mUxRService.reportVirtualDisplayToPhysicalDisplay(serviceListener,
-                    virtualDisplayId, physicalDisplayId);
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
-    }
-
-    /**
-     * Finds out the physical display id where ActivityView is actually located in.
-     * If the given ActivityView is placed inside of another ActivityView, then it will return
-     * the display id where the parent ActivityView is located in.
-     *
-     * @param displayId the display id of the embedded virtual display of ActivityView.
-     * @return the physical display id where ActivityView is actually located in.
-     * @hide
-     */
-    public int getMappedPhysicalDisplayOfVirtualDisplay(int displayId) {
-        try {
-            return mUxRService.getMappedPhysicalDisplayOfVirtualDisplay(displayId);
-        } catch (RemoteException e) {
-            // When CarService isn't ready, we'll return DEFAULT_DISPLAY defensively.
-            return handleRemoteExceptionFromCarService(e, Display.DEFAULT_DISPLAY);
-        }
-    }
 }

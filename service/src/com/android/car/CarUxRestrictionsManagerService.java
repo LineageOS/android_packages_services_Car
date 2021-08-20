@@ -59,7 +59,6 @@ import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
 import android.util.Log;
-import android.util.SparseArray;
 import android.view.Display;
 import android.view.DisplayAddress;
 
@@ -154,7 +153,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     /**
      * This lookup caches the mapping from an int display id to an int that represents a physical
-     * port. It includes mappings for virtual displays.
+     * port.
      */
     @GuardedBy("mLock")
     private final Map<Integer, Integer> mPortLookup = new HashMap<>();
@@ -367,9 +366,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
         mDrivingStateService.unregisterDrivingStateChangeListener(
                 mICarDrivingStateChangeEventListener);
-        synchronized (mLock) {
-            mActivityViewDisplayInfoMap.clear();
-        }
     }
 
     // Binder methods
@@ -711,12 +707,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             writer.println("UX Restriction change log:");
             for (TransitionLog tlog : mTransitionLogs) {
                 writer.println(tlog);
-            }
-            writer.println("UX Restriction display info:");
-            for (int i = mActivityViewDisplayInfoMap.size() - 1; i >= 0; --i) {
-                DisplayInfo info = mActivityViewDisplayInfoMap.valueAt(i);
-                writer.printf("Display%d: physicalDisplayId=%d, owner=%s\n",
-                        mActivityViewDisplayInfoMap.keyAt(i), info.mPhysicalDisplayId, info.mOwner);
             }
         }
     }
@@ -1105,104 +1095,6 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private static void logd(String msg) {
         if (DBG) {
             Slog.d(TAG, msg);
-        }
-    }
-
-    private static final class DisplayInfo {
-        final ICarUxRestrictionsChangeListener mOwner;
-        final int mPhysicalDisplayId;
-
-        DisplayInfo(ICarUxRestrictionsChangeListener owner, int physicalDisplayId) {
-            mOwner = owner;
-            mPhysicalDisplayId = physicalDisplayId;
-        }
-    }
-
-    @GuardedBy("mLock")
-    private final SparseArray<DisplayInfo> mActivityViewDisplayInfoMap = new SparseArray<>();
-
-    @GuardedBy("mLock")
-    private final RemoteCallbackList<ICarUxRestrictionsChangeListener>
-            mVirtualDisplayMapplingClientList =
-            new RemoteCallbackList<>() {
-                @Override
-                public void onCallbackDied(ICarUxRestrictionsChangeListener client) {
-                    synchronized (mLock) {
-                        // Descending order to delete items safely from SpareArray.gc().
-                        for (int i = mActivityViewDisplayInfoMap.size() - 1; i >= 0; --i) {
-                            DisplayInfo info = mActivityViewDisplayInfoMap.valueAt(i);
-                            if (info.mOwner == client) {
-                                logd("onCallbackDied: clean up client=" + client);
-                                mActivityViewDisplayInfoMap.removeAt(i);
-                                mPortLookup.remove(mActivityViewDisplayInfoMap.keyAt(i));
-                            }
-                        }
-                    }
-                }
-            };
-
-    @Override
-    public void reportVirtualDisplayToPhysicalDisplay(ICarUxRestrictionsChangeListener clientToken,
-            int virtualDisplayId, int physicalDisplayId) {
-        logd("reportVirtualDisplayToPhysicalDisplay: callback=" + clientToken
-                + ", virtualDisplayId=" + virtualDisplayId
-                + ", physicalDisplayId=" + physicalDisplayId);
-        boolean release = physicalDisplayId == Display.INVALID_DISPLAY;
-        checkCallerOwnsDisplay(virtualDisplayId, release);
-        synchronized (mLock) {
-            if (release) {
-                mVirtualDisplayMapplingClientList.unregister(clientToken);
-                mActivityViewDisplayInfoMap.delete(virtualDisplayId);
-                mPortLookup.remove(virtualDisplayId);
-                return;
-            }
-            mVirtualDisplayMapplingClientList.register(clientToken);
-            mActivityViewDisplayInfoMap.put(virtualDisplayId,
-                    new DisplayInfo(clientToken, physicalDisplayId));
-            Integer physicalPort = getPhysicalPortLocked(physicalDisplayId);
-            if (physicalPort == null) {
-                // This should not happen.
-                Slog.wtf(TAG, "No known physicalPort for displayId:" + physicalDisplayId);
-                physicalPort = mDefaultDisplayPhysicalPort;
-            }
-            mPortLookup.put(virtualDisplayId, physicalPort);
-        }
-    }
-
-    @Override
-    public int getMappedPhysicalDisplayOfVirtualDisplay(int displayId) {
-        logd("getMappedPhysicalDisplayOfVirtualDisplay: displayId=" + displayId);
-        synchronized (mLock) {
-            DisplayInfo foundInfo = mActivityViewDisplayInfoMap.get(displayId);
-            if (foundInfo == null) {
-                return Display.INVALID_DISPLAY;
-            }
-            // ActivityView can be placed in another ActivityView, so we should repeat the process
-            // until no parent is found (reached to the physical display).
-            while (foundInfo != null) {
-                displayId = foundInfo.mPhysicalDisplayId;
-                foundInfo = mActivityViewDisplayInfoMap.get(displayId);
-            }
-        }
-        return displayId;
-    }
-
-    private void checkCallerOwnsDisplay(int displayId, boolean release) {
-        Display display = mDisplayManager.getDisplay(displayId);
-        if (display == null) {
-            // Bypasses the permission check for non-existing display when releasing it, since
-            // reportVirtualDisplayToPhysicalDisplay() and releasing display happens simultaneously
-            // and it's no harm to release the information on the non-existing display.
-            if (release) return;
-            throw new IllegalArgumentException(
-                    "Cannot find display for non-existent displayId: " + displayId);
-        }
-
-        int callingUid = Binder.getCallingUid();
-        int displayOwnerUid = display.getOwnerUid();
-        if (callingUid != displayOwnerUid) {
-            throw new SecurityException("The caller doesn't own the display: callingUid="
-                    + callingUid + ", displayOwnerUid=" + displayOwnerUid);
         }
     }
 }
