@@ -421,7 +421,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         private final int mUid;
         private final int mPid;
 
-        @GuardedBy("AppFocusService.mLock")
+        @GuardedBy("AppFocusService.this.mLock")
         private final Set<Integer> mAppTypes = new ArraySet<>();
 
         private ClientInfo(ClientHolder holder, IAppFocusListener binder, int uid, int pid,
@@ -464,7 +464,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         private final int mUid;
         private final int mPid;
 
-        @GuardedBy("AppFocusService.mLock")
+        @GuardedBy("AppFocusService.this.mLock")
         private final Set<Integer> mOwnedAppTypes = new ArraySet<>();
 
         private OwnershipClientInfo(OwnershipClientHolder holder, IAppFocusOwnershipCallback binder,
@@ -475,10 +475,10 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         }
 
         private Set<Integer> getOwnedAppTypes() {
-            if (DBG_EVENT) {
-                Slog.i(CarLog.TAG_APP_FOCUS, "getOwnedAppTypes " + mOwnedAppTypes);
-            }
             synchronized (mLock) {
+                if (DBG_EVENT) {
+                    Slog.i(CarLog.TAG_APP_FOCUS, "getOwnedAppTypes " + mOwnedAppTypes);
+                }
                 return Collections.unmodifiableSet(mOwnedAppTypes);
             }
         }

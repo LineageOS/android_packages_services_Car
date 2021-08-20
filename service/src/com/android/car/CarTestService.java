@@ -66,7 +66,9 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarTestService*");
-        writer.println(" mTokens:" + Arrays.toString(mTokens.entrySet().toArray()));
+        synchronized (mLock) {
+            writer.println(" mTokens:" + Arrays.toString(mTokens.entrySet().toArray()));
+        }
     }
 
     @Override

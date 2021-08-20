@@ -363,6 +363,7 @@ public final class CarFeatureController implements CarServiceBase {
         mEnabledFeatures.clear();
     }
 
+    @GuardedBy("mLock")
     private boolean loadFromConfigFileLocked() {
         // done without lock, should be only called from constructor.
         FileInputStream fis;
