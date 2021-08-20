@@ -36,7 +36,7 @@ import java.util.concurrent.TimeUnit;
 /**
  * Disk storage for interim and final metrics statistics.
  */
-class ResultStore {
+public class ResultStore {
 
     private static final long STALE_THRESHOLD_MILLIS =
             TimeUnit.MILLISECONDS.convert(30, TimeUnit.DAYS);
@@ -87,7 +87,7 @@ class ResultStore {
      * Retrieves interim metrics for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    PersistableBundle getInterimResult(String metricsConfigName) {
+    public PersistableBundle getInterimResult(String metricsConfigName) {
         synchronized (mLock) {
             if (!mInterimResultCache.containsKey(metricsConfigName)) {
                 return null;
@@ -100,7 +100,7 @@ class ResultStore {
      * Stores interim metrics results in memory for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    void putInterimResult(String metricsConfigName, PersistableBundle result) {
+    public void putInterimResult(String metricsConfigName, PersistableBundle result) {
         synchronized (mLock) {
             mInterimResultCache.put(
                     metricsConfigName,
@@ -117,7 +117,7 @@ class ResultStore {
      * @param callback          for receiving the metrics output. If result does not exist, it will
      *                          receive a null value.
      */
-    void getFinalResult(
+    public void getFinalResult(
             String metricsConfigName, boolean deleteResult, FinalResultCallback callback) {
         // I/O operations should happen on I/O thread
         mIoHandler.post(() -> {
@@ -153,7 +153,7 @@ class ResultStore {
      * Stores final metrics in memory for the given
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
-    void putFinalResult(String metricsConfigName, PersistableBundle result) {
+    public void putFinalResult(String metricsConfigName, PersistableBundle result) {
         synchronized (mLock) {
             mIoHandler.post(() -> {
                 writeSingleResultToFileOnIoThread(mFinalResultDirectory, metricsConfigName, result);
@@ -163,8 +163,8 @@ class ResultStore {
         }
     }
 
-    /** Persist data to disk. */
-    void shutdown() {
+    /** Persists data to disk. */
+    public void flushToDisk() {
         mIoHandler.post(() -> {
             synchronized (mLock) {
                 writeInterimResultsToFileLockedOnIoThread();
@@ -250,6 +250,6 @@ class ResultStore {
         }
     }
 
-    // TODO(b/195422227): Implement deletion of stale data based on system time
+    // TODO(b/195422227): Implement storing error results
     // TODO(b/195422227): Implement deletion of interim results after MetricsConfig is removed
 }
