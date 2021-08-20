@@ -1305,10 +1305,13 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private @Nullable AudioDevicePort getAudioPort(@AttributeUsage int usage) {
         int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
         final int groupId = getVolumeGroupIdForUsage(zoneId, usage);
-        final CarVolumeGroup group = Objects.requireNonNull(
-                getCarVolumeGroupLocked(zoneId, groupId),
-                "Can not find CarVolumeGroup by usage: "
-                        + AudioAttributes.usageToString(usage));
+        final CarVolumeGroup group;
+        synchronized (mImplLock) {
+            group = Objects.requireNonNull(
+                    getCarVolumeGroupLocked(zoneId, groupId),
+                    "Can not find CarVolumeGroup by usage: "
+                            + AudioAttributes.usageToString(usage));
+        }
         return group.getAudioDevicePortForContext(CarAudioContext.getContextForUsage(usage));
     }
 
@@ -1371,6 +1374,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         mCarVolumeGroupMuting.carMuteChanged();
     }
 
+    @GuardedBy("mImplLock")
     private void assignMissingZonesToDriverLocked(@UserIdInt int driverUserId,
             Set<Integer> assignedZones) {
         for (int i = 0; i < mCarAudioZones.size(); i++) {
@@ -1382,6 +1386,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @GuardedBy("mImplLock")
     private void adjustZonesToUserIdLocked(@UserIdInt int userId) {
         for (int i = 0; i < mCarAudioZones.size(); i++) {
             CarAudioZone zone = mCarAudioZones.valueAt(i);
@@ -1389,6 +1394,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         }
     }
 
+    @GuardedBy("mImplLock")
     private void assignUserIdToAudioZoneLocked(CarAudioZone zone, @UserIdInt int userId) {
         if (userId == getUserIdForZoneLocked(zone.getId())) {
             if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
