@@ -34,7 +34,6 @@ import androidx.test.filters.FlakyTest;
 import androidx.test.filters.RequiresDevice;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 
 import java.util.concurrent.Semaphore;
@@ -43,6 +42,9 @@ import java.util.concurrent.TimeUnit;
 @MediumTest
 public class CarAppFocusManagerTest extends CarApiTestBase {
     private static final String TAG = CarAppFocusManagerTest.class.getSimpleName();
+
+    private static final long NEGATIVE_CASE_WAIT_TIMEOUT_MS = 100L;
+
     private CarAppFocusManager mManager;
 
     private final LooperThread mEventThread = new LooperThread();
@@ -89,7 +91,6 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         mManager.removeFocusListener(listener2);  // Double-unregister is OK
     }
 
-    @Ignore("b/195835795")
     @Test
     public void testRegisterUnregisterSpecificApp() throws Exception {
         FocusChangedListener listener1 = new FocusChangedListener();
@@ -106,7 +107,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         // Unregistred from nav app, no events expected.
         assertThat(listener1.waitForFocusChangeAndAssert(
-                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION, true)).isFalse();
+                NEGATIVE_CASE_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION,
+                true)).isFalse();
         assertThat(listener2.waitForFocusChangeAndAssert(
                 DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION, true)).isTrue();
 
@@ -114,7 +116,8 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
         assertThat(manager.requestAppFocus(APP_FOCUS_TYPE_NAVIGATION, new FocusOwnershipCallback()))
                 .isEqualTo(CarAppFocusManager.APP_FOCUS_REQUEST_SUCCEEDED);
         assertThat(listener2.waitForFocusChangeAndAssert(
-                DEFAULT_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION, true)).isFalse();
+                NEGATIVE_CASE_WAIT_TIMEOUT_MS, APP_FOCUS_TYPE_NAVIGATION,
+                true)).isFalse();
 
         manager.removeFocusListener(listener2, 2);
         manager.removeFocusListener(listener2, 2);    // Double-unregister is OK
@@ -326,17 +329,15 @@ public class CarAppFocusManagerTest extends CarApiTestBase {
 
         boolean waitForFocusChangeAndAssert(long timeoutMs, int expectedAppType,
                 boolean expectedAppActive) throws Exception {
-
             if (!mChangeWait.tryAcquire(timeoutMs, TimeUnit.MILLISECONDS)) {
                 return false;
             }
-
             assertThat(mLastChangeAppType).isEqualTo(expectedAppType);
             assertThat(mLastChangeAppActive).isEqualTo(expectedAppActive);
             return true;
         }
 
-        void reset() throws InterruptedException {
+        void reset() {
             mLastChangeAppType = 0;
             mLastChangeAppActive = false;
             mChangeWait.drainPermits();
