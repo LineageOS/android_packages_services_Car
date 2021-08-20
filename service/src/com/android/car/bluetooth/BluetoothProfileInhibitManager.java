@@ -245,16 +245,19 @@ public class BluetoothProfileInhibitManager {
 
         logd("Restoring profile inhibits: " + savedBluetoothConnection);
 
-        for (String paramsStr : savedBluetoothConnection.split(SETTINGS_DELIMITER)) {
-            try {
-                BluetoothConnection params = new BluetoothConnection(paramsStr);
-                InhibitRecord record = new InhibitRecord(params, RESTORED_PROFILE_INHIBIT_TOKEN);
-                mProfileInhibits.put(params, record);
-                mRestoredInhibits.add(record);
-                logd("Restored profile inhibits for " + params);
-            } catch (IllegalArgumentException e) {
-                // We won't ever be able to fix a bad parse, so skip it and move on.
-                loge("Bad format for saved profile inhibit: " + paramsStr + ", " + e);
+        synchronized (mProfileInhibitsLock) {
+            for (String paramsStr : savedBluetoothConnection.split(SETTINGS_DELIMITER)) {
+                try {
+                    BluetoothConnection params = new BluetoothConnection(paramsStr);
+                    InhibitRecord record = new InhibitRecord(
+                            params, RESTORED_PROFILE_INHIBIT_TOKEN);
+                    mProfileInhibits.put(params, record);
+                    mRestoredInhibits.add(record);
+                    logd("Restored profile inhibits for " + params);
+                } catch (IllegalArgumentException e) {
+                    // We won't ever be able to fix a bad parse, so skip it and move on.
+                    loge("Bad format for saved profile inhibit: " + paramsStr + ", " + e);
+                }
             }
         }
     }
@@ -262,7 +265,8 @@ public class BluetoothProfileInhibitManager {
     /**
      * Dump all currently-active profile inhibits to {@link Settings.Secure}.
      */
-    private void commit() {
+    @GuardedBy("mProfileInhibitsLock")
+    private void commitLocked() {
         Set<BluetoothConnection> inhibitedProfiles = new HashSet<>(mProfileInhibits.keySet());
         // Don't write out profiles that were disabled before a request was made, since
         // restoring those profiles is a no-op.
@@ -400,7 +404,7 @@ public class BluetoothProfileInhibitManager {
                 }
             }
 
-            commit();
+            commitLocked();
             return true;
         }
     }
@@ -449,7 +453,7 @@ public class BluetoothProfileInhibitManager {
             record.getToken().unlinkToDeath(record, 0);
             mProfileInhibits.remove(params, record);
 
-            commit();
+            commitLocked();
             return true;
         }
     }
@@ -457,6 +461,7 @@ public class BluetoothProfileInhibitManager {
     /**
      * Re-enable and reconnect a given profile for a device.
      */
+    @GuardedBy("mProfileInhibitsLock")
     private boolean restoreConnectionPolicy(BluetoothConnection params) {
         if (!isProxyAvailable(params.getProfile())) {
             return false;
@@ -494,7 +499,8 @@ public class BluetoothProfileInhibitManager {
      * If the CarBluetoothUserService is not yet available, or it hasn't yet bound its profile
      * proxies, the removal will fail, and will need to be retried later.
      */
-    private void tryRemoveRestoredProfileInhibits() {
+    @GuardedBy("mProfileInhibitsLock")
+    private void tryRemoveRestoredProfileInhibitsLocked() {
         HashSet<InhibitRecord> successfullyRemoved = new HashSet<>();
 
         for (InhibitRecord record : mRestoredInhibits) {
@@ -512,7 +518,7 @@ public class BluetoothProfileInhibitManager {
      */
     private void removeRestoredProfileInhibits() {
         synchronized (mProfileInhibitsLock) {
-            tryRemoveRestoredProfileInhibits();
+            tryRemoveRestoredProfileInhibitsLocked();
 
             if (!mRestoredInhibits.isEmpty()) {
                 logd("Could not remove all restored profile inhibits - "
@@ -540,7 +546,7 @@ public class BluetoothProfileInhibitManager {
 
             // Some inhibits might be hanging around because they couldn't be cleaned up.
             // Make sure they get persisted...
-            commit();
+            commitLocked();
 
             // ...then clear them from the map.
             mProfileInhibits.clear();

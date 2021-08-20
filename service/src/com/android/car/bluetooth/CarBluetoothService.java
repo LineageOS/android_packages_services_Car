@@ -187,6 +187,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *
      * Only call this following a known user switch once we've connected to the user service helper.
      */
+    @GuardedBy("mPerUserLock")
     private void initializeUserLocked() {
         logd("Initializing new user");
         mUserId = ActivityManager.getCurrentUser();
@@ -206,6 +207,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Destroy the current user context, defined by the set of profile proxies, profile device
      * managers, inhibit manager and the policy.
      */
+    @GuardedBy("mPerUserLock")
     private void destroyUserLocked() {
         logd("Destroying user " + mUserId);
         destroyBluetoothDeviceConnectionPolicyLocked();
@@ -222,6 +224,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Also sets up the connection proxy objects required to communicate with the Bluetooth
      * Profile Services.
      */
+    @GuardedBy("mPerUserLock")
     private void createBluetoothUserServiceLocked() {
         if (mPerUserCarService != null) {
             try {
@@ -242,6 +245,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Close out the Per User Car Bluetooth profile proxy connections and destroys the Car Bluetooth
      * User Service object.
      */
+    @GuardedBy("mPerUserLock")
     private void destroyBluetoothUserServiceLocked() {
         if (mCarBluetoothUserService == null) return;
         try {
@@ -256,6 +260,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Clears out Profile Device Managers and re-creates them for the current user.
      */
+    @GuardedBy("mPerUserLock")
     private void createBluetoothProfileDeviceManagersLocked() {
         if (mUserId == UserHandle.USER_NULL) {
             logd("No foreground user, cannot create profile device managers");
@@ -292,6 +297,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Stops and clears the entire set of Profile Device Managers.
      */
+    @GuardedBy("mPerUserLock")
     private void destroyBluetoothProfileDeviceManagersLocked() {
         for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
             int key = mProfileDeviceManagers.keyAt(i);
@@ -305,6 +311,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Creates an instance of a BluetoothProfileInhibitManager under the current user
      */
+    @GuardedBy("mPerUserLock")
     private void createBluetoothProfileInhibitManagerLocked() {
         logd("Creating inhibit manager");
         if (mUserId == UserHandle.USER_NULL) {
@@ -319,6 +326,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Destroys the current instance of a BluetoothProfileInhibitManager, if one exists
      */
+    @GuardedBy("mPerUserLock")
     private void destroyBluetoothProfileInhibitManagerLocked() {
         logd("Destroying inhibit manager");
         if (mInhibitManager == null) return;
@@ -329,6 +337,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Creates an instance of a BluetoothDeviceConnectionPolicy under the current user
      */
+    @GuardedBy("mPerUserLock")
     private void createBluetoothDeviceConnectionPolicyLocked() {
         logd("Creating device connection policy");
         if (mUserId == UserHandle.USER_NULL) {
@@ -347,6 +356,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
     /**
      * Destroys the current instance of a BluetoothDeviceConnectionPolicy, if one exists
      */
+    @GuardedBy("mPerUserLock")
     private void destroyBluetoothDeviceConnectionPolicyLocked() {
         logd("Destroying device connection policy");
         if (mBluetoothDeviceConnectionPolicy != null) {
