@@ -15,7 +15,6 @@
  */
 package com.android.car.user;
 
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.testapi.CarMockitoHelper.mockHandleRemoteExceptionFromCarServiceWithDefaultValue;
 import static android.car.testapi.CarTestingHelper.getResult;
 import static android.os.UserHandle.USER_SYSTEM;
@@ -63,6 +62,10 @@ import android.os.UserManager;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.Mock;
+
+import java.util.Arrays;
+import java.util.List;
+import java.util.stream.Collectors;
 
 public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
@@ -593,6 +596,11 @@ public final class CarUserManagerUnitTest extends AbstractExtendedMockitoTestCas
     }
 
     private void setExistingUsers(int... userIds) {
-        mockUmGetAliveUsers(mUserManager, userIds);
+        // TODO(b/197184481): move this logic to helper classes (UserTestingHelper.java &
+        // AndroidMockitoHelper.java)
+        List<UserHandle> userHandles =  Arrays.stream(userIds)
+                .mapToObj(id -> UserHandle.of(id))
+                .collect(Collectors.toList());
+        when(mUserManager.getUserHandles(/* excludeDying= */ true)).thenReturn(userHandles);
     }
 }
