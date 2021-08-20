@@ -25,6 +25,9 @@
                  tools:node="merge"
                  tools:replace="android:label">
 
+        <uses-library android:name="androidx.window.extensions" android:required="false"/>
+        <uses-library android:name="androidx.window.sidecar" android:required="false"/>
+
         <activity
             android:name=".CarDevelopmentSettingsDashboardActivity"
             android:enabled="false"
