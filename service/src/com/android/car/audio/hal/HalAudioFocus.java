@@ -55,7 +55,7 @@ public final class HalAudioFocus implements HalFocusListener {
 
     // Map of Maps. Top level keys are ZoneIds. Second level keys are usages.
     // Values are HalAudioFocusRequests
-    @GuardedBy("mImplLock")
+    @GuardedBy("mLock")
     private final SparseArray<SparseArray<HalAudioFocusRequest>> mHalFocusRequestsByZoneAndUsage;
 
     public HalAudioFocus(@NonNull AudioManager audioManager,
@@ -90,13 +90,13 @@ public final class HalAudioFocus implements HalFocusListener {
      * See {@link HalFocusListener#requestAudioFocus(int, int, int)}
      */
     public void requestAudioFocus(@AttributeUsage int usage, int zoneId, int focusGain) {
-        Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
-                "Invalid zoneId %d provided in requestAudioFocus", zoneId);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "Requesting focus gain " + focusGain + " with usage "
-                    + AudioAttributes.usageToString(usage) + " and zoneId " + zoneId);
-        }
         synchronized (mLock) {
+            Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
+                    "Invalid zoneId %d provided in requestAudioFocus", zoneId);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "Requesting focus gain " + focusGain + " with usage "
+                        + AudioAttributes.usageToString(usage) + " and zoneId " + zoneId);
+            }
             HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId).get(
                     usage);
             if (currentRequest != null) {
@@ -115,13 +115,13 @@ public final class HalAudioFocus implements HalFocusListener {
      * See {@link HalFocusListener#abandonAudioFocus(int, int)}
      */
     public void abandonAudioFocus(@AttributeUsage int usage, int zoneId) {
-        Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
-                "Invalid zoneId %d provided in abandonAudioFocus", zoneId);
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "Abandoning focus with usage " + AudioAttributes.usageToString(usage)
-                    + " for zoneId " + zoneId);
-        }
         synchronized (mLock) {
+            Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
+                    "Invalid zoneId %d provided in abandonAudioFocus", zoneId);
+            if (Log.isLoggable(TAG, Log.DEBUG)) {
+                Slog.d(TAG, "Abandoning focus with usage " + AudioAttributes.usageToString(usage)
+                        + " for zoneId " + zoneId);
+            }
             abandonAudioFocusLocked(usage, zoneId);
         }
     }
@@ -172,25 +172,28 @@ public final class HalAudioFocus implements HalFocusListener {
         writer.increaseIndent();
         writer.println("Current focus requests:");
         writer.increaseIndent();
-        for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
-            int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
-            writer.printf("Zone %s:\n", zoneId);
-            writer.increaseIndent();
+        synchronized (mLock) {
+            for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
+                int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
+                writer.printf("Zone %s:\n", zoneId);
+                writer.increaseIndent();
 
-            SparseArray<HalAudioFocusRequest> requestsByUsage =
-                    mHalFocusRequestsByZoneAndUsage.valueAt(i);
-            for (int j = 0; j < requestsByUsage.size(); j++) {
-                int usage = requestsByUsage.keyAt(j);
-                HalAudioFocusRequest request = requestsByUsage.valueAt(j);
-                writer.printf("%s - focusGain: %s\n", AudioAttributes.usageToString(usage),
-                        request.mFocusStatus);
+                SparseArray<HalAudioFocusRequest> requestsByUsage =
+                        mHalFocusRequestsByZoneAndUsage.valueAt(i);
+                for (int j = 0; j < requestsByUsage.size(); j++) {
+                    int usage = requestsByUsage.keyAt(j);
+                    HalAudioFocusRequest request = requestsByUsage.valueAt(j);
+                    writer.printf("%s - focusGain: %s\n", AudioAttributes.usageToString(usage),
+                            request.mFocusStatus);
+                }
+                writer.decreaseIndent();
             }
-            writer.decreaseIndent();
         }
         writer.decreaseIndent();
         writer.decreaseIndent();
     }
 
+    @GuardedBy("mLock")
     private void abandonAudioFocusLocked(int usage, int zoneId) {
         HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId)
                 .removeReturnOld(usage);
@@ -231,6 +234,7 @@ public final class HalAudioFocus implements HalFocusListener {
         return builder.build();
     }
 
+    @GuardedBy("mLock")
     private AudioFocusRequest generateFocusRequestLocked(int usage, int zoneId, int focusGain) {
         AudioAttributes attributes = generateAudioAttributes(usage, zoneId);
         return new AudioFocusRequest.Builder(focusGain)
@@ -257,6 +261,7 @@ public final class HalAudioFocus implements HalFocusListener {
         }
     }
 
+    @GuardedBy("mLock")
     private void makeAudioFocusRequestLocked(@AttributeUsage int usage, int zoneId, int focusGain) {
         AudioFocusRequest audioFocusRequest = generateFocusRequestLocked(usage, zoneId, focusGain);
 

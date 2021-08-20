@@ -495,15 +495,18 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
         return deadEntry;
     }
 
+    @GuardedBy("mLock")
     private void removeBlockerAndRestoreUnblockedWaitersLocked(FocusEntry deadEntry) {
-        attemptToGainFocusForDelayedAudioFocusRequest();
+        attemptToGainFocusForDelayedAudioFocusRequestLocked();
         removeBlockerAndRestoreUnblockedFocusLosersLocked(deadEntry);
     }
 
-    private void attemptToGainFocusForDelayedAudioFocusRequest() {
+    @GuardedBy("mLock")
+    private void attemptToGainFocusForDelayedAudioFocusRequestLocked() {
         if (mDelayedRequest == null) {
             return;
         }
+
         int delayedFocusRequestResults = evaluateFocusRequestLocked(mDelayedRequest);
         if (delayedFocusRequestResults == AudioManager.AUDIOFOCUS_REQUEST_GRANTED) {
             FocusEntry focusEntry = mFocusHolders.get(mDelayedRequest.getClientId());

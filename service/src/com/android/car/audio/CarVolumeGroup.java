@@ -93,8 +93,11 @@ import java.util.Map;
     }
 
     void init() {
-        mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId, mId);
-        updateCurrentGainIndexLocked();
+        synchronized (mLock) {
+            mStoredGainIndex = mSettingsManager.getStoredVolumeGainIndexForUser(
+                    mUserId, mZoneId, mId);
+            updateCurrentGainIndexLocked();
+        }
     }
 
     @Nullable
@@ -157,6 +160,7 @@ import java.util.Map;
         }
     }
 
+    @GuardedBy("mLock")
     private int getCurrentGainIndexLocked() {
         return mCurrentGainIndex;
     }
@@ -175,6 +179,7 @@ import java.util.Map;
         }
     }
 
+    @GuardedBy("mLock")
     private void setCurrentGainIndexLocked(int gainIndex) {
         int gainInMillibels = getGainForIndex(gainIndex);
         for (String address : mAddressToCarAudioDeviceInfo.keySet()) {
@@ -204,10 +209,12 @@ import java.util.Map;
     @Override
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
     public String toString() {
-        return "CarVolumeGroup id: " + mId
-                + " currentGainIndex: " + mCurrentGainIndex
-                + " contexts: " + Arrays.toString(getContexts())
-                + " addresses: " + String.join(", ", getAddresses());
+        synchronized (mLock) {
+            return "CarVolumeGroup id: " + mId
+                    + " currentGainIndex: " + mCurrentGainIndex
+                    + " contexts: " + Arrays.toString(getContexts())
+                    + " addresses: " + String.join(", ", getAddresses());
+        }
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
@@ -258,7 +265,8 @@ import java.util.Map;
         }
     }
 
-    void setMuteLocked(boolean mute) {
+    @GuardedBy("mLock")
+    private void setMuteLocked(boolean mute) {
         mIsMuted = mute;
         if (mSettingsManager.isPersistVolumeGroupMuteEnabled(mUserId)) {
             mSettingsManager.storeVolumeGroupMuteForUser(mUserId, mZoneId, mId, mute);
