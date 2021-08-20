@@ -193,6 +193,20 @@ import java.util.Set;
                 + " for audio context " + audioContext);
     }
 
+    public AudioDeviceInfo getAudioDeviceForContext(int audioContext) {
+        CarAudioContext.preconditionCheckAudioContext(audioContext);
+        for (CarVolumeGroup volumeGroup : getVolumeGroups()) {
+            AudioDeviceInfo deviceInfo = volumeGroup.getAudioDeviceForContext(audioContext);
+            if (deviceInfo != null) {
+                return deviceInfo;
+            }
+        }
+        // This should not happen unless something went wrong.
+        // Device address are unique per zone and all contexts are assigned in a zone.
+        throw new IllegalStateException("Could not find output device in zone " + mId
+                + " for audio context " + audioContext);
+    }
+
     /**
      * Update the volume groups for the new user
      * @param userId user id to update to

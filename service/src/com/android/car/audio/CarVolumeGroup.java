@@ -23,7 +23,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.car.builtin.util.Slog;
 import android.car.media.CarAudioManager;
-import android.media.AudioDevicePort;
+import android.media.AudioDeviceInfo;
 import android.os.UserHandle;
 import android.util.SparseArray;
 
@@ -123,6 +123,25 @@ import java.util.Map;
         return mContextToAddress.get(audioContext);
     }
 
+    /**
+     * Returns the audio devices for the given context
+     * or {@code null} if the context does not exist in the volume group
+     */
+    @Nullable
+    AudioDeviceInfo getAudioDeviceForContext(int audioContext) {
+        String address = getAddressForContext(audioContext);
+        if (address == null) {
+            return null;
+        }
+
+        CarAudioDeviceInfo info = mAddressToCarAudioDeviceInfo.get(address);
+        if (info == null) {
+            return null;
+        }
+
+        return info.getAudioDeviceInfo();
+    }
+
     @AudioContext
     List<Integer> getContextsForAddress(@NonNull String address) {
         List<Integer> carAudioContexts = new ArrayList<>();
@@ -190,16 +209,6 @@ import java.util.Map;
         mCurrentGainIndex = gainIndex;
 
         storeGainIndexForUserLocked(mCurrentGainIndex, mUserId);
-    }
-
-    @Nullable
-    AudioDevicePort getAudioDevicePortForContext(int carAudioContext) {
-        final String address = mContextToAddress.get(carAudioContext);
-        if (address == null || mAddressToCarAudioDeviceInfo.get(address) == null) {
-            return null;
-        }
-
-        return mAddressToCarAudioDeviceInfo.get(address).getAudioDevicePort();
     }
 
     boolean hasCriticalAudioContexts() {
