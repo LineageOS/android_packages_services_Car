@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
+#include "DisplayHandler.h"
+#include "core_lib.h"
+#include "GlRenderer.h"
 #include "SurroundViewAppCommon.h"
 #include "SurroundViewService.h"
 #include "SurroundViewCallback.h"
-
-#include "core_lib.h"
 #include "SurroundViewService.h"
 #include "SurroundView3dSession.h"
 
@@ -43,10 +44,11 @@ namespace {
 bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewLibrary, sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Running Surround View 2D.";
 
-    // Initialize a display handler.
+    // Initialize display handler and gl renderer.
     sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-    if (!displayHandler->startDisplay()) {
-        LOG(ERROR) << "Failed to start display for DisplayHandler.";
+    sp<GlRenderer> glRenderer = new GlRenderer(displayHandler);
+    if (!glRenderer->initialize()) {
+        LOG(ERROR) << "Failed to initialize glRenderer.";
         return false;
     }
 
@@ -68,8 +70,8 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewLibrary, sp<IEvsDis
     // Setup a SurroundViewCallback.
     sp<SurroundViewCallback> svCallback =
             new SurroundViewCallback(surroundView2dSession,
-                                     [&displayHandler](const HardwareBuffer& hardwareBuffer) {
-                                         return displayHandler->renderBufferToScreen(
+                                     [glRenderer](const HardwareBuffer& hardwareBuffer) {
+                                         return glRenderer->renderBufferToScreen(
                                                  hardwareBuffer);
                                      });
 
@@ -90,24 +92,22 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewLibrary, sp<IEvsDis
 bool run3dSurroundView(sp<SurroundViewService> pSurroundViewLibrary, sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Running Surround View 3D (Library).";
 
-    // Initialize a display handler.
+    // Initialize display handler and gl renderer.
     sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-    if (!displayHandler->startDisplay()) {
-        LOG(ERROR) << "Failed to start display for DisplayHandler.";
+    sp<GlRenderer> glRenderer = new GlRenderer(displayHandler);
+    if (!glRenderer->initialize()) {
+        LOG(ERROR) << "Failed to initialize glRenderer.";
         return false;
     }
 
-// Undefine clashing macros for version_major and version_minor.
-#undef version_major
-#undef version_minor
     RendererInfo renderInfo = {.api = RendererInfo::RenderingApi::OPENGLES,
                                .version_major = 3,
                                .version_minor = 1};
 
     // Initialization info for external OpenGLES rendering.
-    const OpenGlInitInfo glInitInfo = {.egl_display = displayHandler->getDisplay(),
-                                       .egl_surface = displayHandler->getSurface(),
-                                       .egl_context = displayHandler->getContext()};
+    const OpenGlInitInfo glInitInfo = {.egl_display = glRenderer->getDisplay(),
+                                       .egl_surface = glRenderer->getSurface(),
+                                       .egl_context = glRenderer->getContext()};
 
     // Initialize a 3D Session with external rendering.
     sp<SurroundView3dSession> surroundView3dSession;
@@ -120,8 +120,8 @@ bool run3dSurroundView(sp<SurroundViewService> pSurroundViewLibrary, sp<IEvsDisp
     // Setup a SurroundViewCallback with external rendering.
     sp<SurroundViewCallback> svCallback =
             new SurroundViewCallback(surroundView3dSession,
-                                     [&displayHandler](const HardwareBuffer& /*hardwareBuffer*/) {
-                                         return displayHandler->renderGlTargetToScreen();
+                                     [glRenderer](const HardwareBuffer& /*hardwareBuffer*/) {
+                                         return glRenderer->renderGlTargetToScreen();
                                      });
 
     // Run Surround View 3D Session.

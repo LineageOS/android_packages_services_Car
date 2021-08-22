@@ -64,6 +64,7 @@ cc_binary {
 
     srcs: [
         "DisplayHandler.cpp",
+        "GlRenderer.cpp",
         "SurroundViewAppCommon.cpp",
         "SurroundViewCallback.cpp",
         "shader.cpp",
@@ -91,6 +92,7 @@ cc_binary {
 
     srcs: [
         "DisplayHandler.cpp",
+        "GlRenderer.cpp",
         "SurroundViewAppCommon.cpp",
         "SurroundViewCallback.cpp",
         "shader.cpp",
