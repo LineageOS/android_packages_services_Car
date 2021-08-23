@@ -259,6 +259,7 @@ final class SilentModeHandler {
         querySilentModeHwState();
     }
 
+    @GuardedBy("mLock")
     private void stopMonitoringSilentModeHwStateLocked() {
         if (mFileObserver != null) {
             mFileObserver.stopWatching();
