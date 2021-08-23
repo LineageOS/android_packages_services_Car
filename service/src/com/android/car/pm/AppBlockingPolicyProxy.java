@@ -147,8 +147,10 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
 
     @Override
     public String toString() {
-        return "AppBlockingPolicyProxy [mServiceInfo=" + mServiceInfo + ", mCrashCount="
-                + mCrashCount + "]";
+        synchronized (mLock) {
+            return "AppBlockingPolicyProxy [mServiceInfo=" + mServiceInfo + ", mCrashCount="
+                    + mCrashCount + "]";
+        }
     }
 
     private class ICarAppBlockingPolicySetterImpl extends ICarAppBlockingPolicySetter.Stub {
