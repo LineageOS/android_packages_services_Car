@@ -18,6 +18,8 @@
 
 #include <stdlib.h>
 
+#include "ImageIO.h"
+
 namespace android {
 namespace hardware {
 namespace automotive {
@@ -29,29 +31,18 @@ namespace {
 // Index of the frame rate in the RawStreamConfiguration struct.
 const int kStreamConfigFrameRateIndex = 5;
 
-// Writes data provided into the graphicBuffer.
-bool WriteToGraphicBuffer(sp<GraphicBuffer> graphicBuffer, const void* data, int size) {
-    // Lock the input GraphicBuffer and map it to a pointer.  If we failed to
-    // lock, return false.
-    void* graphicBufferDataPtr;
-    graphicBuffer->lock(GRALLOC_USAGE_SW_READ_OFTEN | GRALLOC_USAGE_SW_WRITE_RARELY,
-                        &graphicBufferDataPtr);
-    if (!graphicBufferDataPtr) {
-        LOG(ERROR) << "Failed to gain write access to GraphicBuffer";
-        graphicBuffer->unlock();
-        return false;
-    }
-
-    // Both source and destination are with 4 channels
-    memcpy(graphicBufferDataPtr, data, size);
-    graphicBuffer->unlock();
-    return true;
-}
+// List of input image filenames to use for mock cameras.
+constexpr char imageFilenames[4][50] = {
+    "/vendor/etc/automotive/sv/image_front.png",
+    "/vendor/etc/automotive/sv/image_right.png",
+    "/vendor/etc/automotive/sv/image_rear.png",
+    "/vendor/etc/automotive/sv/image_left.png",
+};
 
 // Create a new GraphicBuffer and provides its BufferDesc_1_1 from inputs provided stream config,
-// deviceId and bufferId. Fills up the buffer with pixelGrayValue.
+// deviceId and bufferId. Fills up the buffer with data from 'imageFilename'.
 bool InitializeGraphicsBuffer(const Stream& streamCfg, const char* deviceId, int bufferId,
-                              uint8_t pixelGrayValue, android::sp<GraphicBuffer>* graphicsBuffer,
+                              const char* imageFilename, sp<GraphicBuffer>* graphicsBuffer,
                               BufferDesc_1_1* bufferDesc) {
     const string labelPrefix = "buffer_";
     *graphicsBuffer =
@@ -69,10 +60,9 @@ bool InitializeGraphicsBuffer(const Stream& streamCfg, const char* deviceId, int
     pDesc->stride = (*graphicsBuffer)->getStride();
     pDesc->format = HAL_PIXEL_FORMAT_RGBA_8888;
 
-    // Fill graphic buffer with pixelValue.
-    const std::vector<uint8_t> image(streamCfg.width * streamCfg.height * 4, pixelGrayValue);
-    if (!WriteToGraphicBuffer(*graphicsBuffer, image.data(), image.size())) {
-        LOG(ERROR) << "Failed to write to frame: " << bufferId;
+    // Read the png image into the buffer desc.
+    if (!ReadPngIntoBuffer(imageFilename, *graphicsBuffer)) {
+        LOG(ERROR) << "Failed to read image: " << imageFilename;
         return false;
     }
     return true;
@@ -303,9 +293,8 @@ void MockEvsCamera::initializeFrames(int framesCount) {
     mGraphicBuffers.resize(framesCount);
     mBufferDescs.resize(framesCount);
     for (int i = 0; i < framesCount; i++) {
-        // Sets the pixels values of the 4 cameras to 50, 100, 150 and 200.
-        const uint8_t pixelGrayValue = 50 + (i * 50);
-        InitializeGraphicsBuffer(mStreamCfg, mPhysicalCameraIds[i].c_str(), i, pixelGrayValue,
+        // Initialize graphic buffer with image data.
+        InitializeGraphicsBuffer(mStreamCfg, mPhysicalCameraIds[i].c_str(), i, imageFilenames[i],
                 &mGraphicBuffers[i], &mBufferDescs[i]);
     }
 }

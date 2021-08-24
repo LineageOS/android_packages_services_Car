@@ -19,6 +19,27 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+// Library provides image input/output capabilities to and from hardware buffers.
+cc_library{
+    name: "libpng_image_io",
+    vendor : true,
+    srcs : [
+        "ImageIO.cpp",
+    ],
+    shared_libs : [
+        "android.hardware.automotive.evs@1.0",
+        "android.hardware.automotive.evs@1.1",
+        "libbase",
+        "libbinder",
+        "libcutils",
+        "libhidlbase",
+        "libhardware",
+        "libpng",
+        "libui",
+        "libutils",
+    ]
+}
+
 // Mock EVS library provides a mock implementation of the EVS HAL,
 // providing a stream of 4 cameras to be used for surround view testing.
 cc_library{
@@ -43,6 +64,7 @@ cc_library{
         "libevsconfigmanager",
         "libhidlbase",
         "libhardware",
+        "libpng_image_io",
         "libnativewindow",
         "libtinyxml2",
         "libui",
@@ -56,4 +78,32 @@ prebuilt_etc {
     soc_specific : true,
     src: "mock_evs_configuration.xml",
     sub_dir: "automotive/sv",
+}
+
+prebuilt_etc{
+    name : "image_front.png",
+    soc_specific : true,
+    src : "image_front.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc{
+    name : "image_right.png",
+    soc_specific : true,
+    src : "image_right.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc{
+    name : "image_rear.png",
+    soc_specific : true,
+    src : "image_rear.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc {
+    name :"image_left.png",
+    soc_specific : true,
+    src : "image_left.png",
+    sub_dir : "automotive/sv",
 }
