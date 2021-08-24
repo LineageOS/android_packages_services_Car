@@ -41,6 +41,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -1493,9 +1494,11 @@ final class CarShellCommand extends ShellCommand {
             if (result == null) return;
 
             UserHandle user = result.getUser();
-            writer.printf("UserCreationResult: status=%s, user=%s",
+            // NOTE: must always show the id=%d, as it's used by CTS tests
+            writer.printf("UserCreationResult: status=%s, user=%s, id=%d",
                     UserCreationResult.statusToString(result.getStatus()),
-                    user == null ? "N/A" : user.toString());
+                    user == null ? "N/A" : user.toString(),
+                    user == null ? UserManagerHelper.USER_NULL : user.getIdentifier());
             String msg = result.getErrorMessage();
             if (!TextUtils.isEmpty(msg)) {
                 writer.printf(", errorMessage=%s", msg);
