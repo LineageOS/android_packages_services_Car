@@ -56,10 +56,12 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     private final CarPropertyService mCarPropertyService;
 
     // The class only reads, no need to synchronize this object.
+    // Maps property_id to CarPropertyConfig.
     private final SparseArray<CarPropertyConfig> mCarPropertyList;
 
     // SparseArray and ArraySet are memory optimized, but they can be bit slower for more
     // than 100 items. We're expecting much less number of subscribers, so these DS are ok.
+    // Maps property_id to the set of DataSubscriber.
     @GuardedBy("mLock")
     private final SparseArray<ArraySet<DataSubscriber>> mCarPropertyToSubscribers =
             new SparseArray<>();
