@@ -80,7 +80,6 @@ package android.car.builtin.os {
 
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIcon(@NonNull android.content.Context, @NonNull android.os.UserHandle);
-    method public static int getUserIdFromUid(int);
     method public static void setUserAdmin(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static void setUserRestriction(@NonNull android.os.UserManager, @NonNull String, boolean, @NonNull android.os.UserHandle);
     field public static final int USER_NULL = -10000; // 0xffffd8f0

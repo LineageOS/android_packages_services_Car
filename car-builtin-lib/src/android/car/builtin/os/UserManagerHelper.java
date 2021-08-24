@@ -45,11 +45,6 @@ public final class UserManagerHelper {
     // TODO(b/197181121): Move it after making systemAPI
     public static final String USER_TYPE_FULL_GUEST = UserManager.USER_TYPE_FULL_GUEST;
 
-    /** Returns the user id for a given uid. */
-    public static @UserIdInt int getUserIdFromUid(int uid) {
-        return UserHandle.getUserId(uid);
-    }
-
     /** Assign default Icon for a given user. */
     public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
         UserManager userManager = context.getSystemService(UserManager.class);
