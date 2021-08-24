@@ -16,6 +16,8 @@
 
 package android.car;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+
 import android.annotation.CallbackExecutor;
 import android.annotation.IntDef;
 import android.annotation.NonNull;
@@ -42,6 +44,7 @@ import android.util.Log;
 import android.util.Pair;
 import android.view.KeyEvent;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
@@ -251,8 +254,13 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Compatibility with previous APIs due to typo
+     *
+     * @deprecated Use
+     * {@link CarProjectionManager#registerProjectionListener(CarProjectionListener, int)} instead.
      * @hide
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
+    @Deprecated
     public void regsiterProjectionListener(CarProjectionListener listener, int voiceSearchFilter) {
         registerProjectionListener(listener, voiceSearchFilter);
     }
@@ -260,6 +268,7 @@ public final class CarProjectionManager extends CarManagerBase {
     /**
      * Register listener to monitor projection. Only one listener can be registered and
      * registering multiple times will lead into only the last listener to be active.
+     *
      * @param listener
      * @param voiceSearchFilter Flags of voice search requests to get notification.
      */
@@ -280,8 +289,12 @@ public final class CarProjectionManager extends CarManagerBase {
 
     /**
      * Compatibility with previous APIs due to typo
+     *
+     * @deprecated Use {@link CarProjectionManager#unregisterProjectionListener() instead.
      * @hide
      */
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
+    @Deprecated
     public void unregsiterProjectionListener() {
         unregisterProjectionListener();
     }
@@ -460,11 +473,12 @@ public final class CarProjectionManager extends CarManagerBase {
     /**
      * Registers projection runner on projection start with projection service
      * to create reverse binding.
+     *
      * @param serviceIntent
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void registerProjectionRunner(@NonNull Intent serviceIntent) {
-        Objects.requireNonNull("serviceIntent cannot be null");
+        Objects.requireNonNull(serviceIntent, "serviceIntent cannot be null");
         synchronized (mLock) {
             try {
                 mService.registerProjectionRunner(serviceIntent);
@@ -477,11 +491,12 @@ public final class CarProjectionManager extends CarManagerBase {
     /**
      * Unregisters projection runner on projection stop with projection service to create
      * reverse binding.
+     *
      * @param serviceIntent
      */
     @RequiresPermission(Car.PERMISSION_CAR_PROJECTION)
     public void unregisterProjectionRunner(@NonNull Intent serviceIntent) {
-        Objects.requireNonNull("serviceIntent cannot be null");
+        Objects.requireNonNull(serviceIntent, "serviceIntent cannot be null");
         synchronized (mLock) {
             try {
                 mService.unregisterProjectionRunner(serviceIntent);
