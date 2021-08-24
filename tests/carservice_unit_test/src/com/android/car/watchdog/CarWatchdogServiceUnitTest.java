@@ -193,7 +193,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureDaemonBinderDeathRecipient();
         verifyDatabaseInit(/* wantedInvocations= */ 1);
         mockPackageManager();
-        verifyResourceOveruseConfigurationsSynced(1);
+        verifyResourceOveruseConfigurationsSynced(/* wantedInvocations= */ 1);
     }
 
     /**
@@ -291,8 +291,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
                 injectIoOveruseStatsForPackages(
-                        mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                        /* shouldNotifyPackages= */new ArraySet<>());
+                        mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                        /* shouldNotifyPackages= */ new ArraySet<>());
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(uid, mMockContext.getPackageName(), 0,
@@ -407,8 +407,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
                 injectIoOveruseStatsForPackages(
-                        mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                        /* shouldNotifyPackages= */new ArraySet<>());
+                        mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                        /* shouldNotifyPackages= */ new ArraySet<>());
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(sharedUid, "shared:system_shared_package", 0,
@@ -424,12 +424,12 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testFailsGetResourceOveruseStatsWithInvalidArgs() throws Exception {
         assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.getResourceOveruseStats(/* resourceOveruseFlag= */0,
+                () -> mCarWatchdogService.getResourceOveruseStats(/* resourceOveruseFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* maxStatsPeriod= */0));
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* maxStatsPeriod= */ 0));
     }
 
     @Test
@@ -592,7 +592,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testFailsGetAllResourceOveruseStatsWithInvalidArgs() throws Exception {
         assertThrows(IllegalArgumentException.class,
-                () -> mCarWatchdogService.getAllResourceOveruseStats(0, /* minimumStatsFlag= */0,
+                () -> mCarWatchdogService.getAllResourceOveruseStats(0, /* minimumStatsFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
@@ -604,13 +604,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */1 << 5,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 1 << 5,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getAllResourceOveruseStats(
-                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */0,
-                        /* maxStatsPeriod= */0));
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO, /* minimumStatsFlag= */ 0,
+                        /* maxStatsPeriod= */ 0));
     }
 
     @Test
@@ -711,17 +711,17 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
                 constructPackageIoOveruseStats(1103456,
-                        /* shouldNotify= */false,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(20, 20, 20),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                        /* shouldNotify= */ false,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 constructPackageIoOveruseStats(1201278,
-                        /* shouldNotify= */false,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */false,
-                                /* remainingWriteBytes= */constructPerStateBytes(450, 120, 340),
-                                /* writtenBytes= */constructPerStateBytes(500, 600, 900),
-                                /* totalOveruses= */2)));
+                        /* shouldNotify= */ false,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(450, 120, 340),
+                                /* writtenBytes= */ constructPerStateBytes(500, 600, 900),
+                                /* totalOveruses= */ 2)));
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
         ResourceOveruseStats expectedStats =
@@ -798,9 +798,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         SparseArray<PackageIoOveruseStats> packageIoOveruseStatsByUid =
                 injectIoOveruseStatsForPackages(
-                        mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(
+                        mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(
                                 Collections.singleton("shared:vendor_shared_package")),
-                        /* shouldNotifyPackages= */new ArraySet<>());
+                        /* shouldNotifyPackages= */ new ArraySet<>());
 
         ResourceOveruseStats expectedStats =
                 constructResourceOveruseStats(1103456, "shared:vendor_shared_package", 0,
@@ -835,13 +835,13 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage("some.package",
-                        new UserHandle(10), /* resourceOveruseFlag= */0,
+                        new UserHandle(10), /* resourceOveruseFlag= */ 0,
                         CarWatchdogManager.STATS_PERIOD_CURRENT_DAY));
 
         assertThrows(IllegalArgumentException.class,
                 () -> mCarWatchdogService.getResourceOveruseStatsForUserPackage("some.package",
                         new UserHandle(10), CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                        /* maxStatsPeriod= */0));
+                        /* maxStatsPeriod= */ 0));
     }
 
     @Test
@@ -865,8 +865,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                /* shouldNotifyPackages= */new ArraySet<>(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>(
                         Collections.singleton(mMockContext.getPackageName())));
 
         verify(mockListener).onOveruse(any());
@@ -877,8 +877,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                /* shouldNotifyPackages= */new ArraySet<>(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>(
                         Collections.singletonList(mMockContext.getPackageName())));
 
         verifyNoMoreInteractions(mockListener);
@@ -926,8 +926,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(secondMockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                /* shouldNotifyPackages= */new ArraySet<>(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>(
                         Collections.singleton(mMockContext.getPackageName())));
 
         verify(firstMockListener).onOveruse(any());
@@ -938,8 +938,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(firstMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                /* shouldNotifyPackages= */new ArraySet<>(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>(
                         Collections.singletonList(mMockContext.getPackageName())));
 
         verify(secondMockListener, times(2)).onOveruse(any());
@@ -950,8 +950,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(secondMockBinder).unlinkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         injectIoOveruseStatsForPackages(
-                mGenericPackageNameByUid, /* killablePackages= */new ArraySet<>(),
-                /* shouldNotifyPackages= */new ArraySet<>(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>(
                         Collections.singletonList(mMockContext.getPackageName())));
 
         verifyNoMoreInteractions(firstMockListener);
@@ -979,11 +979,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         verify(mockBinder).linkToDeath(any(IBinder.DeathRecipient.class), anyInt());
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Collections.singletonList(
-                constructPackageIoOveruseStats(callingUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(20, 20, 20),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)));
+                constructPackageIoOveruseStats(callingUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)));
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
@@ -1704,29 +1704,29 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
                 /* Overuse occurred but cannot be killed/disabled. */
-                constructPackageIoOveruseStats(criticalSysPkgUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */false,
-                                /* remainingWriteBytes= */constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                constructPackageIoOveruseStats(criticalSysPkgUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 /* No overuse occurred but should be notified. */
-                constructPackageIoOveruseStats(nonCriticalSysPkgUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(20, 30, 40),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                constructPackageIoOveruseStats(nonCriticalSysPkgUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(20, 30, 40),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 /* Neither overuse occurred nor be notified. */
-                constructPackageIoOveruseStats(nonCriticalVndrPkgUid, /* shouldNotify= */false,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(200, 300, 400),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                constructPackageIoOveruseStats(nonCriticalVndrPkgUid, /* shouldNotify= */ false,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 /* Overuse occurred and can be killed/disabled. */
-                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)));
+                constructPackageIoOveruseStats(thirdPartyPkgUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)));
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
@@ -1793,23 +1793,23 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         List<PackageIoOveruseStats> packageIoOveruseStats = Arrays.asList(
                 /* Overuse occurred but cannot be killed/disabled. */
-                constructPackageIoOveruseStats(criticalSysSharedUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */false,
-                                /* remainingWriteBytes= */constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                constructPackageIoOveruseStats(criticalSysSharedUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ false,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 /* No overuse occurred but should be notified. */
-                constructPackageIoOveruseStats(nonCriticalVndrSharedUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(200, 300, 400),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)),
+                constructPackageIoOveruseStats(nonCriticalVndrSharedUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)),
                 /* Overuse occurred and can be killed/disabled. */
-                constructPackageIoOveruseStats(thirdPartySharedUid, /* shouldNotify= */true,
-                        constructInternalIoOveruseStats(/* killableOnOveruse= */true,
-                                /* remainingWriteBytes= */constructPerStateBytes(0, 0, 0),
-                                /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                                /* totalOveruses= */2)));
+                constructPackageIoOveruseStats(thirdPartySharedUid, /* shouldNotify= */ true,
+                        constructInternalIoOveruseStats(/* killableOnOveruse= */ true,
+                                /* remainingWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                                /* totalOveruses= */ 2)));
 
         pushLatestIoOveruseStatsAndWait(packageIoOveruseStats);
 
@@ -2389,7 +2389,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mTimeSource = timeSource;
     }
 
-    private void verifyResourceOveruseConfigurationsSynced(int wantedNumberOfInvocations)
+    private void verifyResourceOveruseConfigurationsSynced(int wantedInvocations)
             throws Exception {
         /*
          * Syncing the resource configuration in the service with the daemon is done on the main
@@ -2397,8 +2397,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
          * main thread.
          */
         CarServiceUtils.runOnMainSync(() -> {});
-        verify(mMockCarWatchdogDaemon,
-                times(wantedNumberOfInvocations)).getResourceOveruseConfigurations();
+        verify(mMockCarWatchdogDaemon, times(wantedInvocations)).getResourceOveruseConfigurations();
     }
 
 
@@ -2446,9 +2445,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             PackageIoOveruseStats stats = constructPackageIoOveruseStats(uid,
                     shouldNotifyPackages.contains(name),
                     constructInternalIoOveruseStats(killablePackages.contains(name),
-                            /* remainingWriteBytes= */constructPerStateBytes(20, 20, 20),
-                            /* writtenBytes= */constructPerStateBytes(100, 200, 300),
-                            /* totalOveruses= */2));
+                            /* remainingWriteBytes= */ constructPerStateBytes(20, 20, 20),
+                            /* writtenBytes= */ constructPerStateBytes(100, 200, 300),
+                            /* totalOveruses= */ 2));
             packageIoOveruseStatsByUid.put(uid, stats);
             packageIoOveruseStats.add(stats);
         }
@@ -2576,26 +2575,26 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             int componentType) {
         String prefix = WatchdogPerfHandler.toComponentTypeStr(componentType).toLowerCase();
         PerStateBytes componentLevelThresholds = new PerStateBytes(
-                /* foregroundModeBytes= */10, /* backgroundModeBytes= */20,
-                /* garageModeBytes= */30);
+                /* foregroundModeBytes= */ 10, /* backgroundModeBytes= */ 20,
+                /* garageModeBytes= */ 30);
         Map<String, PerStateBytes> packageSpecificThresholds = new ArrayMap<>();
         packageSpecificThresholds.put(prefix + "_package.A", new PerStateBytes(
-                /* foregroundModeBytes= */40, /* backgroundModeBytes= */50,
-                /* garageModeBytes= */60));
+                /* foregroundModeBytes= */ 40, /* backgroundModeBytes= */ 50,
+                /* garageModeBytes= */ 60));
 
         Map<String, PerStateBytes> appCategorySpecificThresholds = new ArrayMap<>();
         appCategorySpecificThresholds.put(
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA,
-                new PerStateBytes(/* foregroundModeBytes= */100, /* backgroundModeBytes= */200,
-                        /* garageModeBytes= */300));
+                new PerStateBytes(/* foregroundModeBytes= */ 100, /* backgroundModeBytes= */ 200,
+                        /* garageModeBytes= */ 300));
         appCategorySpecificThresholds.put(
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS,
-                new PerStateBytes(/* foregroundModeBytes= */1100, /* backgroundModeBytes= */2200,
-                        /* garageModeBytes= */3300));
+                new PerStateBytes(/* foregroundModeBytes= */ 1100, /* backgroundModeBytes= */ 2200,
+                        /* garageModeBytes= */ 3300));
 
         List<IoOveruseAlertThreshold> systemWideThresholds = Collections.singletonList(
-                new IoOveruseAlertThreshold(/* durationInSeconds= */10,
-                        /* writtenBytesPerSecond= */200));
+                new IoOveruseAlertThreshold(/* durationInSeconds= */ 10,
+                        /* writtenBytesPerSecond= */ 200));
 
         return new IoOveruseConfiguration.Builder(componentLevelThresholds,
                 packageSpecificThresholds, appCategorySpecificThresholds, systemWideThresholds);
@@ -2630,20 +2629,20 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         android.automotive.watchdog.internal.IoOveruseConfiguration config =
                 new android.automotive.watchdog.internal.IoOveruseConfiguration();
         config.componentLevelThresholds = constructPerStateIoOveruseThreshold(
-                WatchdogPerfHandler.toComponentTypeStr(componentType), /* fgBytes= */10,
-                /* bgBytes= */20, /* gmBytes= */30);
+                WatchdogPerfHandler.toComponentTypeStr(componentType), /* fgBytes= */ 10,
+                /* bgBytes= */ 20, /* gmBytes= */ 30);
         config.packageSpecificThresholds = Collections.singletonList(
-                constructPerStateIoOveruseThreshold(prefix + "_package.A", /* fgBytes= */40,
-                        /* bgBytes= */50, /* gmBytes= */60));
+                constructPerStateIoOveruseThreshold(prefix + "_package.A", /* fgBytes= */ 40,
+                        /* bgBytes= */ 50, /* gmBytes= */ 60));
         config.categorySpecificThresholds = Arrays.asList(
                 constructPerStateIoOveruseThreshold(
                         WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
-                        /* fgBytes= */100, /* bgBytes= */200, /* gmBytes= */300),
+                        /* fgBytes= */ 100, /* bgBytes= */ 200, /* gmBytes= */ 300),
                 constructPerStateIoOveruseThreshold(
                         WatchdogPerfHandler.INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
-                        /* fgBytes= */1100, /* bgBytes= */2200, /* gmBytes= */3300));
+                        /* fgBytes= */ 1100, /* bgBytes= */ 2200, /* gmBytes= */ 3300));
         config.systemWideThresholds = Collections.singletonList(
-                constructInternalIoOveruseAlertThreshold(/* duration= */10, /* writeBPS= */200));
+                constructInternalIoOveruseAlertThreshold(/* duration= */ 10, /* writeBPS= */ 200));
         return config;
     }
 
