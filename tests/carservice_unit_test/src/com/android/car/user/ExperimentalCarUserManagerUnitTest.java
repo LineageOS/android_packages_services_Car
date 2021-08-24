@@ -29,10 +29,9 @@ import static org.mockito.Mockito.when;
 
 import android.annotation.UserIdInt;
 import android.car.Car;
-import android.car.ICarUserService;
+import android.car.IExperimentalCarUserService;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.util.UserTestingHelper;
-import android.car.user.CarUserManager;
 import android.car.user.ExperimentalCarUserManager;
 import android.car.user.UserCreationResult;
 import android.car.user.UserSwitchResult;
@@ -56,13 +55,12 @@ public final class ExperimentalCarUserManagerUnitTest extends AbstractExtendedMo
     @Mock
     private UserManager mUserManager;
     @Mock
-    private ICarUserService mService;
+    private IExperimentalCarUserService mService;
 
     private ExperimentalCarUserManager mManager;
 
     @Before public void setFixtures() {
-        mManager =
-                ExperimentalCarUserManager.from(new CarUserManager(mCar, mService, mUserManager));
+        mManager = new ExperimentalCarUserManager(mCar, mService);
     }
 
     @Test

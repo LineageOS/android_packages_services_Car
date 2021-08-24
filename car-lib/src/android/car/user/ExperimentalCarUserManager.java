@@ -22,13 +22,16 @@ import android.annotation.RequiresPermission;
 import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarManagerBase;
-import android.car.ICarUserService;
+import android.car.IExperimentalCarUserService;
 import android.car.annotation.ExperimentalFeature;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.util.concurrent.AndroidFuture;
+import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.Log;
+
+import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -51,16 +54,18 @@ public final class ExperimentalCarUserManager extends CarManagerBase {
      */
     private static final int INVALID_USER_ID = UserManagerHelper.USER_NULL;
 
-    private final ICarUserService mService;
+    private final IExperimentalCarUserService mService;
 
     /**
-     * Factory method to create a new instance.
+     * @hide
      */
-    public static ExperimentalCarUserManager from(@NonNull CarUserManager carUserManager) {
-        return carUserManager.newExperimentalCarUserManager();
+    public ExperimentalCarUserManager(@NonNull Car car, @NonNull IBinder service) {
+        this(car, IExperimentalCarUserService.Stub.asInterface(service));
     }
 
-    ExperimentalCarUserManager(@NonNull Car car, @NonNull ICarUserService service) {
+    @VisibleForTesting
+    public ExperimentalCarUserManager(
+            @NonNull Car car, @NonNull IExperimentalCarUserService service) {
         super(car);
 
         mService = service;

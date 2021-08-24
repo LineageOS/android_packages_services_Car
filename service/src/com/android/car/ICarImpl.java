@@ -74,6 +74,7 @@ import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
+import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.util.IndentingPrintWriter;
 import com.android.car.util.LimitedTimingsTraceLog;
 import com.android.car.vms.VmsBrokerService;
@@ -127,6 +128,7 @@ public class ICarImpl extends ICar.Stub {
     private final CarStorageMonitoringService mCarStorageMonitoringService;
     private final CarMediaService mCarMediaService;
     private final CarUserService mCarUserService;
+    @Nullable private final ExperimentalCarUserService mExperimentalCarUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final CarUserNoticeService mCarUserNoticeService;
     private final VmsBrokerService mVmsBrokerService;
@@ -235,6 +237,11 @@ public class ICarImpl extends ICar.Stub {
                             ActivityManagerHelper.getInstance(), maxRunningUsers,
                             mCarUXRestrictionsService));
         }
+        // TODO(b/172262561) Do not set experimental service if the feature is not enabled.
+        mExperimentalCarUserService = constructWithTrace(t, ExperimentalCarUserService.class,
+                () -> new ExperimentalCarUserService(serviceContext, mCarUserService,
+                        serviceContext.getSystemService(UserManager.class),
+                        ActivityManagerHelper.getInstance()));
         mCarOccupantZoneService = constructWithTrace(t, CarOccupantZoneService.class,
                 () -> new CarOccupantZoneService(serviceContext));
         mSystemActivityMonitoringService = constructWithTrace(
@@ -371,6 +378,7 @@ public class ICarImpl extends ICar.Stub {
         allServices.add(mFeatureController);
         allServices.add(mCarUXRestrictionsService); // mCarUserService depends on it
         allServices.add(mCarUserService);
+        allServices.add(mExperimentalCarUserService);
         allServices.add(mSystemActivityMonitoringService);
         allServices.add(mCarPowerManagementService);
         allServices.add(mCarPropertyService);

@@ -27,19 +27,12 @@ import android.car.util.concurrent.AndroidFuture;
 
 /** @hide */
 interface ICarUserService {
-    AndroidFuture<UserCreationResult> createDriver(@nullable String name, boolean admin);
-    UserHandle createPassenger(@nullable String name, int driverId);
-    void switchDriver(int driverId, in AndroidFuture<UserSwitchResult> receiver);
     void switchUser(int tagerUserId, int timeoutMs, in AndroidFuture<UserSwitchResult> receiver);
     void setUserSwitchUiCallback(in ICarResultReceiver callback);
     void createUser(@nullable String name, String userType, int flags, int timeoutMs,
       in AndroidFuture<UserCreationResult> receiver);
     void updatePreCreatedUsers();
     void removeUser(int userId, in AndroidFuture<UserRemovalResult> receiver);
-    List<UserHandle> getAllDrivers();
-    List<UserHandle> getPassengers(int driverId);
-    boolean startPassenger(int passengerId, int zoneId);
-    boolean stopPassenger(int passengerId);
     void setLifecycleListenerForApp(String pkgName, in ICarResultReceiver listener);
     void resetLifecycleListenerForApp(in ICarResultReceiver listener);
     UserIdentificationAssociationResponse getUserIdentificationAssociation(in int[] types);
