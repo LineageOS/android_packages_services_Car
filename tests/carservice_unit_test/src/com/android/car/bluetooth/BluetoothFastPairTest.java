@@ -187,8 +187,6 @@ public class BluetoothFastPairTest {
                 .strictness(Strictness.WARN)
                 .spyStatic(BluetoothAdapter.class)
                 .startMocking();
-        ExtendedMockito.doReturn(mMockBluetoothAdapter).when(() ->
-                BluetoothAdapter.getDefaultAdapter());
 
         mTestFastPairAdvertiser = new FastPairAdvertiser(mMockContext, TEST_MODEL_ID, null);
         mTestFastPairProvider = new FastPairProvider(mMockContext);
