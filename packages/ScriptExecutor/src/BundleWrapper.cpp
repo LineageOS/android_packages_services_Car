@@ -17,7 +17,6 @@
 #include "BundleWrapper.h"
 
 #include <android-base/logging.h>
-#include <android_runtime/AndroidRuntime.h>
 
 namespace com {
 namespace android {
