@@ -52,7 +52,7 @@
                 />
             </characteristics>
         </group>
-        <device id='mock_0' position='front'>
+        <device id='mock_front' position='front'>
             <caps>
                 <supported_controls>
                     <control name='BRIGHTNESS' min='0' max='255'/>
@@ -87,7 +87,7 @@
                 />
             </characteristics>
         </device>
-        <device id='mock_1' position='right'>
+        <device id='mock_right' position='right'>
             <caps>
                 <supported_controls>
                     <control name='BRIGHTNESS' min='0' max='255'/>
@@ -122,7 +122,7 @@
                 />
             </characteristics>
         </device>
-        <device id='mock_2' position='rear'>
+        <device id='mock_rear' position='rear'>
             <caps>
                 <supported_controls>
                     <control name='BRIGHTNESS' min='0' max='255'/>
@@ -157,7 +157,7 @@
                 />
             </characteristics>
         </device>
-        <device id='mock_3' position='left'>
+        <device id='mock_left' position='left'>
             <caps>
                 <!-- list of supported controls -->
                 <supported_controls>

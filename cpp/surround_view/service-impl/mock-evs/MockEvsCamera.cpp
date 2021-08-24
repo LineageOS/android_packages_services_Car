@@ -31,7 +31,17 @@ namespace {
 // Index of the frame rate in the RawStreamConfiguration struct.
 const int kStreamConfigFrameRateIndex = 5;
 
+// List of mock camera ids, used for enforcing the camera order.
+// Names must match the device 'id' names used in mock_evs_configuration.xml
+constexpr char kMockCameraIds[4][50] = {
+    "mock_front",
+    "mock_right",
+    "mock_rear",
+    "mock_left",
+};
+
 // List of input image filenames to use for mock cameras.
+// Order must correspond to the mock camera ids.
 constexpr char imageFilenames[4][50] = {
     "/vendor/etc/automotive/sv/image_front.png",
     "/vendor/etc/automotive/sv/image_right.png",
@@ -85,9 +95,8 @@ MockEvsCamera::MockEvsCamera(const string& cameraGroupId, const Stream& streamCf
                 get_camera_metadata_size(cameraGroupInfo->characteristics));
     }
 
-    mPhysicalCameraIds = mConfigManager->getCameraIdList();
-    // Reverse the list as Config Manager populates the Cameras in reverse order.
-    std::reverse(mPhysicalCameraIds.begin(), mPhysicalCameraIds.end());
+    mPhysicalCameraIds =
+             {kMockCameraIds[0], kMockCameraIds[1], kMockCameraIds[2], kMockCameraIds[3]};
 
     if (cameraGroupInfo->streamConfigurations.size() > 0) {
         // Get the first valid configuration.

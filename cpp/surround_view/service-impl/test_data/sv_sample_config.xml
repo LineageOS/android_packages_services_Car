@@ -14,10 +14,10 @@
         <!-- Device id name of the physical cameras. -->
         <!-- If using an actual EVS Impl. replace with id's specified in the configuration XML. -->
         <EvsCameraIds>
-            <Front>mock_0</Front>
-            <Right>mock_1</Right>
-            <Rear>mock_2</Rear>
-            <Left>mock_3</Left>
+            <Front>mock_front</Front>
+            <Right>mock_right</Right>
+            <Rear>mock_rear</Rear>
+            <Left>mock_left</Left>
         </EvsCameraIds>
         <Masks>
             <Front>/vendor/etc/automotive/sv/mask_front.png</Front>
