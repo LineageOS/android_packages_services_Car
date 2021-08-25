@@ -21,6 +21,7 @@ import android.car.builtin.util.Slog;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
@@ -31,7 +32,6 @@ import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
@@ -41,8 +41,6 @@ import java.util.List;
  *
  * <p> When a subscriber is added, it registers a car property change listener for the
  * property id of the subscriber and starts pushing the change events to the subscriber.
- *
- * <p>Thread-safe.
  */
 public class VehiclePropertyPublisher extends AbstractPublisher {
     private static final boolean DEBUG = false;  // STOPSHIP if true
@@ -50,10 +48,8 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     /** Bundle key for {@link CarPropertyEvent}. */
     public static final String CAR_PROPERTY_EVENT_KEY = "car_property_event";
 
-    // Used to synchronize add/remove DataSubscriber and CarPropertyEvent listener calls.
-    private final Object mLock = new Object();
-
     private final CarPropertyService mCarPropertyService;
+    private final Handler mTelemetryHandler;
 
     // The class only reads, no need to synchronize this object.
     // Maps property_id to CarPropertyConfig.
@@ -62,7 +58,6 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     // SparseArray and ArraySet are memory optimized, but they can be bit slower for more
     // than 100 items. We're expecting much less number of subscribers, so these DS are ok.
     // Maps property_id to the set of DataSubscriber.
-    @GuardedBy("mLock")
     private final SparseArray<ArraySet<DataSubscriber>> mCarPropertyToSubscribers =
             new SparseArray<>();
 
@@ -80,8 +75,9 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                 }
             };
 
-    public VehiclePropertyPublisher(CarPropertyService carPropertyService) {
+    public VehiclePropertyPublisher(CarPropertyService carPropertyService, Handler handler) {
         mCarPropertyService = carPropertyService;
+        mTelemetryHandler = handler;
         // Load car property list once, as the list doesn't change runtime.
         List<CarPropertyConfig> propertyList = mCarPropertyService.getPropertyList();
         mCarPropertyList = new SparseArray<>(propertyList.size());
@@ -108,19 +104,17 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                         == CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ_WRITE,
                 "No access. Cannot read " + VehiclePropertyIds.toString(propertyId) + ".");
 
-        synchronized (mLock) {
-            ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-            if (subscribers == null) {
-                subscribers = new ArraySet<>();
-                mCarPropertyToSubscribers.put(propertyId, subscribers);
-                // Register the listener only once per propertyId.
-                mCarPropertyService.registerListener(
-                        propertyId,
-                        publisherParam.getVehicleProperty().getReadRate(),
-                        mCarPropertyEventListener);
-            }
-            subscribers.add(subscriber);
+        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
+        if (subscribers == null) {
+            subscribers = new ArraySet<>();
+            mCarPropertyToSubscribers.put(propertyId, subscribers);
+            // Register the listener only once per propertyId.
+            mCarPropertyService.registerListener(
+                    propertyId,
+                    publisherParam.getVehicleProperty().getReadRate(),
+                    mCarPropertyEventListener);
         }
+        subscribers.add(subscriber);
     }
 
     @Override
@@ -134,32 +128,28 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
 
-        synchronized (mLock) {
-            ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-            if (subscribers == null) {
-                return;
-            }
-            subscribers.remove(subscriber);
-            if (subscribers.isEmpty()) {
-                mCarPropertyToSubscribers.remove(propertyId);
-                // Doesn't throw exception as listener is not null. mCarPropertyService and
-                // local mCarPropertyToSubscribers will not get out of sync.
-                mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
-            }
+        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
+        if (subscribers == null) {
+            return;
+        }
+        subscribers.remove(subscriber);
+        if (subscribers.isEmpty()) {
+            mCarPropertyToSubscribers.remove(propertyId);
+            // Doesn't throw exception as listener is not null. mCarPropertyService and
+            // local mCarPropertyToSubscribers will not get out of sync.
+            mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
         }
     }
 
     @Override
     public void removeAllDataSubscribers() {
-        synchronized (mLock) {
-            for (int i = 0; i < mCarPropertyToSubscribers.size(); i++) {
-                int propertyId = mCarPropertyToSubscribers.keyAt(i);
-                // Doesn't throw exception as listener is not null. mCarPropertyService and
-                // local mCarPropertyToSubscribers will not get out of sync.
-                mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
-            }
-            mCarPropertyToSubscribers.clear();
+        for (int i = 0; i < mCarPropertyToSubscribers.size(); i++) {
+            int propertyId = mCarPropertyToSubscribers.keyAt(i);
+            // Doesn't throw exception as listener is not null. mCarPropertyService and
+            // local mCarPropertyToSubscribers will not get out of sync.
+            mCarPropertyService.unregisterListener(propertyId, mCarPropertyEventListener);
         }
+        mCarPropertyToSubscribers.clear();
     }
 
     @Override
@@ -169,11 +159,8 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             return false;
         }
         int propertyId = publisherParam.getVehicleProperty().getVehiclePropertyId();
-
-        synchronized (mLock) {
-            ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
-            return subscribers != null && subscribers.contains(subscriber);
-        }
+        ArraySet<DataSubscriber> subscribers = mCarPropertyToSubscribers.get(propertyId);
+        return subscribers != null && subscribers.contains(subscriber);
     }
 
     /**
@@ -181,19 +168,15 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
      * worker thread.
      */
     private void onVehicleEvent(CarPropertyEvent event) {
-        PersistableBundle bundle = new PersistableBundle();
-        // TODO(b/197269115): Properly populate PersistableBundle with car property data.
-        ArraySet<DataSubscriber> subscribersClone;
-
-        synchronized (mLock) {
-            subscribersClone = new ArraySet<>(
+        // move the work from CarPropertyService's worker thread to the telemetry thread
+        mTelemetryHandler.post(() -> {
+            // TODO(b/197269115): convert CarPropertyEvent into PersistableBundle
+            PersistableBundle bundle = new PersistableBundle();
+            ArraySet<DataSubscriber> subscribersClone = new ArraySet<>(
                     mCarPropertyToSubscribers.get(event.getCarPropertyValue().getPropertyId()));
-        }
-
-        // Call external methods outside of mLock. If the external method invokes this class's
-        // methods again, it will cause a deadlock.
-        for (DataSubscriber subscriber : subscribersClone) {
-            subscriber.push(bundle);
-        }
+            for (DataSubscriber subscriber : subscribersClone) {
+                subscriber.push(bundle);
+            }
+        });
     }
 }

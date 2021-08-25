@@ -35,11 +35,13 @@ import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
+import android.os.Looper;
 import android.os.PersistableBundle;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.test.FakeHandlerWrapper;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -83,9 +85,11 @@ public class VehiclePropertyPublisherTest {
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID_2, AREA_ID).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_WRITE).build();
 
+    private final FakeHandlerWrapper mFakeHandlerWrapper =
+            new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
+
     @Mock
     private DataSubscriber mMockDataSubscriber;
-
     @Mock
     private CarPropertyService mMockCarPropertyService;
 
@@ -101,7 +105,8 @@ public class VehiclePropertyPublisherTest {
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(List.of(PROP_CONFIG_1, PROP_CONFIG_2_WRITE_ONLY));
-        mVehiclePropertyPublisher = new VehiclePropertyPublisher(mMockCarPropertyService);
+        mVehiclePropertyPublisher = new VehiclePropertyPublisher(
+                mMockCarPropertyService, mFakeHandlerWrapper.getMockHandler());
     }
 
     @Test

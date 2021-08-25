@@ -41,7 +41,6 @@ import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.ref.WeakReference;
@@ -49,9 +48,6 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.PriorityBlockingQueue;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
 
 /**
  * Implementation of the data path component of CarTelemetryService. Forwards the published data
@@ -61,8 +57,7 @@ import java.util.concurrent.atomic.AtomicReference;
 public class DataBrokerImpl implements DataBroker {
 
     private static final int MSG_HANDLE_TASK = 1;
-    @VisibleForTesting
-    static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
+    private static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
 
     private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
     private static final String SCRIPT_EXECUTOR_CLASS =
@@ -72,26 +67,9 @@ public class DataBrokerImpl implements DataBroker {
     private final PublisherFactory mPublisherFactory;
     private final ResultStore mResultStore;
     private final ScriptExecutorListener mScriptExecutorListener;
-    private final Object mLock = new Object();
-    private final HandlerThread mWorkerThread = CarServiceUtils.getHandlerThread(
+    private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
             CarTelemetryService.class.getSimpleName());
-    private final Handler mWorkerHandler = new TaskHandler(mWorkerThread.getLooper());
-
-    /** Thread-safe int to determine which data can be processed. */
-    private final AtomicInteger mPriority = new AtomicInteger(1);
-
-    /**
-     * Name of the script that's currently running. If no script is running, value is null.
-     * A non-null script name indicates a script is running, which means DataBroker should not
-     * make another ScriptExecutor binder call.
-     */
-    private final AtomicReference<String> mCurrentScriptName = new AtomicReference<>(null);
-
-    /**
-     * If something irrecoverable happened, DataBroker should enter into a disabled state to prevent
-     * doing futile work.
-     */
-    private final AtomicBoolean mDisabled = new AtomicBoolean(false);
+    private final Handler mTelemetryHandler = new TaskHandler(mTelemetryThread.getLooper());
 
     /** Thread-safe priority queue for scheduling tasks. */
     private final PriorityBlockingQueue<ScriptExecutionTask> mTaskQueue =
@@ -101,24 +79,44 @@ public class DataBrokerImpl implements DataBroker {
      * Maps MetricsConfig's name to its subscriptions. This map is useful when removing a
      * MetricsConfig.
      */
-    @GuardedBy("mLock")
     private final Map<String, List<DataSubscriber>> mSubscriptionMap = new ArrayMap<>();
-    private final AtomicReference<IScriptExecutor> mScriptExecutor = new AtomicReference<>();
+
+    /**
+     * If something irrecoverable happened, DataBroker should enter into a disabled state to prevent
+     * doing futile work.
+     */
+    private boolean mDisabled = false;
+
+    /** Priority of current system to determine if a {@link ScriptExecutionTask} can run. */
+    private int mPriority = 1;
+
+    /**
+     * Name of the script that's currently running. If no script is running, value is null.
+     * A non-null script name indicates a script is running, which means DataBroker should not
+     * make another ScriptExecutor binder call.
+     */
+    private String mCurrentScriptName;
+    private IScriptExecutor mScriptExecutor;
+    private ScriptFinishedCallback mScriptFinishedCallback;
+
     private final ServiceConnection mServiceConnection = new ServiceConnection() {
         @Override
         public void onServiceConnected(ComponentName name, IBinder service) {
-            mScriptExecutor.set(IScriptExecutor.Stub.asInterface(service));
-            scheduleNextTask();
+            mTelemetryHandler.post(() -> {
+                mScriptExecutor = IScriptExecutor.Stub.asInterface(service);
+                scheduleNextTask();
+            });
         }
 
         @Override
         public void onServiceDisconnected(ComponentName name) {
-            mScriptExecutor.set(null);
-            cleanupBoundService();
+            // TODO(b/198684473): clean up the state after script executor disconnects
+            mTelemetryHandler.post(() -> {
+                mScriptExecutor = null;
+                unbindScriptExecutor();
+            });
         }
     };
-
-    private ScriptFinishedCallback mScriptFinishedCallback;
 
     public DataBrokerImpl(
             Context context, PublisherFactory publisherFactory, ResultStore resultStore) {
@@ -126,13 +124,11 @@ public class DataBrokerImpl implements DataBroker {
         mPublisherFactory = publisherFactory;
         mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);
-        bindScriptExecutor();
     }
 
-    /** Binds to ScriptExecutor. */
     private void bindScriptExecutor() {
-        // do not re-bind if broker is in a disabled state or script executor is nonnull
-        if (mDisabled.get() || mScriptExecutor.get() != null) {
+        // do not re-bind if broker is in a disabled state or if script executor is nonnull
+        if (mDisabled || mScriptExecutor != null) {
             return;
         }
         Intent intent = new Intent();
@@ -149,8 +145,13 @@ public class DataBrokerImpl implements DataBroker {
         }
     }
 
-    /** Unbinds {@link ScriptExecutor} to release the connection. */
+    /**
+     * Unbinds {@link ScriptExecutor} to release the connection. This method should be called from
+     * the telemetry thread.
+     */
     private void unbindScriptExecutor() {
+        // TODO(b/198648763): unbind from script executor when there is no work to do
+        mCurrentScriptName = null;
         try {
             mContext.unbindService(mServiceConnection);
         } catch (IllegalArgumentException e) {
@@ -159,53 +160,26 @@ public class DataBrokerImpl implements DataBroker {
         }
     }
 
-    /**
-     * Cleans up the state after ScriptExecutor is killed by the system & service disconnects.
-     */
-    private void cleanupBoundService() {
-        // TODO(b/187743369): clean up the state after script executor disconnects
-        unbindScriptExecutor();
-        mCurrentScriptName.set(null);
-    }
-
     /** Enters into a disabled state because something irrecoverable happened. */
     private void disableBroker() {
-        mDisabled.set(true);
+        mDisabled = true;
         // remove all MetricConfigs, disable all publishers, stop receiving data
-        synchronized (mLock) {
-            for (String metricsConfigName : mSubscriptionMap.keySet()) {
-                // if no subscriber, remove key from map
-                if (mSubscriptionMap.get(metricsConfigName).size() == 0) {
-                    mSubscriptionMap.remove(metricsConfigName);
-                } else {
-                    // otherwise get the metrics config from the DataSubscriber and remove it
-                    removeMetricsConfiguration(mSubscriptionMap.get(metricsConfigName).get(0)
-                            .getMetricsConfig());
-                }
+        for (String metricsConfigName : mSubscriptionMap.keySet()) {
+            // get the metrics config from the DataSubscriber and remove the metrics config
+            if (mSubscriptionMap.get(metricsConfigName).size() != 0) {
+                removeMetricsConfiguration(mSubscriptionMap.get(metricsConfigName).get(0)
+                        .getMetricsConfig());
             }
         }
+        mSubscriptionMap.clear();
     }
 
     @Override
     public void addMetricsConfiguration(MetricsConfig metricsConfig) {
-        if (mDisabled.get()) {
-            return;
-        }
         // TODO(b/187743369): pass status back to caller
-        mWorkerHandler.post(() -> addMetricsConfigurationOnHandlerThread(metricsConfig));
-    }
-
-    private void addMetricsConfigurationOnHandlerThread(MetricsConfig metricsConfig) {
-        // this method can only be called from the thread that the handler is running at
-        if (Looper.myLooper() != mWorkerHandler.getLooper()) {
-            throw new RuntimeException(
-                    "addMetricsConfigurationOnHandlerThread is not called from handler thread");
-        }
-        synchronized (mLock) {
-            // if metricsConfig already exists, it should not be added again
-            if (mSubscriptionMap.containsKey(metricsConfig.getName())) {
-                return;
-            }
+        // if broker is disabled or metricsConfig already exists, do nothing
+        if (mDisabled || mSubscriptionMap.containsKey(metricsConfig.getName())) {
+            return;
         }
         // Create the subscribers for this metrics configuration
         List<DataSubscriber> dataSubscribers = new ArrayList<>(
@@ -230,33 +204,17 @@ public class DataBrokerImpl implements DataBroker {
                 return;
             }
         }
-        synchronized (mLock) {
-            mSubscriptionMap.put(metricsConfig.getName(), dataSubscribers);
-        }
+        mSubscriptionMap.put(metricsConfig.getName(), dataSubscribers);
     }
 
     @Override
     public void removeMetricsConfiguration(MetricsConfig metricsConfig) {
         // TODO(b/187743369): pass status back to caller
-        mWorkerHandler.post(() -> removeMetricsConfigurationOnHandlerThread(metricsConfig));
-    }
-
-    private void removeMetricsConfigurationOnHandlerThread(MetricsConfig metricsConfig) {
-        // this method can only be called from the thread that the handler is running at
-        if (Looper.myLooper() != mWorkerHandler.getLooper()) {
-            throw new RuntimeException(
-                    "removeMetricsConfigurationOnHandlerThread is not called from handler thread");
-        }
-        synchronized (mLock) {
-            if (!mSubscriptionMap.containsKey(metricsConfig.getName())) {
-                return;
-            }
+        if (!mSubscriptionMap.containsKey(metricsConfig.getName())) {
+            return;
         }
         // get the subscriptions associated with this MetricsConfig, remove it from the map
-        List<DataSubscriber> dataSubscribers;
-        synchronized (mLock) {
-            dataSubscribers = mSubscriptionMap.remove(metricsConfig.getName());
-        }
+        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(metricsConfig.getName());
         // for each subscriber, remove it from publishers
         for (DataSubscriber subscriber : dataSubscribers) {
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
@@ -278,7 +236,7 @@ public class DataBrokerImpl implements DataBroker {
 
     @Override
     public void addTaskToQueue(ScriptExecutionTask task) {
-        if (mDisabled.get()) {
+        if (mDisabled) {
             return;
         }
         mTaskQueue.add(task);
@@ -292,20 +250,19 @@ public class DataBrokerImpl implements DataBroker {
      * the handler handles message in the order they come in, this means the task will be polled
      * sequentially instead of concurrently. Every task that is scheduled and run will be distinct.
      * TODO(b/187743369): If the threading behavior in DataSubscriber changes, ScriptExecutionTask
-     * will also have different threading behavior. Update javadoc when the
-     * behavior is decided.
+     *  will also have different threading behavior. Update javadoc when the behavior is decided.
      */
     @Override
     public void scheduleNextTask() {
-        if (mDisabled.get() || mCurrentScriptName.get() != null || mTaskQueue.peek() == null) {
+        if (mDisabled || mTelemetryHandler.hasMessages(MSG_HANDLE_TASK)) {
             return;
         }
-        mWorkerHandler.sendMessage(mWorkerHandler.obtainMessage(MSG_HANDLE_TASK));
+        mTelemetryHandler.sendEmptyMessage(MSG_HANDLE_TASK);
     }
 
     @Override
     public void setOnScriptFinishedCallback(ScriptFinishedCallback callback) {
-        if (mDisabled.get()) {
+        if (mDisabled) {
             return;
         }
         mScriptFinishedCallback = callback;
@@ -313,23 +270,21 @@ public class DataBrokerImpl implements DataBroker {
 
     @Override
     public void setTaskExecutionPriority(int priority) {
-        if (mDisabled.get()) {
+        if (mDisabled) {
             return;
         }
-        mPriority.set(priority);
+        mPriority = priority;
         scheduleNextTask(); // when priority updates, schedule a task which checks task queue
     }
 
     @VisibleForTesting
     Map<String, List<DataSubscriber>> getSubscriptionMap() {
-        synchronized (mLock) {
-            return new ArrayMap<>((ArrayMap<String, List<DataSubscriber>>) mSubscriptionMap);
-        }
+        return new ArrayMap<>((ArrayMap<String, List<DataSubscriber>>) mSubscriptionMap);
     }
 
     @VisibleForTesting
-    Handler getWorkerHandler() {
-        return mWorkerHandler;
+    Handler getTelemetryHandler() {
+        return mTelemetryHandler;
     }
 
     @VisibleForTesting
@@ -344,77 +299,81 @@ public class DataBrokerImpl implements DataBroker {
      * lower priority number to be polled.
      */
     private void pollAndExecuteTask() {
-        // this method can only be called from the thread that the handler is running at
-        if (Looper.myLooper() != mWorkerHandler.getLooper()) {
-            throw new RuntimeException("pollAndExecuteTask is not called from handler thread");
-        }
-        // all checks are thread-safe
-        if (mDisabled.get()
-                || mCurrentScriptName.get() != null
-                || mTaskQueue.peek() == null
-                || mTaskQueue.peek().getPriority() > mPriority.get()) {
+        // check databroker state is ready to run script
+        if (mDisabled || mCurrentScriptName != null) {
             return;
         }
-        IScriptExecutor scriptExecutor = mScriptExecutor.get();
-        if (scriptExecutor == null) {
-            Slog.w(CarLog.TAG_TELEMETRY, "script executor is null, cannot execute task");
-            bindScriptExecutor();
+        // check task is valid and ready to be run
+        ScriptExecutionTask task = mTaskQueue.peek();
+        if (task == null || task.getPriority() > mPriority) {
             return;
         }
-        ScriptExecutionTask task = mTaskQueue.poll();
-        if (task == null) {
-            return;
-        }
-        MetricsConfig metricsConfig = task.getMetricsConfig();
-        mCurrentScriptName.set(metricsConfig.getName()); // signal the start of script execution
+        mTaskQueue.poll(); // remove task from queue
         try {
-            scriptExecutor.invokeScript(
-                    metricsConfig.getScript(),
-                    task.getHandlerName(),
-                    task.getData(),
-                    null, // TODO(b/197027637): PersistableBundle cannot be converted into Bundle
-                    mScriptExecutorListener);
+            if (mScriptExecutor == null) {
+                Slog.w(CarLog.TAG_TELEMETRY,
+                        "script executor is null, cannot execute task");
+                mTaskQueue.add(task);
+                // upon successful binding, a task will be scheduled to run if there are any
+                mTelemetryHandler.sendEmptyMessage(MSG_BIND_TO_SCRIPT_EXECUTOR);
+            } else {
+                // update current name because a script is currently running
+                mCurrentScriptName = task.getMetricsConfig().getName();
+                mScriptExecutor.invokeScript(
+                        task.getMetricsConfig().getScript(),
+                        task.getHandlerName(),
+                        task.getData(),
+                        // TODO(b/197027637): PersistableBundle cannot be converted into Bundle
+                        null,
+                        mScriptExecutorListener);
+            }
         } catch (RemoteException e) {
             Slog.d(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
             mTaskQueue.add(task); // will not trigger scheduleNextTask()
-            mCurrentScriptName.set(null);
+            mCurrentScriptName = null;
         }
     }
 
     /** Stores final metrics and schedules the next task. */
     private void onScriptFinished(byte[] result) {
-        // TODO(b/197027637): update API to use PersistableBundle
-        //                    mResultStore.putFinalResult(mCurrentScriptName.get(), result);
-        mCurrentScriptName.set(null);
-        scheduleNextTask();
+        mTelemetryHandler.post(() -> {
+            // TODO(b/197027637): update API to use PersistableBundle
+            //                    mResultStore.putFinalResult(mCurrentScriptName.get(), result);
+            mCurrentScriptName = null;
+            scheduleNextTask();
+        });
     }
 
     /** Stores interim metrics and schedules the next task. */
     private void onScriptSuccess(PersistableBundle stateToPersist) {
-        // TODO(b/197027637): update API to use PersistableBundle
-        PersistableBundle persistableBundle = new PersistableBundle();
-        for (String key : stateToPersist.keySet()) {
-            Object value = stateToPersist.get(key);
-            if (value instanceof Integer) {
-                persistableBundle.putInt(key, (int) value);
-            } else if (value instanceof Double) {
-                persistableBundle.putDouble(key, (double) value);
-            } else if (value instanceof Boolean) {
-                persistableBundle.putBoolean(key, (boolean) value);
-            } else if (value instanceof String) {
-                persistableBundle.putString(key, (String) value);
+        mTelemetryHandler.post(() -> {
+            // TODO(b/197027637): update API to use PersistableBundle
+            PersistableBundle persistableBundle = new PersistableBundle();
+            for (String key : stateToPersist.keySet()) {
+                Object value = stateToPersist.get(key);
+                if (value instanceof Integer) {
+                    persistableBundle.putInt(key, (int) value);
+                } else if (value instanceof Double) {
+                    persistableBundle.putDouble(key, (double) value);
+                } else if (value instanceof Boolean) {
+                    persistableBundle.putBoolean(key, (boolean) value);
+                } else if (value instanceof String) {
+                    persistableBundle.putString(key, (String) value);
+                }
             }
-        }
-        mResultStore.putInterimResult(mCurrentScriptName.get(), persistableBundle);
-        mCurrentScriptName.set(null);
-        scheduleNextTask();
+            mResultStore.putInterimResult(mCurrentScriptName, persistableBundle);
+            mCurrentScriptName = null;
+            scheduleNextTask();
+        });
     }
 
     /** Stores telemetry error and schedules the next task. */
     private void onScriptError(int errorType, String message, String stackTrace) {
-        // TODO(b/197027637): create error object
-        mCurrentScriptName.set(null);
-        scheduleNextTask();
+        mTelemetryHandler.post(() -> {
+            // TODO(b/197027637): create error object
+            mCurrentScriptName = null;
+            scheduleNextTask();
+        });
     }
 
     /** Listens for script execution status. Methods are called on the binder thread. */
@@ -471,6 +430,9 @@ public class DataBrokerImpl implements DataBroker {
             switch (msg.what) {
                 case MSG_HANDLE_TASK:
                     pollAndExecuteTask(); // run the next task
+                    break;
+                case MSG_BIND_TO_SCRIPT_EXECUTOR:
+                    bindScriptExecutor();
                     break;
                 default:
                     Slog.w(CarLog.TAG_TELEMETRY, "TaskHandler received unknown message.");
