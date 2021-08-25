@@ -21,27 +21,38 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_PARSE_MANIFEST_FAI
 import static android.car.telemetry.CarTelemetryManager.ERROR_SAME_MANIFEST_EXISTS;
 
 import android.annotation.NonNull;
+import android.app.StatsManager;
 import android.car.Car;
 import android.car.telemetry.CarTelemetryManager.AddManifestError;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.ManifestKey;
 import android.content.Context;
+import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.util.IndentingPrintWriter;
 import android.util.Slog;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.telemetry.databroker.DataBroker;
+import com.android.car.telemetry.databroker.DataBrokerController;
+import com.android.car.telemetry.databroker.DataBrokerImpl;
+import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.publisher.StatsManagerImpl;
+import com.android.car.telemetry.publisher.StatsManagerProxy;
+import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.internal.annotations.GuardedBy;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.File;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 /**
@@ -58,6 +69,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public static final String TELEMETRY_DIR = "telemetry";
 
     private final Context mContext;
+    private final CarPropertyService mCarPropertyService;
     private final File mRootDirectory;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
             CarTelemetryService.class.getSimpleName());
@@ -68,10 +80,18 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     @GuardedBy("mLock")
     private ICarTelemetryServiceListener mListener;
+    private DataBroker mDataBroker;
+    private DataBrokerController mDataBrokerController;
     private MetricsConfigStore mMetricsConfigStore;
+    private PublisherFactory mPublisherFactory;
+    private ResultStore mResultStore;
+    private SharedPreferences mSharedPrefs;
+    private StatsManagerProxy mStatsManagerProxy;
+    private SystemMonitor mSystemMonitor;
 
-    public CarTelemetryService(Context context) {
+    public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
         mContext = context;
+        mCarPropertyService = carPropertyService;
         SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
         // full root directory path is /data/system/car/telemetry
         mRootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
@@ -80,15 +100,31 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     @Override
     public void init() {
         mTelemetryHandler.post(() -> {
+            // initialize all necessary components
             mMetricsConfigStore = new MetricsConfigStore(mRootDirectory);
-            mMetricsConfigStore.getActiveMetricsConfigs();
-            // TODO(b/197343030): mDataBroker.addMetricsConfig to start metrics collection
+            mResultStore = new ResultStore(mRootDirectory);
+            mStatsManagerProxy = new StatsManagerImpl(
+                    mContext.getSystemService(StatsManager.class));
+            // TODO(b/197968695): delay initialization of stats publisher
+            mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
+                    mStatsManagerProxy, null);
+            mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore);
+            mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
+            mDataBrokerController = new DataBrokerController(mDataBroker, mSystemMonitor);
+
+            // start collecting data. once data is sent by publisher, scripts will be able to run
+            List<TelemetryProto.MetricsConfig> activeConfigs =
+                    mMetricsConfigStore.getActiveMetricsConfigs();
+            for (TelemetryProto.MetricsConfig config : activeConfigs) {
+                mDataBroker.addMetricsConfiguration(config);
+            }
         });
     }
 
     @Override
     public void release() {
-        // nothing to do
+        // TODO(b/197969149): prevent threading issue, block main thread
+        mTelemetryHandler.post(() -> mResultStore.flushToDisk());
     }
 
     @Override

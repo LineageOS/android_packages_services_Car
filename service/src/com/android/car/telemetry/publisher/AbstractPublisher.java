@@ -26,7 +26,7 @@ import com.android.car.telemetry.databroker.DataSubscriber;
  * configuration. Single publisher instance can send data as several
  * {@link com.android.car.telemetry.TelemetryProto.Publisher} to subscribers.
  *
- * <p>Child classes must be thread-safe.
+ * <p>Child classes must be called from the telemetry thread.
  */
 public abstract class AbstractPublisher {
     /**

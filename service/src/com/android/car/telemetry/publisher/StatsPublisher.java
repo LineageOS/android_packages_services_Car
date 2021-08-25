@@ -48,8 +48,6 @@ import java.util.concurrent.atomic.AtomicBoolean;
  * <p>The publisher adds subscriber configurations in StatsD and they persist between reboots and
  * CarTelemetryService restarts. Please use {@link #removeAllDataSubscribers} or
  * {@link #removeDataSubscriber} to clean-up these configs from StatsD store.
- *
- * <p>Thread-safe.
  */
 public class StatsPublisher extends AbstractPublisher {
     // These IDs are used in StatsdConfig and ConfigMetricsReport.
@@ -73,7 +71,7 @@ public class StatsPublisher extends AbstractPublisher {
 
     private final StatsManagerProxy mStatsManager;
     private final SharedPreferences mSharedPreferences;
-    private final Handler mHandler;
+    private final Handler mTelemetryHandler;
 
     // True if the publisher is periodically pulling reports from StatsD.
     private final AtomicBoolean mIsPullingReports = new AtomicBoolean(false);
@@ -88,6 +86,7 @@ public class StatsPublisher extends AbstractPublisher {
     @GuardedBy("mLock")
     private final LongSparseArray<DataSubscriber> mConfigKeyToSubscribers = new LongSparseArray<>();
 
+    // TODO(b/198331078): Use telemetry thread
     StatsPublisher(StatsManagerProxy statsManager, SharedPreferences sharedPreferences) {
         this(statsManager, sharedPreferences, new Handler(Looper.myLooper()));
     }
@@ -97,7 +96,7 @@ public class StatsPublisher extends AbstractPublisher {
             StatsManagerProxy statsManager, SharedPreferences sharedPreferences, Handler handler) {
         mStatsManager = statsManager;
         mSharedPreferences = sharedPreferences;
-        mHandler = handler;
+        mTelemetryHandler = handler;
     }
 
     @Override
@@ -113,7 +112,7 @@ public class StatsPublisher extends AbstractPublisher {
         }
 
         if (!mIsPullingReports.getAndSet(true)) {
-            mHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+            mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
 
@@ -141,7 +140,7 @@ public class StatsPublisher extends AbstractPublisher {
         }
 
         if (mIsPullingReports.get()) {
-            mHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+            mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
 
@@ -180,7 +179,7 @@ public class StatsPublisher extends AbstractPublisher {
 
         if (mConfigKeyToSubscribers.size() == 0) {
             mIsPullingReports.set(false);
-            mHandler.removeCallbacks(mPullReportsPeriodically);
+            mTelemetryHandler.removeCallbacks(mPullReportsPeriodically);
         }
     }
 
@@ -208,7 +207,7 @@ public class StatsPublisher extends AbstractPublisher {
             mConfigKeyToSubscribers.clear();
         }
         mIsPullingReports.set(false);
-        mHandler.removeCallbacks(mPullReportsPeriodically);
+        mTelemetryHandler.removeCallbacks(mPullReportsPeriodically);
     }
 
     @Override
