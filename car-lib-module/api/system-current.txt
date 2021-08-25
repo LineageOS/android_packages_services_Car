@@ -11,10 +11,139 @@ package android.car {
     field public static final int RESULT_OK = 0; // 0x0
   }
 
+  public final class Car {
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public int disableFeature(@NonNull String);
+    method @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public int enableFeature(@NonNull String);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllEnabledFeatures();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingDisabledFeatures();
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CONTROL_CAR_FEATURES) public java.util.List<java.lang.String> getAllPendingEnabledFeatures();
+    field public static final String ACCESS_PRIVATE_DISPLAY_ID = "android.car.permission.ACCESS_PRIVATE_DISPLAY_ID";
+    field @Deprecated public static final String CABIN_SERVICE = "cabin";
+    field public static final String CAR_DEVICE_POLICY_SERVICE = "car_device_policy_service";
+    field public static final String CAR_DRIVING_STATE_SERVICE = "drivingstate";
+    field public static final String CAR_EVS_SERVICE = "car_evs_service";
+    field public static final String CAR_EXTRA_CLUSTER_ACTIVITY_STATE = "android.car.cluster.ClusterActivityState";
+    field public static final String CAR_INPUT_SERVICE = "android.car.input";
+    field public static final String CAR_MEDIA_SERVICE = "car_media";
+    field public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
+    field public static final String CAR_USER_SERVICE = "car_user_service";
+    field public static final String DIAGNOSTIC_SERVICE = "diagnostic";
+    field public static final int FEATURE_REQUEST_ALREADY_IN_THE_STATE = 1; // 0x1
+    field public static final int FEATURE_REQUEST_MANDATORY = 2; // 0x2
+    field public static final int FEATURE_REQUEST_NOT_EXISTING = 3; // 0x3
+    field public static final int FEATURE_REQUEST_SUCCESS = 0; // 0x0
+    field @Deprecated public static final String HVAC_SERVICE = "hvac";
+    field public static final String OCCUPANT_AWARENESS_SERVICE = "occupant_awareness";
+    field public static final String PERMISSION_ADJUST_RANGE_REMAINING = "android.car.permission.ADJUST_RANGE_REMAINING";
+    field public static final String PERMISSION_CAR_DIAGNOSTIC_CLEAR = "android.car.permission.CLEAR_CAR_DIAGNOSTICS";
+    field public static final String PERMISSION_CAR_DIAGNOSTIC_READ_ALL = "android.car.permission.CAR_DIAGNOSTICS";
+    field public static final String PERMISSION_CAR_DRIVING_STATE = "android.car.permission.CAR_DRIVING_STATE";
+    field public static final String PERMISSION_CAR_DYNAMICS_STATE = "android.car.permission.CAR_DYNAMICS_STATE";
+    field public static final String PERMISSION_CAR_ENGINE_DETAILED = "android.car.permission.CAR_ENGINE_DETAILED";
+    field public static final String PERMISSION_CAR_EPOCH_TIME = "android.car.permission.CAR_EPOCH_TIME";
+    field public static final String PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL = "android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL";
+    field public static final String PERMISSION_CAR_MONITOR_INPUT = "android.car.permission.CAR_MONITOR_INPUT";
+    field public static final String PERMISSION_CAR_POWER = "android.car.permission.CAR_POWER";
+    field public static final String PERMISSION_CAR_PROJECTION = "android.car.permission.CAR_PROJECTION";
+    field public static final String PERMISSION_CAR_PROJECTION_STATUS = "android.car.permission.ACCESS_CAR_PROJECTION_STATUS";
+    field public static final String PERMISSION_CAR_TEST_SERVICE = "android.car.permission.CAR_TEST_SERVICE";
+    field public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS = "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
+    field public static final String PERMISSION_CONTROL_APP_BLOCKING = "android.car.permission.CONTROL_APP_BLOCKING";
+    field public static final String PERMISSION_CONTROL_CAR_CLIMATE = "android.car.permission.CONTROL_CAR_CLIMATE";
+    field public static final String PERMISSION_CONTROL_CAR_DOORS = "android.car.permission.CONTROL_CAR_DOORS";
+    field public static final String PERMISSION_CONTROL_CAR_EVS_ACTIVITY = "android.car.permission.CONTROL_CAR_EVS_ACTIVITY";
+    field public static final String PERMISSION_CONTROL_CAR_FEATURES = "android.car.permission.CONTROL_CAR_FEATURES";
+    field public static final String PERMISSION_CONTROL_CAR_MIRRORS = "android.car.permission.CONTROL_CAR_MIRRORS";
+    field @Deprecated public static final String PERMISSION_CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM = "android.car.permission.CONTROL_CAR_OCCUPANT_AWARENESS_SYSTEM";
+    field public static final String PERMISSION_CONTROL_CAR_POWER_POLICY = "android.car.permission.CONTROL_CAR_POWER_POLICY";
+    field public static final String PERMISSION_CONTROL_CAR_SEATS = "android.car.permission.CONTROL_CAR_SEATS";
+    field public static final String PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG = "android.car.permission.CONTROL_CAR_WATCHDOG_CONFIG";
+    field public static final String PERMISSION_CONTROL_CAR_WINDOWS = "android.car.permission.CONTROL_CAR_WINDOWS";
+    field public static final String PERMISSION_CONTROL_ENERGY_PORTS = "android.car.permission.CONTROL_CAR_ENERGY_PORTS";
+    field public static final String PERMISSION_CONTROL_EXTERIOR_LIGHTS = "android.car.permission.CONTROL_CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_EXTERIOR_LIGHTS = "android.car.permission.CAR_EXTERIOR_LIGHTS";
+    field public static final String PERMISSION_MILEAGE = "android.car.permission.CAR_MILEAGE";
+    field @Deprecated public static final String PERMISSION_MOCK_VEHICLE_HAL = "android.car.permission.CAR_MOCK_VEHICLE_HAL";
+    field public static final String PERMISSION_MONITOR_CAR_EVS_STATUS = "android.car.permission.MONITOR_CAR_EVS_STATUS";
+    field public static final String PERMISSION_READ_CAR_OCCUPANT_AWARENESS_STATE = "android.car.permission.READ_CAR_OCCUPANT_AWARENESS_STATE";
+    field public static final String PERMISSION_READ_CAR_VENDOR_PERMISSION_INFO = "android.car.permission.READ_CAR_VENDOR_PERMISSION_INFO";
+    field public static final String PERMISSION_RECEIVE_CAR_AUDIO_DUCKING_EVENTS = "android.car.permission.RECEIVE_CAR_AUDIO_DUCKING_EVENTS";
+    field public static final String PERMISSION_REQUEST_CAR_EVS_ACTIVITY = "android.car.permission.REQUEST_CAR_EVS_ACTIVITY";
+    field public static final String PERMISSION_STORAGE_ENCRYPTION_BINDING_SEED = "android.car.permission.STORAGE_ENCRYPTION_BINDING_SEED";
+    field public static final String PERMISSION_STORAGE_MONITORING = "android.car.permission.STORAGE_MONITORING";
+    field public static final String PERMISSION_TEMPLATE_RENDERER = "android.car.permission.TEMPLATE_RENDERER";
+    field public static final String PERMISSION_TIRES = "android.car.permission.CAR_TIRES";
+    field public static final String PERMISSION_USE_CAR_EVS_CAMERA = "android.car.permission.USE_CAR_EVS_CAMERA";
+    field public static final String PERMISSION_USE_CAR_TELEMETRY_SERVICE = "android.car.permission.USE_CAR_TELEMETRY_SERVICE";
+    field public static final String PERMISSION_USE_CAR_WATCHDOG = "android.car.permission.USE_CAR_WATCHDOG";
+    field public static final String PERMISSION_VENDOR_EXTENSION = "android.car.permission.CAR_VENDOR_EXTENSION";
+    field public static final String PERMISSION_VMS_PUBLISHER = "android.car.permission.VMS_PUBLISHER";
+    field public static final String PERMISSION_VMS_SUBSCRIBER = "android.car.permission.VMS_SUBSCRIBER";
+    field public static final String PROJECTION_SERVICE = "projection";
+    field public static final String STORAGE_MONITORING_SERVICE = "storage_monitoring";
+    field public static final String TEST_SERVICE = "car-service-test";
+    field public static final String VEHICLE_MAP_SERVICE = "vehicle_map_service";
+    field @Deprecated public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
+    field @Deprecated public static final String VMS_SUBSCRIBER_SERVICE = "vehicle_map_subscriber_service";
+  }
+
   public class CarOccupantZoneManager {
     method @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public int getAudioZoneIdForOccupant(@NonNull android.car.CarOccupantZoneManager.OccupantZoneInfo);
     method @RequiresPermission(android.car.Car.ACCESS_PRIVATE_DISPLAY_ID) public int getDisplayIdForDriver(int);
     method @Nullable @RequiresPermission(android.car.Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS) public android.car.CarOccupantZoneManager.OccupantZoneInfo getOccupantForAudioZoneId(int);
+  }
+
+  public final class CarProjectionManager {
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void addKeyEventHandler(@NonNull java.util.Set<java.lang.Integer>, @Nullable java.util.concurrent.Executor, @NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public java.util.List<java.lang.Integer> getAvailableWifiChannels(int);
+    method @NonNull @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public android.os.Bundle getProjectionOptions();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionListener(@NonNull android.car.CarProjectionManager.CarProjectionListener, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void registerProjectionRunner(@NonNull android.content.Intent);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void registerProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean releaseBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void removeKeyEventHandler(@NonNull android.car.CarProjectionManager.ProjectionKeyEventHandler);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public boolean requestBluetoothProfileInhibit(@NonNull android.bluetooth.BluetoothDevice, int);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void startProjectionAccessPoint(@NonNull android.car.CarProjectionManager.ProjectionAccessPointCallback);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void stopProjectionAccessPoint();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionListener();
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void unregisterProjectionRunner(@NonNull android.content.Intent);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION_STATUS) public void unregisterProjectionStatusListener(@NonNull android.car.CarProjectionManager.ProjectionStatusListener);
+    method @RequiresPermission(android.car.Car.PERMISSION_CAR_PROJECTION) public void updateProjectionStatus(@NonNull android.car.projection.ProjectionStatus);
+    field public static final int KEY_EVENT_CALL_KEY_DOWN = 4; // 0x4
+    field public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_DOWN = 6; // 0x6
+    field public static final int KEY_EVENT_CALL_LONG_PRESS_KEY_UP = 7; // 0x7
+    field public static final int KEY_EVENT_CALL_SHORT_PRESS_KEY_UP = 5; // 0x5
+    field public static final int KEY_EVENT_VOICE_SEARCH_KEY_DOWN = 0; // 0x0
+    field public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_DOWN = 2; // 0x2
+    field public static final int KEY_EVENT_VOICE_SEARCH_LONG_PRESS_KEY_UP = 3; // 0x3
+    field public static final int KEY_EVENT_VOICE_SEARCH_SHORT_PRESS_KEY_UP = 1; // 0x1
+    field @Deprecated public static final int PROJECTION_LONG_PRESS_VOICE_SEARCH = 2; // 0x2
+    field @Deprecated public static final int PROJECTION_VOICE_SEARCH = 1; // 0x1
+  }
+
+  public static interface CarProjectionManager.CarProjectionListener {
+    method public void onVoiceAssistantRequest(boolean);
+  }
+
+  public abstract static class CarProjectionManager.ProjectionAccessPointCallback {
+    ctor public CarProjectionManager.ProjectionAccessPointCallback();
+    method public void onFailed(int);
+    method @Deprecated public void onStarted(@Nullable android.net.wifi.WifiConfiguration);
+    method public void onStarted(@NonNull android.net.wifi.SoftApConfiguration);
+    method public void onStopped();
+    field public static final int ERROR_GENERIC = 2; // 0x2
+    field public static final int ERROR_INCOMPATIBLE_MODE = 3; // 0x3
+    field public static final int ERROR_NO_CHANNEL = 1; // 0x1
+    field public static final int ERROR_TETHERING_DISALLOWED = 4; // 0x4
+  }
+
+  public static interface CarProjectionManager.ProjectionKeyEventHandler {
+    method public void onKeyEvent(int);
+  }
+
+  public static interface CarProjectionManager.ProjectionStatusListener {
+    method public void onProjectionStatusChanged(int, @Nullable String, @NonNull java.util.List<android.car.projection.ProjectionStatus>);
   }
 
   public final class VehicleAreaDoor {
@@ -84,6 +213,39 @@ package android.car {
     field public static final int US_GALLON = 66; // 0x42
     field public static final int WATT_HOUR = 96; // 0x60
     field public static final int YEAR = 89; // 0x59
+  }
+
+}
+
+package android.car.admin {
+
+  public final class CarDevicePolicyManager {
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.CreateUserResult createUser(@Nullable String, int);
+    method @NonNull @RequiresPermission(anyOf={android.Manifest.permission.MANAGE_USERS, android.Manifest.permission.CREATE_USERS}) public android.car.admin.RemoveUserResult removeUser(@NonNull android.os.UserHandle);
+    field public static final int USER_TYPE_ADMIN = 1; // 0x1
+    field public static final int USER_TYPE_GUEST = 2; // 0x2
+    field public static final int USER_TYPE_REGULAR = 0; // 0x0
+  }
+
+  public final class CreateUserResult {
+    method public int getStatus();
+    method @Nullable public android.os.UserHandle getUserHandle();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 2; // 0x2
+    field public static final int STATUS_SUCCESS = 1; // 0x1
+  }
+
+  public final class RemoveUserResult {
+    method public int getStatus();
+    method public boolean isSuccess();
+    field public static final int STATUS_FAILURE_GENERIC = 100; // 0x64
+    field public static final int STATUS_FAILURE_INVALID_ARGUMENTS = 5; // 0x5
+    field public static final int STATUS_FAILURE_USER_DOES_NOT_EXIST = 4; // 0x4
+    field public static final int STATUS_SUCCESS = 1; // 0x1
+    field public static final int STATUS_SUCCESS_LAST_ADMIN_REMOVED = 2; // 0x2
+    field public static final int STATUS_SUCCESS_LAST_ADMIN_SET_EPHEMERAL = 6; // 0x6
+    field public static final int STATUS_SUCCESS_SET_EPHEMERAL = 3; // 0x3
   }
 
 }
@@ -1110,6 +1272,31 @@ package android.car.telemetry {
     method public int getVersion();
     method public void writeToParcel(@NonNull android.os.Parcel, int);
     field @NonNull public static final android.os.Parcelable.Creator<android.car.telemetry.ManifestKey> CREATOR;
+  }
+
+}
+
+package android.car.user {
+
+  public final class CarUserManager {
+    method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void addListener(@NonNull java.util.concurrent.Executor, @NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    method @RequiresPermission(anyOf={android.Manifest.permission.INTERACT_ACROSS_USERS, android.Manifest.permission.INTERACT_ACROSS_USERS_FULL}) public void removeListener(@NonNull android.car.user.CarUserManager.UserLifecycleListener);
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STARTING = 1; // 0x1
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPED = 6; // 0x6
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_STOPPING = 5; // 0x5
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_SWITCHING = 2; // 0x2
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKED = 4; // 0x4
+    field public static final int USER_LIFECYCLE_EVENT_TYPE_UNLOCKING = 3; // 0x3
+  }
+
+  public static final class CarUserManager.UserLifecycleEvent {
+    method public int getEventType();
+    method @Nullable public android.os.UserHandle getPreviousUserHandle();
+    method @NonNull public android.os.UserHandle getUserHandle();
+  }
+
+  public static interface CarUserManager.UserLifecycleListener {
+    method public void onEvent(@NonNull android.car.user.CarUserManager.UserLifecycleEvent);
   }
 
 }

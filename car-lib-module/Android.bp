@@ -23,13 +23,12 @@ java_sdk_library {
     name: "android.car-module",
 
     srcs: [
-        // In the end, this should just become full source when all hidden api usages are removed.
-        ":android.car-all-apis-for-hidden-api-check-docs",
-        ":android.car-hidden-api-free-srcs",
+        ":android.car-full-src",
     ],
     aidl: {
         include_dirs: [
             "packages/services/Car/car-lib/src",
+            "system/bt/binder",
         ],
     },
 
@@ -41,8 +40,16 @@ java_sdk_library {
         "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
+        "framework-wifi",
+    ],
+    static_libs: [
+        "android.car.internal.eventlogtag",
     ],
 
+    // Stub build drops module api and breaks build. Add it here.
+    stub_only_libs: [
+        "framework-wifi",
+    ],
     api_lint: {
             enabled: true,
     },

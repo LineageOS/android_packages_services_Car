@@ -26,27 +26,44 @@ java_library {
     srcs: ["src/android/car/navigation/navigation_state.proto"]
 }
 
+// TODO(b/195961388) Remove this when megging android.car-module
+// Added as eventlogtags cannot be passed as filegroup
 java_library {
-    name: "android.car",
+    name: "android.car.internal.eventlogtag",
+    srcs: ["src/com/android/car/internal/common/EventLogTags.logtags"],
+    sdk_version: "module_current",
+}
+
+filegroup {
+    name: "android.car-full-src",
     srcs: [
         "src/**/*.java",
         "src/**/*.aidl",
-        "src/com/android/car/internal/common/EventLogTags.logtags",
+    ],
+    visibility: [
+        "//packages/services/Car/car-lib",
+        "//packages/services/Car/car-lib-module",
+    ],
+}
+
+java_library {
+    name: "android.car",
+    srcs: [
+        ":android.car-full-src",
     ],
     aidl: {
         include_dirs: [
             "system/bt/binder",
         ],
     },
-    exclude_srcs: [
-        "src/android/car/storagemonitoring/IoStats.aidl",
-        "src/android/car/storagemonitoring/IoStatsEntry.aidl",
-    ],
     libs: [
         "android.car.builtin",
         "framework-annotations-lib",
         "modules-utils-preconditions",
         "framework-wifi",
+    ],
+    static_libs: [
+        "android.car.internal.eventlogtag",
     ],
     product_variables: {
         pdk: {
@@ -372,113 +389,4 @@ filegroup {
     name: "iscriptexecutorconstants_aidl",
     srcs: ["src/android/car/telemetry/IScriptExecutorConstants.aidl"],
     path: "src",
-}
-
-// TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
-// This will generate empty stub version for the added source. This is useful to add dependency
-// which is still using hidden API. Any component added to android.car.module should be removed
-// from this.
-droidstubs {
-    name: "android.car-all-apis-for-hidden-api-check-docs",
-    // Code under here are still having hidden API inside
-    srcs: [
-        "src/android/car/Car.java",
-        "src/com/android/car/internal/VisibleForHiddenApiCheck.java", // necessary for build
-    ],
-    // metalava still hides hidden methods even with --hidden, so needs additional annotation
-    // to include them
-    args: "--hide CallbackInterface " +
-        "--stub-packages android.car* --package " +
-        "--show-annotation android.annotation.SystemApi " +
-        "--show-annotation com.android.internal.annotations.VisibleForTesting " +
-        "--show-annotation android.car.annotation.MandatoryFeature " +
-        "--show-annotation android.car.annotation.OptionalFeature " +
-        "--show-annotation com.android.car.internal.VisibleForHiddenApiCheck ",
-
-    installable: false,
-
-    visibility: ["//packages/services/Car/car-lib-module"],
-}
-
-filegroup {
-    name: "android.car-hidden-api-free-srcs",
-    srcs: [
-        "src/android/car/*.java",
-        "src/android/car/*.aidl",
-        //"src/android/car/admin/**/*.java",
-        //"src/android/car/admin/**/*.aidl",
-        "src/android/car/annotation/**/*.java",
-        "src/android/car/cluster/**/*.java",
-        "src/android/car/cluster/**/*.aidl",
-        "src/android/car/content/**/*.java",
-        "src/android/car/content/**/*.aidl",
-        "src/android/car/diagnostic/**/*.java",
-        "src/android/car/diagnostic/**/*.aidl",
-        "src/android/car/drivingstate/**/*.java",
-        "src/android/car/drivingstate/**/*.aidl",
-        "src/android/car/evs/**/*.java",
-        "src/android/car/evs/**/*.aidl",
-        "src/android/car/hardware/**/*.java",
-        "src/android/car/hardware/**/*.aidl",
-        "src/android/car/input/**/*.java",
-        "src/android/car/input/**/*.aidl",
-        "src/android/car/media/**/*.java",
-        "src/android/car/media/**/*.aidl",
-        "src/android/car/navigation/**/*.java",
-        "src/android/car/navigation/**/*.aidl",
-        "src/android/car/occupantawareness/**/*.java",
-        "src/android/car/occupantawareness/**/*.aidl",
-        "src/android/car/projection/**/*.java",
-        "src/android/car/projection/**/*.aidl",
-        "src/android/car/settings/**/*.java",
-        "src/android/car/settings/**/*.aidl",
-        "src/android/car/storagemonitoring/**/*.java",
-        "src/android/car/storagemonitoring/**/*.aidl",
-        "src/android/car/telemetry/**/*.java",
-        "src/android/car/telemetry/**/*.aidl",
-        "src/android/car/test/**/*.java",
-        "src/android/car/test/**/*.aidl",
-        //"src/android/car/user/**/*.java",
-        //"src/android/car/user/**/*.aidl",
-        "src/android/car/util/**/*.java",
-        "src/android/car/util/**/*.aidl",
-        "src/android/car/vms/**/*.java",
-        "src/android/car/vms/**/*.aidl",
-        "src/android/car/watchdog/**/*.java",
-        "src/android/car/watchdog/**/*.aidl",
-        "src/com/android/car/**/*.java",
-    ],
-    // not converted yet.
-    exclude_srcs: [
-        "src/android/car/Car.java", // This can be added when all Car*Managers are done.
-        "src/android/car/CarProjectionManager.java",
-        "src/android/car/ICarUserService.aidl",
-        "src/android/car/ICarProjection.aidl",
-        "src/android/car/ICarProjectionStatusListener.aidl",
-        "src/android/car/admin/ICarDevicePolicyService.aidl",
-        "src/com/android/car/internal/common/UserHelperLite.java",
-        "src/com/android/car/internal/user/UserHelper.java",
-    ],
-    visibility: ["//packages/services/Car/car-lib-module"],
-}
-
-
-// TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
-java_library {
-    name: "android.car.module",
-    srcs: [
-        ":android.car-all-apis-for-hidden-api-check-docs",
-        ":android.car-hidden-api-free-srcs",
-    ],
-    sdk_version: "module_current",
-    libs: [
-        "android.car.builtin",
-        "framework-annotations-lib",
-        "modules-utils-preconditions",
-    ],
-
-    optimize: {
-        proguard_flags_files: ["proguard.flags"],
-        enabled: false,
-    },
 }
