@@ -44,7 +44,7 @@ public abstract class AbstractPublisher {
     /**
      * Removes the subscriber from the publisher. Publisher stops if necessary.
      *
-     * @throws IllegalArgumentException if invalid subscriber was provided.
+     * <p>It does nothing if subscriber is not found.
      */
     public abstract void removeDataSubscriber(DataSubscriber subscriber);
 

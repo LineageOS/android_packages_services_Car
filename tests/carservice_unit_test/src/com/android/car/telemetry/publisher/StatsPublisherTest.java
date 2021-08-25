@@ -17,11 +17,17 @@
 package com.android.car.telemetry.publisher;
 
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
+import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID;
+import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID;
+import static com.android.car.telemetry.publisher.StatsPublisher.ATOM_APP_START_MEMORY_STATE_CAPTURED_ID;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeSharedPreferences;
@@ -51,11 +57,27 @@ public class StatsPublisherTest {
                     .addSubscribers(SUBSCRIBER_1)
                     .build();
 
+    private static final long SUBSCRIBER_1_HASH = -8101507323446050791L;  // Used as ID.
+
+    private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_1 =
+            StatsdConfigProto.StatsdConfig.newBuilder()
+                    .setId(SUBSCRIBER_1_HASH)
+                    .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                            .setId(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID)
+                            .setSimpleAtomMatcher(
+                                    StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                            .setAtomId(
+                                                    ATOM_APP_START_MEMORY_STATE_CAPTURED_ID)))
+                    .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                            .setId(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)
+                            .setWhat(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID))
+                    .addAllowedLogSource("AID_SYSTEM")
+                    .build();
+
+    private StatsPublisher mPublisher;  // subject
+    private final FakeSharedPreferences mFakeSharedPref = new FakeSharedPreferences();
     @Mock private DataSubscriber mMockDataSubscriber;
     @Mock private StatsManagerProxy mStatsManager;
-    private final FakeSharedPreferences mFakeSharedPref = new FakeSharedPreferences();
-
-    private StatsPublisher mPublisher;
 
     @Before
     public void setUp() throws Exception {
@@ -65,12 +87,80 @@ public class StatsPublisherTest {
         when(mMockDataSubscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
     }
 
+    /**
+     * Emulates a restart by creating a new StatsPublisher. StatsManager and SharedPreference
+     * stays the same.
+     */
+    private StatsPublisher createRestartedPublisher() {
+        return new StatsPublisher(mStatsManager, mFakeSharedPref);
+    }
+
     @Test
-    public void testAddDataSubscriber_registersNewListener() {
+    public void testAddDataSubscriber_registersNewListener() throws Exception {
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
+        verify(mStatsManager, times(1))
+                .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
     }
 
+    @Test
+    public void testAddDataSubscriber_sameVersion_addsToStatsdOnce() throws Exception {
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        verify(mStatsManager, times(1))
+                .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+    }
+
+    @Test
+    public void testAddDataSubscriber_whenRestarted_addsToStatsdOnce() throws Exception {
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        StatsPublisher publisher2 = createRestartedPublisher();
+
+        publisher2.addDataSubscriber(mMockDataSubscriber);
+
+        verify(mStatsManager, times(1))
+                .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
+        assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+    }
+
+    @Test
+    public void testRemoveDataSubscriber_removesFromStatsd() throws Exception {
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+
+        verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
+        assertThat(mFakeSharedPref.getAll().isEmpty()).isTrue();  // also removes from SharedPref.
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+    }
+
+    @Test
+    public void testRemoveDataSubscriber_ifNotFound_nothingHappensButCallsStatsdRemove()
+            throws Exception {
+        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+
+        // It should try removing StatsdConfig from StatsD, in case it was added there before and
+        // left dangled.
+        verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
+        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+    }
+
+    @Test
+    public void testRemoveAllDataSubscriber_whenRestarted_removesFromStatsdAndClears()
+            throws Exception {
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        StatsPublisher publisher2 = createRestartedPublisher();
+
+        publisher2.removeAllDataSubscribers();
+
+        verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
+        assertThat(mFakeSharedPref.getAll().isEmpty()).isTrue();  // also removes from SharedPref.
+        assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+    }
+
     // TODO(b/189142577): add test cases when connecting to Statsd fails
+    // TODO(b/189142577): add test cases for handling config version upgrades
 }
