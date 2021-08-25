@@ -14,15 +14,24 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<FrameLayout
+
+<merge
     xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent">
-    <View
+    xmlns:app="http://schemas.android.com/apk/res-auto">
+    <FrameLayout
         android:id="@+id/handle_bar"
-        android:layout_width="@dimen/hvac_panel_handle_bar_width"
-        android:layout_height="@dimen/hvac_panel_handle_bar_height"
-        android:layout_marginTop="@dimen/hvac_panel_handle_bar_margin_top"
-        android:layout_gravity="top|center_horizontal"
-        android:background="@drawable/hvac_panel_handle_bar"/>
-</FrameLayout>
+        android:layout_width="@dimen/hvac_panel_handle_bar_container_width"
+        android:layout_height="@dimen/hvac_panel_handle_bar_container_height"
+        android:layout_gravity="center"
+        app:layout_constraintTop_toTopOf="parent"
+        app:layout_constraintLeft_toLeftOf="parent"
+        app:layout_constraintRight_toRightOf="parent"
+        app:layout_constraintHorizontal_chainStyle="packed">
+        <View
+            android:layout_width="@dimen/hvac_panel_handle_bar_width"
+            android:layout_height="@dimen/hvac_panel_handle_bar_height"
+            android:layout_marginTop="@dimen/hvac_panel_handle_bar_margin_top"
+            android:layout_gravity="top|center_horizontal"
+            android:background="@drawable/hvac_panel_handle_bar"/>
+    </FrameLayout>
+</merge>

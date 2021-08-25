@@ -30,35 +30,6 @@
         android:layout_height="match_parent"
         android:background="@drawable/hvac_panel_bg">
 
-        <ImageButton
-            android:id="@+id/hvac_panel_close_button"
-            android:layout_width="@dimen/hvac_panel_exit_button_dimen"
-            android:layout_height="@dimen/hvac_panel_exit_button_dimen"
-            android:layout_marginLeft="@dimen/hvac_panel_exit_button_margin"
-            android:layout_marginTop="@dimen/hvac_panel_exit_button_margin"
-            android:background="@drawable/hvac_default_background"
-            android:scaleType="center"
-            android:src="@drawable/ic_hvac_close"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"/>
-        <FrameLayout
-            android:id="@+id/hvac_header_title"
-            android:layout_width="wrap_content"
-            android:layout_height="@dimen/wrap_content"
-            android:layout_marginTop="@dimen/hvac_panel_title_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_dimen"
-            android:layout_marginRight="@dimen/hvac_panel_button_dimen"
-            app:layout_constraintTop_toTopOf="parent"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintRight_toRightOf="parent">
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="match_parent"
-                android:textAppearance="?android:attr/textAppearanceLarge"
-                android:text="@string/hvac_panel_header"
-                android:gravity="center"/>
-        </FrameLayout>
-
         <androidx.constraintlayout.widget.Guideline
             android:id="@+id/top_guideline"
             android:layout_width="match_parent"
@@ -77,6 +48,7 @@
             android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_external_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_default_background"
             app:layout_constraintBottom_toTopOf="@+id/steering_wheel_heat_on_off"
             app:layout_constraintLeft_toLeftOf="parent"
@@ -136,6 +108,7 @@
             android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_cool_background"
             app:layout_constraintBottom_toTopOf="@+id/seat_heater_driver_on_off"
             app:layout_constraintLeft_toRightOf="@+id/cooling_on_off"
@@ -173,6 +146,7 @@
             android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:orientation="vertical"
             app:layout_constraintBottom_toTopOf="@+id/fan_speed_control"
             app:layout_constraintLeft_toRightOf="@+id/seat_cooler_driver_on_off"
@@ -211,6 +185,7 @@
             android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_cool_background"
             app:layout_constraintBottom_toTopOf="@+id/seat_heater_passenger_on_off"
             app:layout_constraintRight_toLeftOf="@+id/recycle_air_on_off"
@@ -246,6 +221,7 @@
             android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_external_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_default_background"
             app:layout_constraintBottom_toTopOf="@+id/hvac_driver_passenger_sync"
             app:layout_constraintRight_toRightOf="parent"
@@ -292,7 +268,6 @@
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_auto_off"/>
 
         <include
-            layout="@layout/hvac_panel_handle_bar"
-            app:layout_constraintTop_toTopOf="parent"/>
+            layout="@layout/hvac_panel_handle_bar"/>
     </com.android.systemui.car.hvac.HvacPanelView>
 </com.android.car.ui.FocusArea>
