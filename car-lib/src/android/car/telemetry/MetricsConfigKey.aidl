@@ -19,4 +19,4 @@ package android.car.telemetry;
 /**
  * @hide
  */
-parcelable ManifestKey;
+parcelable MetricsConfigKey;
