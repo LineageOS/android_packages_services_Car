@@ -119,6 +119,7 @@
     <style name="Widget.DeviceDefault.CompoundButton.Switch" parent="android:Widget.Material.CompoundButton.Switch">
         <item name="android:thumb">@*android:drawable/car_switch_thumb</item>
         <item name="android:track">@*android:drawable/car_switch_track</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 
     <style name="Widget.DeviceDefault.ProgressBar.Horizontal" parent="android:Widget.Material.ProgressBar.Horizontal">

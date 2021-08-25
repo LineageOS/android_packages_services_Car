@@ -22,4 +22,15 @@
     <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="android:TextAppearance.DeviceDefault">
         <item name="android:textSize">@dimen/car_ui_body3_size</item>
     </style>
+
+    <style name="TextAppearance.CarUi.PreferenceCategoryTitle" parent="android:TextAppearance.DeviceDefault">
+        <item name="android:fontFamily">sans-serif-medium</item>
+        <item name="android:textColor">?android:attr/colorAccent</item>
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.PreferenceSummary" parent="android:TextAppearance.DeviceDefault">
+        <item name="android:textColor">?android:attr/textColorSecondary</item>
+        <item name="android:textSize">24sp</item>
+    </style>
 </resources>
