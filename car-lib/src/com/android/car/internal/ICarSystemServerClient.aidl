@@ -21,6 +21,7 @@ import android.os.UserHandle;
 
 /**
  * API to communicate from CarServiceHelperService to car service.
+ * @hide
  */
 oneway interface ICarSystemServerClient {
     /**

@@ -131,7 +131,6 @@ PRODUCT_PACKAGES += \
     CarUsbHandler \
     android.car \
     android.car.builtin \
-    android.car.module \
     CarServiceModule \
     car-frameworks-service \
     com.android.car.procfsinspector \

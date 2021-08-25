@@ -23,6 +23,7 @@ import java.util.List;
 
 /**
  * Helper API for car service. Only for interaction between system server and car service.
+ * @hide
  */
 interface ICarServiceHelper {
     int forceSuspend(int timeoutMs);
