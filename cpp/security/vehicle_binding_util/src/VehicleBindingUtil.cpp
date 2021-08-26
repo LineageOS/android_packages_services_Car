@@ -20,9 +20,6 @@
 #include <android/hardware/automotive/vehicle/2.0/types.h>
 #include <cutils/properties.h>  // for property_get
 #include <logwrap/logwrap.h>
-#include <openssl/digest.h>
-#include <openssl/hmac.h>
-#include <openssl/sha.h>
 #include <utils/SystemClock.h>
 
 #include <fcntl.h>
@@ -72,19 +69,6 @@ std::string toHexString(const std::vector<uint8_t>& bytes) {
         out += lookup[b & 0xf];
     }
     return out;
-}
-
-std::string getDigestString(const std::vector<uint8_t>& bytes) {
-    // Use HMAC so the digest isn't useful for anything else
-    constexpr char kKey[] = "vehicle binding util seed digest";
-    std::vector<uint8_t> mac(SHA_DIGEST_LENGTH);
-    if (nullptr ==
-        HMAC(EVP_sha1(), kKey, sizeof(kKey), bytes.data(), bytes.size(), mac.data(),
-             nullptr /* out_len */)) {
-        return "<error>";
-    }
-
-    return toHexString(mac);
 }
 
 BindingStatus setSeedVhalProperty(sp<IVehicle> vehicle, const std::vector<uint8_t>& seed) {
@@ -203,8 +187,7 @@ BindingStatus setVehicleBindingSeed(sp<IVehicle> vehicle, const Executor& execut
 
     status = sendSeedToVold(executor, seed);
     if (status == BindingStatus::OK) {
-        LOG(INFO) << "Successfully bound vehicle storage to seed with digest "
-                  << getDigestString(seed);
+        LOG(INFO) << "Successfully bound vehicle storage to seed.";
     }
     return status;
 }

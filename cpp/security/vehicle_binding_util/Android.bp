@@ -28,7 +28,6 @@ cc_defaults {
         "android.hardware.automotive.vehicle@2.0",
         "libbase",
         "libbinder",
-        "libcrypto",
         "libcutils",
         "libhidlbase",
         "liblog",
