@@ -34,21 +34,12 @@
             android:layout_height="wrap_content"
             android:layout_marginTop="@dimen/car_notification_card_inner_top_margin">
 
-            <ImageView
-                android:id="@+id/notification_body_icon"
-                android:layout_width="@dimen/notification_touch_target_size"
-                android:layout_height="@dimen/notification_touch_target_size"
-                android:layout_alignParentStart="true"
-                android:layout_alignParentTop="true"
-                android:layout_marginStart="@dimen/card_start_margin"/>
-
             <com.android.car.notification.template.CarNotificationHeaderView
                 android:id="@+id/notification_header"
                 android:layout_width="0dp"
                 android:layout_height="0dp"
                 android:layout_alignParentTop="true"
-                android:layout_toEndOf="@id/notification_body_icon"
-                android:layout_alignParentEnd="true"
+                android:layout_alignParentStart="true"
                 app:isHeadsUp="true"/>
 
             <com.android.car.notification.template.CarNotificationBodyView
@@ -57,20 +48,12 @@
                 android:layout_height="wrap_content"
                 android:minHeight="@dimen/notification_touch_target_size"
                 android:gravity="center_vertical"
-                android:layout_toEndOf="@id/notification_body_icon"
                 android:layout_alignParentTop="true"
+                android:layout_alignParentStart="true"
                 android:layout_toStartOf="@id/message_count"
                 android:layout_marginStart="@dimen/card_body_margin_start"
                 app:maxLines="@integer/config_headsUpNotificationMaxBodyLines"
-                app:showBigIcon="false"/>
-
-            <TextView
-                android:id="@+id/message_count"
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_above="@id/notification_actions_wrapper"
-                android:layout_alignParentEnd="true"
-                android:layout_marginEnd="@dimen/card_end_margin"/>
+                app:showBigIcon="true"/>
 
             <FrameLayout
                 android:id="@+id/notification_actions_wrapper"
