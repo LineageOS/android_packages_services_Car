@@ -18,6 +18,8 @@ package com.android.car.telemetry.publisher;
 
 import com.android.car.telemetry.databroker.DataSubscriber;
 
+import java.util.function.BiConsumer;
+
 /**
  * Abstract class for publishers. It is 1-1 with data source and manages sending data to
  * subscribers. Publisher stops itself when there are no subscribers.
@@ -29,6 +31,14 @@ import com.android.car.telemetry.databroker.DataSubscriber;
  * <p>Child classes must be called from the telemetry thread.
  */
 public abstract class AbstractPublisher {
+    // TODO(b/199211673): provide list of bad MetricsConfigs to failureConsumer.
+    /** Consumes the publisher failures, such as failing to connect to a underlying service. */
+    private final BiConsumer<AbstractPublisher, Throwable> mFailureConsumer;
+
+    AbstractPublisher(BiConsumer<AbstractPublisher, Throwable> failureConsumer) {
+        mFailureConsumer = failureConsumer;
+    }
+
     /**
      * Adds a subscriber that listens for data produced by this publisher.
      *
@@ -57,4 +67,12 @@ public abstract class AbstractPublisher {
 
     /** Returns true if the publisher already has this data subscriber. */
     public abstract boolean hasDataSubscriber(DataSubscriber subscriber);
+
+    /**
+     * Notifies the failure consumer that this publisher cannot recover from the hard failure.
+     * For example, it cannot connect to the underlying service.
+     */
+    protected void notifyFailureConsumer(Throwable error) {
+        mFailureConsumer.accept(this, error);
+    }
 }

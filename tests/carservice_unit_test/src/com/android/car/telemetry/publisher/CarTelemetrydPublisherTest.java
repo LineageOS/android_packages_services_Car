@@ -23,19 +23,21 @@ import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.assertThrows;
 import static org.mockito.ArgumentMatchers.any;
-import static org.mockito.Mockito.never;
-import static org.mockito.Mockito.times;
-import static org.mockito.Mockito.verify;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.Mockito.when;
 
+import android.annotation.Nullable;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.os.IBinder;
+import android.os.Looper;
+import android.os.RemoteException;
 import android.os.ServiceManager;
 
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.test.FakeHandlerWrapper;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -56,24 +58,26 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
                             .setId(CAR_DATA_ID_1))
                     .build();
 
+    private final FakeHandlerWrapper mFakeHandlerWrapper =
+            new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.IMMEDIATE);
+
     @Mock private IBinder mMockBinder;
-    @Mock private ICarTelemetryInternal mMockCarTelemetryInternal;
     @Mock private DataSubscriber mMockDataSubscriber;
 
-    private final CarTelemetrydPublisher mPublisher = new CarTelemetrydPublisher();
+    @Captor private ArgumentCaptor<IBinder.DeathRecipient> mLinkToDeathCallbackCaptor;
 
-    // ICarTelemetryInternal side of the listener.
-    @Captor private ArgumentCaptor<ICarDataListener> mCarDataListenerCaptor;
+    @Nullable private Throwable mPublisherFailure;
+    private FakeCarTelemetryInternal mFakeCarTelemetryInternal;
+    private CarTelemetrydPublisher mPublisher;
 
     @Before
     public void setUp() throws Exception {
+        mPublisher = new CarTelemetrydPublisher(
+                this::onPublisherFailure, mFakeHandlerWrapper.getMockHandler());
+        mFakeCarTelemetryInternal = new FakeCarTelemetryInternal(mMockBinder);
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
-        doNothing().when(mMockCarTelemetryInternal).setListener(mCarDataListenerCaptor.capture());
-    }
-
-    private void mockICarTelemetryInternalBinder() {
-        when(mMockBinder.queryLocalInterface(any())).thenReturn(mMockCarTelemetryInternal);
-        when(mMockCarTelemetryInternal.asBinder()).thenReturn(mMockBinder);
+        when(mMockBinder.queryLocalInterface(any())).thenReturn(mFakeCarTelemetryInternal);
+        doNothing().when(mMockBinder).linkToDeath(mLinkToDeathCallbackCaptor.capture(), anyInt());
         doReturn(mMockBinder).when(() -> ServiceManager.checkService(SERVICE_NAME));
     }
 
@@ -84,18 +88,15 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
     @Test
     public void testAddDataSubscriber_registersNewListener() {
-        mockICarTelemetryInternalBinder();
-
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
-        assertThat(mCarDataListenerCaptor.getAllValues()).hasSize(1);
+        assertThat(mFakeCarTelemetryInternal.mListener).isNotNull();
         assertThat(mPublisher.isConnectedToCarTelemetryd()).isTrue();
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
     }
 
     @Test
     public void testAddDataSubscriber_withInvalidId_fails() {
-        mockICarTelemetryInternalBinder();
         DataSubscriber invalidDataSubscriber = Mockito.mock(DataSubscriber.class);
         when(invalidDataSubscriber.getPublisherParam()).thenReturn(
                 TelemetryProto.Publisher.newBuilder()
@@ -107,7 +108,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
                 () -> mPublisher.addDataSubscriber(invalidDataSubscriber));
 
         assertThat(error).hasMessageThat().contains("Invalid CarData ID");
-        assertThat(mCarDataListenerCaptor.getAllValues()).hasSize(0);
+        assertThat(mFakeCarTelemetryInternal.mListener).isNull();
         assertThat(mPublisher.isConnectedToCarTelemetryd()).isFalse();
         assertThat(mPublisher.hasDataSubscriber(invalidDataSubscriber)).isFalse();
     }
@@ -118,8 +119,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
     }
 
     @Test
-    public void testRemoveDataSubscriber_removesOnlySingleSubscriber() throws Exception {
-        mockICarTelemetryInternalBinder();
+    public void testRemoveDataSubscriber_removesOnlySingleSubscriber() {
         DataSubscriber subscriber2 = Mockito.mock(DataSubscriber.class);
         when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
         mPublisher.addDataSubscriber(mMockDataSubscriber);
@@ -129,23 +129,21 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
         assertThat(mPublisher.hasDataSubscriber(subscriber2)).isFalse();
-        verify(mMockCarTelemetryInternal, never()).clearListener();
+        assertThat(mFakeCarTelemetryInternal.mListener).isNotNull();
     }
 
     @Test
-    public void testRemoveDataSubscriber_disconnectsFromICarTelemetry() throws Exception {
-        mockICarTelemetryInternalBinder();
+    public void testRemoveDataSubscriber_disconnectsFromICarTelemetry() {
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
         mPublisher.removeDataSubscriber(mMockDataSubscriber);
 
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
-        verify(mMockCarTelemetryInternal, times(1)).clearListener();
+        assertThat(mFakeCarTelemetryInternal.mListener).isNull();
     }
 
     @Test
-    public void testRemoveAllDataSubscribers_succeeds() throws Exception {
-        mockICarTelemetryInternalBinder();
+    public void testRemoveAllDataSubscribers_succeeds() {
         DataSubscriber subscriber2 = Mockito.mock(DataSubscriber.class);
         when(subscriber2.getPublisherParam()).thenReturn(PUBLISHER_PARAMS_1);
         mPublisher.addDataSubscriber(mMockDataSubscriber);
@@ -155,8 +153,68 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
         assertThat(mPublisher.hasDataSubscriber(subscriber2)).isFalse();
-        verify(mMockCarTelemetryInternal, times(1)).clearListener();
+        assertThat(mFakeCarTelemetryInternal.mListener).isNull();
     }
 
-    // TODO(b/189142577): add test cases when connecting to cartelemetryd fails
+    @Test
+    public void testNotifiesFailureConsumer_whenBinderDies() {
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        mLinkToDeathCallbackCaptor.getValue().binderDied();
+
+        assertThat(mFakeCarTelemetryInternal.mSetListenerCallCount).isEqualTo(1);
+        assertThat(mPublisherFailure).hasMessageThat()
+                .contains("ICarTelemetryInternal binder died");
+    }
+
+    @Test
+    public void testNotifiesFailureConsumer_whenFailsConnectToService() {
+        mFakeCarTelemetryInternal.setApiFailure(new RemoteException("tough life"));
+
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        assertThat(mPublisherFailure).hasMessageThat()
+                .contains("Cannot set CarData listener");
+    }
+
+    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
+        mPublisherFailure = error;
+    }
+
+    private static class FakeCarTelemetryInternal implements ICarTelemetryInternal {
+        @Nullable ICarDataListener mListener;
+        int mSetListenerCallCount = 0;
+        private final IBinder mBinder;
+        @Nullable private RemoteException mApiFailure = null;
+
+        FakeCarTelemetryInternal(IBinder binder) {
+            mBinder = binder;
+        }
+
+        @Override
+        public IBinder asBinder() {
+            return mBinder;
+        }
+
+        @Override
+        public void setListener(ICarDataListener listener) throws RemoteException {
+            mSetListenerCallCount += 1;
+            if (mApiFailure != null) {
+                throw mApiFailure;
+            }
+            mListener = listener;
+        }
+
+        @Override
+        public void clearListener() throws RemoteException {
+            if (mApiFailure != null) {
+                throw mApiFailure;
+            }
+            mListener = null;
+        }
+
+        void setApiFailure(RemoteException e) {
+            mApiFailure = e;
+        }
+    }
 }

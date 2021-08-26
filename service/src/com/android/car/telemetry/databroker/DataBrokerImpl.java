@@ -124,6 +124,12 @@ public class DataBrokerImpl implements DataBroker {
         mPublisherFactory = publisherFactory;
         mResultStore = resultStore;
         mScriptExecutorListener = new ScriptExecutorListener(this);
+        mPublisherFactory.setFailureConsumer(this::onPublisherFailure);
+    }
+
+    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
+        // TODO(b/193680465): disable MetricsConfig and log the error
+        Slog.w(CarLog.TAG_TELEMETRY, "publisher failed", error);
     }
 
     private void bindScriptExecutor() {
