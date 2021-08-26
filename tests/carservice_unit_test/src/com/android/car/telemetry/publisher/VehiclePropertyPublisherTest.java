@@ -106,7 +106,9 @@ public class VehiclePropertyPublisherTest {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(List.of(PROP_CONFIG_1, PROP_CONFIG_2_WRITE_ONLY));
         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
-                mMockCarPropertyService, mFakeHandlerWrapper.getMockHandler());
+                mMockCarPropertyService,
+                this::onPublisherFailure,
+                mFakeHandlerWrapper.getMockHandler());
     }
 
     @Test
@@ -201,4 +203,6 @@ public class VehiclePropertyPublisherTest {
         // TODO(b/197269115): add more assertions on the contents of
         // PersistableBundle object.
     }
+
+    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) { }
 }

@@ -41,6 +41,7 @@ import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.function.BiConsumer;
 
 /**
  * Publisher for {@link TelemetryProto.StatsPublisher}.
@@ -87,13 +88,20 @@ public class StatsPublisher extends AbstractPublisher {
     private final LongSparseArray<DataSubscriber> mConfigKeyToSubscribers = new LongSparseArray<>();
 
     // TODO(b/198331078): Use telemetry thread
-    StatsPublisher(StatsManagerProxy statsManager, SharedPreferences sharedPreferences) {
-        this(statsManager, sharedPreferences, new Handler(Looper.myLooper()));
+    StatsPublisher(
+            BiConsumer<AbstractPublisher, Throwable> failureConsumer,
+            StatsManagerProxy statsManager,
+            SharedPreferences sharedPreferences) {
+        this(failureConsumer, statsManager, sharedPreferences, new Handler(Looper.myLooper()));
     }
 
     @VisibleForTesting
     StatsPublisher(
-            StatsManagerProxy statsManager, SharedPreferences sharedPreferences, Handler handler) {
+            BiConsumer<AbstractPublisher, Throwable> failureConsumer,
+            StatsManagerProxy statsManager,
+            SharedPreferences sharedPreferences,
+            Handler handler) {
+        super(failureConsumer);
         mStatsManager = statsManager;
         mSharedPreferences = sharedPreferences;
         mTelemetryHandler = handler;
