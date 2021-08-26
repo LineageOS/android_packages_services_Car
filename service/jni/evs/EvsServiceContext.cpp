@@ -17,7 +17,6 @@
 #include "EvsServiceContext.h"
 
 #include <android-base/logging.h>
-#include <android/hardware_buffer.h>
 #include <android/hardware_buffer_jni.h>
 #include <nativehelper/JNIHelp.h>
 #include <vndk/hardware_buffer.h>

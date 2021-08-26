@@ -20,8 +20,6 @@
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hidl/base/1.0/IBase.h>
-#include <binder/Binder.h>
-#include <hidl/HidlSupport.h>
 
 namespace android {
 namespace automotive {

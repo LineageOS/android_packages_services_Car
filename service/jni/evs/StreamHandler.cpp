@@ -20,8 +20,6 @@
 #include <android-base/logging.h>
 #include <cutils/native_handle.h>
 
-#include <cstring>
-
 using namespace ::android::hardware::automotive::evs::V1_1;
 
 using ::android::sp;

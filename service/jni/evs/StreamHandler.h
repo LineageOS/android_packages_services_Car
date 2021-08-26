@@ -21,7 +21,7 @@
 #include <android/hardware/automotive/evs/1.1/IEvsCamera.h>
 #include <android/hardware/automotive/evs/1.1/IEvsCameraStream.h>
 #include <android/hardware/automotive/evs/1.1/IEvsDisplay.h>
-#include <ui/GraphicBuffer.h>
+#include <android-base/thread_annotations.h>
 
 #include <list>
 
