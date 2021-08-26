@@ -18,10 +18,14 @@ package com.android.car.telemetry.publisher;
 
 import android.app.StatsManager.StatsUnavailableException;
 import android.content.SharedPreferences;
+import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.util.LongSparseArray;
 import android.util.Slog;
 
 import com.android.car.CarLog;
+import com.android.car.telemetry.StatsLogProto;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
 import com.android.car.telemetry.TelemetryProto;
@@ -30,6 +34,13 @@ import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+
+import com.google.protobuf.InvalidProtocolBufferException;
+
+import java.time.Duration;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Publisher for {@link TelemetryProto.StatsPublisher}.
@@ -51,16 +62,26 @@ public class StatsPublisher extends AbstractPublisher {
     @VisibleForTesting
     static final int ATOM_APP_START_MEMORY_STATE_CAPTURED_ID = 55;
 
+    private static final Duration PULL_REPORTS_PERIOD = Duration.ofMinutes(10);
+
     private static final String SHARED_PREF_CONFIG_KEY_PREFIX = "statsd-publisher-config-id-";
     private static final String SHARED_PREF_CONFIG_VERSION_PREFIX =
             "statsd-publisher-config-version-";
 
+    // TODO(b/197766340): remove unnecessary lock
     private final Object mLock = new Object();
 
     private final StatsManagerProxy mStatsManager;
     private final SharedPreferences mSharedPreferences;
+    private final Handler mHandler;
 
-    // SparseArray and ArraySet are memory optimized, but they can be bit slower for more
+    // True if the publisher is periodically pulling reports from StatsD.
+    private final AtomicBoolean mIsPullingReports = new AtomicBoolean(false);
+
+    /** Assign the method to {@link Runnable}, otherwise the handler fails to remove it. */
+    private final Runnable mPullReportsPeriodically = this::pullReportsPeriodically;
+
+    // LongSparseArray is memory optimized, but they can be bit slower for more
     // than 100 items. We're expecting much less number of subscribers, so these data structures
     // are ok.
     // Maps config_key to the set of DataSubscriber.
@@ -68,8 +89,15 @@ public class StatsPublisher extends AbstractPublisher {
     private final LongSparseArray<DataSubscriber> mConfigKeyToSubscribers = new LongSparseArray<>();
 
     StatsPublisher(StatsManagerProxy statsManager, SharedPreferences sharedPreferences) {
+        this(statsManager, sharedPreferences, new Handler(Looper.myLooper()));
+    }
+
+    @VisibleForTesting
+    StatsPublisher(
+            StatsManagerProxy statsManager, SharedPreferences sharedPreferences, Handler handler) {
         mStatsManager = statsManager;
         mSharedPreferences = sharedPreferences;
+        mHandler = handler;
     }
 
     @Override
@@ -83,6 +111,51 @@ public class StatsPublisher extends AbstractPublisher {
             long configKey = addStatsConfigLocked(subscriber);
             mConfigKeyToSubscribers.put(configKey, subscriber);
         }
+
+        if (!mIsPullingReports.getAndSet(true)) {
+            mHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+        }
+    }
+
+    private void pullReportsPeriodically() {
+        for (long configKey : getActiveConfigKeys()) {
+            try {
+                StatsLogProto.ConfigMetricsReportList report =
+                        StatsLogProto.ConfigMetricsReportList.parseFrom(
+                                mStatsManager.getReports(configKey));
+                // TODO(b/197269115): parse the report
+                Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
+                if (report.getReportsCount() > 0) {
+                    Bundle data = new Bundle();
+                    // TODO(b/197269115): parse the report
+                    data.putInt("reportsCount", report.getReportsCount());
+                    mConfigKeyToSubscribers.get(configKey).push(data);
+                }
+            } catch (StatsUnavailableException e) {
+                // TODO(b/189143813): retry if stats is not available
+            } catch (InvalidProtocolBufferException e) {
+                // This case should never happen.
+                Slog.w(CarLog.TAG_TELEMETRY,
+                        "Failed to parse report from statsd, configKey=" + configKey);
+            }
+        }
+
+        if (mIsPullingReports.get()) {
+            mHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+        }
+    }
+
+    private List<Long> getActiveConfigKeys() {
+        ArrayList<Long> result = new ArrayList<>();
+        synchronized (mLock) {
+            mSharedPreferences.getAll().forEach((key, value) -> {
+                if (!key.startsWith(SHARED_PREF_CONFIG_KEY_PREFIX)) {
+                    return;
+                }
+                result.add((long) value);
+            });
+        }
+        return result;
     }
 
     /**
@@ -103,6 +176,11 @@ public class StatsPublisher extends AbstractPublisher {
         synchronized (mLock) {
             long configKey = removeStatsConfigLocked(subscriber);
             mConfigKeyToSubscribers.remove(configKey);
+        }
+
+        if (mConfigKeyToSubscribers.size() == 0) {
+            mIsPullingReports.set(false);
+            mHandler.removeCallbacks(mPullReportsPeriodically);
         }
     }
 
@@ -129,6 +207,8 @@ public class StatsPublisher extends AbstractPublisher {
             editor.apply();
             mConfigKeyToSubscribers.clear();
         }
+        mIsPullingReports.set(false);
+        mHandler.removeCallbacks(mPullReportsPeriodically);
     }
 
     @Override
