@@ -16,6 +16,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="importance_default" msgid="8587741629268312938">"重要性：默认"</string>
+    <string name="importance_high" msgid="3141530792377745041">"重要性：高"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"需要恢复出厂设置"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"系统将清空信息娱乐系统中的所有数据。重置完成后，您可以设置新的个人资料。"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"更多"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 总线故障"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 总线没有响应。请将主机盒插头拔下并插回，然后重新启动汽车"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的设备"</string>
