@@ -3930,7 +3930,7 @@
     <string name="color_temperature_desc" msgid="136940760965483490">"শীতল ডিছপ্লে’ ৰং ব্যৱহাৰ কৰক"</string>
     <string name="color_temperature_toast" msgid="7113013528732046104">"ৰঙৰ সাল-সলনি প্ৰযোগ্য হ\'বলৈ স্ক্ৰীণ অফ কৰক"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"কেমেৰা লেজাৰ ছেন্সৰ"</string>
-    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"স্বয়ংক্ৰিয় ছিষ্টেম আপডেটসমূহ"</string>
+    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"স্বয়ংক্ৰিয় ছিষ্টেম আপডে\'ট"</string>
     <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"ডিভাইচটো ৰিষ্টাৰ্ট হ\'লে আপডে’ট প্ৰয়োগ কৰক"</string>
     <string name="usage" msgid="9172908720164431622">"ব্যৱহাৰ"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"ম’বাইল ডেটাৰ ব্যৱহাৰ"</string>

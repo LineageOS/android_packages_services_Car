@@ -4429,7 +4429,7 @@
     <string name="carrier_settings_euicc" msgid="7723199738771996732">"Mobilselskab"</string>
     <string name="carrier_settings_version" msgid="2657511289029828425">"Version af Indstillinger"</string>
     <string name="call_category" msgid="3418535202893644015">"Opkald"</string>
-    <string name="video_calling_settings_title" msgid="8011841542502156112">"Videoopkald via mobilselskab"</string>
+    <string name="video_calling_settings_title" msgid="8011841542502156112">"Videoopkald via mobilnetværk"</string>
     <string name="cdma_system_select_title" msgid="5620679296177526467">"Systemvalg"</string>
     <string name="cdma_system_select_summary" msgid="6749131988334321244">"Skift CDMA-roamingtilstand"</string>
     <string name="cdma_system_select_dialogtitle" msgid="7489000866289285390">"Systemvalg"</string>

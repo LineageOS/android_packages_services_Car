@@ -3931,7 +3931,7 @@
     <string name="color_temperature_toast" msgid="7113013528732046104">"ფერთა ცვლილების მისასადაგებლად, გამორთეთ ეკრანი"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"კამერის ლაზერული სენსორი"</string>
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"სისტემის ავტომატური განახლება"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"განახლებების მიყენება მოწყობილობის გადატვირთვისას"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"განახლებების გააქტიურება მოწყობილობის გადატვირთვისას"</string>
     <string name="usage" msgid="9172908720164431622">"მოხმარება"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"მობილური ინტერნეტის მოხმარება"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"აპის მონაცემთა გამოყენება"</string>

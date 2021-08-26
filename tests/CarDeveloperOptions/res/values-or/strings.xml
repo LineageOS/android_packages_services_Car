@@ -3931,7 +3931,7 @@
     <string name="color_temperature_toast" msgid="7113013528732046104">"ରଙ୍ଗ ପରିବର୍ତ୍ତନ କରିବା ପାଇଁ ସ୍କ୍ରୀନ୍‌ ବନ୍ଦ କରନ୍ତୁ"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"କ୍ୟାମେରା ଲେଜର୍‌ ସେନ୍ସର୍‌"</string>
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"ସ୍ୱଚାଳିତ ସିଷ୍ଟମ୍‌ ଅପଡେଟ୍‌"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"ଡିଭାଇସ୍ ରିଷ୍ଟାର୍ଟ ହେଲେ ଅପଡେଟ୍ ଲାଗୁ କରନ୍ତୁ"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"ଡିଭାଇସ୍ ରିଷ୍ଟାର୍ଟ ହେଲେ ଅପଡେଟଗୁଡ଼ିକୁ ଲାଗୁ କରନ୍ତୁ"</string>
     <string name="usage" msgid="9172908720164431622">"ବ୍ୟବହାର"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"ମୋବାଇଲ୍‌ ଡାଟା ବ୍ୟବହାର"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"ଆପ୍‌ ଦ୍ୱାରା ଡାଟା ବ୍ୟବହାର"</string>
