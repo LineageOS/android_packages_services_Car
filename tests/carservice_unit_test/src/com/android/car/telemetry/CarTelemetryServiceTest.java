@@ -18,35 +18,55 @@ package com.android.car.telemetry;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.Mockito.when;
+
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.ManifestKey;
 import android.content.Context;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.car.CarLocalServices;
+import com.android.car.systeminterface.SystemInterface;
+
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
+import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnit;
+import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 
+import java.io.File;
+import java.nio.file.Files;
+
+@RunWith(MockitoJUnitRunner.class)
 @SmallTest
 public class CarTelemetryServiceTest {
-    @Rule
-    public MockitoRule mMockitoRule = MockitoJUnit.rule();
-    @Mock
-    private Context mContext;
-
     private final ManifestKey mManifestKeyV1 = new ManifestKey("Name", 1);
     private final ManifestKey mManifestKeyV2 = new ManifestKey("Name", 2);
     private final TelemetryProto.MetricsConfig mMetricsConfig =
             TelemetryProto.MetricsConfig.newBuilder().setScript("no-op").build();
 
     private CarTelemetryService mService;
+    private File mTempSystemCarDir;
+
+    @Rule
+    public MockitoRule mMockitoRule = MockitoJUnit.rule();
+    @Mock
+    private Context mContext;
+    @Mock
+    private SystemInterface mMockSystemInterface;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
+        CarLocalServices.removeServiceForTest(SystemInterface.class);
+        CarLocalServices.addService(SystemInterface.class, mMockSystemInterface);
+
+        mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
+        when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
+
         mService = new CarTelemetryService(mContext);
     }
 
