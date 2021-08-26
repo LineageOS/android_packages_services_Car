@@ -23,6 +23,7 @@ import static java.util.Map.entry;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
+import android.car.builtin.PermissionHelper;
 import android.car.builtin.util.Slog;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -246,7 +247,8 @@ public class InputCaptureClientController {
     public int requestInputEventCapture(ICarInputCallback callback,
             @DisplayTypeEnum int targetDisplayType,
             int[] inputTypes, int requestFlags) {
-        CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_MONITOR_INPUT);
+        CarServiceUtils.assertAnyPermission(mContext,
+                Car.PERMISSION_CAR_MONITOR_INPUT, PermissionHelper.MONITOR_INPUT);
 
         Preconditions.checkArgument(SUPPORTED_DISPLAY_TYPES.contains(targetDisplayType),
                 "Display not supported yet:" + targetDisplayType);
