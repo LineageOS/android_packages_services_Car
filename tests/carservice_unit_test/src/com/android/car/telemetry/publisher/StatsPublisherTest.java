@@ -23,30 +23,18 @@ import static com.android.car.telemetry.publisher.StatsPublisher.ATOM_APP_START_
 
 import static com.google.common.truth.Truth.assertThat;
 
-import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.os.Bundle;
-import android.os.Looper;
-import android.os.Message;
-import android.os.SystemClock;
-
-import com.android.car.telemetry.StatsLogProto;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
-import com.android.car.test.FakeHandlerWrapper;
 import com.android.car.test.FakeSharedPreferences;
-
-import com.google.common.collect.Range;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
@@ -86,22 +74,14 @@ public class StatsPublisherTest {
                     .addAllowedLogSource("AID_SYSTEM")
                     .build();
 
-    private static final StatsLogProto.ConfigMetricsReportList EMPTY_STATS_REPORT =
-            StatsLogProto.ConfigMetricsReportList.newBuilder().build();
-
     private StatsPublisher mPublisher;  // subject
     private final FakeSharedPreferences mFakeSharedPref = new FakeSharedPreferences();
-    private final FakeHandlerWrapper mFakeHandlerWrapper =
-            new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);
     @Mock private DataSubscriber mMockDataSubscriber;
     @Mock private StatsManagerProxy mStatsManager;
 
-    @Captor private ArgumentCaptor<Bundle> mBundleCaptor;
-
     @Before
     public void setUp() throws Exception {
-        mPublisher = new StatsPublisher(
-                mStatsManager, mFakeSharedPref, mFakeHandlerWrapper.getMockHandler());
+        mPublisher = new StatsPublisher(mStatsManager, mFakeSharedPref);
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(STATS_PUBLISHER_PARAMS_1);
         when(mMockDataSubscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
         when(mMockDataSubscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
@@ -112,8 +92,7 @@ public class StatsPublisherTest {
      * stays the same.
      */
     private StatsPublisher createRestartedPublisher() {
-        return new StatsPublisher(
-                mStatsManager, mFakeSharedPref, mFakeHandlerWrapper.getMockHandler());
+        return new StatsPublisher(mStatsManager, mFakeSharedPref);
     }
 
     @Test
@@ -182,72 +161,6 @@ public class StatsPublisherTest {
         assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
-    @Test
-    public void testAddDataSubscriber_queuesPeriodicTaskInTheHandler() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-
-        assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
-        Message msg = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        long expectedPullPeriodMillis = 10 * 60 * 1000;  // 10 minutes
-        assertThatMessageIsScheduledWithGivenDelay(msg, expectedPullPeriodMillis);
-    }
-
-    @Test
-    public void testRemoveDataSubscriber_removesPeriodicStatsdReportPull() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-
-        mPublisher.removeDataSubscriber(mMockDataSubscriber);
-
-        assertThat(mFakeHandlerWrapper.getQueuedMessages()).isEmpty();
-    }
-
-    @Test
-    public void testRemoveAllDataSubscriber_removesPeriodicStatsdReportPull() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-
-        mPublisher.removeAllDataSubscribers();
-
-        assertThat(mFakeHandlerWrapper.getQueuedMessages()).isEmpty();
-    }
-
-    @Test
-    public void testAfterDispatchItSchedulesANewPullReportTask() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-        Message firstMessage = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        when(mStatsManager.getReports(anyLong())).thenReturn(EMPTY_STATS_REPORT.toByteArray());
-
-        mFakeHandlerWrapper.dispatchQueuedMessages();
-
-        assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
-        Message newMessage = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        assertThat(newMessage).isNotEqualTo(firstMessage);
-        long expectedPullPeriodMillis = 10 * 60 * 1000;  // 10 minutes
-        assertThatMessageIsScheduledWithGivenDelay(newMessage, expectedPullPeriodMillis);
-    }
-
-    @Test
-    public void testPullsStatsdReport() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-        when(mStatsManager.getReports(anyLong())).thenReturn(
-                StatsLogProto.ConfigMetricsReportList.newBuilder()
-                        // add 2 empty reports
-                        .addReports(StatsLogProto.ConfigMetricsReport.newBuilder())
-                        .addReports(StatsLogProto.ConfigMetricsReport.newBuilder())
-                        .build().toByteArray());
-
-        mFakeHandlerWrapper.dispatchQueuedMessages();
-
-        verify(mMockDataSubscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getInt("reportsCount")).isEqualTo(2);
-    }
-
     // TODO(b/189142577): add test cases when connecting to Statsd fails
     // TODO(b/189142577): add test cases for handling config version upgrades
-
-    private static void assertThatMessageIsScheduledWithGivenDelay(Message msg, long delayMillis) {
-        long expectedTimeMillis = SystemClock.uptimeMillis() + delayMillis;
-        long deltaMillis = 1000;  // +/- 1 seconds is good enough for testing
-        assertThat(msg.getWhen()).isIn(Range
-                .closed(expectedTimeMillis - deltaMillis, expectedTimeMillis + deltaMillis));
-    }
 }

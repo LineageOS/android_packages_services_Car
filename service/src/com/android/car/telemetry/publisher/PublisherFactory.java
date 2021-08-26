@@ -16,8 +16,6 @@
 
 package com.android.car.telemetry.publisher;
 
-import android.content.SharedPreferences;
-
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 
@@ -29,18 +27,10 @@ import com.android.car.telemetry.TelemetryProto;
 public class PublisherFactory {
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
-    private final StatsManagerProxy mStatsManager;
-    private final SharedPreferences mSharedPreferences;
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
-    private StatsPublisher mStatsPublisher;
 
-    public PublisherFactory(
-            CarPropertyService carPropertyService,
-            StatsManagerProxy statsManager,
-            SharedPreferences sharedPreferences) {
+    public PublisherFactory(CarPropertyService carPropertyService) {
         mCarPropertyService = carPropertyService;
-        mStatsManager = statsManager;
-        mSharedPreferences = sharedPreferences;
     }
 
     /** Returns publisher by given type. */
@@ -55,12 +45,6 @@ public class PublisherFactory {
                                 mCarPropertyService);
                     }
                     return mVehiclePropertyPublisher;
-                // TODO(b/189142577): add cartelemetry publisher here
-                case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
-                    if (mStatsPublisher == null) {
-                        mStatsPublisher = new StatsPublisher(mStatsManager, mSharedPreferences);
-                    }
-                    return mStatsPublisher;
                 default:
                     throw new IllegalArgumentException(
                             "Publisher type " + type + " is not supported");
