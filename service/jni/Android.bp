@@ -34,13 +34,10 @@ cc_library_shared {
         "android.hardware.automotive.evs@1.1",
         "libandroid",
         "libbase",
-        "libbinder",
-        "libhardware",
         "libhidlbase",
         "liblog",
         "libnativehelper",
         "libnativewindow",
-        "libui",
         "libutils",
     ],
 
