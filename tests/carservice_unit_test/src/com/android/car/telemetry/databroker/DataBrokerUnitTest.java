@@ -30,7 +30,6 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.content.Context;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
@@ -42,12 +41,8 @@ import com.android.car.CarPropertyService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
-<<<<<<< TARGET BRANCH (55e526 Merge "Clean up CarService JNI library")
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
-=======
-import com.android.car.telemetry.publisher.StatsManagerProxy;
->>>>>>> SOURCE BRANCH (741eb8 Merge "Add periodically pulling data from StatsD" into sc-v2)
 
 import org.junit.Before;
 import org.junit.Ignore;
@@ -103,10 +98,6 @@ public class DataBrokerUnitTest {
     @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
-    private StatsManagerProxy mMockStatsManager;
-    @Mock
-    private SharedPreferences mMockSharedPreferences;
-    @Mock
     private IBinder mMockScriptExecutorBinder;
     @Mock
     private ResultStore mMockResultStore;
@@ -120,8 +111,7 @@ public class DataBrokerUnitTest {
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
         // bind service should return true, otherwise broker is disabled
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
-        PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockStatsManager, mMockSharedPreferences);
+        PublisherFactory factory = new PublisherFactory(mMockCarPropertyService);
         mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
         mHandler = mDataBroker.getWorkerHandler();
 
