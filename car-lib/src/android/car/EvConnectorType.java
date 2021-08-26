@@ -22,7 +22,11 @@ import java.lang.annotation.RetentionPolicy;
 
 /**
  * EvConnectorType denotes the different connectors a EV may use.
+ *
+ * @deprecated Use {@link android.car.hardware.property.EvChargingConnectorType} as the return value
+ * of {@link android.car.hardware.property.CarPropertyManager#getProperty(int, int)} instead.
  */
+@Deprecated
 public final class EvConnectorType {
     /**
      * List of EV Connector Types used in {@link CarInfoManager#getEvConnectorTypes()}.
