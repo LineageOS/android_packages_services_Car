@@ -18,10 +18,10 @@
 
 #include <android-base/logging.h>
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
 ScriptExecutorListener::~ScriptExecutorListener() {
     JNIEnv* env = getCurrentJNIEnv();
@@ -70,7 +70,7 @@ JNIEnv* ScriptExecutorListener::getCurrentJNIEnv() {
     return env;
 }
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com

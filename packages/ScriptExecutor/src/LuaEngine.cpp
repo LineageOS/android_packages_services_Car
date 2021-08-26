@@ -19,7 +19,7 @@
 #include "BundleWrapper.h"
 
 #include <android-base/logging.h>
-#include <android/car/telemetry/IScriptExecutorConstants.h>
+#include <com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.h>
 
 #include <utility>
 
@@ -29,12 +29,12 @@ extern "C" {
 #include "lualib.h"
 }
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
-using android::car::telemetry::IScriptExecutorConstants;
+using ::com::android::car::telemetry::scriptexecutorinterface::IScriptExecutorConstants;
 
 namespace {
 
@@ -172,7 +172,7 @@ int LuaEngine::onError(lua_State* lua) {
     return ZERO_RETURNED_RESULTS;
 }
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com

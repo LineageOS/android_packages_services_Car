@@ -19,10 +19,10 @@
 #include <android-base/logging.h>
 #include <android_runtime/AndroidRuntime.h>
 
+namespace com {
 namespace android {
-namespace automotive {
-namespace telemetry {
-namespace script_executor {
+namespace car {
+namespace scriptexecutor {
 
 BundleWrapper::BundleWrapper(JNIEnv* env) {
     mJNIEnv = env;
@@ -43,6 +43,7 @@ BundleWrapper::~BundleWrapper() {
 }
 
 void BundleWrapper::putBoolean(const char* key, bool value) {
+    // TODO(b/188832769): consider caching the references.
     jmethodID putBooleanMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putBoolean", "(Ljava/lang/String;Z)V");
     mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, mJNIEnv->NewStringUTF(key),
@@ -73,7 +74,7 @@ jobject BundleWrapper::getBundle() {
     return mBundle;
 }
 
-}  // namespace script_executor
-}  // namespace telemetry
-}  // namespace automotive
+}  // namespace scriptexecutor
+}  // namespace car
 }  // namespace android
+}  // namespace com
