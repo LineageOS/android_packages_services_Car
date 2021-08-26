@@ -3930,8 +3930,8 @@
     <string name="color_temperature_desc" msgid="136940760965483490">"Salqin displey ranglaridan foydalanish"</string>
     <string name="color_temperature_toast" msgid="7113013528732046104">"Rangni o‘zgartirish uchun ekranni o‘chiring"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"Kameraning lazer sensori"</string>
-    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Avtomatik tizim yangilanishlari"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Yangilanishlar qurilma qayta ishga tushirilganda o‘rnatilsin"</string>
+    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Tizimni avtomatik yangilash"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Yangilanish qurilma qayta ishga tushganda tatbiq qilinadi"</string>
     <string name="usage" msgid="9172908720164431622">"Trafik sarfi"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Mobil internet sarfi"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Ilovalar sarflagan trafik"</string>

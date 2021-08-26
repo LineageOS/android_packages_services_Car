@@ -3930,8 +3930,8 @@
     <string name="color_temperature_desc" msgid="136940760965483490">"কুলার প্রদর্শনী রঙগুলি ব্যবহার করুন"</string>
     <string name="color_temperature_toast" msgid="7113013528732046104">"রঙের পরিবর্তন প্রয়োগ করতে, স্ক্রিন বন্ধ করুন"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"ক্যামেরা লেজার সেন্সর"</string>
-    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"অটোমেটিক সিস্টেম আপডেটগুলি"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"ডিভাইস রিস্টার্ট হওয়ার সময় আপগ্রেড প্রয়োগ করুন"</string>
+    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"অটোমেটিক সিস্টেম আপডেট"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"ডিভাইস রিস্টার্ট হওয়ার সময় আপডেট ইনস্টল হবে"</string>
     <string name="usage" msgid="9172908720164431622">"ব্যবহার"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"মোবাইল ডেটার ব্যবহার"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"অ্যাপ ডেটার ব্যবহার"</string>

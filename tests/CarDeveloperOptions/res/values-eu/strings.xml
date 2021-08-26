@@ -443,7 +443,7 @@
     <string name="security_settings_fingerprint_enroll_introduction_message_unlock_disabled" msgid="1640839304679275468">"Erabili hatz-marka telefonoa desblokeatzeko eta erosketak onartzeko.\n\nOharra: ezin duzu erabili hatz-marka gailu hau desblokeatzeko. Informazio gehiago lortzeko, jarri zure erakundearen administratzailearekin harremanetan."</string>
     <string name="security_settings_fingerprint_enroll_introduction_message_setup" msgid="6734490666593320711">"Erabili hatz-marka telefonoa desblokeatzeko eta erosketak onartzeko.\n\nOharra: baliteke hatz-markak ez izatea eredu edo PIN konplexuak bezain seguruak."</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel" msgid="9168637333731599827">"Utzi"</string>
-    <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Jarraitu"</string>
+    <string name="security_settings_fingerprint_enroll_introduction_continue" msgid="271662150372486535">"Egin aurrera"</string>
     <string name="security_settings_fingerprint_enroll_introduction_cancel_setup" msgid="756928427429893070">"Saltatu"</string>
     <string name="security_settings_fingerprint_enroll_introduction_continue_setup" msgid="4125977169169671144">"Hurrengoa"</string>
     <string name="setup_fingerprint_enroll_skip_title" msgid="763018850721691594">"Hatz-markaren urratsa saltatu?"</string>
@@ -658,7 +658,7 @@
       <item quantity="other">PINak <xliff:g id="COUNT_1">%d</xliff:g> digitu izan behar ditu gutxienez</item>
       <item quantity="one">PINak <xliff:g id="COUNT_0">%d</xliff:g> digitu izan behar du gutxienez</item>
     </plurals>
-    <string name="lockpassword_continue_label" msgid="7279261861924400655">"Jarraitu"</string>
+    <string name="lockpassword_continue_label" msgid="7279261861924400655">"Egin aurrera"</string>
     <plurals name="lockpassword_password_too_long" formatted="false" msgid="7994068708438608179">
       <item quantity="other"><xliff:g id="NUMBER_1">%d</xliff:g> karaktere baino gutxiago izan behar ditu</item>
       <item quantity="one"><xliff:g id="NUMBER_0">%d</xliff:g> karaktere baino gutxiago izan behar du</item>
@@ -1760,7 +1760,7 @@
     <string name="lockpattern_confirm_button_text" msgid="7059311304112902598">"Berretsi"</string>
     <string name="lockpattern_restart_button_text" msgid="4322968353922529868">"Marraztu berriro"</string>
     <string name="lockpattern_retry_button_text" msgid="5473976578241534298">"Garbitu"</string>
-    <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"Jarraitu"</string>
+    <string name="lockpattern_continue_button_text" msgid="3328913552656376892">"Egin aurrera"</string>
     <string name="lockpattern_settings_title" msgid="5152005866870766842">"Desblokeatzeko eredua"</string>
     <string name="lockpattern_settings_enable_title" msgid="8508410891939268080">"Eskatu eredua"</string>
     <string name="lockpattern_settings_enable_summary" msgid="8027605503917737512">"Eredu bat marraztu behar da pantaila desblokeatzeko"</string>
@@ -3564,7 +3564,7 @@
     <string name="managing_admin" msgid="3212584016377581608">"Kudeatzailea: <xliff:g id="ADMIN_APP_LABEL">%s</xliff:g>"</string>
     <string name="experimental_preference" msgid="5903223408406906322">"(Esperimentala)"</string>
     <string name="encryption_interstitial_header" msgid="3298397268731647519">"Abio segurua"</string>
-    <string name="encryption_continue_button" msgid="2808797091460167842">"Jarraitu"</string>
+    <string name="encryption_continue_button" msgid="2808797091460167842">"Egin aurrera"</string>
     <string name="encryption_interstitial_message_pin" msgid="6592265582286340307">"Gailua are gehiago babesteko, PINa eska dezakezu gailua abiarazi ahal izateko. Abiarazi arte ezingo du jaso deirik, mezurik edo jakinarazpenik, ezta alarmarik jo ere. \n\nGaldutako edo lapurtutako gailuen datuak babesteko balio du neurri horrek. PINa eskatu nahi duzu gailua abiarazi ahal izateko?"</string>
     <string name="encryption_interstitial_message_pattern" msgid="5620724295995735120">"Gailua are gehiago babesteko, eredua eska dezakezu gailua abiarazi ahal izateko. Abiarazi arte ezingo du jaso deirik, mezurik edo jakinarazpenik, ezta alarmarik jo ere. \nGaldutako edo lapurtutako gailuen datuak babesteko balio du neurri horrek.\n Eredua eskatu nahi duzu gailua abiarazi ahal izateko?"</string>
     <string name="encryption_interstitial_message_password" msgid="7236688467386126401">"Gailua are gehiago babesteko, pasahitza eska dezakezu gailua abiarazi ahal izateko. Abiarazi arte ezingo du jaso deirik, mezurik edo jakinarazpenik, ezta alarmarik jo ere. \n\nGaldutako edo lapurtutako gailuen datuak babesteko balio du neurri horrek. Pasahitza eskatu nahi duzu gailua abiarazi ahal izateko?"</string>
@@ -4307,7 +4307,7 @@
     <string name="unknown_unavailability_setting_summary" msgid="5785931810977403534">"Ezarpena ez dago erabilgarri"</string>
     <string name="my_device_info_account_preference_title" msgid="7965847995028952373">"Kontua"</string>
     <string name="my_device_info_device_name_preference_title" msgid="7384446683248009296">"Gailuaren izena"</string>
-    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wifi-konexioa kontrolatzea"</string>
+    <string name="change_wifi_state_title" msgid="5140754955787584174">"Wifi-konexioa kontrolatzeko aukera"</string>
     <string name="change_wifi_state_app_detail_switch" msgid="6489090744937816260">"Eman wifi-konexioa kontrolatzeko baimena aplikazioari"</string>
     <string name="change_wifi_state_app_detail_summary" msgid="614854822469259860">"Eman wifi-konexioa aktibatzeko edo desaktibatzeko, wifi-sareak bilatzeko eta haietara konektatzeko, sareak gehitzeko edo kentzeko, edota wifi-gune lokal bat sortzeko baimena aplikazioari"</string>
     <string name="media_output_title" msgid="8710632337456601848">"Erreproduzitu multimedia-edukia hemen:"</string>

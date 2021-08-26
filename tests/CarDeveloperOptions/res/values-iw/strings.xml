@@ -4057,7 +4057,7 @@
     <string name="color_temperature_toast" msgid="7113013528732046104">"כבה את המסך כדי להחיל שינוי צבע"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"חיישן הלייזר של המצלמה"</string>
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"עדכוני מערכת אוטומטיים"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"החלת עדכונים כאשר המכשיר מופעל מחדש"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"עדכונים יותקנו עם הפעלת המכשיר מחדש"</string>
     <string name="usage" msgid="9172908720164431622">"שימוש"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"שימוש בחבילת הגלישה"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"שימוש בנתונים באפליקציות"</string>

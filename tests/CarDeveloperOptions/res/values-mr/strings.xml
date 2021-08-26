@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"वैयक्तिक प्रोफाईल खाती"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्य खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"वैयक्तिक खाते - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
+    <string name="search_settings" msgid="5809250790214921377">"शोध"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिस्प्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ऑटो-रोटेट स्क्रीन"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ला विसरला?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"या <xliff:g id="NAME">^1</xliff:g> वर स्टोअर केलेले सर्व अ‍ॅप्स, फोटो आणि डेटा कायमचा गमावला जाईल."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"अ‍ॅप्स"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"इमेज"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"व्हिडिओ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ऑडिओ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"कॅशे  केलेला डेटा"</string>
@@ -2212,7 +2212,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"बंद"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"सेवा जोडा"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"प्रिंटर जोडा"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"शोधा"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"प्रिंटर शोधत आहे"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"सेवा अक्षम केली"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"प्रिंट कार्ये"</string>
@@ -4240,7 +4240,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"संगीत आणि ऑडिओ"</string>
     <string name="storage_games" msgid="7740038143749092373">"गेम"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"अन्य अ‍ॅप्स"</string>
-    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
+    <string name="storage_files" msgid="2087824267937487880">"फाइल"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> पैकी वापरले"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"वापरली"</string>

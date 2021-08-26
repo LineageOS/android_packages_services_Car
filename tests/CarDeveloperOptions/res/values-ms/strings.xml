@@ -3930,8 +3930,8 @@
     <string name="color_temperature_desc" msgid="136940760965483490">"Gunakan warna paparan yang lebih sejuk"</string>
     <string name="color_temperature_toast" msgid="7113013528732046104">"Untuk mengenakan perubahan warna, matikan skrin"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"Penderia Laser Kamera"</string>
-    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Kemas kini sistem automatik"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Gunakan kemas kini apabila peranti dimulakan semula"</string>
+    <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Kemaskinian sistem automatik"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Gunakan kemaskinian apabila peranti dimulakan semula"</string>
     <string name="usage" msgid="9172908720164431622">"Penggunaan"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Penggunaan data mudah alih"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Penggunaan data apl"</string>

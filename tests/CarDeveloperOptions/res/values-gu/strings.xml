@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"વ્યક્તિગત પ્રોફાઇલ એકાઉન્ટ્સ"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"કાર્ય એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"વ્યક્તિગત એકાઉન્ટ - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"Search"</string>
+    <string name="search_settings" msgid="5809250790214921377">"શોધો"</string>
     <string name="display_settings" msgid="1045535829232307190">"ડિસ્પ્લે"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"ઑટો રોટેટ સ્ક્રીન"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"રંગો"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ભૂલી ગયાં?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"આ <xliff:g id="NAME">^1</xliff:g> પર સંગ્રહિત તમામ ઍપ્લિકેશનો, ફોટો અને ડેટા કાયમ માટે જતો રહેશે."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ઍપ્લિકેશનો"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"છબીઓ"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"વિડિઓઝ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ઑડિઓ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"કેશ્ડ ડેટા"</string>
@@ -2619,7 +2619,7 @@
     <string name="sync_one_time_sync" msgid="6005174168405784256">"હમણાં સમન્વયિત કરવા માટે ટૅપ કરો<xliff:g id="LAST_SYNC_TIME">
 %1$s</xliff:g>"</string>
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
-    <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
+    <string name="sync_calendar" msgid="6573708019827519372">"કૅલેન્ડર"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"સંપર્કો"</string>
     <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google સમન્વયન પર સ્વાગત છે!"</font>" \nતમારા સંપર્કો, એપોઇન્ટમેન્ટ્સ અને વધુના અ‍ૅક્સેસની તમે જ્યાં પણ હોવ ત્યાંથી મંજૂરી આપવા માટે ડેટાને સમન્વયિત કરવાનો એક Google અભિગમ."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"ઍપ સિંક સેટિંગ"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"સંગીત અને ઑડિયો"</string>
     <string name="storage_games" msgid="7740038143749092373">"રમતો"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"અન્ય ઍપ્લિકેશનો"</string>
-    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
+    <string name="storage_files" msgid="2087824267937487880">"ફાઇલો"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g>માંથી ઉપયોગમાં લેવાયો"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"વપરાયો"</string>

@@ -4057,7 +4057,7 @@
     <string name="color_temperature_toast" msgid="7113013528732046104">"Каб прымяніць змяненне колеру, адключыце экран"</string>
     <string name="camera_laser_sensor_switch" msgid="4990415200832908784">"Лазерны датчык камеры"</string>
     <string name="ota_disable_automatic_update" msgid="7630249692207340986">"Аўтаматычныя абнаўленні сістэмы"</string>
-    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Ужыць абнаўленні падчас перазапуску прылады"</string>
+    <string name="ota_disable_automatic_update_summary" msgid="5650682441097227162">"Прымяняць абнаўленні падчас перазапуску прылады"</string>
     <string name="usage" msgid="9172908720164431622">"Выкарыстанне"</string>
     <string name="cellular_data_usage" msgid="1236562234207782386">"Выкарыстанне мабільнай перадачы даных"</string>
     <string name="app_cellular_data_usage" msgid="8499761516172121957">"Выкарыстанне трафіка"</string>

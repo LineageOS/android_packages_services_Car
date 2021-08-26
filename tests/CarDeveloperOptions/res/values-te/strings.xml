@@ -197,7 +197,7 @@
     <string name="proxy_clear_text" msgid="498317431076294101">"క్లియర్ చేయి"</string>
     <string name="proxy_port_label" msgid="8285157632538848509">"ప్రాక్సీ పోర్ట్"</string>
     <string name="proxy_exclusionlist_label" msgid="8179084955547941904">"దీని కోసం ప్రాక్సీని విస్మరించు"</string>
-    <string name="proxy_defaultView_text" msgid="5785775257042403261">"డిఫాల్ట్‌లను పునరుద్ధరించు"</string>
+    <string name="proxy_defaultView_text" msgid="5785775257042403261">"ఆటోమేటిక్ సెట్టింగ్‌లను రీస్టోర్ చేయండి"</string>
     <string name="proxy_action_text" msgid="814511434843981413">"పూర్తయింది"</string>
     <string name="proxy_hostname_label" msgid="6798891831427287847">"ప్రాక్సీ హోస్ట్‌పేరు"</string>
     <string name="proxy_error" msgid="5036164133669802299">"సావధానత"</string>
@@ -752,7 +752,7 @@
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"కీబోర్డ్"</string>
     <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"పరిచయాలు మరియు కాల్ చరిత్ర"</string>
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"ఈ పరికరంతో జత చేయాలా?"</string>
-    <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"ఫోన్ పుస్తకాన్ని భాగస్వామ్యం చేయాలా?"</string>
+    <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"ఫోన్ బుక్‌ను షేర్ చేయాలా?"</string>
     <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> మీ పరిచయాలను మరియు కాల్ చరిత్రను యాక్సెస్ చేయాలనుకుంటోంది."</string>
     <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> బ్లూటూత్‌తో జత చేయాలనుకుంటోంది. కనెక్ట్ చేసినప్పుడు, ఇది మీ పరిచయాలు మరియు కాల్ చరిత్రకి యాక్సెస్‌ను కలిగి ఉంటుంది."</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"అందుబాటులో ఉన్న పరికరాలు"</string>
@@ -966,7 +966,7 @@
     <string name="wifi_dpp_add_device" msgid="1347056725253936358">"పరికరాన్ని జోడించండి"</string>
     <string name="wifi_dpp_connect_network_using_qr_code" msgid="115993715600532357">"QR కోడ్‌ను ఉపయోగించి ఈ నెట్‌వర్క్‌కు కనెక్ట్ చేయండి"</string>
     <string name="retry" msgid="8500839563577344702">"మళ్లీ ప్రయత్నించు"</string>
-    <string name="wifi_shared" msgid="5054256778276524960">"ఇతర పరికర వినియోగదారులతో భాగస్వామ్యం చేయి"</string>
+    <string name="wifi_shared" msgid="5054256778276524960">"ఇతర పరికర యూజర్‌లతో షేర్ చేయండి"</string>
     <string name="wifi_unchanged" msgid="6804964646942333992">"(మారలేదు)"</string>
     <string name="wifi_unspecified" msgid="893491188483500809">"దయచేసి ఎంచుకోండి"</string>
     <string name="wifi_multiple_cert_added" msgid="7986200585749147204">"(బహుళ ప్రమాణపత్రాలు జోడించబడ్డాయి)"</string>
@@ -1125,12 +1125,12 @@
     <string name="musicfx_title" msgid="6456079041566773649">"సంగీత ప్రభావాలు"</string>
     <string name="ring_volume_title" msgid="5874791723449821646">"రింగ్ వాల్యూమ్"</string>
     <string name="vibrate_in_silent_title" msgid="2314667015729841220">"నిశ్శబ్దంగా ఉన్నప్పుడు వైబ్రేట్ చేయి"</string>
-    <string name="notification_sound_title" msgid="6812164482799723931">"డిఫాల్ట్ నోటిఫికేషన్ ధ్వని"</string>
+    <string name="notification_sound_title" msgid="6812164482799723931">"ఆటోమేటిక్ నోటిఫికేషన్ సౌండ్"</string>
     <string name="incoming_call_volume_title" msgid="4736570528754310450">"రింగ్‌టోన్"</string>
     <string name="notification_volume_title" msgid="6022562909288085275">"నోటిఫికేషన్"</string>
     <string name="checkbox_notification_same_as_incoming_call" msgid="7312942422655861175">"నోటిఫికేషన్‌ల కోసం ఇన్‌కమింగ్ కాల్ వాల్యూమ్‌ను ఉపయోగించు"</string>
     <string name="home_work_profile_not_supported" msgid="6137073723297076818">"కార్యాలయ ప్రొఫైల్‌లకు మద్దతు ఇవ్వదు"</string>
-    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"డిఫాల్ట్ నోటిఫికేషన్ ధ్వని"</string>
+    <string name="notification_sound_dialog_title" msgid="6653341809710423276">"ఆటోమేటిక్ నోటిఫికేషన్ సౌండ్"</string>
     <string name="media_volume_title" msgid="1030438549497800914">"మీడియా"</string>
     <string name="media_volume_summary" msgid="3142433516297061652">"సంగీతం మరియు వీడియోల కోసం వాల్యూమ్‌ను సెట్ చేయి"</string>
     <string name="alarm_volume_title" msgid="8902277801531496243">"అలారం"</string>
@@ -1190,13 +1190,13 @@
     <string name="auto_brightness_summary_off" msgid="8569141123211510256">"ఆఫ్"</string>
     <string name="auto_brightness_summary_very_low" msgid="7625647285740629347">"ప్రాధాన్య ప్రకాశం చాలా తక్కువకు ఉంచబడింది"</string>
     <string name="auto_brightness_summary_low" msgid="1829314781781906712">"ప్రాధాన్య ప్రకాశం తక్కువకు ఉంచబడింది"</string>
-    <string name="auto_brightness_summary_default" msgid="4095465958108128891">"ప్రాధాన్య ప్రకాశం డిఫాల్ట్‌కి ఉంచబడింది"</string>
+    <string name="auto_brightness_summary_default" msgid="4095465958108128891">"ప్రాధాన్య ప్రకాశం ఆటోమేటిక్‌కు సెట్ చేయబడింది"</string>
     <string name="auto_brightness_summary_high" msgid="8980041483278767898">"ప్రాధాన్య ప్రకాశం ఎక్కువకు ఉంచబడింది"</string>
     <string name="auto_brightness_summary_very_high" msgid="8891768063638513875">"ప్రాధాన్య ప్రకాశం చాలా ఎక్కువకు ఉంచబడింది"</string>
     <string name="auto_brightness_off_title" msgid="6410562081118281572">"ఆఫ్"</string>
     <string name="auto_brightness_very_low_title" msgid="8716493755125824074">"చాలా తక్కువ"</string>
     <string name="auto_brightness_low_title" msgid="5005479920075366970">"తక్కువ"</string>
-    <string name="auto_brightness_default_title" msgid="5446692891470912829">"డిఫాల్ట్"</string>
+    <string name="auto_brightness_default_title" msgid="5446692891470912829">"ఆటోమేటిక్"</string>
     <string name="auto_brightness_high_title" msgid="7653379331939225750">"ఎక్కువ"</string>
     <string name="auto_brightness_very_high_title" msgid="6649896560889239565">"చాలా ఎక్కువ"</string>
     <string name="auto_brightness_subtitle" msgid="8516999348793100665">"మీ ప్రాధాన్య ప్రకాశ స్థాయి"</string>
@@ -1240,7 +1240,7 @@
     <string name="screen_timeout_summary" msgid="8644192861778491060">"ఇన్‌యాక్టివ్‌గా ఉన్న <xliff:g id="TIMEOUT_DESCRIPTION">%1$s</xliff:g> తర్వాత"</string>
     <string name="wallpaper_settings_title" msgid="347390905813529607">"వాల్‌పేపర్"</string>
     <string name="style_and_wallpaper_settings_title" msgid="8898539141152705754">"స్టయిల్స్ &amp; వాల్‌పేపర్‌లు"</string>
-    <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"డిఫాల్ట్"</string>
+    <string name="wallpaper_settings_summary_default" msgid="2626880032742784599">"ఆటోమేటిక్"</string>
     <string name="wallpaper_settings_summary_custom" msgid="8950504698015331202">"అనుకూలం"</string>
     <string name="wallpaper_suggestion_title" msgid="3012130414886743201">"వాల్‌పేపర్‌ను మార్చండి"</string>
     <string name="wallpaper_suggestion_summary" msgid="4247262938988875842">"మీ స్క్రీన్‌ను వ్యక్తిగతీకరించండి"</string>
@@ -1565,9 +1565,9 @@
     <string name="error_mcc_not3" msgid="1333037488064427164">"MCC ఫీల్డ్ తప్పనిసరిగా 3 అంకెలు కలిగి ఉండాలి."</string>
     <string name="error_mnc_not23" msgid="6738398924368729180">"MNC ఫీల్డ్‌లో తప్పనిసరిగా 2 లేదా 3 అంకెలు ఉండాలి."</string>
     <string name="error_adding_apn_type" msgid="671634520340569678">"క్యారియర్ %s రకమైన APNలను జోడించడాన్ని అనుమతించదు."</string>
-    <string name="restore_default_apn" msgid="7195266404077471007">"డిఫాల్ట్ APN సెట్టింగ్‌లను పునరుద్ధరిస్తోంది."</string>
-    <string name="menu_restore" msgid="3799288817317293115">"డిఫాల్ట్‌కు రీసెట్ చేయి"</string>
-    <string name="restore_default_apn_completed" msgid="5671734152740058937">"డిఫాల్ట్ APN సెట్టింగ్‌లను రీసెట్ చేయడం పూర్తయింది."</string>
+    <string name="restore_default_apn" msgid="7195266404077471007">"ఆటోమేటిక్ APN సెట్టింగ్‌లను రీస్టోర్ చేస్తోంది."</string>
+    <string name="menu_restore" msgid="3799288817317293115">"ఆటోమేటిక్‌కు రీసెట్ చేయండి"</string>
+    <string name="restore_default_apn_completed" msgid="5671734152740058937">"ఆటోమేటిక్ APN సెట్టింగ్‌లను రీసెట్ చేయడం పూర్తయింది."</string>
     <string name="reset_dashboard_title" msgid="7084966342252178530">"రీసెట్ ఆప్షన్లు"</string>
     <string name="reset_dashboard_summary" msgid="8778383341461126642">"నెట్‌వర్క్, యాప్‌లు లేదా డివైజ్‌ను రీసెట్ చేయవచ్చు"</string>
     <string name="reset_network_title" msgid="8944059136930806211">"Wi-Fi, మొబైల్ &amp; బ్లూటూత్‌ని రీసెట్ చేయండి"</string>
@@ -1587,7 +1587,7 @@
     <string name="master_clear_short_title" msgid="919098101581335101">"మొత్తం డేటాను తొలగించండి (ఫ్యాక్టరీ రీసెట్)"</string>
     <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"ఇందువలన మీ టాబ్లెట్ యొక్క "<b>"అంతర్గత నిల్వ"</b>", నుండి వీటితో సహా, మొత్తం డేటా సమూలంగా తొలగించబడుతుంది:\n\n"<li>"మీ Google ఖాతా"</li>\n<li>"సిస్టమ్ మరియు యాప్ డేటా మరియు సెట్టింగ్‌లు"</li>\n<li>"డౌన్‌లోడ్ చేసిన యాప్‌లు"</li></string>
     <string name="master_clear_desc" product="default" msgid="8765543541962866697">"ఇందువలన మీ ఫోన్ యొక్క "<b>"అంతర్గత నిల్వ"</b>" నుండి వీటితో సహా, మొత్తం డేటా తొలగించబడుతుంది:\n\n"<li>"మీ Google ఖాతా"</li>\n<li>"సిస్టమ్ మరియు యాప్ డేటా మరియు సెట్టింగ్‌లు"</li>\n<li>"డౌన్‌లోడ్ చేసిన యాప్‌లు"</li></string>
-    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"మీరు ప్రస్తుతం క్రింది ఖాతాలకు సైన్ ఇన్ చేశారు:\n"</string>
+    <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"మీరు ప్రస్తుతం కింది ఖాతాలకు సైన్ ఇన్ చేశారు:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"ఈ పరికరంలో ఇతర వినియోగదారులు ఉన్నారు.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"సంగీతం"</li>\n<li>"ఫోటోలు"</li>\n<li>"ఇతర వినియోగదారు డేటా"</li></string>
     <string name="master_clear_desc_also_erases_esim" msgid="4497260499055258773"><li>"eSIMలు"</li></string>
@@ -1801,7 +1801,7 @@
     <string name="application_info_label" msgid="3886253474964599105">"యాప్ సమాచారం"</string>
     <string name="storage_label" msgid="1109537840103290384">"స్టోరేజ్"</string>
     <string name="auto_launch_label" msgid="47089737922907379">"ఆటోమేటిక్‌గా తెరువు"</string>
-    <string name="auto_launch_label_generic" msgid="7865828543459493308">"డిఫాల్ట్‌లు"</string>
+    <string name="auto_launch_label_generic" msgid="7865828543459493308">"ఆటోమేటిక్ సెట్టింగ్‌లు"</string>
     <string name="screen_compatibility_label" msgid="3638271673726075815">"స్క్రీన్ అనుకూలత"</string>
     <string name="permissions_label" msgid="7341733648403464213">"అనుమతులు"</string>
     <string name="cache_header_label" msgid="3202284481380361966">"కాష్"</string>
@@ -1827,10 +1827,10 @@
     <string name="enable_text" msgid="7179141636849225884">"ప్రారంభించు"</string>
     <string name="clear_user_data_text" msgid="8894073247302821764">"స్టోరేజ్‌ను క్లియర్ చేయండి"</string>
     <string name="app_factory_reset" msgid="8718986000278776272">"అప్‌డేట్‌లను అన్‌ఇన్‌స్టాల్ చేయండి"</string>
-    <string name="auto_launch_enable_text" msgid="3372898942144027341">"మీరు కొన్ని చర్యల కోసం ఈ యాప్‌ను డిఫాల్ట్‌గా ప్రారంభించడానికి ఎంచుకున్నారు."</string>
+    <string name="auto_launch_enable_text" msgid="3372898942144027341">"మీరు కొన్ని చర్యల కోసం ఈ యాప్‌ను ఆటోమేటిక్‌గా ప్రారంభించాలని ఎంచుకున్నారు."</string>
     <string name="always_allow_bind_appwidgets_text" msgid="2286211654774611037">"మీరు విడ్జెట్‌లను సృష్టించడానికి మరియు వాటి డేటాను యాక్సెస్ చేయడానికి ఈ యాప్‌ను ఎంచుకున్నారు."</string>
-    <string name="auto_launch_disable_text" msgid="8560921288036801416">"డిఫాల్ట్‌లు సెట్ చేయబడలేదు."</string>
-    <string name="clear_activities" msgid="2068014972549235347">"డిఫాల్ట్‌లను క్లియర్ చేయి"</string>
+    <string name="auto_launch_disable_text" msgid="8560921288036801416">"ఆటోమేటిక్ సెట్టింగ్‌లు సెట్ చేయబడలేదు."</string>
+    <string name="clear_activities" msgid="2068014972549235347">"ఆటోమేటిక్ సెట్టింగ్‌లను క్లియర్ చేయండి"</string>
     <string name="screen_compatibility_text" msgid="1768064020294301496">"ఈ యాప్ మీ స్క్రీన్ కోసం రూపొందించబడి ఉండకపోవచ్చు. మీరు దీన్ని మీ స్క్రీన్‌కు ఎలా సర్దుబాటు చేయాలనేదాన్ని ఇక్కడ నియంత్రించవచ్చు."</string>
     <string name="ask_compatibility" msgid="6687958195768084807">"ప్రారంభించేటప్పుడు అడుగు"</string>
     <string name="enable_compatibility" msgid="1754177974320410195">"స్కేల్ యాప్"</string>
@@ -1844,7 +1844,7 @@
     <string name="default_emergency_app" msgid="286530070173495823">"అత్యవసర యాప్"</string>
     <string name="reset_app_preferences" msgid="1426500030595212077">"యాప్ ప్రాధాన్యతలను రీసెట్ చేయి"</string>
     <string name="reset_app_preferences_title" msgid="792909865493673598">"యాప్ ప్రాధాన్యతలను రీసెట్ చేయాలా?"</string>
-    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"ఇది వీటి కోసం అన్ని ప్రాధాన్యతలను రీసెట్ చేస్తుంది:\n\n "<li>"నిలిపివేయబడిన యాప్‌లు"</li>\n" "<li>"నిలిపివేయబడిన యాప్ నోటిఫికేషన్‌లు"</li>\n" "<li>"చర్యల కోసం డిఫాల్ట్ యాప్‌లు"</li>\n" "<li>"యాప్‌ల కోసం నేపథ్య డేటా పరిమితులు"</li>\n" "<li>"ఏవైనా అనుమతి పరిమితులు"</li>\n\n" మీరు యాప్‌ డేటాను కోల్పోరు."</string>
+    <string name="reset_app_preferences_desc" msgid="7935273005301096031">"ఇది వీటి కోసం అన్ని ప్రాధాన్యతలను రీసెట్ చేస్తుంది:\n\n "<li>"డిజేబుల్ చేయబడిన యాప్‌లు"</li>\n" "<li>"డిజేబుల్ చేయబడిన యాప్ నోటిఫికేషన్‌లు"</li>\n" "<li>"చర్యల కోసం ఆటోమేటిక్ యాప్‌లు"</li>\n" "<li>"యాప్‌ల కోసం బ్యాక్‌గ్రౌండ్ డేటా పరిమితులు"</li>\n" "<li>"ఏవైనా అనుమతి పరిమితులు"</li>\n\n" మీరు ఎటువంటి యాప్‌ డేటాను కోల్పోరు."</string>
     <string name="reset_app_preferences_button" msgid="2041894727477934656">"యాప్‌లను రీసెట్ చేయి"</string>
     <string name="manage_space_text" msgid="6166469422303124302">"నిల్వ ఖాళీని నిర్వహించు"</string>
     <string name="filter" msgid="2426943916212457962">"ఫిల్టర్ చేయి"</string>
@@ -1896,7 +1896,7 @@
     <string name="instant_app_details_summary" msgid="6384264315914966114">"<xliff:g id="APP_STORE">%1$s</xliff:g>లో మరింత సమాచారం"</string>
     <string name="app_ops_running" msgid="6378418969742957805">"అమలవుతోంది"</string>
     <string name="app_ops_never_used" msgid="8305262378162525813">"(ఎప్పటికీ ఉపయోగించబడనిది)"</string>
-    <string name="no_default_apps" msgid="4519038578011412532">"డిఫా. యాప్‌లు లేవు."</string>
+    <string name="no_default_apps" msgid="4519038578011412532">"ఆటోమేటిక్ యాప్‌లు లేవు."</string>
     <string name="storageuse_settings_title" msgid="3390798597982116048">"నిల్వ వినియోగం"</string>
     <string name="storageuse_settings_summary" msgid="3013328092465903687">"యాప్‌ల ద్వారా ఉపయోగించబడిన నిల్వను చూడండి"</string>
     <string name="service_restarting" msgid="1190995225643385568">"పునఃప్రారంభం అవుతోంది"</string>
@@ -1975,7 +1975,7 @@
     <string name="keyboard_shortcuts_helper_summary" msgid="8024313306403779742">"అందుబాటులో ఉన్న షార్ట్‌కట్‌లను ప్రదర్శిస్తుంది"</string>
     <string name="language_and_input_for_work_category_title" msgid="2053255944038892588">"కార్యాలయ ప్రొఫైల్ కీబోర్డ్‌లు &amp; సాధనాలు"</string>
     <string name="virtual_keyboards_for_work_title" msgid="3968291646938204523">"ఆఫీసు ప్రొఫైల్ కోసం వర్చువల్ కీబోర్డ్"</string>
-    <string name="default_keyboard_layout" msgid="9171704064451242230">"డిఫాల్ట్"</string>
+    <string name="default_keyboard_layout" msgid="9171704064451242230">"ఆటోమేటిక్"</string>
     <string name="pointer_speed" msgid="800691982011350432">"పాయింటర్ వేగం"</string>
     <string name="game_controller_settings_category" msgid="9066526500617769463">"గేమ్ కంట్రోలర్"</string>
     <string name="vibrate_input_devices" msgid="3584406079534121467">"వైబ్రేషన్ దారి మళ్లించు"</string>
@@ -1983,7 +1983,7 @@
     <string name="keyboard_layout_dialog_title" msgid="4762706917037085797">"కీబోర్డ్ లేఅవుట్‌ను ఎంచుకోండి"</string>
     <string name="keyboard_layout_dialog_setup_button" msgid="771293535107618283">"కీబోర్డ్ లేఅవుట్‌లను సెటప్ చేయి"</string>
     <string name="keyboard_layout_dialog_switch_hint" msgid="138516114253502182">"మారడానికి Control-Spacebar నొక్కండి"</string>
-    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"డిఫాల్ట్"</string>
+    <string name="keyboard_layout_default_label" msgid="8368579311667189793">"ఆటోమేటిక్"</string>
     <string name="keyboard_layout_picker_title" msgid="6958831599253031987">"కీబోర్డ్ లేఅవుట్‌లు"</string>
     <string name="user_dict_settings_title" msgid="1415462066249818756">"వ్యక్తిగత నిఘంటువు"</string>
     <string name="user_dict_settings_for_work_title" msgid="3995828731001225748">"ఆఫీస్ ప్రొఫైల్ కోసం వ్యక్తిగత నిఘంటువు"</string>
@@ -2076,7 +2076,7 @@
     <string name="accessibility_toggle_master_balance_title" msgid="8723492001092647562">"ఆడియో బ్యాలెన్స్"</string>
     <string name="accessibility_toggle_master_balance_left_label" msgid="8531986342666527970">"ఎడమ"</string>
     <string name="accessibility_toggle_master_balance_right_label" msgid="7757024572140589558">"కుడి"</string>
-    <string name="accessibility_timeout_default" msgid="9118596941362716397">"డిఫాల్ట్"</string>
+    <string name="accessibility_timeout_default" msgid="9118596941362716397">"ఆటోమేటిక్"</string>
     <string name="accessibility_timeout_10secs" msgid="9049275488230469953">"10 సెకన్లు"</string>
     <string name="accessibility_timeout_30secs" msgid="2927776365058784617">"30 సెకన్లు"</string>
     <string name="accessibility_timeout_1min" msgid="5019003178551730551">"1 నిమిషం"</string>
@@ -2164,9 +2164,9 @@
     <string name="captioning_typeface" msgid="7893208796949341767">"ఫాంట్ కుటుంబం"</string>
     <string name="captioning_preview_text" msgid="4877753964772618049">"శీర్షికలు ఈ విధంగా కనిపిస్తాయి"</string>
     <string name="captioning_preview_characters" msgid="6469599599352973561">"Aa"</string>
-    <string name="locale_default" msgid="910074908458214054">"డిఫాల్ట్"</string>
+    <string name="locale_default" msgid="910074908458214054">"ఆటోమేటిక్"</string>
     <string name="color_title" msgid="132875486061816584">"రంగు"</string>
-    <string name="color_unspecified" msgid="2081242275041140693">"డిఫాల్ట్"</string>
+    <string name="color_unspecified" msgid="2081242275041140693">"ఆటోమేటిక్"</string>
     <string name="color_none" msgid="6073562573637028315">"ఏదీ కాదు"</string>
     <string name="color_white" msgid="8555090785520913738">"తెలుపు రంగు"</string>
     <string name="color_gray" msgid="7625498522679305687">"బూడిద రంగు"</string>
@@ -2574,7 +2574,7 @@
     <string name="personal_device_admin_title" msgid="759440849188565661">"వ్యక్తిగతం"</string>
     <string name="managed_device_admin_title" msgid="8021522755492551726">"కార్యాలయం"</string>
     <string name="sms_access_restriction_enabled" msgid="3006320256764718303">"SMS &amp; కాల్ లాగ్ యాక్సెస్‌ను పరిమితం చేయండి"</string>
-    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"కేవలం డిఫాల్ట్ ఫోన్ మరియు సందేశ యాప్‌లు మాత్రమే SMS &amp; లాగ్ అనుమతులను కలిగి ఉన్నాయి"</string>
+    <string name="sms_access_restriction_enabled_summary" msgid="9011946580977780063">"కేవలం ఆటోమేటిక్ ఫోన్ యాప్‌లు, మెసేజింగ్ యాప్‌లు మాత్రమే SMS &amp; లాగ్ అనుమతులను కలిగి ఉన్నాయి"</string>
     <string name="no_trust_agents" msgid="5757792915019113084">"విశ్వసనీయ ఏజెంట్‌లు అందుబాటులో లేరు"</string>
     <string name="add_device_admin_msg" msgid="3573765823476931173">"డివైజ్ నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయాలా?"</string>
     <string name="add_device_admin" msgid="1621152410207260584">"ఈ పరికరం నిర్వాహకుల యాప్‌ను యాక్టివేట్‌ చేయి"</string>
@@ -2630,7 +2630,7 @@
     <string name="header_add_an_account" msgid="8482614556580804956">"ఖాతాను జోడించండి"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"ఖాతాను తీసివేయాలా?"</string>
     <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"ఈ ఖాతాను తీసివేయడం వలన టాబ్లెట్ నుండి దీనికి చెందిన మొత్తం మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
-    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"ఈ ఖాతాను తీసివేయడం వలన ఫోన్ నుండి దానికి సంబంధించిన మొత్తం మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
+    <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"ఈ ఖాతాను తీసివేయడం వలన ఫోన్ నుండి దానికి సంబంధించిన మొత్తం మెసేజ్‌లు, కాంటాక్ట్‌లు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
     <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"ఈ ఖాతాను తీసివేయడం వలన పరికరం నుండి దానికి సంబంధించిన అన్ని మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"ఈ మార్పును మీ నిర్వాహకులు అనుమతించలేదు"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"మాన్యువల్‌గా సమకాలీకరించడం సాధ్యపడదు"</string>
@@ -3012,7 +3012,7 @@
     <string name="sim_no_inserted_msg" msgid="1197884607569714609">"సిమ్ కార్డులు ఏవీ చొప్పించబడలేదు"</string>
     <string name="sim_status_title" msgid="4483653750844520871">"సిమ్ స్థితి"</string>
     <string name="sim_status_title_sim_slot" msgid="416005570947546124">"సిమ్ స్థితి (సిమ్ స్లాట్ %1$d)"</string>
-    <string name="sim_call_back_title" msgid="2497274034557717457">"డిఫాల్ట్ సిమ్ నుండి తిరిగి కాల్ చేయి"</string>
+    <string name="sim_call_back_title" msgid="2497274034557717457">"ఆటోమేటిక్ సిమ్ నుండి తిరిగి కాల్ చేయి"</string>
     <string name="sim_outgoing_call_title" msgid="4683645160838507363">"అవుట్‌గోయింగ్ కాల్స్‌ల కోసం సిమ్"</string>
     <string name="sim_other_call_settings" msgid="5656672788293240519">"ఇతర కాల్ సెట్టింగ్‌లు"</string>
     <string name="preferred_network_offload_title" msgid="341815233467695133">"ఫ్రాధాన్య నెట్‌వర్క్ ఆఫ్‌లోడ్"</string>
@@ -3072,7 +3072,7 @@
     <string name="keywords_battery" msgid="3860198379310375112">"శక్తి వినియోగం, ఛార్జ్"</string>
     <string name="keywords_spell_checker" msgid="6032411442958278879">"అక్షరక్రమం, నిఘంటువు, స్పెల్ చెక్, స్వీయ-దిద్దుబాటు"</string>
     <string name="keywords_voice_input" msgid="569012518085308407">"గుర్తింపు, ఇన్‌పుట్, ప్రసంగం, మాట్లాడటం, భాష, హ్యాండ్స్-ఫ్రీ, హ్యాండ్ ఫ్రీ, గుర్తింపు, అభ్యంతరకరం, పదం, ఆడియో, చరిత్ర, బ్లూటూత్ హెడ్‌సెట్"</string>
-    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"రేటు, భాష, డిఫాల్ట్, చదివి వినిపించు, చదివి వినిపించడం, tts, యాక్సెస్, స్క్రీన్ రీడర్, అంధులు"</string>
+    <string name="keywords_text_to_speech_output" msgid="1337378060761399890">"రేటు, భాష, ఆటోమేటిక్, చదివి వినిపించు, చదివి వినిపించడం, tts, యాక్సెసిబిలిటీ, స్క్రీన్ రీడర్, అంధులు"</string>
     <string name="keywords_date_and_time" msgid="4434079919474174978">"గడియారం, మిలిటరీ"</string>
     <string name="keywords_network_reset" msgid="2064330046866583215">"రీసెట్ చేయి, పునరుద్ధరించు, ఫ్యాక్టరీ"</string>
     <string name="keywords_factory_data_reset" msgid="5865739790670615499">"తొలగించు, పునరుద్ధరించు, క్లియర్ చేయి, తీసివేయి, ఫ్యాక్టరీ రీసెట్"</string>
@@ -3084,10 +3084,10 @@
     <string name="keywords_accounts" msgid="5908945725229306088">"ఖాతా"</string>
     <string name="keywords_users" msgid="5880705776023155640">"పరిమితి, పరిమితం చేయి, పరిమితం చేయబడింది"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"వచన దిద్దుబాటు, దిద్దుబాటు చేయి, ధ్వని, వైబ్రేట్, స్వయంచాలకం, భాష, సంజ్ఞ, సూచించు, సూచన, థీమ్, అభ్యంతరకరం, పదం, రకం, ఎమోజీ, అంతర్జాతీయం"</string>
-    <string name="keywords_reset_apps" msgid="2645701455052020435">"రీసెట్, ప్రాధాన్యతలు, డిఫాల్ట్"</string>
+    <string name="keywords_reset_apps" msgid="2645701455052020435">"రీసెట్, ప్రాధాన్యతలు, ఆటోమేటిక్"</string>
     <string name="keywords_all_apps" msgid="846444448435698930">"యాప్‌లు, డౌన్‌లోడ్, యాప్‌లు, సిస్టమ్"</string>
     <string name="keywords_app_permissions" msgid="8539841019997048500">"యాప్‌లు, అనుమతులు, భద్రత"</string>
-    <string name="keywords_default_apps" msgid="7435952699323965532">"యాప్‌లు, డిఫాల్ట్"</string>
+    <string name="keywords_default_apps" msgid="7435952699323965532">"యాప్‌లు, ఆటోమేటిక్"</string>
     <string name="keywords_ignore_optimizations" msgid="9127632532176249438">"ఆప్టిమైజేషన్‌లు నిద్రావస్థ, యాప్ స్టాండ్‌బైలను  విస్మరించు"</string>
     <string name="keywords_color_mode" msgid="8893345199519181751">"సచేతనం, RGB, sRGB, రంగు, సహజం, ప్రామాణికం"</string>
     <string name="keywords_color_temperature" msgid="2255253972992035046">"రంగు, ఉష్ణోగ్రత, D65, D73, తెలుపు, పసుపు, నీలం, గాఢమైన, లేత"</string>
@@ -3120,15 +3120,15 @@
     <string name="keywords_storage_settings" msgid="6422454520424236476">"మెమరీ, కాష్, డేటా, తొలగించు, క్లియర్ చేయి, ఖాళీ, స్థలం"</string>
     <string name="keywords_bluetooth_settings" msgid="1152229891590622822">"కనెక్ట్ అయింది, పరికరం, హెడ్‌ఫోన్‌లు, హెడ్‌సెట్, స్పీకర్, వైర్‌లెస్, జత చేయి, ఇయర్‌బడ్‌లు, సంగీతం, మీడియా"</string>
     <string name="keywords_wallpaper" msgid="7665778626293643625">"నేపథ్యం, స్క్రీన్, లాక్‌స్క్రీన్, థీమ్"</string>
-    <string name="keywords_assist_input" msgid="8392362788794886564">"డిఫాల్ట్, అసిస్టెంట్"</string>
-    <string name="keywords_default_payment_app" msgid="845369409578423996">"చెల్లింపు, డిఫాల్ట్"</string>
+    <string name="keywords_assist_input" msgid="8392362788794886564">"ఆటోమేటిక్, అసిస్టెంట్"</string>
+    <string name="keywords_default_payment_app" msgid="845369409578423996">"పేమెంట్, ఆటోమేటిక్"</string>
     <string name="keywords_ambient_display" msgid="8835182491798487184">"ఇన్‌కమింగ్ నోటిఫికేషన్"</string>
     <string name="keywords_hotspot_tethering" msgid="1723591462602613867">"usb టెథర్, బ్లూటూత్ టెథర్, wifi హాట్‌స్పాట్"</string>
     <string name="keywords_touch_vibration" msgid="2081175517528255224">"స్పర్శలు, వైబ్రేట్, స్క్రీన్, సెన్సిటివిటీ"</string>
     <string name="keywords_ring_vibration" msgid="4210509151866460210">"స్పర్శలు, వైబ్రేట్, ఫోన్, కాల్, సెన్సిటివిటీ, రింగ్"</string>
     <string name="keywords_notification_vibration" msgid="1077515502086745166">"స్పర్శలు, వైబ్రేట్, సెన్సిటివిటీ"</string>
     <string name="keywords_battery_saver_sticky" msgid="8733804259716284872">"బ్యాటరీ సేవర్, అనుబంధితం, స్థిరం, పవర్ సేవర్, బ్యాటరీ"</string>
-    <string name="default_sound" msgid="6675629744816442953">"డిఫాల్ట్ ధ్వని"</string>
+    <string name="default_sound" msgid="6675629744816442953">"ఆటోమేటిక్ సౌండ్"</string>
     <string name="sound_settings_summary" msgid="8467549670633195109">"రింగ్ వాల్యూమ్ <xliff:g id="PERCENTAGE">%1$s</xliff:g> ఉంది"</string>
     <string name="sound_dashboard_summary" msgid="5187301919242823508">"వాల్యూమ్, వైబ్రేషన్, అంతరాయం కలిగించవద్దు"</string>
     <string name="sound_settings_summary_vibrate" msgid="2194491116884798590">"రింగర్ వైబ్రేట్‌కి సెట్ చేయబడింది"</string>
@@ -3141,10 +3141,10 @@
     <string name="ring_volume_option_title" msgid="2038924918468372264">"రింగ్ వాల్యూమ్"</string>
     <string name="notification_volume_option_title" msgid="1358512611511348260">"నోటిఫికేషన్ వాల్యూమ్"</string>
     <string name="ringtone_title" msgid="1409086028485922583">"ఫోన్ రింగ్‌టోన్"</string>
-    <string name="notification_ringtone_title" msgid="2932960620843976285">"డిఫాల్ట్ నోటిఫికేషన్ ధ్వని"</string>
+    <string name="notification_ringtone_title" msgid="2932960620843976285">"ఆటోమేటిక్ నోటిఫికేషన్ సౌండ్"</string>
     <string name="notification_unknown_sound_title" msgid="8043718667804838398">"యాప్ అందించిన ధ్వని"</string>
-    <string name="notification_sound_default" msgid="2664544380802426260">"డిఫాల్ట్ నోటిఫికేషన్ ధ్వని"</string>
-    <string name="alarm_ringtone_title" msgid="6411326147408635902">"డిఫాల్ట్ అలారం ధ్వని"</string>
+    <string name="notification_sound_default" msgid="2664544380802426260">"ఆటోమేటిక్‌ నోటిఫికేషన్ సౌండ్"</string>
+    <string name="alarm_ringtone_title" msgid="6411326147408635902">"ఆటోమేటిక్ అలారం సౌండ్"</string>
     <string name="vibrate_when_ringing_title" msgid="2757996559847126952">"కాల్స్ వచ్చినప్పుడు వైబ్రేట్ అవ్వు"</string>
     <string name="other_sound_settings" msgid="5250376066099818676">"ఇతర ధ్వనులు"</string>
     <string name="dial_pad_tones_title" msgid="8877212139988655769">"డయల్ ప్యాడ్ టోన్‌లు"</string>
@@ -3480,7 +3480,7 @@
     <string name="zen_mode_calls" msgid="1844534357711539325">"కాల్స్‌ను అనుమతించు"</string>
     <string name="zen_mode_calls_title" msgid="2024387562355793661">"కాల్స్‌"</string>
     <string name="zen_mode_calls_footer" msgid="6319824006810688433">"అనుమతించిన కాల్స్‌ వచ్చినప్పుడు శబ్దం వస్తుందో లేదో నిర్ధారించుకోవడానికి, మీ పరికరాన్ని రింగ్‌, వైబ్రేట్ లేదా నిశ్శబ్ద మోడ్‌లలో దేనికి సెట్ చేశారో స‌రి చూసుకోండి."</string>
-    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ సంబంధిత‌ ఇన్‌కమింగ్ కాల్స్‌ బ్లాక్ చేయబడ్డాయి. మీ స్నేహితులు, కుటుంబ సభ్యులు లేదా ఇతర పరిచయాలు మిమ్మల్ని సంప్రదించగలిగేలా మీరు సెట్టింగ్‌లను సర్దుబాటు చేయవచ్చు."</string>
+    <string name="zen_mode_custom_calls_footer" msgid="7329231648477682337">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ సంబంధిత‌ ఇన్‌కమింగ్ కాల్స్‌ బ్లాక్ చేయబడ్డాయి. మీ ఫ్రెండ్స్, ఫ్యామిలీ మెంబర్‌లు లేదా ఇతర కాంటాక్ట్‌లు మిమ్మల్ని సంప్రదించగలిగేలా మీరు సెట్టింగ్‌లను అడ్జస్ట్ చేయవచ్చు."</string>
     <string name="zen_mode_starred_contacts_title" msgid="7099621384597127058">"స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌లు"</string>
     <plurals name="zen_mode_starred_contacts_summary_additional_contacts" formatted="false" msgid="1904181007981570805">
       <item quantity="other">మరో <xliff:g id="NUM_PEOPLE">%d</xliff:g> మంది</item>
@@ -3595,7 +3595,7 @@
     <string name="app_launch_open_domain_urls_title" msgid="8595126859922391331">"మద్దతిచ్చే లింక్‌లను తెరవండి"</string>
     <string name="app_launch_open_domain_urls_summary" msgid="6803029846855502366">"అడగకుండానే తెరవాలి"</string>
     <string name="app_launch_supported_domain_urls_title" msgid="503976327533974142">"మద్దతిచ్చే లింక్‌లు"</string>
-    <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"ఇతర డిఫాల్ట్‌లు"</string>
+    <string name="app_launch_other_defaults_title" msgid="2986685757258232543">"ఇతర ఆటోమేటిక్ సెట్టింగ్‌లు"</string>
     <string name="storage_summary_format" msgid="2166430500147022935">"<xliff:g id="STORAGE_TYPE">%2$s</xliff:g>లో <xliff:g id="SIZE">%1$s</xliff:g> ఉపయోగించబడింది"</string>
     <string name="storage_type_internal" msgid="4434212376539293892">"అంతర్గత నిల్వ"</string>
     <string name="storage_type_external" msgid="8827468573685648108">"బాహ్య నిల్వ"</string>
@@ -3663,8 +3663,8 @@
     <string name="app_link_open_always" msgid="7723587434377688415">"ఈ యాప్‌లో తెరుస్తుంది"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"ప్రతిసారి అడుగుతుంది"</string>
     <string name="app_link_open_never" msgid="5774359835242754350">"ఈ యాప్‌లో తెరవదు"</string>
-    <string name="default_apps_title" msgid="3848048391400989931">"డిఫాల్ట్"</string>
-    <string name="default_for_work" msgid="7290411716804495366">"కార్యాలయం కోసం డిఫాల్ట్"</string>
+    <string name="default_apps_title" msgid="3848048391400989931">"ఆటోమేటిక్"</string>
+    <string name="default_for_work" msgid="7290411716804495366">"వర్క్‌ ప్లేస్ కోసం ఆటోమేటిక్"</string>
     <string name="assist_and_voice_input_title" msgid="324148194703846130">"సహాయకం &amp; వాయిస్ ఇన్‌పుట్"</string>
     <string name="default_assist_title" msgid="2060846994203235317">"సహాయక యాప్"</string>
     <string name="assistant_security_warning_title" msgid="8014460924169723059">"<xliff:g id="ASSISTANT_APP_NAME">%s</xliff:g>ని మీ సహాయకంగా చేయాలా?"</string>
@@ -3673,12 +3673,12 @@
     <string name="assistant_security_warning_disagree" msgid="4217490999193100459">"అంగీకరించడం లేదు"</string>
     <string name="choose_voice_input_title" msgid="5369311838580756359">"వాయిస్ ఇన్‌పుట్‌ని ఎంచుకోండి"</string>
     <string name="default_browser_title" msgid="4933937500898014977">"బ్రౌజర్ యాప్"</string>
-    <string name="default_browser_title_none" msgid="46431244274747124">"డిఫాల్ట్ బ్రౌజర్ లేదు"</string>
+    <string name="default_browser_title_none" msgid="46431244274747124">"ఆటోమేటిక్ బ్రౌజర్ లేదు"</string>
     <string name="default_phone_title" msgid="6038690021912575740">"ఫోన్ యాప్"</string>
     <string name="roles_title" msgid="2825063787446244357">"పాత్రలు"</string>
-    <string name="default_app" msgid="8861276008866619872">"(డిఫాల్ట్)"</string>
+    <string name="default_app" msgid="8861276008866619872">"(ఆటోమేటిక్)"</string>
     <string name="system_app" msgid="4111402206594443265">"(సిస్టమ్)"</string>
-    <string name="system_default_app" msgid="1454719098589351197">"(సిస్టమ్ డిఫాల్ట్)"</string>
+    <string name="system_default_app" msgid="1454719098589351197">"(సిస్టమ్ ఆటోమేటిక్)"</string>
     <string name="apps_storage" msgid="5658466038269046038">"యాప్‌ల స్టోరేజ్"</string>
     <string name="usage_access" msgid="2023443456361489516">"వినియోగ యాక్సెస్"</string>
     <string name="permit_usage_access" msgid="3321727608629752758">"వినియోగ యాక్సెస్‌ను అనుమతించు"</string>
@@ -3722,7 +3722,7 @@
     <string name="system_ui_settings" msgid="6751165163665775447">"SystemUI ట్యూనర్‌ను చూపు"</string>
     <string name="additional_permissions" msgid="3142290772324571654">"అదనపు అనుమతులు"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"మరో <xliff:g id="COUNT">%1$d</xliff:g>"</string>
-    <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"బగ్ రిపోర్ట్‌ను భాగస్వామ్యం చేయాలా?"</string>
+    <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"బగ్ రిపోర్ట్‌ను షేర్ చేయాలా?"</string>
     <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"మీ ఐటి నిర్వాహకులు ఈ పరికరం సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను అభ్యర్థించారు. యాప్‌లు మరియు డేటా భాగస్వామ్యం చేయబడవచ్చు."</string>
     <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"మీ ఐటి నిర్వాహకులు ఈ పరికరం సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను అభ్యర్థించారు. యాప్‌లు మరియు డేటా భాగస్వామ్యం చేయబడవచ్చు మరియు మీ పరికరం పనితీరు తాత్కాలికంగా నెమ్మదించవచ్చు."</string>
     <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"ఈ బగ్ రిపోర్ట్‌ మీ ఐటి నిర్వాహకులతో భాగస్వామ్యం చేయబడుతోంది. మరిన్ని వివరాల కోసం వారిని సంప్రదించండి."</string>
@@ -3869,7 +3869,7 @@
     <string name="display_summary_example" msgid="4555020581960719296">"10 నిమిషాలు ఇన్‌యాక్టివ్ తర్వాత నిద్రావస్థకు వెళుతుంది"</string>
     <string name="memory_summary" msgid="9121871336058042600">"సగటున <xliff:g id="TOTAL_MEMORY">%2$s</xliff:g>లో <xliff:g id="USED_MEMORY">%1$s</xliff:g> మెమరీ వినియోగించబడింది"</string>
     <string name="users_summary" msgid="6693338169439092387">"<xliff:g id="USER_NAME">%1$s</xliff:g>గా సైన్ ఇన్ చేశారు"</string>
-    <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> డిఫాల్ట్‌గా ఉంది"</string>
+    <string name="payment_summary" msgid="1381646849276543242">"<xliff:g id="APP_NAME">%1$s</xliff:g> ఆటోమేటిక్‌గా ఉంది"</string>
     <string name="backup_disabled" msgid="6941165814784765643">"బ్యాకప్ నిలిపివేయబడింది"</string>
     <string name="android_version_summary" msgid="2192751442789395445">"Android <xliff:g id="VERSION">%1$s</xliff:g>కు అప్‌డేట్ చేయబడింది"</string>
     <string name="android_version_pending_update_summary" msgid="3554543810520655076">"అప్‌డేట్ అందుబాటులో ఉంది"</string>
@@ -4010,7 +4010,7 @@
     <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"ఇప్పుడు ఆఫ్ చేయండి"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"బ్యాటరీ అనుకూలీకరణను ఉపయోగించడం లేదు"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"పరికరం లాక్ చేయబడితే, నోటిఫికేషన్‌ల్లో రిప్లయిలు లేదా ఇతర వచనాన్ని టైప్ చేయకుండా నిరోధించు"</string>
-    <string name="default_spell_checker" msgid="8636661093243189533">"డిఫాల్ట్ స్పెల్‌ చెక‌ర్‌"</string>
+    <string name="default_spell_checker" msgid="8636661093243189533">"ఆటోమేటిక్ స్పెల్‌ చెక‌ర్‌"</string>
     <string name="choose_spell_checker" msgid="7619860861923582868">"స్పెల్‌ చెక‌ర్‌ను ఎంచుకోండి"</string>
     <string name="spell_checker_master_switch_title" msgid="5712693172227400668">"స్పెల్‌ చెక‌ర్‌ను ఉప‌యోగించు"</string>
     <string name="spell_checker_not_selected" msgid="331034541988255137">"ఎంచుకోబడలేదు"</string>
@@ -4041,7 +4041,7 @@
     <string name="notification_log_details_sound" msgid="4028782443557466322">"ధ్వని"</string>
     <string name="notification_log_details_vibrate" msgid="8372400602058888072">"వైబ్రేట్"</string>
     <string name="notification_log_details_vibrate_pattern" msgid="7015554755444260922">"నమూనా"</string>
-    <string name="notification_log_details_default" msgid="455451833359888182">"డిఫాల్ట్"</string>
+    <string name="notification_log_details_default" msgid="455451833359888182">"ఆటోమేటిక్"</string>
     <string name="notification_log_details_none" msgid="4294690532744821638">"ఏదీ లేదు"</string>
     <string name="notification_log_details_ranking_null" msgid="3907234749871463339">"ర్యాంకింగ్ ఆబ్జెక్ట్ లేదు."</string>
     <string name="notification_log_details_ranking_none" msgid="3687243721168608404">"ర్యాంకింగ్ ఆబ్జెక్ట్‌లో ఈ కీ లేదు."</string>
@@ -4195,7 +4195,7 @@
       <item quantity="other"><xliff:g id="COUNT_1">%d</xliff:g> యాప్‌లు</item>
       <item quantity="one"><xliff:g id="COUNT_0">%d</xliff:g> యాప్</item>
     </plurals>
-    <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"డిఫాల్ట్ కీబోర్డ్"</string>
+    <string name="enterprise_privacy_input_method" msgid="5885916325874284011">"ఆటోమేటిక్‌ కీబోర్డ్"</string>
     <string name="enterprise_privacy_input_method_name" msgid="439610095825218563">"<xliff:g id="APP_LABEL">%s</xliff:g>కు సెట్ చేయబడింది"</string>
     <string name="enterprise_privacy_always_on_vpn_device" msgid="2022700916516458213">"VPNని ఎల్లప్పుడూ-ఆన్ చేయి ఎంపిక ఆన్ చేయబడింది"</string>
     <string name="enterprise_privacy_always_on_vpn_personal" msgid="5644065780843002044">"మీ వ్యక్తిగత ప్రొఫైల్‌లో VPNని ఎల్లప్పుడూ-ఆన్ చేయి ఎంపిక ఆన్ చేయబడింది"</string>
@@ -4263,7 +4263,7 @@
     <string name="autofill_reset_developer_options" msgid="7208417230269613101">"ఆటోమేటిక్ సెట్టింగ్ విలువలకు రీసెట్ చేయి"</string>
     <string name="autofill_reset_developer_options_complete" msgid="5686061993002179524">"స్వీయ పూరింపు డెవలపర్ ఎంపికలు రీసెట్ చేయబడ్డాయి"</string>
     <string name="device_theme" msgid="8992291311481135893">"పరికర రూపం"</string>
-    <string name="default_theme" msgid="5986996377385956138">"డిఫాల్ట్"</string>
+    <string name="default_theme" msgid="5986996377385956138">"ఆటోమేటిక్"</string>
     <string name="show_operator_name_title" msgid="5056163028128447308">"నెట్‌వర్క్ పేరు"</string>
     <string name="show_operator_name_summary" msgid="6352180285743777497">"స్థితి పట్టీలో నెట్‌వర్క్ పేరును ప్రదర్శిస్తుంది"</string>
     <string name="storage_manager_indicator" msgid="4255140732848476875">"నిల్వ నిర్వాహికి: <xliff:g id="STATUS">^1</xliff:g>"</string>
@@ -4295,7 +4295,7 @@
     <string name="game_driver_footer_text" msgid="1540158284161797913">"గేమ్ డ్రైవర్ ఆఫ్ చేసి ఉన్నప్పుడు, మీ పరికరంలో ఇన్‌స్టాల్ చేయబడి ఉన్న యాప్‌లకు అప్‌డేట్ చేయబడిన గ్రాఫిక్స్ డ్రైవర్‌ను ఉపయోగించడాన్ని ఎంచుకోవచ్చు."</string>
     <string name="game_driver_all_apps_preference_title" msgid="2453795714218707495">"అన్ని యాప్‌లకు ప్రారంభించండి"</string>
     <string name="game_driver_app_preference_title" msgid="7732401084883356004">"గ్రాఫిక్స్ డ్రైవర్‌ను ఎంచుకోండి"</string>
-    <string name="game_driver_app_preference_default" msgid="7141877602592473729">"డిఫాల్ట్"</string>
+    <string name="game_driver_app_preference_default" msgid="7141877602592473729">"ఆటోమేటిక్"</string>
     <string name="game_driver_app_preference_game_driver" msgid="879325851829463741">"గేమ్ డ్రైవర్"</string>
     <string name="game_driver_app_preference_system" msgid="2289297988130187480">"సిస్టమ్ గ్రాఫిక్స్ డ్రైవర్‌"</string>
     <!-- no translation found for game_driver_app_preference_values:0 (7987059854719029308) -->
@@ -4397,10 +4397,10 @@
       <item quantity="other"><xliff:g id="COUNT_1">%1$d</xliff:g> SIMs</item>
       <item quantity="one"><xliff:g id="COUNT_0">%1$d</xliff:g> SIM</item>
     </plurals>
-    <string name="default_for_calls" msgid="8706651147900549897">"కాల్స్‌కు డిఫాల్ట్"</string>
-    <string name="default_for_sms" msgid="5180640397787496162">"SMSకి డిఫాల్ట్"</string>
-    <string name="default_for_calls_and_sms" msgid="3109837505015103510">"కాల్స్‌ &amp; SMSకి డిఫాల్ట్"</string>
-    <string name="default_for_mobile_data" msgid="1075672408255351545">"మొబైల్ డేటాకు సంబంధించి డిఫాల్ట్"</string>
+    <string name="default_for_calls" msgid="8706651147900549897">"కాల్స్‌కు ఆటోమేటిక్"</string>
+    <string name="default_for_sms" msgid="5180640397787496162">"SMSకు ఆటోమేటిక్"</string>
+    <string name="default_for_calls_and_sms" msgid="3109837505015103510">"కాల్స్‌ &amp; SMSలకు ఆటోమేటిక్"</string>
+    <string name="default_for_mobile_data" msgid="1075672408255351545">"మొబైల్ డేటాకు సంబంధించి ఆటోమేటిక్"</string>
     <string name="mobile_data_active" msgid="2690416453414633951">"మొబైల్ డేటా యాక్టివ్‌గా ఉంది"</string>
     <string name="mobile_data_off" msgid="2714905959831192068">"మొబైల్ డేటా ఆఫ్‌లో ఉంది"</string>
     <string name="subscription_available" msgid="1227974088365700952">"అందుబాటులో ఉంది"</string>
