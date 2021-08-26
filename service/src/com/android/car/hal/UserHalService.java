@@ -73,6 +73,7 @@ import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
 import java.io.StringWriter;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.Collection;
 import java.util.List;
@@ -155,17 +156,25 @@ public final class UserHalService extends HalServiceBase {
     public void init() {
         if (DBG) Slog.d(TAG, "init()");
 
-        if (mProperties == null) {
-            return;
+        ArrayList<Integer> props = new ArrayList<>();
+        synchronized (mLock) {
+            if (mProperties == null) {
+                return;
+            }
+
+            int size = mProperties.size();
+            for (int i = 0; i < size; i++) {
+                VehiclePropConfig config = mProperties.valueAt(i);
+                if (VehicleHal.isPropertySubscribable(config)) {
+                    props.add(config.prop);
+                }
+            }
         }
 
-        int size = mProperties.size();
-        for (int i = 0; i < size; i++) {
-            VehiclePropConfig config = mProperties.valueAt(i);
-            if (VehicleHal.isPropertySubscribable(config)) {
-                if (DBG) Slog.d(TAG, "subscribing to property " + config.prop);
-                mHal.subscribeProperty(this, config.prop);
-            }
+        for (int i = 0; i < props.size(); i++) {
+            int prop = props.get(i);
+            if (DBG) Slog.d(TAG, "subscribing to property " + prop);
+            mHal.subscribeProperty(this, prop);
         }
     }
 
@@ -259,12 +268,10 @@ public final class UserHalService extends HalServiceBase {
         }
     }
 
-    @GuardedBy("mLock")
     private void checkSupported() {
         Preconditions.checkState(isSupported(), UNSUPPORTED_MSG);
     }
 
-    @GuardedBy("mLock")
     private void checkUserAssociationSupported() {
         Preconditions.checkState(isUserAssociationSupported(), USER_ASSOCIATION_UNSUPPORTED_MSG);
     }

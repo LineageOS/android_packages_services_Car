@@ -104,7 +104,9 @@ public class PropertyHalService extends HalServiceBase {
 
     // Checks if the property exists in this VHAL before calling methods in IVehicle.
     private boolean isPropertySupportedInVehicle(int halPropId) {
-        return mHalPropIdToVehiclePropConfig.contains(halPropId);
+        synchronized (mLock) {
+            return mHalPropIdToVehiclePropConfig.contains(halPropId);
+        }
     }
 
     /**
@@ -162,8 +164,8 @@ public class PropertyHalService extends HalServiceBase {
                     mMgrPropIdToCarPropConfig.put(mgrPropId, config);
                 }
             }
+            return mMgrPropIdToCarPropConfig;
         }
-        return mMgrPropIdToCarPropConfig;
     }
 
     /**
@@ -259,8 +261,8 @@ public class PropertyHalService extends HalServiceBase {
                         new Pair<>(mPropIds.getReadPermission(halPropId),
                                 mPropIds.getWritePermission(halPropId)));
             }
+            return mMgrPropIdToPermissions;
         }
-        return mMgrPropIdToPermissions;
     }
 
     /**

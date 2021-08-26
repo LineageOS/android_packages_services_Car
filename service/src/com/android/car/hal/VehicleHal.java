@@ -45,6 +45,7 @@ import android.os.HandlerThread;
 import android.os.RemoteException;
 import android.os.ServiceSpecificException;
 import android.os.SystemClock;
+import android.util.ArrayMap;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
@@ -236,12 +237,14 @@ public class VehicleHal extends IVehicleCallback.Stub {
         fetchAllPropConfigs();
 
         // PropertyHalService will take most properties, so make it big enough.
-        ArrayList<VehiclePropConfig> configsForService = new ArrayList<>(mAllServices.size());
-        for (int i = 0; i < mAllServices.size(); i++) {
-            HalServiceBase service = mAllServices.get(i);
-            int[] supportedProps =  service.getAllSupportedProperties();
-            configsForService.clear();
-            synchronized (mLock) {
+        ArrayMap<HalServiceBase, ArrayList<VehiclePropConfig>> configsForAllServices;
+        synchronized (mLock) {
+            configsForAllServices = new ArrayMap<>(mAllServices.size());
+            for (int i = 0; i < mAllServices.size(); i++) {
+                ArrayList<VehiclePropConfig> configsForService = new ArrayList();
+                HalServiceBase service = mAllServices.get(i);
+                configsForAllServices.put(service, configsForService);
+                int[] supportedProps = service.getAllSupportedProperties();
                 if (supportedProps.length == 0) {
                     for (Integer propId : mAllProperties.keySet()) {
                         if (service.isSupportedProperty(propId)) {
@@ -261,6 +264,12 @@ public class VehicleHal extends IVehicleCallback.Stub {
                     }
                 }
             }
+        }
+
+        for (Map.Entry<HalServiceBase, ArrayList<VehiclePropConfig>> entry
+                : configsForAllServices.entrySet()) {
+            HalServiceBase service = entry.getKey();
+            ArrayList<VehiclePropConfig> configsForService = entry.getValue();
             service.takeProperties(configsForService);
             service.init();
         }
@@ -270,21 +279,23 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Releases all connected services (power management service, input service, etc).
      */
     public void release() {
-        // release in reverse order from init
-        for (int i = mAllServices.size() - 1; i >= 0; i--) {
-            mAllServices.get(i).release();
-        }
+        ArrayList<Integer> subscribedProperties;
         synchronized (mLock) {
-            for (int p : mSubscribedProperties.keySet()) {
-                try {
-                    mHalClient.unsubscribe(p);
-                } catch (RemoteException e) {
-                    //  Ignore exceptions on shutdown path.
-                    Slog.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
-                }
+            // release in reverse order from init
+            for (int i = mAllServices.size() - 1; i >= 0; i--) {
+                mAllServices.get(i).release();
             }
+            subscribedProperties = new ArrayList<>(mSubscribedProperties.keySet());
             mSubscribedProperties.clear();
             mAllProperties.clear();
+        }
+        for (int p : subscribedProperties) {
+            try {
+                mHalClient.unsubscribe(p);
+            } catch (RemoteException e) {
+                //  Ignore exceptions on shutdown path.
+                Slog.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
+            }
         }
         // keep the looper thread as should be kept for the whole life cycle.
     }
@@ -321,6 +332,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         return mEvsHal;
     }
 
+    @GuardedBy("mLock")
     private void assertServiceOwnerLocked(HalServiceBase service, int property) {
         if (service != mPropertyHandlers.get(property)) {
             throw new IllegalArgumentException("Property 0x" + toHexString(property)
@@ -562,7 +574,11 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * if the property id passed as parameter is not linked to any subscribed property.
      */
     public float getSampleRate(int propId) {
-        SubscribeOptions opts = mSubscribedProperties.get(propId);
+        SubscribeOptions opts;
+        synchronized (mLock) {
+            opts = mSubscribedProperties.get(propId);
+        }
+
         if (opts == null) {
             // No sample rate for this property
             return NO_SAMPLE_RATE;
@@ -638,7 +654,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
         Slog.e(CarLog.TAG_HAL, String.format("onPropertySetError, errorCode: %d, prop: 0x%x, "
                 + "area: 0x%x", errorCode, propId, areaId));
         if (propId != VehicleProperty.INVALID) {
-            HalServiceBase service = mPropertyHandlers.get(propId);
+            HalServiceBase service;
+            synchronized (mLock) {
+                service = mPropertyHandlers.get(propId);
+            }
             if (service != null) {
                 service.onPropertySetError(propId, areaId, errorCode);
             }
@@ -649,25 +668,27 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Dumps HAL service info using the print writer passed as parameter.
      */
     public void dump(PrintWriter writer) {
-        writer.println("**dump HAL services**");
-        for (HalServiceBase service: mAllServices) {
-            service.dump(writer);
-        }
-        // Dump all VHAL property configure.
-        dumpPropertyConfigs(writer, -1);
-        writer.printf("**All Events, now ns:%d**\n",
-                SystemClock.elapsedRealtimeNanos());
-        for (VehiclePropertyEventInfo info : mEventLog.values()) {
-            writer.printf("event count:%d, lastEvent: ", info.mEventCount);
-            dumpVehiclePropValue(writer, info.mLastEvent);
-        }
+        synchronized (mLock) {
+            writer.println("**dump HAL services**");
+            for (HalServiceBase service: mAllServices) {
+                service.dump(writer);
+            }
+            // Dump all VHAL property configure.
+            dumpPropertyConfigs(writer, -1);
+            writer.printf("**All Events, now ns:%d**\n",
+                    SystemClock.elapsedRealtimeNanos());
+            for (VehiclePropertyEventInfo info : mEventLog.values()) {
+                writer.printf("event count:%d, lastEvent: ", info.mEventCount);
+                dumpVehiclePropValue(writer, info.mLastEvent);
+            }
 
-        writer.println("**Property handlers**");
-        for (int i = 0; i < mPropertyHandlers.size(); i++) {
-            int propId = mPropertyHandlers.keyAt(i);
-            HalServiceBase service = mPropertyHandlers.valueAt(i);
-            writer.printf("Property Id: %d // 0x%x name: %s, service: %s\n", propId, propId,
-                    VehiclePropertyIds.toString(propId), service);
+            writer.println("**Property handlers**");
+            for (int i = 0; i < mPropertyHandlers.size(); i++) {
+                int propId = mPropertyHandlers.keyAt(i);
+                HalServiceBase service = mPropertyHandlers.valueAt(i);
+                writer.printf("Property Id: %d // 0x%x name: %s, service: %s\n", propId, propId,
+                        VehiclePropertyIds.toString(propId), service);
+            }
         }
     }
 
@@ -675,8 +696,10 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Dumps the list of HALs.
      */
     public void dumpListHals(PrintWriter writer) {
-        for (HalServiceBase service: mAllServices) {
-            writer.println(service.getClass().getName());
+        synchronized (mLock) {
+            for (HalServiceBase service: mAllServices) {
+                writer.println(service.getClass().getName());
+            }
         }
     }
 
@@ -684,15 +707,18 @@ public class VehicleHal extends IVehicleCallback.Stub {
      * Dumps the given HALs.
      */
     public void dumpSpecificHals(PrintWriter writer, String... halNames) {
-        Map<String, HalServiceBase> byName = mAllServices.stream()
-                .collect(Collectors.toMap(s -> s.getClass().getSimpleName(), s -> s));
-        for (String halName : halNames) {
-            HalServiceBase service = byName.get(halName);
-            if (service == null) {
-                writer.printf("No HAL named %s. Valid options are: %s\n", halName, byName.keySet());
-                continue;
+        synchronized (mLock) {
+            Map<String, HalServiceBase> byName = mAllServices.stream()
+                    .collect(Collectors.toMap(s -> s.getClass().getSimpleName(), s -> s));
+            for (String halName : halNames) {
+                HalServiceBase service = byName.get(halName);
+                if (service == null) {
+                    writer.printf("No HAL named %s. Valid options are: %s\n",
+                            halName, byName.keySet());
+                    continue;
+                }
+                service.dump(writer);
             }
-            service.dump(writer);
         }
     }
 
@@ -706,18 +732,22 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public void dumpPropertyValueByCommand(PrintWriter writer, int propId, int areaId) {
         if (propId == -1) {
             writer.println("**All property values**");
-            for (VehiclePropConfig config : mAllProperties.values()) {
-                dumpPropertyValueByConfig(writer, config);
+            synchronized (mLock) {
+                for (VehiclePropConfig config : mAllProperties.values()) {
+                    dumpPropertyValueByConfig(writer, config);
+                }
             }
         } else if (areaId == -1) {
-            VehiclePropConfig config = mAllProperties.get(propId);
-            if (config == null) {
-                writer.print("Property ");
-                dumpPropHelper(writer, propId);
-                writer.print(" not supported by HAL\n");
-                return;
+            synchronized (mLock) {
+                VehiclePropConfig config = mAllProperties.get(propId);
+                if (config == null) {
+                    writer.print("Property ");
+                    dumpPropHelper(writer, propId);
+                    writer.print(" not supported by HAL\n");
+                    return;
+                }
+                dumpPropertyValueByConfig(writer, config);
             }
-            dumpPropertyValueByConfig(writer, config);
         } else {
             try {
                 VehiclePropValue value = get(propId, areaId);

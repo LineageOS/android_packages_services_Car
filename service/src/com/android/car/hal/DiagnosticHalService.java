@@ -160,39 +160,41 @@ public class DiagnosticHalService extends HalServiceBase {
      * @return SENSOR_TYPE_INVALID or a locally unique token
      */
     protected int getTokenForProperty(VehiclePropConfig propConfig) {
-        switch (propConfig.prop) {
-            case VehicleProperty.OBD2_LIVE_FRAME:
-                mDiagnosticCapabilities.setSupported(propConfig.prop);
-                mVehiclePropertyToConfig.put(propConfig.prop, propConfig);
-                Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_LIVE_FRAME is "
-                        + propConfig.configArray);
-                return CarDiagnosticManager.FRAME_TYPE_LIVE;
-            case VehicleProperty.OBD2_FREEZE_FRAME:
-                mDiagnosticCapabilities.setSupported(propConfig.prop);
-                mVehiclePropertyToConfig.put(propConfig.prop, propConfig);
-                Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_FREEZE_FRAME is "
-                        + propConfig.configArray);
-                return CarDiagnosticManager.FRAME_TYPE_FREEZE;
-            case VehicleProperty.OBD2_FREEZE_FRAME_INFO:
-                mDiagnosticCapabilities.setSupported(propConfig.prop);
-                return propConfig.prop;
-            case VehicleProperty.OBD2_FREEZE_FRAME_CLEAR:
-                mDiagnosticCapabilities.setSupported(propConfig.prop);
-                Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_FREEZE_FRAME_CLEAR is "
-                        + propConfig.configArray);
-                if (propConfig.configArray.size() < 1) {
-                    Slog.e(CarLog.TAG_DIAGNOSTIC, String.format(
-                            "property 0x%x does not specify whether it supports selective "
-                                    + "clearing of freeze frames. assuming it does not.",
-                            propConfig.prop));
-                } else {
-                    if (propConfig.configArray.get(0) == 1) {
-                        mDiagnosticCapabilities.setSupported(OBD2_SELECTIVE_FRAME_CLEAR);
+        synchronized (mLock) {
+            switch (propConfig.prop) {
+                case VehicleProperty.OBD2_LIVE_FRAME:
+                    mDiagnosticCapabilities.setSupported(propConfig.prop);
+                    mVehiclePropertyToConfig.put(propConfig.prop, propConfig);
+                    Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_LIVE_FRAME is "
+                            + propConfig.configArray);
+                    return CarDiagnosticManager.FRAME_TYPE_LIVE;
+                case VehicleProperty.OBD2_FREEZE_FRAME:
+                    mDiagnosticCapabilities.setSupported(propConfig.prop);
+                    mVehiclePropertyToConfig.put(propConfig.prop, propConfig);
+                    Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_FREEZE_FRAME is "
+                            + propConfig.configArray);
+                    return CarDiagnosticManager.FRAME_TYPE_FREEZE;
+                case VehicleProperty.OBD2_FREEZE_FRAME_INFO:
+                    mDiagnosticCapabilities.setSupported(propConfig.prop);
+                    return propConfig.prop;
+                case VehicleProperty.OBD2_FREEZE_FRAME_CLEAR:
+                    mDiagnosticCapabilities.setSupported(propConfig.prop);
+                    Slog.i(CarLog.TAG_DIAGNOSTIC, "configArray for OBD2_FREEZE_FRAME_CLEAR is "
+                            + propConfig.configArray);
+                    if (propConfig.configArray.size() < 1) {
+                        Slog.e(CarLog.TAG_DIAGNOSTIC, String.format(
+                                "property 0x%x does not specify whether it supports selective "
+                                        + "clearing of freeze frames. assuming it does not.",
+                                propConfig.prop));
+                    } else {
+                        if (propConfig.configArray.get(0) == 1) {
+                            mDiagnosticCapabilities.setSupported(OBD2_SELECTIVE_FRAME_CLEAR);
+                        }
                     }
-                }
-                return propConfig.prop;
-            default:
-                return NOT_SUPPORTED_PROPERTY;
+                    return propConfig.prop;
+                default:
+                    return NOT_SUPPORTED_PROPERTY;
+            }
         }
     }
 
@@ -219,7 +221,9 @@ public class DiagnosticHalService extends HalServiceBase {
      * @return true if Diagnostic HAL is ready after init call.
      */
     public boolean isReady() {
-        return mIsReady;
+        synchronized (mLock) {
+            return mIsReady;
+        }
     }
 
     /**
@@ -442,7 +446,9 @@ public class DiagnosticHalService extends HalServiceBase {
     }
 
     public DiagnosticListener getDiagnosticListener() {
-        return mDiagnosticListener;
+        synchronized (mLock) {
+            return mDiagnosticListener;
+        }
     }
 
     @Override
@@ -478,7 +484,9 @@ public class DiagnosticHalService extends HalServiceBase {
     }
 
     public DiagnosticCapabilities getDiagnosticCapabilities() {
-        return mDiagnosticCapabilities;
+        synchronized (mLock) {
+            return mDiagnosticCapabilities;
+        }
     }
 
     /**
