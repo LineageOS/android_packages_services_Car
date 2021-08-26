@@ -22,6 +22,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.doAnswer;
+import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -67,9 +68,16 @@ public class SystemMonitorUnitTest {
     public void setup() {
         when(mMockContext.getSystemService(anyString())).thenReturn(mMockActivityManager);
         when(mMockHandler.post(any(Runnable.class))).thenAnswer(i -> {
-            ((Runnable) i.getArguments()[0]).run();
+            Runnable runnable = i.getArgument(0);
+            runnable.run();
             return true;
         });
+        doAnswer(i -> {
+            MemoryInfo mi = i.getArgument(0);
+            mi.availMem = TEST_AVAILMEM;
+            mi.totalMem = TEST_TOTALMEM;
+            return null;
+        }).when(mMockActivityManager).getMemoryInfo(any(MemoryInfo.class));
     }
 
     @Test
@@ -142,13 +150,6 @@ public class SystemMonitorUnitTest {
     public void testAfterSetCallback_callbackCalled() throws IOException {
         SystemMonitor systemMonitor = new SystemMonitor(
                 mMockContext, mMockHandler, writeTempFile(TEST_LOADAVG));
-        doAnswer(i -> {
-            Object[] args = i.getArguments();
-            MemoryInfo mi = (MemoryInfo) args[0];
-            mi.availMem = TEST_AVAILMEM;
-            mi.totalMem = TEST_TOTALMEM;
-            return null;
-        }).when(mMockActivityManager).getMemoryInfo(any(MemoryInfo.class));
 
         systemMonitor.setSystemMonitorCallback(mMockCallback);
 
@@ -178,6 +179,21 @@ public class SystemMonitorUnitTest {
                 mMockContext, mMockHandler, writeTempFile(TEST_LOADAVG_NOT_FLOAT));
 
         assertThat(systemMonitor.getCpuLoad()).isNull();
+    }
+
+    @Test
+    public void testWhenUnsetCallback_sameCallbackFromSetCallbackIsRemoved() throws IOException {
+        SystemMonitor systemMonitor = new SystemMonitor(
+                mMockContext, mMockHandler, writeTempFile(TEST_LOADAVG));
+
+        systemMonitor.setSystemMonitorCallback(mMockCallback);
+        systemMonitor.unsetSystemMonitorCallback();
+
+        verify(mMockHandler, times(1)).post(mRunnableCaptor.capture());
+        Runnable setRunnable = mRunnableCaptor.getValue();
+        verify(mMockHandler, times(1)).removeCallbacks(mRunnableCaptor.capture());
+        Runnable unsetRunnalbe = mRunnableCaptor.getValue();
+        assertThat(setRunnable).isEqualTo(unsetRunnalbe);
     }
 
     /**

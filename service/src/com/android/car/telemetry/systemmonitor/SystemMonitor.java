@@ -53,6 +53,7 @@ public class SystemMonitor {
     private final Context mContext;
     private final ActivityManager mActivityManager;
     private final String mLoadavgPath;
+    private final Runnable mSystemLoadRunnable = this::getSystemLoadRepeated;
 
     @GuardedBy("mLock")
     @Nullable private SystemMonitorCallback mCallback;
@@ -100,7 +101,7 @@ public class SystemMonitor {
     public void setSystemMonitorCallback(SystemMonitorCallback callback) {
         synchronized (mLock) {
             mCallback = callback;
-            if (!mWorkerHandler.hasCallbacks(this::getSystemLoadRepeated)) {
+            if (!mSystemMonitorRunning) {
                 startSystemLoadMonitoring();
             }
         }
@@ -217,7 +218,7 @@ public class SystemMonitor {
                 mCallback.onSystemMonitorEvent(event);
             } finally {
                 if (mSystemMonitorRunning) {
-                    mWorkerHandler.postDelayed(this::getSystemLoadRepeated, POLL_INTERVAL_MILLIS);
+                    mWorkerHandler.postDelayed(mSystemLoadRunnable, POLL_INTERVAL_MILLIS);
                 }
             }
         }
@@ -228,7 +229,7 @@ public class SystemMonitor {
      */
     private void startSystemLoadMonitoring() {
         synchronized (mLock) {
-            mWorkerHandler.post(this::getSystemLoadRepeated);
+            mWorkerHandler.post(mSystemLoadRunnable);
             mSystemMonitorRunning = true;
         }
     }
@@ -239,7 +240,7 @@ public class SystemMonitor {
     @GuardedBy("mLock")
     private void stopSystemLoadMonitoringLocked() {
         synchronized (mLock) {
-            mWorkerHandler.removeCallbacks(this::getSystemLoadRepeated);
+            mWorkerHandler.removeCallbacks(mSystemLoadRunnable);
             mSystemMonitorRunning = false;
         }
     }
