@@ -15,13 +15,28 @@
  */
 package com.android.car.admin;
 
-import static com.google.common.truth.Truth.assertThat;
+import static android.app.admin.DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER;
 
+import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_ACKED;
+import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT;
+import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_RECEIVED;
+import static com.android.car.admin.CarDevicePolicyService.NEW_USER_DISCLAIMER_STATUS_SHOWN;
+import static com.android.car.admin.CarDevicePolicyService.newUserDisclaimerStatusToString;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doNothing;
+
+import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
+
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
 import android.annotation.NonNull;
+import android.app.ActivityManager;
+import android.app.admin.DevicePolicyManager;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.user.UserCreationResult;
@@ -29,15 +44,21 @@ import android.car.user.UserRemovalResult;
 import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
 import android.car.util.concurrent.AndroidFuture;
+import android.content.BroadcastReceiver;
 import android.content.Context;
+import android.content.Intent;
+import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import com.android.car.user.CarUserService;
+import com.android.dx.mockito.inline.extended.ExtendedMockito;
 
 import org.junit.Before;
 import org.junit.Test;
+import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 
 public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTestCase {
@@ -47,6 +68,12 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     @Mock
     private Context mContext;
+
+    @Mock
+    private PackageManager mPackageManager;
+
+    @Mock
+    private DevicePolicyManager mDpm;
 
     private CarDevicePolicyService mService;
 
@@ -58,8 +85,17 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
     private AndroidFuture<UserStopResult> mUserStopResult = new AndroidFuture<>();
 
+    @Override
+    protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
+        session.spyStatic(NotificationHelper.class);
+        session.spyStatic(ActivityManager.class);
+    }
+
     @Before
     public void setFixtures() {
+        when(mContext.getSystemService(DevicePolicyManager.class)).thenReturn(mDpm);
+        when(mContext.getPackageManager()).thenReturn(mPackageManager);
+
         mService = new CarDevicePolicyService(mContext, mCarUserService);
     }
 
@@ -125,5 +161,75 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
         mService.stopUser(42, mUserStopResult);
 
         verify(mCarUserService).stopUser(42, mUserStopResult);
+    }
+
+    @Test
+    public void testShowDisclaimerWhenIntentReceived() {
+        int userId = 10;
+        doAnswer((inv) -> {
+            assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_RECEIVED);
+            return null;
+        }).when(() -> NotificationHelper.showUserDisclaimerNotification(anyInt(), any()));
+        doAnswer(inv -> userId).when(() -> ActivityManager.getCurrentUser());
+        when(mPackageManager.hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN))
+                .thenReturn(true);
+        BroadcastReceiver receiver = callInit();
+
+        sendShowNewUserDisclaimerBroadcast(receiver, userId);
+
+        assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT);
+        ExtendedMockito.verify(() -> NotificationHelper.showUserDisclaimerNotification(userId,
+                mContext));
+    }
+
+    @Test
+    public void testSetUserDisclaimerShown() {
+        int userId = 10;
+        mService.setUserDisclaimerShown(userId);
+
+        assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_SHOWN);
+    }
+
+    @Test
+    public void testSetUserDisclaimerAcknowledged() {
+        int userId = 10;
+        when(mContext.createContextAsUser(UserHandle.of(userId), 0)).thenReturn(mContext);
+
+        doNothing().when(() -> NotificationHelper.cancelUserDisclaimerNotification(anyInt(),
+                any()));
+
+        mService.setUserDisclaimerAcknowledged(userId);
+
+        assertStatusString(userId, NEW_USER_DISCLAIMER_STATUS_ACKED);
+        ExtendedMockito.verify(() ->
+                NotificationHelper.cancelUserDisclaimerNotification(userId, mContext));
+
+        verify(mDpm).resetNewUserDisclaimer();
+    }
+
+    private BroadcastReceiver callInit() {
+        ArgumentCaptor<BroadcastReceiver> captor = ArgumentCaptor.forClass(BroadcastReceiver.class);
+
+        mService.init();
+
+        verify(mContext).registerReceiverAsUser(captor.capture(), any(), any(), any(), any());
+        BroadcastReceiver receiver = captor.getValue();
+        assertWithMessage("BroadcastReceiver captured on onCreate()")
+                .that(receiver).isNotNull();
+
+        return receiver;
+    }
+
+    private void sendShowNewUserDisclaimerBroadcast(BroadcastReceiver receiver, int userId) {
+        receiver.onReceive(mContext, new Intent(ACTION_SHOW_NEW_USER_DISCLAIMER));
+    }
+
+    private void assertStatusString(int userId,
+            @CarDevicePolicyService.NewUserDisclaimerStatus int expectedStatus) {
+        int actualStatus = mService.getNewUserDisclaimerStatus(userId);
+        assertWithMessage("newUserDisclaimerStatus (%s=%s, %s=%s)",
+                expectedStatus, newUserDisclaimerStatusToString(expectedStatus),
+                actualStatus, newUserDisclaimerStatusToString(actualStatus))
+                .that(actualStatus).isEqualTo(expectedStatus);
     }
 }

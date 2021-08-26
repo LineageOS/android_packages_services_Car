@@ -437,4 +437,11 @@
     <string name="config_template_activity_class_name">
         androidx.car.app.activity.CarAppActivity
     </string>
+
+    <string name="config_newUserDisclaimerActivity" translatable="false">
+        com.android.car.settings/com.android.car.settings.admin.NewUserDisclaimerActivity
+    </string>
+    <string name="config_factoryResetActivity" translatable="false">
+        com.android.car.settings/com.android.car.settings.admin.FactoryResetActivity
+    </string>
 </resources>
