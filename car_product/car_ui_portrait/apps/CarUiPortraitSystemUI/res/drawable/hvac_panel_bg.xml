@@ -17,5 +17,12 @@
 
 <shape xmlns:android="http://schemas.android.com/apk/res/android">
     <solid android:color="@color/hvac_background_color"/>
-    <corners android:radius="@dimen/hvac_panel_bg_radius"/>
+
+    <!-- android:radius must be defined even with overrides. -->
+    <corners
+        android:radius="1dp"
+        android:topLeftRadius="@dimen/hvac_panel_bg_radius"
+        android:topRightRadius="@dimen/hvac_panel_bg_radius"
+        android:bottomLeftRadius="0dp"
+        android:bottomRightRadius="0dp"/>
 </shape>
