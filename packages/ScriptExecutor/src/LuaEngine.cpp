@@ -19,7 +19,7 @@
 #include "BundleWrapper.h"
 
 #include <android-base/logging.h>
-#include <com/android/car/scriptexecutor/IScriptExecutorConstants.h>
+#include <com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.h>
 
 #include <utility>
 
@@ -33,6 +33,8 @@ namespace com {
 namespace android {
 namespace car {
 namespace scriptexecutor {
+
+using ::com::android::car::telemetry::scriptexecutorinterface::IScriptExecutorConstants;
 
 namespace {
 

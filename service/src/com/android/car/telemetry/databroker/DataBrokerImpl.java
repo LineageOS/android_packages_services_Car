@@ -34,14 +34,14 @@ import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.scriptexecutor.IScriptExecutor;
-import com.android.car.scriptexecutor.IScriptExecutorListener;
 import com.android.car.telemetry.CarTelemetryService;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.publisher.AbstractPublisher;
 import com.android.car.telemetry.publisher.PublisherFactory;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -64,6 +64,10 @@ public class DataBrokerImpl implements DataBroker {
     private static final int MSG_HANDLE_TASK = 1;
     @VisibleForTesting
     static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
+
+    private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
+    private static final String SCRIPT_EXECUTOR_CLASS =
+            "com.android.car.scriptexecutor.ScriptExecutor";
 
     private final Context mContext;
     private final PublisherFactory mPublisherFactory;
@@ -133,8 +137,7 @@ public class DataBrokerImpl implements DataBroker {
             return;
         }
         Intent intent = new Intent();
-        intent.setComponent(new ComponentName("com.android.car.scriptexecutor",
-                "com.android.car.scriptexecutor.ScriptExecutor"));
+        intent.setComponent(new ComponentName(SCRIPT_EXECUTOR_PACKAGE, SCRIPT_EXECUTOR_CLASS));
         boolean success = mContext.bindServiceAsUser(
                 intent,
                 mServiceConnection,

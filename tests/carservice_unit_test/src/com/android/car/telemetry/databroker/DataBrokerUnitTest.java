@@ -39,12 +39,12 @@ import android.os.RemoteException;
 import android.os.SystemClock;
 
 import com.android.car.CarPropertyService;
-import com.android.car.scriptexecutor.IScriptExecutor;
-import com.android.car.scriptexecutor.IScriptExecutorListener;
 import com.android.car.telemetry.ResultStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.publisher.StatsManagerProxy;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import org.junit.Before;
 import org.junit.Test;
