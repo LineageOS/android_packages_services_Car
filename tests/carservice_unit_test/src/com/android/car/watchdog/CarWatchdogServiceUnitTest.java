@@ -84,9 +84,7 @@ import android.content.pm.IPackageManager;
 import android.content.pm.PackageManager;
 import android.content.pm.UserInfo;
 import android.os.Binder;
-import android.os.Handler;
 import android.os.IBinder;
-import android.os.Looper;
 import android.os.RemoteException;
 import android.os.ServiceManager;
 import android.os.SystemClock;
@@ -122,7 +120,6 @@ import java.util.Map;
 import java.util.Set;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
 /**
@@ -2491,7 +2488,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
          * this message is processed before returning so the effects of the killing/disabling is
          * verified.
          */
-        delayedRunOnMainSync(() -> {}, RESOURCE_OVERUSE_KILLING_DELAY_MILLS * 2);
+        CarServiceUtils.runOnMainSyncDelayed(() -> {}, RESOURCE_OVERUSE_KILLING_DELAY_MILLS * 2);
     }
 
     private void verifyActionsTakenOnResourceOveruse(List<PackageResourceOveruseAction> expected)
@@ -2718,24 +2715,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         action.resourceTypes = resourceTypes;
         action.resourceOveruseActionType = resourceOveruseActionType;
         return action;
-    }
-
-    private static void delayedRunOnMainSync(Runnable action, long delayMillis)
-            throws InterruptedException {
-        AtomicBoolean isComplete = new AtomicBoolean();
-        Handler handler = new Handler(Looper.getMainLooper());
-        handler.postDelayed(() -> {
-            action.run();
-            synchronized (action) {
-                isComplete.set(true);
-                action.notifyAll();
-            }
-        }, delayMillis);
-        synchronized (action) {
-            while (!isComplete.get()) {
-                action.wait();
-            }
-        }
     }
 
     private class TestClient extends ICarWatchdogServiceCallback.Stub {

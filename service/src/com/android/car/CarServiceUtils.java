@@ -114,20 +114,42 @@ public final class CarServiceUtils {
     }
 
     /**
+     * Execute a delayed call on the application's main thread, blocking until it is
+     * complete. See {@link #runOnMainSync(Runnable)}
+     *
+     * @param action The code to run on the main thread.
+     * @param delayMillis The delay (in milliseconds) until the Runnable will be executed.
+     */
+    public static void runOnMainSyncDelayed(Runnable action, long delayMillis) {
+        runOnLooperSyncDelayed(Looper.getMainLooper(), action, delayMillis);
+    }
+
+    /**
      * Execute a call on the given Looper thread, blocking until it is
      * complete.
      *
      * @param looper Looper to run the action.
-     * @param action The code to run on the main thread.
+     * @param action The code to run on the looper thread.
      */
     public static void runOnLooperSync(Looper looper, Runnable action) {
+        runOnLooperSyncDelayed(looper, action, /* delayMillis */ 0L);
+    }
+
+    /**
+     * Executes a delayed call on the given Looper thread, blocking until it is complete.
+     *
+     * @param looper Looper to run the action.
+     * @param action The code to run on the looper thread.
+     * @param delayMillis The delay (in milliseconds) until the Runnable will be executed.
+     */
+    public static void runOnLooperSyncDelayed(Looper looper, Runnable action, long delayMillis) {
         if (Looper.myLooper() == looper) {
             // requested thread is the same as the current thread. call directly.
             action.run();
         } else {
             Handler handler = new Handler(looper);
             SyncRunnable sr = new SyncRunnable(action);
-            handler.post(sr);
+            handler.postDelayed(sr, delayMillis);
             sr.waitForComplete();
         }
     }
