@@ -15,18 +15,19 @@
   ~ limitations under the License.
   -->
 <resources>
-    <dimen name="card_icon_margin_start">24dp</dimen>
-    <dimen name="card_content_margin_start">32dp</dimen>
+    <dimen name="card_icon_margin_start">8dp</dimen>
+    <dimen name="card_content_margin_start">16dp</dimen>
 
-    <dimen name="descriptive_text_vertical_margin">22dp</dimen>
+    <dimen name="descriptive_text_vertical_margin">16dp</dimen>
 
-    <dimen name="control_bar_image_size">56dp</dimen>
+    <dimen name="control_bar_image_size">120dp</dimen>
+    <dimen name="control_bar_app_icon_size">36dp</dimen>
+    <dimen name="control_bar_app_icon_margin">6dp</dimen>
 
-    <dimen name="control_bar_action_icon_size">56dp</dimen>
+    <dimen name="control_bar_action_icon_size">88dp</dimen>
 
-    <!-- Percent transparency of the scrim applied to the image used for the card's background as a float between 0 and 1, where 0 applies no darkening scrim-->
-    <dimen name="card_background_scrim_alpha" format="float">0.72</dimen>
-
+    <!--Percent by which to blur the image used for the card's background as a float between 0 and 1, where 0 is not blurred-->
+    <dimen name="card_background_image_blur_radius" format="float">0</dimen>
 
     <!-- screen height of the device. This is used when custom policy is provided using
     config_deviceSpecificDisplayAreaPolicyProvider -->
@@ -41,4 +42,9 @@
     <dimen name="title_bar_display_area_height">40dp</dimen>
     <!-- This value is 500dp + (top of title bar)  -->
     <dimen name="title_bar_display_area_touch_drag_threshold">1204dp</dimen>
+
+    <dimen name="default_audio_icon_padding">26dp</dimen>
+    <dimen name="default_audio_icon_outer_ring_size">66dp</dimen>
+    <dimen name="default_audio_icon_outer_ring_thickness">8dp</dimen>
+    <dimen name="default_audio_icon_inner_icon_size">40dp</dimen>
 </resources>
