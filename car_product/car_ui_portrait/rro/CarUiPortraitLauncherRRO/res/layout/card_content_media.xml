@@ -28,18 +28,19 @@
              android:layout_height="match_parent"
              android:layout_width="0dp"
              android:layout_weight="1"
-             android:layout_gravity="start|center_vertical"/>
+             android:layout_gravity="start"/>
 
     <FrameLayout
         android:layout_height="match_parent"
         android:layout_width="0dp"
         android:layout_weight="1"
-        android:layout_gravity="end|center_vertical">
+        android:layout_gravity="end">
 
-        <com.android.car.media.common.PlaybackControlsActionBar
-            android:id="@+id/media_playback_controls_bar"
-            android:layout_height="match_parent"
-            android:layout_width="match_parent"
-            app:columns="@integer/playback_controls_bar_columns"/>
+    <com.android.car.media.common.PlaybackControlsActionBar
+        android:id="@+id/media_playback_controls_bar"
+        android:layout_height="match_parent"
+        android:layout_width="match_parent"
+        app:enableOverflow="true"
+        app:columns="@integer/playback_controls_bar_columns"/>
     </FrameLayout>
 </LinearLayout>
