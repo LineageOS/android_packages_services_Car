@@ -35,6 +35,7 @@ allow carservice_app {
     location_service
     lock_settings_service
     media_session_service
+    media_communication_service
     network_management_service
     power_service
     procfsinspector_service
