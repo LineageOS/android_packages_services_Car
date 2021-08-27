@@ -246,7 +246,8 @@ public class InputCaptureClientController {
     public int requestInputEventCapture(ICarInputCallback callback,
             @DisplayTypeEnum int targetDisplayType,
             int[] inputTypes, int requestFlags) {
-        ICarImpl.assertPermission(mContext, Car.PERMISSION_CAR_MONITOR_INPUT);
+        ICarImpl.assertAnyPermission(mContext, Car.PERMISSION_CAR_MONITOR_INPUT,
+                android.Manifest.permission.MONITOR_INPUT);
 
         Preconditions.checkArgument(SUPPORTED_DISPLAY_TYPES.contains(targetDisplayType),
                 "Display not supported yet:" + targetDisplayType);
