@@ -94,7 +94,11 @@ class GarageMode {
     private final Runnable mRunnable = new Runnable() {
         @Override
         public void run() {
-            if (!mGarageModeActive) {
+            boolean garageModeActive;
+            synchronized (mLock) {
+                garageModeActive = mGarageModeActive;
+            }
+            if (!garageModeActive) {
                 Slogf.d(TAG, "Garage Mode is inactive. Stopping the idle-job checker.");
                 finish();
                 return;
@@ -162,8 +166,10 @@ class GarageMode {
                 if (userToStop != UserHandle.USER_SYSTEM) {
                     CarLocalServices.getService(CarUserService.class)
                             .stopBackgroundUserInGagageMode(userToStop);
-                    Slogf.i(TAG, "Stopping background user:%d remaining users:%d", userToStop,
-                            mStartedBackgroundUsers.size() - 1);
+                    synchronized (mLock) {
+                        Slogf.i(TAG, "Stopping background user:%d remaining users:%d", userToStop,
+                                mStartedBackgroundUsers.size() - 1);
+                    }
                 }
                 synchronized (mLock) {
                     mStartedBackgroundUsers.remove(userToStop);
@@ -247,11 +253,14 @@ class GarageMode {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     void dump(PrintWriter writer) {
-        if (!mGarageModeActive) {
-            return;
+        synchronized (mLock) {
+            if (!mGarageModeActive) {
+                return;
+            }
+            writer.printf("GarageMode idle checker is %srunning\n",
+                    (mIdleCheckerIsRunning ? "" : "not "));
         }
-        writer.printf("GarageMode idle checker is %srunning\n",
-                (mIdleCheckerIsRunning ? "" : "not "));
+
         List<String> jobList = new ArrayList<>();
         int numJobs = getListOfIdleJobsRunning(jobList);
         if (numJobs > 0) {
