@@ -189,7 +189,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
     }
 
-    @GuardedBy("mLock")
     private final StatusListenerList mStatusListeners = new StatusListenerList(this);
 
     private final IBinder.DeathRecipient mStreamCallbackDeathRecipient =
@@ -236,7 +235,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         private int mLastRequestPriority = REQUEST_PRIORITY_LOW;
 
         public @CarEvsError int execute(int priority, int destination) {
-            return execute(priority, destination, mServiceType, null, null);
+            int serviceType;
+            synchronized (mLock) {
+                serviceType = mServiceType;
+            }
+            return execute(priority, destination, serviceType, null, null);
         }
 
         public @CarEvsError int execute(int priority, int destination, int service) {
@@ -245,12 +248,18 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         public @CarEvsError int execute(int priority, int destination,
                 ICarEvsStreamCallback callback) {
-            return execute(priority, destination, mServiceType, null, callback);
+            int serviceType;
+            synchronized (mLock) {
+                serviceType = mServiceType;
+            }
+            return execute(priority, destination, serviceType, null, callback);
         }
 
         public @CarEvsError int execute(int priority, int destination, int service, IBinder token,
                 ICarEvsStreamCallback callback) {
 
+            int serviceType;
+            int newState;
             int result = ERROR_NONE;
             synchronized (mLock) {
                 // TODO(b/188970686): Reduce this lock duration.
@@ -284,11 +293,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         throw new IllegalStateException(
                                 "CarEvsService is in the unknown state, " + previousState);
                 }
+
+                serviceType = mServiceType;
+                newState = mState;
             }
 
             if (result == ERROR_NONE) {
                 // Broadcasts current state
-                broadcastStateTransition(mServiceType, mState);
+                broadcastStateTransition(serviceType, newState);
             }
 
             return result;
@@ -312,9 +324,10 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
         }
 
-        @GuardedBy("mLock")
-        public boolean checkCurrentStateRequiresActivityLocked() {
-            return mState == SERVICE_STATE_ACTIVE || mState == SERVICE_STATE_REQUESTED;
+        public boolean checkCurrentStateRequiresActivity() {
+            synchronized (mLock) {
+                return mState == SERVICE_STATE_ACTIVE || mState == SERVICE_STATE_REQUESTED;
+            }
         }
 
 
@@ -539,7 +552,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
 
         public String toString() {
-            return toString(mState);
+            synchronized (mLock) {
+                return toString(mState);
+            }
         }
     }
 
@@ -620,8 +635,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     @GuardedBy("mLock")
     private boolean requestActivityIfNecessaryLocked() {
-        if (!mStateEngine.checkCurrentStateRequiresActivityLocked() || mLastEvsHalEvent == null ||
-                !mLastEvsHalEvent.isRequestingToStartActivity()) {
+        if (!mStateEngine.checkCurrentStateRequiresActivity() || mLastEvsHalEvent == null
+                || !mLastEvsHalEvent.isRequestingToStartActivity()) {
             return false;
         }
 
@@ -781,16 +796,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             Slog.d(TAG_EVS, "Finalizing the service");
         }
 
-        synchronized (mLock) {
-            if (mUseGearSelection && mPropertyService != null) {
-                if (DBG) {
-                    Slog.d(TAG_EVS, "Unregister a property listener in release()");
-                }
-                mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
-                        mGearSelectionPropertyListener);
+        if (mUseGearSelection && mPropertyService != null) {
+            if (DBG) {
+                Slog.d(TAG_EVS, "Unregister a property listener in release()");
             }
-            mStatusListeners.kill();
+            mPropertyService.unregisterListener(VehicleProperty.GEAR_SELECTION,
+                    mGearSelectionPropertyListener);
         }
+        mStatusListeners.kill();
 
         CarEvsService.nativeDestroyServiceHandle(mNativeEvsServiceObj);
         mNativeEvsServiceObj = 0;
@@ -803,15 +816,14 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         writer.printf("%s to HAL service\n",
                 mNativeEvsServiceObj == 0 ? "Not connected" : "Connected");
 
-        ICarEvsStreamCallback cb;
         synchronized (mLock) {
-            cb = mStreamCallback;
+            writer.printf("Active stream client = %s\n",
+                    mStreamCallback == null ? "null" : mStreamCallback.asBinder());
+            writer.printf("%d service listeners subscribed.\n",
+                    mStatusListeners.getRegisteredCallbackCount());
+            writer.printf("Last HAL event = %s\n", mLastEvsHalEvent);
+            writer.printf("Current session token = %s\n", mSessionToken);
         }
-        writer.printf("Active stream client = %s\n", cb == null? "null" : cb.asBinder());
-        writer.printf("%d service listeners subscribed.\n",
-                mStatusListeners.getRegisteredCallbackCount());
-        writer.printf("Last HAL event = %s\n", mLastEvsHalEvent);
-        writer.printf("Current session token = %s\n", mSessionToken);
     }
 
     /**
@@ -1018,11 +1030,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     }
 
     private void handleClientDisconnected(ICarEvsStatusListener listener) {
-        synchronized (mLock) {
-            mStatusListeners.unregister(listener);
-            if (mStatusListeners.getRegisteredCallbackCount() == 0) {
-                Slog.d(TAG_EVS, "Last status listener has been disconnected.");
-            }
+        mStatusListeners.unregister(listener);
+        if (mStatusListeners.getRegisteredCallbackCount() == 0) {
+            Slog.d(TAG_EVS, "Last status listener has been disconnected.");
         }
     }
 
