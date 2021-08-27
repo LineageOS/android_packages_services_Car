@@ -26,6 +26,7 @@ import android.car.Car;
 import android.car.CarBugreportManager;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.os.ParcelFileDescriptor;
+import android.platform.test.annotations.FlakyTest;
 import android.test.suitebuilder.annotation.LargeTest;
 
 import androidx.test.platform.app.InstrumentationRegistry;
@@ -73,7 +74,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
 
     @Ignore("b/195836042")
     @Test
-    public void test_requestBugreport_failsWhenNoPermission() throws Exception {
+    public void test_requestBugreport_failsWhenNoPermission() {
         dropPermissions();
 
         SecurityException expected =
@@ -85,6 +86,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
     }
 
     @Test
+    @FlakyTest(bugId = 197652182)
     public void test_requestBugreport_works() throws Exception {
         getPermissions();
 
