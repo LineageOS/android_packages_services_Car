@@ -25,7 +25,6 @@ import android.app.ActivityOptions;
 import android.app.Service;
 import android.car.Car;
 import android.car.CarLibLog;
-import android.car.builtin.os.UserManagerHelper;
 import android.car.cluster.ClusterActivityState;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.ActivityNotFoundException;
@@ -616,7 +615,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
             // Add user to URI to make the request to the right instance of content provider
             // (see ContentProvider#getUserIdFromAuthority()).
-            int userId = UserManagerHelper.getUserIdFromUid(contextOwner.mUid);
+            int userId = UserHandle.getUserHandleForUid(contextOwner.mUid).getIdentifier();
             Uri filteredUid = uri.buildUpon().encodedAuthority(userId + "@" + host).build();
 
             // Fetch the bitmap
@@ -696,7 +695,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
             // Add user to URI to make the request to the right instance of content provider
             // (see ContentProvider#getUserIdFromAuthority()).
-            int userId = UserManagerHelper.getUserIdFromUid(contextOwner.mUid);
+            int userId = UserHandle.getUserHandleForUid(contextOwner.mUid).getIdentifier();
             Uri filteredUid = uri.buildUpon().encodedAuthority(userId + "@" + host).build();
 
             Bitmap bitmap = mCache.get(uri.toString());
