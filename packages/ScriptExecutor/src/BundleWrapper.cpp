@@ -42,6 +42,7 @@ BundleWrapper::~BundleWrapper() {
 }
 
 void BundleWrapper::putBoolean(const char* key, bool value) {
+    // TODO(b/188832769): consider caching the references.
     jmethodID putBooleanMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putBoolean", "(Ljava/lang/String;Z)V");
     mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, mJNIEnv->NewStringUTF(key),
