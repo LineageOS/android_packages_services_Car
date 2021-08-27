@@ -27,39 +27,34 @@
         android:id="@+id/card_background"
         android:visibility="gone"
         android:layout_width="match_parent"
-        android:layout_height="match_parent">
-
-        <!-- card_background_image is required by HomeCardFragment. Intentionally not shown by
-         setting visibility="gone" -->
-        <com.android.car.apps.common.CrossfadeImageView
-            android:id="@+id/card_background_image"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:visibility="gone"
-            android:scaleType="centerCrop"/>
-
-        <View
-            android:id="@+id/card_background_scrim"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:focusable="false"
-            android:background="@color/card_background_scrim"
-            android:alpha="@dimen/card_background_scrim_alpha"/>
-    </FrameLayout>
+        android:layout_height="match_parent"/>
 
     <RelativeLayout
         android:layout_height="match_parent"
         android:layout_width="match_parent">
 
-        <ImageView
-            android:id="@+id/card_icon"
+        <FrameLayout
+            android:id="@+id/control_bar_image_container"
             android:layout_height="@dimen/control_bar_image_size"
             android:layout_width="@dimen/control_bar_image_size"
-            android:layout_marginStart="@dimen/card_icon_margin_start"
-            android:layout_alignParentStart="true"
-            android:layout_centerVertical="true"/>
+            android:layout_marginStart="@dimen/card_icon_margin_start">
 
-        <!-- Do not show -->
+            <com.android.car.apps.common.CrossfadeImageView
+                android:id="@+id/card_background_image"
+                android:layout_height="match_parent"
+                android:layout_width="match_parent"/>
+
+            <ImageView
+                android:id="@+id/card_icon"
+                android:layout_height="@dimen/control_bar_app_icon_size"
+                android:layout_width="@dimen/control_bar_app_icon_size"
+                android:layout_gravity="bottom|end"
+                android:layout_marginEnd="@dimen/control_bar_app_icon_margin"
+                android:layout_marginBottom="@dimen/control_bar_app_icon_margin"
+                android:scaleType="centerInside"/>
+        </FrameLayout>
+
+        <!-- Do not show app name -->
         <TextView
             android:id="@+id/card_name"
             android:layout_height="match_parent"
@@ -71,8 +66,7 @@
         <FrameLayout
             android:layout_height="match_parent"
             android:layout_width="0dp"
-            android:layout_centerVertical="true"
-            android:layout_toEndOf="@id/card_name"
+            android:layout_toEndOf="@id/control_bar_image_container"
             android:layout_alignParentEnd="true"
             android:layout_marginStart="@dimen/card_content_margin_start">
 

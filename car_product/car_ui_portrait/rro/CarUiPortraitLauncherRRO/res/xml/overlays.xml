@@ -17,7 +17,6 @@
     <item target="id/bottom_card" value="@id/bottom_card" />
     <item target="id/card_background" value="@id/card_background" />
     <item target="id/card_background_image" value="@id/card_background_image" />
-    <item target="id/card_background_scrim" value="@id/card_background_scrim" />
     <item target="id/card_icon" value="@id/card_icon" />
     <item target="id/card_name" value="@id/card_name" />
     <item target="id/card_view" value="@id/card_view" />
@@ -43,6 +42,7 @@
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
 
+    <item target="dimen/card_background_image_blur_radius" value="@dimen/card_background_image_blur_radius" />
     <item target="dimen/total_screen_height" value="@dimen/total_screen_height"/>
     <item target="dimen/total_screen_width" value="@dimen/total_screen_width"/>
     <item target="dimen/control_bar_height" value="@dimen/control_bar_height"/>
@@ -50,6 +50,7 @@
     <item target="dimen/title_bar_display_area_height" value="@dimen/title_bar_display_area_height"/>
     <item target="dimen/title_bar_display_area_touch_drag_threshold" value="@dimen/title_bar_display_area_touch_drag_threshold"/>
 
+    <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
     <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
