@@ -16,6 +16,7 @@
 #pragma once
 
 #include <stdio.h>
+#include <thread>
 
 #include <android/hardware/automotive/evs/1.1/IEvsEnumerator.h>
 #include <android/hardware_buffer.h>
@@ -29,7 +30,6 @@ using android::GraphicBuffer;
 using BufferDesc_1_0  = ::android::hardware::automotive::evs::V1_0::BufferDesc;
 
 // Class handles display operations using EVS Display.
-// TODO(197902107) : Make class thread-safe.
 class DisplayHandler : public android::RefBase {
 public:
     DisplayHandler(sp<IEvsDisplay> evsDisplay);
@@ -45,6 +45,8 @@ public:
     bool displayCurrentBuffer();
 private:
     BufferDesc convertBufferDesc(const BufferDesc_1_0& src);
-    android::sp<IEvsDisplay> mEvsDisplay;
-    BufferDesc_1_0 mTgtBuffer;
+
+    std::mutex mAccessLock;
+    android::sp<IEvsDisplay> mEvsDisplay GUARDED_BY(mAccessLock);
+    BufferDesc_1_0 mTgtBuffer GUARDED_BY(mAccessLock);
 };

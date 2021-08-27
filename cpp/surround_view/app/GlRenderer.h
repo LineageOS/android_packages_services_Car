@@ -19,6 +19,7 @@
 #include "DisplayHandler.h"
 
 #include <stdio.h>
+#include <thread>
 
 #include <utils/StrongPointer.h>
 #include <android/hardware_buffer.h>
@@ -35,7 +36,6 @@ using android::sp;
 
 // Class handles graphics rendering operations and uses DisplayHandler displaying them on
 // the screen.
-// TODO(197902107) : Make class thread-safe.
 class GlRenderer : public android::RefBase {
 public:
     GlRenderer(sp<DisplayHandler> displayHandler);
@@ -44,13 +44,13 @@ public:
     bool initialize();
 
     // Returns the OpenGLES display handler. Returns null if not initialized.
-    EGLDisplay getDisplay() const;
+    EGLDisplay getDisplay();
 
     // Returns the OpenGLES surface handler. Returns null if not initialized.
-    EGLSurface getSurface() const;
+    EGLSurface getSurface();
 
     // Returns the OpenGLES context handler. Returns null if not initialized.
-    EGLContext getContext() const;
+    EGLContext getContext();
 
     // Renders the provided Hardware buffer to the screen.
     // To be used for SV2D and SV3D without external rendering.
@@ -72,14 +72,15 @@ private:
     // Detaches OpenGLES target render buffer and displays it onto the screen.
     bool detachAndDisplayCurrRenderTarget();
 
-    bool isInitialized = false;
-    static EGLDisplay   sGLDisplay;
-    static EGLSurface   sGLSurface;
-    static EGLContext   sGLContext;
-    static GLuint       sFrameBuffer;
-    static GLuint       sColorBuffer;
-    static GLuint       sDepthBuffer;
-    static GLuint       sTextureId;
-    static EGLImageKHR  sKHRimage;
-    sp<DisplayHandler> mDisplayHandler;
+    std::mutex mAccessLock;
+    bool isInitialized GUARDED_BY(mAccessLock) = false;
+    static EGLDisplay   sGLDisplay GUARDED_BY(mAccessLock);
+    static EGLSurface   sGLSurface GUARDED_BY(mAccessLock);
+    static EGLContext   sGLContext GUARDED_BY(mAccessLock);
+    static GLuint       sFrameBuffer GUARDED_BY(mAccessLock);
+    static GLuint       sColorBuffer GUARDED_BY(mAccessLock);
+    static GLuint       sDepthBuffer GUARDED_BY(mAccessLock);
+    static GLuint       sTextureId GUARDED_BY(mAccessLock);
+    static EGLImageKHR  sKHRimage GUARDED_BY(mAccessLock);
+    sp<DisplayHandler> mDisplayHandler GUARDED_BY(mAccessLock);
 };
