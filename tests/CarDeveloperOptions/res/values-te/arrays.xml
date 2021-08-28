@@ -61,7 +61,7 @@
   </string-array>
   <string-array name="entries_font_size">
     <item msgid="2340391964816059553">"చిన్నది"</item>
-    <item msgid="591935967183159581">"డిఫాల్ట్"</item>
+    <item msgid="591935967183159581">"ఆటోమేటిక్"</item>
     <item msgid="1714184661981538355">"పెద్దది"</item>
     <item msgid="6195563047686707484">"అతి పెద్దగా"</item>
   </string-array>
@@ -359,7 +359,7 @@
     <item msgid="8305084671259331134">"ఎక్కువ సేపు"</item>
   </string-array>
   <string-array name="captioning_typeface_selector_titles">
-    <item msgid="6928465258504250174">"డిఫాల్ట్"</item>
+    <item msgid="6928465258504250174">"ఆటోమేటిక్"</item>
     <item msgid="4147246073737933622">"Sans-serif"</item>
     <item msgid="3117680749167407907">"Sans-serif సంక్షిప్తం"</item>
     <item msgid="6529379119163117545">"Sans-serif మోనోస్పేస్"</item>
@@ -377,7 +377,7 @@
     <item msgid="218913203203160606">"చాలా పెద్దది"</item>
   </string-array>
   <string-array name="captioning_edge_type_selector_titles">
-    <item msgid="3865198759294188069">"డిఫాల్ట్"</item>
+    <item msgid="3865198759294188069">"ఆటోమేటిక్"</item>
     <item msgid="6488643537808152001">"ఏదీ వద్దు"</item>
     <item msgid="552332815156010137">"Outline"</item>
     <item msgid="7187891159463789272">"నీడ ఉంచు"</item>
