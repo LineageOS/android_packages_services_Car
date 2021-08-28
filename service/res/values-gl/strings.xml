@@ -16,6 +16,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="importance_default" msgid="8587741629268312938">"Importancia predeterminada"</string>
+    <string name="importance_high" msgid="3141530792377745041">"Importancia alta"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"É necesario restablecer a configuración de fábrica"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Borraranse todos os datos do sistema de información e entretemento. Despois do restablecemento, poderás configurar un perfil novo."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Máis"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Produciuse un erro no bus CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"O bus CAN non responde. Desconecta a caixa da unidade principal, conéctaa de novo e reinicia o coche"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Dispositivo"</string>

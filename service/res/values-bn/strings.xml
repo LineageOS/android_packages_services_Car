@@ -16,6 +16,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="importance_default" msgid="8587741629268312938">"ডিফল্ট গুরুত্ব"</string>
+    <string name="importance_high" msgid="3141530792377745041">"খুব গুরুত্বপূর্ণ"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ফ্যাক্টরি রিসেট করতে হবে"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ইনফোটেইনমেন্ট সিস্টেমের সব ডেটা মুছে যাবে। রিসেট করার পরে আপনি নতুন প্রোফাইল সেট আপ করতে পারবেন।"</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"আরও"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN বাস কাজ করছে না"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN বাস কাজ করছে না। হেডইউনিট বক্স খুলে নিয়ে আবার লাগান ও গাড়ি রিস্টার্ট করুন"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"আমার ডিভাইস"</string>

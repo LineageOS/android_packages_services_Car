@@ -16,6 +16,11 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="importance_default" msgid="8587741629268312938">"Numatytoji svarba"</string>
+    <string name="importance_high" msgid="3141530792377745041">"Didelė svarba"</string>
+    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Būtina atkurti gamyklinius nustatymus"</string>
+    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Visi informacinės pramoginės sistemos duomenys bus ištrinti. Pasibaigus nustatymo iš naujo procesui, galite nustatyti naują profilį."</string>
+    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Daugiau"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN BUS klaida"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN BUS nereaguoja. Atjunkite ir vėl prijunkite pagrindinio įtaiso dėžutę."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Mano įrenginys"</string>
