@@ -24,6 +24,7 @@
 
 using namespace android::hardware::automotive::sv::V1_0;
 using namespace android::hardware::automotive::evs::V1_1;
+using android::hardware::graphics::common::V1_2::HardwareBuffer;
 
 class SurroundViewCallback : public ISurroundViewStream {
 public:

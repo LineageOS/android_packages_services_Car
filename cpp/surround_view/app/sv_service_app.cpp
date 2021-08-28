@@ -14,6 +14,8 @@
  * limitations under the License.
  */
 
+#include "GlRenderer.h"
+#include "DisplayHandler.h"
 #include "SurroundViewAppCommon.h"
 #include "SurroundViewCallback.h"
 
@@ -34,10 +36,11 @@ namespace {
 bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Running Surround View 2D.";
 
-    // Initialize a display handler.
+    // Initialize display handler and gl renderer.
     sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-    if (!displayHandler->startDisplay()) {
-        LOG(ERROR) << "Failed to start display for DisplayHandler.";
+    sp<GlRenderer> glRenderer = new GlRenderer(displayHandler);
+    if (!glRenderer->initialize()) {
+        LOG(ERROR) << "Failed to initialize glRenderer.";
         return false;
     }
 
@@ -59,8 +62,8 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
     // Setup a SurroundViewCallback.
     sp<SurroundViewCallback> svCallback =
             new SurroundViewCallback(surroundView2dSession,
-                                     [&displayHandler](const HardwareBuffer& hardwareBuffer) {
-                                         return displayHandler->renderBufferToScreen(
+                                     [glRenderer](const HardwareBuffer& hardwareBuffer) {
+                                         return glRenderer->renderBufferToScreen(
                                                  hardwareBuffer);
                                      });
 
@@ -81,10 +84,11 @@ bool run2dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
 bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDisplay> pDisplay) {
     LOG(INFO) << "Running Surround View 3D (Service).";
 
-    // Initialize a display handler.
+    // Initialize display handler and gl renderer.
     sp<DisplayHandler> displayHandler = new DisplayHandler(pDisplay);
-    if (!displayHandler->startDisplay()) {
-        LOG(ERROR) << "Failed to initialize display handler";
+    sp<GlRenderer> glRenderer = new GlRenderer(displayHandler);
+    if (!glRenderer->initialize()) {
+        LOG(ERROR) << "Failed to initialize glRenderer.";
         return false;
     }
 
@@ -105,8 +109,8 @@ bool run3dSurroundView(sp<ISurroundViewService> pSurroundViewService, sp<IEvsDis
     // Setup a SurroundViewCallback.
     sp<SurroundViewCallback> svCallback =
             new SurroundViewCallback(surroundView3dSession,
-                                     [&displayHandler](const HardwareBuffer& hardwareBuffer) {
-                                         return displayHandler->renderBufferToScreen(
+                                     [glRenderer](const HardwareBuffer& hardwareBuffer) {
+                                         return glRenderer->renderBufferToScreen(
                                                  hardwareBuffer);
                                      });
 
