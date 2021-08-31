@@ -52,23 +52,6 @@ cc_library_static {
     ],
 }
 
-cc_test {
-    name: "libvehicle_binding_util_test",
-    defaults: [
-        "vehicle_binding_util_defaults",
-    ],
-    test_suites: ["general-tests"],
-    srcs: [
-        "tests/VehicleBindingUtilTests.cpp",
-    ],
-    static_libs: [
-        "libbase",
-        "libgmock",
-        "libgtest",
-        "libvehicle_binding_util",
-    ],
-}
-
 cc_binary {
     name: "vehicle_binding_util",
     defaults: [
