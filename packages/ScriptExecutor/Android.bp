@@ -95,6 +95,13 @@ android_app {
         enabled: false,
     },
 
+    aidl: {
+        include_dirs: [
+            // TODO(b/198195711): Remove once we compile against SDK.
+	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+	],
+    },
+
     jni_libs: [
         "libscriptexecutorjni",
     ]
@@ -108,5 +115,12 @@ java_test_helper_library {
         ":iscriptexecutorconstants_aidl",
         "src/**/*.java",
     ],
+
+    aidl: {
+        include_dirs: [
+            // TODO(b/198195711): Remove once we compile against SDK.
+	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+	],
+    },
 }
 

@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
-import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 
 import com.android.car.telemetry.TelemetryProto;
@@ -67,7 +67,7 @@ public class DataSubscriber {
      *
      * <p>This method is thread-safe and doesn't block.
      */
-    public void push(Bundle data) {
+    public void push(PersistableBundle data) {
         ScriptExecutionTask task = new ScriptExecutionTask(
                 this, data, SystemClock.elapsedRealtime());
         mDataBroker.addTaskToQueue(task); // thread-safe

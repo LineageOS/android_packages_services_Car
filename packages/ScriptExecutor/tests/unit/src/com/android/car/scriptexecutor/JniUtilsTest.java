@@ -18,7 +18,7 @@ package com.android.car.scriptexecutor;
 
 import static com.google.common.truth.Truth.assertThat;
 
-import android.os.Bundle;
+import android.os.PersistableBundle;
 import android.util.Log;
 
 import org.junit.After;
@@ -60,7 +60,8 @@ public final class JniUtilsTest {
     }
 
     // Simply invokes PushBundleToLuaTable native method under test.
-    private native void nativePushBundleToLuaTableCaller(long luaEnginePtr, Bundle bundle);
+    private native void nativePushBundleToLuaTableCaller(
+            long luaEnginePtr, PersistableBundle bundle);
 
     // Creates an instance of LuaEngine on the heap and returns the pointer.
     private native long nativeCreateLuaEngine();
@@ -91,7 +92,7 @@ public final class JniUtilsTest {
 
     @Test
     public void pushBundleToLuaTable_valuesOfDifferentTypes() {
-        Bundle bundle = new Bundle();
+        PersistableBundle bundle = new PersistableBundle();
         bundle.putBoolean(BOOLEAN_KEY, BOOLEAN_VALUE);
         bundle.putInt(INT_KEY, INT_VALUE);
         bundle.putDouble(NUMBER_KEY, NUMBER_VALUE);
@@ -111,7 +112,7 @@ public final class JniUtilsTest {
 
     @Test
     public void pushBundleToLuaTable_wrongKey() {
-        Bundle bundle = new Bundle();
+        PersistableBundle bundle = new PersistableBundle();
         bundle.putBoolean(BOOLEAN_KEY, BOOLEAN_VALUE);
 
         // Invokes the corresponding helper method to convert the bundle

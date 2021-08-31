@@ -34,7 +34,8 @@ public:
 
     virtual ~BundleWrapper();
 
-    // Family of methods that puts the provided 'value' into the Bundle under provided 'key'.
+    // Family of methods that puts the provided 'value' into the PersistableBundle
+    // under provided 'key'.
     void putBoolean(const char* key, bool value);
     void putInteger(const char* key, int value);
     void putDouble(const char* key, double value);
@@ -43,12 +44,12 @@ public:
     jobject getBundle();
 
 private:
-    // The class asks Java to create Bundle object and stores the reference.
-    // When the instance of this class is destroyed the actual Java Bundle object behind
+    // The class asks Java to create PersistableBundle object and stores the reference.
+    // When the instance of this class is destroyed the actual Java PersistableBundle object behind
     // this reference stays on and is managed by Java.
     jobject mBundle;
 
-    // Reference to java Bundle class cached for performance reasons.
+    // Reference to java PersistableBundle class cached for performance reasons.
     jclass mBundleClass;
 
     // Stores a JNIEnv* pointer.
