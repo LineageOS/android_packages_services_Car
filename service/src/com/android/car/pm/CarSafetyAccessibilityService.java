@@ -30,7 +30,9 @@ public class CarSafetyAccessibilityService extends AccessibilityService {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CarPackageManagerService carPackageManagerService =
                 CarLocalServices.getService(CarPackageManagerService.class);
-        carPackageManagerService.onWindowChangeEvent();
+        if (carPackageManagerService != null) {
+            carPackageManagerService.onWindowChangeEvent();
+        }
     }
 
     @Override
