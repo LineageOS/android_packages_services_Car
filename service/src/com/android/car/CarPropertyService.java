@@ -117,7 +117,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
             for (int i = 0; i < mRateMap.size(); i++) {
                 int propId = mRateMap.keyAt(i);
-                CarPropertyService.this.unregisterListenerBinderLocked(propId, mListenerBinder);
+                CarPropertyService.this.unregisterListenerBinderInternal(propId, mListenerBinder);
             }
             this.release();
         }
@@ -155,9 +155,9 @@ public class CarPropertyService extends ICarProperty.Stub
             // Cache the configs list and permissions to avoid subsequent binder calls
             mConfigs = mHal.getPropertyList();
             mPropToPermission = mHal.getPermissionsForAllProperties();
-        }
-        if (DBG) {
-            Slog.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+            if (DBG) {
+                Slog.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+            }
         }
     }
 
@@ -302,55 +302,57 @@ public class CarPropertyService extends ICarProperty.Stub
         }
 
         IBinder listenerBinder = listener.asBinder();
-        synchronized (mLock) {
-            unregisterListenerBinderLocked(propId, listenerBinder);
-        }
+        unregisterListenerBinderInternal(propId, listenerBinder);
     }
 
-    private void unregisterListenerBinderLocked(int propId, IBinder listenerBinder) {
-        Client client = mClientMap.get(listenerBinder);
-        List<Client> propertyClients = mPropIdClientMap.get(propId);
+    private void unregisterListenerBinderInternal(int propId, IBinder listenerBinder) {
+        float updateMaxRate = 0f;
         synchronized (mLock) {
+            Client client = mClientMap.get(listenerBinder);
+            List<Client> propertyClients = mPropIdClientMap.get(propId);
             if (mConfigs.get(propId) == null) {
                 // Do not attempt to register an invalid propId
                 Slog.e(TAG, "unregisterListener: propId is not in config list:0x" + toHexString(
                         propId));
                 return;
             }
-        }
-        if ((client == null) || (propertyClients == null)) {
-            Slog.e(TAG, "unregisterListenerBinderLocked: Listener was not previously registered.");
-        } else {
-            if (propertyClients.remove(client)) {
-                client.removeProperty(propId);
-                clearSetOperationRecorderLocked(propId, client);
+            if ((client == null) || (propertyClients == null)) {
+                Slog.e(TAG,
+                        "unregisterListenerBinderLocked: Listener was not previously registered.");
             } else {
-                Slog.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
-                           + "propId=0x" + toHexString(propId));
-            }
+                if (propertyClients.remove(client)) {
+                    client.removeProperty(propId);
+                    clearSetOperationRecorderLocked(propId, client);
 
-            if (propertyClients.isEmpty()) {
-                // Last listener for this property unsubscribed.  Clean up
-                mHal.unsubscribeProperty(propId);
-                mPropIdClientMap.remove(propId);
-                mSetOperationClientMap.remove(propId);
-                if (mPropIdClientMap.isEmpty()) {
-                    // No more properties are subscribed.  Turn off the listener.
-                    mHal.setListener(null);
-                    mListenerIsSet = false;
+                } else {
+                    Slog.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
+                            + "propId=0x" + toHexString(propId));
                 }
-            } else {
-                // Other listeners are still subscribed.  Calculate the new rate
-                float maxRate = 0;
-                for (Client c : propertyClients) {
-                    float rate = c.getRate(propId);
-                    if (rate > maxRate) {
-                        maxRate = rate;
+
+                if (propertyClients.isEmpty()) {
+                    // Last listener for this property unsubscribed.  Clean up
+                    mPropIdClientMap.remove(propId);
+                    mSetOperationClientMap.remove(propId);
+                    if (mPropIdClientMap.isEmpty()) {
+                        // No more properties are subscribed.  Turn off the listener.
+                        mHal.setListener(null);
+                        mListenerIsSet = false;
+                    }
+                } else {
+                    // Other listeners are still subscribed.  Calculate the new rate
+                    for (Client c : propertyClients) {
+                        float rate = c.getRate(propId);
+                        updateMaxRate = Math.max(rate, updateMaxRate);
                     }
                 }
-                // Set the new rate
-                mHal.subscribeProperty(propId, maxRate);
             }
+        }
+        if (Float.compare(updateMaxRate, 0f) == 0) {
+            // Unsubscribe property if we did not find any other client register to this property
+            mHal.unsubscribeProperty(propId);
+        } else if (Float.compare(updateMaxRate, mHal.getSampleRate(propId)) != 0) {
+            // Only reset the sample rate if needed
+            mHal.subscribeProperty(propId, updateMaxRate);
         }
     }
 
@@ -495,7 +497,7 @@ public class CarPropertyService extends ICarProperty.Stub
             if (client == null) {
                 client = new Client(listener);
             }
-            updateSetOperationRecorder(propId, prop.getAreaId(), client);
+            updateSetOperationRecorderLocked(propId, prop.getAreaId(), client);
         }
     }
 
@@ -521,7 +523,8 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     // Updates recorder for set operation.
-    private void updateSetOperationRecorder(int propId, int areaId, Client client) {
+    @GuardedBy("mLock")
+    private void updateSetOperationRecorderLocked(int propId, int areaId, Client client) {
         if (mSetOperationClientMap.get(propId) != null) {
             mSetOperationClientMap.get(propId).put(areaId, client);
         } else {
@@ -532,6 +535,7 @@ public class CarPropertyService extends ICarProperty.Stub
     }
 
     // Clears map when client unregister for property.
+    @GuardedBy("mLock")
     private void clearSetOperationRecorderLocked(int propId, Client client) {
         SparseArray<Client> areaIdToClient = mSetOperationClientMap.get(propId);
         if (areaIdToClient != null) {
