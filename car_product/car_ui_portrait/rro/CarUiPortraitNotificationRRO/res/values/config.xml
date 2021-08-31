@@ -21,4 +21,16 @@
     <string name="config_headsUpNotificationAnimationHelper" translatable="false">
         com.android.car.notification.headsup.animationhelper.CarHeadsUpNotificationBottomAnimationHelper</string>
 
+    <!-- If false, small icon will be used to distinguish the app, large icon will be used
+         in notification body and notification header will be shown.-->
+    <bool name="config_useLauncherIcon">false</bool>
+
+    <!-- Whether to show header for the notifications center -->
+    <bool name="config_showHeaderForNotifications">true</bool>
+
+    <!-- Whether to show footer for the notifications center -->
+    <bool name="config_showFooterForNotifications">false</bool>
+
+    <!-- Whether to show Recents/Older header for notifications list -->
+    <bool name="config_showRecentAndOldHeaders">false</bool>
 </resources>
