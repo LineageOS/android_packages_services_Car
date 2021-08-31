@@ -16,6 +16,8 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
   <color name="car_alert_dialog_action_button_color">#2E3134</color>
+  <color name="car_card_ripple_background_dark">?android:attr/colorControlHighlight</color>
+  <color name="car_card_ripple_background_light">?android:attr/colorControlHighlight</color>
 
   <color name="system_accent1_0">#ffffff</color>
   <!--  duped-->

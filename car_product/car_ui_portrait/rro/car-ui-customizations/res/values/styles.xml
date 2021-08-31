@@ -17,10 +17,10 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
 
     <style name="TextAppearance_CarUi_AlertDialog_Title" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textSize">@dimen/car_ui_body1_size</item>
+        <item name="android:textSize">32sp</item>
     </style>
     <style name="TextAppearance_CarUi_AlertDialog_Subtitle" parent="android:TextAppearance.DeviceDefault">
-        <item name="android:textSize">@dimen/car_ui_body3_size</item>
+        <item name="android:textSize">24sp</item>
     </style>
 
     <style name="TextAppearance.CarUi.PreferenceCategoryTitle" parent="android:TextAppearance.DeviceDefault">
@@ -32,5 +32,21 @@
     <style name="TextAppearance.CarUi.PreferenceSummary" parent="android:TextAppearance.DeviceDefault">
         <item name="android:textColor">?android:attr/textColorSecondary</item>
         <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.PreferenceTitle" parent="android:TextAppearance.DeviceDefault">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.Widget" parent="android:TextAppearance.DeviceDefault.Widget">
+        <item name="android:textAlignment">viewStart</item>
+    </style>
+
+    <style name="TextAppearance.CarUi.Widget.Toolbar"/>
+
+    <style name="TextAppearance.CarUi.Widget.Toolbar.Title">
+        <item name="android:singleLine">true</item>
+        <item name="android:textSize">32sp</item>
     </style>
 </resources>
