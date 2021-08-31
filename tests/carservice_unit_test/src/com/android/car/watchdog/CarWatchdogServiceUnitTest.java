@@ -2013,6 +2013,37 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testSaveToStorageAfterResetResourceOveruseStats() throws Exception {
+        setDate(1);
+        mGenericPackageNameByUid.put(1011200, "system_package");
+        SparseArray<PackageIoOveruseStats> stats = injectIoOveruseStatsForPackages(
+                mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
+                Collections.singletonList("system_package"));
+
+        /* |resetResourceOveruseStats| sets the package's IoOveruseStats to null, packages with
+         * null I/O stats are not written to disk. Push new IoOveruseStats to the |system_package|
+         * so that the package can be written to the database when date changes.
+         */
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(stats.get(1011200)));
+
+        /* Force write to disk by changing the date and pushing new I/O overuse stats. */
+        setDate(0);
+        pushLatestIoOveruseStatsAndWait(Collections.singletonList(new PackageIoOveruseStats()));
+
+        WatchdogStorage.IoUsageStatsEntry expectedSavedEntries =
+                new WatchdogStorage.IoUsageStatsEntry(/* userId= */ 10, "system_package",
+                        new WatchdogPerfHandler.PackageIoUsage(stats.get(1011200).ioOveruseStats,
+                                /* forgivenWriteBytes= */ constructPerStateBytes(0, 0, 0),
+                                /* totalTimesKilled= */ 0));
+
+        IoUsageStatsEntrySubject.assertThat(mIoUsageStatsEntries)
+                .containsExactlyElementsIn(Collections.singletonList(expectedSavedEntries));
+    }
+
+    @Test
     public void testGetPackageInfosForUids() throws Exception {
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
