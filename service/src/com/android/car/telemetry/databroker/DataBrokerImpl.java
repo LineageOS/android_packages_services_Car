@@ -20,7 +20,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -391,7 +390,7 @@ public class DataBrokerImpl implements DataBroker {
     }
 
     /** Stores interim metrics and schedules the next task. */
-    private void onScriptSuccess(Bundle stateToPersist) {
+    private void onScriptSuccess(PersistableBundle stateToPersist) {
         // TODO(b/197027637): update API to use PersistableBundle
         PersistableBundle persistableBundle = new PersistableBundle();
         for (String key : stateToPersist.keySet()) {
@@ -436,7 +435,7 @@ public class DataBrokerImpl implements DataBroker {
         }
 
         @Override
-        public void onSuccess(Bundle stateToPersist) {
+        public void onSuccess(PersistableBundle stateToPersist) {
             DataBrokerImpl dataBroker = mWeakDataBroker.get();
             if (dataBroker == null) {
                 return;

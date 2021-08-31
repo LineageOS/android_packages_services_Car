@@ -25,8 +25,8 @@ namespace scriptexecutor {
 
 BundleWrapper::BundleWrapper(JNIEnv* env) {
     mJNIEnv = env;
-    mBundleClass =
-            static_cast<jclass>(mJNIEnv->NewGlobalRef(mJNIEnv->FindClass("android/os/Bundle")));
+    mBundleClass = static_cast<jclass>(
+            mJNIEnv->NewGlobalRef(mJNIEnv->FindClass("android/os/PersistableBundle")));
     jmethodID bundleConstructor = mJNIEnv->GetMethodID(mBundleClass, "<init>", "()V");
     mBundle = mJNIEnv->NewGlobalRef(mJNIEnv->NewObject(mBundleClass, bundleConstructor));
 }

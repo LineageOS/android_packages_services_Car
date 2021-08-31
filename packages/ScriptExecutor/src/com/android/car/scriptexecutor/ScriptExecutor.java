@@ -18,10 +18,10 @@ package com.android.car.scriptexecutor;
 
 import android.app.Service;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.PersistableBundle;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
@@ -45,8 +45,9 @@ public final class ScriptExecutor extends Service {
 
     private final class IScriptExecutorImpl extends IScriptExecutor.Stub {
         @Override
-        public void invokeScript(String scriptBody, String functionName, Bundle publishedData,
-                Bundle savedState, IScriptExecutorListener listener) {
+        public void invokeScript(String scriptBody, String functionName,
+                PersistableBundle publishedData, PersistableBundle savedState,
+                IScriptExecutorListener listener) {
             mNativeHandler.post(() ->
                     nativeInvokeScript(mLuaEnginePtr, scriptBody, functionName, publishedData,
                             savedState, listener));
@@ -108,6 +109,6 @@ public final class ScriptExecutor extends Service {
      *                      and errors.
      */
     private native void nativeInvokeScript(long luaEnginePtr, String scriptBody,
-            String functionName, Bundle publishedData, Bundle savedState,
+            String functionName, PersistableBundle publishedData, PersistableBundle savedState,
             IScriptExecutorListener listener);
 }

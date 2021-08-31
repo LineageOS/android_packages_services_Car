@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry.scriptexecutorinterface;
 
-import android.os.Bundle;
+import android.os.PersistableBundle;
 
 /**
  * Listener for {@code IScriptExecutor#invokeScript}.
@@ -41,7 +41,7 @@ interface IScriptExecutorListener {
    *
    * @param stateToPersist key-value pairs to persist
    */
-  void onSuccess(in @nullable Bundle stateToPersist);
+  void onSuccess(in @nullable PersistableBundle stateToPersist);
 
   /**
    * Called by ScriptExecutor to report errors that prevented the script

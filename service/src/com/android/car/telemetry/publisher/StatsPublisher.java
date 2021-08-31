@@ -18,9 +18,9 @@ package com.android.car.telemetry.publisher;
 
 import android.app.StatsManager.StatsUnavailableException;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
+import android.os.PersistableBundle;
 import android.util.LongSparseArray;
 import android.util.Slog;
 
@@ -126,7 +126,7 @@ public class StatsPublisher extends AbstractPublisher {
                 // TODO(b/197269115): parse the report
                 Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
                 if (report.getReportsCount() > 0) {
-                    Bundle data = new Bundle();
+                    PersistableBundle data = new PersistableBundle();
                     // TODO(b/197269115): parse the report
                     data.putInt("reportsCount", report.getReportsCount());
                     mConfigKeyToSubscribers.get(configKey).push(data);
