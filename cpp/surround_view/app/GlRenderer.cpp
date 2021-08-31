@@ -240,6 +240,8 @@ bool GlRenderer::prepareGL() {
 }
 
 bool GlRenderer::initialize() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
+
     // Just trivially return success if we're already prepared.
     if (isInitialized) {
         LOG(INFO) << "GlRenderer is already initialized.";
@@ -367,21 +369,24 @@ GlRenderer::GlRenderer(sp<DisplayHandler> displayHandler) :
     // Nothing but member initialization
 }
 
-EGLDisplay GlRenderer::getDisplay() const {
+EGLDisplay GlRenderer::getDisplay() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
     if (!isInitialized) {
         LOG(ERROR) << "GlRenderer is not initialized.";
         return nullptr;
     }
     return sGLDisplay;
 }
-EGLSurface GlRenderer::getSurface() const {
+EGLSurface GlRenderer::getSurface() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
     if (!isInitialized) {
         LOG(ERROR) << "GlRenderer is not initialized.";
         return nullptr;
     }
     return sGLSurface;
 }
-EGLContext GlRenderer::getContext() const {
+EGLContext GlRenderer::getContext() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
     if (!isInitialized) {
         LOG(ERROR) << "GlRenderer is not initialized.";
         return nullptr;
@@ -410,6 +415,7 @@ bool GlRenderer::clearContext() {
 }
 
 bool GlRenderer::renderGlTargetToScreen() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
     if (!isInitialized) {
         LOG(ERROR) << "GlRenderer is not initialized.";
         return false;
@@ -439,6 +445,7 @@ bool GlRenderer::renderGlTargetToScreen() {
 }
 
 bool GlRenderer::renderBufferToScreen(const HardwareBuffer& hardwareBuffer) {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
     if (!isInitialized) {
         LOG(ERROR) << "GlRenderer is not initialized.";
         return false;

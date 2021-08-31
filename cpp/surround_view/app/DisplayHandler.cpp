@@ -30,6 +30,8 @@ using std::string;
 DisplayHandler::DisplayHandler(sp<IEvsDisplay> evsDisplay) : mEvsDisplay(evsDisplay) {}
 
 bool DisplayHandler::startDisplay() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
+
     // Check mEvsDisplay is valid.
     if (!mEvsDisplay) {
         LOG(ERROR) << "evsDisplay is null";
@@ -64,6 +66,8 @@ BufferDesc DisplayHandler::convertBufferDesc(const BufferDesc_1_0& src) {
 }
 
 bool DisplayHandler::getNewDisplayBuffer(sp<GraphicBuffer>* pGfxBuffer) {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
+
     // Check mEvsDisplay is valid.
     if (!mEvsDisplay) {
         LOG(ERROR) << "evsDisplay is null";
@@ -96,6 +100,8 @@ bool DisplayHandler::getNewDisplayBuffer(sp<GraphicBuffer>* pGfxBuffer) {
 }
 
 bool DisplayHandler::displayCurrentBuffer() {
+    std::scoped_lock<std::mutex> lock(mAccessLock);
+
     // Check mEvsDisplay is valid.
     if (!mEvsDisplay) {
         LOG(ERROR) << "evsDisplay is null";
