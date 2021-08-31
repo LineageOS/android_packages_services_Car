@@ -185,7 +185,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
-        assertTrue(actual.equals(expected));
+        assertEquals(actual, expected);
     }
 
     @Test
@@ -250,7 +250,7 @@ public class CarUxRestrictionsManagerServiceTest {
                                 .setRestrictions(510)
                                 .setMode(UX_RESTRICTION_MODE_PASSENGER))
                 .build();
-        assertTrue(actual.equals(expectedConfig));
+        assertEquals(actual, expectedConfig);
     }
 
     @Test
@@ -265,7 +265,7 @@ public class CarUxRestrictionsManagerServiceTest {
 
         // Staged file should be moved as production.
         assertFalse(staged.exists());
-        assertTrue(actual.equals(expected));
+        assertEquals(actual, expected);
     }
 
     @Test
@@ -275,12 +275,27 @@ public class CarUxRestrictionsManagerServiceTest {
         // Prod file contains actual config. Ignore staged since it should not be promoted.
         setupMockFile(CONFIG_FILENAME_PRODUCTION, List.of(expected));
 
-        setUpMockDrivingState();
+        setUpMockDrivingStateWithFakeSpeed(30f);
         CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
 
         // Staged file should be untouched.
         assertTrue(staged.exists());
-        assertTrue(actual.equals(expected));
+        assertEquals(actual, expected);
+    }
+
+    @Test
+    public void testLoadConfig_NoPromoteStagedFileWhenMovingBackwards() throws Exception {
+        CarUxRestrictionsConfiguration expected = createEmptyConfig();
+        File staged = setupMockFile(CONFIG_FILENAME_STAGED, null);
+        // Prod file contains actual config. Ignore staged since it should not be promoted.
+        setupMockFile(CONFIG_FILENAME_PRODUCTION, List.of(expected));
+
+        setUpMockDrivingStateWithFakeSpeed(-30f);
+        CarUxRestrictionsConfiguration actual = mService.loadConfig().get(0);
+
+        // Staged file should be untouched.
+        assertTrue(staged.exists());
+        assertEquals(actual, expected);
     }
 
     @Test
@@ -559,12 +574,12 @@ public class CarUxRestrictionsManagerServiceTest {
                 .thenReturn(speed);
     }
 
-    private void setUpMockDrivingState() {
+    private void setUpMockDrivingStateWithFakeSpeed(float fakeSpeed) {
         when(mMockDrivingStateService.getCurrentDrivingState()).thenReturn(
                 new CarDrivingStateEvent(CarDrivingStateEvent.DRIVING_STATE_MOVING, 0));
 
         CarPropertyValue<Float> speed = new CarPropertyValue<>(VehicleProperty.PERF_VEHICLE_SPEED,
-                0, 30f);
+                0, fakeSpeed);
         when(mMockCarPropertyService.getPropertySafe(VehicleProperty.PERF_VEHICLE_SPEED, 0))
                 .thenReturn(speed);
     }
