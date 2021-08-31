@@ -15,6 +15,10 @@
  */
 package com.android.car.audio;
 
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -22,8 +26,6 @@ import android.annotation.UserIdInt;
 import android.car.builtin.util.Slog;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
-import android.media.AudioManager;
-import android.media.AudioManager.FocusRequestResult;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
@@ -314,16 +316,17 @@ final class FocusInteraction {
      * Evaluates interaction between incoming focus {@link AudioContext} and the current focus
      * request based on interaction matrix.
      *
-     * <p>Note: In addition to returning the {@link FocusRequestResult}
+     * <p>Note: In addition to returning the request results
      * for the incoming request based on this interaction, this method also adds the current {@code
      * focusHolder} to the {@code focusLosers} list when appropriate.
      *
      * @param requestedContext CarAudioContextType of incoming focus request
      * @param focusHolder      {@link FocusEntry} for current focus holder
      * @param focusLosers      Mutable array to add focusHolder to if it should lose focus
-     * @return {@link FocusRequestResult} result of focus interaction
+     * @return result of focus interaction, can be any of {@code AUDIOFOCUS_REQUEST_DELAYED},
+     *      {@code AUDIOFOCUS_REQUEST_FAILED}, or {@code AUDIOFOCUS_REQUEST_GRANTED}
      */
-    public @FocusRequestResult int evaluateRequest(@AudioContext int requestedContext,
+    public int evaluateRequest(@AudioContext int requestedContext,
             FocusEntry focusHolder, List<FocusEntry> focusLosers, boolean allowDucking,
             boolean allowsDelayedFocus) {
         @AudioContext int holderContext = focusHolder.getAudioContext();
@@ -337,12 +340,12 @@ final class FocusInteraction {
             switch (holderRow[requestedContext]) {
                 case INTERACTION_REJECT:
                     if (allowsDelayedFocus) {
-                        return AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
+                        return AUDIOFOCUS_REQUEST_DELAYED;
                     }
-                    return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+                    return AUDIOFOCUS_REQUEST_FAILED;
                 case INTERACTION_EXCLUSIVE:
                     focusLosers.add(focusHolder);
-                    return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+                    return AUDIOFOCUS_REQUEST_GRANTED;
                 case INTERACTION_CONCURRENT:
                     // If ducking isn't allowed by the focus requester, then everybody else
                     // must get a LOSS.
@@ -355,11 +358,11 @@ final class FocusInteraction {
                             || focusHolder.receivesDuckEvents()) {
                         focusLosers.add(focusHolder);
                     }
-                    return AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
+                    return AUDIOFOCUS_REQUEST_GRANTED;
                 default:
                     Slog.e(TAG, String.format("Unsupported CarAudioContext %d - rejecting request",
                             holderRow[requestedContext]));
-                    return AudioManager.AUDIOFOCUS_REQUEST_FAILED;
+                    return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
     }
