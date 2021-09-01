@@ -107,3 +107,31 @@ prebuilt_etc {
     src : "image_left.png",
     sub_dir : "automotive/sv",
 }
+
+prebuilt_etc{
+    name : "mask_front.png",
+    soc_specific : true,
+    src : "mask_front.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc{
+    name : "mask_right.png",
+    soc_specific : true,
+    src : "mask_right.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc{
+    name : "mask_rear.png",
+    soc_specific : true,
+    src : "mask_rear.png",
+    sub_dir : "automotive/sv",
+}
+
+prebuilt_etc {
+    name :"mask_left.png",
+    soc_specific : true,
+    src : "mask_left.png",
+    sub_dir : "automotive/sv",
+}
