@@ -347,8 +347,8 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private Float getCurrentSpeed() {
         CarPropertyValue value = mCarPropertyService.getPropertySafe(
                 VehicleProperty.PERF_VEHICLE_SPEED, 0);
-        if (value != null) {
-            return (Float) value.getValue();
+        if (value != null || value.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
+            return Math.abs((Float) value.getValue());
         }
         return SPEED_NOT_AVAILABLE;
     }
