@@ -64,6 +64,7 @@ import com.android.internal.util.ArrayUtils;
 import com.android.server.utils.Slogf;
 
 import java.lang.ref.WeakReference;
+import java.time.Instant;
 import java.util.List;
 
 /**
@@ -76,6 +77,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
+    static final TimeSourceInterface SYSTEM_INSTANCE = new TimeSourceInterface() {
+        @Override
+        public Instant now() {
+            return Instant.now();
+        }
+
+        @Override
+        public String toString() {
+            return "System time instance";
+        }
+    };
 
     private final Context mContext;
     private final ICarWatchdogServiceForSystemImpl mWatchdogServiceForSystem;
