@@ -53,20 +53,22 @@ public final class ScriptExecutorTest {
 
     private static final class ScriptExecutorListener extends IScriptExecutorListener.Stub {
         public PersistableBundle mSavedBundle;
+        public PersistableBundle mFinalResult;
         public int mErrorType;
         public String mMessage;
         public String mStackTrace;
-        public final CountDownLatch mSuccessLatch = new CountDownLatch(1);
-        public final CountDownLatch mErrorLatch = new CountDownLatch(1);
+        public final CountDownLatch mResponseLatch = new CountDownLatch(1);
 
         @Override
-        public void onScriptFinished(byte[] result) {
+        public void onScriptFinished(PersistableBundle result) {
+            mFinalResult = result;
+            mResponseLatch.countDown();
         }
 
         @Override
         public void onSuccess(PersistableBundle stateToPersist) {
             mSavedBundle = stateToPersist;
-            mSuccessLatch.countDown();
+            mResponseLatch.countDown();
         }
 
         @Override
@@ -74,7 +76,7 @@ public final class ScriptExecutorTest {
             mErrorType = errorType;
             mMessage = message;
             mStackTrace = stackTrace;
-            mErrorLatch.countDown();
+            mResponseLatch.countDown();
         }
     }
 
@@ -96,8 +98,7 @@ public final class ScriptExecutorTest {
     private final CountDownLatch mBindLatch = new CountDownLatch(1);
 
     private static final int BIND_SERVICE_TIMEOUT_SEC = 5;
-    private static final int SCRIPT_SUCCESS_TIMEOUT_SEC = 10;
-    private static final int SCRIPT_ERROR_TIMEOUT_SEC = 10;
+    private static final int SCRIPT_PROCESSING_TIMEOUT_SEC = 10;
 
 
     private final ServiceConnection mScriptExecutorConnection =
@@ -114,16 +115,16 @@ public final class ScriptExecutorTest {
                 }
             };
 
-    // Helper method to invoke the script and wait for it to complete and return the result.
-    private void runScriptAndWaitForResult(String script, String function,
+    // Helper method to invoke the script and wait for it to complete and return a response.
+    private void runScriptAndWaitForResponse(String script, String function,
             PersistableBundle previousState)
             throws RemoteException {
         mScriptExecutor.invokeScript(script, function, mPublishedData, previousState,
                 mFakeScriptExecutorListener);
         try {
-            if (!mFakeScriptExecutorListener.mSuccessLatch.await(SCRIPT_SUCCESS_TIMEOUT_SEC,
+            if (!mFakeScriptExecutorListener.mResponseLatch.await(SCRIPT_PROCESSING_TIMEOUT_SEC,
                     TimeUnit.SECONDS)) {
-                fail("Failed to get on_success called by the script on time");
+                fail("Failed to get the callback method called by the script on time");
             }
         } catch (InterruptedException e) {
             e.printStackTrace();
@@ -131,18 +132,9 @@ public final class ScriptExecutorTest {
         }
     }
 
+
     private void runScriptAndWaitForError(String script, String function) throws RemoteException {
-        mScriptExecutor.invokeScript(script, function, mPublishedData, new PersistableBundle(),
-                mFakeScriptExecutorListener);
-        try {
-            if (!mFakeScriptExecutorListener.mErrorLatch.await(SCRIPT_ERROR_TIMEOUT_SEC,
-                    TimeUnit.SECONDS)) {
-                fail("Failed to get on_error called by the script on time");
-            }
-        } catch (InterruptedException e) {
-            e.printStackTrace();
-            fail(e.getMessage());
-        }
+        runScriptAndWaitForResponse(script, function, new PersistableBundle());
     }
 
     @Before
@@ -183,7 +175,7 @@ public final class ScriptExecutorTest {
                         + "end\n";
 
 
-        runScriptAndWaitForResult(returnResultScript, "hello", mSavedState);
+        runScriptAndWaitForResponse(returnResultScript, "hello", mSavedState);
 
         // Expect to get back a bundle with a single string key: string value pair:
         // {"hello": "world"}
@@ -200,7 +192,7 @@ public final class ScriptExecutorTest {
                         + "end\n";
 
 
-        runScriptAndWaitForResult(script, "knows", mSavedState);
+        runScriptAndWaitForResponse(script, "knows", mSavedState);
 
         // Expect to get back a bundle with 4 keys, each corresponding to a distinct supported type.
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
@@ -220,7 +212,7 @@ public final class ScriptExecutorTest {
                         + "end\n";
 
 
-        runScriptAndWaitForResult(script, "nested", mSavedState);
+        runScriptAndWaitForResponse(script, "nested", mSavedState);
 
         // Bundle does not contain any value under "nested_table" key, because nested tables are
         // not supported yet.
@@ -237,7 +229,7 @@ public final class ScriptExecutorTest {
                         + "end\n";
 
 
-        runScriptAndWaitForResult(script, "empty", mSavedState);
+        runScriptAndWaitForResponse(script, "empty", mSavedState);
 
         // If a script returns empty table as the result, we get an empty bundle.
         assertThat(mFakeScriptExecutorListener.mSavedBundle).isNotNull();
@@ -258,7 +250,7 @@ public final class ScriptExecutorTest {
         previousState.putInt("x", 1);
 
 
-        runScriptAndWaitForResult(script, "update", previousState);
+        runScriptAndWaitForResponse(script, "update", previousState);
 
         // Verify that y = 2, because y = x + 1 and x = 1.
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
@@ -287,7 +279,7 @@ public final class ScriptExecutorTest {
         previousState.putString("string", "ABRA");
 
 
-        runScriptAndWaitForResult(script, "update_all", previousState);
+        runScriptAndWaitForResponse(script, "update_all", previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
@@ -349,6 +341,152 @@ public final class ScriptExecutorTest {
                 IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_error can push only a single string parameter from Lua");
+    }
+
+    @Test
+    public void invokeScript_returnsFinalResult() throws RemoteException {
+        String returnFinalResultScript =
+                "function script_finishes(state)\n"
+                        + "    result = {data = state.input + 1}\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        previousState.putInt("input", 1);
+
+        runScriptAndWaitForResponse(returnFinalResultScript, "script_finishes", previousState);
+
+        // Expect to get back a bundle with a single key-value pair {"data": 2}
+        // because data = state.input + 1 as in the script body above.
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getInt("data")).isEqualTo(2);
+    }
+
+    @Test
+    public void invokeScript_allSupportedTypesForReturningFinalResult()
+            throws RemoteException {
+        // Here we verify that all supported types are present in the returned final result
+        // bundle are present.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function finalize_all(state)\n"
+                        + "    result = {}\n"
+                        + "    result.integer = state.integer + 1\n"
+                        + "    result.number = state.number + 0.1\n"
+                        + "    result.boolean = not state.boolean\n"
+                        + "    result.string = state.string .. \"CADABRA\"\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        previousState.putInt("integer", 1);
+        previousState.putDouble("number", 0.1);
+        previousState.putBoolean("boolean", false);
+        previousState.putString("string", "ABRA");
+
+
+        runScriptAndWaitForResponse(script, "finalize_all", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(4);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getInt("integer")).isEqualTo(2);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getDouble("number")).isEqualTo(0.2);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getBoolean("boolean")).isEqualTo(true);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("string")).isEqualTo(
+                "ABRACADABRA");
+    }
+
+    @Test
+    public void invokeScript_emptyFinalResultBundle() throws RemoteException {
+        String script =
+                "function empty_final_result(state)\n"
+                        + "    result = {}\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+
+
+        runScriptAndWaitForResponse(script, "empty_final_result", mSavedState);
+
+        // If a script returns empty table as the final result, we get an empty bundle.
+        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(0);
+    }
+
+    @Test
+    public void invokeScript_wrongNumberOfCallbackInputsInOnScriptFinished()
+            throws RemoteException {
+        String script =
+                "function wrong_number_of_outputs_in_on_script_finished(state)\n"
+                        + "    result = {}\n"
+                        + "    extra = 1\n"
+                        + "    on_script_finished(result, extra)\n"
+                        + "end\n";
+
+
+        runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_script_finished",
+                mSavedState);
+
+        // We expect to get an error here because we expect only 1 input parameter in
+        // on_script_finished.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_script_finished can push only a single parameter from Lua - a Lua table");
+    }
+
+    @Test
+    public void invokeScript_wrongNumberOfCallbackInputsInOnSuccess() throws RemoteException {
+        String script =
+                "function wrong_number_of_outputs_in_on_success(state)\n"
+                        + "    result = {}\n"
+                        + "    extra = 1\n"
+                        + "    on_success(result, extra)\n"
+                        + "end\n";
+
+
+        runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_success", mSavedState);
+
+        // We expect to get an error here because we expect only 1 input parameter in on_success.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_success can push only a single parameter from Lua - a Lua table");
+    }
+
+    @Test
+    public void invokeScript_wrongTypeInOnSuccess() throws RemoteException {
+        String script =
+                "function wrong_type_in_on_success(state)\n"
+                        + "    result = 1\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+
+        runScriptAndWaitForResponse(script, "wrong_type_in_on_success", mSavedState);
+
+        // We expect to get an error here because the type of the input parameter for on_success
+        // must be a Lua table.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_success can push only a single parameter from Lua - a Lua table");
+    }
+
+    @Test
+    public void invokeScript_wrongTypeInOnScriptFinished() throws RemoteException {
+        String script =
+                "function wrong_type_in_on_script_finished(state)\n"
+                        + "    result = 1\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+
+        runScriptAndWaitForResponse(script, "wrong_type_in_on_script_finished", mSavedState);
+
+        // We expect to get an error here because the type of the input parameter for
+        // on_script_finished must be a Lua table.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "on_success can push only a single parameter from Lua - a Lua table");
     }
 }
 

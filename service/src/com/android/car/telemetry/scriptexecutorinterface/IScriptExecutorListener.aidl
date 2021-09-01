@@ -33,7 +33,7 @@ interface IScriptExecutorListener {
    *
    * @param result final results of the script that will be uploaded.
    */
-  void onScriptFinished(in byte[] result);
+  void onScriptFinished(in PersistableBundle result);
 
   /**
    * Called by ScriptExecutor when a function completes successfully and also provides

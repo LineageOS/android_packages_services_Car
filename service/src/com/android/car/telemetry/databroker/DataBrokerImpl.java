@@ -335,7 +335,7 @@ public class DataBrokerImpl implements DataBroker {
     }
 
     /** Stores final metrics and schedules the next task. */
-    private void onScriptFinished(byte[] result) {
+    private void onScriptFinished(PersistableBundle result) {
         mTelemetryHandler.post(() -> {
             // TODO(b/197027637): update API to use PersistableBundle
             //                    mResultStore.putFinalResult(mCurrentScriptName.get(), result);
@@ -385,7 +385,7 @@ public class DataBrokerImpl implements DataBroker {
         }
 
         @Override
-        public void onScriptFinished(byte[] result) {
+        public void onScriptFinished(PersistableBundle result) {
             DataBrokerImpl dataBroker = mWeakDataBroker.get();
             if (dataBroker == null) {
                 return;

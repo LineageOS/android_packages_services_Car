@@ -42,6 +42,40 @@ enum LuaNumReturnedResults {
     ZERO_RETURNED_RESULTS = 0,
 };
 
+// Helper method that goes over Lua table fields one by one and populates PersistableBundle
+// object wrapped in BundleWrapper.
+// It is assumed that Lua table is located on top of the Lua stack.
+void convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
+    // Iterate over Lua table which is expected to be at the top of Lua stack.
+    // lua_next call pops the key from the top of the stack and finds the next
+    // key-value pair. It returns 0 if the next pair was not found.
+    // More on lua_next in: https://www.lua.org/manual/5.3/manual.html#lua_next
+    lua_pushnil(lua);  // First key is a null value.
+    while (lua_next(lua, /* index = */ -2) != 0) {
+        //  'key' is at index -2 and 'value' is at index -1
+        // -1 index is the top of the stack.
+        // remove 'value' and keep 'key' for next iteration
+        // Process each key-value depending on a type and push it to Java PersistableBundle.
+        const char* key = lua_tostring(lua, /* index = */ -2);
+        if (lua_isboolean(lua, /* index = */ -1)) {
+            bundleWrapper->putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
+        } else if (lua_isinteger(lua, /* index = */ -1)) {
+            bundleWrapper->putInteger(key, static_cast<int>(lua_tointeger(lua, /* index = */ -1)));
+        } else if (lua_isnumber(lua, /* index = */ -1)) {
+            bundleWrapper->putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
+        } else if (lua_isstring(lua, /* index = */ -1)) {
+            bundleWrapper->putString(key, lua_tostring(lua, /* index = */ -1));
+        } else {
+            // not supported yet...
+            LOG(WARNING) << "key=" << key << " has a Lua type which is not supported yet. "
+                         << "The bundle object will not have this key-value pair.";
+        }
+        // Pop value from the stack, keep the key for the next iteration.
+        lua_pop(lua, 1);
+        // The key is at index -1, the table is at index -2 now.
+    }
+}
+
 }  // namespace
 
 ScriptExecutorListener* LuaEngine::sListener = nullptr;
@@ -87,6 +121,7 @@ int LuaEngine::loadScript(const char* scriptBody) {
 
     // Register limited set of reserved methods for Lua to call native side.
     lua_register(mLuaState, "on_success", LuaEngine::onSuccess);
+    lua_register(mLuaState, "on_script_finished", LuaEngine::onScriptFinished);
     lua_register(mLuaState, "on_error", LuaEngine::onError);
     return status;
 }
@@ -118,43 +153,39 @@ int LuaEngine::run() {
 int LuaEngine::onSuccess(lua_State* lua) {
     // Any script we run can call on_success only with a single argument of Lua table type.
     if (lua_gettop(lua) != 1 || !lua_istable(lua, /* index =*/-1)) {
-        // TODO(b/193565932): Return programming error through binder callback interface.
-        LOG(ERROR) << "Only a single input argument, a Lua table object, expected here";
+        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                           "on_success can push only a single parameter from Lua - a Lua table",
+                           "");
+        return ZERO_RETURNED_RESULTS;
     }
 
     // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
-    // Iterate over Lua table which is expected to be at the top of Lua stack.
-    // lua_next call pops the key from the top of the stack and finds the next
-    // key-value pair for the popped key. It returns 0 if the next pair was not found.
-    // More on lua_next in: https://www.lua.org/manual/5.3/manual.html#lua_next
-    lua_pushnil(lua);  // First key is a null value.
-    while (lua_next(lua, /* index = */ -2) != 0) {
-        //  'key' is at index -2 and 'value' is at index -1
-        // -1 index is the top of the stack.
-        // remove 'value' and keep 'key' for next iteration
-        // Process each key-value depending on a type and push it to Java PersistableBundle.
-        const char* key = lua_tostring(lua, /* index = */ -2);
-        if (lua_isboolean(lua, /* index = */ -1)) {
-            bundleWrapper.putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
-        } else if (lua_isinteger(lua, /* index = */ -1)) {
-            bundleWrapper.putInteger(key, static_cast<int>(lua_tointeger(lua, /* index = */ -1)));
-        } else if (lua_isnumber(lua, /* index = */ -1)) {
-            bundleWrapper.putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
-        } else if (lua_isstring(lua, /* index = */ -1)) {
-            bundleWrapper.putString(key, lua_tostring(lua, /* index = */ -1));
-        } else {
-            // not supported yet...
-            LOG(WARNING) << "key=" << key << " has a Lua type which is not supported yet. "
-                         << "The bundle object will not have this key-value pair.";
-        }
-        // Pop 1 element from the stack.
-        lua_pop(lua, 1);
-        // The key is at index -1, the table is at index -2 now.
-    }
+    convertLuaTableToBundle(lua, &bundleWrapper);
 
     // Forward the populated Bundle object to Java callback.
     sListener->onSuccess(bundleWrapper.getBundle());
+    // We explicitly must tell Lua how many results we return, which is 0 in this case.
+    // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
+    return ZERO_RETURNED_RESULTS;
+}
+
+int LuaEngine::onScriptFinished(lua_State* lua) {
+    // Any script we run can call on_success only with a single argument of Lua table type.
+    if (lua_gettop(lua) != 1 || !lua_istable(lua, /* index =*/-1)) {
+        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                           "on_script_finished can push only a single parameter from Lua - a Lua "
+                           "table",
+                           "");
+        return ZERO_RETURNED_RESULTS;
+    }
+
+    // Helper object to create and populate Java PersistableBundle object.
+    BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
+    convertLuaTableToBundle(lua, &bundleWrapper);
+
+    // Forward the populated Bundle object to Java callback.
+    sListener->onScriptFinished(bundleWrapper.getBundle());
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
     return ZERO_RETURNED_RESULTS;

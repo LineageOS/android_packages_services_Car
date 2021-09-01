@@ -37,23 +37,23 @@ ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject script_execu
 
 void ScriptExecutorListener::onSuccess(jobject bundle) {
     JNIEnv* env = getCurrentJNIEnv();
-    if (mScriptExecutorListener == nullptr) {
-        env->FatalError(
-                "mScriptExecutorListener must point to a valid listener object, not nullptr.");
-    }
     jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
     jmethodID onSuccessMethod =
             env->GetMethodID(listenerClass, "onSuccess", "(Landroid/os/PersistableBundle;)V");
     env->CallVoidMethod(mScriptExecutorListener, onSuccessMethod, bundle);
 }
 
+void ScriptExecutorListener::onScriptFinished(jobject bundle) {
+    JNIEnv* env = getCurrentJNIEnv();
+    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
+    jmethodID onScriptFinished = env->GetMethodID(listenerClass, "onScriptFinished",
+                                                  "(Landroid/os/PersistableBundle;)V");
+    env->CallVoidMethod(mScriptExecutorListener, onScriptFinished, bundle);
+}
+
 void ScriptExecutorListener::onError(const int errorType, const char* message,
                                      const char* stackTrace) {
     JNIEnv* env = getCurrentJNIEnv();
-    if (mScriptExecutorListener == nullptr) {
-        env->FatalError(
-                "mScriptExecutorListener must point to a valid listener object, not nullptr.");
-    }
     jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
     jmethodID onErrorMethod =
             env->GetMethodID(listenerClass, "onError", "(ILjava/lang/String;Ljava/lang/String;)V");
