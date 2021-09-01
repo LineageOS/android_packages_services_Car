@@ -27,6 +27,7 @@ import android.content.ServiceConnection;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.UserHandle;
 
 import androidx.test.platform.app.InstrumentationRegistry;
 
@@ -148,7 +149,8 @@ public final class ScriptExecutorTest {
         Intent intent = new Intent();
         intent.setComponent(new ComponentName("com.android.car.scriptexecutor",
                 "com.android.car.scriptexecutor.ScriptExecutor"));
-        mContext.bindService(intent, mScriptExecutorConnection, Context.BIND_AUTO_CREATE);
+        mContext.bindServiceAsUser(intent, mScriptExecutorConnection, Context.BIND_AUTO_CREATE,
+                UserHandle.SYSTEM);
         if (!mBindLatch.await(BIND_SERVICE_TIMEOUT_SEC, TimeUnit.SECONDS)) {
             fail("Failed to bind to ScriptExecutor service");
         }
