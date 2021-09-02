@@ -1,3 +1,4 @@
+<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,9 +15,6 @@
   ~ limitations under the License.
   -->
 
-<overlay>
-    <item target="bool/show_mini_playback_controls" value="@bool/show_mini_playback_controls" />
-    <item target="bool/switch_to_playback_view_when_playable_item_is_clicked" value="@bool/switch_to_playback_view_when_playable_item_is_clicked" />
-
-    <item target="style/MediaIconContainerStyle" value="@style/MediaIconContainerStyle" />
-</overlay>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <dimen name="image_radius">24dp</dimen>
+</resources>
