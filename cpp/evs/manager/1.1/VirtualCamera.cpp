@@ -399,6 +399,9 @@ Return<EvsResult> VirtualCamera::startVideoStream(const ::android::sp<IEvsCamera
                             if (pHwCamera == nullptr) {
                                 continue;
                             }
+                            if (mFramesHeld[key].size() == 0) {
+                                continue;
+                            }
 
                             const auto frame = mFramesHeld[key].back();
                             if (frame.timestamp > lastFrameTimestamp) {
