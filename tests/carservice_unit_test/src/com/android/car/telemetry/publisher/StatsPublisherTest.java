@@ -28,9 +28,9 @@ import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
-import android.os.Bundle;
 import android.os.Looper;
 import android.os.Message;
+import android.os.PersistableBundle;
 import android.os.SystemClock;
 
 import com.android.car.telemetry.StatsLogProto;
@@ -96,7 +96,7 @@ public class StatsPublisherTest {
     @Mock private DataSubscriber mMockDataSubscriber;
     @Mock private StatsManagerProxy mStatsManager;
 
-    @Captor private ArgumentCaptor<Bundle> mBundleCaptor;
+    @Captor private ArgumentCaptor<PersistableBundle> mBundleCaptor;
 
     @Before
     public void setUp() throws Exception {

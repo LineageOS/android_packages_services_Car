@@ -30,8 +30,9 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
 
     // TODO(b/188832769): Consider caching some of these JNI references for
     // performance reasons.
-    jclass bundleClass = env->FindClass("android/os/Bundle");
-    jmethodID getKeySetMethod = env->GetMethodID(bundleClass, "keySet", "()Ljava/util/Set;");
+    jclass persistableBundleClass = env->FindClass("android/os/PersistableBundle");
+    jmethodID getKeySetMethod =
+            env->GetMethodID(persistableBundleClass, "keySet", "()Ljava/util/Set;");
     jobject keys = env->CallObjectMethod(bundle, getKeySetMethod);
     jclass setClass = env->FindClass("java/util/Set");
     jmethodID iteratorMethod = env->GetMethodID(setClass, "iterator", "()Ljava/util/Iterator;");
@@ -48,8 +49,8 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
     // TODO(b/188816922): Handle more types such as float and integer arrays,
     // and perhaps nested Bundles.
 
-    jmethodID getMethod =
-            env->GetMethodID(bundleClass, "get", "(Ljava/lang/String;)Ljava/lang/Object;");
+    jmethodID getMethod = env->GetMethodID(persistableBundleClass, "get",
+                                           "(Ljava/lang/String;)Ljava/lang/Object;");
 
     // Iterate over key set of the bundle one key at a time.
     while (env->CallBooleanMethod(keySetIteratorObject, hasNextMethod)) {

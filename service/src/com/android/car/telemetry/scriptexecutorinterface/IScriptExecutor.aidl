@@ -16,8 +16,8 @@
 
 package com.android.car.telemetry.scriptexecutorinterface;
 
+import android.os.PersistableBundle;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
-import android.os.Bundle;
 
 /**
  * An internal API provided by isolated Script Executor process
@@ -35,7 +35,7 @@ interface IScriptExecutor {
    */
   void invokeScript(String scriptBody,
                     String functionName,
-                    in Bundle publishedData,
-                    in @nullable Bundle savedState,
+                    in PersistableBundle publishedData,
+                    in @nullable PersistableBundle savedState,
                     in IScriptExecutorListener listener);
 }

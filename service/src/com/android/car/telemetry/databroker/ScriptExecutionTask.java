@@ -16,7 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
-import android.os.Bundle;
+import android.os.PersistableBundle;
 
 import com.android.car.telemetry.TelemetryProto;
 
@@ -30,9 +30,10 @@ import com.android.car.telemetry.TelemetryProto;
 public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     private final long mTimestampMillis;
     private final DataSubscriber mSubscriber;
-    private final Bundle mData;
+    private final PersistableBundle mData;
 
-    ScriptExecutionTask(DataSubscriber subscriber, Bundle data, long elapsedRealtimeMillis) {
+    ScriptExecutionTask(DataSubscriber subscriber, PersistableBundle data,
+            long elapsedRealtimeMillis) {
         mTimestampMillis = elapsedRealtimeMillis;
         mSubscriber = subscriber;
         mData = data;
@@ -56,7 +57,7 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
         return mSubscriber.getHandlerName();
     }
 
-    public Bundle getData() {
+    public PersistableBundle getData() {
         return mData;
     }
 

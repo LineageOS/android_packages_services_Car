@@ -122,7 +122,7 @@ int LuaEngine::onSuccess(lua_State* lua) {
         LOG(ERROR) << "Only a single input argument, a Lua table object, expected here";
     }
 
-    // Helper object to create and populate Java Bundle object.
+    // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
     // Iterate over Lua table which is expected to be at the top of Lua stack.
     // lua_next call pops the key from the top of the stack and finds the next
@@ -133,7 +133,7 @@ int LuaEngine::onSuccess(lua_State* lua) {
         //  'key' is at index -2 and 'value' is at index -1
         // -1 index is the top of the stack.
         // remove 'value' and keep 'key' for next iteration
-        // Process each key-value depending on a type and push it to Java Bundle.
+        // Process each key-value depending on a type and push it to Java PersistableBundle.
         const char* key = lua_tostring(lua, /* index = */ -2);
         if (lua_isboolean(lua, /* index = */ -1)) {
             bundleWrapper.putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));

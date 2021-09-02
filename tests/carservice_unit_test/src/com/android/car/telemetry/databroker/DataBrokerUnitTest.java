@@ -31,7 +31,6 @@ import android.car.hardware.CarPropertyConfig;
 import android.content.Context;
 import android.content.ServiceConnection;
 import android.content.SharedPreferences;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PersistableBundle;
@@ -68,7 +67,7 @@ public class DataBrokerUnitTest {
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
-    private static final Bundle DATA = new Bundle();
+    private static final PersistableBundle DATA = new PersistableBundle();
     private static final TelemetryProto.VehiclePropertyPublisher
             VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION =
             TelemetryProto.VehiclePropertyPublisher.newBuilder().setReadRate(
@@ -225,7 +224,7 @@ public class DataBrokerUnitTest {
 
         mDataBroker.scheduleNextTask();
         waitForHandlerThreadToFinish();
-        mFakeScriptExecutor.notifyScriptSuccess(new Bundle()); // pass in empty bundle
+        mFakeScriptExecutor.notifyScriptSuccess(new PersistableBundle()); // pass in empty bundle
 
         assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
         verify(mMockResultStore).putInterimResult(eq(METRICS_CONFIG_FOO.getName()),
@@ -337,8 +336,9 @@ public class DataBrokerUnitTest {
         private int mFailApi = 0;
 
         @Override
-        public void invokeScript(String scriptBody, String functionName, Bundle publishedData,
-                @Nullable Bundle savedState, IScriptExecutorListener listener)
+        public void invokeScript(String scriptBody, String functionName,
+                PersistableBundle publishedData, @Nullable PersistableBundle savedState,
+                IScriptExecutorListener listener)
                 throws RemoteException {
             mApiInvocationCount++;
             mListener = listener;
@@ -354,7 +354,7 @@ public class DataBrokerUnitTest {
         }
 
         /** Mocks script temporary completion. */
-        public void notifyScriptSuccess(Bundle bundle) {
+        public void notifyScriptSuccess(PersistableBundle bundle) {
             try {
                 mListener.onSuccess(bundle);
             } catch (RemoteException e) {
