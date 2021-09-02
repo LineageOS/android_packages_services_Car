@@ -51,23 +51,7 @@ public final class CarAudioPatchHandle implements Parcelable {
                 "Patch id %d Source's Address device can not be null", patchId);
         mSinkAddress = Preconditions.checkNotNull(sinkAddress,
                 "Patch id %d Sink's Address device can not be null", patchId);
-
         mHandleId = patchId;
-    }
-
-    /**
-     * Returns true if this instance matches the provided AudioPatch object.
-     * This is intended only for use by the CarAudioManager implementation when
-     * communicating with the AudioManager API.
-     *
-     * Effectively only the {@link #mHandleId} is used for comparison,
-     * {@link android.media.AudioSystem#listAudioPatches(java.util.ArrayList, int[])}
-     * does not populate the device type and address properly.
-     *
-     * @hide
-     */
-    public boolean represents(int patchId) {
-        return patchId == mHandleId;
     }
 
     @Override
@@ -109,5 +93,32 @@ public final class CarAudioPatchHandle implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    /**
+     * returns the source address
+     *
+     * @hide
+     */
+    public String getSourceAddress() {
+        return mSourceAddress;
+    }
+
+    /**
+     * returns the sink address
+     *
+     * @hide
+     */
+    public String getSinkAddress() {
+        return mSinkAddress;
+    }
+
+    /**
+     * returns the patch handle
+     *
+     * @hide
+     */
+    public int getHandleId() {
+        return mHandleId;
     }
 }

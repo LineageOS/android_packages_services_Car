@@ -44,6 +44,27 @@ package android.car.builtin.input {
 
 package android.car.builtin.os {
 
+  public final class AudioServiceHelper {
+    method public static android.car.builtin.os.AudioServiceHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
+    method public static android.car.builtin.os.AudioServiceHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
+    method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.os.AudioServiceHelper.AudioPatchInfo);
+    method public static boolean setAudioDeviceGain(@NonNull android.media.AudioManager, @NonNull String, int, boolean);
+  }
+
+  public static class AudioServiceHelper.AudioGainInfo {
+    method public int getDefaultGain();
+    method public int getMaxGain();
+    method public int getMinGain();
+    method public int getStepValue();
+  }
+
+  public static class AudioServiceHelper.AudioPatchInfo {
+    ctor public AudioServiceHelper.AudioPatchInfo(@NonNull String, @NonNull String, int);
+    method public int getHandleId();
+    method public String getSinkAddress();
+    method public String getSourceAddress();
+  }
+
   public class BinderHelper {
     method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList, @NonNull java.io.PrintWriter, @NonNull String);
   }
