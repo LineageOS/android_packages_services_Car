@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"অফ হৈ আছে"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"সেৱা যোগ কৰক"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"প্ৰিণ্টাৰ যোগ কৰক"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"সন্ধান কৰক"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"সংযোগ কৰিবলৈ প্ৰিণ্টাৰ বিচাৰি থকা হৈছে"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"সেৱা নিষ্ক্ৰিয়হৈ আছে"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"প্ৰিণ্টিঙৰ কামবোৰ"</string>
@@ -3321,7 +3321,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"অনুজ্জ্বল পোহৰ"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"বন্ধ স্ক্ৰীণত"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"কৰ্মস্থানৰ প্ৰ\'ফাইল লক থকা অৱস্থাত"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"সকলো জাননী দেখুৱাওক"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"আটাইবোৰ জাননী দেখুৱাওক"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"সংবেদনশীল সমল লুকুৱাওক"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"জাননী কেতিয়াও নেদেখুৱাব"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"আপোনাৰ ডিভাইচটো লক হৈ অৱস্থাত আপুনি জাননীসমূহ কেনেকৈ দেখুওৱাটো বিচাৰে?"</string>

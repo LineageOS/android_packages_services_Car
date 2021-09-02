@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> କୁ ଭୁଲିଯିବେ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"ଏହି <xliff:g id="NAME">^1</xliff:g> ରେ ଷ୍ଟୋର୍‌ ହୋଇଥିବା ସମସ୍ତ ଆପସ, ଫଟୋଗୁଡିକ, ତଥା ଡାଟା ସବୁ ସମୟ ପାଇଁ ବାହାରିଯିବ।"</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ଆପ୍‌‍"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"ଇମେଜ୍‌"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ଭିଡିଓ"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ଅଡିଓ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"କ୍ୟାଶ୍‍ ହୋଇଥିବା ଡାଟା"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"ଅଫ୍"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"ସେବା ଯୋଡ଼ନ୍ତୁ"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ପ୍ରିଣ୍ଟର୍‌ ଯୋଡ଼ନ୍ତୁ"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"ସନ୍ଧାନ କରନ୍ତୁ"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"ପ୍ରିଣ୍ଟରକୁ ସନ୍ଧାନ କରାଯାଉଛି"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"ସେବା ବନ୍ଦ ଅଛି"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ପ୍ରିଣ୍ଟ ଜବ୍‌"</string>

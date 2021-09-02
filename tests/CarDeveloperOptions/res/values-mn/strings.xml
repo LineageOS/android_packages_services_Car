@@ -4078,7 +4078,7 @@
     <string name="dark_ui_mode_title" msgid="8774932716427742413">"Загвар сонгох"</string>
     <string name="dark_ui_settings_light_summary" msgid="5219102347744462812">"Энэ тохиргоо мөн аппуудад хэрэгждэг"</string>
     <string name="dark_ui_settings_dark_summary" msgid="7042737828943784289">"Дэмжигдсэн аппууд мөн бараан загвар луу сэлгэнэ"</string>
-    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Хурдан тохиргоо хөгжүүлэгчийн хавтан"</string>
+    <string name="quick_settings_developer_tiles" msgid="7423485925757678719">"Шуурхай тохиргоо хөгжүүлэгчийн хавтан"</string>
     <string name="winscope_trace_quick_settings_title" msgid="940971040388411374">"Winscope Trace"</string>
     <string name="sensors_off_quick_settings_title" msgid="3655699045300438902">"Мэдрэгчийг унтраах"</string>
     <string name="managed_profile_settings_title" msgid="4340409321523532402">"Ажлын профайлын тохиргоо"</string>

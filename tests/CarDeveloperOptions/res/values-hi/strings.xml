@@ -1168,7 +1168,7 @@
     <string name="accessibility_category_personal" msgid="1423427301759058762">"व्‍यक्‍तिगत प्रोफ़ाइल खाते"</string>
     <string name="accessibility_work_account_title" msgid="3195468574776888011">"कार्यस्‍थल खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"व्‍यक्‍तिगत खाता - <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
-    <string name="search_settings" msgid="5809250790214921377">"खोज"</string>
+    <string name="search_settings" msgid="5809250790214921377">"खोजें"</string>
     <string name="display_settings" msgid="1045535829232307190">"डिसप्ले"</string>
     <string name="accelerometer_title" msgid="2427487734964971453">"स्क्रीन का अपने-आप दिशा बदलना (ऑटो-रोटेट)"</string>
     <string name="color_mode_title" msgid="8164858320869449142">"रंग"</string>
@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> को भूल जाएं?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"इस <xliff:g id="NAME">^1</xliff:g> पर संग्रहित सभी ऐप्‍स, फ़ोटो और डेटा हमेशा के लिए खो जाएंगे."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ऐप्लिकेशन"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"इमेज"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"वीडियो"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ऑडियो"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"संग्रहित डेटा"</string>
