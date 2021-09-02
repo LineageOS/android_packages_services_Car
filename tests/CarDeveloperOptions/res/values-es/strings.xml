@@ -4005,7 +4005,7 @@
     <string name="battery_saver_off_scheduled_summary" msgid="3740414764069188669">"Se activará cuando la batería esté al <xliff:g id="BATTERY_PERCENTAGE">%1$s</xliff:g>"</string>
     <string name="battery_saver_off_summary" msgid="8736555723004299721">"Desactivado"</string>
     <string name="battery_saver_button_turn_on" msgid="3748696527267573793">"Activar ahora"</string>
-    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Desactivar"</string>
+    <string name="battery_saver_button_turn_off" msgid="2912950982503267828">"Desactivar ahora"</string>
     <string name="not_battery_optimizing" msgid="2616044774307734160">"No se está utilizando la optimización de la batería"</string>
     <string name="lockscreen_remote_input" msgid="3363310613165354434">"Si el dispositivo está bloqueado, evitar que se escriban respuestas u otros textos en las notificaciones"</string>
     <string name="default_spell_checker" msgid="8636661093243189533">"Corrector predeterminado"</string>

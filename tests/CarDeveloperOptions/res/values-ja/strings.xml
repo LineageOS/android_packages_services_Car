@@ -3645,7 +3645,7 @@
     <string name="advanced_apps" msgid="6643869089344883537">"詳細設定"</string>
     <string name="configure_apps" msgid="4066683118857400943">"アプリの設定"</string>
     <string name="unknown_app" msgid="2312052973570376877">"不明なアプリ"</string>
-    <string name="app_permissions" msgid="3215958256821756086">"権限マネージャ"</string>
+    <string name="app_permissions" msgid="3215958256821756086">"権限マネージャー"</string>
     <string name="app_permissions_summary" msgid="8785798165776061594">"<xliff:g id="APPS">%1$s</xliff:g>を使用するアプリ"</string>
     <string name="tap_to_wake" msgid="1902991239401652323">"タップして復帰"</string>
     <string name="tap_to_wake_summary" msgid="8485222120721006793">"画面をダブルタップするとデバイスが復帰します"</string>

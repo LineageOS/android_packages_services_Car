@@ -155,7 +155,7 @@
     <string name="bluetooth_connection_notif_message" msgid="6824654400460127108">"\"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"కి కనెక్ట్ చేయడానికి నొక్కండి."</string>
     <string name="bluetooth_connection_dialog_text" msgid="5454660775522235951">"మీరు \"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>\"కు కనెక్ట్ చేయాలనుకుంటున్నారా?"</string>
     <string name="bluetooth_phonebook_request" msgid="3728325388092719230">"ఫోన్ పుస్తకం యాక్సెస్ రిక్వెస్ట్‌"</string>
-    <string name="bluetooth_pb_acceptance_dialog_text" msgid="2880630715123354820">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> మీ పరిచయాలు మరియు కాల్ చరిత్రకు యాక్సెస్ కోరుతోంది. <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>కి యాక్సెస్ ఇవ్వాలా?"</string>
+    <string name="bluetooth_pb_acceptance_dialog_text" msgid="2880630715123354820">"<xliff:g id="DEVICE_NAME_0">%1$s</xliff:g> మీ కాంటాక్ట్‌లు మరియు కాల్ హిస్టరీకి యాక్సెస్ కోరుతోంది. <xliff:g id="DEVICE_NAME_1">%2$s</xliff:g>కి యాక్సెస్ ఇవ్వాలా?"</string>
     <string name="bluetooth_remember_choice" msgid="5557832673688613557">"మళ్లీ అడగవద్దు"</string>
     <string name="bluetooth_pb_remember_choice" msgid="3983194742712379543">"మళ్లీ అడగవద్దు"</string>
     <string name="bluetooth_map_request" msgid="34345631620551756">"సందేశ యాక్సెస్ రిక్వెస్ట్‌"</string>
@@ -203,7 +203,7 @@
     <string name="proxy_error" msgid="5036164133669802299">"సావధానత"</string>
     <string name="proxy_error_dismiss" msgid="883805570485635650">"సరే"</string>
     <string name="proxy_error_invalid_host" msgid="5430640241353307223">"మీరు టైప్ చేసిన హోస్ట్‌పేరు చెల్లదు."</string>
-    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"మీరు టైప్ చేసిన మినహాయింపు లిస్ట్‌ సరిగ్గా ఆకృతీకరించబడలేదు. మినహాయించిన డొమైన్‌ల యొక్క కామాతో వేరుచేసిన లిస్ట్‌ను టైప్ చేయండి."</string>
+    <string name="proxy_error_invalid_exclusion_list" msgid="4314503082913856333">"మీరు టైప్ చేసిన మినహాయింపు లిస్ట్‌ సరిగా ఫార్మాట్ చేయబడలేదు. కామాతో వేరు చేసిన మినహాయించిన డొమైన్‌ల లిస్ట్‌ను టైప్ చేయండి."</string>
     <string name="proxy_error_empty_port" msgid="8034561724923076215">"మీరు పోర్ట్ ఫీల్డ్‌ను పూర్తి చేయాల్సి ఉంటుంది."</string>
     <string name="proxy_error_empty_host_set_port" msgid="8471455809508588255">"హోస్ట్ ఫీల్డ్ ఖాళీగా ఉంటే పోర్ట్ ఫీల్డ్ తప్పనిసరిగా ఖాళీగా ఉండాలి."</string>
     <string name="proxy_error_invalid_port" msgid="4046559920586100637">"మీరు టైప్ చేసిన పోర్ట్ చెల్లదు."</string>
@@ -321,11 +321,11 @@
     <string name="sum_carrier_select" msgid="8964744180598499121">"నెట్‌వర్క్ ఆపరేటర్‌ను ఎంచుకోండి"</string>
     <string name="date_and_time_settings_title" msgid="7827088656940910631">"తేదీ &amp; సమయం"</string>
     <string name="date_and_time_settings_title_setup_wizard" msgid="1573030770187844365">"తేదీ మరియు సమయాన్ని సెట్ చేయండి"</string>
-    <string name="date_and_time_settings_summary" msgid="4617979434474713417">"తేదీ, సమయం, సమయ మండలి &amp; ఆకృతులను సెట్ చేయి"</string>
+    <string name="date_and_time_settings_summary" msgid="4617979434474713417">"తేదీ, సమయం, టైమ్ జోన్, &amp; ఫార్మాట్లను సెట్ చేయండి"</string>
     <string name="date_time_auto" msgid="2679132152303750218">"నెట్‌వర్క్ సమయాన్ని ఉపయోగించండి"</string>
     <string name="zone_auto_title" msgid="5500880975376882488">"నెట్‌వర్క్ అందించిన సమయ మండలిని ఉపయోగించు"</string>
     <string name="date_time_24hour_auto" msgid="7499659679134962547">"ఆ భాష‌లో వాడే ఫార్మాట్‌ను ఉప‌యోగించు"</string>
-    <string name="date_time_24hour_title" msgid="6209923858891621283">"24‑గంటల ఆకృతి"</string>
+    <string name="date_time_24hour_title" msgid="6209923858891621283">"24‑గంటల ఫార్మాట్"</string>
     <string name="date_time_24hour" msgid="1265706705061608742">"24-గంటల ఫార్మాట్‌ను ఉప‌యోగించు"</string>
     <string name="date_time_set_time_title" msgid="7116850506333406367">"సమయం"</string>
     <string name="time_format_category_title" msgid="518820270017543364">"సమయ ఫార్మాట్‌"</string>
@@ -740,7 +740,7 @@
     <string name="bluetooth_confirm_passkey_msg" msgid="7094455604290076371">"దీనితో జత చేయడానికి:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;ఇది ఈ పాస్‌కీని చూపుతోందని నిర్ధారించుకోండి:&lt;br&gt;&lt;b&gt;<xliff:g id="PASSKEY">%2$s</xliff:g>&lt;/b&gt;"</string>
     <string name="bluetooth_incoming_pairing_msg" msgid="940451919337185024">"దీని నుండి:&lt;br&gt;&lt;b&gt;<xliff:g id="DEVICE_NAME">%1$s</xliff:g>&lt;/b&gt;&lt;br&gt;&lt;br&gt;ఈ పరికరంతో జత చేయాలా?"</string>
     <string name="bluetooth_display_passkey_pin_msg" msgid="5909423849232791647">"దీనితో జత చేయడానికి:<xliff:g id="BOLD1_0">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="DEVICE_NAME">%1$s</xliff:g><xliff:g id="END_BOLD1">&lt;/b&gt;&lt;br&gt;&lt;br&gt;</xliff:g>దీనిలో టైప్ చేయండి:<xliff:g id="BOLD2_1">&lt;br&gt;&lt;b&gt;</xliff:g><xliff:g id="PASSKEY">%2$s</xliff:g><xliff:g id="END_BOLD2">&lt;/b&gt;</xliff:g>, ఆపై తిరిగి వెళ్లు లేదా Enter నొక్కండి."</string>
-    <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"మీ పరిచయాలకు మరియు కాల్ చరిత్రకు యాక్సెస్‌ని అనుమతించండి"</string>
+    <string name="bluetooth_pairing_shares_phonebook" msgid="7474404818877079813">"మీ కాంటాక్ట్‌లకు కాల్ హిస్టరీకి యాక్సెస్‌ని అనుమతించండి"</string>
     <string name="bluetooth_error_title" msgid="5718761586633101960"></string>
     <string name="bluetooth_connecting_error_message" msgid="8473359363469518478">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g>కి కనెక్ట్ చేయడం సాధ్యపడలేదు."</string>
     <string name="bluetooth_preference_scan_title" msgid="457781003962324807">"పరికరాల కోసం స్కాన్ చేయి"</string>
@@ -750,11 +750,11 @@
     <string name="bluetooth_preference_paired_dialog_title" msgid="3567187438908143693">"జత చేసిన పరికరం"</string>
     <string name="bluetooth_preference_paired_dialog_internet_option" msgid="3693599743477470469">"ఇంటర్నెట్ కనెక్షన్"</string>
     <string name="bluetooth_preference_paired_dialog_keyboard_option" msgid="4627309436489645755">"కీబోర్డ్"</string>
-    <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"పరిచయాలు మరియు కాల్ చరిత్ర"</string>
+    <string name="bluetooth_preference_paired_dialog_contacts_option" msgid="5290994459307558039">"కాంటాక్ట్‌లు మరియు కాల్ హిస్టరీ"</string>
     <string name="bluetooth_pairing_dialog_title" msgid="7900515495932064945">"ఈ పరికరంతో జత చేయాలా?"</string>
     <string name="bluetooth_pairing_dialog_sharing_phonebook_title" msgid="7395493311980018460">"ఫోన్ బుక్‌ను షేర్ చేయాలా?"</string>
-    <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> మీ పరిచయాలను మరియు కాల్ చరిత్రను యాక్సెస్ చేయాలనుకుంటోంది."</string>
-    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> బ్లూటూత్‌తో జత చేయాలనుకుంటోంది. కనెక్ట్ చేసినప్పుడు, ఇది మీ పరిచయాలు మరియు కాల్ చరిత్రకి యాక్సెస్‌ను కలిగి ఉంటుంది."</string>
+    <string name="bluetooth_pairing_dialog_contants_request" msgid="2103132762434487717">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> మీ కాంటాక్ట్‌లను మరియు కాల్ హిస్టరీని యాక్సెస్ చేయాలనుకుంటోంది."</string>
+    <string name="bluetooth_pairing_dialog_paring_request" msgid="5513953935086446387">"<xliff:g id="DEVICE_NAME">%1$s</xliff:g> బ్లూటూత్‌తో పెయిర్ చేయాలనుకుంటోంది. కనెక్ట్ చేసినప్పుడు, ఇది మీ కాంటాక్ట్‌లు మరియు కాల్ హిస్టరీకి యాక్సెస్‌ను కలిగి ఉంటుంది."</string>
     <string name="bluetooth_preference_found_media_devices" msgid="5748539613567836379">"అందుబాటులో ఉన్న పరికరాలు"</string>
     <string name="bluetooth_preference_no_found_devices" msgid="4190090666412408576">"పరికరాలు ఏవీ అందుబాటులో లేవు"</string>
     <string name="bluetooth_device_context_connect" msgid="1812090541371432890">"కనెక్ట్ చేయి"</string>
@@ -2211,7 +2211,7 @@
     <string name="print_feature_state_off" msgid="208580346723223688">"ఆఫ్"</string>
     <string name="print_menu_item_add_service" msgid="6803000110578493782">"సేవను జోడించు"</string>
     <string name="print_menu_item_add_printer" msgid="8529196211179574921">"ప్రింటర్‌ను జోడించు"</string>
-    <string name="print_menu_item_search" msgid="1165316329772287360">"Search"</string>
+    <string name="print_menu_item_search" msgid="1165316329772287360">"సెర్చ్"</string>
     <string name="print_searching_for_printers" msgid="6538687129687642542">"ప్రింటర్‌ల కోసం వెతుకుతోంది"</string>
     <string name="print_service_disabled" msgid="6376344992705893436">"సర్వీస్ డిజేబుల్ చేయబడింది"</string>
     <string name="print_print_jobs" msgid="7357841034181762157">"ముద్రణ జాబ్‌లు"</string>
@@ -2621,7 +2621,7 @@
     <string name="sync_gmail" msgid="4457967084840001296">"Gmail"</string>
     <string name="sync_calendar" msgid="6573708019827519372">"Calendar"</string>
     <string name="sync_contacts" msgid="5687434785723746534">"కాంటాక్ట్‌లు"</string>
-    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సింక్‌కు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ పరిచయాలు, నియామకాలు మరియు మరిన్నింటికి యాక్సెస్‌ను అనుమతించడం కోసం డేటాను సమకాలీకరించడానికి Google అవలంబించే విధానం."</string>
+    <string name="sync_plug" msgid="6703804441408427257"><font fgcolor="#ffffffff">"Google సింక్‌కు స్వాగతం!"</font>" \nమీరు ఎక్కడ ఉన్నా సరే మీ కాంటాక్ట్‌లు, నియామకాలు మరియు మరిన్నింటికి యాక్సెస్‌ను అనుమతించడం కోసం డేటాను సింక్ చేయడానికి Google అవలంబించే విధానం."</string>
     <string name="header_application_sync_settings" msgid="4581847153669774489">"యాప్‌ సింక్‌ సెట్టింగ్‌లు"</string>
     <string name="header_data_and_synchronization" msgid="400831816068697286">"డేటా &amp; సింక్‌"</string>
     <string name="preference_change_password_title" msgid="7243527448378789274">"పాస్‌వర్డ్‌ని మార్చండి"</string>
@@ -2629,9 +2629,9 @@
     <string name="remove_account_label" msgid="5885425720323823387">"ఖాతాను తీసివేయి"</string>
     <string name="header_add_an_account" msgid="8482614556580804956">"ఖాతాను జోడించండి"</string>
     <string name="really_remove_account_title" msgid="4166512362915154319">"ఖాతాను తీసివేయాలా?"</string>
-    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"ఈ ఖాతాను తీసివేయడం వలన టాబ్లెట్ నుండి దీనికి చెందిన మొత్తం మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
+    <string name="really_remove_account_message" product="tablet" msgid="7403843371045856719">"ఈ ఖాతాను తీసివేయడం వలన టాబ్లెట్ నుండి దీనికి చెందిన మొత్తం మెసేజ్‌లు, కాంటాక్ట్‌లు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
     <string name="really_remove_account_message" product="default" msgid="8951224626153163914">"ఈ ఖాతాను తీసివేయడం వలన ఫోన్ నుండి దానికి సంబంధించిన మొత్తం మెసేజ్‌లు, కాంటాక్ట్‌లు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
-    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"ఈ ఖాతాను తీసివేయడం వలన పరికరం నుండి దానికి సంబంధించిన అన్ని మెసేజ్‌లు, పరిచయాలు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
+    <string name="really_remove_account_message" product="device" msgid="3751798556257519916">"ఈ ఖాతాను తీసివేయడం వలన పరికరం నుండి దానికి సంబంధించిన అన్ని మెసేజ్‌లు, కాంటాక్ట్‌లు మరియు ఇతర డేటా తొలగించబడతాయి!"</string>
     <string name="remove_account_failed" msgid="491458185327106966">"ఈ మార్పును మీ నిర్వాహకులు అనుమతించలేదు"</string>
     <string name="cant_sync_dialog_title" msgid="5483419398223189881">"మాన్యువల్‌గా సమకాలీకరించడం సాధ్యపడదు"</string>
     <string name="cant_sync_dialog_message" msgid="3467126947262857534">"ఈ అంశం యొక్క సింక్‌ ప్రస్తుతం నిలిపివేయబడింది. ఈ సెట్టింగ్‌ను మార్చడానికి, నేపథ్య డేటాను మరియు ఆటోమేటిక్‌ సింక్‌ను తాత్కాలికంగా ప్రారంభించండి."</string>
@@ -3272,12 +3272,12 @@
     <string name="zen_custom_settings_notifications_header" msgid="7469592764589354302">"నోటిఫికేషన్‌లు"</string>
     <string name="zen_custom_settings_duration_header" msgid="1806465684026300942">"వ్యవధి"</string>
     <string name="zen_msg_event_reminder_title" msgid="8685224436389816905">"మెసేజ్‌లు, ఈవెంట్‌లు &amp; రిమైండర్‌లు"</string>
-    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"అంతరాయం కలిగించవద్దు మోడ్ ఆన్‌లో ఉన్నప్పుడు, మీరు పైన అనుమతించే అంశాలు మినహా, మెసేజ్‌లు, రిమైండర్‌లు మరియు ఈవెంట్‌లు మ్యూట్ చేయబడతాయి. మీ స్నేహితులు, కుటుంబ సభ్యులు లేదా ఇతర పరిచయస్తులు మిమ్మల్ని సంప్రదించడానికి అనుమతించేలా మెసేజ్‌ల సెట్టింగ్‌లను మీరు సర్దుబాటు చేయవచ్చు."</string>
+    <string name="zen_msg_event_reminder_footer" msgid="164400918479831580">"అంతరాయం కలిగించవద్దు మోడ్ ఆన్‌లో ఉన్నప్పుడు, మీరు పైన అనుమతించే అంశాలు మినహా, మెసేజ్‌లు, రిమైండర్‌లు మరియు ఈవెంట్‌లు మ్యూట్ చేయబడతాయి. మీ స్నేహితులు, కుటుంబ సభ్యులు లేదా ఇతర పరిచయస్తులు మిమ్మల్ని కాంటాక్ట్ చేయడానికి అనుమతించేలా మెసేజ్‌ల సెట్టింగ్‌లను మీరు అడ్జస్ట్ చేయవచ్చు."</string>
     <string name="zen_onboarding_ok" msgid="6403635918125323678">"పూర్తయింది"</string>
     <string name="zen_onboarding_settings" msgid="1416466597876383322">"సెట్టింగ్‌లు"</string>
     <string name="zen_onboarding_new_setting_title" msgid="3622673375041304362">"నోటిఫికేషన్‌ల నుండి దృశ్య లిస్ట్‌లు లేదా శబ్దం లేవు"</string>
     <string name="zen_onboarding_current_setting_title" msgid="2560330551761407563">"నోటిఫికేషన్‌ల నుండి శబ్దం లేదు"</string>
-    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"మీరు నోటిఫికేషన్‌లను చూడలేరు లేదా వినలేరు. నక్షత్రం గుర్తు ఉన్న పరిచయాల మరియు రిపీట్ కాలర్‌‌ల నుండి కాల్స్‌ అనుమతించబడతాయి."</string>
+    <string name="zen_onboarding_new_setting_summary" msgid="8264430315983860075">"మీరు నోటిఫికేషన్‌లను చూడలేరు లేదా వినలేరు. స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌ల మరియు రిపీట్ కాలర్‌‌ల నుండి కాల్స్‌ అనుమతించబడతాయి."</string>
     <string name="zen_onboarding_current_setting_summary" msgid="3569246708507270821">"(ప్రస్తుత సెట్టింగ్)"</string>
     <string name="zen_onboarding_dnd_visual_disturbances_header" msgid="7584229011611927613">"అంతరాయం కలిగించవద్దు నోటిఫికేషన్‌ సెట్టింగ్‌లను మార్చాలా?"</string>
     <string name="sound_work_settings" msgid="4140215240360927923">"ఆఫీస్‌ ప్రొఫైల్ సౌండ్స్"</string>
@@ -3488,13 +3488,13 @@
     </plurals>
     <string name="zen_mode_messages" msgid="2908722562188394107">"SMS మెసేజ్‌లు అనుమతించు"</string>
     <string name="zen_mode_messages_footer" msgid="5048951937714668561">"అనుమతించిన మెసేజ్‌లు వచ్చినప్పుడు ఖచ్చితంగా శబ్దం వస్తుందో లేదో, అసలు మీ పరికరం రింగ్‌, వైబ్రేట్ లేదా నిశ్శబ్ద మోడ్‌లలో ఏ మోడ్‌లో ఉందో ఓసారి తనిఖీ చేసి చూడండి."</string>
-    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ సంబంధించి ఇన్‌కమింగ్ వచన మెసేజ్‌లు బ్లాక్ చేయబడ్డాయి. మీ స్నేహితులు, కుటుంబ సభ్యులు లేదా ఇతర పరిచయాలు మిమ్మల్ని సంప్రదించగలిగేలా మీరు సెట్టింగ్‌లను సర్దుబాటు చేయవచ్చు."</string>
+    <string name="zen_mode_custom_messages_footer" msgid="5566007423100361691">"‘<xliff:g id="SCHEDULE_NAME">%1$s</xliff:g>’ సంబంధించి ఇన్‌కమింగ్ టెక్స్ట్ మెసేజ్‌లు బ్లాక్ చేయబడ్డాయి. మీ ఫ్రెండ్స్, ఫ్యామిలీ మెంబర్‌లు లేదా ఇతర కాంటాక్ట్‌లు మిమ్మల్ని సంప్రదించగలిగేలా మీరు సెట్టింగ్‌లను అడ్జస్ట్ చేయవచ్చు."</string>
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS మరియు సందేశ యాప్‌లు"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"ఎవరి నుండైనా"</string>
-    <string name="zen_mode_from_contacts" msgid="267034158294332688">"పరిచయాల నుండి మాత్రమే"</string>
-    <string name="zen_mode_from_starred" msgid="7349984569117392260">"నక్షత్రం గల పరిచయాల నుండి మాత్రమే"</string>
-    <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"నక్షత్రం గుర్తు ఉన్న పరిచయాల మరియు రిపీట్ కాలర్‌ల నుండి"</string>
-    <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"పరిచయాలు మరియు రిపీట్ కాలర్‌ల నుండి"</string>
+    <string name="zen_mode_from_contacts" msgid="267034158294332688">"కాంటాక్ట్‌ల నుండి మాత్రమే"</string>
+    <string name="zen_mode_from_starred" msgid="7349984569117392260">"స్టార్ గుర్తు గల కాంటాక్ట్‌ల నుండి మాత్రమే"</string>
+    <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌ల మరియు రిపీట్ కాలర్‌ల నుండి"</string>
+    <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"కాంటాక్ట్‌లు మరియు రిపీట్ కాలర్‌ల నుండి"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"రిపీట్ కాలర్‌ల నుండి మాత్రమే"</string>
     <string name="zen_mode_from_none" msgid="7683889985618637010">"ఏవీ వద్దు"</string>
     <string name="zen_mode_from_none_calls" msgid="2967739140346917546">"ఏ కాల్స్‌ను అనుమతించవద్దు"</string>
@@ -3816,7 +3816,7 @@
     <string name="app_permission_summary_not_allowed" msgid="1171642541675462584">"అనుమతించబడలేదు"</string>
     <string name="keywords_install_other_apps" msgid="5383559540695847668">"తెలియని యాప్‌లను ఇన్‌స్టాల్ చేయి"</string>
     <string name="write_settings" msgid="9009040811145552108">"సిస్టమ్ సెట్టింగ్‌ల సవరణ"</string>
-    <string name="keywords_write_settings" msgid="3450405263390246293">"వ్రాయండి ఎడిట్ చేయండి సిస్టమ్ సెట్టింగ్‌లు"</string>
+    <string name="keywords_write_settings" msgid="3450405263390246293">"రాయండి ఎడిట్ చేయండి సిస్టమ్ సెట్టింగ్‌లు"</string>
     <string name="write_settings_summary" msgid="4650251358459404247">"<xliff:g id="COUNT_1">%2$d</xliff:g>లో <xliff:g id="COUNT_0">%1$d</xliff:g> యాప్‌లు సిస్టమ్ సెట్టింగ్‌ల ఎడిట్‌కు అనుమతించబడ్డాయి"</string>
     <string name="financial_apps_sms_access_title" msgid="3422655018008259655">"ఫైనాన్షియల్ యాప్‌ల Sms యాక్సెస్"</string>
     <string name="filter_install_sources_apps" msgid="4519839764020866701">"ఇతర యాప్‌లను ఇన్‌స్టాల్ చేయవచ్చు"</string>

@@ -830,7 +830,7 @@
     <string name="android_beam_settings_title" msgid="3083436415873738389">"Android Beam"</string>
     <string name="android_beam_on_summary" msgid="8068287225180474199">"Valmis lähettämään sovelluksen sisältöä NFC:n kautta"</string>
     <string name="android_beam_off_summary" msgid="7365818039159364600">"Pois päältä"</string>
-    <string name="nfc_disabled_summary" msgid="2181777971122724361">"Ei käytettävissä, koska NFC on pois käytöstä"</string>
+    <string name="nfc_disabled_summary" msgid="2181777971122724361">"Ei käytettävissä, koska NFC on pois päältä"</string>
     <string name="android_beam_label" msgid="5340299879556025708">"Android Beam"</string>
     <string name="android_beam_explained" msgid="4501176353247859329">"Kun tämä ominaisuus on käytössä, voit jakaa sovellusten sisältöä toiselle NFC-yhteensopivalle laitteelle asettamalla laitteet lähekkäin. Voit jakaa esimerkiksi verkkosivuja, YouTube-videoita ja yhteystietoja.\n\nAseta vain laitteet vierekkäin (yleensä takakannet vastakkain) ja kosketa näyttöä. Jaettava sisältö riippuu sovelluksesta."</string>
     <string name="wifi_quick_toggle_title" msgid="7935778388625246184">"Wi-Fi"</string>
@@ -861,7 +861,7 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Valitse verkon arviointipalvelu, jotta voit käyttää tätä."</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Valitse yhteensopiva verkon arviointipalvelu, jotta voit käyttää tätä."</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Asenna varmenteet"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Sijainnin tarkkuuden parantamiseksi sovellukset ja palvelut voivat hakea Wi-Fi-verkkoja myös silloin, kun Wi-Fi on pois käytöstä. Näin voidaan esimerkiksi kehittää sijaintiin perustuvia ominaisuuksia ja palveluja. Voit muokata tätä asetusta <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>hakuasetuksissa<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"Sijainnin tarkkuuden parantamiseksi sovellukset ja palvelut voivat hakea Wi-Fi-verkkoja myös silloin, kun Wi-Fi on pois päältä. Näin voidaan esimerkiksi kehittää sijaintiin perustuvia ominaisuuksia ja palveluja. Voit muokata tätä asetusta <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>hakuasetuksissa<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Paranna sijainnin tarkkuutta ottamalla käyttöön Wi-Fi-haku <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>etsintäasetuksissa<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Älä näytä uudelleen"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Pidä Wi-Fi käytössä virransäästötilassa"</string>
@@ -2136,7 +2136,7 @@
       <item quantity="one">Erittäin pitkä viive (<xliff:g id="CLICK_DELAY_LABEL_0">%1$d</xliff:g> ms)</item>
     </plurals>
     <string name="accessibility_vibration_summary" msgid="3642516399755721924">"Soittoääni <xliff:g id="SUMMARY_RING">%1$s</xliff:g>, ilmoitus <xliff:g id="SUMMARY_NOTIFICATION">%2$s</xliff:g>, kosketus <xliff:g id="SUMMARY_TOUCH">%3$s</xliff:g>"</string>
-    <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"Puhelu- ja ilmoitusvärinä on pois käytöstä"</string>
+    <string name="accessibility_vibration_summary_off" msgid="2894044066550518676">"Puhelu- ja ilmoitusvärinä on pois päältä"</string>
     <string name="accessibility_vibration_summary_low" msgid="2884160616131878204">"Puhelu- ja ilmoitusvärinä on heikko"</string>
     <string name="accessibility_vibration_summary_medium" msgid="3141272492346527298">"Puhelu- ja ilmoitusvärinä on keskitasoinen"</string>
     <string name="accessibility_vibration_summary_high" msgid="4188677504368202861">"Puhelu- ja ilmoitusvärinä on voimakas"</string>

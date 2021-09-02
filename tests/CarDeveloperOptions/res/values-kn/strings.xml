@@ -1450,7 +1450,7 @@
     <string name="storage_internal_forget_confirm_title" msgid="331032276130605241">"<xliff:g id="NAME">^1</xliff:g> ಮರೆತುಹೋಯಿತೇ?"</string>
     <string name="storage_internal_forget_confirm" msgid="3052483375203727176">"ಎಲ್ಲಾ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು, ಫೋಟೋಗಳು ಮತ್ತು ಡೇಟಾವನ್ನು ಈ <xliff:g id="NAME">^1</xliff:g> ನಲ್ಲಿ ಸಂಗ್ರಹಿಸಿದರೆ ಶಾಶ್ವತವಾಗಿ ಕಳೆದುಹೋಗುತ್ತದೆ."</string>
     <string name="storage_detail_apps" msgid="8154648512504196820">"ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
-    <string name="storage_detail_images" msgid="6996202225684468964">"Images"</string>
+    <string name="storage_detail_images" msgid="6996202225684468964">"ಚಿತ್ರಗಳು"</string>
     <string name="storage_detail_videos" msgid="6030983354721080849">"ವೀಡಿಯೊಗಳು"</string>
     <string name="storage_detail_audio" msgid="6011098436589663944">"ಆಡಿಯೊ"</string>
     <string name="storage_detail_cached" msgid="5761648455067920683">"ಸಂಗ್ರಹಿಸಿದ ಡೇಟಾ"</string>
@@ -4239,7 +4239,7 @@
     <string name="storage_music_audio" msgid="3661289086715297149">"ಸಂಗೀತ ಮತ್ತು ಆಡಿಯೋ"</string>
     <string name="storage_games" msgid="7740038143749092373">"ಗೇಮ್‌ಗಳು"</string>
     <string name="storage_other_apps" msgid="3202407095387420842">"ಇತರ ಅಪ್ಲಿಕೇಶನ್‌ಗಳು"</string>
-    <string name="storage_files" msgid="2087824267937487880">"Files"</string>
+    <string name="storage_files" msgid="2087824267937487880">"ಫೈಲ್‌ಗಳು"</string>
     <string name="storage_size_large_alternate" msgid="1317796542509105857">"<xliff:g id="NUMBER">^1</xliff:g>"<small>" "<font size="20">"<xliff:g id="UNIT">^2</xliff:g>"</font></small>""</string>
     <string name="storage_volume_total" msgid="5021484171514159913">"<xliff:g id="TOTAL">%1$s</xliff:g> ನಲ್ಲಿ ಬಳಸಿರುವುದು"</string>
     <string name="storage_percent_full" msgid="6924662861545958442">"ಬಳಕೆಯಾಗಿದೆ"</string>

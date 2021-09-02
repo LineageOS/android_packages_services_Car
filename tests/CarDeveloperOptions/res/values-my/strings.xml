@@ -3321,7 +3321,7 @@
     <string name="notification_pulse_title" msgid="4861418327614907116">"မီး မှိတ်တုတ်မှိတ်တုတ်လုပ်ပါ"</string>
     <string name="lock_screen_notifications_title" msgid="6889072265118747835">"လော့ခ်ချချိန် မျက်နှာပြင်တွင်"</string>
     <string name="locked_work_profile_notification_title" msgid="8307025804986190658">"အလုပ်ပရိုဖိုင်လော့ခ်ချထားချိန်"</string>
-    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"အကြောင်းကြားချက်ပါ အရာအားလုံး ပြပါ"</string>
+    <string name="lock_screen_notifications_summary_show" msgid="5788874994455257378">"အကြောင်းကြားချက်ပါ အရာအားလုံး ပြသည်"</string>
     <string name="lock_screen_notifications_summary_hide" msgid="3668806866535260143">"သတိထားရမည့် အရေးကြီး အကြောင်းအရာကို ဝှက်ထားရန်"</string>
     <string name="lock_screen_notifications_summary_disable" msgid="3259929507369817672">"အကြောင်းကြားချက်များ မပြပါနှင့်"</string>
     <string name="lock_screen_notifications_interstitial_message" msgid="4230189215124387818">"သင်၏ကိရိယာကို လော့ခ်ချထားချိန် အကြောင်းကြားချက်များကို ဘယ်လိုပြစေလိုပါသလဲ။"</string>
