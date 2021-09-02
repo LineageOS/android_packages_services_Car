@@ -386,6 +386,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         }
     }
 
+    @GuardedBy("mLock")
     private void doHandlePidGoneLocked(int pid, int uid) {
         Set<Integer> pids = mForegroundUidPids.get(uid);
         if (pids != null) {

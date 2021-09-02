@@ -453,6 +453,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         mProjectionStatusListeners.removeBinder(listener);
     }
 
+    @GuardedBy("mLock")
     private ProjectionReceiverClient getOrCreateProjectionReceiverClientLocked(
             IBinder token) throws RemoteException {
         ProjectionReceiverClient client;
@@ -525,8 +526,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
                 mProjectionOptions = createProjectionOptionsBuilder()
                         .build();
             }
+            return mProjectionOptions.toBundle();
         }
-        return mProjectionOptions.toBundle();
     }
 
     private ProjectionOptions.Builder createProjectionOptionsBuilder() {
@@ -605,6 +606,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @GuardedBy("mLock")
     private void startTetheredApLocked() {
         Slog.d(TAG, "startTetheredApLocked");
 
@@ -625,6 +627,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @GuardedBy("mLock")
     private void stopTetheredApLocked() {
         Slog.d(TAG, "stopTetheredAp");
 
@@ -637,6 +640,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @GuardedBy("mLock")
     private void startLocalOnlyApLocked() {
         if (mLocalOnlyHotspotReservation != null) {
             Slog.i(TAG, "Local-only hotspot is already registered.");
@@ -696,6 +700,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }, mHandler);
     }
 
+    @GuardedBy("mLock")
     private void stopLocalOnlyApLocked() {
         Slog.i(TAG, "stopLocalOnlyApLocked");
 
@@ -928,6 +933,7 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         }
     }
 
+    @GuardedBy("mLock")
     private boolean unregisterWirelessClientLocked(IBinder token) {
         WirelessClient client = mWirelessClients.remove(token);
         if (client != null) {

@@ -95,7 +95,6 @@ public class OccupantAwarenessService
         }
     }
 
-    @GuardedBy("mLock")
     private final ChangeCallbackList mListeners = new ChangeCallbackList(this);
 
     /** Creates an OccupantAwarenessService instance given a {@link Context}. */
@@ -126,9 +125,10 @@ public class OccupantAwarenessService
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*OccupantAwarenessService*");
-        writer.println(
-                String.format(
-                        "%s to HAL service", mOasHal == null ? "NOT connected" : "Connected"));
+        synchronized (mLock) {
+            writer.println(String.format(
+                    "%s to HAL service", mOasHal == null ? "NOT connected" : "Connected"));
+        }
         writer.println(
                 String.format(
                         "%d change listeners subscribed.",

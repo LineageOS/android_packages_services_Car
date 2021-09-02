@@ -581,9 +581,11 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
     @Override
     public List<IoStatsEntry> getBootIoStats() {
         mStorageMonitoringPermission.assertGranted();
-        doInitServiceIfNeededLocked();
+        synchronized (mLock) {
+            doInitServiceIfNeededLocked();
 
-        return Collections.unmodifiableList(mBootIoStats);
+            return Collections.unmodifiableList(mBootIoStats);
+        }
     }
 
     @Override

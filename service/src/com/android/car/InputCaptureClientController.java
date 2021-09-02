@@ -597,6 +597,7 @@ public class InputCaptureClientController {
         return true;
     }
 
+    @GuardedBy("mLock")
     ICarInputCallback getClientForInputTypeLocked(int targetDisplayType, int inputType) {
         LinkedList<ClientInfoForDisplay> fullCapturersStack = mFullDisplayEventCapturers.get(
                 targetDisplayType);
@@ -666,6 +667,7 @@ public class InputCaptureClientController {
         }
     }
 
+    @GuardedBy("mLock")
     private void dispatchClientCallbackLocked(ClientsToDispatch clientsToDispatch) {
         if (clientsToDispatch.mClientsToDispatch.isEmpty()) {
             return;

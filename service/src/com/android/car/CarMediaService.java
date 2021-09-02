@@ -142,7 +142,6 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private boolean mPendingInit;
 
-    @GuardedBy("mLock")
     private final RemoteCallbackList<ICarMediaSourceListener>[] mMediaSourceListeners =
             new RemoteCallbackList[MEDIA_SOURCE_MODES];
 
@@ -448,8 +447,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         boolean hasSharedPrefs;
         synchronized (mLock) {
             hasSharedPrefs = mSharedPrefs != null;
-            dumpCurrentMediaComponent(writer, "playback", MEDIA_SOURCE_MODE_PLAYBACK);
-            dumpCurrentMediaComponent(writer, "browse", MEDIA_SOURCE_MODE_BROWSE);
+            dumpCurrentMediaComponentLocked(writer, "playback", MEDIA_SOURCE_MODE_PLAYBACK);
+            dumpCurrentMediaComponentLocked(writer, "browse", MEDIA_SOURCE_MODE_BROWSE);
             if (mActiveUserMediaController != null) {
                 writer.printf("Current media controller: %s\n",
                         mActiveUserMediaController.getPackageName());
@@ -481,7 +480,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         writer.decreaseIndent();
     }
 
-    private void dumpCurrentMediaComponent(IndentingPrintWriter writer, String name,
+    @GuardedBy("mLock")
+    private void dumpCurrentMediaComponentLocked(IndentingPrintWriter writer, String name,
             @CarMediaManager.MediaSourceMode int mode) {
         ComponentName componentName = mPrimaryMediaComponents[mode];
         writer.printf("Current %s media component: %s\n", name, componentName == null
@@ -556,9 +556,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             @MediaSourceMode int mode) {
         CarServiceUtils.assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        synchronized (mLock) {
-            mMediaSourceListeners[mode].register(callback);
-        }
+        mMediaSourceListeners[mode].register(callback);
     }
 
     /**
@@ -569,9 +567,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             @MediaSourceMode int mode) {
         CarServiceUtils.assertPermission(mContext,
                 android.Manifest.permission.MEDIA_CONTENT_CONTROL);
-        synchronized (mLock) {
-            mMediaSourceListeners[mode].unregister(callback);
-        }
+        mMediaSourceListeners[mode].unregister(callback);
     }
 
     @Override
@@ -708,11 +704,15 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                     && state.getState() != mPreviousPlaybackState) {
                 ComponentName mediaSource = getMediaSource(mMediaController.getPackageName(),
                         getClassName(mMediaController));
-                if (mediaSource != null
-                        && !mediaSource.equals(mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK])
-                        && Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
-                    Slog.i(CarLog.TAG_MEDIA, "Changing media source due to playback state change: "
-                            + mediaSource.flattenToString());
+                if (mediaSource != null && Log.isLoggable(CarLog.TAG_MEDIA, Log.INFO)) {
+                    synchronized (mLock) {
+                        if (!mediaSource.equals(
+                                mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK])) {
+                            Slog.i(CarLog.TAG_MEDIA,
+                                    "Changing media source due to playback state change: "
+                                    + mediaSource.flattenToString());
+                        }
+                    }
                 }
                 setPrimaryMediaSource(mediaSource, MEDIA_SOURCE_MODE_PLAYBACK);
             }
@@ -1076,6 +1076,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      * Updates active media controller from the list that has the same component name as the primary
      * media component. Clears callback and resets media controller to null if not found.
      */
+    @GuardedBy("mLock")
     private void updateActiveMediaControllerLocked(List<MediaController> mediaControllers) {
         if (mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] == null) {
             return;

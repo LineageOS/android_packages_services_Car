@@ -500,6 +500,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     @Nullable
     private DisplayInfo findDisplayForDriverLocked(int driverUserId,
             @DisplayTypeEnum int displayType) {
@@ -540,6 +541,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private int getAudioZoneIdForOccupantLocked(int occupantZoneId) {
         for (int index = 0; index < mAudioZoneIdToOccupantZoneIdMapping.size(); index++) {
             int audioZoneId = mAudioZoneIdToOccupantZoneIdMapping.keyAt(index);
@@ -564,6 +566,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     @Nullable
     private DisplayConfig findDisplayConfigForDisplayIdLocked(int displayId) {
         Display display = mDisplayManager.getDisplay(displayId);
@@ -573,6 +576,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return findDisplayConfigForDisplayLocked(display);
     }
 
+    @GuardedBy("mLock")
     @Nullable
     private DisplayConfig findDisplayConfigForDisplayLocked(Display display) {
         int portAddress = getPortAddress(display);
@@ -653,6 +657,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         sendConfigChangeEvent(CarOccupantZoneManager.ZONE_CONFIG_CHANGE_FLAG_AUDIO);
     }
 
+    @GuardedBy("mLock")
     private void validateOccupantZoneIdsLocked(SparseIntArray audioZoneIdToOccupantZoneMapping) {
         for (int i = 0; i < audioZoneIdToOccupantZoneMapping.size(); i++) {
             int occupantZoneId =
@@ -759,6 +764,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private int[] getAllActivePassengerDisplaysLocked() {
         IntArray displays = new IntArray();
         for (int j = 0; j < mActiveOccupantConfigs.size(); ++j) {
@@ -815,6 +821,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         }
     }
 
+    @GuardedBy("mLock")
     private ArrayMap<Integer, IntArray> createDisplayAllowlistsLocked() {
         ArrayMap<Integer, IntArray> allowlists = new ArrayMap<>();
         for (int j = 0; j < mActiveOccupantConfigs.size(); ++j) {
@@ -1082,6 +1089,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return INVALID_PORT;
     }
 
+    @GuardedBy("mLock")
     private void addDisplayInfoToOccupantZoneLocked(int zoneId, DisplayInfo info) {
         OccupantConfig occupantConfig = mActiveOccupantConfigs.get(zoneId);
         if (occupantConfig == null) {
@@ -1126,6 +1134,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return ActivityManager.getCurrentUser();
     }
 
+    @GuardedBy("mLock")
     private void updateEnabledProfilesLocked(int userId) {
         mProfileUsers.clear();
         List<UserInfo> profileUsers = mUserManager.getEnabledProfiles(userId);
