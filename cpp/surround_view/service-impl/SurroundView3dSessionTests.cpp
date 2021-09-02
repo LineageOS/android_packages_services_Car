@@ -97,12 +97,13 @@ protected:
         mVhalHandler = new VhalHandler();
         ASSERT_TRUE(mVhalHandler->initialize(VhalHandler::UpdateMethod::GET, 10));
 
-        mAnimationModule = new AnimationModule(mIoModuleConfig.carModelConfig.carModel.partsMap,
-                                    mIoModuleConfig.carModelConfig.carModel.texturesMap,
-                                    mIoModuleConfig.carModelConfig.animationConfig.animations);
+        const CarModelConfig& carModelConfig = mIoModuleConfig.sv3dConfig.carModelConfig;
+        mAnimationModule = new AnimationModule(carModelConfig.carModel.partsMap,
+                                               carModelConfig.carModel.texturesMap,
+                                               carModelConfig.animationConfig.animations);
 
         const std::vector<uint64_t> animationPropertiesToRead =
-                getAnimationPropertiesToRead(mIoModuleConfig.carModelConfig.animationConfig);
+                getAnimationPropertiesToRead(carModelConfig.animationConfig);
         ASSERT_TRUE(mVhalHandler->setPropertiesToRead(animationPropertiesToRead));
 
         mSv3dSessionAnimations = new SurroundView3dSession(mFakeEvs, mVhalHandler,

@@ -751,16 +751,17 @@ bool SurroundView2dSession::initialize() {
     // description.
     mSurroundView = unique_ptr<SurroundView>(Create());
 
+    const SvConfig2d& sv2dConfig = mIOModuleConfig->sv2dConfig;
+    const SvConfig3d& sv3dConfig = mIOModuleConfig->sv3dConfig;
     SurroundViewStaticDataParams params =
-            SurroundViewStaticDataParams(mCameraParams,
-                                         mIOModuleConfig->sv2dConfig.sv2dParams,
-                                         mIOModuleConfig->sv3dConfig.sv3dParams,
+            SurroundViewStaticDataParams(mCameraParams, sv2dConfig.sv2dParams,
+                                         sv3dConfig.sv3dParams,
                                          vector<float>(std::begin(kUndistortionScales),
                                                        std::end(kUndistortionScales)),
-                                         mIOModuleConfig->sv2dConfig.carBoundingBox,
-                                         mIOModuleConfig->carModelConfig.carModel.texturesMap,
-                                         mIOModuleConfig->carModelConfig.carModel.partsMap);
-    mGpuAccelerationEnabled = mIOModuleConfig->sv2dConfig.sv2dParams.gpu_acceleration_enabled;
+                                         sv2dConfig.carBoundingBox,
+                                         sv3dConfig.carModelConfig.carModel.texturesMap,
+                                         sv3dConfig.carModelConfig.carModel.partsMap);
+    mGpuAccelerationEnabled = sv2dConfig.sv2dParams.gpu_acceleration_enabled;
 
     ATRACE_BEGIN("SV core lib method: SetStaticData");
     mSurroundView->SetStaticData(params);

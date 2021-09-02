@@ -35,7 +35,7 @@ using android_auto::surround_view::SurroundView2dParams;
 using android_auto::surround_view::SurroundView3dParams;
 
 TEST(ConfigReaderTests, ReadConfigSuccess) {
-    SurroundViewConfig svConfig;
+    IOModuleConfig svConfig;
     EXPECT_EQ(ReadSurroundViewConfig("/vendor/etc/automotive/sv/sv_sample_config.xml", &svConfig),
               IOStatus::OK);
 
@@ -78,7 +78,6 @@ TEST(ConfigReaderTests, ReadConfigSuccess) {
     // Surround view 3D
     EXPECT_EQ(svConfig.sv3dConfig.sv3dEnabled, true);
     EXPECT_NE(svConfig.sv3dConfig.carModelConfigFile, "");
-    EXPECT_NE(svConfig.sv3dConfig.carModelObjFile, "");
     EXPECT_EQ(svConfig.sv3dConfig.sv3dParams.plane_radius, 8.0);
     EXPECT_EQ(svConfig.sv3dConfig.sv3dParams.plane_divisions, 50);
     EXPECT_EQ(svConfig.sv3dConfig.sv3dParams.curve_height, 6.0);

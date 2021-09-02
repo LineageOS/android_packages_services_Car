@@ -890,8 +890,8 @@ bool SurroundView3dSession::initialize() {
                     vector<float>(std::begin(kUndistortionScales),
                                   std::end(kUndistortionScales)),
                     mIOModuleConfig->sv2dConfig.carBoundingBox,
-                    mIOModuleConfig->carModelConfig.carModel.texturesMap,
-                    mIOModuleConfig->carModelConfig.carModel.partsMap);
+                    mIOModuleConfig->sv3dConfig.carModelConfig.carModel.texturesMap,
+                    mIOModuleConfig->sv3dConfig.carModelConfig.carModel.partsMap);
     ATRACE_BEGIN("SV core lib method: SetStaticData");
     mSurroundView->SetStaticData(params);
     ATRACE_END();

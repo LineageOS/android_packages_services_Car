@@ -2,6 +2,12 @@
 <SurroundViewCarModelConfig>
     <Version>1.0</Version>
 
+    <!-- Path to the .obj specifying car model. -->
+    <CarModelObjFile>/vendor/etc/automotive/sv/sample_car.obj</CarModelObjFile>
+
+    <!-- Enables the animations for car model if set to true. -->
+    <AnimationsEnabled>true</AnimationsEnabled>
+
     <!-- Rotation animation for door -->
     <Animation>
         <PartId>door</PartId>

@@ -28,8 +28,7 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
-IOStatus ReadCarModelConfig(const std::string& carModelConfigFile,
-                            AnimationConfig* animationConfig);
+IOStatus ReadCarModelConfig(const std::string& carModelConfigFile, CarModelConfig* carModelConfig);
 
 }  // namespace implementation
 }  // namespace V1_0

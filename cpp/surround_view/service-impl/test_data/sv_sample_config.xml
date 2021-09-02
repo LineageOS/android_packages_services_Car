@@ -57,9 +57,6 @@
     </Sv2dParams>
 
     <Sv3dEnabled>true</Sv3dEnabled>
-    <Sv3dAnimationsEnabled>true</Sv3dAnimationsEnabled>
-    <CarModelConfigFile>/vendor/etc/automotive/sv/sv_sample_car_model_config.xml</CarModelConfigFile>
-    <CarModelObjFile>/vendor/etc/automotive/sv/sample_car.obj</CarModelObjFile>
     <Sv3dParams>
         <OutputResolution>
             <Width>1920</Width>
@@ -78,4 +75,13 @@
             <Reflections>true</Reflections>
         </HighQualityDetails>
     </Sv3dParams>
+
+    <!-- Car model is rendered by Surround View if set to true. -->
+    <Sv3dCarModelEnabled>false</Sv3dCarModelEnabled>
+
+    <!-- Path to car model config specifying car model parts and animations. -->
+    <!-- Ignored if Sv3dCarModelEnabled is false. -->
+    <Sv3dCarModelConfigFile>/vendor/etc/automotive/sv/sv_sample_car_model_config.xml
+    </Sv3dCarModelConfigFile>
+
 </SurroundViewConfig>
