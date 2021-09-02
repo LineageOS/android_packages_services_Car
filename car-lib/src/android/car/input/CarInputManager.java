@@ -115,8 +115,6 @@ public final class CarInputManager extends CarManagerBase {
     /**
      * Client wants to capture the keys for the whole display. This is only allowed to system
      * process.
-     *
-     * @hide
      */
     public static final int CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY = 0x2;
 
@@ -131,8 +129,6 @@ public final class CarInputManager extends CarManagerBase {
     /**
      * This is special type to cover all INPUT_TYPE_*. This is used for clients using
      * {@link #CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY} flag.
-     *
-     * @hide
      */
     public static final int INPUT_TYPE_ALL_INPUTS = 1;
 
@@ -143,9 +139,6 @@ public final class CarInputManager extends CarManagerBase {
 
     /**
      * Volume knob.
-     * TODO (b/151666020): This will be only allowed to system apps later.
-     *
-     * @hide
      */
     public static final int INPUT_TYPE_ROTARY_VOLUME = 11;
 
@@ -156,22 +149,16 @@ public final class CarInputManager extends CarManagerBase {
      * {@link KeyEvent#KEYCODE_DPAD_RIGHT}, {@link KeyEvent#KEYCODE_DPAD_CENTER},
      * {@link KeyEvent#KEYCODE_DPAD_DOWN_LEFT}, {@link KeyEvent#KEYCODE_DPAD_DOWN_RIGHT},
      * {@link KeyEvent#KEYCODE_DPAD_UP_LEFT}, {@link KeyEvent#KEYCODE_DPAD_UP_RIGHT}
-     *
-     * @hide
      */
     public static final int INPUT_TYPE_DPAD_KEYS = 100;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_NAVIGATE_*} keys.
-     *
-     * @hide
      */
     public static final int INPUT_TYPE_NAVIGATE_KEYS = 101;
 
     /**
      * This is for all {@code KeyEvent#KEYCODE_SYSTEM_NAVIGATE_*} keys.
-     *
-     * @hide
      */
     public static final int INPUT_TYPE_SYSTEM_NAVIGATE_KEYS = 102;
 
