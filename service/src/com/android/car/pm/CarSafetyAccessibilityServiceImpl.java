@@ -32,6 +32,8 @@ public class CarSafetyAccessibilityServiceImpl {
     public void onAccessibilityEvent(AccessibilityEvent event) {
         CarPackageManagerService carPackageManagerService =
                 CarLocalServices.getService(CarPackageManagerService.class);
-        carPackageManagerService.onWindowChangeEvent();
+        if (carPackageManagerService != null) {
+            carPackageManagerService.onWindowChangeEvent();
+        }
     }
 }
