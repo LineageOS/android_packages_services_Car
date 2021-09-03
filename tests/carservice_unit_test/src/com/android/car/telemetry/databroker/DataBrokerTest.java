@@ -335,7 +335,7 @@ public class DataBrokerTest {
 
     private void waitForHandlerThreadToFinish() throws Exception {
         assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
-                .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS));
+                .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     }
 
     private static class FakeScriptExecutor implements IScriptExecutor {
