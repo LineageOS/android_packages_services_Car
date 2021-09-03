@@ -101,10 +101,31 @@ package android.car.builtin.os {
 
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIcon(@NonNull android.content.Context, @NonNull android.os.UserHandle);
+    method public static String getDefaultUserTypeForUserInfoFlags(int);
+    method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
+    method @Deprecated public static boolean isAdminUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated public static boolean isEphemeralUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated public static boolean isProfileUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static void setUserAdmin(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static void setUserRestriction(@NonNull android.os.UserManager, @NonNull String, boolean, @NonNull android.os.UserHandle);
+    field public static final int FLAG_ADMIN = 2; // 0x2
+    field public static final int FLAG_DEMO = 512; // 0x200
+    field public static final int FLAG_DISABLED = 64; // 0x40
+    field public static final int FLAG_EPHEMERAL = 256; // 0x100
+    field public static final int FLAG_FULL = 1024; // 0x400
+    field public static final int FLAG_GUEST = 4; // 0x4
+    field public static final int FLAG_INITIALIZED = 16; // 0x10
+    field public static final int FLAG_MANAGED_PROFILE = 32; // 0x20
+    field public static final int FLAG_PRIMARY = 1; // 0x1
+    field public static final int FLAG_PROFILE = 4096; // 0x1000
+    field public static final int FLAG_QUIET_MODE = 128; // 0x80
+    field public static final int FLAG_RESTRICTED = 8; // 0x8
+    field public static final int FLAG_SYSTEM = 2048; // 0x800
     field public static final int USER_NULL = -10000; // 0xffffd8f0
-    field public static final String USER_TYPE_FULL_GUEST = "android.os.usertype.full.GUEST";
+    field @Deprecated public static final String USER_TYPE_FULL_GUEST = "android.os.usertype.full.GUEST";
   }
 
 }

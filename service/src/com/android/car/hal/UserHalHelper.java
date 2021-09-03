@@ -20,8 +20,7 @@ import static com.android.internal.util.Preconditions.checkArgument;
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.content.pm.UserInfo;
-import android.content.pm.UserInfo.UserInfoFlag;
+import android.car.builtin.os.UserManagerHelper;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
@@ -47,6 +46,7 @@ import android.util.Log;
 
 import com.android.car.hal.HalCallback.HalCallbackStatus;
 import com.android.car.internal.util.DebugUtils;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.util.Preconditions;
 
 import java.util.Arrays;
@@ -119,40 +119,42 @@ public final class UserHalHelper {
     /**
      * Converts Android user flags to HALs.
      */
-    public static int convertFlags(@NonNull UserInfo user) {
+    public static int convertFlags(@NonNull UserHandleHelper userHandleHelper,
+            @NonNull UserHandle user) {
         checkArgument(user != null, "user cannot be null");
 
         int flags = UserFlags.NONE;
-        if (user.id == UserHandle.USER_SYSTEM) {
+        if (user.getIdentifier() == UserHandle.USER_SYSTEM) {
             flags |= UserFlags.SYSTEM;
         }
-        if (user.isAdmin()) {
+        if (userHandleHelper.isAdminUser(user)) {
             flags |= UserFlags.ADMIN;
         }
-        if (user.isGuest()) {
+        if (userHandleHelper.isGuestUser(user)) {
             flags |= UserFlags.GUEST;
         }
-        if (user.isEphemeral()) {
+        if (userHandleHelper.isEphemeralUser(user)) {
             flags |= UserFlags.EPHEMERAL;
         }
-        if (!user.isEnabled()) {
+        if (!userHandleHelper.isEnabledUser(user)) {
             flags |= UserFlags.DISABLED;
         }
-        if (user.isProfile()) {
+        if (userHandleHelper.isProfileUser(user)) {
             flags |= UserFlags.PROFILE;
         }
 
         return flags;
     }
 
+
     /**
      * Converts Android user flags to HALs.
      */
-    public static int getFlags(@NonNull UserManager um, @UserIdInt int userId) {
-        Preconditions.checkArgument(um != null, "UserManager cannot be null");
-        UserInfo user = um.getUserInfo(userId);
+    public static int getFlags(@NonNull UserHandleHelper userHandleHelper, @UserIdInt int userId) {
+        Preconditions.checkArgument(userHandleHelper != null, "UserManager cannot be null");
+        UserHandle user = userHandleHelper.getExistingUserHandle(userId);
         Preconditions.checkArgument(user != null, "No user with id %d", userId);
-        return convertFlags(user);
+        return convertFlags(userHandleHelper, user);
     }
 
     /**
@@ -200,14 +202,13 @@ public final class UserHalHelper {
     /**
      * Converts HAL flags to Android's.
      */
-    @UserInfoFlag
     public static int toUserInfoFlags(int halFlags) {
         int flags = 0;
         if (isEphemeral(halFlags)) {
-            flags |= UserInfo.FLAG_EPHEMERAL;
+            flags |= UserManagerHelper.FLAG_EPHEMERAL;
         }
         if (isAdmin(halFlags)) {
-            flags |= UserInfo.FLAG_ADMIN;
+            flags |= UserManagerHelper.FLAG_ADMIN;
         }
         return flags;
     }
@@ -586,8 +587,9 @@ public final class UserHalHelper {
      * {@link ActivityManager#getCurrentUser()} as the current user.
      */
     @NonNull
-    public static UsersInfo newUsersInfo(@NonNull UserManager um) {
-        return newUsersInfo(um, ActivityManager.getCurrentUser());
+    public static UsersInfo newUsersInfo(@NonNull UserManager um,
+            @NonNull UserHandleHelper userHandleHelper) {
+        return newUsersInfo(um, userHandleHelper, ActivityManager.getCurrentUser());
     }
 
     /**
@@ -595,11 +597,13 @@ public final class UserHalHelper {
      * {@code userId} as the current user.
      */
     @NonNull
-    public static UsersInfo newUsersInfo(@NonNull UserManager um, @UserIdInt int userId) {
+    public static UsersInfo newUsersInfo(@NonNull UserManager um,
+            @NonNull UserHandleHelper userHandleHelper, @UserIdInt int userId) {
         Preconditions.checkArgument(um != null, "UserManager cannot be null");
+        Preconditions.checkArgument(userHandleHelper != null, "UserHandleHelper cannot be null");
 
-        List<UserInfo> users = um.getUsers(/* excludePartial= */ false, /* excludeDying= */ false,
-                /* excludePreCreated= */ true);
+        List<UserHandle> users = UserManagerHelper.getUserHandles(um, /* excludePartial= */ false,
+                /* excludeDying= */ false);
 
         if (users == null || users.isEmpty()) {
             Log.w(TAG, "newUsersInfo(): no users");
@@ -608,23 +612,23 @@ public final class UserHalHelper {
 
         UsersInfo usersInfo = new UsersInfo();
         usersInfo.currentUser.userId = userId;
-        UserInfo currentUser = null;
+        UserHandle currentUser = null;
         usersInfo.numberUsers = users.size();
 
         for (int i = 0; i < usersInfo.numberUsers; i++) {
-            UserInfo user = users.get(i);
-            if (user.id == usersInfo.currentUser.userId) {
+            UserHandle user = users.get(i);
+            if (user.getIdentifier() == usersInfo.currentUser.userId) {
                 currentUser = user;
             }
             android.hardware.automotive.vehicle.V2_0.UserInfo halUser =
                     new android.hardware.automotive.vehicle.V2_0.UserInfo();
-            halUser.userId = user.id;
-            halUser.flags = convertFlags(user);
+            halUser.userId = user.getIdentifier();
+            halUser.flags = convertFlags(userHandleHelper, user);
             usersInfo.existingUsers.add(halUser);
         }
 
         if (currentUser != null) {
-            usersInfo.currentUser.flags = convertFlags(currentUser);
+            usersInfo.currentUser.flags = convertFlags(userHandleHelper, currentUser);
         } else {
             // This should not happen.
             Log.wtf(TAG, "Current user is not part of existing users. usersInfo: " + usersInfo);

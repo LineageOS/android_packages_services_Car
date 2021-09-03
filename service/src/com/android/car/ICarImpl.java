@@ -859,8 +859,7 @@ public class ICarImpl extends ICar.Stub {
             assertCallingFromSystemProcess();
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.getIdentifier());
             if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toString());
-            mCarUserService.onUserRemoved(
-                    mContext.getSystemService(UserManager.class).getUserInfo(user.getIdentifier()));
+            mCarUserService.onUserRemoved(user);
         }
 
         @Override

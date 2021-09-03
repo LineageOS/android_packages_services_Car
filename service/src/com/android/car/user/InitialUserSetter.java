@@ -24,11 +24,12 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.settings.CarSettings;
 import android.content.Context;
-import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
 import android.os.Trace;
 import android.os.UserHandle;
@@ -124,29 +125,33 @@ final class InitialUserSetter {
     private final String mNewUserName;
     private final String mNewGuestName;
 
-    private final Consumer<UserInfo> mListener;
+    private final Consumer<UserHandle> mListener;
+
+    private final UserHandleHelper mUserHandleHelper;
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
-            @NonNull Consumer<UserInfo> listener) {
-        this(context, carUserService, listener, /* newGuestName= */ null);
+            @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper) {
+        this(context, carUserService, listener, userHandleHelper, /* newGuestName= */ null);
     }
 
     InitialUserSetter(@NonNull Context context, @NonNull CarUserService carUserService,
-            @NonNull Consumer<UserInfo> listener, @Nullable String newGuestName) {
+            @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper,
+            @Nullable String newGuestName) {
         this(context, context.getSystemService(UserManager.class), carUserService, listener,
-                new LockPatternUtils(context),
+                userHandleHelper, new LockPatternUtils(context),
                 context.getString(com.android.internal.R.string.owner_name), newGuestName);
     }
 
     @VisibleForTesting
     InitialUserSetter(@NonNull Context context, @NonNull UserManager um,
-            @NonNull CarUserService carUserService, @NonNull Consumer<UserInfo> listener,
-            @NonNull LockPatternUtils lockPatternUtils, @Nullable String newUserName,
-            @Nullable String newGuestName) {
+            @NonNull CarUserService carUserService, @NonNull Consumer<UserHandle> listener,
+            @NonNull UserHandleHelper userHandleHelper, @NonNull LockPatternUtils lockPatternUtils,
+            @Nullable String newUserName, @Nullable String newGuestName) {
         mContext = context;
         mUm = um;
         mCarUserService = carUserService;
         mListener = listener;
+        mUserHandleHelper = userHandleHelper;
         mLockPatternUtils = lockPatternUtils;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
@@ -352,23 +357,27 @@ final class InitialUserSetter {
 
     private void replaceUser(InitialUserInfo info, boolean fallback) {
         int currentUserId = ActivityManager.getCurrentUser();
-        UserInfo currentUser = mUm.getUserInfo(currentUserId);
+        UserHandle currentUser = mUserHandleHelper.getExistingUserHandle(currentUserId);
 
-        UserInfo newUser = replaceGuestIfNeeded(currentUser);
+        if (currentUser == null) {
+            Slogf.wtf(TAG, "Current user %d handle doesn't exits ", currentUserId);
+        }
+
+        UserHandle newUser = replaceGuestIfNeeded(currentUser);
         if (newUser == null) {
             fallbackDefaultBehavior(info, fallback,
-                    "could not replace guest " + currentUser.toFullString());
+                    "could not replace guest " + currentUser);
             return;
         }
 
         switchUser(new Builder(TYPE_SWITCH)
-                .setSwitchUserId(newUser.id)
+                .setSwitchUserId(newUser.getIdentifier())
                 .build(), fallback);
 
-        if (newUser.id != currentUser.id) {
-            Slog.i(TAG, "Removing old guest " + currentUser.id);
-            if (!mUm.removeUser(currentUser.id)) {
-                Slog.w(TAG, "Could not remove old guest " + currentUser.id);
+        if (newUser.getIdentifier() != currentUser.getIdentifier()) {
+            Slogf.i(TAG, "Removing old guest %d", currentUser.getIdentifier());
+            if (!mUm.removeUser(currentUser.getIdentifier())) {
+                Slog.w(TAG, "Could not remove old guest " + currentUser.getIdentifier());
             }
         }
     }
@@ -416,25 +425,24 @@ final class InitialUserSetter {
                     + ", fallback=" + fallback);
         }
 
-        UserInfo user = mUm.getUserInfo(userId);
+        UserHandle user = mUserHandleHelper.getExistingUserHandle(userId);
         if (user == null) {
             fallbackDefaultBehavior(info, fallback, "user with id " + userId + " doesn't exist");
             return;
         }
 
-        UserInfo actualUser = user;
+        UserHandle actualUser = user;
 
-        if (user.isGuest() && replaceGuest) {
+        if (mUserHandleHelper.isGuestUser(user) && replaceGuest) {
             actualUser = replaceGuestIfNeeded(user);
 
             if (actualUser == null) {
-                fallbackDefaultBehavior(info, fallback, "could not replace guest "
-                        + user.toFullString());
+                fallbackDefaultBehavior(info, fallback, "could not replace guest " + user);
                 return;
             }
         }
 
-        int actualUserId = actualUser.id;
+        int actualUserId = actualUser.getIdentifier();
 
         unlockSystemUserIfNecessary(actualUserId);
 
@@ -445,7 +453,7 @@ final class InitialUserSetter {
                         "am.switchUser(" + actualUserId + ") failed");
                 return;
             }
-            setLastActiveUser(actualUser.id);
+            setLastActiveUser(actualUserId);
         }
         notifyListener(actualUser);
 
@@ -467,13 +475,13 @@ final class InitialUserSetter {
     /**
      * Check if the user is a guest and can be replaced.
      */
-    public boolean canReplaceGuestUser(UserInfo user) {
-        if (!user.isGuest()) return false;
+    public boolean canReplaceGuestUser(UserHandle user) {
+        if (!mUserHandleHelper.isGuestUser(user)) return false;
 
-        if (mLockPatternUtils.isSecure(user.id)) {
+        if (mLockPatternUtils.isSecure(user.getIdentifier())) {
             if (DBG) {
                 Slog.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
-                        + user.id + " has secure lock pattern");
+                        + user.getIdentifier() + " has secure lock pattern");
             }
             return false;
         }
@@ -492,39 +500,39 @@ final class InitialUserSetter {
 
     @VisibleForTesting
     @Nullable
-    UserInfo replaceGuestIfNeeded(@NonNull UserInfo user) {
+    UserHandle replaceGuestIfNeeded(@NonNull UserHandle user) {
         Preconditions.checkArgument(user != null, "user cannot be null");
 
         if (!canReplaceGuestUser(user)) {
             return user;
         }
 
-        Slog.i(TAG, "Replacing guest (" + user.toFullString() + ")");
+        Slog.i(TAG, "Replacing guest (" + user + ")");
 
         int halFlags = UserFlags.GUEST;
-        if (user.isEphemeral()) {
+        if (mUserHandleHelper.isEphemeralUser(user)) {
             halFlags |= UserFlags.EPHEMERAL;
         } else {
             // TODO(b/150413515): decide whether we should allow it or not. Right now we're
             // just logging, as UserManagerService will automatically set it to ephemeral if
             // platform is set to do so.
-            Slog.w(TAG, "guest being replaced is not ephemeral: " + user.toFullString());
+            Slog.w(TAG, "guest being replaced is not ephemeral: " + user);
         }
 
-        if (!mUm.markGuestForDeletion(user.id)) {
+        if (!mUm.markGuestForDeletion(user.getIdentifier())) {
             // Don't need to recover in case of failure - most likely create new user will fail
             // because there is already a guest
-            Slog.w(TAG, "failed to mark guest " + user.id + " for deletion");
+            Slog.w(TAG, "failed to mark guest " + user.getIdentifier() + " for deletion");
         }
 
-        Pair<UserInfo, String> result = createNewUser(new Builder(TYPE_CREATE)
+        Pair<UserHandle, String> result = createNewUser(new Builder(TYPE_CREATE)
                 .setNewUserName(mNewGuestName)
                 .setNewUserFlags(halFlags)
                 .build());
 
         String errorMessage = result.second;
         if (errorMessage != null) {
-            Slog.w(TAG, "could not replace guest " + user.toFullString() + ": " + errorMessage);
+            Slog.w(TAG, "could not replace guest " + user + ": " + errorMessage);
             return null;
         }
 
@@ -532,7 +540,7 @@ final class InitialUserSetter {
     }
 
     private void createAndSwitchUser(@NonNull InitialUserInfo info, boolean fallback) {
-        Pair<UserInfo, String> result = createNewUser(info);
+        Pair<UserHandle, String> result = createNewUser(info);
         String reason = result.second;
         if (reason != null) {
             fallbackDefaultBehavior(info, fallback, reason);
@@ -540,7 +548,7 @@ final class InitialUserSetter {
         }
 
         switchUser(new Builder(TYPE_SWITCH)
-                .setSwitchUserId(result.first.id)
+                .setSwitchUserId(result.first.getIdentifier())
                 .setSupportsOverrideUserIdProperty(info.supportsOverrideUserIdProperty)
                 .build(), fallback);
     }
@@ -552,7 +560,7 @@ final class InitialUserSetter {
      * error message.
      */
     @NonNull
-    private Pair<UserInfo, String> createNewUser(@NonNull InitialUserInfo info) {
+    private Pair<UserHandle, String> createNewUser(@NonNull InitialUserInfo info) {
         String name = info.newUserName;
         int halFlags = info.newUserFlags;
 
@@ -588,26 +596,27 @@ final class InitialUserSetter {
 
         if (DBG) {
             Slog.d(TAG, "calling am.createUser((name=" + UserHelperLite.safeName(name) + ", type="
-                    + type + ", flags=" + UserInfo.flagsToString(flags) + ")");
+                    + type + ", flags=" + flags + ")");
         }
 
-        UserInfo userInfo = mCarUserService.createUserEvenWhenDisallowed(name, type, flags);
-        if (userInfo == null) {
+        UserHandle user = mCarUserService.createUserEvenWhenDisallowed(name, type, flags);
+        if (user == null) {
             return new Pair<>(null, "createUser(name=" + UserHelperLite.safeName(name) + ", flags="
                     + userFlagsToString(halFlags) + "): failed to create user");
         }
 
-        if (DBG) Slog.d(TAG, "user created: " + userInfo.id);
+        if (DBG) Slog.d(TAG, "user created: " + user.getIdentifier());
 
         if (info.userLocales != null) {
             if (DBG) {
-                Slog.d(TAG, "setting locale for user " + userInfo.id + " to " + info.userLocales);
+                Slog.d(TAG, "setting locale for user " + user.getIdentifier() + " to "
+                        + info.userLocales);
             }
             Settings.System.putStringForUser(mContext.getContentResolver(),
-                    Settings.System.SYSTEM_LOCALES, info.userLocales, userInfo.id);
+                    Settings.System.SYSTEM_LOCALES, info.userLocales, user.getIdentifier());
         }
 
-        return new Pair<>(userInfo, null);
+        return new Pair<>(user, null);
     }
 
     @VisibleForTesting
@@ -644,7 +653,7 @@ final class InitialUserSetter {
         return ActivityManagerHelper.getInstance().startUserInForeground(userId);
     }
 
-    private void notifyListener(@Nullable UserInfo initialUser) {
+    private void notifyListener(@Nullable UserHandle initialUser) {
         if (DBG) Slog.d(TAG, "notifyListener(): " + initialUser);
         mListener.accept(initialUser);
     }
@@ -670,13 +679,12 @@ final class InitialUserSetter {
         }
         setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_USER_ID, userId);
 
-        // TODO(b/155918094): change method to receive a UserInfo instead
-        UserInfo user = mUm.getUserInfo(userId);
+        UserHandle user = mUserHandleHelper.getExistingUserHandle(userId);
         if (user == null) {
             Slog.w(TAG, "setLastActiveUser(): user " + userId + " doesn't exist");
             return;
         }
-        if (!user.isEphemeral()) {
+        if (!mUserHandleHelper.isEphemeralUser(user)) {
             setUserIdGlobalProperty(CarSettings.Global.LAST_ACTIVE_PERSISTENT_USER_ID, userId);
         }
     }
@@ -708,7 +716,7 @@ final class InitialUserSetter {
     @VisibleForTesting
     int getInitialUser(boolean usesOverrideUserIdProperty) {
 
-        List<Integer> allUsers = userInfoListToUserIdList(getAllUsers());
+        List<Integer> allUsers = userListToUserIdList(getAllUsers());
 
         if (allUsers.isEmpty()) {
             return UserHandle.USER_NULL;
@@ -758,13 +766,14 @@ final class InitialUserSetter {
     /**
      * Gets all the users that can be brought to the foreground on the system.
      *
-     * @return List of {@code UserInfo} for users that associated with a real person.
+     * @return List of {@code UserHandle} for users that associated with a real person.
      */
-    private List<UserInfo> getAllUsers() {
+    private List<UserHandle> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
             return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
         } else {
-            return mUm.getAliveUsers();
+            return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
+                    /* excludeDying= */ false);
         }
     }
 
@@ -774,12 +783,14 @@ final class InitialUserSetter {
      * @param userId of the user not to be returned.
      * @return All users other than system user and user with userId.
      */
-    private List<UserInfo> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
-        List<UserInfo> users = mUm.getAliveUsers();
+    private List<UserHandle> getAllUsersExceptSystemUserAndSpecifiedUser(@UserIdInt int userId) {
+        List<UserHandle> users = UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
+                /* excludeDying= */ false);
 
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo userInfo = iterator.next();
-            if (userInfo.id == userId || userInfo.id == UserHandle.USER_SYSTEM) {
+        for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserHandle user = iterator.next();
+            if (user.getIdentifier() == userId
+                    || user.getIdentifier() == UserHandle.USER_SYSTEM) {
                 // Remove user with userId from the list.
                 iterator.remove();
             }
@@ -791,20 +802,20 @@ final class InitialUserSetter {
      * Checks whether the device has an initial user that can be switched to.
      */
     public boolean hasInitialUser() {
-        List<UserInfo> allUsers = getAllUsers();
+        List<UserHandle> allUsers = getAllUsers();
         for (int i = 0; i < allUsers.size(); i++) {
-            UserInfo user = allUsers.get(i);
-            if (user.isManagedProfile()) continue;
+            UserHandle user = allUsers.get(i);
+            if (mUserHandleHelper.isManagedProfile(user)) continue;
 
             return true;
         }
         return false;
     }
 
-    private static List<Integer> userInfoListToUserIdList(List<UserInfo> allUsers) {
+    private static List<Integer> userListToUserIdList(List<UserHandle> allUsers) {
         ArrayList<Integer> list = new ArrayList<>(allUsers.size());
         for (int i = 0; i < allUsers.size(); i++) {
-            list.add(allUsers.get(i).id);
+            list.add(allUsers.get(i).getIdentifier());
         }
         return list;
     }

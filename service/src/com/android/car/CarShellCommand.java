@@ -108,6 +108,7 @@ import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 
@@ -1343,11 +1344,15 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private UsersInfo generateUsersInfo() {
-        return UserHalHelper.newUsersInfo(mContext.getSystemService(UserManager.class));
+        UserManager um = mContext.getSystemService(UserManager.class);
+        UserHandleHelper userHandleHelper = new UserHandleHelper(mContext, um);
+        return UserHalHelper.newUsersInfo(um, userHandleHelper);
     }
 
     private int getUserHalFlags(@UserIdInt int userId) {
-        return UserHalHelper.getFlags(mContext.getSystemService(UserManager.class), userId);
+        UserManager um = mContext.getSystemService(UserManager.class);
+        UserHandleHelper userHandleHelper = new UserHandleHelper(mContext, um);
+        return UserHalHelper.getFlags(userHandleHelper, userId);
     }
 
     private static void waitForHal(IndentingPrintWriter writer, CountDownLatch latch,
@@ -1523,7 +1528,8 @@ final class CarShellCommand extends ShellCommand {
         Slog.i(TAG, "Created new user: " + newUser.toFullString());
 
         request.newUserInfo.userId = newUser.id;
-        request.newUserInfo.flags = UserHalHelper.convertFlags(newUser);
+        request.newUserInfo.flags = UserHalHelper.convertFlags(new UserHandleHelper(mContext, um),
+                newUser.getUserHandle());
 
         request.usersInfo = generateUsersInfo();
 
@@ -1618,8 +1624,8 @@ final class CarShellCommand extends ShellCommand {
     }
 
     private void getInitialUser(IndentingPrintWriter writer) {
-        android.content.pm.UserInfo user = mCarUserService.getInitialUser();
-        writer.println(user == null ? NO_INITIAL_USER : user.id);
+        UserHandle user = mCarUserService.getInitialUser();
+        writer.println(user == null ? NO_INITIAL_USER : user.getIdentifier());
     }
 
     private void getUserAuthAssociation(String[] args, IndentingPrintWriter writer) {

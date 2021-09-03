@@ -31,6 +31,7 @@ import android.car.CarOccupantZoneManager.OccupantTypeEnum;
 import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.IExperimentalCarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
@@ -38,7 +39,6 @@ import android.car.user.UserCreationResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.os.Trace;
@@ -85,6 +85,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     private final CarUserService mCarUserService;
     private final UserManager mUserManager;
     private final boolean mEnablePassengerSupport;
+    private final UserHandleHelper mUserHandleHelper;
 
     private final Object mLock = new Object();
     // Only one passenger is supported.
@@ -129,6 +130,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         mCarUserService = carUserService;
         Resources resources = context.getResources();
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
+        mUserHandleHelper = new UserHandleHelper(context, userManager);
     }
 
     @Override
@@ -195,8 +197,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                     Slogf.w(TAG, "createDriver(%s, %s) failed: %s", name, admin, err);
                 } else {
                     if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        assignDefaultIcon(
-                                mUserManager.getUserInfo(result.getUser().getIdentifier()));
+                        assignDefaultIcon(result.getUser());
                     }
                 }
                 super.onCompleted(result, err);
@@ -209,10 +210,11 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                 sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
                 return future;
             }
-            flags = UserInfo.FLAG_ADMIN;
+            flags = UserManagerHelper.FLAG_ADMIN;
         }
-        mCarUserService.createUser(
-                name, UserInfo.getDefaultUserType(flags), flags, mHalTimeoutMs, future);
+        mCarUserService.createUser(name,
+                UserManagerHelper.getDefaultUserTypeForUserInfoFlags(flags), flags, mHalTimeoutMs,
+                future);
         return future;
     }
 
@@ -222,28 +224,37 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         checkManageUsersPermission("createPassenger");
         Objects.requireNonNull(name, "name cannot be null");
 
-        UserInfo driver = mUserManager.getUserInfo(driverId);
+        UserHandle driver = mUserHandleHelper.getExistingUserHandle(driverId);
         if (driver == null) {
             Slogf.w(TAG, "the driver is invalid for driverId: %d", driverId);
             return null;
         }
-        if (driver.isGuest()) {
+        if (mUserHandleHelper.isGuestUser(driver)) {
             Slogf.w(TAG, "a guest driver with id %d cannot create a passenger", driverId);
             return null;
         }
         // createPassenger doesn't use user HAL because user HAL doesn't support profile user yet.
-        UserInfo user = mUserManager.createProfileForUser(name,
-                UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId);
+        UserHandle user;
+        try {
+            user = mUserManager.createProfileForUser(name,
+                    UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId).getUserHandle();
+        } catch (NullPointerException e) {
+            // TODO(b/196179969): SHIPSTOP remove this try catch block
+            // This is possible when createProfileForUser return null. As UserInfo is eliminated,
+            // createProfileForUser result can't be checked. In future CLs, createProfileForUser
+            // will be updated with the call which return user Handle.
+            user = null;
+        }
         if (user == null) {
             // Couldn't create user, most likely because there are too many.
             Slogf.w(TAG, "can't create a profile for user %d", driverId);
             return null;
         }
         // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user.getUserHandle(),
+        UserHelper.setDefaultNonAdminRestrictions(mContext, user,
                 /* enable= */ true);
         assignDefaultIcon(user);
-        return user.getUserHandle();
+        return user;
     }
 
     @Override
@@ -268,30 +279,35 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     /**
      * Returns all drivers who can occupy the driving zone. Guest users are included in the list.
      *
-     * @return the list of {@link UserInfo} who can be a driver on the device.
+     * @return the list of {@link UserHandle} who can be a driver on the device.
      */
     @Override
     public List<UserHandle> getAllDrivers() {
         checkManageUsersOrDumpPermission("getAllDrivers");
 
-        return getUsersHandle((user) ->
-                !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
-                        && !user.isManagedProfile() && !user.isEphemeral());
+        return getUsersHandle(
+                (user) -> !UserHelperLite.isHeadlessSystemUser(user.getIdentifier())
+                        && mUserHandleHelper.isEnabledUser(user)
+                        && !mUserHandleHelper.isManagedProfile(user)
+                        && !mUserHandleHelper.isEphemeralUser(user));
     }
 
     /**
      * Returns all passengers under the given driver.
      *
      * @param driverId User id of a driver.
-     * @return the list of {@link UserInfo} who is a passenger under the given driver.
+     * @return the list of {@link UserHandle} who is a passenger under the given driver.
      */
     @Override
     public List<UserHandle> getPassengers(@UserIdInt int driverId) {
         checkManageUsersOrDumpPermission("getPassengers");
 
-        return getUsersHandle((user) ->
-                !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
-                        && user.isManagedProfile() && user.profileGroupId == driverId);
+        return getUsersHandle((user) -> {
+            return !UserHelperLite.isHeadlessSystemUser(user.getIdentifier())
+                    && mUserHandleHelper.isEnabledUser(user)
+                    && mUserHandleHelper.isManagedProfile(user)
+                    && mUserHandleHelper.getProfileGroupId(user) == driverId;
+        });
     }
 
     @Override
@@ -348,7 +364,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             if (passengerId == UserHandle.USER_NULL) {
                 passengerId = mLastPassengerId;
             }
-            UserInfo passenger = mUserManager.getUserInfo(passengerId);
+            UserHandle passenger = mUserHandleHelper.getExistingUserHandle(passengerId);
             if (passenger == null) {
                 Slogf.w(TAG, "passenger %d doesn't exist", passengerId);
                 return false;
@@ -359,7 +375,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             }
             if (checkCurrentDriver) {
                 int currentUserId = ActivityManager.getCurrentUser();
-                if (passenger.profileGroupId != currentUserId) {
+                if (mUserHandleHelper.getProfileGroupId(passenger) != currentUserId) {
                     Slogf.w(TAG, "passenger %d is not a profile of the current user %d",
                             passengerId, currentUserId);
                     return false;
@@ -397,31 +413,35 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
     /**
      * Assigns a default icon to a user according to the user's id.
+     *
+     * @param user User whose avatar is set to default icon.
      */
-    private void assignDefaultIcon(UserInfo userInfo) {
-        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
-        Bitmap bitmap = UserIcons.convertToBitmap(UserIcons.getDefaultUserIcon(
-                mContext.getResources(), idForIcon, /* light= */ false));
-        mUserManager.setUserIcon(userInfo.id, bitmap);
+    private void assignDefaultIcon(UserHandle user) {
+        int idForIcon = mUserHandleHelper.isGuestUser(user) ? UserHandle.USER_NULL
+                : user.getIdentifier();
+        Bitmap bitmap = UserIcons.convertToBitmap(
+                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
+        mUserManager.setUserIcon(user.getIdentifier(), bitmap);
     }
 
     interface UserFilter {
-        boolean isEligibleUser(UserInfo user);
+        boolean isEligibleUser(UserHandle user);
     }
 
     /** Returns all users who are matched by the given filter. */
     private List<UserHandle> getUsersHandle(UserFilter filter) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
-        List<UserHandle> usersHandle = new ArrayList<UserHandle>();
+        List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
+                /* excludePartial= */ false, /* excludeDying= */ false);
+        List<UserHandle> usersFiltered = new ArrayList<UserHandle>();
 
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo user = iterator.next();
+        for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
+            UserHandle user = iterator.next();
             if (filter.isEligibleUser(user)) {
-                usersHandle.add(user.getUserHandle());
+                usersFiltered.add(user);
             }
         }
 
-        return usersHandle;
+        return usersFiltered;
     }
 
     private void checkManageUsersOrDumpPermission(String message) {
@@ -431,11 +451,13 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     }
 
     private int getNumberOfManagedProfiles(@UserIdInt int userId) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
+        List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
+                /* excludePartial= */ false, /* excludeDying= */ false);
         // Count all users that are managed profiles of the given user.
         int managedProfilesCount = 0;
-        for (UserInfo user : users) {
-            if (user.isManagedProfile() && user.profileGroupId == userId) {
+        for (UserHandle user : users) {
+            if (mUserHandleHelper.isManagedProfile(user)
+                    && mUserHandleHelper.getProfileGroupId(user) == userId) {
                 managedProfilesCount++;
             }
         }

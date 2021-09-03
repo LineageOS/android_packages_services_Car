@@ -27,6 +27,9 @@ import android.os.UserManager;
 
 import com.android.internal.util.UserIcons;
 
+import java.util.ArrayList;
+import java.util.List;
+
 /**
  * Helper for User related operations.
  *
@@ -41,9 +44,29 @@ public final class UserManagerHelper {
     /** user id for invalid user */
     public static final @UserIdInt int USER_NULL = UserHandle.USER_NULL;
 
-    /** Type for Guest user */
     // TODO(b/197181121): Move it after making systemAPI
+    /**
+     * Type for Guest user
+     *
+     * @deprecated Move it after making systemAPI
+     */
+    @Deprecated
     public static final String USER_TYPE_FULL_GUEST = UserManager.USER_TYPE_FULL_GUEST;
+
+    // Flags copied from UserInfo.
+    public static final int FLAG_PRIMARY = UserInfo.FLAG_PRIMARY;
+    public static final int FLAG_ADMIN = UserInfo.FLAG_ADMIN;
+    public static final int FLAG_GUEST = UserInfo.FLAG_GUEST;
+    public static final int FLAG_RESTRICTED = UserInfo.FLAG_RESTRICTED;
+    public static final int FLAG_INITIALIZED = UserInfo.FLAG_INITIALIZED;
+    public static final int FLAG_MANAGED_PROFILE = UserInfo.FLAG_MANAGED_PROFILE;
+    public static final int FLAG_DISABLED = UserInfo.FLAG_DISABLED;
+    public static final int FLAG_QUIET_MODE = UserInfo.FLAG_QUIET_MODE;
+    public static final int FLAG_EPHEMERAL = UserInfo.FLAG_EPHEMERAL;
+    public static final int FLAG_DEMO = UserInfo.FLAG_DEMO;
+    public static final int FLAG_FULL = UserInfo.FLAG_FULL;
+    public static final int FLAG_SYSTEM = UserInfo.FLAG_SYSTEM;
+    public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
     /** Assign default Icon for a given user. */
     public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
@@ -70,5 +93,97 @@ public final class UserManagerHelper {
     /** Assigns admin privileges to the user */
     public static void setUserAdmin(@NonNull UserManager userManager, @NonNull UserHandle user) {
         userManager.setUserAdmin(user.getIdentifier());
+    }
+
+    /**
+     * Would be removed after making getUserHandle a system API with parameters.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    @NonNull
+    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
+            boolean excludePartial, boolean excludeDying) {
+        List<UserInfo> users = userManager.getUsers(excludePartial, excludeDying,
+                /* excludePreCreated= */ true);
+
+        List<UserHandle> result = new ArrayList<>(users.size());
+        for (UserInfo user : users) {
+            result.add(user.getUserHandle());
+        }
+        return result;
+    }
+
+    /**
+     * Would be removed after making isUserEphemeral a system API
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static boolean isEphemeralUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.isUserEphemeral(user.getIdentifier());
+    }
+
+    /**
+     * Would be removed after understanding the requirement of the call.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static boolean isEnabledUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).isEnabled();
+    }
+
+    /**
+     * Would be removed after more research in existing API.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static boolean isAdminUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).isAdmin();
+    }
+
+    /**
+     * Would be removed after more research in existing API.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static boolean isGuestUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).isGuest();
+    }
+
+    /**
+     * Would be removed after more research in existing API.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static boolean isProfileUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).isProfile();
+    }
+
+    /**
+     * It may be replaced by isSameProfileGroup. Need to check.
+     *
+     * @deprecated Would be removed
+     */
+    @Deprecated
+    public static int getProfileGroupId(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).profileGroupId;
+    }
+
+    /**
+     * getDefaultUserType given userInfo flags.
+     */
+    public static String getDefaultUserTypeForUserInfoFlags(int userInfoFlag) {
+        return UserInfo.getDefaultUserType(userInfoFlag);
     }
 }
