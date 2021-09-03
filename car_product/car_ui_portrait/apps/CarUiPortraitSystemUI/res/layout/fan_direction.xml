@@ -23,7 +23,7 @@
         android:orientation="horizontal">
         <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
             android:id="@+id/direction_face"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
             android:layout_height="@dimen/hvac_panel_button_dimen"
             android:layout_weight="1"
             android:background="@drawable/hvac_default_background"
@@ -40,7 +40,7 @@
             android:layout_height="match_parent"/>
         <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
             android:id="@+id/direction_floor"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
             android:layout_height="@dimen/hvac_panel_button_dimen"
             android:layout_weight="1"
             android:background="@drawable/hvac_default_background"
@@ -57,7 +57,7 @@
             android:layout_height="match_parent"/>
         <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
             android:id="@+id/direction_defrost_front_and_floor"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_1"
             android:layout_height="@dimen/hvac_panel_button_dimen"
             android:layout_weight="1"
             android:background="@drawable/hvac_default_background"
@@ -79,7 +79,7 @@
         android:orientation="horizontal">
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/direction_defrost_front"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_2"
             android:layout_height="@dimen/hvac_panel_button_dimen"
             android:layout_weight="1"
             android:background="@drawable/hvac_default_background"
@@ -95,7 +95,7 @@
             android:layout_height="match_parent"/>
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/direction_defrost_rear"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_airflow_button_width_2"
             android:layout_height="@dimen/hvac_panel_button_dimen"
             android:layout_weight="1"
             android:background="@drawable/hvac_default_background"
