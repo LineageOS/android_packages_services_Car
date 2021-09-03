@@ -27,6 +27,7 @@ import android.content.Context;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
+import com.android.car.CarPropertyService;
 import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.Before;
@@ -55,6 +56,8 @@ public class CarTelemetryServiceTest {
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
     @Mock
+    private CarPropertyService mMockCarPropertyService;
+    @Mock
     private Context mContext;
     @Mock
     private SystemInterface mMockSystemInterface;
@@ -67,7 +70,7 @@ public class CarTelemetryServiceTest {
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
 
-        mService = new CarTelemetryService(mContext);
+        mService = new CarTelemetryService(mContext, mMockCarPropertyService);
     }
 
     @Test

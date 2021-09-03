@@ -361,7 +361,7 @@ public class ICarImpl extends ICar.Stub {
         }
 
         if (mFeatureController.isFeatureEnabled(Car.CAR_TELEMETRY_SERVICE)) {
-            mCarTelemetryService = new CarTelemetryService(serviceContext);
+            mCarTelemetryService = new CarTelemetryService(serviceContext, mCarPropertyService);
         } else {
             mCarTelemetryService = null;
         }

@@ -46,19 +46,20 @@ import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.util.Collections;
+import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.PriorityBlockingQueue;
+import java.util.concurrent.TimeUnit;
 
 @RunWith(MockitoJUnitRunner.class)
-public class DataBrokerUnitTest {
+public class DataBrokerTest {
     private static final int PROP_ID = 100;
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
@@ -88,9 +89,10 @@ public class DataBrokerUnitTest {
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
 
+    // when count reaches 0, all messages are handled, so assertions won't have race condition
+    private CountDownLatch mIdleHandlerLatch = new CountDownLatch(1);
     private DataBrokerImpl mDataBroker;
     private FakeScriptExecutor mFakeScriptExecutor;
-    private Handler mHandler;
     private ScriptExecutionTask mHighPriorityTask;
     private ScriptExecutionTask mLowPriorityTask;
 
@@ -98,6 +100,8 @@ public class DataBrokerUnitTest {
     private Context mMockContext;
     @Mock
     private CarPropertyService mMockCarPropertyService;
+    @Mock
+    private Handler mMockHandler;
     @Mock
     private StatsManagerProxy mMockStatsManager;
     @Mock
@@ -107,9 +111,6 @@ public class DataBrokerUnitTest {
     @Mock
     private ResultStore mMockResultStore;
 
-    @Captor
-    private ArgumentCaptor<ServiceConnection> mServiceConnectionCaptor;
-
     @Before
     public void setUp() {
         when(mMockCarPropertyService.getPropertyList())
@@ -117,18 +118,22 @@ public class DataBrokerUnitTest {
         // bind service should return true, otherwise broker is disabled
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockStatsManager, mMockSharedPreferences);
+                mMockCarPropertyService, mMockHandler, mMockStatsManager, mMockSharedPreferences);
         mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
-        mHandler = mDataBroker.getWorkerHandler();
+        // add IdleHandler to get notified when all messages and posts are handled
+        mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
+            mIdleHandlerLatch.countDown();
+            return true;
+        });
 
         mFakeScriptExecutor = new FakeScriptExecutor();
         when(mMockScriptExecutorBinder.queryLocalInterface(anyString()))
                 .thenReturn(mFakeScriptExecutor);
-        // capture ServiceConnection and connect to fake ScriptExecutor
-        verify(mMockContext).bindServiceAsUser(
-                any(), mServiceConnectionCaptor.capture(), anyInt(), any());
-        mServiceConnectionCaptor.getValue().onServiceConnected(
-                null, mMockScriptExecutorBinder);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenAnswer(i -> {
+            ServiceConnection conn = i.getArgument(1);
+            conn.onServiceConnected(null, mMockScriptExecutorBinder);
+            return true;
+        });
 
         mHighPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
@@ -141,7 +146,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNoTask_shouldNotInvokeScriptExecutor() {
+    public void testSetTaskExecutionPriority_whenNoTask_shouldNotInvokeScriptExecutor()
+            throws Exception {
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
 
         waitForHandlerThreadToFinish();
@@ -149,7 +155,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNextTaskPriorityLow_shouldNotRunTask() {
+    public void testSetTaskExecutionPriority_whenNextTaskPriorityLow_shouldNotRunTask()
+            throws Exception {
         mDataBroker.getTaskQueue().add(mLowPriorityTask);
 
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
@@ -161,7 +168,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testSetTaskExecutionPriority_whenNextTaskPriorityHigh_shouldInvokeScriptExecutor() {
+    public void testSetTaskExecutionPriority_whenNextTaskPriorityHigh_shouldInvokeScriptExecutor()
+            throws Exception {
         mDataBroker.getTaskQueue().add(mHighPriorityTask);
 
         mDataBroker.setTaskExecutionPriority(PRIORITY_HIGH);
@@ -173,7 +181,7 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testScheduleNextTask_whenNoTask_shouldNotInvokeScriptExecutor() {
+    public void testScheduleNextTask_whenNoTask_shouldNotInvokeScriptExecutor() throws Exception {
         mDataBroker.scheduleNextTask();
 
         waitForHandlerThreadToFinish();
@@ -181,7 +189,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testScheduleNextTask_whenTaskInProgress_shouldNotInvokeScriptExecutorAgain() {
+    public void testScheduleNextTask_whenTaskInProgress_shouldNotInvokeScriptExecutorAgain()
+            throws Exception {
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
         mDataBroker.scheduleNextTask(); // start a task
@@ -198,7 +207,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testScheduleNextTask_whenTaskCompletes_shouldAutomaticallyScheduleNextTask() {
+    public void testScheduleNextTask_whenTaskCompletes_shouldAutomaticallyScheduleNextTask()
+            throws Exception {
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         // add two tasks into the queue for execution
         taskQueue.add(mHighPriorityTask);
@@ -206,8 +216,9 @@ public class DataBrokerUnitTest {
 
         mDataBroker.scheduleNextTask(); // start a task
         waitForHandlerThreadToFinish();
+        mIdleHandlerLatch = new CountDownLatch(1); // reset handler idle condition
         // end a task, should automatically schedule the next task
-        mFakeScriptExecutor.notifyScriptSuccess(DATA);
+        mFakeScriptExecutor.notifyScriptSuccess(DATA); // posts to handler
 
         waitForHandlerThreadToFinish();
         // verify queue is empty, both tasks are polled and executed
@@ -215,32 +226,32 @@ public class DataBrokerUnitTest {
         assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(2);
     }
 
-    @Ignore("fix after split")
     @Test
-    public void testScheduleNextTask_onScriptSuccess_shouldStoreInterimResult() {
+    public void testScheduleNextTask_onScriptSuccess_shouldStoreInterimResult() throws Exception {
         mDataBroker.getTaskQueue().add(mHighPriorityTask);
         ArgumentCaptor<PersistableBundle> persistableBundleCaptor =
                 ArgumentCaptor.forClass(PersistableBundle.class);
 
         mDataBroker.scheduleNextTask();
         waitForHandlerThreadToFinish();
-        mFakeScriptExecutor.notifyScriptSuccess(new PersistableBundle()); // pass in empty bundle
+        mFakeScriptExecutor.notifyScriptSuccess(DATA);
 
         assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
         verify(mMockResultStore).putInterimResult(eq(METRICS_CONFIG_FOO.getName()),
                 persistableBundleCaptor.capture());
         assertThat(persistableBundleCaptor.getValue().toString()).isEqualTo(
-                new PersistableBundle().toString()); // expect empty persistable bundle
+                DATA.toString()); // expect same persistable bundle
     }
 
     @Test
-    public void testScheduleNextTask_whenBindScriptExecutorFailed_shouldDisableBroker() {
+    public void testScheduleNextTask_whenBindScriptExecutorFailed_shouldDisableBroker()
+            throws Exception {
+        // fail all future attempts to bind to it
+        Mockito.reset(mMockContext);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(false);
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
-        // disconnect ScriptExecutor and fail all future attempts to bind to it
-        mServiceConnectionCaptor.getValue().onServiceDisconnected(null);
-        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(false);
 
         // will rebind to ScriptExecutor if it is null
         mDataBroker.scheduleNextTask();
@@ -252,7 +263,8 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testScheduleNextTask_whenScriptExecutorFails_shouldRequeueTask() {
+    public void testScheduleNextTask_whenScriptExecutorThrowsException_shouldRequeueTask()
+            throws Exception {
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
         mFakeScriptExecutor.failNextApiCalls(1); // fail the next invokeScript() call
@@ -266,7 +278,7 @@ public class DataBrokerUnitTest {
     }
 
     @Test
-    public void testAddTaskToQueue_shouldInvokeScriptExecutor() {
+    public void testAddTaskToQueue_shouldInvokeScriptExecutor() throws Exception {
         mDataBroker.addTaskToQueue(mHighPriorityTask);
 
         waitForHandlerThreadToFinish();
@@ -277,7 +289,6 @@ public class DataBrokerUnitTest {
     public void testAddMetricsConfiguration_newMetricsConfig() {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
 
-        waitForHandlerThreadToFinish();
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_BAR.getName());
         // there should be one data subscriber in the subscription list of METRICS_CONFIG_BAR
@@ -290,7 +301,6 @@ public class DataBrokerUnitTest {
         // this metrics config has already been added in setUp()
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
 
-        waitForHandlerThreadToFinish();
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(1);
         assertThat(mDataBroker.getSubscriptionMap()).containsKey(METRICS_CONFIG_FOO.getName());
         assertThat(mDataBroker.getSubscriptionMap().get(METRICS_CONFIG_FOO.getName())).hasSize(1);
@@ -312,7 +322,6 @@ public class DataBrokerUnitTest {
 
         mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
 
-        waitForHandlerThreadToFinish();
         assertThat(taskQueue).hasSize(1);
         assertThat(taskQueue.poll()).isEqualTo(mLowPriorityTask);
     }
@@ -321,13 +330,12 @@ public class DataBrokerUnitTest {
     public void testRemoveMetricsConfiguration_whenMetricsConfigNonExistent_shouldDoNothing() {
         mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_BAR);
 
-        waitForHandlerThreadToFinish();
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
     }
 
-    private void waitForHandlerThreadToFinish() {
+    private void waitForHandlerThreadToFinish() throws Exception {
         assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
-                .that(mHandler.runWithScissors(() -> {}, TIMEOUT_MS)).isTrue();
+                .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
     }
 
     private static class FakeScriptExecutor implements IScriptExecutor {

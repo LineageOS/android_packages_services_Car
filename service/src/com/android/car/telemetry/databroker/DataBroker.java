@@ -55,13 +55,11 @@ public interface DataBroker {
     /**
      * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
      * next task if a task is not currently running.
-     * This method can be called from any thread, and it is thread-safe.
      */
     void addTaskToQueue(ScriptExecutionTask task);
 
     /**
-     * Sends a message to the handler to poll and execute a task.
-     * This method is thread-safe.
+     * Checks system health state and executes a task if condition allows.
      */
     void scheduleNextTask();
 

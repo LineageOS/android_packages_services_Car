@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.util.Slog;
 
 import com.android.car.CarLog;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.BufferedReader;
@@ -34,6 +33,7 @@ import java.io.IOException;
 /**
  * SystemMonitor monitors system states and report to listeners when there are
  * important changes.
+ * All methods in this class should be invoked from the telemetry thread.
  */
 public class SystemMonitor {
 
@@ -46,20 +46,15 @@ public class SystemMonitor {
 
     private static final int POLL_INTERVAL_MILLIS = 60000;
 
-    private final Handler mWorkerHandler;
-
-    private final Object mLock = new Object();
+    private final Handler mTelemetryHandler;
 
     private final Context mContext;
     private final ActivityManager mActivityManager;
     private final String mLoadavgPath;
     private final Runnable mSystemLoadRunnable = this::getSystemLoadRepeated;
 
-    @GuardedBy("mLock")
     @Nullable private SystemMonitorCallback mCallback;
-    @GuardedBy("mLock")
     private boolean mSystemMonitorRunning = false;
-
 
     /**
      * Interface for receiving notifications about system monitor changes.
@@ -85,9 +80,9 @@ public class SystemMonitor {
     }
 
     @VisibleForTesting
-    SystemMonitor(Context context, Handler workerHandler, String loadavgPath) {
+    SystemMonitor(Context context, Handler telemetryHandler, String loadavgPath) {
         mContext = context;
-        mWorkerHandler = workerHandler;
+        mTelemetryHandler = telemetryHandler;
         mActivityManager = (ActivityManager)
                 mContext.getSystemService(Context.ACTIVITY_SERVICE);
         mLoadavgPath = loadavgPath;
@@ -99,11 +94,9 @@ public class SystemMonitor {
      * @param callback the callback to nofify state changes on.
      */
     public void setSystemMonitorCallback(SystemMonitorCallback callback) {
-        synchronized (mLock) {
-            mCallback = callback;
-            if (!mSystemMonitorRunning) {
-                startSystemLoadMonitoring();
-            }
+        mCallback = callback;
+        if (!mSystemMonitorRunning) {
+            startSystemLoadMonitoring();
         }
     }
 
@@ -111,10 +104,9 @@ public class SystemMonitor {
      * Unsets the {@link SystemMonitorCallback}.
      */
     public void unsetSystemMonitorCallback() {
-        synchronized (mLock) {
-            stopSystemLoadMonitoringLocked();
-            mCallback = null;
-        }
+        mTelemetryHandler.removeCallbacks(mSystemLoadRunnable);
+        mSystemMonitorRunning = false;
+        mCallback = null;
     }
 
     /**
@@ -201,25 +193,23 @@ public class SystemMonitor {
      * The Runnable to repeatedly getting system load data with some interval.
      */
     private void getSystemLoadRepeated() {
-        synchronized (mLock) {
-            try {
-                CpuLoadavg cpuLoadAvg = getCpuLoad();
-                if (cpuLoadAvg == null) {
-                    return;
-                }
-                int numProcessors = Runtime.getRuntime().availableProcessors();
+        try {
+            CpuLoadavg cpuLoadAvg = getCpuLoad();
+            if (cpuLoadAvg == null) {
+                return;
+            }
+            int numProcessors = Runtime.getRuntime().availableProcessors();
 
-                MemoryInfo memInfo = getMemoryLoad();
+            MemoryInfo memInfo = getMemoryLoad();
 
-                SystemMonitorEvent event = new SystemMonitorEvent();
-                setEventCpuUsageLevel(event, cpuLoadAvg.mOneMinuteVal / numProcessors);
-                setEventMemUsageLevel(event, 1 - memInfo.availMem / memInfo.totalMem);
+            SystemMonitorEvent event = new SystemMonitorEvent();
+            setEventCpuUsageLevel(event, cpuLoadAvg.mOneMinuteVal / numProcessors);
+            setEventMemUsageLevel(event, 1 - memInfo.availMem / memInfo.totalMem);
 
-                mCallback.onSystemMonitorEvent(event);
-            } finally {
-                if (mSystemMonitorRunning) {
-                    mWorkerHandler.postDelayed(mSystemLoadRunnable, POLL_INTERVAL_MILLIS);
-                }
+            mCallback.onSystemMonitorEvent(event);
+        } finally {
+            if (mSystemMonitorRunning) {
+                mTelemetryHandler.postDelayed(mSystemLoadRunnable, POLL_INTERVAL_MILLIS);
             }
         }
     }
@@ -228,21 +218,8 @@ public class SystemMonitor {
      * Starts system load monitoring.
      */
     private void startSystemLoadMonitoring() {
-        synchronized (mLock) {
-            mWorkerHandler.post(mSystemLoadRunnable);
-            mSystemMonitorRunning = true;
-        }
-    }
-
-    /**
-     * Stops system load monitoring.
-     */
-    @GuardedBy("mLock")
-    private void stopSystemLoadMonitoringLocked() {
-        synchronized (mLock) {
-            mWorkerHandler.removeCallbacks(mSystemLoadRunnable);
-            mSystemMonitorRunning = false;
-        }
+        mTelemetryHandler.post(mSystemLoadRunnable);
+        mSystemMonitorRunning = true;
     }
 
     static final class CpuLoadavg {
