@@ -93,4 +93,35 @@
         </com.android.systemui.car.hvac.TemperatureControlView>
 
     </LinearLayout>
+
+    <LinearLayout
+        android:id="@+id/occlusion_buttons"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_weight="1"
+        android:gravity="center"
+        android:layoutDirection="ltr"
+        android:visibility="gone">
+        <com.android.systemui.car.hvac.TemperatureControlView
+            android:id="@+id/driver_hvac"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_weight="1"
+            android:layout_gravity="start"
+            android:gravity="start|center_vertical"
+            systemui:hvacAreaId="49">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
+
+        <com.android.systemui.car.hvac.TemperatureControlView
+            android:id="@+id/passenger_hvac"
+            android:layout_width="0dp"
+            android:layout_height="match_parent"
+            android:layout_gravity="end"
+            android:layout_weight="1"
+            android:gravity="end|center_vertical"
+            systemui:hvacAreaId="68">
+            <include layout="@layout/adjustable_temperature_view"/>
+        </com.android.systemui.car.hvac.TemperatureControlView>
+    </LinearLayout>
 </com.android.systemui.car.systembar.CarSystemBarView>
