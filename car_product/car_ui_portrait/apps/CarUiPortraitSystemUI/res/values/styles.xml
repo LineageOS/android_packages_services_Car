@@ -17,12 +17,19 @@
 <resources
     xmlns:android="http://schemas.android.com/apk/res/android">
 
+    <!--
+        Note on selected/unselected icons:
+        The icon is always tinted with @color/car_nav_icon_fill_color_selected in @layout/car_system_bar_button
+        Unselected: keep this behavior so all icons have consistent color (eg. tint a multi-colored default app icon)
+        Selected: set selected alpha 0, making icon transparent. Use state list nav_bar_button_background to show selected icon (in addition to background).
+    -->
     <style name="SystemBarButton">
         <item name="android:layout_width">@dimen/system_bar_button_size</item>
         <item name="android:layout_height">@dimen/system_bar_button_size</item>
         <item name="android:background">@drawable/nav_bar_button_background</item>
         <item name="android:gravity">center</item>
         <item name="unselectedAlpha">1.0</item>
+        <item name="selectedAlpha">0</item>
     </style>
 
     <style name="TextAppearance.SystemBar.Username"

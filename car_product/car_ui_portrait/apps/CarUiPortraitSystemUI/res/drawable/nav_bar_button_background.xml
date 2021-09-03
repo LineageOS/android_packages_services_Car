@@ -15,18 +15,8 @@
   -->
 <selector xmlns:android="http://schemas.android.com/apk/res/android"
           xmlns:aapt="http://schemas.android.com/aapt">
-    <item android:state_activated="true">
+    <item android:state_selected="true">
         <layer-list>
-            <item>
-                <shape android:shape="rectangle">
-                    <size android:width="@dimen/system_bar_button_size"
-                          android:height="@dimen/system_bar_button_size"/>
-                    <corners
-                        android:radius="@dimen/system_bar_button_corner_radius"/>
-                    <solid
-                        android:color="@color/car_nav_icon_fill_color"/>
-                </shape>
-            </item>
             <item>
                 <ripple android:color="@color/car_ui_ripple_color">
                     <item>
@@ -36,25 +26,17 @@
                             <corners
                                 android:radius="@dimen/system_bar_button_corner_radius"/>
                             <solid
-                                android:color="@color/car_nav_icon_fill_color"/>
+                                android:color="?android:attr/colorAccent"/>
                         </shape>
                     </item>
                 </ripple>
             </item>
+            <item android:drawable="@drawable/ic_minimize"
+                  android:gravity="center"/>
         </layer-list>
     </item>
     <item>
         <layer-list>
-            <item>
-                <shape android:shape="rectangle">
-                    <size android:width="@dimen/system_bar_button_size"
-                          android:height="@dimen/system_bar_button_size"/>
-                    <corners
-                        android:radius="@dimen/system_bar_button_corner_radius"/>
-                    <solid
-                        android:color="@color/car_nav_icon_background_color"/>
-                </shape>
-            </item>
             <item>
                 <ripple android:color="@color/car_ui_ripple_color">
                     <item>
