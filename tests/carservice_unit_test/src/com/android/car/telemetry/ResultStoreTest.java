@@ -19,12 +19,9 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.Mockito.eq;
 import static org.mockito.Mockito.verify;
-import static org.mockito.Mockito.when;
 
-import android.os.Handler;
 import android.os.PersistableBundle;
 
 import org.junit.Before;
@@ -53,8 +50,6 @@ public class ResultStoreTest {
     private ResultStore mResultStore;
 
     @Mock
-    private Handler mMockHandler;
-    @Mock
     private ResultStore.FinalResultCallback mMockFinalResultCallback;
     @Captor
     private ArgumentCaptor<PersistableBundle> mBundleCaptor;
@@ -62,11 +57,6 @@ public class ResultStoreTest {
 
     @Before
     public void setUp() throws Exception {
-        // execute all handler posts immediately
-        when(mMockHandler.post(any())).thenAnswer(i -> {
-            ((Runnable) i.getArguments()[0]).run();
-            return true;
-        });
         TEST_INTERIM_BUNDLE.putString("test key", "interim value");
         TEST_FINAL_BUNDLE.putString("test key", "final value");
 
@@ -74,7 +64,7 @@ public class ResultStoreTest {
         mTestInterimResultDir = new File(mTestRootDir, ResultStore.INTERIM_RESULT_DIR);
         mTestFinalResultDir = new File(mTestRootDir, ResultStore.FINAL_RESULT_DIR);
 
-        mResultStore = new ResultStore(mMockHandler, mMockHandler, mTestRootDir);
+        mResultStore = new ResultStore(mTestRootDir);
     }
 
     @Test
@@ -89,7 +79,7 @@ public class ResultStoreTest {
         String testInterimFileName = "test_file_1";
         writeBundleToFile(mTestInterimResultDir, testInterimFileName, TEST_INTERIM_BUNDLE);
 
-        mResultStore = new ResultStore(mMockHandler, mMockHandler, mTestRootDir);
+        mResultStore = new ResultStore(mTestRootDir);
 
         // should compare value instead of reference
         assertThat(mResultStore.getInterimResult(testInterimFileName).toString())
@@ -221,7 +211,7 @@ public class ResultStoreTest {
         File fileBar = new File(mTestInterimResultDir, "bar");
         writeBundleToFile(fileFoo, TEST_INTERIM_BUNDLE);
         writeBundleToFile(fileBar, TEST_INTERIM_BUNDLE);
-        mResultStore = new ResultStore(mMockHandler, mMockHandler, mTestRootDir); // re-load data
+        mResultStore = new ResultStore(mTestRootDir); // re-load data
         PersistableBundle newData = new PersistableBundle();
         newData.putDouble("pi", 3.1415926);
 

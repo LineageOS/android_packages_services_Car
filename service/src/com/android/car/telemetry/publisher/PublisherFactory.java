@@ -17,18 +17,19 @@
 package com.android.car.telemetry.publisher;
 
 import android.content.SharedPreferences;
+import android.os.Handler;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 
 /**
- * Factory class for Publishers. It's expected to have a single factory instance.
- *
- * <p>Thread-safe.
+ * Factory class for Publishers. It's expected to have a single factory instance. Must be called
+ * from the telemetry thread.
  */
 public class PublisherFactory {
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
+    private final Handler mTelemetryHandler;
     private final StatsManagerProxy mStatsManager;
     private final SharedPreferences mSharedPreferences;
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
@@ -36,9 +37,11 @@ public class PublisherFactory {
 
     public PublisherFactory(
             CarPropertyService carPropertyService,
+            Handler handler,
             StatsManagerProxy statsManager,
             SharedPreferences sharedPreferences) {
         mCarPropertyService = carPropertyService;
+        mTelemetryHandler = handler;
         mStatsManager = statsManager;
         mSharedPreferences = sharedPreferences;
     }
@@ -52,7 +55,7 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.VEHICLE_PROPERTY_FIELD_NUMBER:
                     if (mVehiclePropertyPublisher == null) {
                         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
-                                mCarPropertyService);
+                                mCarPropertyService, mTelemetryHandler);
                     }
                     return mVehiclePropertyPublisher;
                 // TODO(b/189142577): add cartelemetry publisher here
