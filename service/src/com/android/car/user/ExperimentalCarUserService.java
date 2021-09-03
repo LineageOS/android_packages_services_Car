@@ -52,7 +52,7 @@ import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.UserIcons;
 

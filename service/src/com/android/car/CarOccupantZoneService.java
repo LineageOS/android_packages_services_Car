@@ -53,11 +53,11 @@ import android.view.Display;
 import android.view.DisplayAddress;
 
 import com.android.car.internal.ICarServiceHelper;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
 import com.android.car.user.CarUserService;
 import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

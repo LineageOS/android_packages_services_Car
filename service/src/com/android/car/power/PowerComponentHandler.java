@@ -42,8 +42,8 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.IVoiceInteractionManagerService;

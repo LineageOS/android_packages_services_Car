@@ -48,7 +48,7 @@ import android.util.Log;
 import android.util.Pair;
 
 import com.android.car.CarServiceBase;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

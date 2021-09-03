@@ -26,7 +26,7 @@ import android.hardware.automotive.audiocontrol.MutingInfo;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;

@@ -160,6 +160,12 @@ package android.car.builtin.util {
     method public static int wtfStack(@NonNull String, @NonNull String);
   }
 
+  public class TimeUtils {
+    ctor public TimeUtils();
+    method public static void dumpTime(java.io.PrintWriter, long);
+    method public static void formatDuration(long, java.io.PrintWriter);
+  }
+
   public class TimingsTraceLog {
     ctor public TimingsTraceLog(@NonNull String, long);
     method public void logDuration(@NonNull String, long);

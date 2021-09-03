@@ -62,8 +62,8 @@ import android.util.Log;
 import android.view.Display;
 import android.view.DisplayAddress;
 
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;

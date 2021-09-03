@@ -40,7 +40,7 @@ import android.util.Xml;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import org.xmlpull.v1.XmlPullParser;

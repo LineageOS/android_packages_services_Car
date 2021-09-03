@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.util;
+package com.android.car.internal.util;
 
 import android.os.SystemClock;
 
@@ -30,6 +30,8 @@ import java.util.Iterator;
 
 /**
  * Utility for in memory logging
+ *
+ * @hide
  */
 public final class LocalLog {
 

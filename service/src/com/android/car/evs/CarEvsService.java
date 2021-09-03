@@ -69,7 +69,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
 import com.android.car.hal.EvsHalService;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;

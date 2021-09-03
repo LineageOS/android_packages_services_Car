@@ -27,7 +27,7 @@ import android.os.Bundle;
 
 import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.util.ArrayList;
 import java.util.List;

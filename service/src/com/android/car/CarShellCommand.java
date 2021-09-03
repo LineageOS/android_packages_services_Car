@@ -103,11 +103,11 @@ import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.pm.CarPackageManagerService;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
 

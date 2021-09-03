@@ -60,6 +60,7 @@ import com.android.car.R;
 import com.android.car.hal.MockedPowerHalService;
 import com.android.car.hal.PowerHalService;
 import com.android.car.hal.PowerHalService.PowerState;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.IOInterface;
 import com.android.car.systeminterface.SystemInterface;
@@ -68,7 +69,6 @@ import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.app.IVoiceInteractionManagerService;
 

@@ -34,7 +34,7 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.CarServiceBase;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;

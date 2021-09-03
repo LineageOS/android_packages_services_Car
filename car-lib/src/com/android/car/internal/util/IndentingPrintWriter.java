@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.util;
+package com.android.car.internal.util;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -32,6 +32,8 @@ import java.util.Arrays;
  * <p>
  * Delays writing indent until first actual write on a newline, enabling indent
  * modification after newline.
+ *
+ * @hide
  */
 public class IndentingPrintWriter extends PrintWriter {
     private final String mSingleIndent;

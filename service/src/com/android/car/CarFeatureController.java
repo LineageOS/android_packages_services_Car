@@ -29,7 +29,7 @@ import android.os.HandlerThread;
 import android.util.AtomicFile;
 import android.util.Pair;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

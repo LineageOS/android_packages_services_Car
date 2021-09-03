@@ -86,7 +86,7 @@ import android.util.SparseArray;
 import android.util.SparseBooleanArray;
 
 import com.android.car.CarServiceUtils;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;

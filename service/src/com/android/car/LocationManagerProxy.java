@@ -23,7 +23,7 @@ import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 /** Wraps a {@link LocationManager}. */
 public class LocationManagerProxy extends ILocationManagerProxy.Stub {

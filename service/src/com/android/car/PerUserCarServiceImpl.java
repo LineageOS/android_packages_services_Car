@@ -24,7 +24,7 @@ import android.content.Intent;
 import android.os.IBinder;
 
 import com.android.car.bluetooth.CarBluetoothUserService;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.io.FileDescriptor;
 import java.io.PrintWriter;

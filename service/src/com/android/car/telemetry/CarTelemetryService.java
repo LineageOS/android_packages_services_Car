@@ -35,6 +35,7 @@ import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.telemetry.databroker.DataBroker;
 import com.android.car.telemetry.databroker.DataBrokerController;
@@ -43,7 +44,6 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.publisher.StatsManagerImpl;
 import com.android.car.telemetry.publisher.StatsManagerProxy;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.protobuf.InvalidProtocolBufferException;

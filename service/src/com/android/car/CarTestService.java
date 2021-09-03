@@ -22,7 +22,7 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Arrays;

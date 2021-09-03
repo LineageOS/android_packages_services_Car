@@ -80,9 +80,9 @@ import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
 import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
+import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.LocalLog;
 import com.android.car.internal.util.Sets;
-import com.android.car.util.IndentingPrintWriter;
-import com.android.car.util.LocalLog;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

@@ -41,8 +41,8 @@ import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonWriter;
 
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;

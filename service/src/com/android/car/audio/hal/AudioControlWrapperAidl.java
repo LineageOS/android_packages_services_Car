@@ -35,7 +35,7 @@ import com.android.car.CarLog;
 import com.android.car.audio.CarDuckingInfo;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
