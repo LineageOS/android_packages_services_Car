@@ -30,7 +30,7 @@ import java.util.List;
 /**
  * This class is responsible for storing, retrieving, and deleting {@link
  * TelemetryProto.MetricsConfig}. All of the methods are blocking so the class should only be
- * accessed on the worker thread.
+ * accessed on the telemetry thread.
  */
 class MetricsConfigStore {
     @VisibleForTesting

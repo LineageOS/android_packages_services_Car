@@ -16,25 +16,23 @@
 
 package com.android.car.telemetry;
 
-import android.os.Handler;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
 import android.util.Slog;
 
 import com.android.car.CarLog;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
-import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileOutputStream;
 import java.io.IOException;
-import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
 /**
  * Disk storage for interim and final metrics statistics.
+ * All methods in this class should be invoked from the telemetry thread.
  */
 public class ResultStore {
 
@@ -45,32 +43,23 @@ public class ResultStore {
     @VisibleForTesting
     static final String FINAL_RESULT_DIR = "final";
 
-    private final Object mLock = new Object();
     /** Map keys are MetricsConfig names, which are also the file names in disk. */
-    @GuardedBy("mLock")
     private final Map<String, InterimResult> mInterimResultCache = new ArrayMap<>();
 
     private final File mInterimResultDirectory;
     private final File mFinalResultDirectory;
-    private final Handler mWorkerHandler; // for all non I/O operations
-    private final Handler mIoHandler; // for all I/O operations
 
-    ResultStore(Handler handler, Handler ioHandler, File rootDirectory) {
-        mWorkerHandler = handler;
-        mIoHandler = ioHandler;
+    ResultStore(File rootDirectory) {
         mInterimResultDirectory = new File(rootDirectory, INTERIM_RESULT_DIR);
         mFinalResultDirectory = new File(rootDirectory, FINAL_RESULT_DIR);
         mInterimResultDirectory.mkdirs();
         mFinalResultDirectory.mkdirs();
         // load results into memory to reduce the frequency of disk access
-        synchronized (mLock) {
-            loadInterimResultsIntoMemoryLocked();
-        }
+        loadInterimResultsIntoMemory();
     }
 
     /** Reads interim results into memory for faster access. */
-    @GuardedBy("mLock")
-    private void loadInterimResultsIntoMemoryLocked() {
+    private void loadInterimResultsIntoMemory() {
         for (File file : mInterimResultDirectory.listFiles()) {
             try (FileInputStream fis = new FileInputStream(file)) {
                 mInterimResultCache.put(
@@ -88,12 +77,10 @@ public class ResultStore {
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
     public PersistableBundle getInterimResult(String metricsConfigName) {
-        synchronized (mLock) {
-            if (!mInterimResultCache.containsKey(metricsConfigName)) {
-                return null;
-            }
-            return mInterimResultCache.get(metricsConfigName).getBundle();
+        if (!mInterimResultCache.containsKey(metricsConfigName)) {
+            return null;
         }
+        return mInterimResultCache.get(metricsConfigName).getBundle();
     }
 
     /**
@@ -101,11 +88,7 @@ public class ResultStore {
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
     public void putInterimResult(String metricsConfigName, PersistableBundle result) {
-        synchronized (mLock) {
-            mInterimResultCache.put(
-                    metricsConfigName,
-                    new InterimResult(result, /* dirty = */ true));
-        }
+        mInterimResultCache.put(metricsConfigName, new InterimResult(result, /* dirty = */ true));
     }
 
     /**
@@ -119,30 +102,18 @@ public class ResultStore {
      */
     public void getFinalResult(
             String metricsConfigName, boolean deleteResult, FinalResultCallback callback) {
-        // I/O operations should happen on I/O thread
-        mIoHandler.post(() -> {
-            synchronized (mLock) {
-                loadFinalResultLockedOnIoThread(metricsConfigName, deleteResult, callback);
-            }
-        });
-    }
-
-    @GuardedBy("mLock")
-    private void loadFinalResultLockedOnIoThread(
-            String metricsConfigName, boolean deleteResult, FinalResultCallback callback) {
         File file = new File(mFinalResultDirectory, metricsConfigName);
         // if no final result exists for this metrics config, return immediately
         if (!file.exists()) {
-            mWorkerHandler.post(() -> callback.onFinalResult(metricsConfigName, null));
+            callback.onFinalResult(metricsConfigName, null);
             return;
         }
         try (FileInputStream fis = new FileInputStream(file)) {
             PersistableBundle bundle = PersistableBundle.readFromStream(fis);
-            // invoke callback on worker thread
-            mWorkerHandler.post(() -> callback.onFinalResult(metricsConfigName, bundle));
+            callback.onFinalResult(metricsConfigName, bundle);
         } catch (IOException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to get final result from disk.", e);
-            mWorkerHandler.post(() -> callback.onFinalResult(metricsConfigName, null));
+            callback.onFinalResult(metricsConfigName, null);
         }
         if (deleteResult) {
             file.delete();
@@ -154,40 +125,31 @@ public class ResultStore {
      * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}.
      */
     public void putFinalResult(String metricsConfigName, PersistableBundle result) {
-        synchronized (mLock) {
-            mIoHandler.post(() -> {
-                writeSingleResultToFileOnIoThread(mFinalResultDirectory, metricsConfigName, result);
-                deleteSingleFileOnIoThread(mInterimResultDirectory, metricsConfigName);
-            });
-            mInterimResultCache.remove(metricsConfigName);
-        }
+        writePersistableBundleToFile(mFinalResultDirectory, metricsConfigName, result);
+        deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
+        mInterimResultCache.remove(metricsConfigName);
     }
 
     /** Persists data to disk. */
     public void flushToDisk() {
-        mIoHandler.post(() -> {
-            synchronized (mLock) {
-                writeInterimResultsToFileLockedOnIoThread();
-                deleteStaleDataOnIoThread(mInterimResultDirectory, mFinalResultDirectory);
-            }
-        });
+        writeInterimResultsToFile();
+        deleteAllStaleData(mInterimResultDirectory, mFinalResultDirectory);
     }
 
     /** Writes dirty interim results to disk. */
-    @GuardedBy("mLock")
-    private void writeInterimResultsToFileLockedOnIoThread() {
+    private void writeInterimResultsToFile() {
         mInterimResultCache.forEach((metricsConfigName, interimResult) -> {
             // only write dirty data
             if (!interimResult.isDirty()) {
                 return;
             }
-            writeSingleResultToFileOnIoThread(
+            writePersistableBundleToFile(
                     mInterimResultDirectory, metricsConfigName, interimResult.getBundle());
         });
     }
 
     /** Deletes data that are older than some threshold in the given directories. */
-    private void deleteStaleDataOnIoThread(File... dirs) {
+    private void deleteAllStaleData(File... dirs) {
         long currTimeMs = System.currentTimeMillis();
         for (File dir : dirs) {
             for (File file : dir.listFiles()) {
@@ -202,13 +164,10 @@ public class ResultStore {
     /**
      * Converts a {@link PersistableBundle} into byte array and saves the results to a file.
      */
-    private void writeSingleResultToFileOnIoThread(
+    private void writePersistableBundleToFile(
             File dir, String metricsConfigName, PersistableBundle result) {
-        try (ByteArrayOutputStream outputStream = new ByteArrayOutputStream()) {
-            result.writeToStream(outputStream);
-            Files.write(
-                    new File(dir, metricsConfigName).toPath(),
-                    outputStream.toByteArray());
+        try (FileOutputStream os = new FileOutputStream(new File(dir, metricsConfigName))) {
+            result.writeToStream(os);
         } catch (IOException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
             // TODO(b/195422219): record failure
@@ -216,7 +175,7 @@ public class ResultStore {
     }
 
     /** Deletes a the given file in the given directory if it exists. */
-    private void deleteSingleFileOnIoThread(File interimResultDirectory, String metricsConfigName) {
+    private void deleteFileInDirectory(File interimResultDirectory, String metricsConfigName) {
         File file = new File(interimResultDirectory, metricsConfigName);
         file.delete();
     }

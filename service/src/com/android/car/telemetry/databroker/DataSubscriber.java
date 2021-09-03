@@ -23,12 +23,7 @@ import com.android.car.telemetry.TelemetryProto;
 
 /**
  * Subscriber class that receives published data and schedules tasks for execution.
- * The class is thread-safe as long as
- * {@link TelemetryProto.MetricsConfig} does not change during runtime.
- *
- * <p>TODO(b/187743369): thread-safety can change if priority can be updated in runtime. Update
- *                    javadoc once priority is concretely defined.
- *                    Must be thread-safe, as #push() method may be called by multiple threads.
+ * All methods of this class must be accessed on telemetry thread.
  *
  * <p>TODO(b/187743369): implement equals() and hash() functions, as they are used in publishers
  *                       to check equality of subscribers.
@@ -64,13 +59,11 @@ public class DataSubscriber {
     /**
      * Creates a {@link ScriptExecutionTask} and pushes it to the priority queue where the task
      * will be pending execution.
-     *
-     * <p>This method is thread-safe and doesn't block.
      */
     public void push(PersistableBundle data) {
         ScriptExecutionTask task = new ScriptExecutionTask(
                 this, data, SystemClock.elapsedRealtime());
-        mDataBroker.addTaskToQueue(task); // thread-safe
+        mDataBroker.addTaskToQueue(task);
     }
 
     /** Returns the {@link TelemetryProto.MetricsConfig}. */
