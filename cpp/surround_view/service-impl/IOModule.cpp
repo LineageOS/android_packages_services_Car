@@ -37,33 +37,10 @@ IOStatus IOModule::initialize() {
         return IOStatus::OK;
     }
 
-    SurroundViewConfig svConfig;
     IOStatus status;
-    if ((status = ReadSurroundViewConfig(mSvConfigFile, &svConfig)) != IOStatus::OK) {
+    if ((status = ReadSurroundViewConfig(mSvConfigFile, &mIOModuleConfig)) != IOStatus::OK) {
         LOG(ERROR) << "ReadSurroundViewConfig() failed.";
         return status;
-    }
-
-    mIOModuleConfig.cameraConfig = svConfig.cameraConfig;
-    mIOModuleConfig.sv2dConfig = svConfig.sv2dConfig;
-    mIOModuleConfig.sv3dConfig = svConfig.sv3dConfig;
-
-    if (mIOModuleConfig.sv3dConfig.sv3dEnabled) {
-        // Read obj and mtl files.
-        if (!ReadObjFromFile(svConfig.sv3dConfig.carModelObjFile,
-                             &mIOModuleConfig.carModelConfig.carModel.partsMap)) {
-            LOG(ERROR) << "ReadObjFromFile() failed.";
-            return IOStatus::ERROR_READ_CAR_MODEL;
-        }
-        // Read animations.
-        if (mIOModuleConfig.sv3dConfig.sv3dAnimationsEnabled) {
-            if ((status = ReadCarModelConfig(svConfig.sv3dConfig.carModelConfigFile,
-                                             &mIOModuleConfig.carModelConfig.animationConfig)) !=
-                IOStatus::OK) {
-                LOG(ERROR) << "ReadObjFromFile() failed.";
-                return status;
-            }
-        }
     }
     mIsInitialized = true;
     return IOStatus::OK;

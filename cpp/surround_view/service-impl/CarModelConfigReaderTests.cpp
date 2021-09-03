@@ -33,17 +33,17 @@ namespace implementation {
 namespace {
 
 TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
-    AnimationConfig animationConfig;
+    CarModelConfig carModelConfig;
     EXPECT_EQ(ReadCarModelConfig("/vendor/etc/automotive/sv/sv_sample_car_model_config.xml",
-                                 &animationConfig),
+                                 &carModelConfig),
               IOStatus::OK);
 
-    EXPECT_EQ(animationConfig.version, "1.0");
+    EXPECT_EQ(carModelConfig.version, "1.0");
 
-    ASSERT_EQ(animationConfig.animations.size(), 2);
+    ASSERT_EQ(carModelConfig.animationConfig.animations.size(), 2);
 
     {
-        AnimationInfo doorAnimation = animationConfig.animations.at(0);
+        AnimationInfo doorAnimation = carModelConfig.animationConfig.animations.at(0);
         EXPECT_EQ(doorAnimation.partId, "door");
         EXPECT_EQ(doorAnimation.childIds.size(), 1);
         EXPECT_EQ(doorAnimation.pose, gMat4Identity);
@@ -66,7 +66,7 @@ TEST(CarModelConfigReaderTests, CarModelReadConfigSuccess) {
     }
 
     {
-        AnimationInfo windowAnimation = animationConfig.animations.at(1);
+        AnimationInfo windowAnimation = carModelConfig.animationConfig.animations.at(1);
         EXPECT_EQ(windowAnimation.partId, "window");
         EXPECT_EQ(windowAnimation.childIds.size(), 0);
         EXPECT_EQ(windowAnimation.pose, gMat4Identity);

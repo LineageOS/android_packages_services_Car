@@ -28,66 +28,6 @@ namespace sv {
 namespace V1_0 {
 namespace implementation {
 
-// Struct for camera related configurations.
-// Note: Does not include camera intrinsics and extrinsics, these are specified in EVS metadata.
-struct CameraConfig {
-    // Use MockEVS for camera source if true.
-    bool useMockEvs;
-
-    // Id of logical group containing surronnd view cameras.
-    std::string evsGroupId;
-
-    // List of evs camera Ids  in order: front, right, rear, left.
-    std::vector<std::string> evsCameraIds;
-
-    // In order: front, right, rear, left.
-    std::vector<std::string> maskFilenames;
-};
-
-struct SvConfig2d {
-    // Bool flag for surround view 2d.
-    bool sv2dEnabled;
-
-    // Surround view 2d params.
-    android_auto::surround_view::SurroundView2dParams sv2dParams;
-
-    // Car model bounding box for 2d surround view.
-    // To be moved into sv 2d params.
-    android_auto::surround_view::BoundingBox carBoundingBox;
-};
-
-struct SvConfig3d {
-    // Bool flag for enabling/disabling surround view 3d.
-    bool sv3dEnabled;
-
-    // Bool flag for enabling/disabling animations.
-    bool sv3dAnimationsEnabled;
-
-    // Car model config file.
-    std::string carModelConfigFile;
-
-    // Car model obj file.
-    std::string carModelObjFile;
-
-    // Surround view 3d params.
-    android_auto::surround_view::SurroundView3dParams sv3dParams;
-};
-
-// Main struct in which surround view config is parsed into.
-struct SurroundViewConfig {
-    // Version info.
-    std::string version;
-
-    // Camera config.
-    CameraConfig cameraConfig;
-
-    // Surround view 2d config.
-    SvConfig2d sv2dConfig;
-
-    // Surround view 3d config.
-    SvConfig3d sv3dConfig;
-};
-
 struct Range {
     // Range start.
     // Start value may be greater than end value.
@@ -293,8 +233,6 @@ struct AnimationInfo {
 
 // Main struct in which surround view car model config is parsed into.
 struct AnimationConfig {
-    std::string version;
-
     std::vector<AnimationInfo> animations;
 };
 
@@ -308,12 +246,70 @@ struct CarModel {
 };
 
 struct CarModelConfig {
+    std::string version;
+
+    // Car model obj file.
+    std::string carModelObjFile;
+
+    // Car model parts and textures.
     CarModel carModel;
 
+    // Bool flag for enabling/disabling animations.
+    bool animationsEnabled;
+
+    // List of animations for car model.
     AnimationConfig animationConfig;
 };
 
+// Struct for camera related configurations.
+// Note: Does not include camera intrinsics and extrinsics, these are specified in EVS metadata.
+struct CameraConfig {
+    // Use MockEVS for camera source if true.
+    bool useMockEvs;
+
+    // Id of logical group containing surronnd view cameras.
+    std::string evsGroupId;
+
+    // List of evs camera Ids  in order: front, right, rear, left.
+    std::vector<std::string> evsCameraIds;
+
+    // In order: front, right, rear, left.
+    std::vector<std::string> maskFilenames;
+};
+
+struct SvConfig2d {
+    // Bool flag for surround view 2d.
+    bool sv2dEnabled;
+
+    // Surround view 2d params.
+    android_auto::surround_view::SurroundView2dParams sv2dParams;
+
+    // Car model bounding box for 2d surround view.
+    // To be moved into sv 2d params.
+    android_auto::surround_view::BoundingBox carBoundingBox;
+};
+
+struct SvConfig3d {
+    // Bool flag for enabling/disabling surround view 3d.
+    bool sv3dEnabled;
+
+    // Surround view 3d params.
+    android_auto::surround_view::SurroundView3dParams sv3dParams;
+
+    // Bool flag for enabling/disabling animations.
+    bool carModelEnabled;
+
+    // Car model config file.
+    std::string carModelConfigFile;
+
+    // Car model config.
+    CarModelConfig carModelConfig;
+};
+
 struct IOModuleConfig {
+    // Version info.
+    std::string version;
+
     // Camera config.
     CameraConfig cameraConfig;
 
@@ -322,9 +318,6 @@ struct IOModuleConfig {
 
     // Surround view 3d config.
     SvConfig3d sv3dConfig;
-
-    // Car model config.
-    CarModelConfig carModelConfig;
 };
 
 enum IOStatus : uint8_t {

@@ -16,6 +16,7 @@
 
 #include "ConfigReader.h"
 #include "ConfigReaderUtil.h"
+#include "CarModelConfigReader.h"
 #include "core_lib.h"
 
 #include <android-base/logging.h>
@@ -145,13 +146,15 @@ bool ReadSvConfig3d(const XMLElement* parent, SvConfig3d* sv3dConfig) {
     if (!sv3dConfig->sv3dEnabled) {
         return true;
     }
-    RETURN_IF_FALSE(ReadValue(parent, "Sv3dAnimationsEnabled", &sv3dConfig->sv3dAnimationsEnabled));
 
-    if (sv3dConfig->sv3dAnimationsEnabled) {
-        RETURN_IF_FALSE(ReadValue(parent, "CarModelConfigFile", &sv3dConfig->carModelConfigFile));
+    RETURN_IF_FALSE(ReadValue(parent, "Sv3dCarModelEnabled", &sv3dConfig->carModelEnabled));
+    if (sv3dConfig->carModelEnabled) {
+        RETURN_IF_FALSE(
+                ReadValue(parent, "Sv3dCarModelConfigFile", &sv3dConfig->carModelConfigFile));
+
+        RETURN_IF_FALSE(
+                ReadCarModelConfig(sv3dConfig->carModelConfigFile, &sv3dConfig->carModelConfig));
     }
-
-    RETURN_IF_FALSE(ReadValue(parent, "CarModelObjFile", &sv3dConfig->carModelObjFile));
 
     SurroundView3dParams* sv3dParams = &sv3dConfig->sv3dParams;
     const XMLElement* param3dElem = nullptr;
@@ -233,7 +236,7 @@ bool ReadCameraConfig(const XMLElement* parent, CameraConfig* cameraConfig) {
 
 }  // namespace
 
-IOStatus ReadSurroundViewConfig(const std::string& configFile, SurroundViewConfig* svConfig) {
+IOStatus ReadSurroundViewConfig(const std::string& configFile, IOModuleConfig* svConfig) {
     XMLDocument xmlDoc;
 
     // load and parse a configuration file

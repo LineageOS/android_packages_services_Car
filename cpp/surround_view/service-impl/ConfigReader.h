@@ -30,7 +30,7 @@ namespace V1_0 {
 namespace implementation {
 
 // Parses the surround view config xml into struct SurroundViewConfig.
-IOStatus ReadSurroundViewConfig(const std::string& configFile, SurroundViewConfig* svConfig);
+IOStatus ReadSurroundViewConfig(const std::string& configFile, IOModuleConfig* svConfig);
 
 }  // namespace implementation
 }  // namespace V1_0

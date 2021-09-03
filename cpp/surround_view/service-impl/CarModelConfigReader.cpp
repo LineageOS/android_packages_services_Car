@@ -17,6 +17,7 @@
 #include "CarModelConfigReader.h"
 #include "ConfigReaderUtil.h"
 #include "MathHelp.h"
+#include "ObjReader.h"
 #include "core_lib.h"
 
 #include <android-base/logging.h>
@@ -264,8 +265,7 @@ bool ReadAllAnimations(const XMLElement* rootElem, std::vector<AnimationInfo>* a
 
 }  // namespace
 
-IOStatus ReadCarModelConfig(const std::string& carModelConfigFile,
-                            AnimationConfig* animationConfig) {
+IOStatus ReadCarModelConfig(const std::string& carModelConfigFile, CarModelConfig* carModelConfig) {
     XMLDocument xmlDoc;
 
     /* load and parse a configuration file */
@@ -282,10 +282,23 @@ IOStatus ReadCarModelConfig(const std::string& carModelConfigFile,
     }
 
     // version
-    RETURN_ERROR_STATUS_IF_FALSE(ReadValue(rootElem, "Version", &animationConfig->version));
+    RETURN_ERROR_STATUS_IF_FALSE(ReadValue(rootElem, "Version", &carModelConfig->version));
 
-    // animations
-    RETURN_ERROR_STATUS_IF_FALSE(ReadAllAnimations(rootElem, &animationConfig->animations));
+    // Read obj and mtl files.
+    RETURN_ERROR_STATUS_IF_FALSE(
+            ReadValue(rootElem, "CarModelObjFile", &carModelConfig->carModelObjFile));
+    if (!ReadObjFromFile(carModelConfig->carModelObjFile, &carModelConfig->carModel.partsMap)) {
+        LOG(ERROR) << "ReadObjFromFile() failed.";
+        return IOStatus::ERROR_READ_CAR_MODEL;
+    }
+
+    // Read animations.
+    RETURN_ERROR_STATUS_IF_FALSE(
+            ReadValue(rootElem, "AnimationsEnabled", &carModelConfig->animationsEnabled));
+    if (carModelConfig->animationsEnabled) {
+        RETURN_ERROR_STATUS_IF_FALSE(
+                ReadAllAnimations(rootElem, &carModelConfig->animationConfig.animations));
+    }
 
     return IOStatus::OK;
 }

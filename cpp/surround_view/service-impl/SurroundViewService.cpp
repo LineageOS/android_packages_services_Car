@@ -125,9 +125,9 @@ bool SurroundViewService::initialize() {
     // method is always called after the constructor, it is safe to put the
     // allocation here and the de-allocation in service's constructor.
     mAnimationModule = new AnimationModule(
-            mConfig.carModelConfig.carModel.partsMap,
-            mConfig.carModelConfig.carModel.texturesMap,
-            mConfig.carModelConfig.animationConfig.animations);
+            mConfig.sv3dConfig.carModelConfig.carModel.partsMap,
+            mConfig.sv3dConfig.carModelConfig.carModel.texturesMap,
+            mConfig.sv3dConfig.carModelConfig.animationConfig.animations);
 
     // Initialize the VHal Handler with update method and rate.
     // TODO(b/157498592): The update rate should align with the EVS camera
@@ -137,11 +137,11 @@ bool SurroundViewService::initialize() {
         std::vector<uint64_t> propertiesToRead;
 
         // Add animation properties to read if 3d and animations are enabled.
-        if (mConfig.sv3dConfig.sv3dEnabled && mConfig.sv3dConfig.sv3dAnimationsEnabled) {
+        if (mConfig.sv3dConfig.sv3dEnabled && mConfig.sv3dConfig.carModelConfig.animationsEnabled) {
             const std::vector<uint64_t> animationPropertiesToRead =
-                    getAnimationPropertiesToRead(mConfig.carModelConfig.animationConfig);
+                    getAnimationPropertiesToRead(mConfig.sv3dConfig.carModelConfig.animationConfig);
             propertiesToRead.insert(propertiesToRead.end(), animationPropertiesToRead.begin(),
-                    animationPropertiesToRead.end());
+                                    animationPropertiesToRead.end());
         }
 
         // Call vhal handler setPropertiesToRead with all properties.
