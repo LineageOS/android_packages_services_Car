@@ -38,19 +38,16 @@
             app:layout_constraintGuide_begin="@dimen/hvac_panel_buttons_guideline"/>
 
         <!-- ************************ -->
-        <!-- First column of buttons. -->
+        <!-- First group of buttons. -->
         <!-- ************************ -->
 
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/cooling_on_off"
             android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
+            android:layout_height="@dimen/hvac_panel_long_button_dimen"
             android:layout_marginLeft="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_default_background"
-            app:layout_constraintBottom_toTopOf="@+id/steering_wheel_heat_on_off"
             app:layout_constraintLeft_toLeftOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/top_guideline"
             systemui:hvacAreaId="117"
@@ -59,107 +56,59 @@
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_ac_on"
             systemui:hvacTurnOffIfAutoOn="true"/>
 
-        <com.android.systemui.car.hvac.toggle.HvacIntegerToggleButton
-            android:id="@+id/steering_wheel_heat_on_off"
+        <com.android.systemui.car.hvac.SeatTemperatureLevelButton
+            android:id="@+id/seat_heater_driver_on_off"
             android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
+            android:layout_height="@dimen/hvac_panel_long_button_dimen"
+            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_heat_background"
-            app:layout_constraintBottom_toTopOf="@+id/hvac_on_off"
-            app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/cooling_on_off"
-            systemui:hvacAreaId="117"
-            systemui:hvacPropertyId="289408269"
-            systemui:hvacToggleOffButtonDrawable="@drawable/ic_heated_steering_off"
-            systemui:hvacToggleOnButtonDrawable="@drawable/ic_heated_steering_on"
-            systemui:hvacTurnOffIfAutoOn="true"
-            systemui:onValue="1"
-            systemui:offValue="0"/>
+            app:layout_constraintRight_toRightOf="@+id/hvac_on_off"
+            app:layout_constraintTop_toBottomOf="@+id/top_guideline"
+            systemui:hvacAreaId="1"
+            systemui:seatTemperatureType="heating"
+            systemui:seatTemperatureIconDrawableList="@array/hvac_driver_seat_heat_icons"/>
 
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/hvac_on_off"
-            android:layout_width="@dimen/hvac_panel_button_dimen"
+            android:layout_width="@dimen/hvac_panel_long_button_dimen"
             android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_external_margin"
+            android:layout_marginBottom="@dimen/hvac_panel_button_external_bottom_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
             android:background="@drawable/hvac_default_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintLeft_toLeftOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/steering_wheel_heat_on_off"
+            app:layout_constraintTop_toBottomOf="@+id/cooling_on_off"
             systemui:hvacAreaId="117"
             systemui:hvacPropertyId="354419984"
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_power_off"
             systemui:hvacToggleOnButtonDrawable="@drawable/ic_power_on"
             systemui:hvacTurnOffIfPowerOff="false"/>
 
-        <!-- ************************* -->
-        <!-- Second column of buttons. -->
-        <!-- ************************* -->
-
-        <com.android.systemui.car.hvac.SeatTemperatureLevelButton
-            android:id="@+id/seat_cooler_driver_on_off"
-            android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_tall_button_height"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
-            android:background="@drawable/hvac_cool_background"
-            app:layout_constraintBottom_toTopOf="@+id/seat_heater_driver_on_off"
-            app:layout_constraintLeft_toRightOf="@+id/cooling_on_off"
-            app:layout_constraintRight_toLeftOf="@+id/airflow_group"
-            app:layout_constraintTop_toBottomOf="@+id/top_guideline"
-            systemui:hvacAreaId="1"
-            systemui:seatTemperatureType="cooling"
-            systemui:seatTemperatureIconDrawableList="@array/hvac_driver_seat_cool_icons"/>
-
-        <com.android.systemui.car.hvac.SeatTemperatureLevelButton
-            android:id="@+id/seat_heater_driver_on_off"
-            android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_tall_button_height"
-            android:layout_marginBottom="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
-            android:background="@drawable/hvac_heat_background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/hvac_on_off"
-            app:layout_constraintRight_toLeftOf="@+id/fan_speed_control"
-            app:layout_constraintTop_toBottomOf="@+id/seat_cooler_driver_on_off"
-            systemui:hvacAreaId="1"
-            systemui:seatTemperatureType="heating"
-            systemui:seatTemperatureIconDrawableList="@array/hvac_driver_seat_heat_icons"/>
-
         <!-- ************************ -->
-        <!-- Third column of buttons. -->
+        <!-- Second group of buttons. -->
         <!-- ************************ -->
 
         <LinearLayout
             android:id="@+id/airflow_group"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_slider_width"
             android:layout_height="0dp"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:orientation="vertical"
-            app:layout_constraintBottom_toTopOf="@+id/fan_speed_control"
-            app:layout_constraintLeft_toRightOf="@+id/seat_cooler_driver_on_off"
-            app:layout_constraintRight_toLeftOf="@+id/seat_cooler_passenger_on_off"
+            app:layout_constraintLeft_toRightOf="@+id/seat_heater_driver_on_off"
+            app:layout_constraintRight_toLeftOf="@+id/seat_heater_passenger_on_off"
             app:layout_constraintTop_toBottomOf="@+id/top_guideline">
            <include layout="@layout/fan_direction"/>
         </LinearLayout>
 
         <com.android.systemui.car.hvac.custom.FanSpeedSeekBar
             android:id="@+id/fan_speed_control"
-            android:layout_width="0dp"
+            android:layout_width="@dimen/hvac_panel_slider_width"
             android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_external_margin"
+            android:layout_marginBottom="@dimen/hvac_panel_button_external_bottom_margin"
             android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
@@ -170,60 +119,34 @@
             android:background="@drawable/fan_speed_seek_bar_background"
             android:splitTrack="false"
             app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintLeft_toRightOf="@+id/seat_heater_driver_on_off"
-            app:layout_constraintRight_toLeftOf="@+id/seat_heater_passenger_on_off"
-            app:layout_constraintTop_toBottomOf="@+id/airflow_windshield"/>
+            app:layout_constraintLeft_toLeftOf="@+id/airflow_group"
+            app:layout_constraintRight_toRightOf="@+id/airflow_group"
+            app:layout_constraintTop_toBottomOf="@+id/airflow_group"/>
 
         <!-- ************************* -->
-        <!-- Fourth column of buttons. -->
+        <!-- Third group of buttons. -->
         <!-- ************************* -->
-
-        <com.android.systemui.car.hvac.SeatTemperatureLevelButton
-            android:id="@+id/seat_cooler_passenger_on_off"
-            android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_tall_button_height"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
-            android:background="@drawable/hvac_cool_background"
-            app:layout_constraintBottom_toTopOf="@+id/seat_heater_passenger_on_off"
-            app:layout_constraintRight_toLeftOf="@+id/recycle_air_on_off"
-            app:layout_constraintTop_toBottomOf="@+id/top_guideline"
-            systemui:hvacAreaId="4"
-            systemui:seatTemperatureType="cooling"
-            systemui:seatTemperatureIconDrawableList="@array/hvac_passenger_seat_cool_icons"/>
 
         <com.android.systemui.car.hvac.SeatTemperatureLevelButton
             android:id="@+id/seat_heater_passenger_on_off"
             android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_tall_button_height"
-            android:layout_marginBottom="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
+            android:layout_height="@dimen/hvac_panel_long_button_dimen"
             android:layout_marginRight="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_heat_background"
-            app:layout_constraintBottom_toBottomOf="parent"
-            app:layout_constraintRight_toLeftOf="@+id/hvac_driver_passenger_sync"
-            app:layout_constraintTop_toBottomOf="@+id/seat_cooler_passenger_on_off"
+            app:layout_constraintLeft_toLeftOf="@+id/hvac_driver_passenger_sync"
+            app:layout_constraintTop_toBottomOf="@+id/top_guideline"
             systemui:hvacAreaId="4"
             systemui:seatTemperatureType="heating"
             systemui:seatTemperatureIconDrawableList="@array/hvac_passenger_seat_heat_icons"/>
-
-        <!-- ************************ -->
-        <!-- Fifth column of buttons. -->
-        <!-- ************************ -->
 
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/recycle_air_on_off"
             android:layout_width="@dimen/hvac_panel_button_dimen"
             android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_external_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_external_top_margin"
             android:background="@drawable/hvac_default_background"
-            app:layout_constraintBottom_toTopOf="@+id/hvac_driver_passenger_sync"
             app:layout_constraintRight_toRightOf="parent"
             app:layout_constraintTop_toBottomOf="@+id/top_guideline"
             systemui:hvacAreaId="117"
@@ -233,39 +156,35 @@
             systemui:hvacToggleOffButtonDrawable="@drawable/ic_recirculate_off"/>
 
         <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
-            android:id="@+id/hvac_driver_passenger_sync"
-            android:layout_width="@dimen/hvac_panel_button_dimen"
-            android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
-            android:layout_marginRight="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
-            android:background="@drawable/hvac_default_background"
-            app:layout_constraintBottom_toTopOf="@+id/auto_temperature_on_off"
-            app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/recycle_air_on_off"
-            systemui:hvacAreaId="117"
-            systemui:hvacPropertyId="354419977"
-            systemui:hvacToggleOffButtonDrawable="@drawable/ic_sync_off"
-            systemui:hvacToggleOnButtonDrawable="@drawable/ic_sync_on"
-            systemui:hvacTurnOffIfAutoOn="true"/>
-
-        <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
             android:id="@+id/auto_temperature_on_off"
             android:layout_width="@dimen/hvac_panel_button_dimen"
             android:layout_height="@dimen/hvac_panel_button_dimen"
-            android:layout_marginBottom="@dimen/hvac_panel_button_external_margin"
-            android:layout_marginLeft="@dimen/hvac_panel_button_internal_margin"
+            android:layout_marginRight="@dimen/hvac_panel_button_external_margin"
+            android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
+            android:background="@drawable/hvac_default_background"
+            app:layout_constraintRight_toRightOf="parent"
+            app:layout_constraintTop_toBottomOf="@+id/recycle_air_on_off"
+            systemui:hvacAreaId="117"
+            systemui:hvacPropertyId="354419978"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_auto_on"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_auto_off"/>
+
+        <com.android.systemui.car.hvac.toggle.HvacBooleanToggleButton
+            android:id="@+id/hvac_driver_passenger_sync"
+            android:layout_width="@dimen/hvac_panel_long_button_dimen"
+            android:layout_height="@dimen/hvac_panel_button_dimen"
+            android:layout_marginBottom="@dimen/hvac_panel_button_external_bottom_margin"
             android:layout_marginRight="@dimen/hvac_panel_button_external_margin"
             android:layout_marginTop="@dimen/hvac_panel_button_internal_margin"
             android:background="@drawable/hvac_default_background"
             app:layout_constraintBottom_toBottomOf="parent"
             app:layout_constraintRight_toRightOf="parent"
-            app:layout_constraintTop_toBottomOf="@+id/hvac_driver_passenger_sync"
+            app:layout_constraintTop_toBottomOf="@+id/auto_temperature_on_off"
             systemui:hvacAreaId="117"
-            systemui:hvacPropertyId="354419978"
-            systemui:hvacToggleOnButtonDrawable="@drawable/ic_auto_on"
-            systemui:hvacToggleOffButtonDrawable="@drawable/ic_auto_off"/>
+            systemui:hvacPropertyId="354419977"
+            systemui:hvacToggleOffButtonDrawable="@drawable/ic_sync_off"
+            systemui:hvacToggleOnButtonDrawable="@drawable/ic_sync_on"
+            systemui:hvacTurnOffIfAutoOn="true"/>
 
         <include
             layout="@layout/hvac_panel_handle_bar"/>

@@ -39,20 +39,27 @@
     <dimen name="hvac_panel_handle_bar_width">120dp</dimen>
     <dimen name="hvac_panel_bg_radius">24dp</dimen>
     <dimen name="hvac_panel_off_button_radius">24dp</dimen>
-    <dimen name="hvac_panel_on_button_radius">44dp</dimen>
+    <dimen name="hvac_panel_on_button_radius">24dp</dimen>
+    <dimen name="hvac_panel_seek_bar_radius">44dp</dimen>
     <dimen name="hvac_panel_full_expanded_height">456dp</dimen>
     <dimen name="hvac_panel_title_margin">36dp</dimen>
     <dimen name="hvac_panel_buttons_guideline">@dimen/hvac_panel_handle_bar_container_height</dimen>
+
     <dimen name="hvac_panel_icon_dimen">48dp</dimen>
     <dimen name="hvac_panel_tall_icon_dimen">108dp</dimen>
     <dimen name="hvac_panel_wide_icon_dimen">96dp</dimen>
+
     <dimen name="hvac_panel_button_dimen">88dp</dimen>
-    <dimen name="hvac_panel_tall_button_height">148dp</dimen>
-    <dimen name="hvac_panel_wide_button_width">374dp</dimen>
+    <dimen name="hvac_panel_long_button_dimen">208dp</dimen>
+    <dimen name="hvac_panel_airflow_button_width_1">210dp</dimen>
+    <dimen name="hvac_panel_airflow_button_width_2">332dp</dimen>
     <dimen name="hvac_panel_slider_width">696dp</dimen>
+
     <dimen name="hvac_panel_button_external_margin">24dp</dimen>
     <dimen name="hvac_panel_button_external_top_margin">16dp</dimen>
-    <dimen name="hvac_panel_button_internal_margin">16dp</dimen>
+    <dimen name="hvac_panel_button_external_bottom_margin">48dp</dimen>
+    <dimen name="hvac_panel_button_internal_margin">32dp</dimen>
+
     <item name="hvac_heat_or_cool_off_alpha" format="float" type="dimen">0.3</item>
 
     <dimen name="toast_margin">24dp</dimen>

@@ -17,7 +17,7 @@
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android" >
     <item>
         <shape android:shape="rectangle">
-            <corners android:radius="@dimen/hvac_panel_on_button_radius"/>
+            <corners android:radius="@dimen/hvac_panel_seek_bar_radius"/>
             <solid android:color="@color/hvac_off_background_color" />
         </shape>
     </item>
@@ -27,13 +27,13 @@
         <selector>
             <item android:state_selected="true">
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/hvac_panel_on_button_radius"/>
+                    <corners android:radius="@dimen/hvac_panel_seek_bar_radius"/>
                     <solid android:color="@color/hvac_on_background_color" />
                 </shape>
             </item>
             <item>
                 <shape android:shape="rectangle">
-                    <corners android:radius="@dimen/hvac_panel_on_button_radius"/>
+                    <corners android:radius="@dimen/hvac_panel_seek_bar_radius"/>
                     <solid android:color="@color/hvac_off_background_color" />
                 </shape>
             </item>
