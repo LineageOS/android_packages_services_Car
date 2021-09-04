@@ -33,7 +33,7 @@ public:
 
     virtual ~ScriptExecutorListener();
 
-    void onScriptFinished() {}
+    void onScriptFinished(jobject bundle);
 
     void onSuccess(jobject bundle);
 
