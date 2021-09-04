@@ -106,12 +106,15 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
 
     private void init(AttributeSet attrs) {
         int speeds = mContext.getResources().getInteger(R.integer.hvac_num_fan_speeds);
-        setMin(0);
+        if (speeds < 1) {
+            throw new IllegalArgumentException("The nuer of fan speeds should be > 1");
+        }
+
+        setMin(1);
         incrementProgressBy(1);
-        // Subtract 1 since we're starting from 0.
-        setMax(speeds - 1);
+        setMax(speeds);
         int thumbRadius = mContext.getResources().getDimensionPixelSize(
-                R.dimen.hvac_panel_on_button_radius);
+                R.dimen.hvac_panel_seek_bar_radius);
         setPadding(thumbRadius, 0, thumbRadius, 0);
         mHvacGlobalAreaId = mContext.getResources().getInteger(R.integer.hvac_global_area_id);
 
@@ -136,7 +139,7 @@ public class FanSpeedSeekBar extends SeekBar implements HvacView {
         }
 
         for (int i = 0; i < speeds; i++) {
-            mIcons.set(i, fanSpeedThumbIcons.getDrawable(i));
+            mIcons.set(i + 1, fanSpeedThumbIcons.getDrawable(i));
         }
         fanSpeedThumbIcons.recycle();
         typedArray.recycle();

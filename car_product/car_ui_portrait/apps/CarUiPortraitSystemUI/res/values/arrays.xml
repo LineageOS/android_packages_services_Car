@@ -19,29 +19,14 @@
     <array name="hvac_driver_seat_heat_icons">
         <item>@drawable/ic_driver_seat_heat_off</item>
         <item>@drawable/ic_driver_seat_heat_low</item>
-        <item>@drawable/ic_driver_seat_heat_med</item>
         <item>@drawable/ic_driver_seat_heat_high</item>
     </array>
     <array name="hvac_passenger_seat_heat_icons">
         <item>@drawable/ic_passenger_seat_heat_off</item>
         <item>@drawable/ic_passenger_seat_heat_low</item>
-        <item>@drawable/ic_passenger_seat_heat_med</item>
         <item>@drawable/ic_passenger_seat_heat_high</item>
     </array>
-    <array name="hvac_driver_seat_cool_icons">
-        <item>@drawable/ic_driver_seat_cool_off</item>
-        <item>@drawable/ic_driver_seat_cool_low</item>
-        <item>@drawable/ic_driver_seat_cool_med</item>
-        <item>@drawable/ic_driver_seat_cool_high</item>
-    </array>
-    <array name="hvac_passenger_seat_cool_icons">
-        <item>@drawable/ic_passenger_seat_cool_off</item>
-        <item>@drawable/ic_passenger_seat_cool_low</item>
-        <item>@drawable/ic_passenger_seat_cool_med</item>
-        <item>@drawable/ic_passenger_seat_cool_high</item>
-    </array>
     <array name="hvac_fan_speed_icons">
-        <item>@drawable/fan_speed_seek_bar_thumb_off</item>
         <item>@drawable/fan_speed_seek_bar_thumb_1</item>
         <item>@drawable/fan_speed_seek_bar_thumb_2</item>
         <item>@drawable/fan_speed_seek_bar_thumb_3</item>
