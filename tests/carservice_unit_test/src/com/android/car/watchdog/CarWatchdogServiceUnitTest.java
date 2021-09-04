@@ -2025,25 +2025,66 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
-    public void testResetResourceOveruseStats() throws Exception {
-        mGenericPackageNameByUid.put(Binder.getCallingUid(), mMockContext.getPackageName());
-        mGenericPackageNameByUid.put(1101278, "vendor_package.critical");
+    public void testResetResourceOveruseStatsResetsStats() throws Exception {
+        UserHandle user = UserHandle.getUserHandleForUid(10003346);
+        String packageName = mMockContext.getPackageName();
+        mGenericPackageNameByUid.put(10003346, packageName);
+        mGenericPackageNameByUid.put(10101278, "vendor_package.critical");
         injectIoOveruseStatsForPackages(
                 mGenericPackageNameByUid, /* killablePackages= */ new ArraySet<>(),
                 /* shouldNotifyPackages= */ new ArraySet<>());
 
         mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
-                Collections.singletonList(mMockContext.getPackageName()));
+                Collections.singletonList(packageName));
 
-        ResourceOveruseStats actualStats = mCarWatchdogService.getResourceOveruseStats(
-                CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
-                CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
+        ResourceOveruseStats actualStats =
+                mCarWatchdogService.getResourceOveruseStatsForUserPackage(
+                        packageName, user,
+                        CarWatchdogManager.FLAG_RESOURCE_OVERUSE_IO,
+                        CarWatchdogManager.STATS_PERIOD_CURRENT_DAY);
 
         ResourceOveruseStats expectedStats = new ResourceOveruseStats.Builder(
-                mMockContext.getPackageName(),
-                UserHandle.getUserHandleForUid(Binder.getCallingUid())).build();
+                packageName, user).build();
 
         ResourceOveruseStatsSubject.assertEquals(actualStats, expectedStats);
+
+        verify(mMockWatchdogStorage).deleteUserPackage(eq(user.getIdentifier()), eq(packageName));
+    }
+
+    @Test
+    public void testResetResourceOveruseStatsResetsUserPackageSettings() throws Exception {
+        mockUmGetAliveUsers(mMockUserManager, 100, 101);
+        injectPackageInfos(Arrays.asList(
+                constructPackageManagerPackageInfo("third_party_package.A", 10001278, null),
+                constructPackageManagerPackageInfo("third_party_package.A", 10101278, null),
+                constructPackageManagerPackageInfo("third_party_package.B", 10003346, null),
+                constructPackageManagerPackageInfo("third_party_package.B", 10103346, null)));
+        injectIoOveruseStatsForPackages(mGenericPackageNameByUid,
+                /* killablePackages= */ Set.of("third_party_package.A", "third_party_package.B"),
+                /* shouldNotifyPackages= */ new ArraySet<>());
+
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package.A",
+                UserHandle.ALL, /* isKillable= */false);
+        mCarWatchdogService.setKillablePackageAsUser("third_party_package.B",
+                UserHandle.ALL, /* isKillable= */false);
+
+        mWatchdogServiceForSystemImpl.resetResourceOveruseStats(
+                Collections.singletonList("third_party_package.A"));
+
+        PackageKillableStateSubject.assertThat(
+                mCarWatchdogService.getPackageKillableStatesAsUser(UserHandle.ALL)).containsExactly(
+                new PackageKillableState("third_party_package.A", 100,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.A", 101,
+                        PackageKillableState.KILLABLE_STATE_YES),
+                new PackageKillableState("third_party_package.B", 100,
+                        PackageKillableState.KILLABLE_STATE_NO),
+                new PackageKillableState("third_party_package.B", 101,
+                        PackageKillableState.KILLABLE_STATE_NO)
+        );
+
+        verify(mMockWatchdogStorage, times(2)).deleteUserPackage(anyInt(),
+                eq("third_party_package.A"));
     }
 
     @Test
