@@ -63,12 +63,24 @@ private:
     // The script will provide the results as a Lua table.
     // We currently support only non-nested fields in the table and the fields can be the following
     // Lua types: boolean, number, integer, and string.
-    // The result pushed by Lua is converted to Android Bundle and forwarded to
+    // The result pushed by Lua is converted to PersistableBundle and forwarded to
     // ScriptExecutor service via callback interface.
     // This method returns 0 to indicate that no results were pushed to Lua stack according
     // to Lua C function calling convention.
     // More info: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
     static int onSuccess(lua_State* lua);
+
+    // Invoked by a running Lua script to effectively mark the completion of the script's lifecycle,
+    // and send the final results to CarTelemetryService and then to the user.
+    // The script will provide the final results as a Lua table.
+    // We currently support only non-nested fields in the table and the fields can be the following
+    // Lua types: boolean, number, integer, and string.
+    // The result pushed by Lua is converted to Android PersistableBundle and forwarded to
+    // ScriptExecutor service via callback interface.
+    // This method returns 0 to indicate that no results were pushed to Lua stack according
+    // to Lua C function calling convention.
+    // More info: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
+    static int onScriptFinished(lua_State* lua);
 
     // Invoked by a running Lua script to indicate than an error occurred. This is the mechanism to
     // for a script author to receive error logs. The caller script encapsulates all the information
