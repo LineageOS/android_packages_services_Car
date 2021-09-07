@@ -48,7 +48,6 @@ import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
 import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
@@ -68,7 +67,6 @@ public class DataBrokerTest {
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
-    private static final PersistableBundle DATA = new PersistableBundle();
     private static final TelemetryProto.VehiclePropertyPublisher
             VEHICLE_PROPERTY_PUBLISHER_CONFIGURATION =
             TelemetryProto.VehiclePropertyPublisher.newBuilder().setReadRate(
@@ -89,8 +87,10 @@ public class DataBrokerTest {
             TelemetryProto.MetricsConfig.newBuilder().setName("Bar").setVersion(
                     1).addSubscribers(SUBSCRIBER_BAR).build();
 
-    // when count reaches 0, all messages are handled, so assertions won't have race condition
+
+    // when count reaches 0, all handler messages are scheduled to be dispatched after current time
     private CountDownLatch mIdleHandlerLatch = new CountDownLatch(1);
+    private PersistableBundle mData = new PersistableBundle();
     private DataBrokerImpl mDataBroker;
     private FakeScriptExecutor mFakeScriptExecutor;
     private ScriptExecutionTask mHighPriorityTask;
@@ -137,11 +137,11 @@ public class DataBrokerTest {
 
         mHighPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
-                DATA,
+                mData,
                 SystemClock.elapsedRealtime());
         mLowPriorityTask = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_BAR, SUBSCRIBER_BAR),
-                DATA,
+                mData,
                 SystemClock.elapsedRealtime());
     }
 
@@ -200,6 +200,7 @@ public class DataBrokerTest {
 
         mDataBroker.scheduleNextTask(); // schedule next task while the last task is in progress
 
+        waitForHandlerThreadToFinish();
         // verify task is not polled
         assertThat(taskQueue.peek()).isEqualTo(mHighPriorityTask);
         // expect one invocation for the task that is running
@@ -216,9 +217,8 @@ public class DataBrokerTest {
 
         mDataBroker.scheduleNextTask(); // start a task
         waitForHandlerThreadToFinish();
-        mIdleHandlerLatch = new CountDownLatch(1); // reset handler idle condition
         // end a task, should automatically schedule the next task
-        mFakeScriptExecutor.notifyScriptSuccess(DATA); // posts to handler
+        mFakeScriptExecutor.notifyScriptSuccess(mData); // posts to telemetry handler
 
         waitForHandlerThreadToFinish();
         // verify queue is empty, both tasks are polled and executed
@@ -228,19 +228,50 @@ public class DataBrokerTest {
 
     @Test
     public void testScheduleNextTask_onScriptSuccess_shouldStoreInterimResult() throws Exception {
+        mData.putBoolean("script is finished", false);
+        mData.putDouble("value of euler's number", 2.71828);
         mDataBroker.getTaskQueue().add(mHighPriorityTask);
-        ArgumentCaptor<PersistableBundle> persistableBundleCaptor =
-                ArgumentCaptor.forClass(PersistableBundle.class);
 
         mDataBroker.scheduleNextTask();
         waitForHandlerThreadToFinish();
-        mFakeScriptExecutor.notifyScriptSuccess(DATA);
+        mFakeScriptExecutor.notifyScriptSuccess(mData); // posts to telemetry handler
 
+        waitForHandlerThreadToFinish();
         assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
-        verify(mMockResultStore).putInterimResult(eq(METRICS_CONFIG_FOO.getName()),
-                persistableBundleCaptor.capture());
-        assertThat(persistableBundleCaptor.getValue().toString()).isEqualTo(
-                DATA.toString()); // expect same persistable bundle
+        verify(mMockResultStore).putInterimResult(
+                eq(mHighPriorityTask.getMetricsConfig().getName()), eq(mData));
+    }
+
+    @Test
+    public void testScheduleNextTask_whenScriptFinishes_shouldStoreFinalResult()
+            throws Exception {
+        mData.putBoolean("script is finished", true);
+        mData.putDouble("value of pi", 3.14159265359);
+        mDataBroker.getTaskQueue().add(mHighPriorityTask);
+
+        mDataBroker.scheduleNextTask();
+        waitForHandlerThreadToFinish();
+        mFakeScriptExecutor.notifyScriptFinish(mData); // posts to telemetry handler
+
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+        verify(mMockResultStore).putFinalResult(
+                eq(mHighPriorityTask.getMetricsConfig().getName()), eq(mData));
+    }
+
+    @Test
+    public void testScheduleNextTask_whenInterimDataExists_shouldPassToScriptExecutor()
+            throws Exception {
+        mData.putDouble("value of golden ratio", 1.618033);
+        mDataBroker.getTaskQueue().add(mHighPriorityTask);
+        when(mMockResultStore.getInterimResult(mHighPriorityTask.getMetricsConfig().getName()))
+                .thenReturn(mData);
+
+        mDataBroker.scheduleNextTask();
+
+        waitForHandlerThreadToFinish();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+        assertThat(mFakeScriptExecutor.getSavedState()).isEqualTo(mData);
     }
 
     @Test
@@ -312,7 +343,7 @@ public class DataBrokerTest {
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
         ScriptExecutionTask taskWithMetricsConfigFoo = new ScriptExecutionTask(
                 new DataSubscriber(mDataBroker, METRICS_CONFIG_FOO, SUBSCRIBER_FOO),
-                DATA,
+                mData,
                 SystemClock.elapsedRealtime());
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
@@ -336,12 +367,14 @@ public class DataBrokerTest {
     private void waitForHandlerThreadToFinish() throws Exception {
         assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
                 .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
+        mIdleHandlerLatch = new CountDownLatch(1); // reset idle handler condition
     }
 
     private static class FakeScriptExecutor implements IScriptExecutor {
         private IScriptExecutorListener mListener;
         private int mApiInvocationCount = 0;
         private int mFailApi = 0;
+        private PersistableBundle mSavedState = null;
 
         @Override
         public void invokeScript(String scriptBody, String functionName,
@@ -349,6 +382,7 @@ public class DataBrokerTest {
                 IScriptExecutorListener listener)
                 throws RemoteException {
             mApiInvocationCount++;
+            mSavedState = savedState;
             mListener = listener;
             if (mFailApi > 0) {
                 mFailApi--;
@@ -370,6 +404,15 @@ public class DataBrokerTest {
             }
         }
 
+        /** Mocks script producing final result. */
+        public void notifyScriptFinish(PersistableBundle bundle) {
+            try {
+                mListener.onScriptFinished(bundle);
+            } catch (RemoteException e) {
+                // nothing to do
+            }
+        }
+
         /** Fails the next N invokeScript() call. */
         public void failNextApiCalls(int n) {
             mFailApi = n;
@@ -378,6 +421,11 @@ public class DataBrokerTest {
         /** Returns number of times the ScriptExecutor API was invoked. */
         public int getApiInvocationCount() {
             return mApiInvocationCount;
+        }
+
+        /** Returns the interim data passed in invokeScript(). */
+        public PersistableBundle getSavedState() {
+            return mSavedState;
         }
     }
 }
