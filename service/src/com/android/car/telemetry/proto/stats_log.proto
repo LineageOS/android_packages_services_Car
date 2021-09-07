@@ -26,6 +26,15 @@ option java_outer_classname = "StatsLogProto";
 
 import "packages/services/Car/service/src/com/android/car/telemetry/proto/atoms.proto";
 
+message DimensionsValue {
+  oneof value {
+    int32 value_int = 3;
+    uint64 value_str_hash = 8;
+  }
+
+  reserved 1, 2, 4, 5, 6, 7;
+}
+
 message AggregatedAtomInfo {
   optional Atom atom = 1;
   repeated int64 elapsed_timestamp_nanos = 2;
@@ -36,6 +45,22 @@ message EventMetricData {
   optional Atom atom = 2;
   optional AggregatedAtomInfo aggregated_atom_info = 4;
   reserved 3;
+}
+
+message GaugeBucketInfo {
+  repeated Atom atom = 3;
+
+  repeated int64 elapsed_timestamp_nanos = 4;
+
+  reserved 1, 2, 5, 6, 7, 8, 9;
+}
+
+message GaugeMetricData {
+  repeated GaugeBucketInfo bucket_info = 3;
+
+  repeated DimensionsValue dimension_leaf_values_in_what = 4;
+
+  reserved 1, 2, 5, 6;
 }
 
 message StatsLogReport {
@@ -69,7 +94,9 @@ message ConfigMetricsReport {
   }
   optional DumpReportReason dump_report_reason = 8;
 
-  reserved 2, 3, 4, 5, 6, 7, 9;
+  repeated string strings = 9;
+
+  reserved 2, 3, 4, 5, 6, 7;
 }
 
 message ConfigMetricsReportList {

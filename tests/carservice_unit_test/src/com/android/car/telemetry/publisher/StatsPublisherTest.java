@@ -16,10 +16,15 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
 import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID;
-import static com.android.car.telemetry.publisher.StatsPublisher.ATOM_APP_START_MEMORY_STATE_CAPTURED_ID;
+import static com.android.car.telemetry.publisher.StatsPublisher.PROCESS_MEMORY_STATE_FIELDS_MATCHER;
+import static com.android.car.telemetry.publisher.StatsPublisher.PROCESS_MEMORY_STATE_GAUGE_METRIC_ID;
+import static com.android.car.telemetry.publisher.StatsPublisher.PROCESS_MEMORY_STATE_MATCHER_ID;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -50,6 +55,7 @@ import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
+import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.File;
@@ -63,19 +69,31 @@ public class StatsPublisherTest {
                     .setStats(TelemetryProto.StatsPublisher.newBuilder()
                             .setSystemMetric(APP_START_MEMORY_STATE_CAPTURED))
                     .build();
+    private static final TelemetryProto.Publisher STATS_PUBLISHER_PARAMS_2 =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(TelemetryProto.StatsPublisher.newBuilder()
+                            .setSystemMetric(PROCESS_MEMORY_STATE))
+                    .build();
     private static final TelemetryProto.Subscriber SUBSCRIBER_1 =
             TelemetryProto.Subscriber.newBuilder()
                     .setHandler("handler_fn_1")
                     .setPublisher(STATS_PUBLISHER_PARAMS_1)
+                    .build();
+    private static final TelemetryProto.Subscriber SUBSCRIBER_2 =
+            TelemetryProto.Subscriber.newBuilder()
+                    .setHandler("handler_fn_2")
+                    .setPublisher(STATS_PUBLISHER_PARAMS_2)
                     .build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG =
             TelemetryProto.MetricsConfig.newBuilder()
                     .setName("myconfig")
                     .setVersion(1)
                     .addSubscribers(SUBSCRIBER_1)
+                    .addSubscribers(SUBSCRIBER_2)
                     .build();
 
     private static final long SUBSCRIBER_1_HASH = -8101507323446050791L;  // Used as ID.
+    private static final long SUBSCRIBER_2_HASH = 2778197004730583271L;  // Used as ID.
 
     private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_1 =
             StatsdConfigProto.StatsdConfig.newBuilder()
@@ -85,15 +103,49 @@ public class StatsPublisherTest {
                             .setSimpleAtomMatcher(
                                     StatsdConfigProto.SimpleAtomMatcher.newBuilder()
                                             .setAtomId(
-                                                    ATOM_APP_START_MEMORY_STATE_CAPTURED_ID)))
+                                                    APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER)))
                     .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
                             .setId(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)
                             .setWhat(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID))
                     .addAllowedLogSource("AID_SYSTEM")
                     .build();
 
+    private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_2 =
+            StatsdConfigProto.StatsdConfig.newBuilder()
+                    .setId(SUBSCRIBER_2_HASH)
+                    .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                            // The id must be unique within StatsdConfig/matchers
+                            .setId(PROCESS_MEMORY_STATE_MATCHER_ID)
+                            .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                    .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)))
+                    .addGaugeMetric(StatsdConfigProto.GaugeMetric.newBuilder()
+                            // The id must be unique within StatsdConfig/metrics
+                            .setId(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)
+                            .setWhat(PROCESS_MEMORY_STATE_MATCHER_ID)
+                            .setDimensionsInWhat(StatsdConfigProto.FieldMatcher.newBuilder()
+                                    .setField(PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                            .setField(1))  // ProcessMemoryState.uid
+                                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                            .setField(2))  // ProcessMemoryState.process_name
+                            )
+                            .setGaugeFieldsFilter(StatsdConfigProto.FieldFilter.newBuilder()
+                                    .setFields(PROCESS_MEMORY_STATE_FIELDS_MATCHER))
+                            .setSamplingType(
+                                    StatsdConfigProto.GaugeMetric.SamplingType.RANDOM_ONE_SAMPLE)
+                            .setBucket(StatsdConfigProto.TimeUnit.FIVE_MINUTES)
+                    )
+                    .addAllowedLogSource("AID_SYSTEM")
+                    .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
+                        .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                        .addPackages("AID_SYSTEM"))
+                    .build();
+
     private static final StatsLogProto.ConfigMetricsReportList EMPTY_STATS_REPORT =
             StatsLogProto.ConfigMetricsReportList.newBuilder().build();
+
+    private static final DataSubscriber DATA_SUBSCRIBER_1 =
+            new DataSubscriber(null, METRICS_CONFIG, SUBSCRIBER_1);
 
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);
@@ -102,7 +154,6 @@ public class StatsPublisherTest {
     private StatsPublisher mPublisher;  // subject
     private Throwable mPublisherFailure;
 
-    @Mock private DataSubscriber mMockDataSubscriber;
     @Mock private StatsManagerProxy mStatsManager;
 
     @Captor private ArgumentCaptor<PersistableBundle> mBundleCaptor;
@@ -111,9 +162,6 @@ public class StatsPublisherTest {
     public void setUp() throws Exception {
         mRootDirectory = Files.createTempDirectory("telemetry_test").toFile();
         mPublisher = createRestartedPublisher();
-        when(mMockDataSubscriber.getPublisherParam()).thenReturn(STATS_PUBLISHER_PARAMS_1);
-        when(mMockDataSubscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
-        when(mMockDataSubscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
     }
 
     /**
@@ -130,73 +178,86 @@ public class StatsPublisherTest {
 
     @Test
     public void testAddDataSubscriber_registersNewListener() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         verify(mStatsManager, times(1))
                 .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
-        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(mPublisher.hasDataSubscriber(DATA_SUBSCRIBER_1)).isTrue();
     }
 
     @Test
     public void testAddDataSubscriber_sameVersion_addsToStatsdOnce() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         verify(mStatsManager, times(1))
                 .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
-        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(mPublisher.hasDataSubscriber(DATA_SUBSCRIBER_1)).isTrue();
     }
 
     @Test
     public void testAddDataSubscriber_whenRestarted_addsToStatsdOnce() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
         StatsPublisher publisher2 = createRestartedPublisher();
 
-        publisher2.addDataSubscriber(mMockDataSubscriber);
+        publisher2.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         verify(mStatsManager, times(1))
                 .addConfig(SUBSCRIBER_1_HASH, STATSD_CONFIG_1.toByteArray());
-        assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isTrue();
+        assertThat(publisher2.hasDataSubscriber(DATA_SUBSCRIBER_1)).isTrue();
+    }
+
+    @Test
+    public void testAddDataSubscriber_forProcessMemoryState_generatesStatsdMetrics()
+            throws Exception {
+        DataSubscriber processMemoryStateSubscriber =
+                new DataSubscriber(null, METRICS_CONFIG, SUBSCRIBER_2);
+
+        mPublisher.addDataSubscriber(processMemoryStateSubscriber);
+
+        verify(mStatsManager, times(1))
+                .addConfig(SUBSCRIBER_2_HASH, STATSD_CONFIG_2.toByteArray());
+        assertThat(mPublisher.hasDataSubscriber(processMemoryStateSubscriber)).isTrue();
     }
 
     @Test
     public void testRemoveDataSubscriber_removesFromStatsd() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
-        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+        mPublisher.removeDataSubscriber(DATA_SUBSCRIBER_1);
 
         verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
         assertThat(getSavedStatsConfigs().keySet()).isEmpty();
-        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mPublisher.hasDataSubscriber(DATA_SUBSCRIBER_1)).isFalse();
     }
 
     @Test
     public void testRemoveDataSubscriber_ifNotFound_nothingHappensButCallsStatsdRemove()
             throws Exception {
-        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+        mPublisher.removeDataSubscriber(DATA_SUBSCRIBER_1);
 
         // It should try removing StatsdConfig from StatsD, in case it was added there before and
         // left dangled.
         verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
-        assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(mPublisher.hasDataSubscriber(DATA_SUBSCRIBER_1)).isFalse();
     }
 
     @Test
     public void testRemoveAllDataSubscriber_whenRestarted_removesFromStatsdAndClears()
             throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
         StatsPublisher publisher2 = createRestartedPublisher();
 
         publisher2.removeAllDataSubscribers();
 
         verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
         assertThat(getSavedStatsConfigs().keySet()).isEmpty();
-        assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isFalse();
+        assertThat(publisher2.hasDataSubscriber(DATA_SUBSCRIBER_1)).isFalse();
     }
 
     @Test
     public void testAddDataSubscriber_queuesPeriodicTaskInTheHandler() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).hasSize(1);
         Message msg = mFakeHandlerWrapper.getQueuedMessages().get(0);
@@ -209,23 +270,23 @@ public class StatsPublisherTest {
         doThrow(new StatsManager.StatsUnavailableException("fail"))
                 .when(mStatsManager).addConfig(anyLong(), any());
 
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         assertThat(mPublisherFailure).hasMessageThat().contains("Failed to add config");
     }
 
     @Test
     public void testRemoveDataSubscriber_removesPeriodicStatsdReportPull() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
-        mPublisher.removeDataSubscriber(mMockDataSubscriber);
+        mPublisher.removeDataSubscriber(DATA_SUBSCRIBER_1);
 
         assertThat(mFakeHandlerWrapper.getQueuedMessages()).isEmpty();
     }
 
     @Test
     public void testRemoveAllDataSubscriber_removesPeriodicStatsdReportPull() {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         mPublisher.removeAllDataSubscribers();
 
@@ -234,7 +295,7 @@ public class StatsPublisherTest {
 
     @Test
     public void testAfterDispatchItSchedulesANewPullReportTask() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
         Message firstMessage = mFakeHandlerWrapper.getQueuedMessages().get(0);
         when(mStatsManager.getReports(anyLong())).thenReturn(EMPTY_STATS_REPORT.toByteArray());
 
@@ -249,7 +310,11 @@ public class StatsPublisherTest {
 
     @Test
     public void testPullsStatsdReport() throws Exception {
-        mPublisher.addDataSubscriber(mMockDataSubscriber);
+        DataSubscriber subscriber = Mockito.mock(DataSubscriber.class);
+        when(subscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
+        when(subscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
+        when(subscriber.getPublisherParam()).thenReturn(SUBSCRIBER_1.getPublisher());
+        mPublisher.addDataSubscriber(subscriber);
         when(mStatsManager.getReports(anyLong())).thenReturn(
                 StatsLogProto.ConfigMetricsReportList.newBuilder()
                         // add 2 empty reports
@@ -259,7 +324,7 @@ public class StatsPublisherTest {
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
-        verify(mMockDataSubscriber).push(mBundleCaptor.capture());
+        verify(subscriber).push(mBundleCaptor.capture());
         assertThat(mBundleCaptor.getValue().getInt("reportsCount")).isEqualTo(2);
     }
 
@@ -269,9 +334,6 @@ public class StatsPublisherTest {
             return PersistableBundle.readFromStream(fileInputStream);
         }
     }
-
-    // TODO(b/189143813): add test cases when connecting to Statsd fails
-    // TODO(b/189143813): add test cases for handling config version upgrades
 
     private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
         mPublisherFailure = error;

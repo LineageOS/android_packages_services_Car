@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
+
 import android.app.StatsManager.StatsUnavailableException;
 import android.car.builtin.util.Slog;
 import android.os.Handler;
@@ -24,6 +26,7 @@ import android.os.PersistableBundle;
 import android.util.LongSparseArray;
 
 import com.android.car.CarLog;
+import com.android.car.telemetry.AtomsProto;
 import com.android.car.telemetry.StatsLogProto;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
@@ -59,10 +62,10 @@ public class StatsPublisher extends AbstractPublisher {
     static final int APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID = 1;
     @VisibleForTesting
     static final int APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID = 2;
-
-    // The atom ids are from frameworks/proto_logging/stats/atoms.proto
     @VisibleForTesting
-    static final int ATOM_APP_START_MEMORY_STATE_CAPTURED_ID = 55;
+    static final int PROCESS_MEMORY_STATE_MATCHER_ID = 3;
+    @VisibleForTesting
+    static final int PROCESS_MEMORY_STATE_GAUGE_METRIC_ID = 4;
 
     // The file that contains stats config key and stats config version
     @VisibleForTesting
@@ -72,6 +75,28 @@ public class StatsPublisher extends AbstractPublisher {
 
     private static final String BUNDLE_CONFIG_KEY_PREFIX = "statsd-publisher-config-id-";
     private static final String BUNDLE_CONFIG_VERSION_PREFIX = "statsd-publisher-config-version-";
+
+    @VisibleForTesting
+    static final StatsdConfigProto.FieldMatcher PROCESS_MEMORY_STATE_FIELDS_MATCHER =
+            StatsdConfigProto.FieldMatcher.newBuilder()
+                    .setField(
+                            AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.OOM_SCORE_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.START_TIME_NANOS_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.USAGE_IN_BYTES_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.PGFAULT_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
+            .build();
 
     // TODO(b/197766340): remove unnecessary lock
     private final Object mLock = new Object();
@@ -380,24 +405,63 @@ public class StatsPublisher extends AbstractPublisher {
     static StatsdConfig buildStatsdConfig(DataSubscriber subscriber, long configId) {
         TelemetryProto.StatsPublisher.SystemMetric metric =
                 subscriber.getPublisherParam().getStats().getSystemMetric();
+        StatsdConfig.Builder builder = StatsdConfig.newBuilder()
+                // This id is not used in StatsD, but let's make it the same as config_key
+                // just in case.
+                .setId(configId)
+                .addAllowedLogSource("AID_SYSTEM");
+
         if (metric == TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED) {
-            return StatsdConfig.newBuilder()
-                    // This id is not used in StatsD, but let's make it the same as config_key
-                    // just in case.
-                    .setId(configId)
-                    .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
-                            // The id must be unique within StatsdConfig/matchers
-                            .setId(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID)
-                            .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
-                                    .setAtomId(ATOM_APP_START_MEMORY_STATE_CAPTURED_ID)))
-                    .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
-                            // The id must be unique within StatsdConfig/metrics
-                            .setId(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)
-                            .setWhat(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID))
-                    .addAllowedLogSource("AID_SYSTEM")
-                    .build();
+            return buildAppStartMemoryStateStatsdConfig(builder);
+        } else if (metric == TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE) {
+            return buildProcessMemoryStateStatsdConfig(builder);
         } else {
             throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
+    }
+
+    private static StatsdConfig buildAppStartMemoryStateStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)
+                        .setWhat(APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID))
+                .build();
+    }
+
+    private static StatsdConfig buildProcessMemoryStateStatsdConfig(StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(PROCESS_MEMORY_STATE_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)))
+                .addGaugeMetric(StatsdConfigProto.GaugeMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)
+                        .setWhat(PROCESS_MEMORY_STATE_MATCHER_ID)
+                        .setDimensionsInWhat(StatsdConfigProto.FieldMatcher.newBuilder()
+                                .setField(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                                .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                        .setField(1))  // ProcessMemoryState.uid
+                                .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                                        .setField(2))  // ProcessMemoryState.process_name
+                        )
+                        .setGaugeFieldsFilter(StatsdConfigProto.FieldFilter.newBuilder()
+                                .setFields(PROCESS_MEMORY_STATE_FIELDS_MATCHER)
+                        )  // setGaugeFieldsFilter
+                        .setSamplingType(
+                                StatsdConfigProto.GaugeMetric.SamplingType.RANDOM_ONE_SAMPLE)
+                        .setBucket(StatsdConfigProto.TimeUnit.FIVE_MINUTES)
+                )
+                .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
+                        .setAtomId(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                        .addPackages("AID_SYSTEM"))
+                .build();
     }
 }
