@@ -48,6 +48,7 @@ import android.os.UserManager;
 import android.os.UserManager.RemoveResult;
 import android.util.Log;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Objects;
 import java.util.concurrent.Callable;
@@ -146,6 +147,45 @@ public final class AndroidMockitoHelper {
     }
 
     /**
+     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
+     * given users.
+     */
+    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
+            @NonNull UserHandle... users) {
+        Objects.requireNonNull(users);
+        mockUmGetUserHandles(um, excludeDying, UserTestingHelper.toList(users));
+    }
+
+    /**
+     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the given users.
+     *
+     * TODO(b/196179969): replace UserInfo with UserHandle. getUserHandles doesn't take
+     * excludePartial which is required in UserHalHelper. In the next CL, UserHalHelper would be
+     * updated so that current user is always available in the usersInfo.
+     */
+    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
+            @NonNull List<UserHandle> users) {
+        Objects.requireNonNull(um);
+        Objects.requireNonNull(users);
+        // convert List<UserHandle> to List<UserInfos>
+        List<UserInfo> userInfos = new ArrayList<UserInfo>();
+        for (UserHandle userHandle : users) {
+            userInfos.add(UserTestingHelper.newUser(userHandle.getIdentifier()));
+        }
+        mockUmGetUsers(um, /* excludePartial= */ false, excludeDying, /* excludePreCreated= */ true,
+                userInfos);
+    }
+
+    /**
+     * Mocks {@code UserManager#getUserHandles(excludeDying)} to return the
+     * given users.
+     */
+    public static void mockUmGetUserHandles(@NonNull UserManager um, boolean excludeDying,
+            @NonNull int... userIds) {
+        mockUmGetUserHandles(um, excludeDying, UserTestingHelper.newUserHandles(userIds));
+    }
+
+    /**
      * Mocks a call to {@code UserManager#getUsers()}, which includes dying users.
      */
     public static void mockUmGetAllUsers(@NonNull UserManager um, @NonNull UserInfo... userInfos) {
@@ -161,19 +201,17 @@ public final class AndroidMockitoHelper {
     }
 
     /**
-     * Mocks a successful call to {@code UserManager#createUser(String, String, int)}, returning
-     * a user with the passed arguments.
+     * Mocks a successful call to {@code UserManager#createUser(String, String, int)}
      */
     @NonNull
-    public static UserInfo mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
-            @NonNull String userType, @UserInfoFlag int flags, @UserIdInt int userId) {
-        UserInfo userInfo = new UserInfoBuilder(userId)
-                        .setName(name)
-                        .setType(userType)
-                        .setFlags(flags)
-                        .build();
+    public static void mockUmCreateUser(@NonNull UserManager um, @Nullable String name,
+            @NonNull String userType, @UserInfoFlag int flags, @NonNull UserHandle user) {
+        UserInfo userInfo = new UserInfoBuilder(user.getIdentifier())
+                .setName(name)
+                .setType(userType)
+                .setFlags(flags)
+                .build();
         when(um.createUser(name, userType, flags)).thenReturn(userInfo);
-        return userInfo;
     }
 
     /**
@@ -209,6 +247,23 @@ public final class AndroidMockitoHelper {
             @NonNull UserInfo user, boolean evenWhenDisallowed, @RemoveResult int result,
             @Nullable Visitor<UserInfo> listener) {
         int userId = user.id;
+        when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
+            if (listener != null) {
+                Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);
+                listener.visit(user);
+            }
+            return result;
+        });
+    }
+
+    /**
+     * Mocks a successful call to {@code UserManager#removeUserOrSetEphemeral(int)}, and notifies
+     * {@code listener} when it's called.
+     */
+    public static void mockUmRemoveUserOrSetEphemeral(@NonNull UserManager um,
+            @NonNull UserHandle user, boolean evenWhenDisallowed, @RemoveResult int result,
+            @Nullable Visitor<UserHandle> listener) {
+        int userId = user.getIdentifier();
         when(um.removeUserOrSetEphemeral(userId, evenWhenDisallowed)).thenAnswer((inv) -> {
             if (listener != null) {
                 Log.v(TAG, "mockUmRemoveUserOrSetEphemeral(" + user + "): notifying " + listener);

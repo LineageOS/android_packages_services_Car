@@ -17,7 +17,7 @@
 package com.android.car.hal;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockAmGetCurrentUser;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.ASSOCIATE_CURRENT_USER;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_ALL_USERS;
 import static android.hardware.automotive.vehicle.V2_0.UserIdentificationAssociationSetValue.DISASSOCIATE_CURRENT_USER;
@@ -35,19 +35,22 @@ import static com.android.car.hal.UserHalHelper.CREATE_USER_PROPERTY;
 import static com.android.car.hal.UserHalHelper.REMOVE_USER_PROPERTY;
 import static com.android.car.hal.UserHalHelper.SWITCH_USER_PROPERTY;
 import static com.android.car.hal.UserHalHelper.USER_IDENTIFICATION_ASSOCIATION_PROPERTY;
+import static com.android.car.user.MockedUserHandleBuilder.expectAdminUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectEphemeralUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectGuestUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectRegularUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectSystemUserExists;
 
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
-import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
 import android.annotation.NonNull;
 import android.app.ActivityManager;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
-import android.car.test.util.UserTestingHelper.UserInfoBuilder;
-import android.content.pm.UserInfo;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoResponse;
@@ -69,17 +72,20 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
 
+import com.android.car.user.UserHandleHelper;
+
 import com.google.common.collect.Range;
 
 import org.junit.Test;
 import org.mockito.Mock;
 
-import java.util.Arrays;
-
 public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private UserManager mUm;
+
+    @Mock
+    private UserHandleHelper mUserHandleHelper;
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
@@ -116,30 +122,24 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testConvertFlags_nullUser() {
-        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.convertFlags(null));
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.convertFlags(null, null));
     }
 
     @Test
     public void testConvertFlags() {
-        UserInfo user = new UserInfo();
-
-        user.id = UserHandle.USER_SYSTEM;
+        UserHandle user = expectSystemUserExists(mUserHandleHelper, UserHandle.USER_SYSTEM);
         assertConvertFlags(UserFlags.SYSTEM, user);
 
-        user.id = 10;
+        user = expectRegularUserExists(mUserHandleHelper, 101);
         assertConvertFlags(UserFlags.NONE, user);
 
-        user.flags = UserInfo.FLAG_ADMIN;
-        assertThat(user.isAdmin()).isTrue(); // Confidence check
+        user = expectAdminUserExists(mUserHandleHelper, 102);
         assertConvertFlags(UserFlags.ADMIN, user);
 
-        user.flags = UserInfo.FLAG_EPHEMERAL;
-        assertThat(user.isEphemeral()).isTrue(); // Confidence check
+        user = expectEphemeralUserExists(mUserHandleHelper, 103);
         assertConvertFlags(UserFlags.EPHEMERAL, user);
 
-        user.userType = UserManager.USER_TYPE_FULL_GUEST;
-        assertThat(user.isEphemeral()).isTrue(); // Confidence check
-        assertThat(user.isGuest()).isTrue(); // Confidence check
+        user = expectGuestUserExists(mUserHandleHelper, 104, /* isEphemeral= */ true);
         assertConvertFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
     }
 
@@ -150,31 +150,25 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testGetFlags_noUser() {
-        // No need to set anythin as mUm call will return null
-        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.getFlags(mUm, 10));
+        assertThrows(IllegalArgumentException.class,
+                () -> UserHalHelper.getFlags(mUserHandleHelper, 101));
     }
 
     @Test
     public void testGetFlags_ok() {
-        UserInfo user = new UserInfo();
-
-        user.id = UserHandle.USER_SYSTEM;
+        UserHandle user = expectSystemUserExists(mUserHandleHelper, UserHandle.USER_SYSTEM);
         assertGetFlags(UserFlags.SYSTEM, user);
 
-        user.id = 10;
+        user = expectRegularUserExists(mUserHandleHelper, 101);
         assertGetFlags(UserFlags.NONE, user);
 
-        user.flags = UserInfo.FLAG_ADMIN;
-        assertThat(user.isAdmin()).isTrue(); // Confidence check
+        user = expectAdminUserExists(mUserHandleHelper, 102);
         assertGetFlags(UserFlags.ADMIN, user);
 
-        user.flags = UserInfo.FLAG_EPHEMERAL;
-        assertThat(user.isEphemeral()).isTrue(); // Confidence check
+        user = expectEphemeralUserExists(mUserHandleHelper, 103);
         assertGetFlags(UserFlags.EPHEMERAL, user);
 
-        user.userType = UserManager.USER_TYPE_FULL_GUEST;
-        assertThat(user.isEphemeral()).isTrue(); // Confidence check
-        assertThat(user.isGuest()).isTrue(); // Confidence check
+        user = expectGuestUserExists(mUserHandleHelper, 104, /* isEphemeral= */ true);
         assertGetFlags(UserFlags.GUEST | UserFlags.EPHEMERAL, user);
     }
 
@@ -224,11 +218,11 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     public void testToUserInfoFlags() {
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.NONE)).isEqualTo(0);
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.EPHEMERAL))
-                .isEqualTo(UserInfo.FLAG_EPHEMERAL);
+                .isEqualTo(UserManagerHelper.FLAG_EPHEMERAL);
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.ADMIN))
-                .isEqualTo(UserInfo.FLAG_ADMIN);
+                .isEqualTo(UserManagerHelper.FLAG_ADMIN);
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.EPHEMERAL | UserFlags.ADMIN))
-                .isEqualTo(UserInfo.FLAG_EPHEMERAL | UserInfo.FLAG_ADMIN);
+                .isEqualTo(UserManagerHelper.FLAG_EPHEMERAL | UserManagerHelper.FLAG_ADMIN);
 
         // test flags that should be ignored
         assertThat(UserHalHelper.toUserInfoFlags(UserFlags.SYSTEM)).isEqualTo(0);
@@ -236,17 +230,18 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         assertThat(UserHalHelper.toUserInfoFlags(1024)).isEqualTo(0);
     }
 
-    private void assertConvertFlags(int expectedFlags, @NonNull UserInfo user) {
+    private void assertConvertFlags(int expectedFlags, @NonNull UserHandle user) {
         assertWithMessage("flags mismatch: user=%s, flags=%s",
-                user.toFullString(), UserHalHelper.userFlagsToString(expectedFlags))
-                        .that(UserHalHelper.convertFlags(user)).isEqualTo(expectedFlags);
+                user, UserHalHelper.userFlagsToString(expectedFlags))
+                        .that(UserHalHelper.convertFlags(mUserHandleHelper, user))
+                        .isEqualTo(expectedFlags);
     }
 
-    private void assertGetFlags(int expectedFlags, @NonNull UserInfo user) {
-        when(mUm.getUserInfo(user.id)).thenReturn(user);
+    private void assertGetFlags(int expectedFlags, @NonNull UserHandle user) {
         assertWithMessage("flags mismatch: user=%s, flags=%s",
-                user.toFullString(), UserHalHelper.userFlagsToString(expectedFlags))
-                        .that(UserHalHelper.getFlags(mUm, user.id)).isEqualTo(expectedFlags);
+                user, UserHalHelper.userFlagsToString(expectedFlags))
+                        .that(UserHalHelper.getFlags(mUserHandleHelper, user.getIdentifier()))
+                        .isEqualTo(expectedFlags);
     }
 
     @Test
@@ -1175,57 +1170,61 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testNewUsersInfo_nullUm() {
-        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null, 100));
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(null, null));
+        assertThrows(IllegalArgumentException.class, () -> UserHalHelper.newUsersInfo(mUm, null));
     }
 
     @Test
     public void testNewUsersInfo_nullUsers() {
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
 
         assertEmptyUsersInfo(usersInfo);
     }
 
     @Test
     public void testNewUsersInfo_noUsers() {
-        mockGetAllUsersButPrecreated(new UserInfo[0]);
+        mockGetAllUsers(new UserHandle[0]);
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
 
         assertEmptyUsersInfo(usersInfo);
     }
 
     @Test
     public void testNewUsersInfo_ok() {
-        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
-        UserInfo user200 = new UserInfoBuilder(200).build();
+        UserHandle user100 = expectAdminUserExists(mUserHandleHelper, 100);
+        UserHandle user200 = expectRegularUserExists(mUserHandleHelper, 200);
+        UserHandle user300 = expectRegularUserExists(mUserHandleHelper, 300);
 
-        mockGetAllUsersButPrecreated(user100, user200);
+        mockGetAllUsers(user100, user200, user300);
         mockAmGetCurrentUser(300); // just to make sure it's not used
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, 100);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
 
         assertThat(usersInfo).isNotNull();
-        assertThat(usersInfo.currentUser.userId).isEqualTo(100);
-        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.ADMIN);
+        assertThat(usersInfo.currentUser.userId).isEqualTo(300);
+        assertThat(usersInfo.currentUser.flags).isEqualTo(UserFlags.NONE);
 
-        assertThat(usersInfo.numberUsers).isEqualTo(2);
-        assertThat(usersInfo.existingUsers).hasSize(2);
+        assertThat(usersInfo.numberUsers).isEqualTo(3);
+        assertThat(usersInfo.existingUsers).hasSize(3);
 
         assertThat(usersInfo.existingUsers.get(0).userId).isEqualTo(100);
         assertThat(usersInfo.existingUsers.get(0).flags).isEqualTo(UserFlags.ADMIN);
         assertThat(usersInfo.existingUsers.get(1).userId).isEqualTo(200);
         assertThat(usersInfo.existingUsers.get(1).flags).isEqualTo(UserFlags.NONE);
+        assertThat(usersInfo.existingUsers.get(2).userId).isEqualTo(300);
+        assertThat(usersInfo.existingUsers.get(2).flags).isEqualTo(UserFlags.NONE);
     }
 
     @Test
     public void testNewUsersInfo_currentUser_ok() {
-        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
-        UserInfo user200 = new UserInfoBuilder(200).build();
+        UserHandle user100 = expectAdminUserExists(mUserHandleHelper, 100);
+        UserHandle user200 = expectRegularUserExists(mUserHandleHelper, 200);
 
-        mockGetAllUsersButPrecreated(user100, user200);
+        mockGetAllUsers(user100, user200);
         mockAmGetCurrentUser(100);
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
 
         assertThat(usersInfo).isNotNull();
         assertThat(usersInfo.currentUser.userId).isEqualTo(100);
@@ -1243,13 +1242,13 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
     @Test
     @ExpectWtf
     public void testNewUsersInfo_noCurrentUser() {
-        UserInfo user100 = new UserInfoBuilder(100).setFlags(UserInfo.FLAG_ADMIN).build();
-        UserInfo user200 = new UserInfoBuilder(200).build();
+        UserHandle user100 = expectAdminUserExists(mUserHandleHelper, 100);
+        UserHandle user200 = expectRegularUserExists(mUserHandleHelper, 200);
 
-        mockGetAllUsersButPrecreated(user100, user200);
+        mockGetAllUsers(user100, user200);
         mockAmGetCurrentUser(300);
 
-        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm);
+        UsersInfo usersInfo = UserHalHelper.newUsersInfo(mUm, mUserHandleHelper);
 
         assertThat(usersInfo).isNotNull();
         assertThat(usersInfo.currentUser.userId).isEqualTo(300);
@@ -1321,9 +1320,8 @@ public final class UserHalHelperTest extends AbstractExtendedMockitoTestCase {
         UserHalHelper.checkValid(usersInfo);
     }
 
-    private void mockGetAllUsersButPrecreated(@NonNull UserInfo... users) {
-        mockUmGetUsers(mUm, /* excludePartial= */ false, /* excludeDying= */ false,
-                /* excludePreCreated= */ true, Arrays.asList(users));
+    private void mockGetAllUsers(@NonNull UserHandle... users) {
+        mockUmGetUserHandles(mUm, /* excludeDying= */ false, users);
     }
 
     private static void assertEmptyUsersInfo(UsersInfo usersInfo) {

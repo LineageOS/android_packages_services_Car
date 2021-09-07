@@ -79,8 +79,13 @@ public final class AndroidMockitoHelperTest {
                 .spyStatic(Binder.class)
                 .startMocking();
 
-        mTestUser = mockUmCreateUser(mMockedUserManager, "testUser",
-                UserManager.USER_TYPE_FULL_SYSTEM, UserInfo.FLAG_ADMIN, TEST_USER_ID);
+        UserHandle testUserHandle = UserHandle.of(TEST_USER_ID);
+        mockUmCreateUser(mMockedUserManager, "testUser",
+                UserManager.USER_TYPE_FULL_SYSTEM, UserInfo.FLAG_ADMIN,
+                testUserHandle);
+        //TODO(b/196179969): remove UserInfo
+        mTestUser = new UserInfo(TEST_USER_ID, "testUser", "", UserInfo.FLAG_ADMIN,
+                UserManager.USER_TYPE_FULL_SYSTEM);
     }
 
     @After

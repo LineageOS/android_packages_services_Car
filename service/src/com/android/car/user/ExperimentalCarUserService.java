@@ -54,6 +54,7 @@ import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
+import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.UserIcons;
 
 import java.util.ArrayList;
@@ -124,13 +125,21 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
 
     public ExperimentalCarUserService(Context context, CarUserService carUserService,
             UserManager userManager, ActivityManagerHelper amHelper) {
+        this(context, carUserService, userManager, amHelper,
+                new UserHandleHelper(context, userManager));
+    }
+
+    @VisibleForTesting
+    public ExperimentalCarUserService(Context context, CarUserService carUserService,
+            UserManager userManager, ActivityManagerHelper amHelper,
+            UserHandleHelper userHandleHelper) {
         mContext = context;
         mAmHelper = amHelper;
         mUserManager = userManager;
         mCarUserService = carUserService;
         Resources resources = context.getResources();
         mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
-        mUserHandleHelper = new UserHandleHelper(context, userManager);
+        mUserHandleHelper = userHandleHelper;
     }
 
     @Override
