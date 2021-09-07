@@ -67,7 +67,6 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
 import com.android.internal.app.IVoiceInteractionSessionShowCallback;
-import com.android.internal.os.BackgroundThread;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -325,7 +324,7 @@ public class CarInputService extends ICarInput.Stub
         Slogf.d(TAG, "Hal supports key input.");
         mInputHalService.setInputListener(this);
         if (mBluetoothAdapter != null) {
-            BackgroundThread.getHandler().post(() -> {
+            CarServiceUtils.runOnCommon(() -> {
                 mBluetoothAdapter.getProfileProxy(mContext,
                         mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
             });
