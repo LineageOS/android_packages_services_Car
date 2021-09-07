@@ -33,6 +33,14 @@ enum TimeUnit {
   reserved 1, 6, 7, 8, 9, 10, 1000;
 }
 
+message FieldMatcher {
+  optional int32 field = 1;
+
+  repeated FieldMatcher child = 3;
+
+  reserved 2;
+}
+
 message SimpleAtomMatcher {
   optional int32 atom_id = 1;
 
@@ -49,12 +57,45 @@ message AtomMatcher {
   reserved 3;
 }
 
+message FieldFilter {
+  optional bool include_all = 1 [default = false];
+  optional FieldMatcher fields = 2;
+}
+
 message EventMetric {
   optional int64 id = 1;
   optional int64 what = 2;
   optional int64 condition = 3;
 
   reserved 4;
+  reserved 100;
+  reserved 101;
+}
+
+message GaugeMetric {
+  optional int64 id = 1;
+
+  optional int64 what = 2;
+
+  optional FieldFilter gauge_fields_filter = 3;
+
+  optional FieldMatcher dimensions_in_what = 5;
+
+  optional TimeUnit bucket = 6;
+
+  enum SamplingType {
+    RANDOM_ONE_SAMPLE = 1;
+    CONDITION_CHANGE_TO_TRUE = 3;
+    FIRST_N_SAMPLES = 4;
+    reserved 2;
+  }
+  optional SamplingType sampling_type = 9 [default = RANDOM_ONE_SAMPLE];
+
+  optional int64 max_num_gauge_atoms_per_bucket = 11 [default = 10];
+
+  optional int32 max_pull_delay_sec = 13 [default = 30];
+
+  reserved 4, 7, 8, 10, 12, 14;
   reserved 100;
   reserved 101;
 }
@@ -70,6 +111,8 @@ message StatsdConfig {
 
   repeated EventMetric event_metric = 2;
 
+  repeated GaugeMetric gauge_metric = 5;
+
   repeated AtomMatcher atom_matcher = 7;
 
   repeated string allowed_log_source = 12;
@@ -84,7 +127,7 @@ message StatsdConfig {
 
   repeated int32 whitelisted_atom_ids = 24;
 
-  reserved 3, 4, 5, 6, 8, 9, 10, 11, 13, 14, 17, 18, 19, 21, 22, 25;
+  reserved 3, 4, 6, 8, 9, 10, 11, 13, 14, 17, 18, 19, 21, 22, 25;
 
   // Do not use.
   reserved 1000, 1001;
