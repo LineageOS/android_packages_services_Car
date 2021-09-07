@@ -26,7 +26,6 @@ import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.ICarDevicePolicyService;
-import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
@@ -62,10 +61,8 @@ import java.lang.annotation.RetentionPolicy;
 public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(CarDevicePolicyService.class);
-    static final boolean DEBUG = false;
 
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
-    private static final Object sLock = new Object();
     private static final String PREFIX_NEW_USER_DISCLAIMER_STATUS = "NEW_USER_DISCLAIMER_STATUS_";
 
     // TODO(b/175057848) must be public because of DebugUtils.constantToString()
@@ -75,7 +72,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     public static final int NEW_USER_DISCLAIMER_STATUS_SHOWN = 3;
     public static final int NEW_USER_DISCLAIMER_STATUS_ACKED = 4;
 
-    private final Object mPerUserCarServiceLock = new Object();
+    private final Object mLock = new Object();
     private final CarUserService mCarUserService;
     private final Context mContext;
 
@@ -96,9 +93,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
         @Override
         public void onReceive(Context context, Intent intent) {
             int userId = ActivityManager.getCurrentUser();
-            if (DEBUG) {
-                Slog.d(TAG, "Received intent for user " + userId + ": " + intent);
-            }
+            Slogf.d(TAG, "Received intent for user " + userId + ": " + intent);
             if (!mContext.getPackageManager()
                     .hasSystemFeature(PackageManager.FEATURE_DEVICE_ADMIN)) {
                 Slogf.d(TAG, "Not handling ACTION_SHOW_NEW_USER_DISCLAIMER because device "
@@ -107,12 +102,12 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
             }
             switch(intent.getAction()) {
                 case DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER:
-                    Slog.d(TAG, "Action show new user disclaimer");
+                    Slogf.d(TAG, "Action show new user disclaimer");
                     setUserDisclaimerStatus(userId, NEW_USER_DISCLAIMER_STATUS_RECEIVED);
                     showNewUserDisclaimer(userId);
                     break;
                 default:
-                    Slog.w(TAG, "received unexpected intent: " + intent);
+                    Slogf.w(TAG, "received unexpected intent: %s" , intent);
             }
         }
     };
@@ -125,14 +120,14 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
     @Override
     public void init() {
-        if (DEBUG) Slog.d(TAG, "init()");
+        Slogf.d(TAG, "init()");
         mContext.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, new IntentFilter(
                 DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER), null, null);
     }
 
     @Override
     public void release() {
-        if (DEBUG) Slog.d(TAG, "release()");
+        Slogf.d(TAG, "release()");
         mContext.unregisterReceiver(mBroadcastReceiver);
     }
 
@@ -156,19 +151,15 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 userType = UserManager.USER_TYPE_FULL_GUEST;
                 break;
             default:
-                if (DEBUG) {
-                    Slog.d(TAG, "createUser(): invalid userType (" + userType + ") / flags ("
-                            + userInfoFlags + ") combination");
-                }
+                Slogf.d(TAG, "createUser(): invalid userType (%s) / flags (%08x) "
+                        + "combination", userType, userInfoFlags);
                 receiver.complete(
                         new UserCreationResult(UserCreationResult.STATUS_INVALID_REQUEST));
                 return;
         }
 
-        if (DEBUG) {
-            Slog.d(TAG, "calling createUser(" + UserHelperLite.safeName(name) + "," + userType
-                    + ", " + userInfoFlags + ", " + HAL_TIMEOUT_MS + ")");
-        }
+        Slogf.d(TAG, "calling createUser(%s, %s, %d, %d)",
+                UserHelperLite.safeName(name), userType, userInfoFlags, HAL_TIMEOUT_MS);
 
         mCarUserService.createUser(name, userType, userInfoFlags, HAL_TIMEOUT_MS, receiver);
     }
@@ -190,14 +181,14 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
         writer.println("*CarDevicePolicyService*");
 
-        synchronized (sLock) {
+        synchronized (mLock) {
             int numUsers = mUserDisclaimerStatusPerUser.size();
             writer.println("**mDisclaimerStatusPerUser**");
             for (int i = 0; i < numUsers; i++) {
                 int userId = mUserDisclaimerStatusPerUser.keyAt(i);
-                int status = mUserDisclaimerStatusPerUser.keyAt(i);
-                writer.println(" userId=" + userId
-                        + " status=" + newUserDisclaimerStatusToString(status));
+                int status = mUserDisclaimerStatusPerUser.get(userId);
+                writer.printf("userId=%d disclaimerStatus=%s\n", userId,
+                        newUserDisclaimerStatusToString(status));
             }
         }
 
@@ -227,7 +218,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     @VisibleForTesting
     @NewUserDisclaimerStatus
     int getNewUserDisclaimerStatus(int userId) {
-        synchronized (sLock) {
+        synchronized (mLock) {
             return mUserDisclaimerStatusPerUser.get(userId,
                     NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED);
         }
@@ -241,15 +232,12 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
     private void setUserDisclaimerStatus(@UserIdInt int userId,
             @NewUserDisclaimerStatus int status) {
-        synchronized (sLock) {
-            if (DEBUG) {
-                Slog.d(TAG, "Changing status from "
-                        + newUserDisclaimerStatusToString(
-                        mUserDisclaimerStatusPerUser.get(
-                                userId, NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED))
-                        + " to "
-                        + newUserDisclaimerStatusToString(status));
-            }
+        synchronized (mLock) {
+            Slogf.d(TAG, "Changing status from %s to %s",
+                    newUserDisclaimerStatusToString(
+                            mUserDisclaimerStatusPerUser.get(
+                                    userId, NEW_USER_DISCLAIMER_STATUS_NEVER_RECEIVED)),
+                    newUserDisclaimerStatusToString(status));
             mUserDisclaimerStatusPerUser.put(userId, status);
         }
     }
