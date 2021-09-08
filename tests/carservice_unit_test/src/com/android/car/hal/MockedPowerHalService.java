@@ -29,6 +29,7 @@ public class MockedPowerHalService extends PowerHalService {
 
     private final boolean mIsPowerStateSupported;
     private final boolean mIsDeepSleepAllowed;
+    private final boolean mIsHibernationAllowed;
     private final boolean mIsTimedWakeupAllowed;
     private PowerState mCurrentPowerState = new PowerState(VehicleApPowerStateReq.ON, 0);
     private PowerEventListener mListener;
@@ -55,10 +56,11 @@ public class MockedPowerHalService extends PowerHalService {
     }
 
     public MockedPowerHalService(boolean isPowerStateSupported, boolean isDeepSleepAllowed,
-            boolean isTimedWakeupAllowed) {
+            boolean isHibernationAllowed, boolean isTimedWakeupAllowed) {
         super(createVehicleHalWithMockedServices());
         mIsPowerStateSupported = isPowerStateSupported;
         mIsDeepSleepAllowed = isDeepSleepAllowed;
+        mIsHibernationAllowed = isHibernationAllowed;
         mIsTimedWakeupAllowed = isTimedWakeupAllowed;
     }
 
@@ -142,6 +144,11 @@ public class MockedPowerHalService extends PowerHalService {
     @Override
     public boolean isDeepSleepAllowed() {
         return mIsDeepSleepAllowed;
+    }
+
+    @Override
+    public boolean isHibernationAllowed() {
+        return mIsHibernationAllowed;
     }
 
     @Override

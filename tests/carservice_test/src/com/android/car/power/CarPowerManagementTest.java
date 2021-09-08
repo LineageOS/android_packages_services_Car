@@ -36,6 +36,7 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
 
 import com.android.car.MockedCarTestBase;
+import com.android.car.hal.PowerHalService;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
@@ -76,6 +77,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
         addProperty(VehicleProperty.AP_POWER_STATE_REPORT, mPowerStateHandler)
                 .setAccess(VehiclePropertyAccess.WRITE)
+                .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
+        addProperty(VehicleProperty.AP_POWER_STATE_REQ, mPowerStateHandler)
+                .setConfigArray(Lists.newArrayList(
+                        PowerHalService.VehicleHalStub.ENABLE_HIBERNATION_FLAG))
                 .setChangeMode(VehiclePropertyChangeMode.ON_CHANGE).build();
     }
 

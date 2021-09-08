@@ -619,7 +619,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         // Shutdown on finish if the system doesn't support deep sleep or doesn't allow it.
         synchronized (mLock) {
             mShutdownOnFinish = mShutdownOnNextSuspend
-                    || !mHal.isDeepSleepAllowed()
+                    || (!mHal.isDeepSleepAllowed() && !mHal.isHibernationAllowed())
                     || !mSystemInterface.isSystemSupportingDeepSleep()
                     || !newState.mCanSleep;
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
@@ -1668,7 +1668,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
                     break;
                 case VehicleApPowerStateReq.SHUTDOWN_PREPARE:
                     this.mCanPostpone = halPowerState.canPostponeShutdown();
-                    this.mCanSleep = halPowerState.canEnterDeepSleep();
+                    this.mCanSleep = halPowerState.canSuspend();
                     this.mCarPowerStateListenerState = cpmsStateToPowerStateListenerState(
                             SHUTDOWN_PREPARE);
                     this.mState = SHUTDOWN_PREPARE;
