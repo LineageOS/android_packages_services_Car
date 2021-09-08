@@ -797,6 +797,8 @@ public final class WatchdogPerfHandler {
                         break;
                     case ComponentType.VENDOR:
                         mSafeToKillVendorPackages.addAll(internalConfigs.get(i).safeToKillPackages);
+                        mPackageInfoHandler.setVendorPackagePrefixes(
+                                internalConfigs.get(i).vendorPackagePrefixes);
                         break;
                     default:
                         // All third-party apps are killable.
@@ -804,7 +806,7 @@ public final class WatchdogPerfHandler {
                 }
             }
             if (DEBUG) {
-                Slogf.d(TAG, "Fetched and synced safe to kill packages.");
+                Slogf.d(TAG, "Fetched and synced resource overuse configs.");
             }
         }
     }

@@ -292,4 +292,10 @@ public final class PackageInfoHandler {
         }
         return ComponentType.THIRD_PARTY;
     }
+
+    void setVendorPackagePrefixes(List<String> vendorPackagePrefixes) {
+        synchronized (mLock) {
+            mVendorPackagePrefixes = vendorPackagePrefixes;
+        }
+    }
 }
