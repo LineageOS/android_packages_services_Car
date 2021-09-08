@@ -16,10 +16,10 @@
 
 package com.android.car.telemetry.publisher;
 
-import android.annotation.Nullable;
 import android.automotive.telemetry.internal.CarDataInternal;
 import android.automotive.telemetry.internal.ICarDataListener;
 import android.automotive.telemetry.internal.ICarTelemetryInternal;
+import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
@@ -29,12 +29,12 @@ import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 import com.android.server.utils.Slogf;
 
 import java.util.ArrayList;
+import java.util.function.BiConsumer;
 
 /**
  * Publisher for cartelemtryd service (aka ICarTelemetry).
@@ -50,57 +50,60 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
     private static final String SERVICE_NAME = ICarTelemetryInternal.DESCRIPTOR + "/default";
     private static final int BINDER_FLAGS = 0;
 
-    private final Object mLock = new Object();
-
-    @Nullable
-    @GuardedBy("mLock")
     private ICarTelemetryInternal mCarTelemetryInternal;
 
-    @GuardedBy("mLock")
     private final ArrayList<DataSubscriber> mSubscribers = new ArrayList<>();
+
+    // All the methods in this class are expected to be called on this handler's thread.
+    private final Handler mTelemetryHandler;
 
     private final ICarDataListener mListener = new ICarDataListener.Stub() {
         @Override
-        public void onCarDataReceived(CarDataInternal[] dataList) throws RemoteException {
+        public void onCarDataReceived(final CarDataInternal[] dataList) throws RemoteException {
             if (DEBUG) {
                 Slog.d(CarLog.TAG_TELEMETRY,
                         "Received " + dataList.length + " CarData from cartelemetryd");
             }
-            onCarDataListReceived(dataList);
+            // TODO(b/189142577): Create custom Handler and post message to improve performance
+            mTelemetryHandler.post(() -> onCarDataListReceived(dataList));
         }
     };
 
-    /** Called when binder for ICarTelemetry service is died. */
-    void onBinderDied() {
-        synchronized (mLock) {
-            if (mCarTelemetryInternal != null) {
-                mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
-            }
-            // TODO(b/193680465): try reconnecting again
-            mCarTelemetryInternal = null;
-        }
+    CarTelemetrydPublisher(BiConsumer<AbstractPublisher, Throwable> failureConsumer,
+            Handler telemetryHandler) {
+        super(failureConsumer);
+        this.mTelemetryHandler = telemetryHandler;
     }
 
-    /**
-     * Connects to ICarTelemetryInternal service and starts listening for CarData.
-     *
-     * @throws IllegalStateException if it cannot connect to ICarTelemetryInternal service.
-     */
-    @GuardedBy("mLock")
-    private void connectToCarTelemetrydLocked() {
+    /** Called when binder for ICarTelemetry service is died. */
+    private void onBinderDied() {
+        // TODO(b/189142577): Create custom Handler and post message to improve performance
+        mTelemetryHandler.post(() -> {
+            if (mCarTelemetryInternal != null) {
+                mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
+                mCarTelemetryInternal = null;
+            }
+            notifyFailureConsumer(new IllegalStateException("ICarTelemetryInternal binder died"));
+        });
+    }
+
+    /** Connects to ICarTelemetryInternal service and starts listening for CarData. */
+    private void connectToCarTelemetryd() {
         if (mCarTelemetryInternal != null) {
-            return;  // already connected
+            return;
         }
         IBinder binder = ServiceManager.checkService(SERVICE_NAME);
         if (binder == null) {
-            throw new IllegalStateException(
-                    "Failed to connect to ICarTelemetryInternal: service is not ready");
+            notifyFailureConsumer(new IllegalStateException(
+                    "Failed to connect to the ICarTelemetryInternal: service is not ready"));
+            return;
         }
         try {
             binder.linkToDeath(this::onBinderDied, BINDER_FLAGS);
         } catch (RemoteException e) {
-            throw new IllegalStateException(
-                    "Failed to connect to ICarTelemetryInternal: linkToDeath failed", e);
+            notifyFailureConsumer(new IllegalStateException(
+                    "Failed to connect to the ICarTelemetryInternal: linkToDeath failed", e));
+            return;
         }
         mCarTelemetryInternal = ICarTelemetryInternal.Stub.asInterface(binder);
         try {
@@ -108,9 +111,9 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         } catch (RemoteException e) {
             binder.unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
             mCarTelemetryInternal = null;
-            throw new IllegalStateException(
-                    "Failed to connect to ICarTelemetryInternal: Cannot set CarData listener",
-                    e);
+            notifyFailureConsumer(new IllegalStateException(
+                    "Failed to connect to the ICarTelemetryInternal: Cannot set CarData listener",
+                    e));
         }
     }
 
@@ -119,8 +122,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
      *
      * @throws IllegalStateException if fails to clear the listener.
      */
-    @GuardedBy("mLock")
-    private void disconnectFromCarTelemetrydLocked() {
+    private void disconnectFromCarTelemetryd() {
         if (mCarTelemetryInternal == null) {
             return;  // already disconnected
         }
@@ -135,9 +137,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
 
     @VisibleForTesting
     boolean isConnectedToCarTelemetryd() {
-        synchronized (mLock) {
-            return mCarTelemetryInternal != null;
-        }
+        return mCarTelemetryInternal != null;
     }
 
     @Override
@@ -156,46 +156,34 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
                 "Invalid CarData ID " + carDataId
                         + ". Please see CarData.proto for the list of available IDs.");
 
-        synchronized (mLock) {
-            try {
-                connectToCarTelemetrydLocked();
-            } catch (IllegalStateException e) {
-                Slog.e(CarLog.TAG_TELEMETRY, "Failed to connect to ICarTelemetry", e);
-                // TODO(b/193680465): add retry reconnecting
-            }
-            mSubscribers.add(subscriber);
-        }
+        mSubscribers.add(subscriber);
+
+        connectToCarTelemetryd();
 
         Slogf.d(CarLog.TAG_TELEMETRY, "Subscribing to CarDat.id=%d", carDataId);
     }
 
     @Override
     public void removeDataSubscriber(DataSubscriber subscriber) {
-        synchronized (mLock) {
-            mSubscribers.remove(subscriber);
-            if (mSubscribers.isEmpty()) {
-                disconnectFromCarTelemetrydLocked();
-            }
+        mSubscribers.remove(subscriber);
+        if (mSubscribers.isEmpty()) {
+            disconnectFromCarTelemetryd();
         }
     }
 
     @Override
     public void removeAllDataSubscribers() {
-        synchronized (mLock) {
-            mSubscribers.clear();
-            disconnectFromCarTelemetrydLocked();
-        }
+        mSubscribers.clear();
+        disconnectFromCarTelemetryd();
     }
 
     @Override
     public boolean hasDataSubscriber(DataSubscriber subscriber) {
-        synchronized (mLock) {
-            return mSubscribers.contains(subscriber);
-        }
+        return mSubscribers.contains(subscriber);
     }
 
     /**
-     * Called when publisher receives new car data list. It's executed on a Binder thread.
+     * Called when publisher receives new car data list. It's executed on the telemetry thread.
      */
     private void onCarDataListReceived(CarDataInternal[] dataList) {
         // TODO(b/189142577): implement
