@@ -329,8 +329,7 @@ public class DataBrokerImpl implements DataBroker {
                         task.getMetricsConfig().getScript(),
                         task.getHandlerName(),
                         task.getData(),
-                        // TODO(b/197027637): PersistableBundle cannot be converted into Bundle
-                        null,
+                        mResultStore.getInterimResult(mCurrentScriptName),
                         mScriptExecutorListener);
             }
         } catch (RemoteException e) {
@@ -343,8 +342,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores final metrics and schedules the next task. */
     private void onScriptFinished(PersistableBundle result) {
         mTelemetryHandler.post(() -> {
-            // TODO(b/197027637): update API to use PersistableBundle
-            //                    mResultStore.putFinalResult(mCurrentScriptName.get(), result);
+            mResultStore.putFinalResult(mCurrentScriptName, result);
             mCurrentScriptName = null;
             scheduleNextTask();
         });
@@ -353,21 +351,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores interim metrics and schedules the next task. */
     private void onScriptSuccess(PersistableBundle stateToPersist) {
         mTelemetryHandler.post(() -> {
-            // TODO(b/197027637): update API to use PersistableBundle
-            PersistableBundle persistableBundle = new PersistableBundle();
-            for (String key : stateToPersist.keySet()) {
-                Object value = stateToPersist.get(key);
-                if (value instanceof Integer) {
-                    persistableBundle.putInt(key, (int) value);
-                } else if (value instanceof Double) {
-                    persistableBundle.putDouble(key, (double) value);
-                } else if (value instanceof Boolean) {
-                    persistableBundle.putBoolean(key, (boolean) value);
-                } else if (value instanceof String) {
-                    persistableBundle.putString(key, (String) value);
-                }
-            }
-            mResultStore.putInterimResult(mCurrentScriptName, persistableBundle);
+            mResultStore.putInterimResult(mCurrentScriptName, stateToPersist);
             mCurrentScriptName = null;
             scheduleNextTask();
         });
@@ -376,7 +360,7 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores telemetry error and schedules the next task. */
     private void onScriptError(int errorType, String message, String stackTrace) {
         mTelemetryHandler.post(() -> {
-            // TODO(b/197027637): create error object
+            // TODO(b/197005294): create error object
             mCurrentScriptName = null;
             scheduleNextTask();
         });
