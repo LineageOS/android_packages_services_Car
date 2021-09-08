@@ -22,8 +22,8 @@
                 android:color="#52CCB0" />
             <corners android:radius="100dp"/>
             <size
-                android:width="424dp"
-                android:height="120dp"/>
+                android:width="416dp"
+                android:height="@dimen/dialer_keypad_button_size"/>
         </shape>
     </item>
     <item android:drawable="@drawable/ic_phone" android:gravity="center"/>
