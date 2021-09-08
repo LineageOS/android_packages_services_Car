@@ -100,8 +100,7 @@ public class StatsPublisherTest {
 
     @Before
     public void setUp() throws Exception {
-        mPublisher = new StatsPublisher(
-                mStatsManager, mFakeSharedPref, mFakeHandlerWrapper.getMockHandler());
+        mPublisher = createRestartedPublisher();
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(STATS_PUBLISHER_PARAMS_1);
         when(mMockDataSubscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
         when(mMockDataSubscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
@@ -113,7 +112,10 @@ public class StatsPublisherTest {
      */
     private StatsPublisher createRestartedPublisher() {
         return new StatsPublisher(
-                mStatsManager, mFakeSharedPref, mFakeHandlerWrapper.getMockHandler());
+                this::onPublisherFailure,
+                mStatsManager,
+                mFakeSharedPref,
+                mFakeHandlerWrapper.getMockHandler());
     }
 
     @Test
@@ -241,8 +243,10 @@ public class StatsPublisherTest {
         assertThat(mBundleCaptor.getValue().getInt("reportsCount")).isEqualTo(2);
     }
 
-    // TODO(b/189142577): add test cases when connecting to Statsd fails
-    // TODO(b/189142577): add test cases for handling config version upgrades
+    // TODO(b/189143813): add test cases when connecting to Statsd fails
+    // TODO(b/189143813): add test cases for handling config version upgrades
+
+    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) { }
 
     private static void assertThatMessageIsScheduledWithGivenDelay(Message msg, long delayMillis) {
         long expectedTimeMillis = SystemClock.uptimeMillis() + delayMillis;
