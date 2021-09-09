@@ -809,14 +809,6 @@ public final class CarUserManager extends CarManagerBase {
         }
     }
 
-    // NOTE: this method is called by ExperimentalCarUserManager, so it can get the mService.
-    // "Real" ExperimentalCarUserManager instances should be obtained through
-    //    ExperimentalCarUserManager.from(mCarUserManager)
-    // instead.
-    ExperimentalCarUserManager newExperimentalCarUserManager() {
-        return new ExperimentalCarUserManager(mCar, mService);
-    }
-
     /**
      * Checks if the given {@code userId} represents a valid user.
      *

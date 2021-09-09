@@ -34,10 +34,6 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertFalse;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -127,6 +123,7 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.DebugUtils;
+import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
 import com.android.internal.R;
 import com.android.internal.util.Preconditions;
 
@@ -192,6 +189,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Captor private ArgumentCaptor<UsersInfo> mUsersInfoCaptor;
 
     private CarUserService mCarUserService;
+    private ExperimentalCarUserService mExperimentalCarUserService;
     private boolean mUser0TaskExecuted;
 
     private final AndroidFuture<UserSwitchResult> mUserSwitchFuture = new AndroidFuture<>();
@@ -262,10 +260,13 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 () -> CarSystemProperties.getUserHalTimeout());
 
         mCarUserService = newCarUserService(/* switchGuestUserBeforeGoingSleep= */ false);
+        mExperimentalCarUserService =
+                new ExperimentalCarUserService(mMockContext, mCarUserService, mMockedUserManager,
+                        mMockedActivityManagerHelper);
 
         // TODO(b/172262561): refactor this call, which is not assigning the service to anything
         // (but without it some tests fail due to NPE).
-        new FakeCarOccupantZoneService(mCarUserService);
+        new FakeCarOccupantZoneService(mExperimentalCarUserService);
     }
 
     private ICarUxRestrictionsChangeListener initService() {
@@ -455,7 +456,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.runOnUser0Unlock(() -> {
             mUser0TaskExecuted = true;
         });
-        assertTrue(mUser0TaskExecuted);
+        assertThat(mUser0TaskExecuted).isTrue();
     }
 
     @Test
@@ -464,9 +465,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mCarUserService.runOnUser0Unlock(() -> {
             mUser0TaskExecuted = true;
         });
-        assertFalse(mUser0TaskExecuted);
+        assertThat(mUser0TaskExecuted).isFalse();
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
-        assertTrue(mUser0TaskExecuted);
+        assertThat(mUser0TaskExecuted).isTrue();
     }
 
     /**
@@ -496,31 +497,26 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockGetCurrentUser(user1);
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         // user 0 should never go to that list.
-        assertTrue(mCarUserService.getBackgroundUsersToRestart().isEmpty());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).isEmpty();
 
         sendUserUnlockedEvent(user1);
-        assertEquals(new Integer[]{user1},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user1);
 
         // user 2 background, ignore in restart list
         sendUserUnlockedEvent(user2);
-        assertEquals(new Integer[]{user1},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user1);
 
         mockGetCurrentUser(user3);
         sendUserUnlockedEvent(user3);
-        assertEquals(new Integer[]{user3, user1},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user1, user3);
 
         mockGetCurrentUser(user4Guest);
         sendUserUnlockedEvent(user4Guest);
-        assertEquals(new Integer[]{user3, user1},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user1, user3);
 
         mockGetCurrentUser(user5);
         sendUserUnlockedEvent(user5);
-        assertEquals(new Integer[]{user5, user3},
-                mCarUserService.getBackgroundUsersToRestart().toArray());
+        assertThat(mCarUserService.getBackgroundUsersToRestart()).containsExactly(user3, user5);
     }
 
     /**
@@ -681,7 +677,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 UserInfo.FLAG_ADMIN, 10);
         mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", true);
+        AndroidFuture<UserCreationResult> future =
+                mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
 
         assertThat(getResult(future).getUser().getIdentifier()).isEqualTo(10);
@@ -690,7 +687,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     public void testCreateAdminDriver_IfCurrentUserIsNotSystemUser() throws Exception {
         when(mMockedUserManager.isSystemUser()).thenReturn(false);
-        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", true);
+        AndroidFuture<UserCreationResult> future =
+                mExperimentalCarUserService.createDriver("testUser", true);
         waitForHandlerThreadToFinish();
         assertThat(getResult(future).getStatus())
                 .isEqualTo(UserCreationResult.STATUS_INVALID_REQUEST);
@@ -702,7 +700,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 NO_USER_INFO_FLAGS, 10);
         mockHalCreateUser(HalCallback.STATUS_OK, CreateUserStatus.SUCCESS);
 
-        AndroidFuture<UserCreationResult> future = mCarUserService.createDriver("testUser", false);
+        AndroidFuture<UserCreationResult> future =
+                mExperimentalCarUserService.createDriver("testUser", false);
         waitForHandlerThreadToFinish();
 
         UserHandle userHandle = getResult(future).getUser();
@@ -721,7 +720,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 eq(UserManager.USER_TYPE_PROFILE_MANAGED), eq(0), eq(driverId));
         UserInfo driverInfo = new UserInfo(driverId, "driver", NO_USER_INFO_FLAGS);
         doReturn(driverInfo).when(mMockedUserManager).getUserInfo(driverId);
-        assertEquals(userInfo.getUserHandle(), mCarUserService.createPassenger(userName, driverId));
+        assertThat(mExperimentalCarUserService.createPassenger(userName, driverId))
+                .isEqualTo(userInfo.getUserHandle());
     }
 
     @Test
@@ -732,7 +732,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 eq(UserManager.USER_TYPE_PROFILE_MANAGED), anyInt(), anyInt());
         UserInfo driverInfo = new UserInfo(driverId, "driver", NO_USER_INFO_FLAGS);
         doReturn(driverInfo).when(mMockedUserManager).getUserInfo(driverId);
-        assertEquals(null, mCarUserService.createPassenger(userName, driverId));
+        assertThat(mExperimentalCarUserService.createPassenger(userName, driverId)).isNull();
     }
 
     @Test
@@ -741,7 +741,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         String userName = "testUser";
         UserInfo driverInfo = new UserInfo(driverId, "driver", UserInfo.FLAG_GUEST);
         doReturn(driverInfo).when(mMockedUserManager).getUserInfo(driverId);
-        assertEquals(null, mCarUserService.createPassenger(userName, driverId));
+        assertThat(mExperimentalCarUserService.createPassenger(userName, driverId)).isNull();
     }
 
     @Test
@@ -754,7 +754,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockAmSwitchUser(mRegularUser, true);
         when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
                 .thenReturn(false);
-        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+        mExperimentalCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_SUCCESSFUL);
     }
@@ -765,7 +765,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockGetUxRestrictions(/* restricted= */ true);
         initService();
 
-        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+        mExperimentalCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
 
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_UX_RESTRICTION_FAILURE);
@@ -777,7 +777,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testSwitchDriver_IfUserSwitchIsNotAllowed() throws Exception {
         when(mMockedUserManager.getUserSwitchability())
                 .thenReturn(UserManager.SWITCHABILITY_STATUS_USER_SWITCH_DISALLOWED);
-        mCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
+        mExperimentalCarUserService.switchDriver(mRegularUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_INVALID_REQUEST);
     }
@@ -787,7 +787,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockExistingUsersAndCurrentUser(mAdminUser);
         when(mMockedUserManager.hasUserRestriction(UserManager.DISALLOW_USER_SWITCH))
                 .thenReturn(false);
-        mCarUserService.switchDriver(mAdminUser.id, mUserSwitchFuture);
+        mExperimentalCarUserService.switchDriver(mAdminUser.id, mUserSwitchFuture);
         assertThat(getUserSwitchResult().getStatus())
                 .isEqualTo(UserSwitchResult.STATUS_OK_USER_ALREADY_IN_FOREGROUND);
     }
@@ -801,9 +801,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int zone2Id = 2;
         doReturn(true).when(mMockedActivityManagerHelper)
                 .startUserInBackground(anyInt());
-        assertTrue(mCarUserService.startPassenger(passenger1Id, zone1Id));
-        assertTrue(mCarUserService.startPassenger(passenger2Id, zone2Id));
-        assertFalse(mCarUserService.startPassenger(passenger3Id, zone2Id));
+        assertThat(mExperimentalCarUserService.startPassenger(passenger1Id, zone1Id)).isTrue();
+        assertThat(mExperimentalCarUserService.startPassenger(passenger2Id, zone2Id)).isTrue();
+        assertThat(mExperimentalCarUserService.startPassenger(passenger3Id, zone2Id)).isFalse();
     }
 
     @Test
@@ -821,12 +821,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockGetCurrentUser(user1Id);
         doReturn(true).when(mMockedActivityManagerHelper)
                 .startUserInBackground(anyInt());
-        assertTrue(mCarUserService.startPassenger(passenger1Id, zoneId));
-        assertTrue(mCarUserService.stopPassenger(passenger1Id));
+        assertThat(mExperimentalCarUserService.startPassenger(passenger1Id, zoneId)).isTrue();
+        assertThat(mExperimentalCarUserService.stopPassenger(passenger1Id)).isTrue();
         // Test of stopping an already stopped passenger.
-        assertTrue(mCarUserService.stopPassenger(passenger1Id));
+        assertThat(mExperimentalCarUserService.stopPassenger(passenger1Id)).isTrue();
         // Test of stopping a non-existing passenger.
-        assertFalse(mCarUserService.stopPassenger(passenger2Id));
+        assertThat(mExperimentalCarUserService.stopPassenger(passenger2Id)).isFalse();
     }
 
     private static void associateParentChild(UserInfo parent, UserInfo child) {
@@ -861,7 +861,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         Set<Integer> expected = new HashSet<Integer>(Arrays.asList(10, 11, 13, 14));
         when(mMockedUserManager.getAliveUsers()).thenReturn(prepareUserList());
         mockIsHeadlessSystemUser(19, true);
-        for (UserHandle user : mCarUserService.getAllDrivers()) {
+        for (UserHandle user : mExperimentalCarUserService.getAllDrivers()) {
             assertThat(expected).contains(user.getIdentifier());
             expected.remove(user.getIdentifier());
         }
@@ -881,7 +881,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         mockIsHeadlessSystemUser(18, true);
         for (int i = 0; i < testCases.size(); i++) {
             when(mMockedUserManager.getAliveUsers()).thenReturn(prepareUserList());
-            List<UserHandle> passengers = mCarUserService.getPassengers(testCases.keyAt(i));
+            List<UserHandle> passengers =
+                    mExperimentalCarUserService.getPassengers(testCases.keyAt(i));
             HashSet<Integer> expected = testCases.valueAt(i);
             for (UserHandle user : passengers) {
                 assertThat(expected).contains(user.getIdentifier());
@@ -2927,11 +2928,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void assertUserRemovalResultStatus(UserRemovalResult result,
             @UserRemovalResult.Status int expectedStatus) {
         int actualStatus = result.getStatus();
-        if (actualStatus != expectedStatus) {
-            fail(String.format("wrong UserRemovalResult: expected %s, got %s",
-                    UserRemovalResult.statusToString(expectedStatus),
-                    UserRemovalResult.statusToString(actualStatus)));
-        }
+        assertWithMessage("UserRemovalResult status (where %s=%s, %s=%s)",
+                        expectedStatus, UserRemovalResult.statusToString(expectedStatus),
+                        actualStatus, UserRemovalResult.statusToString(actualStatus))
+                .that(actualStatus).isEqualTo(expectedStatus);
     }
 
     @NonNull
@@ -2942,8 +2942,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
 
     static final class FakeCarOccupantZoneService {
         private final SparseArray<Integer> mZoneUserMap = new SparseArray<Integer>();
-        private final CarUserService.ZoneUserBindingHelper mZoneUserBindigHelper =
-                new CarUserService.ZoneUserBindingHelper() {
+        private final ZoneUserBindingHelper mZoneUserBindigHelper =
+                new ZoneUserBindingHelper() {
                     @Override
                     @NonNull
                     public List<OccupantZoneInfo> getOccupantZones(
@@ -2977,8 +2977,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                     }
                 };
 
-        FakeCarOccupantZoneService(CarUserService carUserService) {
-            carUserService.setZoneUserBindingHelper(mZoneUserBindigHelper);
+        FakeCarOccupantZoneService(ExperimentalCarUserService experimentalCarUserService) {
+            experimentalCarUserService.setZoneUserBindingHelper(mZoneUserBindigHelper);
         }
     }
 

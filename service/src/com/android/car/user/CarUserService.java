@@ -22,16 +22,12 @@ import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_NO_SETU
 
 import static com.android.car.PermissionHelper.checkHasAtLeastOnePermissionGranted;
 import static com.android.car.PermissionHelper.checkHasDumpPermissionGranted;
-import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.car.CarOccupantZoneManager;
-import android.car.CarOccupantZoneManager.OccupantTypeEnum;
-import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
@@ -60,7 +56,6 @@ import android.content.pm.PackageManager.NameNotFoundException;
 import android.content.pm.UserInfo;
 import android.content.pm.UserInfo.UserInfoFlag;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.hardware.automotive.vehicle.V2_0.CreateUserRequest;
 import android.hardware.automotive.vehicle.V2_0.CreateUserStatus;
 import android.hardware.automotive.vehicle.V2_0.InitialUserInfoRequestType;
@@ -106,7 +101,6 @@ import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.internal.common.EventLogTags;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
-import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.ArrayUtils;
 import com.android.car.internal.util.FunctionalUtils;
 import com.android.car.power.CarPowerManagementService;
@@ -115,27 +109,17 @@ import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.util.UserIcons;
 
 import java.io.PrintWriter;
 import java.util.ArrayList;
 import java.util.Arrays;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Objects;
-import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
 /**
- * User service for cars. Manages users at boot time. Including:
- *
- * <ol>
- *   <li> Creates a user used as driver.
- *   <li> Creates a user used as passenger.
- *   <li> Creates a secondary admin user on first run.
- *   <li> Switch drivers.
- * <ol/>
+ * User service for cars.
  */
 public final class CarUserService extends ICarUserService.Stub implements CarServiceBase {
 
@@ -176,7 +160,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private final UserManager mUserManager;
     private final int mMaxRunningUsers;
     private final InitialUserSetter mInitialUserSetter;
-    private final boolean mEnablePassengerSupport;
     private final UserPreCreator mUserPreCreator;
 
     private final Object mLockUser = new Object();
@@ -184,9 +167,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private boolean mUser0Unlocked;
     @GuardedBy("mLockUser")
     private final ArrayList<Runnable> mUser0UnlockTasks = new ArrayList<>();
-    // Only one passenger is supported.
-    @GuardedBy("mLockUser")
-    private @UserIdInt int mLastPassengerId;
     /**
      * Background users that will be restarted in garage mode. This list can include the
      * current foreground user but the current foreground user should not be restarted.
@@ -232,9 +212,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private int mRequestIdForUserSwitchInProcess;
     private final int mHalTimeoutMs = CarSystemProperties.getUserHalTimeout().orElse(5_000);
 
-    private final CopyOnWriteArrayList<PassengerCallback> mPassengerCallbacks =
-            new CopyOnWriteArrayList<>();
-
     // TODO(b/163566866): Use mSwitchGuestUserBeforeSleep for new create guest request
     private final boolean mSwitchGuestUserBeforeSleep;
 
@@ -279,31 +256,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
     };
 
-    /** Interface for callbaks related to passenger activities. */
-    public interface PassengerCallback {
-        /** Called when passenger is started at a certain zone. */
-        void onPassengerStarted(@UserIdInt int passengerId, int zoneId);
-        /** Called when passenger is stopped. */
-        void onPassengerStopped(@UserIdInt int passengerId);
-    }
-
-    /** Interface for delegating zone-related implementation to CarOccupantZoneService. */
-    public interface ZoneUserBindingHelper {
-        /** Gets occupant zones corresponding to the occupant type. */
-        @NonNull
-        List<OccupantZoneInfo> getOccupantZones(@OccupantTypeEnum int occupantType);
-        /** Assigns the user to the occupant zone. */
-        boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId);
-        /** Makes the occupant zone unoccupied. */
-        boolean unassignUserFromOccupantZone(@UserIdInt int userId);
-        /** Returns whether there is a passenger display. */
-        boolean isPassengerDisplayAvailable();
-    }
-
-    private final Object mLockHelper = new Object();
-    @GuardedBy("mLockHelper")
-    private ZoneUserBindingHelper mZoneUserBindingHelper;
-
     /** Map used to avoid calling UserHAL when a user was removed because HAL creation failed. */
     @GuardedBy("mLockUser")
     private final SparseBooleanArray mFailedToCreateUserIds = new SparseBooleanArray(1);
@@ -338,7 +290,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mAmHelper = amHelper;
         mMaxRunningUsers = maxRunningUsers;
         mUserManager = userManager;
-        mLastPassengerId = UserHandle.USER_NULL;
         mHandler = handler == null ? new Handler(mHandlerThread.getLooper()) : handler;
         mInitialUserSetter =
                 initialUserSetter == null ? new InitialUserSetter(context, this,
@@ -346,7 +297,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         mUserPreCreator =
                 userPreCreator == null ? new UserPreCreator(mUserManager) : userPreCreator;
         Resources resources = context.getResources();
-        mEnablePassengerSupport = resources.getBoolean(R.bool.enablePassengerSupport);
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
         mCarUxRestrictionService = uxRestrictionService;
@@ -395,30 +345,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.println("SwitchGuestUserBeforeSleep: " + mSwitchGuestUserBeforeSleep);
 
         writer.println("MaxRunningUsers: " + mMaxRunningUsers);
-        List<UserHandle> allDrivers = getAllDrivers();
-        int driversSize = allDrivers.size();
-        writer.println("NumberOfDrivers: " + driversSize);
-        writer.increaseIndent();
-        for (int i = 0; i < driversSize; i++) {
-            int driverId = allDrivers.get(i).getIdentifier();
-            writer.printf("#%d: id=%d", i, driverId);
-            List<UserHandle> passengers = getPassengers(driverId);
-            int passengersSize = passengers.size();
-            writer.print(" NumberPassengers: " + passengersSize);
-            if (passengersSize > 0) {
-                writer.print(" [");
-                for (int j = 0; j < passengersSize; j++) {
-                    writer.print(passengers.get(j).getIdentifier());
-                    if (j < passengersSize - 1) {
-                        writer.print(" ");
-                    }
-                }
-                writer.print("]");
-            }
-            writer.println();
-        }
-        writer.decreaseIndent();
-        writer.printf("EnablePassengerSupport: %s\n", mEnablePassengerSupport);
         writer.printf("User HAL timeout: %dms\n",  mHalTimeoutMs);
         writer.printf("Initial user: %s\n", mInitialUser);
 
@@ -494,197 +420,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             mAppLifecycleListeners.valueAt(i).dump(writer);
         }
         writer.decreaseIndent();
-    }
-
-    /**
-     * @see ExperimentalCarUserManager.createDriver
-     */
-    @Override
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
-            details = "TODO(b/172262561) remove annotation after refactoring")
-    public AndroidFuture<UserCreationResult> createDriver(@NonNull String name, boolean admin) {
-        checkManageUsersPermission("createDriver");
-        Objects.requireNonNull(name, "name cannot be null");
-
-        AndroidFuture<UserCreationResult> future = new AndroidFuture<UserCreationResult>() {
-            @Override
-            protected void onCompleted(UserCreationResult result, Throwable err) {
-                if (result == null) {
-                    Slog.w(TAG, "createDriver(" + name + "," + admin + ") failed: " + err);
-                } else {
-                    if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        assignDefaultIcon(
-                                mUserManager.getUserInfo(result.getUser().getIdentifier()));
-                    }
-                }
-                super.onCompleted(result, err);
-            };
-        };
-        int flags = 0;
-        if (admin) {
-            if (!(mUserManager.isAdminUser() || mUserManager.isSystemUser())) {
-                Slog.e(TAG, "Only admin users and system user can create other admins.");
-                sendUserCreationResultFailure(future, UserCreationResult.STATUS_INVALID_REQUEST);
-                return future;
-            }
-            flags = UserInfo.FLAG_ADMIN;
-        }
-        createUser(name, UserInfo.getDefaultUserType(flags), flags, mHalTimeoutMs, future);
-        return future;
-    }
-
-    /**
-     * @see ExperimentalCarUserManager.createPassenger
-     */
-    @Override
-    @Nullable
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
-            details = "TODO(b/172262561) remove annotation after refactoring")
-    public UserHandle createPassenger(@NonNull String name, @UserIdInt int driverId) {
-        checkManageUsersPermission("createPassenger");
-        Objects.requireNonNull(name, "name cannot be null");
-        UserInfo driver = mUserManager.getUserInfo(driverId);
-        if (driver == null) {
-            Slog.w(TAG, "the driver is invalid");
-            return null;
-        }
-        if (driver.isGuest()) {
-            Slog.w(TAG, "a guest driver cannot create a passenger");
-            return null;
-        }
-        // createPassenger doesn't use user HAL because user HAL doesn't support profile user yet.
-        UserInfo user = mUserManager.createProfileForUser(name,
-                UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId);
-        if (user == null) {
-            // Couldn't create user, most likely because there are too many.
-            Slog.w(TAG, "can't create a profile for user" + driverId);
-            return null;
-        }
-        // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user.getUserHandle(),
-                /* enable= */ true);
-        assignDefaultIcon(user);
-        return user.getUserHandle();
-    }
-
-    /**
-     * @see ExperimentalCarUserManager.switchDriver
-     */
-    @Override
-    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE,
-            details = "TODO(b/172262561) remove annotation after refactoring")
-    public void switchDriver(@UserIdInt int driverId, AndroidFuture<UserSwitchResult> receiver) {
-        checkManageUsersPermission("switchDriver");
-        if (UserHelperLite.isHeadlessSystemUser(driverId)) {
-            // System user doesn't associate with real person, can not be switched to.
-            Slog.w(TAG, "switching to system user in headless system user mode is not allowed");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
-            return;
-        }
-        int userSwitchable = mUserManager.getUserSwitchability();
-        if (userSwitchable != UserManager.SWITCHABILITY_STATUS_OK) {
-            Slog.w(TAG, "current process is not allowed to switch user");
-            sendUserSwitchResult(receiver, UserSwitchResult.STATUS_INVALID_REQUEST);
-            return;
-        }
-        switchUser(driverId, mHalTimeoutMs, receiver);
-    }
-
-    /**
-     * Returns all drivers who can occupy the driving zone. Guest users are included in the list.
-     *
-     * @return the list of {@link UserInfo} who can be a driver on the device.
-     */
-    @Override
-    @NonNull
-    public List<UserHandle> getAllDrivers() {
-        checkManageUsersOrDumpPermission("getAllDrivers");
-        return getUsersHandle(
-                (user) -> !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
-                        && !user.isManagedProfile() && !user.isEphemeral());
-    }
-
-    /**
-     * Returns all passengers under the given driver.
-     *
-     * @param driverId User id of a driver.
-     * @return the list of {@link UserInfo} who is a passenger under the given driver.
-     */
-    @Override
-    @NonNull
-    public List<UserHandle> getPassengers(@UserIdInt int driverId) {
-        checkManageUsersOrDumpPermission("getPassengers");
-        return getUsersHandle((user) -> {
-            return !UserHelperLite.isHeadlessSystemUser(user.id) && user.isEnabled()
-                    && user.isManagedProfile() && user.profileGroupId == driverId;
-        });
-    }
-
-    /**
-     * @see CarUserManager.startPassenger
-     */
-    @Override
-    public boolean startPassenger(@UserIdInt int passengerId, int zoneId) {
-        checkManageUsersPermission("startPassenger");
-        synchronized (mLockUser) {
-            if (!mAmHelper.startUserInBackground(passengerId)) {
-                Slog.w(TAG, "could not start passenger");
-                return false;
-            }
-            if (!assignUserToOccupantZone(passengerId, zoneId)) {
-                Slog.w(TAG, "could not assign passenger to zone");
-                return false;
-            }
-            mLastPassengerId = passengerId;
-        }
-        for (PassengerCallback callback : mPassengerCallbacks) {
-            callback.onPassengerStarted(passengerId, zoneId);
-        }
-        return true;
-    }
-
-    /**
-     * @see CarUserManager.stopPassenger
-     */
-    @Override
-    public boolean stopPassenger(@UserIdInt int passengerId) {
-        checkManageUsersPermission("stopPassenger");
-        return stopPassengerInternal(passengerId, true);
-    }
-
-    private boolean stopPassengerInternal(@UserIdInt int passengerId, boolean checkCurrentDriver) {
-        synchronized (mLockUser) {
-            UserInfo passenger = mUserManager.getUserInfo(passengerId);
-            if (passenger == null) {
-                Slog.w(TAG, "passenger " + passengerId + " doesn't exist");
-                return false;
-            }
-            if (mLastPassengerId != passengerId) {
-                Slog.w(TAG, "passenger " + passengerId + " hasn't been started");
-                return true;
-            }
-            if (checkCurrentDriver) {
-                int currentUser = ActivityManager.getCurrentUser();
-                if (passenger.profileGroupId != currentUser) {
-                    Slog.w(TAG, "passenger " + passengerId
-                            + " is not a profile of the current user");
-                    return false;
-                }
-            }
-            // Passenger is a profile, so cannot be stopped through activity manager.
-            // Instead, activities started by the passenger are stopped and the passenger is
-            // unassigned from the zone.
-            mAmHelper.stopAllTasksForUser(passengerId);
-            if (!unassignUserFromOccupantZone(passengerId)) {
-                Slog.w(TAG, "could not unassign user from occupant zone");
-                return false;
-            }
-            mLastPassengerId = UserHandle.USER_NULL;
-        }
-        for (PassengerCallback callback : mPassengerCallbacks) {
-            callback.onPassengerStopped(passengerId);
-        }
-        return true;
     }
 
     @Override
@@ -1625,13 +1360,13 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         return UserHalHelper.convertFlags(user);
     }
 
-    private void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
             @UserSwitchResult.Status int userSwitchStatus) {
         sendUserSwitchResult(receiver, HalCallback.STATUS_INVALID, userSwitchStatus,
                 /* errorMessage= */ null);
     }
 
-    private void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
+    static void sendUserSwitchResult(@NonNull AndroidFuture<UserSwitchResult> receiver,
             @HalCallback.HalCallbackStatus int halCallbackStatus,
             @UserSwitchResult.Status int userSwitchStatus, @Nullable String errorMessage) {
         if (errorMessage != null) {
@@ -1644,12 +1379,12 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         receiver.complete(new UserSwitchResult(userSwitchStatus, errorMessage));
     }
 
-    private void sendUserCreationResultFailure(@NonNull AndroidFuture<UserCreationResult> receiver,
+    static void sendUserCreationResultFailure(@NonNull AndroidFuture<UserCreationResult> receiver,
             @UserCreationResult.Status int status) {
         sendUserCreationResult(receiver, status, /* user= */ null, /* errorMessage= */ null);
     }
 
-    private void sendUserCreationResult(@NonNull AndroidFuture<UserCreationResult> receiver,
+    private static void sendUserCreationResult(@NonNull AndroidFuture<UserCreationResult> receiver,
             @UserCreationResult.Status int status, @NonNull UserInfo user,
             @Nullable String errorMessage) {
         if (TextUtils.isEmpty(errorMessage)) {
@@ -1816,25 +1551,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     public void removeUserLifecycleListener(@NonNull UserLifecycleListener listener) {
         Objects.requireNonNull(listener, "listener cannot be null");
         mHandler.post(() -> mUserLifecycleListeners.remove(listener));
-    }
-
-    /** Adds callback to listen to passenger activity events. */
-    public void addPassengerCallback(@NonNull PassengerCallback callback) {
-        Objects.requireNonNull(callback, "callback cannot be null");
-        mPassengerCallbacks.add(callback);
-    }
-
-    /** Removes previously added callback to listen passenger events. */
-    public void removePassengerCallback(@NonNull PassengerCallback callback) {
-        Objects.requireNonNull(callback, "callback cannot be null");
-        mPassengerCallbacks.remove(callback);
-    }
-
-    /** Sets the implementation of ZoneUserBindingHelper. */
-    public void setZoneUserBindingHelper(@NonNull ZoneUserBindingHelper helper) {
-        synchronized (mLockHelper) {
-            mZoneUserBindingHelper = helper;
-        }
     }
 
     private void onUserUnlocked(@UserIdInt int userId) {
@@ -2170,13 +1886,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         mInitialUserSetter.setLastActiveUser(toUserId);
 
-        if (mLastPassengerId != UserHandle.USER_NULL) {
-            stopPassengerInternal(mLastPassengerId, false);
-        }
-        if (mEnablePassengerSupport && isPassengerDisplayAvailable()) {
-            setupPassengerUser();
-            startFirstPassenger(toUserId);
-        }
         t.traceEnd();
     }
 
@@ -2238,181 +1947,10 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
     }
 
-    /**
-     * Assigns a default icon to a user according to the user's id.
-     *
-     * @param userInfo User whose avatar is set to default icon.
-     */
-    private void assignDefaultIcon(UserInfo userInfo) {
-        int idForIcon = userInfo.isGuest() ? UserHandle.USER_NULL : userInfo.id;
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
-        mUserManager.setUserIcon(userInfo.id, bitmap);
-    }
-
-    private interface UserFilter {
-        boolean isEligibleUser(UserInfo user);
-    }
-
-    /** Returns all users who are matched by the given filter. */
-    private List<UserHandle> getUsersHandle(UserFilter filter) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
-        List<UserHandle> usersHandle = new ArrayList<UserHandle>();
-
-        for (Iterator<UserInfo> iterator = users.iterator(); iterator.hasNext(); ) {
-            UserInfo user = iterator.next();
-            if (filter.isEligibleUser(user)) {
-                usersHandle.add(user.getUserHandle());
-            }
-        }
-
-        return usersHandle;
-    }
-
-    private void checkManageUsersOrDumpPermission(String message) {
-        checkHasAtLeastOnePermissionGranted(mContext, message,
-                android.Manifest.permission.MANAGE_USERS,
-                android.Manifest.permission.DUMP);
-    }
-
     private void checkInteractAcrossUsersPermission(String message) {
         checkHasAtLeastOnePermissionGranted(mContext, message,
                 android.Manifest.permission.INTERACT_ACROSS_USERS,
                 android.Manifest.permission.INTERACT_ACROSS_USERS_FULL);
-    }
-
-    private int getNumberOfManagedProfiles(@UserIdInt int userId) {
-        List<UserInfo> users = mUserManager.getAliveUsers();
-        // Count all users that are managed profiles of the given user.
-        int managedProfilesCount = 0;
-        for (UserInfo user : users) {
-            if (user.isManagedProfile() && user.profileGroupId == userId) {
-                managedProfilesCount++;
-            }
-        }
-        return managedProfilesCount;
-    }
-
-    /**
-     * Starts the first passenger of the given driver and assigns the passenger to the front
-     * passenger zone.
-     *
-     * @param driverId User id of the driver.
-     * @return whether it succeeds.
-     */
-    private boolean startFirstPassenger(@UserIdInt int driverId) {
-        int zoneId = getAvailablePassengerZone();
-        if (zoneId == OccupantZoneInfo.INVALID_ZONE_ID) {
-            Slog.w(TAG, "passenger occupant zone is not found");
-            return false;
-        }
-        List<UserHandle> passengers = getPassengers(driverId);
-        if (passengers.size() < 1) {
-            Slog.w(TAG, "passenger is not found");
-            return false;
-        }
-        // Only one passenger is supported. If there are two or more passengers, the first passenger
-        // is chosen.
-        int passengerId = passengers.get(0).getIdentifier();
-        if (!startPassenger(passengerId, zoneId)) {
-            Slog.w(TAG, "cannot start passenger " + passengerId);
-            return false;
-        }
-        return true;
-    }
-
-    private int getAvailablePassengerZone() {
-        int[] occupantTypes = new int[] {CarOccupantZoneManager.OCCUPANT_TYPE_FRONT_PASSENGER,
-                CarOccupantZoneManager.OCCUPANT_TYPE_REAR_PASSENGER};
-        for (int occupantType : occupantTypes) {
-            int zoneId = getZoneId(occupantType);
-            if (zoneId != OccupantZoneInfo.INVALID_ZONE_ID) {
-                return zoneId;
-            }
-        }
-        return OccupantZoneInfo.INVALID_ZONE_ID;
-    }
-
-    /**
-     * Creates a new passenger user when there is no passenger user.
-     */
-    private void setupPassengerUser() {
-        int currentUser = ActivityManager.getCurrentUser();
-        int profileCount = getNumberOfManagedProfiles(currentUser);
-        if (profileCount > 0) {
-            Slog.w(TAG, "max profile of user" + currentUser
-                    + " is exceeded: current profile count is " + profileCount);
-            return;
-        }
-        // TODO(b/140311342): Use resource string for the default passenger name.
-        UserHandle passenger = createPassenger("Passenger", currentUser);
-        if (passenger == null) {
-            // Couldn't create user, most likely because there are too many.
-            Slog.w(TAG, "cannot create a passenger user");
-            return;
-        }
-    }
-
-    @NonNull
-    private List<OccupantZoneInfo> getOccupantZones(@OccupantTypeEnum int occupantType) {
-        ZoneUserBindingHelper helper = null;
-        synchronized (mLockHelper) {
-            if (mZoneUserBindingHelper == null) {
-                Slog.w(TAG, "implementation is not delegated");
-                return new ArrayList<OccupantZoneInfo>();
-            }
-            helper = mZoneUserBindingHelper;
-        }
-        return helper.getOccupantZones(occupantType);
-    }
-
-    private boolean assignUserToOccupantZone(@UserIdInt int userId, int zoneId) {
-        ZoneUserBindingHelper helper = null;
-        synchronized (mLockHelper) {
-            if (mZoneUserBindingHelper == null) {
-                Slog.w(TAG, "implementation is not delegated");
-                return false;
-            }
-            helper = mZoneUserBindingHelper;
-        }
-        return helper.assignUserToOccupantZone(userId, zoneId);
-    }
-
-    private boolean unassignUserFromOccupantZone(@UserIdInt int userId) {
-        ZoneUserBindingHelper helper = null;
-        synchronized (mLockHelper) {
-            if (mZoneUserBindingHelper == null) {
-                Slog.w(TAG, "implementation is not delegated");
-                return false;
-            }
-            helper = mZoneUserBindingHelper;
-        }
-        return helper.unassignUserFromOccupantZone(userId);
-    }
-
-    private boolean isPassengerDisplayAvailable() {
-        ZoneUserBindingHelper helper = null;
-        synchronized (mLockHelper) {
-            if (mZoneUserBindingHelper == null) {
-                Slog.w(TAG, "implementation is not delegated");
-                return false;
-            }
-            helper = mZoneUserBindingHelper;
-        }
-        return helper.isPassengerDisplayAvailable();
-    }
-
-    /**
-     * Gets the zone id of the given occupant type. If there are two or more zones, the first found
-     * zone is returned.
-     *
-     * @param occupantType The type of an occupant.
-     * @return The zone id of the given occupant type. {@link OccupantZoneInfo.INVALID_ZONE_ID},
-     *         if not found.
-     */
-    private int getZoneId(@OccupantTypeEnum int occupantType) {
-        List<OccupantZoneInfo> zoneInfos = getOccupantZones(occupantType);
-        return (zoneInfos.size() > 0) ? zoneInfos.get(0).zoneId : OccupantZoneInfo.INVALID_ZONE_ID;
     }
 
     /**
@@ -2440,7 +1978,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             | UserInfo.FLAG_DEMO
             | UserInfo.FLAG_FULL;
 
-    private static void checkManageUsersPermission(String message) {
+    static void checkManageUsersPermission(String message) {
         if (!hasManageUsersPermission()) {
             throw new SecurityException("You need " + MANAGE_USERS + " permission to: " + message);
         }
