@@ -18,7 +18,7 @@
 <androidx.cardview.widget.CardView
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/card_view"
-    android:foreground="?android:attr/selectableItemBackground"
+    android:background="?android:attr/colorBackgroundFloating"
     android:layout_height="match_parent"
     android:layout_width="match_parent"
     android:visibility="gone">
@@ -37,10 +37,13 @@
             android:id="@+id/control_bar_image_container"
             android:layout_height="@dimen/control_bar_image_size"
             android:layout_width="@dimen/control_bar_image_size"
+            android:layout_centerVertical="true"
             android:layout_marginStart="@dimen/card_icon_margin_start">
 
             <com.android.car.apps.common.CrossfadeImageView
                 android:id="@+id/card_background_image"
+                android:background="@drawable/control_bar_image_background"
+                android:clipToOutline="true"
                 android:layout_height="match_parent"
                 android:layout_width="match_parent"/>
 
