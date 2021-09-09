@@ -16,6 +16,12 @@
 
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS;
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNKNOWN;
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
+
+import android.util.ArrayMap;
 import android.util.Slog;
 
 import com.android.car.CarLog;
@@ -26,6 +32,7 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * This class is responsible for storing, retrieving, and deleting {@link
@@ -37,28 +44,34 @@ class MetricsConfigStore {
     static final String METRICS_CONFIG_DIR = "metrics_configs";
 
     private final File mConfigDirectory;
+    private Map<String, TelemetryProto.MetricsConfig> mActiveConfigs;
+    private Map<String, Integer> mNameVersionMap;
 
     MetricsConfigStore(File rootDirectory) {
         mConfigDirectory = new File(rootDirectory, METRICS_CONFIG_DIR);
         mConfigDirectory.mkdirs();
+        mActiveConfigs = new ArrayMap<>();
+        mNameVersionMap = new ArrayMap<>();
+        // TODO(b/197336485): Add expiration date check for MetricsConfig
+        for (File file : mConfigDirectory.listFiles()) {
+            try {
+                byte[] serializedConfig = Files.readAllBytes(file.toPath());
+                TelemetryProto.MetricsConfig config =
+                        TelemetryProto.MetricsConfig.parseFrom(serializedConfig);
+                mActiveConfigs.put(config.getName(), config);
+                mNameVersionMap.put(config.getName(), config.getVersion());
+            } catch (IOException e) {
+                // TODO(b/197336655): record failure
+                file.delete();
+            }
+        }
     }
 
     /**
      * Returns all active {@link TelemetryProto.MetricsConfig} from disk.
      */
     List<TelemetryProto.MetricsConfig> getActiveMetricsConfigs() {
-        // TODO(b/197336485): Add expiration date check for MetricsConfig
-        List<TelemetryProto.MetricsConfig> activeConfigs = new ArrayList<>();
-        for (File file : mConfigDirectory.listFiles()) {
-            try {
-                byte[] serializedConfig = Files.readAllBytes(file.toPath());
-                activeConfigs.add(TelemetryProto.MetricsConfig.parseFrom(serializedConfig));
-            } catch (IOException e) {
-                // TODO(b/197336655): record failure
-                file.delete();
-            }
-        }
-        return activeConfigs;
+        return new ArrayList<>(mActiveConfigs.values());
     }
 
     /**
@@ -67,8 +80,16 @@ class MetricsConfigStore {
      * @param metricsConfig the config to be persisted to disk.
      * @return true if the MetricsConfig should start receiving data, false otherwise.
      */
-    boolean addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
-        // TODO(b/197336485): Check version and expiration date for MetricsConfig
+    int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
+        // TODO(b/198823862): Validate config version
+        // TODO(b/197336485): Check expiration date for MetricsConfig
+        int currentVersion = mNameVersionMap.getOrDefault(metricsConfig.getName(), -1);
+        if (currentVersion > metricsConfig.getVersion()) {
+            return ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
+        } else if (currentVersion == metricsConfig.getVersion()) {
+            return ERROR_METRICS_CONFIG_ALREADY_EXISTS;
+        }
+        mNameVersionMap.put(metricsConfig.getName(), metricsConfig.getVersion());
         try {
             Files.write(
                     new File(mConfigDirectory, metricsConfig.getName()).toPath(),
@@ -76,12 +97,18 @@ class MetricsConfigStore {
         } catch (IOException e) {
             // TODO(b/197336655): record failure
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
+            return ERROR_METRICS_CONFIG_UNKNOWN;
         }
-        return true;
+        return ERROR_METRICS_CONFIG_NONE;
     }
 
     /** Deletes the MetricsConfig from disk. Returns the success status. */
     boolean deleteMetricsConfig(String metricsConfigName) {
+        mActiveConfigs.remove(metricsConfigName);
         return new File(mConfigDirectory, metricsConfigName).delete();
+    }
+
+    void deleteAllMetricsConfig() {
+        // TODO(b/198784116): implement
     }
 }
