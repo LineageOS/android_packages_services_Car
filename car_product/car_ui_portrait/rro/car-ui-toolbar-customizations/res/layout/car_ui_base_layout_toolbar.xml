@@ -162,7 +162,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:background="#F1F3F4"
+                android:background="?android:attr/listDivider"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -175,6 +175,7 @@
         android:layout_width="wrap_content"
         android:layout_height="0dp"
         android:tag="car_ui_left_inset"
+        android:orientation="horizontal"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toBottomOf="@id/top_part_of_toolbar_focus_area"
         app:layout_constraintBottom_toBottomOf="parent">
@@ -189,10 +190,11 @@
     <!-- Hairline to the right of the tabs -->
     <View
         android:layout_width="2dp"
-        android:layout_height="0dp"
-        android:background="#F1F3F4"
-        app:layout_constraintBottom_toBottomOf="@id/left_part_of_toolbar_focus_area"
-        app:layout_constraintTop_toTopOf="@id/left_part_of_toolbar_focus_area"
-        app:layout_constraintEnd_toEndOf="@id/left_part_of_toolbar_focus_area" />
+        android:layout_height="match_parent"
+        android:background="?android:attr/listDivider"
+        android:focusable="false"
+        app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
+        app:layout_constraintTop_toBottomOf="@id/top_part_of_toolbar_focus_area"
+        app:layout_constraintBottom_toBottomOf="parent"/>
 
 </androidx.constraintlayout.widget.ConstraintLayout>
