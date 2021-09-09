@@ -54,5 +54,5 @@
     <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
-
+    <item target="array/config_foregroundDAComponents" value="@array/config_foregroundDAComponents"/>
 </overlay>

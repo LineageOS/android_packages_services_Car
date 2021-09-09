@@ -21,4 +21,8 @@
         <item>com.android.car.carlauncher.homescreen.audio.AudioCard</item>
     </string-array>
 
+    <string-array name="config_foregroundDAComponents" translatable="false">
+        <item>com.android.car.carlauncher/.AppGridActivity</item>
+        <item>com.android.car.notification/.CarNotificationCenterActivity</item>
+    </string-array>
 </resources>
