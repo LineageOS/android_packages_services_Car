@@ -46,6 +46,7 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Objects;
+import java.util.concurrent.Executor;
 
 /**
  * Class that responsible for controlling vendor services that was opted in to be bound/started
@@ -263,7 +264,7 @@ class VendorServiceController implements UserLifecycleListener {
     /**
      * Represents connection to the vendor service.
      */
-    private static class VendorServiceConnection implements ServiceConnection {
+    private static class VendorServiceConnection implements ServiceConnection, Executor {
         private static final int REBIND_DELAY_MS = 5000;
         private static final int MAX_RECENT_FAILURES = 5;
         private static final int FAILURE_COUNTER_RESET_TIMEOUT = 5 * 60 * 1000; // 5 min.
@@ -275,17 +276,17 @@ class VendorServiceController implements UserLifecycleListener {
         private boolean mStarted = false;
         private boolean mStopRequested = false;
         private final VendorServiceInfo mVendorServiceInfo;
-        private final Context mContext;
         private final UserHandle mUser;
+        private final Context mUserContext;
         private final Handler mHandler;
         private final Handler mFailureHandler;
 
         VendorServiceConnection(Context context, Handler handler,
                 VendorServiceInfo vendorServiceInfo, UserHandle user) {
-            mContext = context;
             mHandler = handler;
             mVendorServiceInfo = vendorServiceInfo;
             mUser = user;
+            mUserContext = context.createContextAsUser(mUser, /* flags= */ 0);
 
             mFailureHandler = new Handler(handler.getLooper()) {
                 @Override
@@ -309,12 +310,13 @@ class VendorServiceController implements UserLifecycleListener {
 
             Intent intent = mVendorServiceInfo.getIntent();
             if (mVendorServiceInfo.shouldBeBound()) {
-                return mContext.bindServiceAsUser(intent, this, BIND_AUTO_CREATE, mHandler, mUser);
+                return mUserContext.bindService(intent, BIND_AUTO_CREATE, /* executor= */ this,
+                        /* conn= */ this);
             } else if (mVendorServiceInfo.shouldBeStartedInForeground()) {
-                mStarted = mContext.startForegroundServiceAsUser(intent, mUser) != null;
+                mStarted = mUserContext.startForegroundService(intent) != null;
                 return mStarted;
             } else {
-                mStarted = mContext.startServiceAsUser(intent, mUser) != null;
+                mStarted = mUserContext.startService(intent) != null;
                 return mStarted;
             }
         }
@@ -322,12 +324,17 @@ class VendorServiceController implements UserLifecycleListener {
         void stopOrUnbindService() {
             mStopRequested = true;
             if (mStarted) {
-                mContext.stopServiceAsUser(mVendorServiceInfo.getIntent(), mUser);
+                mUserContext.stopService(mVendorServiceInfo.getIntent());
                 mStarted = false;
             } else if (mBound) {
-                mContext.unbindService(this);
+                mUserContext.unbindService(this);
                 mBound = false;
             }
+        }
+
+        @Override // From Executor
+        public void execute(Runnable command) {
+            mHandler.post(command);
         }
 
         @Override
