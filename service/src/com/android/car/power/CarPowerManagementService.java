@@ -129,6 +129,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     // in secs
     private static final String PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE =
             "android.car.garagemodeduration";
+    // Constants for action on finish
+    private static final int ACTION_ON_FINISH_SHUTDOWN = 0;
+    private static final int ACTION_ON_FINISH_DEEP_SLEEP = 1;
+    private static final int ACTION_ON_FINISH_HIBERNATION = 2;
+
 
     private final Object mLock = new Object();
     private final Object mSimulationWaitObject = new Object();
@@ -188,7 +193,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     @GuardedBy("mLock")
     private int mNextWakeupSec;
     @GuardedBy("mLock")
-    private boolean mShutdownOnFinish;
+    private int mActionOnFinish;
     @GuardedBy("mLock")
     private boolean mShutdownOnNextSuspend;
     @GuardedBy("mLock")
@@ -365,7 +370,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             writer.printf("mLastSleepEntryTime: %d\n", mLastSleepEntryTime);
             writer.printf("mNextWakeupSec: %d\n", mNextWakeupSec);
             writer.printf("mShutdownOnNextSuspend: %b\n", mShutdownOnNextSuspend);
-            writer.printf("mShutdownOnFinish: %b\n", mShutdownOnFinish);
+            writer.printf("mActionOnFinish: %d\n", mActionOnFinish);
             writer.printf("mShutdownPollingIntervalMs: %d\n", mShutdownPollingIntervalMs);
             writer.printf("mShutdownPrepareTimeMs: %d\n", mShutdownPrepareTimeMs);
             writer.printf("mRebootAfterGarageMode: %b\n", mRebootAfterGarageMode);
@@ -618,10 +623,12 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void handleShutdownPrepare(CpmsState newState) {
         // Shutdown on finish if the system doesn't support deep sleep or doesn't allow it.
         synchronized (mLock) {
-            mShutdownOnFinish = mShutdownOnNextSuspend
+            boolean shouldShutdown = mShutdownOnNextSuspend
                     || (!mHal.isDeepSleepAllowed() && !mHal.isHibernationAllowed())
                     || !mSystemInterface.isSystemSupportingDeepSleep()
                     || !newState.mCanSleep;
+            mActionOnFinish = shouldShutdown ? ACTION_ON_FINISH_SHUTDOWN :
+                    ACTION_ON_FINISH_DEEP_SLEEP;
             mGarageModeShouldExitImmediately = !newState.mCanPostpone;
         }
         Slogf.i(TAG,
@@ -669,7 +676,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         boolean mustShutDown;
         boolean forceReboot;
         synchronized (mLock) {
-            mustShutDown = mShutdownOnFinish && !simulatedMode;
+            mustShutDown = (mActionOnFinish == ACTION_ON_FINISH_SHUTDOWN) && !simulatedMode;
             forceReboot = mRebootAfterGarageMode;
             mRebootAfterGarageMode = false;
         }
@@ -963,12 +970,13 @@ public class CarPowerManagementService extends ICarPower.Stub implements
         int listenerState;
         synchronized (mLock) {
             releaseTimerLocked();
-            if (!mShutdownOnFinish && mLastSleepEntryTime > mProcessingStartTime) {
+            boolean shutdownOnFinish = (mActionOnFinish == ACTION_ON_FINISH_SHUTDOWN);
+            if (!shutdownOnFinish && mLastSleepEntryTime > mProcessingStartTime) {
                 // entered sleep after processing start. So this could be duplicate request.
                 Slogf.w(TAG, "Duplicate sleep entry request, ignore");
                 return;
             }
-            listenerState = mShutdownOnFinish
+            listenerState = shutdownOnFinish
                     ? CarPowerStateListener.SHUTDOWN_ENTER : CarPowerStateListener.SUSPEND_ENTER;
         }
 
@@ -1176,7 +1184,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             if (mCurrentState.mState == CpmsState.SHUTDOWN_PREPARE
                     || mCurrentState.mState == CpmsState.SIMULATE_SLEEP) {
                 // All apps are ready to shutdown/suspend.
-                if (!mShutdownOnFinish) {
+                if (mActionOnFinish != ACTION_ON_FINISH_SHUTDOWN) {
                     if (mLastSleepEntryTime > mProcessingStartTime
                             && mLastSleepEntryTime < SystemClock.elapsedRealtime()) {
                         Slogf.i(TAG, "signalComplete: Already slept!");
