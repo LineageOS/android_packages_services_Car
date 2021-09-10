@@ -12,6 +12,9 @@
           "include-filter": "android.car.apitest.PreInstalledPackagesTest"
         }
       ]
+    },
+    {
+      "name": "SampleCustomInputServiceTest"
     }
   ]
 }
