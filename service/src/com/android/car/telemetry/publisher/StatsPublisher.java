@@ -16,7 +16,6 @@
 
 package com.android.car.telemetry.publisher;
 
-import android.annotation.Nullable;
 import android.app.StatsManager.StatsUnavailableException;
 import android.car.builtin.util.Slog;
 import android.content.SharedPreferences;
@@ -240,7 +239,7 @@ public class StatsPublisher extends AbstractPublisher {
         }
     }
 
-    @Nullable
+    /** Returns a subscriber for the given statsd config key. Returns null if not found. */
     private DataSubscriber getSubscriberByConfigKey(long configKey) {
         synchronized (mLock) {
             return mConfigKeyToSubscribers.get(configKey);
@@ -271,21 +270,18 @@ public class StatsPublisher extends AbstractPublisher {
      */
     @GuardedBy("mLock")
     private long addStatsConfigLocked(DataSubscriber subscriber) {
-        String sharedPrefConfigKey = buildSharedPrefConfigKey(subscriber);
         long configKey = buildConfigKey(subscriber);
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
         String sharedPrefVersion = buildSharedPrefConfigVersionKey(configKey);
-        StatsdConfig config = buildStatsdConfig(subscriber, configKey);
         if (mSharedPreferences.contains(sharedPrefVersion)) {
             int currentVersion = mSharedPreferences.getInt(sharedPrefVersion, 0);
-            if (currentVersion < subscriber.getMetricsConfig().getVersion()) {
-                // TODO(b/189143813): remove old version from StatsD
-                Slog.d(CarLog.TAG_TELEMETRY, "Removing old config from StatsD");
-            } else {
-                // Ignore if the MetricsConfig version is current or older.
+            if (currentVersion >= subscriber.getMetricsConfig().getVersion()) {
+                // It's trying to add current or older MetricsConfig version, just ignore it.
                 return configKey;
-            }
+            }  // if the subscriber's MetricsConfig version is newer, it will replace the old one.
         }
+        String sharedPrefConfigKey = buildSharedPrefConfigKey(subscriber);
+        StatsdConfig config = buildStatsdConfig(subscriber, configKey);
         try {
             // It doesn't throw exception if the StatsdConfig is invalid. But it shouldn't happen,
             // as we generate well-tested StatsdConfig in this service.
