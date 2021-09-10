@@ -75,8 +75,8 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private final Executor mExecutor =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getMainExecutor();
     private final UserHandle[] mUsers = new UserHandle[] {
-            UserHandle.of(10),
-            UserHandle.of(11)
+            UserHandle.of(100),
+            UserHandle.of(101)
     };
 
     @Mock private Context mMockContext;
@@ -97,10 +97,10 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mDaemonBinder, mCarWatchdogDaemon);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
-        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
+        when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
         mockUmGetUserHandles(mUserManager, /* excludeDying= */ false, mUsers);
-        mockUmIsUserRunning(mUserManager, 10, true);
-        mockUmIsUserRunning(mUserManager, 11, false);
+        mockUmIsUserRunning(mUserManager, 100, true);
+        mockUmIsUserRunning(mUserManager, 101, false);
 
         mCarWatchdogService.init();
         mWatchdogServiceForSystemImpl = registerCarWatchdogService();
@@ -222,11 +222,11 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void expectRunningUser() {
-        doReturn(10).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
+        doReturn(100).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
     }
 
     private void expectStoppedUser() {
-        doReturn(11).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
+        doReturn(101).when(() -> UserHandle.getUserId(Binder.getCallingUid()));
     }
 
     private final class TestClient {

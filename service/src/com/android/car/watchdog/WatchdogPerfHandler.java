@@ -401,12 +401,11 @@ public final class WatchdogPerfHandler {
     }
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ true);
+        int[] userIds = getAliveUserIds();
         String genericPackageName = null;
         synchronized (mLock) {
-            for (int i = 0; i < users.size(); ++i) {
-                int userId = users.get(i).getIdentifier();
+            for (int i = 0; i < userIds.length; ++i) {
+                int userId = userIds[i];
                 String name = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
                 if (name == null) {
                     continue;
@@ -449,11 +448,10 @@ public final class WatchdogPerfHandler {
             return getPackageKillableStatesForUserId(userHandle.getIdentifier(), pm);
         }
         List<PackageKillableState> packageKillableStates = new ArrayList<>();
-        UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ true);
-        for (int i = 0; i < users.size(); ++i) {
+        int[] userIds = getAliveUserIds();
+        for (int i = 0; i < userIds.length; ++i) {
             packageKillableStates.addAll(
-                    getPackageKillableStatesForUserId(users.get(i).getIdentifier(), pm));
+                    getPackageKillableStatesForUserId(userIds[i], pm));
         }
         if (DEBUG) {
             Slogf.d(TAG, "Returning all package killable states for all users");
@@ -749,6 +747,21 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Deletes all data for specific user. */
+    public void deleteUser(@UserIdInt int userId) {
+        synchronized (mLock) {
+            for (int i = mUsageByUserPackage.size() - 1; i >= 0; --i) {
+                if (userId == mUsageByUserPackage.valueAt(i).userId) {
+                    mUsageByUserPackage.removeAt(i);
+                }
+            }
+            mWatchdogStorage.syncUsers(getAliveUserIds());
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Resource usage for user id: %d was deleted.", userId);
+        }
+    }
+
     /** Sets the time source. */
     public void setTimeSource(TimeSourceInterface timeSource) {
         synchronized (mLock) {
@@ -801,6 +814,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void readFromDatabase() {
+        mWatchdogStorage.syncUsers(getAliveUserIds());
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
                 mWatchdogStorage.getUserPackageSettings();
         Slogf.i(TAG, "Read %d user package settings from database", settingsEntries.size());
@@ -834,10 +848,8 @@ public final class WatchdogPerfHandler {
                     usage = new PackageResourceUsage(entry.userId, entry.packageName);
                 }
                 /* Overwrite in memory cache as the stats will be merged on the daemon side and
-                pushed
-                 * on the next latestIoOveruseStats call. This is tolerable because the next push
-                  should
-                 * happen soon.
+                 * pushed on the next latestIoOveruseStats call. This is tolerable because the next
+                 * push should happen soon.
                  */
                 usage.ioUsage.overwrite(entry.ioUsage);
                 mUsageByUserPackage.put(key, usage);
@@ -1225,6 +1237,17 @@ public final class WatchdogPerfHandler {
                 // Third-party apps are always killable
                 return true;
         }
+    }
+
+    private int[] getAliveUserIds() {
+        UserManager userManager = UserManager.get(mContext);
+        List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
+        int userSize = aliveUsers.size();
+        int[] userIds = new int[userSize];
+        for (int i = 0; i < userSize; ++i) {
+            userIds[i] = aliveUsers.get(i).getIdentifier();
+        }
+        return userIds;
     }
 
     private static String getUserPackageUniqueId(int userId, String genericPackageName) {
