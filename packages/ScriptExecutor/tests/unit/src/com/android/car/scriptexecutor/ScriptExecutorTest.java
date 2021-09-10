@@ -184,7 +184,7 @@ public final class ScriptExecutorTest {
     }
 
     @Test
-    public void invokeScript_allSupportedTypes() throws RemoteException {
+    public void invokeScript_allSupportedPrimitiveTypes() throws RemoteException {
         String script =
                 "function knows(state)\n"
                         + "    result = {string=\"hello\", boolean=true, integer=1, number=1.1}\n"
@@ -258,10 +258,10 @@ public final class ScriptExecutorTest {
     }
 
     @Test
-    public void invokeScript_allSupportedTypesWorkRoundTripWithKeyNamesPreserved()
+    public void invokeScript_allSupportedPrimitiveTypesWorkRoundTripWithKeyNamesPreserved()
             throws RemoteException {
-        // Here we verify that all supported types in supplied previous state Bundle are interpreted
-        // by the script as expected.
+        // Here we verify that all supported primitive types in supplied previous state Bundle
+        // are interpreted by the script as expected.
         // TODO(b/189241508): update function signatures.
         String script =
                 "function update_all(state)\n"
@@ -288,6 +288,177 @@ public final class ScriptExecutorTest {
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getBoolean("boolean")).isEqualTo(true);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo(
                 "ABRACADABRA");
+    }
+
+    @Test
+    public void invokeScript_allSupportedArrayTypesWorkRoundTripWithKeyNamesPreserved()
+            throws RemoteException {
+        // Here we verify that all supported array types in supplied previous state Bundle are
+        // interpreted by the script as expected.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function arrays(state)\n"
+                        + "    result = {}\n"
+                        + "    result.int_array = state.int_array\n"
+                        + "    result.long_array = state.long_array\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        int[] int_array = new int[]{1, 2};
+        long[] int_array_in_long = new long[]{1, 2};
+        long[] long_array = new long[]{1, 2, 3};
+        previousState.putIntArray("int_array", int_array);
+        previousState.putLongArray("long_array", long_array);
+
+
+        runScriptAndWaitForResponse(script, "arrays", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(2);
+        // Lua has only one lua_Integer. Here Java long is used to represent it when data is
+        // transferred from Lua to CarTelemetryService.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("int_array")).isEqualTo(
+                int_array_in_long);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
+                long_array);
+    }
+
+    @Test
+    public void invokeScript_modifiesArray()
+            throws RemoteException {
+        // Verify that an array modified by a script is properly sent back by the callback.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function modify_array(state)\n"
+                        + "    result = {}\n"
+                        + "    result.long_array = state.long_array\n"
+                        + "    result.long_array[2] = 100\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        long[] long_array = new long[]{1, 2, 3};
+        previousState.putLongArray("long_array", long_array);
+        long[] expected_array = new long[]{1, 100, 3};
+
+
+        runScriptAndWaitForResponse(script, "modify_array", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
+                expected_array);
+    }
+
+    @Test
+    public void invokeScript_arraysWithLengthAboveLimitCauseError()
+            throws RemoteException {
+        // Verifies that arrays pushed by Lua that have their size over the limit cause error.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function size_limit(state)\n"
+                        + "    result = {}\n"
+                        + "    result.huge_array = {}\n"
+                        + "    for i=1, 10000 do\n"
+                        + "        result.huge_array[i]=i\n"
+                        + "    end\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "size_limit", mSavedState);
+
+        // Verify that expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "Returned table huge_array exceeds maximum allowed size of 1000 "
+                        + "elements. This key-value cannot be unpacked successfully. This error "
+                        + "is unrecoverable.");
+    }
+
+    @Test
+    public void invokeScript_arrayContainingVaryingTypesCausesError()
+            throws RemoteException {
+        // Verifies that values in returned array must be the same integer type.
+        // For example string values in a Lua array are not allowed.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function table_with_numbers_and_strings(state)\n"
+                        + "    result = {}\n"
+                        + "    result.mixed_array = state.long_array\n"
+                        + "    result.mixed_array[2] = 'a'\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        long[] long_array = new long[]{1, 2, 3};
+        previousState.putLongArray("long_array", long_array);
+
+        runScriptAndWaitForResponse(script, "table_with_numbers_and_strings", previousState);
+
+        // Verify that expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
+                "Returned table mixed_array contains values of types other than expected integer."
+                        + " This key-value cannot be unpacked successfully. This error is "
+                        + "unrecoverable.");
+    }
+
+    @Test
+    public void invokeScript_InTablesWithBothKeysAndIndicesCopiesOnlyIndexedData()
+            throws RemoteException {
+        // Documents the current behavior that copies only indexed values in a Lua table that
+        // contains both keyed and indexed data.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function keys_and_indices(state)\n"
+                        + "    result = {}\n"
+                        + "    result.mixed_array = state.long_array\n"
+                        + "    result.mixed_array['a'] = 130\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        long[] long_array = new long[]{1, 2, 3};
+        previousState.putLongArray("long_array", long_array);
+
+        runScriptAndWaitForResponse(script, "keys_and_indices", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("mixed_array")).isEqualTo(
+                long_array);
+    }
+
+    @Test
+    public void invokeScript_noLuaBufferOverflowForLargeInputArrays() throws RemoteException {
+        // Tests that arrays with length that exceed internal Lua buffer size of 20 elements
+        // do not cause buffer overflow and are handled properly.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function large_input_array(state)\n"
+                        + "    sum = 0\n"
+                        + "    for _, val in ipairs(state.long_array) do\n"
+                        + "        sum = sum + val\n"
+                        + "    end\n"
+                        + "    result = {total = sum}\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        PersistableBundle previousState = new PersistableBundle();
+        int n = 10000;
+        long[] longArray = new long[n];
+        for (int i = 0; i < n; i++) {
+            longArray[i] = i;
+        }
+        previousState.putLongArray("long_array", longArray);
+        long expected_sum =
+                (longArray[0] + longArray[n - 1]) * n / 2; // sum of an arithmetic sequence.
+
+        runScriptAndWaitForResponse(script, "large_input_array", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getInt("total")).isEqualTo(
+                expected_sum);
     }
 
     @Test
@@ -362,10 +533,10 @@ public final class ScriptExecutorTest {
     }
 
     @Test
-    public void invokeScript_allSupportedTypesForReturningFinalResult()
+    public void invokeScript_allPrimitiveSupportedTypesForReturningFinalResult()
             throws RemoteException {
-        // Here we verify that all supported types are present in the returned final result
-        // bundle are present.
+        // Here we verify that all supported primitive types are present in the returned final
+        // result bundle are present.
         // TODO(b/189241508): update function signatures.
         String script =
                 "function finalize_all(state)\n"
