@@ -273,7 +273,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         userService.addUserLifecycleListener(mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
-        experimentalUserService.addPassengerCallback(mPassengerCallback);
+        if (experimentalUserService != null) {
+            experimentalUserService.addPassengerCallback(mPassengerCallback);
+        }
         mDisplayManager.registerDisplayListener(mDisplayListener,
                 new Handler(Looper.getMainLooper()));
         ZoneUserBindingHelper helper = new ZoneUserBindingHelper() {
@@ -340,7 +342,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 return false;
             }
         };
-        experimentalUserService.setZoneUserBindingHelper(helper);
+        if (experimentalUserService != null) {
+            experimentalUserService.setZoneUserBindingHelper(helper);
+        }
     }
 
     @Override
@@ -350,7 +354,9 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         userService.removeUserLifecycleListener(mUserLifecycleListener);
         ExperimentalCarUserService experimentalUserService =
                 CarLocalServices.getService(ExperimentalCarUserService.class);
-        experimentalUserService.removePassengerCallback(mPassengerCallback);
+        if (experimentalUserService != null) {
+            experimentalUserService.removePassengerCallback(mPassengerCallback);
+        }
         synchronized (mLock) {
             mOccupantsConfig.clear();
             mDisplayPortConfigs.clear();
