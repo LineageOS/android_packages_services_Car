@@ -213,15 +213,15 @@
     <item msgid="6902033473986647035">"Lad systemet vælge"</item>
   </string-array>
   <string-array name="app_ops_categories">
-    <item msgid="1102693344156734891">"Placering"</item>
+    <item msgid="1102693344156734891">"Lokation"</item>
     <item msgid="6842381562497597649">"Personlig"</item>
     <item msgid="3966700236695683444">"Beskeder"</item>
     <item msgid="8563996233342430477">"Medier"</item>
     <item msgid="5323851085993963783">"Enhed"</item>
   </string-array>
   <string-array name="app_ops_summaries">
-    <item msgid="2585253854462134715">"omtrentlig placering"</item>
-    <item msgid="1830619568689922920">"nøjagtig placering"</item>
+    <item msgid="2585253854462134715">"omtrentlig lokation"</item>
+    <item msgid="1830619568689922920">"nøjagtig lokation"</item>
     <item msgid="3317274469481923141">"GPS"</item>
     <item msgid="8931785990160383356">"vibrer"</item>
     <item msgid="8632513128515114092">"læs kontakter"</item>
@@ -261,8 +261,8 @@
     <item msgid="394030698764284577">"lydstyrke for notifikationer"</item>
     <item msgid="8952898972491680178">"lydstyrke for bluetooth"</item>
     <item msgid="8506227454543690851">"lås ikke"</item>
-    <item msgid="1108160036049727420">"overvåg placering"</item>
-    <item msgid="1496205959751719491">"overvåg placering med højt strømforbrug"</item>
+    <item msgid="1108160036049727420">"overvåg lokation"</item>
+    <item msgid="1496205959751719491">"overvåg lokation med højt strømforbrug"</item>
     <item msgid="3776296279910987380">"hent brugsstatistik"</item>
     <item msgid="8827100324471975602">"slå mikrofonlyd til/fra"</item>
     <item msgid="6880736730520126864">"vis toast"</item>
@@ -278,7 +278,7 @@
     <item msgid="7775674394089376306">"fingeraftryk"</item>
     <item msgid="3182815133441738779">"kropssensorer"</item>
     <item msgid="2793100005496829513">"læs Cell Broadcast-meddelelser"</item>
-    <item msgid="2633626056029384366">"imiteret placering"</item>
+    <item msgid="2633626056029384366">"imiteret lokation"</item>
     <item msgid="8356842191824684631">"læs lager"</item>
     <item msgid="5671906070163291500">"skriv til lager"</item>
     <item msgid="2791955098549340418">"tænd skærmen"</item>
@@ -287,9 +287,9 @@
     <item msgid="6423861043647911030">"lydstyrke for hjælpefunktioner"</item>
   </string-array>
   <string-array name="app_ops_labels">
-    <item msgid="7892361636570580123">"Placering"</item>
-    <item msgid="6656077694190491067">"Placering"</item>
-    <item msgid="8790228218278477369">"Placering"</item>
+    <item msgid="7892361636570580123">"Lokation"</item>
+    <item msgid="6656077694190491067">"Lokation"</item>
+    <item msgid="8790228218278477369">"Lokation"</item>
     <item msgid="7836406246005211990">"Vibrer"</item>
     <item msgid="3951439024549922598">"Læs kontakter"</item>
     <item msgid="8802152411647068">"Rediger kontakter"</item>
@@ -297,9 +297,9 @@
     <item msgid="7396102294405899613">"Rediger opkaldshistorik"</item>
     <item msgid="3597797992398484655">"Læs kalenderen"</item>
     <item msgid="2705975774250907343">"Rediger kalenderen"</item>
-    <item msgid="4668747371441932697">"Placering"</item>
+    <item msgid="4668747371441932697">"Lokation"</item>
     <item msgid="1487578921720243646">"Send notifikation"</item>
-    <item msgid="4636080349724146638">"Placering"</item>
+    <item msgid="4636080349724146638">"Lokation"</item>
     <item msgid="673510900286463926">"Ring til telefon"</item>
     <item msgid="542083422784609790">"Læs sms/mms"</item>
     <item msgid="1033780373029588436">"Skriv sms/mms"</item>
@@ -328,8 +328,8 @@
     <item msgid="4715864795872233884">"Lydstyrke for notifikationer"</item>
     <item msgid="2311478519251301183">"Lydstyrke for bluetooth"</item>
     <item msgid="5133991377896747027">"Lås ikke"</item>
-    <item msgid="2464189519136248621">"Placering"</item>
-    <item msgid="2062677934050803037">"Placering"</item>
+    <item msgid="2464189519136248621">"Lokation"</item>
+    <item msgid="2062677934050803037">"Lokation"</item>
     <item msgid="1735171933192715957">"Hent brugsstatistik"</item>
     <item msgid="1014093788778383554">"Slå mikrofonlyd til/fra"</item>
     <item msgid="4199297950608622850">"Vis toast"</item>
@@ -345,7 +345,7 @@
     <item msgid="125513972170580692">"Fingeraftryk"</item>
     <item msgid="2556071024281275619">"Kropssensorer"</item>
     <item msgid="617168514928339387">"Læs Cell Broadcast-meddelelser"</item>
-    <item msgid="7134693570516523585">"Imiteret placering"</item>
+    <item msgid="7134693570516523585">"Imiteret lokation"</item>
     <item msgid="7224489175375229399">"Læs lager"</item>
     <item msgid="8472735063903258202">"Skriv til lager"</item>
     <item msgid="4069276819909595110">"Tænd skærmen"</item>
