@@ -47,7 +47,7 @@ public final class CarTelemetryManager extends CarManagerBase {
 
     private static final boolean DEBUG = false;
     private static final String TAG = CarTelemetryManager.class.getSimpleName();
-    private static final int MANIFEST_MAX_SIZE_BYTES = 10 * 1024; // 10 kb
+    private static final int METRICS_CONFIG_MAX_SIZE_BYTES = 10 * 1024; // 10 kb
 
     private final CarTelemetryServiceListener mCarTelemetryServiceListener =
             new CarTelemetryServiceListener(this);
@@ -60,49 +60,51 @@ public final class CarTelemetryManager extends CarManagerBase {
     private Executor mExecutor;
 
     /**
-     * Status to indicate that manifest was added successfully.
+     * Status to indicate that MetricsConfig was added successfully.
      */
-    public static final int ERROR_NONE = 0;
+    public static final int ERROR_METRICS_CONFIG_NONE = 0;
 
     /**
-     * Status to indicate that add manifest failed because the same manifest based on the
+     * Status to indicate that add MetricsConfig failed because the same MetricsConfig based on the
      * ManifestKey already exists.
      */
-    public static final int ERROR_SAME_MANIFEST_EXISTS = 1;
+    public static final int ERROR_METRICS_CONFIG_ALREADY_EXISTS = 1;
 
     /**
-     * Status to indicate that add manifest failed because a newer version of the manifest exists.
+     * Status to indicate that add MetricsConfig failed because a newer version of the MetricsConfig
+     * exists.
      */
-    public static final int ERROR_NEWER_MANIFEST_EXISTS = 2;
+    public static final int ERROR_METRICS_CONFIG_VERSION_TOO_OLD = 2;
 
     /**
-     * Status to indicate that add manifest failed because CarTelemetryService is unable to parse
-     * the given byte array into a Manifest.
+     * Status to indicate that add MetricsConfig failed because CarTelemetryService is unable to
+     * parse the given byte array into a MetricsConfig.
      */
-    public static final int ERROR_PARSE_MANIFEST_FAILED = 3;
+    public static final int ERROR_METRICS_CONFIG_PARSE_FAILED = 3;
 
     /**
-     * Status to indicate that add manifest failed because of failure to verify the signature of
-     * the manifest.
+     * Status to indicate that add MetricsConfig failed because of failure to verify the signature
+     * of the MetricsConfig.
      */
-    public static final int ERROR_SIGNATURE_VERIFICATION_FAILED = 4;
+    public static final int ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED = 4;
 
     /**
-     * Status to indicate that add manifest failed because of a general error in cars.
+     * Status to indicate that add MetricsConfig failed because of a general error in cars.
      */
-    public static final int ERROR_UNKNOWN = 5;
+    public static final int ERROR_METRICS_CONFIG_UNKNOWN = 5;
 
     /** @hide */
-    @IntDef(prefix = {"ERROR_"}, value = {
-            ERROR_NONE,
-            ERROR_SAME_MANIFEST_EXISTS,
-            ERROR_NEWER_MANIFEST_EXISTS,
-            ERROR_PARSE_MANIFEST_FAILED,
-            ERROR_SIGNATURE_VERIFICATION_FAILED,
-            ERROR_UNKNOWN
+    @IntDef(prefix = {"ERROR_METRICS_CONFIG_"}, value = {
+            ERROR_METRICS_CONFIG_NONE,
+            ERROR_METRICS_CONFIG_ALREADY_EXISTS,
+            ERROR_METRICS_CONFIG_VERSION_TOO_OLD,
+            ERROR_METRICS_CONFIG_PARSE_FAILED,
+            ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED,
+            ERROR_METRICS_CONFIG_UNKNOWN
     })
     @Retention(RetentionPolicy.SOURCE)
-    public @interface AddManifestError {}
+    public @interface MetricsConfigError {
+    }
 
     /**
      * Application registers {@link CarTelemetryResultsListener} object to receive data from
@@ -113,22 +115,39 @@ public final class CarTelemetryManager extends CarManagerBase {
     @SystemApi
     public interface CarTelemetryResultsListener {
         /**
-         * Called by {@link com.android.car.telemetry.CarTelemetryService} to send script result to
-         * the client.
+         * Sends script results to the client. Called by {@link CarTelemetryServiceListener}.
+         *
          * TODO(b/184964661): Publish the documentation for the format of the results.
          *
-         * @param key the {@link ManifestKey} that the result is associated with.
-         * @param result the serialized car telemetry result.
+         * @param key    the {@link MetricsConfigKey} that the result is associated with.
+         * @param result the car telemetry result as serialized bytes.
          */
-        void onResult(@NonNull ManifestKey key, @NonNull byte[] result);
+        void onResult(@NonNull MetricsConfigKey key, @NonNull byte[] result);
 
         /**
-         * Called by {@link com.android.car.telemetry.CarTelemetryService} to send error message to
-         * the client.
+         * Sends script execution errors to the client.
          *
+         * @param key   the {@link MetricsConfigKey} that the error is associated with
          * @param error the serialized car telemetry error.
          */
-        void onError(@NonNull byte[] error);
+        void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error);
+
+        /**
+         * Sends the {@link #addMetricsConfig(MetricsConfigKey, byte[])} status to the client.
+         *
+         * @param key        the {@link MetricsConfigKey} that the status is associated with
+         * @param statusCode See {@link MetricsConfigError}.
+         */
+        void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
+                @MetricsConfigError int statusCode);
+
+        /**
+         * Sends the {@link #removeMetricsConfig(MetricsConfigKey)} status to the client.
+         *
+         * @param key     the {@link MetricsConfigKey} that the status is associated with
+         * @param success true for successful removal, false otherwise.
+         */
+        void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success);
     }
 
     /**
@@ -144,7 +163,7 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
 
         @Override
-        public void onResult(@NonNull ManifestKey key, @NonNull byte[] result) {
+        public void onResult(@NonNull MetricsConfigKey key, @NonNull byte[] result) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
@@ -153,27 +172,66 @@ public final class CarTelemetryManager extends CarManagerBase {
         }
 
         @Override
-        public void onError(@NonNull byte[] error) {
+        public void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error) {
             CarTelemetryManager manager = mManager.get();
             if (manager == null) {
                 return;
             }
-            manager.onError(error);
+            manager.onError(key, error);
+        }
+
+        @Override
+        public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
+                @MetricsConfigError int statusCode) {
+            CarTelemetryManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            manager.onAddMetricsConfigStatus(key, statusCode);
+        }
+
+        @Override
+        public void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success) {
+            CarTelemetryManager manager = mManager.get();
+            if (manager == null) {
+                return;
+            }
+            manager.onRemoveMetricsConfigStatus(key, success);
         }
     }
 
-    private void onResult(ManifestKey key, byte[] result) {
+    private void onResult(MetricsConfigKey key, byte[] result) {
         long token = Binder.clearCallingIdentity();
         synchronized (mLock) {
+            // TODO(b/198824696): listener should be nonnull
             mExecutor.execute(() -> mResultsListener.onResult(key, result));
         }
         Binder.restoreCallingIdentity(token);
     }
 
-    private void onError(byte[] error) {
+    private void onError(MetricsConfigKey key, byte[] error) {
         long token = Binder.clearCallingIdentity();
         synchronized (mLock) {
-            mExecutor.execute(() -> mResultsListener.onError(error));
+            // TODO(b/198824696): listener should be nonnull
+            mExecutor.execute(() -> mResultsListener.onError(key, error));
+        }
+        Binder.restoreCallingIdentity(token);
+    }
+
+    private void onAddMetricsConfigStatus(MetricsConfigKey key, int statusCode) {
+        long token = Binder.clearCallingIdentity();
+        synchronized (mLock) {
+            // TODO(b/198824696): listener should be nonnull
+            mExecutor.execute(() -> mResultsListener.onAddMetricsConfigStatus(key, statusCode));
+        }
+        Binder.restoreCallingIdentity(token);
+    }
+
+    private void onRemoveMetricsConfigStatus(MetricsConfigKey key, boolean success) {
+        long token = Binder.clearCallingIdentity();
+        synchronized (mLock) {
+            // TODO(b/198824696): listener should be nonnull
+            mExecutor.execute(() -> mResultsListener.onRemoveMetricsConfigStatus(key, success));
         }
         Binder.restoreCallingIdentity(token);
     }
@@ -212,7 +270,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      *
      * @param listener to received data from {@link com.android.car.telemetry.CarTelemetryService}.
      * @throws IllegalStateException if the listener is already set.
-     *
      * @hide
      */
     @SystemApi
@@ -254,81 +311,79 @@ public final class CarTelemetryManager extends CarManagerBase {
     }
 
     /**
-     * Called by client to send telemetry manifest. The size of the manifest cannot exceed a
-     * predefined size. Otherwise an exception is thrown.
-     * The {@link ManifestKey} is used to uniquely identify a manifest. If a manifest of the same
-     * name already exists in {@link com.android.car.telemetry.CarTelemetryService}, then the
-     * version will be compared. If the version is strictly higher, the existing manifest will be
-     * replaced by the new one. All cache and intermediate results will be cleared if replaced.
-     * TODO(b/185420981): Update javadoc after CarTelemetryService has concrete implementation.
+     * Sends a telemetry MetricsConfig to CarTelemetryService. The size of the MetricsConfig cannot
+     * exceed a predefined size, otherwise an exception is thrown.
+     * The {@link MetricsConfigKey} is used to uniquely identify a MetricsConfig. If a MetricsConfig
+     * of the same name already exists in {@link com.android.car.telemetry.CarTelemetryService},
+     * the config version will be compared. If the version is strictly higher, the existing
+     * MetricsConfig will be replaced by the new one. All cache and intermediate results will be
+     * cleared if replaced.
+     * The status of this API is sent back asynchronously via {@link CarTelemetryResultsListener}.
      *
-     * @param key      the unique key to identify the manifest.
-     * @param manifest the serialized bytes of a Manifest object.
-     * @return {@link #AddManifestError} to tell the result of the request.
-     * @throws IllegalArgumentException if the manifest size exceeds limit.
-     *
+     * @param key           the unique key to identify the MetricsConfig.
+     * @param metricsConfig the serialized bytes of a MetricsConfig object.
+     * @throws IllegalArgumentException if the MetricsConfig size exceeds limit.
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public @AddManifestError int addManifest(@NonNull ManifestKey key, @NonNull byte[] manifest) {
-        if (manifest.length > MANIFEST_MAX_SIZE_BYTES) {
-            throw new IllegalArgumentException("Manifest size exceeds limit.");
+    public void addMetricsConfig(@NonNull MetricsConfigKey key, @NonNull byte[] metricsConfig) {
+        if (metricsConfig.length > METRICS_CONFIG_MAX_SIZE_BYTES) {
+            throw new IllegalArgumentException("MetricsConfig size exceeds limit.");
         }
         try {
-            return mService.addManifest(key, manifest);
+            mService.addMetricsConfig(key, metricsConfig);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
-        return ERROR_UNKNOWN;
     }
 
     /**
-     * Removes a manifest from {@link com.android.car.telemetry.CarTelemetryService}. If the
-     * manifest does not exist, nothing will be removed but the status will be indicated in the
-     * return value.
+     * Removes a MetricsConfig from {@link com.android.car.telemetry.CarTelemetryService}. If the
+     * MetricsConfig does not exist, nothing will be removed.
+     * The status of this API is sent back asynchronously via {@link CarTelemetryResultsListener}.
      *
-     * @param key the unique key to identify the manifest. Name and version must be exact.
+     * @param key the unique key to identify the MetricsConfig. Name and version must be exact.
      * @return true for success, false otherwise.
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public boolean removeManifest(@NonNull ManifestKey key) {
+    public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
         try {
-            return mService.removeManifest(key);
+            mService.removeMetricsConfig(key);
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
-        return false;
     }
 
     /**
-     * Removes all manifests from {@link com.android.car.telemetry.CarTelemetryService}.
+     * Removes all MetricsConfigs from {@link com.android.car.telemetry.CarTelemetryService}.
      *
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void removeAllManifests() {
+    public void removeAllMetricsConfigs() {
         try {
-            mService.removeAllManifests();
+            mService.removeAllMetricsConfigs();
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }
     }
 
     /**
-     * An asynchronous API for the client to get script execution results of a specific manifest
-     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
+     * Gets script execution results of a MetricsConfig as from the
+     * {@link com.android.car.telemetry.CarTelemetryService}. This API is asynchronous and the
+     * result is sent back asynchronously via the {@link CarTelemetryResultsListener}.
      * This call is destructive. The returned results will be deleted from CarTelemetryService.
      *
-     * @param key the unique key to identify the manifest.
+     * @param key the unique key to identify the MetricsConfig.
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void sendFinishedReports(@NonNull ManifestKey key) {
+    public void sendFinishedReports(@NonNull MetricsConfigKey key) {
         try {
             mService.sendFinishedReports(key);
         } catch (RemoteException e) {
@@ -337,8 +392,8 @@ public final class CarTelemetryManager extends CarManagerBase {
     }
 
     /**
-     * An asynchronous API for the client to get all script execution results
-     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
+     * Gets all script execution results from {@link com.android.car.telemetry.CarTelemetryService}
+     * asynchronously via the {@link CarTelemetryResultsListener}.
      * This call is destructive. The returned results will be deleted from CarTelemetryService.
      *
      * @hide
@@ -348,23 +403,6 @@ public final class CarTelemetryManager extends CarManagerBase {
     public void sendAllFinishedReports() {
         try {
             mService.sendAllFinishedReports();
-        } catch (RemoteException e) {
-            handleRemoteExceptionFromCarService(e);
-        }
-    }
-
-    /**
-     * An asynchronous API for the client to get all script execution errors
-     * from the {@link com.android.car.telemetry.CarTelemetryService} through the listener.
-     * This call is destructive. The returned results will be deleted from CarTelemetryService.
-     *
-     * @hide
-     */
-    @SystemApi
-    @RequiresPermission(Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE)
-    public void sendScriptExecutionErrors() {
-        try {
-            mService.sendScriptExecutionErrors();
         } catch (RemoteException e) {
             handleRemoteExceptionFromCarService(e);
         }

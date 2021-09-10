@@ -18,6 +18,8 @@ package com.android.car.telemetry;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import android.car.telemetry.CarTelemetryManager;
+
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -53,6 +55,7 @@ public class MetricsConfigStoreTest {
     public void testRetrieveActiveMetricsConfigs_shouldSendConfigsToListener() throws Exception {
         writeConfigToDisk(METRICS_CONFIG_FOO);
         writeConfigToDisk(METRICS_CONFIG_BAR);
+        mMetricsConfigStore = new MetricsConfigStore(mTestRootDir); // reload data
 
         List<TelemetryProto.MetricsConfig> result = mMetricsConfigStore.getActiveMetricsConfigs();
 
@@ -61,14 +64,14 @@ public class MetricsConfigStoreTest {
 
     @Test
     public void testAddMetricsConfig_shouldWriteConfigToDisk() throws Exception {
-        boolean status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_FOO);
+        int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_FOO);
 
-        assertThat(status).isTrue();
+        assertThat(status).isEqualTo(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE);
         assertThat(readConfigFromFile(NAME_FOO)).isEqualTo(METRICS_CONFIG_FOO);
     }
 
     @Test
-    public void testDeleteMetricsConfig_whenNoConfig_shouldReturnFalse() throws Exception {
+    public void testDeleteMetricsConfig_whenNoConfig_shouldReturnFalse() {
         boolean status = mMetricsConfigStore.deleteMetricsConfig(NAME_BAR);
 
         assertThat(status).isFalse();

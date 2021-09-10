@@ -27,7 +27,7 @@ import android.os.Parcelable;
  * @hide
  */
 @SystemApi
-public final class ManifestKey implements Parcelable {
+public final class MetricsConfigKey implements Parcelable {
 
     @NonNull
     private String mName;
@@ -48,12 +48,12 @@ public final class ManifestKey implements Parcelable {
         out.writeInt(mVersion);
     }
 
-    private ManifestKey(Parcel in) {
+    private MetricsConfigKey(Parcel in) {
         mName = in.readString();
         mVersion = in.readInt();
     }
 
-    public ManifestKey(@NonNull String name, int version) {
+    public MetricsConfigKey(@NonNull String name, int version) {
         mName = name;
         mVersion = version;
     }
@@ -63,16 +63,16 @@ public final class ManifestKey implements Parcelable {
         return 0;
     }
 
-    public static final @NonNull Parcelable.Creator<ManifestKey> CREATOR =
-            new Parcelable.Creator<ManifestKey>() {
+    public static final @NonNull Parcelable.Creator<MetricsConfigKey> CREATOR =
+            new Parcelable.Creator<MetricsConfigKey>() {
                 @Override
-                public ManifestKey createFromParcel(Parcel in) {
-                    return new ManifestKey(in);
+                public MetricsConfigKey createFromParcel(Parcel in) {
+                    return new MetricsConfigKey(in);
                 }
 
                 @Override
-                public ManifestKey[] newArray(int size) {
-                    return new ManifestKey[size];
+                public MetricsConfigKey[] newArray(int size) {
+                    return new MetricsConfigKey[size];
                 }
             };
 }

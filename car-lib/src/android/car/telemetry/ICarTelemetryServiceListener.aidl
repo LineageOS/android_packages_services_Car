@@ -16,7 +16,7 @@
 
 package android.car.telemetry;
 
-import android.car.telemetry.ManifestKey;
+import android.car.telemetry.MetricsConfigKey;
 import java.util.List;
 
 /**
@@ -34,13 +34,29 @@ oneway interface ICarTelemetryServiceListener {
      * @param key the key that the result is associated with.
      * @param result the serialized bytes of the script execution result message.
      */
-    void onResult(in ManifestKey key, in byte[] result);
+    void onResult(in MetricsConfigKey key, in byte[] result);
 
     /**
-     * Called by {@code CarTelemetryService} to provide telemetry errors. This call is destrutive.
+     * Called by {@code CarTelemetryService} to provide telemetry errors. This call is destructive.
      * The parameter will no longer be stored in {@code CarTelemetryService}.
      *
      * @param error the serialized bytes of an error message.
      */
-    void onError(in byte[] error);
+    void onError(in MetricsConfigKey key, in byte[] error);
+
+    /**
+     * Sends the {@link #addMetricsConfig(MetricsConfigKey, byte[])} status to the client.
+     *
+     * @param key the {@link MetricsConfigKey} that the status is associated with.
+     * @param statusCode indicating add status.
+     */
+     void onAddMetricsConfigStatus(in MetricsConfigKey key, in int statusCode);
+
+    /**
+     * Sends the {@link #remove(MetricsConfigKey)} status to the client.
+     *
+     * @param key the {@link MetricsConfigKey} that the status is associated with.
+     * @param success true for successful removal, false otherwise.
+     */
+     void onRemoveMetricsConfigStatus(in MetricsConfigKey key, in boolean success);
 }
