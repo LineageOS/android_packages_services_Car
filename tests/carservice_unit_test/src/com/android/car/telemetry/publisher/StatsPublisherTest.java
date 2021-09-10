@@ -23,11 +23,14 @@ import static com.android.car.telemetry.publisher.StatsPublisher.ATOM_APP_START_
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.doThrow;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.app.StatsManager;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PersistableBundle;
@@ -93,6 +96,8 @@ public class StatsPublisherTest {
     private final FakeSharedPreferences mFakeSharedPref = new FakeSharedPreferences();
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);
+    private Throwable mPublisherFailure;
+
     @Mock private DataSubscriber mMockDataSubscriber;
     @Mock private StatsManagerProxy mStatsManager;
 
@@ -195,6 +200,16 @@ public class StatsPublisherTest {
     }
 
     @Test
+    public void testAddDataSubscriber_whenFails_notifiesFailureConsumer() throws Exception {
+        doThrow(new StatsManager.StatsUnavailableException("fail"))
+                .when(mStatsManager).addConfig(anyLong(), any());
+
+        mPublisher.addDataSubscriber(mMockDataSubscriber);
+
+        assertThat(mPublisherFailure).hasMessageThat().contains("Failed to add config");
+    }
+
+    @Test
     public void testRemoveDataSubscriber_removesPeriodicStatsdReportPull() {
         mPublisher.addDataSubscriber(mMockDataSubscriber);
 
@@ -246,7 +261,9 @@ public class StatsPublisherTest {
     // TODO(b/189143813): add test cases when connecting to Statsd fails
     // TODO(b/189143813): add test cases for handling config version upgrades
 
-    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) { }
+    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
+        mPublisherFailure = error;
+    }
 
     private static void assertThatMessageIsScheduledWithGivenDelay(Message msg, long delayMillis) {
         long expectedTimeMillis = SystemClock.uptimeMillis() + delayMillis;
