@@ -32,6 +32,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.IntArray;
 import android.util.Slog;
 
 import com.android.car.CarLog;
@@ -193,6 +194,25 @@ public final class WatchdogStorage {
             }
             return IoUsageStatsTable.queryHistoricalStats(
                     db, userPackage.getUniqueId(), startEpochSeconds, endEpochSeconds);
+        }
+    }
+
+    /**
+     * Deletes all user package settings and resource stats for all non-alive users.
+     *
+     * @param aliveUserIds Array of alive user ids.
+     */
+    public void syncUsers(int[] aliveUserIds) {
+        IntArray aliveUsers = IntArray.wrap(aliveUserIds);
+        for (int i = mUserPackagesByKey.size() - 1; i >= 0; --i) {
+            UserPackage userPackage = mUserPackagesByKey.valueAt(i);
+            if (aliveUsers.indexOf(userPackage.getUserId()) == -1) {
+                mUserPackagesByKey.removeAt(i);
+                mUserPackagesById.remove(userPackage.getUniqueId());
+            }
+        }
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
+            UserPackageSettingsTable.syncUserPackagesWithAliveUsers(db, aliveUsers);
         }
     }
 
@@ -370,6 +390,24 @@ public final class WatchdogStorage {
             int deletedRows = db.delete(TABLE_NAME, whereClause, whereArgs);
             Slogf.i(TAG, "Deleted %d user package settings db rows for user %d and package %s",
                     deletedRows, userId, packageName);
+        }
+
+        public static void syncUserPackagesWithAliveUsers(SQLiteDatabase db, IntArray aliveUsers) {
+            StringBuilder queryBuilder = new StringBuilder();
+            for (int i = 0; i < aliveUsers.size(); ++i) {
+                if (i == 0) {
+                    queryBuilder.append(COLUMN_USER_ID).append(" NOT IN (");
+                } else {
+                    queryBuilder.append(", ");
+                }
+                queryBuilder.append(aliveUsers.get(i));
+                if (i == aliveUsers.size() - 1) {
+                    queryBuilder.append(")");
+                }
+            }
+            int deletedRows = db.delete(TABLE_NAME, queryBuilder.toString(), new String[]{});
+            Slogf.i(TAG, "Deleted %d user package settings db rows while syncing with alive users",
+                    deletedRows);
         }
     }
 

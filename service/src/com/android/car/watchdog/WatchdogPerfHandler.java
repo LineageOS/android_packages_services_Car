@@ -68,7 +68,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -401,12 +400,11 @@ public final class WatchdogPerfHandler {
     }
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
-        UserManager userManager = UserManager.get(mContext);
-        List<UserInfo> userInfos = userManager.getAliveUsers();
+        int[] userIds = getAliveUserIds();
         String genericPackageName = null;
         synchronized (mLock) {
-            for (int i = 0; i < userInfos.size(); ++i) {
-                int userId = userInfos.get(i).id;
+            for (int i = 0; i < userIds.length; ++i) {
+                int userId = userIds[i];
                 String name = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
                 if (name == null) {
                     continue;
@@ -449,11 +447,10 @@ public final class WatchdogPerfHandler {
             return getPackageKillableStatesForUserId(userHandle.getIdentifier(), pm);
         }
         List<PackageKillableState> packageKillableStates = new ArrayList<>();
-        UserManager userManager = UserManager.get(mContext);
-        List<UserInfo> userInfos = userManager.getAliveUsers();
-        for (int i = 0; i < userInfos.size(); ++i) {
+        int[] userIds = getAliveUserIds();
+        for (int i = 0; i < userIds.length; ++i) {
             packageKillableStates.addAll(
-                    getPackageKillableStatesForUserId(userInfos.get(i).id, pm));
+                    getPackageKillableStatesForUserId(userIds[i], pm));
         }
         if (DEBUG) {
             Slogf.d(TAG, "Returning all package killable states for all users");
@@ -749,6 +746,21 @@ public final class WatchdogPerfHandler {
         }
     }
 
+    /** Deletes all data for specific user. */
+    public void deleteUser(@UserIdInt int userId) {
+        synchronized (mLock) {
+            for (int i = mUsageByUserPackage.size() - 1; i >= 0; --i) {
+                if (userId == mUsageByUserPackage.valueAt(i).userId) {
+                    mUsageByUserPackage.removeAt(i);
+                }
+            }
+            mWatchdogStorage.syncUsers(getAliveUserIds());
+        }
+        if (DEBUG) {
+            Slogf.d(TAG, "Resource usage for user id: %d was deleted.", userId);
+        }
+    }
+
     /** Sets the time source. */
     public void setTimeSource(TimeSourceInterface timeSource) {
         synchronized (mLock) {
@@ -801,6 +813,7 @@ public final class WatchdogPerfHandler {
     }
 
     private void readFromDatabase() {
+        mWatchdogStorage.syncUsers(getAliveUserIds());
         List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries =
                 mWatchdogStorage.getUserPackageSettings();
         Slogf.i(TAG, "Read %d user package settings from database", settingsEntries.size());
@@ -1223,6 +1236,17 @@ public final class WatchdogPerfHandler {
                 // Third-party apps are always killable
                 return true;
         }
+    }
+
+    private int[] getAliveUserIds() {
+        UserManager userManager = UserManager.get(mContext);
+        List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
+        int userSize = aliveUsers.size();
+        int[] userIds = new int[userSize];
+        for (int i = 0; i < userSize; ++i) {
+            userIds[i] = aliveUsers.get(i).getIdentifier();
+        }
+        return userIds;
     }
 
     private static String getUserPackageUniqueId(int userId, String genericPackageName) {
