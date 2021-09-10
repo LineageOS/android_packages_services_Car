@@ -522,6 +522,11 @@ public class MockedCarTestBase {
         }
 
         @Override
+        public boolean enterHibernation() {
+            return true;
+        }
+
+        @Override
         public void scheduleActionForBootCompleted(Runnable action, Duration delay) {}
     }
 

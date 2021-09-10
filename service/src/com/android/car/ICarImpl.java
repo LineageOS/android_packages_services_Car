@@ -485,7 +485,6 @@ public class ICarImpl extends ICar.Stub {
                 mICarServiceHelper = carServiceHelper;
             }
             // TODO(b/173030628) create a proxy wrapping access to CarServiceHelper instead
-            mSystemInterface.setCarServiceHelper(carServiceHelper);
             mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
             mCarUserService.setCarServiceHelper(carServiceHelper);
             mCarActivityService.setICarServiceHelper(carServiceHelper);

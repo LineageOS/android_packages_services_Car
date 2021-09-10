@@ -578,6 +578,15 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
 
         @Override
         public boolean enterDeepSleep() {
+            return simulateSleep();
+        }
+
+        @Override
+        public boolean enterHibernation() {
+            return simulateSleep();
+        }
+
+        private boolean simulateSleep() {
             mSleepWait.release();
             try {
                 mSleepExitWait.acquire();

@@ -913,6 +913,11 @@ public class CarStorageMonitoringTest extends MockedCarTestBase {
         }
 
         @Override
+        public boolean enterHibernation() {
+            return true;
+        }
+
+        @Override
         public void scheduleActionForBootCompleted(Runnable action, Duration delay) {
             mActionsList.add(Pair.create(action, delay));
             mActionsList.sort(Comparator.comparing(d -> d.second));
