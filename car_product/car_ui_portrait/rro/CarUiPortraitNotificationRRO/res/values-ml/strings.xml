@@ -18,6 +18,5 @@
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
     <string name="assist_action_play_label" msgid="4610400802512083870">"സന്ദേശം പ്ലേ ചെയ്യുക"</string>
-    <!-- no translation found for notification_header (7197574085752162581) -->
-    <skip />
+    <string name="notification_header" msgid="7197574085752162581">"അറിയിപ്പ് കേന്ദ്രം"</string>
 </resources>
