@@ -1209,7 +1209,7 @@
     <string name="adaptive_sleep_summary_on" msgid="6670369739228487082">"ഓണാണ് / നിങ്ങൾ അതിൽ നോക്കുന്നുണ്ടെങ്കിൽ സ്ക്രീൻ ഓഫാക്കില്ല"</string>
     <string name="adaptive_sleep_summary_off" msgid="2891586225954973431">"ഓഫാണ്"</string>
     <string name="adaptive_sleep_description" msgid="812673735459170009">"നിങ്ങൾ അതിൽ നോക്കുന്നുണ്ടെങ്കിൽ നിങ്ങളുടെ സ്ക്രീൻ ഓഫാകുന്നതിൽ നിന്ന് തടയുന്നു."</string>
-    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"ആരെങ്കിലും സ്ക്രീനിൽ നോക്കുന്നുണ്ടോ എന്ന് കാണാൻ സ്‌ക്രീൻ അവേർ മുൻ ക്യാമറ ഉപയോഗിക്കുന്നു. ഇത് ഉപകരണത്തിലാണ് പ്രവർത്തിക്കുന്നത്, ചിത്രങ്ങൾ ഒരിക്കലും സംഭരിക്കുകയോ Google-ലേക്ക് അയയ്ക്കുകയോ ചെയ്യില്ല."</string>
+    <string name="adaptive_sleep_privacy" msgid="5706802215479902623">"ആരെങ്കിലും സ്ക്രീനിൽ നോക്കുന്നുണ്ടോ എന്ന് കാണാൻ \'സ്‌ക്രീൻ അവേർ\' മുൻ ക്യാമറ ഉപയോഗിക്കുന്നു. ഇത് ഉപകരണത്തിലാണ് പ്രവർത്തിക്കുന്നത്, ചിത്രങ്ങൾ ഒരിക്കലും സംഭരിക്കുകയോ Google-ലേക്ക് അയയ്ക്കുകയോ ചെയ്യില്ല."</string>
     <string name="night_display_title" msgid="1305002424893349814">"നൈറ്റ് ലൈറ്റ്"</string>
     <string name="night_display_text" msgid="5330502493684652527">"\'നൈറ്റ് ലൈറ്റ്\' നിങ്ങളുടെ സ്ക്രീനിന് ചെറുതായി ഓറഞ്ച് നിറം നൽകുന്നു. മങ്ങിയ വെളിച്ചത്തിൽ സ്ക്രീനിൽ നോക്കുന്നതും വായിക്കുന്നതും ഈ ഡിസ്പ്ലേ എളുപ്പമാക്കുന്നു, പെട്ടെന്ന് ഉറങ്ങാനും ഇത് നിങ്ങളെ സഹായിച്ചേക്കാം."</string>
     <string name="night_display_auto_mode_title" msgid="8493573087102481588">"ഷെഡ്യൂള്‍‌"</string>
@@ -2404,7 +2404,7 @@
     <string name="battery_desc_radio" msgid="5119078473833865414">"സെൽ റേഡിയോയുടെ ബാറ്ററി ഉപഭോഗം"</string>
     <string name="battery_sugg_radio" msgid="3616364509738133415">"സെൽ കവറേജ് ഇല്ലാത്ത മേഖലകളിൽ പവർ സംരക്ഷിക്കുന്നതിന് വിമാന മോഡിലേക്ക് മാറുക"</string>
     <string name="battery_desc_flashlight" msgid="4574819522143720917">"ഫ്ലാഷ്ലൈറ്റിൽ ഉപയോഗിക്കുന്ന ബാറ്ററി"</string>
-    <string name="battery_desc_camera" msgid="517966830222999462">"ക്യാമറ ഉപയോഗിക്കുന്ന ബാറ്ററി"</string>
+    <string name="battery_desc_camera" msgid="517966830222999462">"ക്യാമറ ഉപയോഗിച്ച ബാറ്ററി"</string>
     <string name="battery_desc_display" msgid="6701005808894183097">"ഡിസ്‌പ്ലേയുടെയും ബാക്ക്‌ലൈറ്റിന്റെയും ബാറ്ററി ഉപഭോഗം"</string>
     <string name="battery_sugg_display" msgid="6366790848514389990">"സ്‌ക്രീൻ തെളിച്ചം കൂടാതെ/അല്ലെങ്കിൽ സ്‌ക്രീൻ സമയപരിധി കുറയ്ക്കുക"</string>
     <string name="battery_desc_wifi" msgid="3497535902126253386">"Wi‑Fi-യുടെ ബാറ്ററി ഉപഭോഗം"</string>
@@ -3041,7 +3041,7 @@
     <string name="connected_devices_dashboard_no_driving_mode_summary" msgid="3524409078596318803">"Bluetooth, NFC"</string>
     <string name="connected_devices_dashboard_no_driving_mode_no_nfc_summary" msgid="7881286613528299400">"Bluetooth"</string>
     <string name="app_and_notification_dashboard_title" msgid="8448096608058843730">"ആപ്പുകളും അറിയിപ്പുകളും"</string>
-    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"അസിസ്‌റ്റന്റ്, സമീപകാലത്തുള്ള ആപ്പുകൾ, ഡിഫോൾട്ട് ആപ്പുകൾ"</string>
+    <string name="app_and_notification_dashboard_summary" msgid="4165181440955038145">"Assistant, സമീപകാലത്തുള്ള ആപ്പുകൾ, ഡിഫോൾട്ട് ആപ്പുകൾ"</string>
     <string name="notification_settings_work_profile" msgid="7190550347842400029">"ഔദ്യോഗിക പ്രൊഫൈലിലെ ആപ്പുകൾക്ക് അറിയിപ്പിലേക്കുള്ള ആക്‌സസ് ലഭ്യമല്ല."</string>
     <string name="account_dashboard_title" msgid="4734300939532555885">"അക്കൗണ്ടുകൾ"</string>
     <string name="account_dashboard_default_summary" msgid="6822549669771936206">"അക്കൗണ്ടുകളൊന്നും ചേർത്തില്ല"</string>
@@ -4222,7 +4222,7 @@
       <item quantity="other">ക്യാമറ ആപ്പുകൾ</item>
       <item quantity="one">ക്യാമറ ആപ്പ്</item>
     </plurals>
-    <string name="default_calendar_app_title" msgid="6484001237347739255">"കലണ്ടർ ആപ്പ്"</string>
+    <string name="default_calendar_app_title" msgid="6484001237347739255">"Calendar ആപ്പ്"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"കോണ്‍‌ടാക്റ്റ് ആപ്പ്"</string>
     <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
       <item quantity="other">ഇമെയിൽ ക്ലയന്റ് ആപ്പുകൾ</item>

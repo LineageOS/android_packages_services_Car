@@ -211,7 +211,7 @@
     <string name="proxy_url_title" msgid="882042361706435904">"Webadresse til PAC: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"Båndbredde til download (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"Båndbredde til upload (kbps):"</string>
-    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Oplysning om placering af celle (udfaset):"</string>
+    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"Oplysning om lokation af celle (udfaset):"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"Fysisk kanalkonfiguration for LTE:"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"Opdateringsfrekvens for celleoplysninger:"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"Alle oplysninger om cellemåling:"</string>
@@ -367,12 +367,12 @@
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"Vis profiloplysninger på låseskærmen"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"Profiloplysninger"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"Konti"</string>
-    <string name="location_settings_title" msgid="2707201457572301030">"Placering"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Brug placering"</string>
+    <string name="location_settings_title" msgid="2707201457572301030">"Lokation"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"Brug lokation"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"Fra"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
-      <item quantity="one">Til – <xliff:g id="COUNT_1">%1$d</xliff:g> app har adgang til din placering</item>
-      <item quantity="other">Til – <xliff:g id="COUNT_1">%1$d</xliff:g> apps har adgang til din placering</item>
+      <item quantity="one">Til – <xliff:g id="COUNT_1">%1$d</xliff:g> app har adgang til din lokation</item>
+      <item quantity="other">Til – <xliff:g id="COUNT_1">%1$d</xliff:g> apps har adgang til din lokation</item>
     </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"Indlæser…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"Konti"</string>
@@ -384,8 +384,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"Enheden er ikke krypteret"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"Låseskærm"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"Hvad der skal vises"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"Angiv Min placering, oplåsning af skærmen, låst SIM-kort og lager for loginoplysninger"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Angiv Min placering, oplåsning af skærmen, lager for loginoplysninger"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"Angiv Min lokation, oplåsning af skærmen, låst SIM-kort og lager for loginoplysninger"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"Angiv Min lokation, oplåsning af skærmen, lager for loginoplysninger"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"Privatliv"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"Deaktiveret af administratoren"</string>
     <string name="security_status_title" msgid="1261960357751754428">"Sikkerhedsstatus"</string>
@@ -461,7 +461,7 @@
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"Annuller"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"Tryk på sensoren"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"Den sidder på bagsiden af telefonen. Brug pegefingeren."</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Illustration med enhed og placering af sensor til registrering af fingeraftryk"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"Illustration med enhed og lokation af sensor til registrering af fingeraftryk"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"Navn"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"OK"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"Slet"</string>
@@ -767,7 +767,7 @@
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"Avanceret Bluetooth"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"Når Bluetooth er aktiveret, kan enheden kommunikere med andre Bluetooth-enheder i nærheden."</string>
     <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"Når Bluetooth er aktiveret, kan din enhed kommunikere med andre Bluetooth-enheder i nærheden.\n\nFor at forbedre enhedsoplevelsen kan apps og tjenester stadig til enhver tid søge efter enheder i nærheden, også selvom Bluetooth er deaktiveret. Dette kan f.eks. bruges til at forbedre stedbaserede funktioner og tjenester. Du kan ændre dette i "<annotation id="link">"indstillingerne for scanning"</annotation>"."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"For at forbedre placeringsnøjagtigheden kan systemapps og -tjenester stadig registrere Bluetooth-enheder. Du kan ændre dette i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>indstillingerne for scanning<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"For at forbedre lokationsnøjagtigheden kan systemapps og -tjenester stadig registrere Bluetooth-enheder. Du kan ændre dette i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>indstillingerne for scanning<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"Det lykkedes ikke at oprette forbindelse. Prøv igen."</string>
     <string name="device_details_title" msgid="726517818032923222">"Enhedsoplysninger"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"Enhedens Bluetooth-adresse: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
@@ -850,7 +850,7 @@
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"Giv besked om et tilgængeligt offentligt netværk af høj kvalitet"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Aktivér Wi-Fi automatisk"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"Wi-Fi aktiveres igen, når du er i nærheden af gemte netværk af høj kvalitet, f.eks dit hjemmenetværk"</string>
-    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ikke tilgængelig, fordi placering er deaktiveret. Aktivér "<annotation id="link">"placering"</annotation>"."</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"Ikke tilgængelig, fordi lokation er deaktiveret. Aktivér "<annotation id="link">"lokation"</annotation>"."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Ikke tilgængelig, fordi Wi-Fi-scanning er slået fra"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"Vælg en udbyder af netværksvurdering for at bruge funktionen"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"Undgå dårlige forbindelser"</string>
@@ -861,8 +861,8 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"Vælg en udbyder af netværksvurdering for at bruge funktionen"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"Vælg en kompatibel udbyder af netværksvurdering for at bruge funktionen"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"Installer certifikater"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"For at gøre placeringen mere nøjagtig kan apps og tjenester stadig til enhver tid søge efter Wi‑Fi-netværk, også selvom Wi-Fi er deaktiveret. Dette kan f.eks. bruges til at forbedre stedbaserede funktioner og tjenester. Du kan ændre dette i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>indstillingerne for scanning<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Hvis du vil forbedre nøjagtigheden af placeringer, skal du slå Wi-Fi-scanning til i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>scanningsindstillingerne<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"For at gøre lokationen mere nøjagtig kan apps og tjenester stadig til enhver tid søge efter Wi‑Fi-netværk, også selvom Wi-Fi er deaktiveret. Dette kan f.eks. bruges til at forbedre stedbaserede funktioner og tjenester. Du kan ændre dette i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>indstillingerne for scanning<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"Hvis du vil forbedre nøjagtigheden af lokationer, skal du slå Wi-Fi-scanning til i <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>scanningsindstillingerne<xliff:g id="LINK_END_1">LINK_END</xliff:g>."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"Vis ikke igen"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"Hold Wi-Fi aktiveret i dvale"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"Wi-Fi aktiveret i dvaletilstand"</string>
@@ -980,7 +980,7 @@
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS er tilgængelig)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"Wi-Fi-netværk for mobilselskab"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"Opret forbindelse via <xliff:g id="NAME">%1$s</xliff:g>"</string>
-    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"For bl.a. at kunne angive en mere nøjagtig placering vil <xliff:g id="APP_NAME">%1$s</xliff:g> gerne aktivere netværkssøgning, selv når Wi-Fi er deaktiveret.\n\nVil du tillade dette for alle apps, der gerne vil søge?"</string>
+    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"For bl.a. at kunne angive en mere nøjagtig lokation vil <xliff:g id="APP_NAME">%1$s</xliff:g> gerne aktivere netværkssøgning, selv når Wi-Fi er deaktiveret.\n\nVil du tillade dette for alle apps, der gerne vil søge?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"Gå til Avanceret i prikmenuen for at slå denne funktion fra."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"Tillad"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"Afvis"</string>
@@ -1112,7 +1112,7 @@
     <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Når Wi-Fi-opkald er slået til, kan enheden dirigere opkald via Wi-Fi-netværk eller dit mobilselskabs netværk, afhængigt af hvad du foretrækker, og hvor signalet er stærkest. Før du slår denne funktion til, skal du kontakte dit mobilselskab angående gebyrer og andre oplysninger.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"Adresse til nødstilfælde"</string>
-    <string name="emergency_address_summary" msgid="478668478569851714">"Anvendes som din placering, hvis du foretager et nødopkald via Wi-Fi"</string>
+    <string name="emergency_address_summary" msgid="478668478569851714">"Anvendes som din lokation, hvis du foretager et nødopkald via Wi-Fi"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650"><annotation id="url">"Få flere oplysninger"</annotation>" om private DNS-funktioner"</string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"Indstillingen administreres af mobilselskabet"</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Aktivér Wi-Fi-opkald"</string>
@@ -1490,7 +1490,7 @@
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"Flytter <xliff:g id="APP">^1</xliff:g>…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"Fjern ikke dit <xliff:g id="NAME">^1</xliff:g> under flytningen. \n\nAppen <xliff:g id="APP">^2</xliff:g> på denne enhed vil ikke være tilgængelig, før flytningen er gennemført."</string>
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"Annuller flytning"</string>
-    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"Dette <xliff:g id="NAME_0">^1</xliff:g> ser ud til at være langsomt. \n\nDu kan sagtens fortsætte, men apps, der er flyttet til denne placering, vil muligvis hakke, og dataoverførsler kan tage længere tid. \n\nDu kan også skifte til et hurtigere <xliff:g id="NAME_1">^1</xliff:g> for at få en bedre ydeevne."</string>
+    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"Dette <xliff:g id="NAME_0">^1</xliff:g> ser ud til at være langsomt. \n\nDu kan sagtens fortsætte, men apps, der er flyttet til denne lokation, vil muligvis hakke, og dataoverførsler kan tage længere tid. \n\nDu kan også skifte til et hurtigere <xliff:g id="NAME_1">^1</xliff:g> for at få en bedre ydeevne."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"Hvordan vil du bruge dette <xliff:g id="NAME">^1</xliff:g>?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"Brug som ekstra tabletlagerplads"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"Kun til apps, filer og medier på denne tablet"</string>
@@ -1646,18 +1646,18 @@
     <string name="mobile_no_provisioning_url" msgid="3216517414902166131">"<xliff:g id="OPERATOR">%1$s</xliff:g> har intet kendt website til provisionering"</string>
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"Indsæt SIM-kort, og genstart"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"Opret forbindelse til internettet"</string>
-    <string name="location_title" msgid="8664674161765477168">"Min placering"</string>
-    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Placering for arbejdsprofil"</string>
+    <string name="location_title" msgid="8664674161765477168">"Min lokation"</string>
+    <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"Lokation for arbejdsprofil"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"Apptilladelse"</string>
-    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Placering er slået fra"</string>
+    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"Lokation er slået fra"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="one"><xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> ud af <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> apps har ubegrænset adgang</item>
       <item quantity="other"><xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> ud af <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> apps har ubegrænset adgang</item>
     </plurals>
-    <string name="location_category_recent_location_access" msgid="286059523360285026">"Adgang til seneste placering"</string>
+    <string name="location_category_recent_location_access" msgid="286059523360285026">"Adgang til seneste lokation"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"Se info"</string>
-    <string name="location_no_recent_apps" msgid="77502059586413278">"Ingen apps har anmodet om placering for nylig"</string>
-    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ingen apps har haft adgang til placeringen for nylig"</string>
+    <string name="location_no_recent_apps" msgid="77502059586413278">"Ingen apps har anmodet om lokation for nylig"</string>
+    <string name="location_no_recent_accesses" msgid="6289916310397279890">"Ingen apps har haft adgang til lokationen for nylig"</string>
     <string name="location_high_battery_use" msgid="7177199869979522663">"Højt batteriforbrug"</string>
     <string name="location_low_battery_use" msgid="5030448574501435888">"Lavt batteriforbrug"</string>
     <string name="location_scanning_screen_title" msgid="7663329319689413454">"Wi-Fi- og Bluetooth-scanning"</string>
@@ -1665,21 +1665,21 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Tillad, at apps og tjenester altid kan søge efter Wi-Fi-netværk, også selvom Wi-Fi er deaktiveret. Dette kan f.eks. bruges til at forbedre placeringsbaserede funktioner og tjenester."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"Bluetooth-scanning"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"Tillad, at apps og tjenester altid kan søge efter enheder i nærheden, også selvom Bluetooth er deaktiveret. Dette kan f.eks. bruges til at forbedre placeringsbaserede funktioner og tjenester."</string>
-    <string name="managed_profile_location_services" msgid="224925483299159541">"Placeringstjenester til arbejdet"</string>
-    <string name="location_network_based" msgid="1535812159327454835">"Placering af Wi-Fi- og mobilnet."</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"Tillad, at apps bruger Googles placeringstjeneste til at beregne din placering hurtigere. Der indsamles anonyme placeringsdata, som sendes til Google."</string>
+    <string name="managed_profile_location_services" msgid="224925483299159541">"Lokationstjenester til arbejdet"</string>
+    <string name="location_network_based" msgid="1535812159327454835">"Lokation af Wi-Fi- og mobilnet."</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"Tillad, at apps bruger Googles lokationstjeneste til at beregne din lokation hurtigere. Der indsamles anonyme lokationsdata, som sendes til Google."</string>
     <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"Placeringen fastlægges af Wi-Fi"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS-satellitter"</string>
-    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Tillad, at apps bruger GPS på din tablet til at udpege din placering"</string>
-    <string name="location_street_level" product="default" msgid="7407688345675450051">"Tillad, at apps bruger GPS på din telefon til at udpege din placering"</string>
+    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"Tillad, at apps bruger GPS på din tablet til at udpege din lokation"</string>
+    <string name="location_street_level" product="default" msgid="7407688345675450051">"Tillad, at apps bruger GPS på din telefon til at udpege din lokation"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"Brug assisteret GPS"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"Brug serveren til at assistere GPS (fjern markering for at mindske netværksforbrug)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"Brug serveren til at assistere GPS (fjern markering for at forbedre GPS-ydelsen)"</string>
-    <string name="use_location_title" msgid="7724788634359496634">"Placering og søgning"</string>
-    <string name="use_location_summary" msgid="7396716606067400283">"Lad Google bruge din placering til at forbedre søgeresultater og andre tjenester"</string>
-    <string name="location_access_title" msgid="8587974819606800029">"Adgang til min placering"</string>
+    <string name="use_location_title" msgid="7724788634359496634">"Lokation og søgning"</string>
+    <string name="use_location_summary" msgid="7396716606067400283">"Lad Google bruge din lokation til at forbedre søgeresultater og andre tjenester"</string>
+    <string name="location_access_title" msgid="8587974819606800029">"Adgang til min lokation"</string>
     <string name="location_access_summary" msgid="6919495149026354355">"Tillad apps, der har bedt om tilladelse, at bruge dine stedoplysninger"</string>
-    <string name="location_sources_heading" msgid="8526658357120282741">"Placeringskilder"</string>
+    <string name="location_sources_heading" msgid="8526658357120282741">"Lokationskilder"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"Om din tablet"</string>
     <string name="about_settings" product="default" msgid="6019547763377294261">"Om telefonen"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"Om enheden"</string>
@@ -2355,10 +2355,10 @@
     <string name="dialog_background_check_message" product="tablet" msgid="5246650726585461386">"Din tablet kan ikke administrere batteriet normalt, fordi <xliff:g id="APP_0">%1$s</xliff:g> bliver ved med at vække din tablet.\n\nDu kan prøve at løse problemet ved at stoppe <xliff:g id="APP_1">%1$s</xliff:g> og forhindre appen i at køre i baggrunden."</string>
     <string name="dialog_background_check_message" product="device" msgid="2746413739802588979">"Din enhed kan ikke administrere batteriet normalt, fordi <xliff:g id="APP_0">%1$s</xliff:g> bliver ved med at vække din enhed.\n\nDu kan prøve at løse problemet ved at stoppe <xliff:g id="APP_1">%1$s</xliff:g> og forhindre appen i at køre i baggrunden."</string>
     <string name="dialog_background_check_ok" msgid="6916102434734525591">"Slå fra"</string>
-    <string name="dialog_location_title" msgid="8070185060438751995">"Vil du slå placering fra?"</string>
-    <string name="dialog_location_message" product="default" msgid="2445581202508387558">"Din telefon kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din placering, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere placering for denne app."</string>
-    <string name="dialog_location_message" product="tablet" msgid="4012891295493865096">"Din tablet kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din placering, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere placering for denne app."</string>
-    <string name="dialog_location_message" product="device" msgid="1454451610289205965">"Din enhed kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din placering, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere placering for denne app."</string>
+    <string name="dialog_location_title" msgid="8070185060438751995">"Vil du slå lokation fra?"</string>
+    <string name="dialog_location_message" product="default" msgid="2445581202508387558">"Din telefon kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din lokation, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere lokation for denne app."</string>
+    <string name="dialog_location_message" product="tablet" msgid="4012891295493865096">"Din tablet kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din lokation, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere lokation for denne app."</string>
+    <string name="dialog_location_message" product="device" msgid="1454451610289205965">"Din enhed kan ikke administrere batteriet normalt, fordi <xliff:g id="APP">%1$s</xliff:g> bliver ved med at anmode om din lokation, når du ikke bruger appen.\n\nDu kan prøve at løse problemet ved at deaktivere lokation for denne app."</string>
     <string name="dialog_location_ok" msgid="1893773880878134342">"Slå fra"</string>
     <string name="power_screen" msgid="8581228752332223154">"Skærm"</string>
     <string name="power_flashlight" msgid="6939780588882301575">"Lommelygte"</string>
@@ -2582,7 +2582,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"Hvis denne administratorapp aktiveres, får appen <xliff:g id="APP_NAME">%1$s</xliff:g> tilladelse til at foretage følgende handlinger:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"Denne administratorapp er aktiv og giver appen <xliff:g id="APP_NAME">%1$s</xliff:g> tilladelse til at udføre følgende handlinger:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"Vil du aktivere Profiladministrator?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Hvis du fortsætter, administreres din bruger af din administrator, som også kan gemme tilknyttede data ud over dine personlige data.\n\nDin administrator kan overvåge og administrere indstillinger, adgang, apps og data, der er knyttet til denne bruger, herunder netværksaktivitet og din enheds placeringsoplysninger."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"Hvis du fortsætter, administreres din bruger af din administrator, som også kan gemme tilknyttede data ud over dine personlige data.\n\nDin administrator kan overvåge og administrere indstillinger, adgang, apps og data, der er knyttet til denne bruger, herunder netværksaktivitet og din enheds lokationsoplysninger."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"Andre valgmuligheder er deaktiveret af din administrator"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"Mere info"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"Notifikationslogfil"</string>
@@ -2976,7 +2976,7 @@
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"Tillad dataudveksling, når denne <xliff:g id="DEVICE_NAME">%1$s</xliff:g> rører ved en anden NFC-enhed"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"Tillad dataudveksling, når tabletten rører en anden enhed"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"Tillad dataudveksling, når telefonen rører en anden enhed"</string>
-    <string name="restriction_location_enable_title" msgid="358506740636434856">"Placering"</string>
+    <string name="restriction_location_enable_title" msgid="358506740636434856">"Lokation"</string>
     <string name="restriction_location_enable_summary" msgid="4159500201124004463">"Tillad, at apps bruger dine stedoplysninger"</string>
     <string name="wizard_back" msgid="223654213898117594">"Tilbage"</string>
     <string name="wizard_next" msgid="5239664512608113542">"Næste"</string>
@@ -3080,7 +3080,7 @@
     <string name="keywords_sounds" msgid="9155626618185269312">"højttalerbip, højttaler, lydstyrke, slå lyden fra, lydløs, lyd, musik"</string>
     <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"forstyr ikke, afbryd, afbrydelse, pause"</string>
     <string name="keywords_app" msgid="8058542404742867098">"RAM"</string>
-    <string name="keywords_location" msgid="6439463166207072559">"tæt på, placering, historik, rapportering, GPS"</string>
+    <string name="keywords_location" msgid="6439463166207072559">"tæt på, lokation, historik, rapportering, GPS"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"konto"</string>
     <string name="keywords_users" msgid="5880705776023155640">"begrænsning, begræns, begrænset"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"rettelser, ret, lyd, vibrer, automatisk, sprog, bevægelse, anbefale, forslag, tema, stødende, ord, type, emoji, international"</string>
@@ -3880,9 +3880,9 @@
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"Denne app kan ikke åbnes"</string>
     <string name="default_admin_support_msg" msgid="5789424433689798637">"Kontakt din it-administrator, hvis du har spørgsmål"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"Mere info"</string>
-    <string name="admin_profile_owner_message" msgid="3199544166281052845">"Din administrator kan overvåge og administrere apps og data, der er knyttet til din arbejdsprofil, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens placeringsoplysninger."</string>
-    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"Din administrator kan overvåge og administrere apps og data, der er knyttet til denne bruger, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens placeringsoplysninger."</string>
-    <string name="admin_device_owner_message" msgid="1823477572459610869">"Din administrator kan overvåge og administrere apps og data, der er knyttet til denne enhed, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens placeringsoplysninger."</string>
+    <string name="admin_profile_owner_message" msgid="3199544166281052845">"Din administrator kan overvåge og administrere apps og data, der er knyttet til din arbejdsprofil, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens lokationsoplysninger."</string>
+    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"Din administrator kan overvåge og administrere apps og data, der er knyttet til denne bruger, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens lokationsoplysninger."</string>
+    <string name="admin_device_owner_message" msgid="1823477572459610869">"Din administrator kan overvåge og administrere apps og data, der er knyttet til denne enhed, herunder indstillinger, tilladelser, virksomhedsadgang, netværksaktivitet og enhedens lokationsoplysninger."</string>
     <string name="condition_turn_off" msgid="4395150881365143558">"Slå fra"</string>
     <string name="condition_turn_on" msgid="1699088245481841159">"Slå til"</string>
     <string name="condition_expand_show" msgid="4118818022763913777">"Vis"</string>
@@ -4185,7 +4185,7 @@
       <item quantity="one">Mindst <xliff:g id="COUNT_1">%d</xliff:g> app</item>
       <item quantity="other">Mindst <xliff:g id="COUNT_1">%d</xliff:g> apps</item>
     </plurals>
-    <string name="enterprise_privacy_location_access" msgid="110406267468274216">"Adgangstilladelser til placering"</string>
+    <string name="enterprise_privacy_location_access" msgid="110406267468274216">"Adgangstilladelser til lokation"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"Adgangstilladelser til mikrofon"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"Adgangstilladelser til kamera"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"Standardapps"</string>
@@ -4507,8 +4507,8 @@
     <string name="wfc_disclaimer_title_text" msgid="3245793509743182243">"Vigtige oplysninger"</string>
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"FORTSÆT"</string>
     <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"NEJ TAK"</string>
-    <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Placering"</string>
-    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Din tjenesteudbyder kan indsamle din placering med henblik på at levere denne tjeneste.\n\nGennemse din tjenesteudbyders privatlivspolitik."</string>
+    <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"Lokation"</string>
+    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"Din tjenesteudbyder kan indsamle din lokation med henblik på at levere denne tjeneste.\n\nGennemse din tjenesteudbyders privatlivspolitik."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"Du kan miste adgangen til resterende tid eller data. Kontakt din udbyder, før du fjerner det."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"indholdsregistrering, smarte forslag"</string>
     <string name="content_capture" msgid="1709538093513983279">"Smarte forslag"</string>

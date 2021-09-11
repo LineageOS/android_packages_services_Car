@@ -873,7 +873,7 @@
     <string name="wifi_limit_optimizations_summary" msgid="1192849485764156570">"Mugatu Wi‑Fi bidezko bateria-kontsumoa"</string>
     <string name="wifi_switch_away_when_unvalidated" msgid="2418577764071293971">"Aldatu datu-konexiora Wi-Fi sareak Interneteko konexioa galtzen badu."</string>
     <string name="wifi_cellular_data_fallback_title" msgid="5067241930716252665">"Aldatu datu-konexiora automatikoki"</string>
-    <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Wi-Fi bidez ezin denean, erabili datu-konexioa Internetera konektatzeko. Agian datuen erabilera ordaindu beharko duzu."</string>
+    <string name="wifi_cellular_data_fallback_summary" msgid="2721467405851519769">"Wi-Fi bidez ezin denean, erabili datu-konexioa Internetera konektatzeko. Baliteke zerbait ordaindu behar izatea datuak erabiltzeagatik."</string>
     <string name="wifi_add_network" msgid="4094957940791876640">"Gehitu sarea"</string>
     <string name="wifi_configure_settings_preference_title" msgid="2678534679408777268">"Wifi-sarearen hobespenak"</string>
     <string name="wifi_configure_settings_preference_summary_wakeup_on" msgid="5714892572614655675">"Wifi-konexioa automatikoki aktibatuko da berriro"</string>
@@ -991,7 +991,7 @@
     <string name="partial_connectivity_text" msgid="2142157808079235684">"Baliteke aplikazio eta zerbitzu batzuk ez funtzionatzea konexio mugatua dela eta. Hala ere erabili?"</string>
     <string name="no_internet_access_remember" msgid="1368137189939004202">"Ez galdetu berriro sarea hau bada"</string>
     <string name="lost_internet_access_title" msgid="1061916948695946130">"Wifi-sarea ez dago Internetera konektatuta"</string>
-    <string name="lost_internet_access_text" msgid="8962010031520731813">"Sare mugikorra erabil dezakezu Wi-Fi sareak konexio txarra badu. Agian datuen erabilera ordaindu beharko duzu."</string>
+    <string name="lost_internet_access_text" msgid="8962010031520731813">"Sare mugikorra erabil dezakezu Wi-Fi sareak konexio txarra badu. Baliteke zerbait ordaindu behar izatea datuak erabiltzeagatik"</string>
     <string name="lost_internet_access_switch" msgid="9218006455779873700">"Aldatu datu-konexiora"</string>
     <string name="lost_internet_access_cancel" msgid="6577871064062518744">"Jarraitu Wi‑Fi konexioa erabiltzen"</string>
     <string name="lost_internet_access_persist" msgid="6368659013482055611">"Ez erakutsi berriro"</string>
@@ -1634,9 +1634,9 @@
     <string name="network_settings_title" msgid="8516526011407061679">"Sare mugikorra"</string>
     <string name="manage_mobile_plan_title" msgid="3312016665522553062">"Mugikorraren plana"</string>
     <string name="sms_application_title" msgid="7815840568119334679">"SMSak"</string>
-    <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"SMS mezuetarako aplikazioa aldatu?"</string>
-    <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"<xliff:g id="NEW_APP">%1$s</xliff:g> aplikazioaren ordez, <xliff:g id="CURRENT_APP">%2$s</xliff:g> aplikazioa erabili SMS mezuetarako?"</string>
-    <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"Erabili <xliff:g id="NEW_APP">%s</xliff:g> SMS mezuetarako aplikazio gisa?"</string>
+    <string name="sms_change_default_dialog_title" msgid="6301260161969667578">"SMSetarako aplikazioa aldatu nahi duzu?"</string>
+    <string name="sms_change_default_dialog_text" msgid="8275088077930942680">"<xliff:g id="NEW_APP">%1$s</xliff:g> aplikazioaren ordez, <xliff:g id="CURRENT_APP">%2$s</xliff:g> erabili nahi duzu SMSetarako aplikazio gisa?"</string>
+    <string name="sms_change_default_no_previous_dialog_text" msgid="4680224695080527907">"<xliff:g id="NEW_APP">%s</xliff:g> SMSetarako aplikazio gisa erabili nahi duzu?"</string>
     <string name="network_scorer_picker_title" msgid="1691073966560952916">"Sare-balorazioen hornitzailea"</string>
     <string name="network_scorer_picker_none_preference" msgid="6448280557733231737">"Bat ere ez"</string>
     <string name="network_scorer_change_active_dialog_title" msgid="4274159562371475090">"Wifi-laguntzailea aldatu nahi duzu?"</string>
@@ -3655,8 +3655,8 @@
     <string name="domain_urls_summary_some" msgid="2130534984153210797">"Ireki <xliff:g id="DOMAIN">%s</xliff:g> eta beste URL batzuk"</string>
     <string name="domain_urls_apps_summary_off" msgid="1110203970617922543">"Ez dago esteka bateragarriak ireki ditzakeen aplikaziorik"</string>
     <plurals name="domain_urls_apps_summary_on" formatted="false" msgid="3571309605151815405">
-      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aplikaziok ireki ditzakete onartutako estekak</item>
-      <item quantity="one">Aplikazio batek ireki ditzake onartutako estekak</item>
+      <item quantity="other"><xliff:g id="COUNT">%d</xliff:g> aplikaziok ireki ditzakete esteka bateragarriak</item>
+      <item quantity="one">Aplikazio batek ireki ditzake esteka bateragarriak</item>
     </plurals>
     <string name="app_link_open_always" msgid="7723587434377688415">"Ireki aplikazio honetan"</string>
     <string name="app_link_open_ask" msgid="4054678686331517561">"Galdetu beti"</string>

@@ -211,7 +211,7 @@
     <string name="proxy_url_title" msgid="882042361706435904">"PAC URL: "</string>
     <string name="radio_info_dl_kbps" msgid="2903778264453410272">"DL బ్యాండ్‌విడ్త్ (kbps):"</string>
     <string name="radio_info_ul_kbps" msgid="3802245899811732716">"UL బ్యాండ్‌విడ్త్ (kbps):"</string>
-    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"సెల్ స్థాన సమాచారం (నిలిపివేయబడింది):"</string>
+    <string name="radio_info_signal_location_label" msgid="6788144906873498013">"సెల్ లొకేషన్ సమాచారం (నిలిపివేయబడింది):"</string>
     <string name="radio_info_phy_chan_config" msgid="1184401689381480522">"LTE భౌతిక ఛానెల్ కాన్ఫిగరేషన్:"</string>
     <string name="radio_info_cell_info_refresh_rate" msgid="3557422342215875913">"సెల్ సమాచార రిఫ్రెష్ సగటు:"</string>
     <string name="radio_info_cellinfo_label" msgid="632796561627452215">"మొత్తం సెల్ పరిమాణ సమాచారం:"</string>
@@ -367,12 +367,12 @@
     <string name="show_profile_info_on_lockscreen_label" msgid="5204282771893683026">"లాక్ స్క్రీన్‌లో ప్రొఫైల్ సమాచారాన్ని చూపు"</string>
     <string name="profile_info_settings_title" msgid="4855892878512562551">"ప్రొఫైల్ సమాచారం"</string>
     <string name="Accounts_settings_title" msgid="7901374987121953746">"ఖాతాలు"</string>
-    <string name="location_settings_title" msgid="2707201457572301030">"స్థానం"</string>
-    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"స్థానం ఉపయోగించండి"</string>
+    <string name="location_settings_title" msgid="2707201457572301030">"లొకేషన్"</string>
+    <string name="location_settings_master_switch_title" msgid="3108016866082816733">"లొకేషన్‌ను ఉపయోగించండి"</string>
     <string name="location_settings_summary_location_off" msgid="5563530256978372978">"ఆఫ్"</string>
     <plurals name="location_settings_summary_location_on" formatted="false" msgid="7893342914540884818">
-      <item quantity="other">ఆన్ - స్థానాన్ని <xliff:g id="COUNT_1">%1$d</xliff:g> యాప్‌లు యాక్సెస్ చేయగలవు</item>
-      <item quantity="one">ఆన్ - స్థానాన్ని <xliff:g id="COUNT_0">%1$d</xliff:g> యాప్ యాక్సెస్ చేయగలదు</item>
+      <item quantity="other">ఆన్ - లొకేషన్‌ను <xliff:g id="COUNT_1">%1$d</xliff:g> యాప్‌లు యాక్సెస్ చేయగలవు</item>
+      <item quantity="one">ఆన్ - లొకేషన్‌ను <xliff:g id="COUNT_0">%1$d</xliff:g> యాప్ యాక్సెస్ చేయగలదు</item>
     </plurals>
     <string name="location_settings_loading_app_permission_stats" msgid="7818169326621327628">"లోడ్ చేస్తోంది…"</string>
     <string name="account_settings_title" msgid="7870321267198486578">"ఖాతాలు"</string>
@@ -384,8 +384,8 @@
     <string name="decryption_settings_summary" product="tablet" msgid="7524119945312453569">"పరికరం ఎన్‌క్రిప్ట్ చేయబడలేదు"</string>
     <string name="lockscreen_settings_title" msgid="1221505938891948413">"లాక్ స్క్రీన్‌ డిస్‌ప్లే"</string>
     <string name="lockscreen_settings_what_to_show_category" msgid="3133378945821488654">"వేటిని చూపాలి"</string>
-    <string name="security_settings_summary" msgid="5210109100643223686">"నా స్థానాన్ని, స్క్రీన్ అన్‌లాక్‌ను, సిమ్ కార్డు లాక్‌ను, ఆధారాల నిల్వ లాక్‌ను సెట్ చేయి"</string>
-    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"నా స్థానాన్ని, స్క్రీన్ అన్‌లాక్‌ను, ఆధారాల నిల్వ లాక్‌ను సెట్ చేయండి"</string>
+    <string name="security_settings_summary" msgid="5210109100643223686">"నా లొకేషన్‌ను, స్క్రీన్ అన్‌లాక్‌ను, సిమ్ కార్డు లాక్‌ను, ఆధారాల స్టోరేజ్ లాక్‌ను సెట్ చేయండి"</string>
+    <string name="cdma_security_settings_summary" msgid="1783066617800041869">"\'నా లొకేషన్‌\'ను, స్క్రీన్ అన్‌లాక్‌ను, \'ఆధారాల స్టోరేజ్ లాక్‌\'ను సెట్ చేయండి"</string>
     <string name="security_passwords_title" msgid="6853942836045862315">"గోప్యత"</string>
     <string name="disabled_by_administrator_summary" msgid="6099821045360491127">"అడ్మిన్ డిజేబుల్ చేశారు"</string>
     <string name="security_status_title" msgid="1261960357751754428">"భద్రత స్థితి"</string>
@@ -461,7 +461,7 @@
     <string name="cancel_lock_screen_dialog_button_label" msgid="2534925227627658819">"రద్దు చేయి"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_title" msgid="8909829699273726469">"సెన్సార్‌ని తాకండి"</string>
     <string name="security_settings_fingerprint_enroll_find_sensor_message" msgid="581120963079780740">"ఇది మీ ఫోన్ వెనుక భాగంలో ఉంది. మీ చూపుడు వేలిని ఉపయోగించండి."</string>
-    <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"పరికరం మరియు వేలిముద్ర సెన్సార్ స్థానంతో చిత్రపటం"</string>
+    <string name="security_settings_fingerprint_enroll_find_sensor_content_description" msgid="7835824123269738540">"పరికరం, వేలిముద్ర సెన్సార్ లొకేషన్‌తో చిత్రపటం"</string>
     <string name="security_settings_fingerprint_enroll_dialog_name_label" msgid="3519748398694308901">"పేరు"</string>
     <string name="security_settings_fingerprint_enroll_dialog_ok" msgid="3428927518029038956">"సరే"</string>
     <string name="security_settings_fingerprint_enroll_dialog_delete" msgid="4312297515772004580">"తొలగించు"</string>
@@ -766,8 +766,8 @@
     <string name="bluetooth_menu_advanced" msgid="7566858513372603652">"అధునాతనం"</string>
     <string name="bluetooth_advanced_titlebar" msgid="6459469494039004784">"అధునాతన బ్లూటూత్"</string>
     <string name="bluetooth_empty_list_bluetooth_off" msgid="6255367297830430459">"బ్లూటూత్ ప్రారంభించబడినప్పుడు, మీ పరికరం ఇతర సమీప బ్లూటూత్ పరికరాలతో కమ్యూనికేట్ చేయగలదు."</string>
-    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"బ్లూటూత్ ఆన్ చేసినప్పుడు, మీ పరికరం ఇతర సమీప బ్లూటూత్ పరికరాలతో కమ్యూనికేట్ చేయగలదు.\n\nపరికర అనుభవం మెరుగుపరచడానికి, బ్లూటూత్ ఆఫ్‌లో ఉన్నప్పుడు కూడా, ఏ సమయంలోనైనా సమీపంలోని పరికరాలను యాప్‌లను మరియు సేవలు ఇప్పటికీ స్కాన్ చేయవచ్చు. ఉదాహరణకు, ఇది స్థాన ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. మీరు దీన్ని "<annotation id="link">"స్కానింగ్ సెట్టింగ్‌లలో"</annotation>" మార్చవచ్చు."</string>
-    <string name="ble_scan_notify_text" msgid="6290170236546386932">"స్థాన ఖచ్చితత్వాన్ని మెరుగుపరచడానికి, సిస్టమ్ యాప్‌లు మరియు సేవలు ఇప్పటికీ బ్లూటూత్ పరికరాలను గుర్తించగలవు. మీరు దీన్ని <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో మార్చవచ్చు."</string>
+    <string name="bluetooth_scanning_on_info_message" msgid="5460370815156050550">"బ్లూటూత్ ఆన్ చేసినప్పుడు, మీ పరికరం ఇతర సమీప బ్లూటూత్ పరికరాలతో కమ్యూనికేట్ చేయగలదు.\n\nపరికర అనుభవం మెరుగుపరచడానికి, బ్లూటూత్ ఆఫ్‌లో ఉన్నప్పుడు కూడా, ఏ సమయంలోనైనా యాప్‌లు, అలాగే సర్వీస్‌లు సమీపంలోని పరికరాలను ఇప్పటికీ స్కాన్ చేయవచ్చు. ఉదాహరణకు, ఇది లొకేషన్ ఆధారిత ఫీచర్‌లను, సర్వీస్‌లను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. మీరు దీన్ని "<annotation id="link">"స్కానింగ్ సెట్టింగ్‌లలో"</annotation>" మార్చవచ్చు."</string>
+    <string name="ble_scan_notify_text" msgid="6290170236546386932">"లొకేషన్ ఖచ్చితత్వాన్ని మెరుగుపరచడానికి, సిస్టమ్ యాప్‌లు, అలాగే సర్వీస్‌లు ఇప్పటికీ బ్లూటూత్ పరికరాలను గుర్తించగలవు. మీరు దీన్ని <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో మార్చవచ్చు."</string>
     <string name="bluetooth_connect_failed" msgid="1151234676456333786">"కనెక్ట్ చేయడం సాధ్యం కాలేదు. మళ్లీ ప్రయత్నించండి."</string>
     <string name="device_details_title" msgid="726517818032923222">"పరికర వివరాలు"</string>
     <string name="bluetooth_device_mac_address" msgid="5328203122581150405">"పరికర బ్లూటూత్ అడ్రస్: <xliff:g id="ADDRESS">%1$s</xliff:g>"</string>
@@ -850,7 +850,7 @@
     <string name="wifi_notify_open_networks_summary" msgid="1383681260705466715">"అధిక క్వాలిటీ ఉన్న పబ్లిక్ నెట్‌వర్క్ అందుబాటులో ఉన్నప్పుడు తెలియజేస్తుంది"</string>
     <string name="wifi_wakeup" msgid="4963732992164721548">"Wi‑Fiని ఆటోమేటిక్‌గా ఆన్ చేయి"</string>
     <string name="wifi_wakeup_summary" msgid="1152699417411690">"మీ ఇంటి నెట్‌వర్క్‌ల వంటి సేవ్ చేసిన అధిక క్వాలిటీ గల నెట్‌వర్క్‌లు అందుబాటులో ఉన్నప్పుడు Wi‑Fi తిరిగి ఆన్ చేయబడుతుంది"</string>
-    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"స్థానం ఆఫ్ చేయబడింది కనుక అందుబాటులో లేదు. "<annotation id="link">"స్థానం"</annotation>" ఆన్ చేయండి."</string>
+    <string name="wifi_wakeup_summary_no_location" msgid="3007457288587966962">"లొకేషన్ ఆఫ్ చేయబడింది కనుక అందుబాటులో లేదు. "<annotation id="link">"లొకేషన్"</annotation>" ఆన్ చేయండి."</string>
     <string name="wifi_wakeup_summary_scanning_disabled" msgid="6820040651529910914">"Wi‑Fi స్కానింగ్ ఆఫ్ చేయబడినందున అందుబాటులో లేదు"</string>
     <string name="wifi_wakeup_summary_scoring_disabled" msgid="7067018832237903151">"ఉపయోగించడానికి, నెట్‌వర్క్ రేటింగ్ ప్రదాతను ఎంచుకోండి"</string>
     <string name="wifi_poor_network_detection" msgid="7193423327400703073">"బలహీన కనెక్షన్‌లను నివారించు"</string>
@@ -861,8 +861,8 @@
     <string name="use_open_wifi_automatically_summary_scoring_disabled" msgid="1559329344492373028">"ఉపయోగించడానికి, నెట్‌వర్క్ రేటింగ్ ప్రదాతను ఎంచుకోండి"</string>
     <string name="use_open_wifi_automatically_summary_scorer_unsupported_disabled" msgid="1123080670578756834">"ఉపయోగించడానికి, అనుకూల నెట్‌వర్క్ రేటింగ్ ప్రదాతను ఎంచుకోండి"</string>
     <string name="wifi_install_credentials" msgid="5650088113710858289">"సర్టిఫికెట్లను ఇన్‌స్టాల్ చేయి"</string>
-    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"స్థాన ఖచ్చితత్వం, యాప్‌లు మరియు సేవలను మెరుగుపరచడానికి, ఇప్పటికీ ఏ సమయంలో అయినా Wi‑Fi నెట్‌వర్క్‌ల కోసం స్కాన్ చేయగలదు. ఉదాహరణకు, దీనిని ఉపయోగించి స్థాన ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచవచ్చు. మీరు దీనిని <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో మార్చవచ్చు."</string>
-    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"స్థాన ఖచ్చితత్వాన్ని మెరుగుపరచాలంటే, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో Wi-Fi స్కానింగ్‌ను ఆన్ చేయండి."</string>
+    <string name="wifi_scan_notify_text" msgid="7614101215028336927">"లొకేషన్ ఖచ్చితత్వం, యాప్‌లు మరియు సర్వీస్‌లను మెరుగుపరచడానికి, ఇప్పటికీ ఏ సమయంలో అయినా Wi‑Fi నెట్‌వర్క్‌ల కోసం స్కాన్ చేయగలదు. ఉదాహరణకు, దీనిని ఉపయోగించి లొకేషన్ ఆధారిత ఫీచర్‌లు మరియు సేవలను మెరుగుపరచవచ్చు. మీరు దీనిని <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో మార్చవచ్చు."</string>
+    <string name="wifi_scan_notify_text_scanning_off" msgid="723796963816095410">"లొకేషన్ ఖచ్చితత్వాన్ని మెరుగుపరచాలంటే, <xliff:g id="LINK_BEGIN_0">LINK_BEGIN</xliff:g>స్కానింగ్ సెట్టింగ్‌లు<xliff:g id="LINK_END_1">LINK_END</xliff:g>లో Wi-Fi స్కానింగ్‌ను ఆన్ చేయండి."</string>
     <string name="wifi_scan_notify_remember_choice" msgid="1235445971400237444">"మళ్లీ చూపవద్దు"</string>
     <string name="wifi_setting_sleep_policy_title" msgid="2120785188625932076">"నిద్రావస్థలో ఉన్నప్పుడు Wi‑Fiని ఆన్‌లో ఉంచు"</string>
     <string name="wifi_setting_on_during_sleep_title" msgid="856670183023402715">"నిద్రావస్థలో Wi‑Fi ఆన్‌లో ఉంచు"</string>
@@ -980,7 +980,7 @@
     <string name="wifi_wps_available_second_item" msgid="5703265526619705185">" (WPS అందుబాటులో ఉంది)"</string>
     <string name="wifi_carrier_connect" msgid="7202618367339982884">"క్యారియర్ Wi‑Fi నెట్‌వర్క్"</string>
     <string name="wifi_carrier_content" msgid="3467402515071949783">"<xliff:g id="NAME">%1$s</xliff:g> ద్వారా కనెక్ట్ చేయండి"</string>
-    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"స్థాన ఖచ్చితత్వాన్ని మెరుగుపరచడానికి మరియు ఇతర ప్రయోజనాల దృష్ట్యా, <xliff:g id="APP_NAME">%1$s</xliff:g> Wi-Fi ఆఫ్‌లో ఉన్నప్పటికీ, నెట్‌వర్క్‌ను స్కాన్ చేయడం ప్రారంభించాలనుకుంటుంది.\n\nస్కాన్ చేయాలనుకునే అన్ని యాప్‌ల కోసం దీన్ని అనుమతించాలా?"</string>
+    <string name="wifi_scan_always_turnon_message" msgid="7811846312032594248">"లొకేషన్‌ ఖచ్చితత్వాన్ని మెరుగుపరచడానికి, ఇతర ప్రయోజనాల దృష్ట్యా, Wi-Fi ఆఫ్‌లో ఉన్నప్పటికీ, నెట్‌వర్క్‌ను స్కాన్ చేయడం ప్రారంభించాలని <xliff:g id="APP_NAME">%1$s</xliff:g> భావిస్తోంది.\n\nస్కాన్ చేయాలనుకునే అన్ని యాప్‌ల కోసం దీన్ని అనుమతించాలా?"</string>
     <string name="wifi_scan_always_turnoff_message" msgid="556993843641750002">"దీన్ని ఆఫ్ చేయడానికి, ఓవర్‌ఫ్లో మెనూలో అధునాతనంకి వెళ్లండి."</string>
     <string name="wifi_scan_always_confirm_allow" msgid="8857664849515496237">"అనుమతించు"</string>
     <string name="wifi_scan_always_confirm_deny" msgid="6190909841125369403">"తిరస్కరించు"</string>
@@ -1112,7 +1112,7 @@
     <string name="wifi_calling_off_explanation" msgid="1653424723742898015">"Wi-Fi కాలింగ్ ఆన్‌లో ఉన్నప్పుడు, మీ ఫోన్ మీ ప్రాధాన్యత మరియు ఏ సిగ్నల్ సామర్థ్యం ఎక్కువగా ఉంది వంటి అంశాల ఆధారంగా Wi-Fi నెట్‌వర్క్‌లు లేదా మీ క్యారియర్ నెట్‌వర్క్ ద్వారా కాల్స్‌ వెళ్లేలా చేస్తుంది. ఈ ఫీచర్‌ను ఆన్ చేయడానికి ముందు, రుసుములు మరియు ఇతర వివరాల గురించి తెలుసుకోవడానికి మీ క్యారియర్‌ను సంప్రదించండి.<xliff:g id="ADDITIONAL_TEXT">%1$s</xliff:g>"</string>
     <string name="wifi_calling_off_explanation_2" msgid="8648609693875720408"></string>
     <string name="emergency_address_title" msgid="5779915349686787024">"అత్యవసర అడ్రస్‌"</string>
-    <string name="emergency_address_summary" msgid="478668478569851714">"Wi-Fi ద్వారా అత్యవసర కాల్ చేసినప్పుడు మీ స్థానాన్ని ఉపయోగించబడుతుంది"</string>
+    <string name="emergency_address_summary" msgid="478668478569851714">"Wi-Fi ద్వారా ఎమర్జెన్సీ కాల్ చేసినప్పుడు మీ లొకేషన్‌ను ఉపయోగించబడుతుంది"</string>
     <string name="private_dns_help_message" msgid="7633526525131196650">"ప్రైవేట్ DNS ఫీచర్‌ల గురించి "<annotation id="url">"మరింత తెలుసుకోండి"</annotation></string>
     <string name="wifi_calling_pref_managed_by_carrier" msgid="5458050015417972072">"క్యారియర్ ద్వారా నిర్వహించబడుతున్న సెట్టింగ్"</string>
     <string name="wifi_calling_settings_activation_instructions" msgid="2863642668648110908">"Wi-Fi కాలింగ్‌ను సక్రియం చేయండి"</string>
@@ -1376,7 +1376,7 @@
     <string name="memory_music_usage" msgid="809605300042546279">"ఆడియో (సంగీతం, రింగ్‌టోన్‌లు, పాడ్‌కాస్ట్‌లు మొ.)"</string>
     <string name="memory_media_misc_usage" msgid="6258827529046910705">"ఇతర ఫైళ్లు"</string>
     <string name="memory_media_cache_usage" msgid="1307620682751377717">"కాష్ చేసిన డేటా"</string>
-    <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"భాగస్వామ్య నిల్వను అన్‌మౌంట్ చేయి"</string>
+    <string name="sd_eject" product="nosdcard" msgid="3016608823130472449">"అన్‌మౌంట్ షేర్డ్ స్టోరేజ్"</string>
     <string name="sd_eject" product="default" msgid="4943338855474925396">"SD కార్డు‌ను అన్‌మౌంట్ చేయి"</string>
     <string name="sd_eject_summary" product="nosdcard" msgid="8571017212318899178">"అంతర్గత USB నిల్వను అన్‌మౌంట్ చేయి"</string>
     <string name="sd_eject_summary" product="default" msgid="6862319750744376533">"SD కార్డును అన్‌మౌంట్ చేయండి తద్వారా మీరు దాన్ని సురక్షితంగా తీసివేయవచ్చు"</string>
@@ -1490,7 +1490,7 @@
     <string name="storage_wizard_move_progress_title" msgid="5250929161803336592">"<xliff:g id="APP">^1</xliff:g>ని తరలిస్తోంది…"</string>
     <string name="storage_wizard_move_progress_body" msgid="1713792142250410169">"తరలించే సమయంలో <xliff:g id="NAME">^1</xliff:g>ని తీసివేయవద్దు. \n\nఈ డివైజ్‌లోని <xliff:g id="APP">^2</xliff:g> యాప్ తరలింపు పూర్తయ్యే వరకు అందుబాటులో ఉండదు."</string>
     <string name="storage_wizard_move_progress_cancel" msgid="9047521329704060401">"తరలింపు రద్దు చేయి"</string>
-    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"ఈ <xliff:g id="NAME_0">^1</xliff:g> నెమ్మదిగా ఉన్నట్లు కనిపిస్తోంది. \n\nమీరు కొనసాగవచ్చు, కానీ ఈ స్థానానికి తరలించిన యాప్‌లు మధ్యమధ్యలో ఆటంకాలతో అంత బాగా పని చేయకపోవచ్చు మరియు డేటా బదిలీలకు ఎక్కువ సమయం పట్టవచ్చు. \n\nమెరుగైన పనితీరు కోసం వేగవంతమైన <xliff:g id="NAME_1">^1</xliff:g>ని ఉపయోగించడం పరిశీలించండి."</string>
+    <string name="storage_wizard_slow_body" msgid="2307974936036261069">"ఈ <xliff:g id="NAME_0">^1</xliff:g> నెమ్మదిగా ఉన్నట్లు కనిపిస్తోంది. \n\nమీరు కొనసాగవచ్చు, కానీ ఈ లొకేషన్‌కు తరలించిన యాప్‌లు మధ్యమధ్యలో ఆటంకాలతో అంత బాగా పని చేయకపోవచ్చు, అలాగే డేటా బదిలీలకు ఎక్కువ సమయం పట్టవచ్చు. \n\nమెరుగైన పనితీరు కోసం వేగవంతమైన <xliff:g id="NAME_1">^1</xliff:g>‌ను ఉపయోగించడాన్ని పరిశీలించండి."</string>
     <string name="storage_wizard_init_v2_title" msgid="7408910177547901960">"మీరు ఈ <xliff:g id="NAME">^1</xliff:g>ని ఎలా ఉపయోగిస్తారు?"</string>
     <string name="storage_wizard_init_v2_internal_title" product="tablet" msgid="7948795312504302810">"అదనపు టాబ్లెట్ నిల్వ కోసం ఉపయోగించండి"</string>
     <string name="storage_wizard_init_v2_internal_summary" product="tablet" msgid="6237770506398410172">"ఈ టాబ్లెట్‌లో ఉన్న యాప్‌లు, ఫైళ్లు మరియు మీడియా కోసం మాత్రమే"</string>
@@ -1646,15 +1646,15 @@
     <string name="mobile_no_provisioning_url" msgid="3216517414902166131">"<xliff:g id="OPERATOR">%1$s</xliff:g>కి తెలిసిన కేటాయింపు వెబ్‌సైట్ ఏదీ లేదు"</string>
     <string name="mobile_insert_sim_card" msgid="7594550403454243732">"దయచేసి సిమ్ కార్డును చొప్పించి, పునఃప్రారంభించండి"</string>
     <string name="mobile_connect_to_internet" msgid="6031886097365170913">"దయచేసి ఇంటర్నెట్‌కు కనెక్ట్ చేయండి"</string>
-    <string name="location_title" msgid="8664674161765477168">"నా స్థానం"</string>
+    <string name="location_title" msgid="8664674161765477168">"నా లొకేషన్"</string>
     <string name="managed_profile_location_switch_title" msgid="8157384427925389680">"ఆఫీస్ ప్రొఫైల్ కోసం లొకేషన్"</string>
     <string name="location_app_level_permissions" msgid="1298041503927632960">"యాప్ అనుమతి"</string>
-    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"స్థానం ఆఫ్‌లో ఉంది"</string>
+    <string name="location_app_permission_summary_location_off" msgid="541372845344796336">"లొకేషన్ ఆఫ్‌లో ఉంది"</string>
     <plurals name="location_app_permission_summary_location_on" formatted="false" msgid="7904821382328758218">
       <item quantity="other"> <xliff:g id="TOTAL_LOCATION_APP_COUNT_3">%2$d</xliff:g> యాప్‌లలో <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_2">%1$d</xliff:g> అపరిమిత యాక్సెస్‌ను కలిగి ఉన్నాయి</item>
       <item quantity="one"> <xliff:g id="TOTAL_LOCATION_APP_COUNT_1">%2$d</xliff:g> యాప్‌లలో <xliff:g id="BACKGROUND_LOCATION_APP_COUNT_0">%1$d</xliff:g> అపరిమిత యాక్సెస్‌‌ను కలిగి ఉంది</item>
     </plurals>
-    <string name="location_category_recent_location_access" msgid="286059523360285026">"ఇటీవలి స్థాన యాక్సెస్"</string>
+    <string name="location_category_recent_location_access" msgid="286059523360285026">"ఇటీవలి లొకేషన్‌ యాక్సెస్"</string>
     <string name="location_recent_location_access_view_details" msgid="2051602261436245905">"వివరాలను చూడండి"</string>
     <string name="location_no_recent_apps" msgid="77502059586413278">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల రిక్వెస్ట్ చేయలేదు"</string>
     <string name="location_no_recent_accesses" msgid="6289916310397279890">"యాప్‌లు ఏవీ లొకేషన్‌ను ఇటీవల యాక్సెస్ చేయలేదు"</string>
@@ -1665,21 +1665,21 @@
     <string name="location_scanning_wifi_always_scanning_description" msgid="4956048135941851712">"Wi‑Fi ఆఫ్‌లో ఉన్నా కూడా, ఏ సమయంలోనైనా Wi‑Fi నెట్‌‍వర్క్‌లను స్కాన్ చేయడానికి యాప్‌లను, సర్వీస్‌లను అనుమతించండి. ఈ అనుమతి, లొకేషన్ ఆధారిత ఫీచర్‌లను, సర్వీస్‌లను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. అనుమతి వల్ల కలిగే ప్రయోజనాలకు ఇది ఒక ఉదాహరణ మాత్రమే."</string>
     <string name="location_scanning_bluetooth_always_scanning_title" msgid="196241746742607453">"బ్లూటూత్ స్కానింగ్"</string>
     <string name="location_scanning_bluetooth_always_scanning_description" msgid="3796673798637848690">"బ్లూటూత్ ఆఫ్‌లో ఉన్నప్పుడు కూడా, ఏ సమయంలోనైనా సమీపంలోని పరికరాలను స్కాన్ చేయడానికి యాప్‌లను, సర్వీస్‌లను అనుమతించండి. ఈ అనుమతి, లొకేషన్ ఆధారిత ఫీచర్‌లను, సర్వీస్‌లను మెరుగుపరచడానికి ఉపయోగించబడుతుంది. అనుమతి వల్ల కలిగే ప్రయోజనాలకు ఇది ఒక ఉదాహరణ మాత్రమే."</string>
-    <string name="managed_profile_location_services" msgid="224925483299159541">"ఆఫీస్ కోసం స్థాన సేవలు"</string>
-    <string name="location_network_based" msgid="1535812159327454835">"Wi‑Fi &amp; మొబైల్ నెట్‌వర్క్ స్థానం"</string>
-    <string name="location_neighborhood_level" msgid="8459352741296587916">"మీ స్థానాన్ని వేగవంతంగా అంచనా వేయడం కోసం Google స్థాన సేవను ఉపయోగించడానికి యాప్‌లను అనుమతించండి. అనామక స్థాన డేటా సేకరించబడుతుంది మరియు Googleకు పంపబడుతుంది."</string>
-    <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"స్థానం Wi‑Fi ద్వారా గుర్తించబడింది"</string>
+    <string name="managed_profile_location_services" msgid="224925483299159541">"వర్క్ ప్లేస్‌ కోసం లొకేషన్‌ సర్వీస్‌లు"</string>
+    <string name="location_network_based" msgid="1535812159327454835">"Wi‑Fi &amp; మొబైల్ నెట్‌వర్క్ లొకేషన్"</string>
+    <string name="location_neighborhood_level" msgid="8459352741296587916">"మీ లొకేషన్‌ను వేగంగా అంచనా వేయడానికి Google లొకేషన్‌ సర్వీస్‌కు యాప్‌లను అనుమతించండి. అనామక లొకేషన్‌ డేటా Googleకు పంపబడుతుంది."</string>
+    <string name="location_neighborhood_level_wifi" msgid="6120133551482003840">"లొకేషన్‌ Wi‑Fi ద్వారా గుర్తించబడింది"</string>
     <string name="location_gps" msgid="688049341158297763">"GPS ఉపగ్రహాలు"</string>
-    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"మీ స్థానాన్ని ఖచ్చితంగా గుర్తించడం కోసం మీ టాబ్లెట్‌లో GPSను ఉపయోగించడానికి యాప్‌లను అనుమతించు"</string>
-    <string name="location_street_level" product="default" msgid="7407688345675450051">"మీ స్థానాన్ని ఖచ్చితంగా గుర్తించడం కోసం మీ ఫోన్‌లో GPSను ఉపయోగించడానికి యాప్‌లను అనుమతించు"</string>
+    <string name="location_street_level" product="tablet" msgid="4459804798444296650">"మీ లొకేషన్‌ను ఖచ్చితంగా గుర్తించడం కోసం మీ టాబ్లెట్‌లో GPSను ఉపయోగించడానికి యాప్‌లను అనుమతించండి"</string>
+    <string name="location_street_level" product="default" msgid="7407688345675450051">"మీ లొకేషన్‌ను ఖచ్చితంగా గుర్తించడం కోసం మీ ఫోన్‌లో GPSను ఉపయోగించడానికి యాప్‌లను అనుమతించు"</string>
     <string name="assisted_gps" msgid="5411780261117055175">"సహాయక GPSను ఉపయోగించు"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"GPSకి సహాయంగా సర్వర్‌ను ఉపయోగించు (నెట్‌వర్క్ వినియోగాన్ని తగ్గించడానికి ఎంపిక తీసియండి)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"GPSకి సహాయంగా సర్వర్‌ను ఉపయోగించు (GPS పనితీరుని మెరుగుపరచడానికి ఎంపిక తీసియండి)"</string>
-    <string name="use_location_title" msgid="7724788634359496634">"స్థానం &amp; Google శోధన"</string>
-    <string name="use_location_summary" msgid="7396716606067400283">"శోధన ఫలితాలు మరియు ఇతర సేవలను మెరుగుపరచడం కోసం మీ స్థానాన్ని ఉపయోగించడానికి Googleని అనుమతించండి"</string>
-    <string name="location_access_title" msgid="8587974819606800029">"నా స్థానానికి యాక్సెస్"</string>
-    <string name="location_access_summary" msgid="6919495149026354355">"మీ స్థాన సమాచారాన్ని ఉపయోగించడానికి మీ అనుమతిని అడిగిన యాప్‌లను అనుమతించండి"</string>
-    <string name="location_sources_heading" msgid="8526658357120282741">"స్థానం మూలాలు"</string>
+    <string name="use_location_title" msgid="7724788634359496634">"లొకేషన్ &amp; Google సెర్చ్"</string>
+    <string name="use_location_summary" msgid="7396716606067400283">"సెర్చ్ ఫలితాలు, ఇతర సర్వీస్‌లను మెరుగుపరచడం కోసం మీ లొకేషన్‌ను ఉపయోగించడానికి Googleను అనుమతించండి"</string>
+    <string name="location_access_title" msgid="8587974819606800029">"నా లొకేషన్‌కు యాక్సెస్"</string>
+    <string name="location_access_summary" msgid="6919495149026354355">"మీ లొకేషన్ సమాచారాన్ని ఉపయోగించడానికి మీ అనుమతిని అడిగిన యాప్‌లను అనుమతించండి"</string>
+    <string name="location_sources_heading" msgid="8526658357120282741">"లొకేషన్‌ సోర్స్‌లు"</string>
     <string name="about_settings" product="tablet" msgid="4869626690708456341">"టాబ్లెట్ పరిచయం"</string>
     <string name="about_settings" product="default" msgid="6019547763377294261">"ఫోన్ గురించి"</string>
     <string name="about_settings" product="device" msgid="1770438316234693655">"పరికరం గురించి"</string>
@@ -1880,13 +1880,13 @@
     <string name="another_migration_already_in_progress" msgid="3159694008286196454">"ఇప్పటికే మరొక స్థాన మార్పిడి ప్రోగ్రెస్‌లో ఉంది."</string>
     <string name="insufficient_storage" msgid="7089626244018569405">"తగినంత నిల్వ స్థలం లేదు."</string>
     <string name="does_not_exist" msgid="4821267479183197109">"యాప్ ఉనికిలో లేదు."</string>
-    <string name="invalid_location" msgid="8057409982223429673">"ఇన్‌స్టాల్ స్థానం చెల్లదు."</string>
+    <string name="invalid_location" msgid="8057409982223429673">"ఇన్‌స్టాల్ లొకేషన్ చెల్లదు."</string>
     <string name="system_package" msgid="1824541892695233351">"సిస్టమ్ అప్‌డేట్‌లను బాహ్య మీడియాలో ఇన్‌స్టాల్ చేయడం సాధ్యపడదు."</string>
     <string name="move_error_device_admin" msgid="6640501923867066901">"పరికర నిర్వాహకుల యాప్‌ను బాహ్య మీడియాలో ఇన్‌స్టాల్ చేయలేరు"</string>
     <string name="force_stop_dlg_title" msgid="8822779487097246675">"నిర్బంధంగా ఆపివేయాలా?"</string>
     <string name="force_stop_dlg_text" msgid="7435245769456493398">"మీరు యాప్‌ను నిర్బంధంగా ఆపివేస్తే, అది సరిగ్గా పని చేయకపోవచ్చు."</string>
-    <string name="app_install_location_title" msgid="5121617802063021720">"ప్రాధాన్య ఇన్‌స్టాల్ స్థానం"</string>
-    <string name="app_install_location_summary" msgid="109719780117187797">"కొత్త యాప్‌ల కోసం ప్రాధాన్య ఇన్‌స్టాలేషన్ స్థానాన్ని మార్చండి"</string>
+    <string name="app_install_location_title" msgid="5121617802063021720">"ప్రాధాన్య ఇన్‌స్టాల్ లొకేషన్‌"</string>
+    <string name="app_install_location_summary" msgid="109719780117187797">"కొత్త యాప్‌ల కోసం ప్రాధాన్య ఇన్‌స్టాలేషన్ లొకేషన్‌ను మార్చండి"</string>
     <string name="app_disable_dlg_positive" msgid="5508828271100168073">"యాప్‌ను నిలిపివేయి"</string>
     <string name="app_disable_dlg_text" msgid="9221864774943530281">"మీరు ఈ యాప్‌ను నిలిపివేస్తే, Android మరియు ఇతర యాప్‌లు ఇకపై ఉద్దేశించిన రీతిలో పని చేయకపోవచ్చు. గుర్తుంచుకోండి, ఈ యాప్ మీ పరికరంలో ముందుగానే ఇన్‌స్టాల్ చేసి, అందించినది అయినందున మీరు దీనిని తొలగించలేరు. నిలిపివేయడం ద్వారా, మీరు ఈ యాప్‌ను ఆఫ్ చేసి, మీ పరికరంలో దానిని దాచవచ్చు."</string>
     <string name="app_disable_notifications_dlg_title" msgid="699530661413553928">"నోటిఫికేషన్‌లను ఆపివేయాలా?"</string>
@@ -2355,10 +2355,10 @@
     <string name="dialog_background_check_message" product="tablet" msgid="5246650726585461386">"<xliff:g id="APP_0">%1$s</xliff:g> మీ టాబ్లెట్‌ను సక్రియంగా ఉంచుతుంది, కనుక బ్యాటరీని మీ టాబ్లెట్ సాధారణ రీతిలో నిర్వహించడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించేందుకు ప్రయత్నించాలంటే, మీరు <xliff:g id="APP_1">%1$s</xliff:g>ని ఆపివేసి, దానిని నేపథ్యంలో అమలు కాకుండా నిరోధించవచ్చు."</string>
     <string name="dialog_background_check_message" product="device" msgid="2746413739802588979">"<xliff:g id="APP_0">%1$s</xliff:g> మీ పరికరాన్ని సక్రియంగా ఉంచుతుంది, కనుక బ్యాటరీని మీ పరికరం సాధారణ రీతిలో నిర్వహించడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించేందుకు ప్రయత్నించాలంటే, మీరు <xliff:g id="APP_1">%1$s</xliff:g>ని ఆపివేసి, దానిని నేపథ్యంలో అమలు కాకుండా నిరోధించవచ్చు."</string>
     <string name="dialog_background_check_ok" msgid="6916102434734525591">"ఆఫ్ చేయి"</string>
-    <string name="dialog_location_title" msgid="8070185060438751995">"స్థానాన్ని ఆఫ్ చేయాలా?"</string>
-    <string name="dialog_location_message" product="default" msgid="2445581202508387558">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ స్థానాన్ని అభ్యర్థిస్తోంది, కనుక బ్యాటరీని మీ ఫోన్ సాధారణ రీతిలో నిర్వహించడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు స్థానాన్ని ఆఫ్ చేయవచ్చు."</string>
-    <string name="dialog_location_message" product="tablet" msgid="4012891295493865096">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ స్థానాన్ని అభ్యర్థిస్తోంది, కనుక బ్యాటరీని మీ టాబ్లెట్ సాధారణ రీతిలో నిర్వహించడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు స్థానాన్ని ఆఫ్ చేయవచ్చు."</string>
-    <string name="dialog_location_message" product="device" msgid="1454451610289205965">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ స్థానాన్ని అభ్యర్థిస్తోంది, కనుక బ్యాటరీని మీ పరికరం సాధారణ రీతిలో నిర్వహించడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు స్థానాన్ని ఆఫ్ చేయవచ్చు."</string>
+    <string name="dialog_location_title" msgid="8070185060438751995">"లొకేషన్‌ను ఆఫ్ చేయాలా?"</string>
+    <string name="dialog_location_message" product="default" msgid="2445581202508387558">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ లొకేషన్‌ను రిక్వెస్ట్ చేస్తోంది, కనుక బ్యాటరీని మీ ఫోన్ సాధారణ రీతిలో మేనేజ్ సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు లొకేషన్‌ను ఆఫ్ చేయవచ్చు."</string>
+    <string name="dialog_location_message" product="tablet" msgid="4012891295493865096">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ లొకేషన్ ను రిక్వెస్ట్ చేస్తోంది, కనుక బ్యాటరీని మీ టాబ్లెట్ సాధారణ రీతిలో మేనేజ్ చేయడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు లొకేషన్‌ను ఆఫ్ చేయవచ్చు."</string>
+    <string name="dialog_location_message" product="device" msgid="1454451610289205965">"మీరు యాప్‌ను ఉపయోగించని సమయంలో కూడా <xliff:g id="APP">%1$s</xliff:g> మీ లొకేషన్‌ను రిక్వెస్ట్ చేస్తోంది, కనుక బ్యాటరీని మీ పరికరం సాధారణ రీతిలో మేనేజ్ చేయడం సాధ్యం కాదు.\n\nఈ సమస్యను పరిష్కరించడం కోసం, ఈ యాప్‌నకు మీరు లొకేషన్‌ను ఆఫ్ చేయవచ్చు."</string>
     <string name="dialog_location_ok" msgid="1893773880878134342">"ఆఫ్ చేయి"</string>
     <string name="power_screen" msgid="8581228752332223154">"స్క్రీన్"</string>
     <string name="power_flashlight" msgid="6939780588882301575">"ఫ్లాష్‌లైట్"</string>
@@ -2582,7 +2582,7 @@
     <string name="device_admin_warning" msgid="4421817419326480449">"ఈ \'నిర్వాహకుల యాప్‌\'ను యాక్టివేట్‌ చేస్తే, కింది చర్యలను చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్ అనుమతించబడుతుంది:"</string>
     <string name="device_admin_status" msgid="5424944611789040723">"ఈ అడ్మిన్ యాప్ యాక్టివ్‌గా ఉంది. కింది చర్యలు చేయడానికి <xliff:g id="APP_NAME">%1$s</xliff:g> యాప్‌ను అనుమతిస్తుంది:"</string>
     <string name="profile_owner_add_title" msgid="735805919754362791">"ప్రొఫైల్ నిర్వాహకుడిని సక్రియం చేయాలా?"</string>
-    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"కొనసాగిస్తే, మీ వినియోగదారును మీ నిర్వాహకులు నిర్వహించగలరు, దాని వలన మీ వ్యక్తిగత డేటాతో పాటు అనుబంధితంగా ఉన్న డేటా కూడా నిల్వ చేయబడవచ్చు.\n\nమీ నిర్వాహకులు నెట్‌వర్క్ యాక్టివిటీ మరియు మీ డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకు అనుబంధితంగా ఉన్న సెట్టింగ్‌లు, యాక్సెస్, యాప్‌లు మరియు డేటాని పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="adding_profile_owner_warning" msgid="1284541194547382194">"కొనసాగిస్తే, మీ యూజర్‌ను మీ అడ్మిన్ మేనేజ్ చేయగలరు, దాని వలన మీ వ్యక్తిగత డేటాతో పాటు అనుబంధితంగా ఉన్న డేటా కూడా స్టోర్ చేయబడవచ్చు.\n\nమీ  అడ్మిన్ నెట్‌వర్క్ యాక్టివిటీ మరియు మీ డివైజ్ యొక్క లొకేషన్ సమాచారంతో పాటు ఈ యూజర్‌కు అనుబంధితంగా ఉన్న సెట్టింగ్‌లు, యాక్సెస్, యాప్‌లు మరియు డేటాని పర్యవేక్షించగలరు మరియు మేనేజ్ చేయగలరు."</string>
     <string name="admin_disabled_other_options" msgid="8097063307730025707">"ఇతర ఎంపికలను మీ నిర్వాహకులు నిలిపివేసారు"</string>
     <string name="admin_more_details" msgid="1719819589822345585">"మరిన్ని వివరాలు"</string>
     <string name="notification_log_title" msgid="4200467765474474753">"నోటిఫికేషన్ లాగ్"</string>
@@ -2976,8 +2976,8 @@
     <string name="restriction_nfc_enable_summary_config" msgid="405349698260328073">"ఈ <xliff:g id="DEVICE_NAME">%1$s</xliff:g> మరో NFC పరికరాన్ని తాకినప్పుడు డేటా మార్పిడి అనుమతించు"</string>
     <string name="restriction_nfc_enable_summary" product="tablet" msgid="3292205836938064931">"టాబ్లెట్ మరో పరికరాన్ని తాకినప్పుడు డేటా మార్పిడిని అనుమతించు"</string>
     <string name="restriction_nfc_enable_summary" product="default" msgid="226439584043333608">"ఫోన్ మరో పరికరాన్ని తాకినప్పుడు డేటా మార్పిడిని అనుమతించు"</string>
-    <string name="restriction_location_enable_title" msgid="358506740636434856">"స్థానం"</string>
-    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"మీ స్థాన సమాచారాన్ని ఉపయోగించడానికి యాప్‌లను అనుమతించండి"</string>
+    <string name="restriction_location_enable_title" msgid="358506740636434856">"లొకేషన్"</string>
+    <string name="restriction_location_enable_summary" msgid="4159500201124004463">"మీ లొకేషన్ సమాచారాన్ని ఉపయోగించడానికి యాప్‌లను అనుమతించండి"</string>
     <string name="wizard_back" msgid="223654213898117594">"వెనుకకు"</string>
     <string name="wizard_next" msgid="5239664512608113542">"తర్వాత"</string>
     <string name="wizard_finish" msgid="3742102879981212094">"ముగించు"</string>
@@ -3080,7 +3080,7 @@
     <string name="keywords_sounds" msgid="9155626618185269312">"స్పీకర్ బీప్, స్పీకర్, వాల్యూమ్, మ్యూట్, నిశ్శబ్దం, ఆడియో, సంగీతం"</string>
     <string name="keywords_sounds_and_notifications_interruptions" msgid="7106220678170229900">"ఆటంకం కలిగించవద్దు, అంతరాయం కలిగించు, అంతరాయం, విరామం"</string>
     <string name="keywords_app" msgid="8058542404742867098">"RAM"</string>
-    <string name="keywords_location" msgid="6439463166207072559">"సమీపంలోని, స్థానం, చరిత్ర, నివేదించబడుతోంది, GPS"</string>
+    <string name="keywords_location" msgid="6439463166207072559">"సమీపంలోని, లొకేషన్‌, హిస్టరీ, రిపోర్ట్ చేయబడుతోంది, GPS"</string>
     <string name="keywords_accounts" msgid="5908945725229306088">"ఖాతా"</string>
     <string name="keywords_users" msgid="5880705776023155640">"పరిమితి, పరిమితం చేయి, పరిమితం చేయబడింది"</string>
     <string name="keywords_keyboard_and_ime" msgid="3327265741354129990">"వచన దిద్దుబాటు, దిద్దుబాటు చేయి, ధ్వని, వైబ్రేట్, స్వయంచాలకం, భాష, సంజ్ఞ, సూచించు, సూచన, థీమ్, అభ్యంతరకరం, పదం, రకం, ఎమోజీ, అంతర్జాతీయం"</string>
@@ -3492,7 +3492,7 @@
     <string name="zen_mode_messages_title" msgid="786261471294055181">"SMS, MMS మరియు సందేశ యాప్‌లు"</string>
     <string name="zen_mode_from_anyone" msgid="7778836826814131083">"ఎవరి నుండైనా"</string>
     <string name="zen_mode_from_contacts" msgid="267034158294332688">"కాంటాక్ట్‌ల నుండి మాత్రమే"</string>
-    <string name="zen_mode_from_starred" msgid="7349984569117392260">"స్టార్ గుర్తు గల కాంటాక్ట్‌ల నుండి మాత్రమే"</string>
+    <string name="zen_mode_from_starred" msgid="7349984569117392260">"స్టార్ గుర్తు పెట్టిన కాంటాక్ట్‌ల నుండి"</string>
     <string name="zen_calls_summary_starred_repeat" msgid="9191394641577678207">"స్టార్ గుర్తు ఉన్న కాంటాక్ట్‌ల మరియు రిపీట్ కాలర్‌ల నుండి"</string>
     <string name="zen_calls_summary_contacts_repeat" msgid="7747592096431111510">"కాంటాక్ట్‌లు మరియు రిపీట్ కాలర్‌ల నుండి"</string>
     <string name="zen_calls_summary_repeat_only" msgid="8839703337232747964">"రిపీట్ కాలర్‌ల నుండి మాత్రమే"</string>
@@ -3723,9 +3723,9 @@
     <string name="additional_permissions" msgid="3142290772324571654">"అదనపు అనుమతులు"</string>
     <string name="additional_permissions_more" msgid="714264060348056246">"మరో <xliff:g id="COUNT">%1$d</xliff:g>"</string>
     <string name="share_remote_bugreport_dialog_title" msgid="1390719492733882678">"బగ్ రిపోర్ట్‌ను షేర్ చేయాలా?"</string>
-    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"మీ ఐటి నిర్వాహకులు ఈ పరికరం సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను అభ్యర్థించారు. యాప్‌లు మరియు డేటా భాగస్వామ్యం చేయబడవచ్చు."</string>
-    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"మీ ఐటి నిర్వాహకులు ఈ పరికరం సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను అభ్యర్థించారు. యాప్‌లు మరియు డేటా భాగస్వామ్యం చేయబడవచ్చు మరియు మీ పరికరం పనితీరు తాత్కాలికంగా నెమ్మదించవచ్చు."</string>
-    <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"ఈ బగ్ రిపోర్ట్‌ మీ ఐటి నిర్వాహకులతో భాగస్వామ్యం చేయబడుతోంది. మరిన్ని వివరాల కోసం వారిని సంప్రదించండి."</string>
+    <string name="share_remote_bugreport_dialog_message_finished" msgid="5133489230646384192">"మీ IT అడ్మిన్ ఈ పరికరం సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను రిక్వెస్ట్ చేశారు. యాప్‌లు మరియు డేటా షేర్ చేయబడవచ్చు."</string>
+    <string name="share_remote_bugreport_dialog_message" msgid="6680361103125933760">"మీ IT అడ్మిన్ ఈ పరికరంలోని సమస్యకు పరిష్కారాన్ని కనుగొనడంలో సహాయం కోసం బగ్ రిపోర్ట్‌ను రిక్వెస్ట్ చేశారు. యాప్‌లు, డేటా షేర్ చేయబడవచ్చు. అంతే కాక, మీ పరికరం పనితీరు తాత్కాలికంగా నెమ్మదించవచ్చు."</string>
+    <string name="sharing_remote_bugreport_dialog_message" msgid="3814787466701526359">"ఈ బగ్ రిపోర్ట్‌ మీ IT అడ్మిన్‌తో షేర్ చేయబడుతోంది. మరిన్ని వివరాల కోసం వారిని సంప్రదించండి."</string>
     <string name="share_remote_bugreport_action" msgid="8600797271670537888">"షేర్ చేయి"</string>
     <string name="decline_remote_bugreport_action" msgid="706319275774199033">"తిరస్కరిస్తున్నాను"</string>
     <string name="usb_use_charging_only" msgid="2344625733377110164">"డేటా బదిలీ లేదు"</string>
@@ -3882,9 +3882,9 @@
     <string name="disabled_by_policy_title_suspend_packages" msgid="4254714213391802322">"ఈ యాప్‌ని తెరవలేరు"</string>
     <string name="default_admin_support_msg" msgid="5789424433689798637">"మీకు ఏవైనా ప్రశ్నలు ఉంటే, మీ IT నిర్వాహకుడిని సంప్రదించండి"</string>
     <string name="admin_support_more_info" msgid="8737842638087863477">"మరిన్ని వివరాలు"</string>
-    <string name="admin_profile_owner_message" msgid="3199544166281052845">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు మీ కార్యాలయ ప్రొఫైల్‌కి అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు ."</string>
-    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్ యొక్క స్థాన సమాచారంతో పాటు ఈ వినియోగదారుకి అనుబంధితంగా ఉన్న యాప్‌లు  మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
-    <string name="admin_device_owner_message" msgid="1823477572459610869">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ మరియు డివైజ్  యొక్క స్థాన సమాచారంతో పాటు ఈ డివైజ్‌కు అనుబంధితంగా ఉన్న యాప్‌లు మరియు డేటాని మీ నిర్వాహకులు పర్యవేక్షించగలరు మరియు నిర్వహించగలరు."</string>
+    <string name="admin_profile_owner_message" msgid="3199544166281052845">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ, పరికర లొకేషన్‌ సమాచారంతో పాటు మీ వర్క్ ప్రొఫైల్‌కు అనుబంధితంగా ఉన్న యాప్‌లను, డేటాను మీ అడ్మిన్ పర్యవేక్షించగలరు, మేనేజ్ చేయగలరు."</string>
+    <string name="admin_profile_owner_user_message" msgid="2991249382056855531">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ, పరికర లొకేషన్‌ సమాచారంతో పాటు ఈ యూజర్‌కు అనుబంధితంగా ఉన్న యాప్‌లను, డేటాను మీ అడ్మిన్ పర్యవేక్షించగలరు, మేనేజ్ చేయగలరు."</string>
+    <string name="admin_device_owner_message" msgid="1823477572459610869">"సెట్టింగ్‌లు, అనుమతులు, కార్పొరేట్ యాక్సెస్, నెట్‌వర్క్ యాక్టివిటీ, పరికర లొకేషన్‌ సమాచారంతో పాటు ఈ పరికరానికి అనుబంధితంగా ఉన్న యాప్‌లను, డేటాను మీ అడ్మిన్ పర్యవేక్షించగలరు, మేనేజ్ చేయగలరు."</string>
     <string name="condition_turn_off" msgid="4395150881365143558">"ఆఫ్ చేయి"</string>
     <string name="condition_turn_on" msgid="1699088245481841159">"ఆన్ చేయండి"</string>
     <string name="condition_expand_show" msgid="4118818022763913777">"చూపుతుంది"</string>
@@ -3996,7 +3996,7 @@
     <string name="unrestricted_app_title" msgid="4390661122069905122">"అనియంత్రిత డేటా వినియోగం"</string>
     <string name="unrestricted_app_summary" msgid="2829141815077800483">"డేటా సేవర్ ఆన్‌లో ఉన్నప్పుడు అనియంత్రిత డేటా యాక్సెస్‌ను అనుమతించండి"</string>
     <string name="home_app" msgid="3695063566006954160">"హోమ్ యాప్"</string>
-    <string name="no_default_home" msgid="1518949210961918497">"డిఫాల్ట్ హోమ్ లేదు"</string>
+    <string name="no_default_home" msgid="1518949210961918497">"హోమ్‌కు సంబంధించి ఆటోమేటిక్ సెట్టింగ్ ఏదీ లేదు"</string>
     <string name="lockpattern_settings_require_cred_before_startup" msgid="63693894094570367">"సురక్షిత ప్రారంభం"</string>
     <string name="lockpattern_settings_require_pattern_before_startup_summary" msgid="2330543541999937953">"మీ డివైజ్‌ను ప్రారంభించడానికి ఆకృతి అవసరం. ఆఫ్‌లో ఉన్నప్పుడు, ఈ డివైజ్ కాల్స్‌, మెసేజ్‌లు, నోటిఫికేషన్‌లు లేదా అలారాలను స్వీకరించలేదు."</string>
     <string name="lockpattern_settings_require_pin_before_startup_summary" msgid="1058173991832208485">"మీ డివైజ్‌ను ప్రారంభించడానికి పిన్ అవసరం. ఆఫ్‌లో ఉన్నప్పుడు, ఈ డివైజ్ కాల్స్‌, మెసేజ్‌లు, నోటిఫికేషన్‌లు లేదా అలారాలను స్వీకరించలేదు."</string>
@@ -4187,7 +4187,7 @@
       <item quantity="other">కనీసం <xliff:g id="COUNT_1">%d</xliff:g> యాప్‌లు</item>
       <item quantity="one">కనీసం <xliff:g id="COUNT_0">%d</xliff:g> యాప్</item>
     </plurals>
-    <string name="enterprise_privacy_location_access" msgid="110406267468274216">"స్థాన అనుమతులు"</string>
+    <string name="enterprise_privacy_location_access" msgid="110406267468274216">"లొకేషన్‌ అనుమతులు"</string>
     <string name="enterprise_privacy_microphone_access" msgid="4586428105675460207">"మైక్రోఫోన్ అనుమతులు"</string>
     <string name="enterprise_privacy_camera_access" msgid="2366392786153103482">"కెమెరా అనుమతులు"</string>
     <string name="enterprise_privacy_enterprise_set_default_apps" msgid="6142937923758931242">"ఆటోమేటిక్ యాప్‌లు"</string>
@@ -4509,8 +4509,8 @@
     <string name="wfc_disclaimer_title_text" msgid="3245793509743182243">"ముఖ్య సమాచారం"</string>
     <string name="wfc_disclaimer_agree_button_text" msgid="4706101805260434404">"కొనసాగించు"</string>
     <string name="wfc_disclaimer_disagree_text" msgid="908289420390194127">"వద్దు, ధన్యవాదాలు"</string>
-    <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"స్థానం"</string>
-    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"ఈ సేవను అందించడానికి మీ సేవా ప్రదాత మీ స్థాన సమాచారం సేకరించవచ్చు.\n\nదయచేసి మీ సేవా ప్రదాత గోప్యతా విధానాన్ని రివ్యూ చేయండి."</string>
+    <string name="wfc_disclaimer_location_title_text" msgid="5696194250838686019">"లొకేషన్"</string>
+    <string name="wfc_disclaimer_location_desc_text" msgid="3879710366995108723">"ఈ సర్వీస్‌ను అందించడానికి మీ సర్వీస్‌ ప్రొవైడర్‌ మీ లొకేషన్‌ సమాచారాన్ని సేకరించవచ్చు.\n\nదయచేసి మీ సర్వీస్‌ ప్రొవైడర్‌ గోప్యతా పాలసీని రివ్యూ చేయండి."</string>
     <string name="forget_passpoint_dialog_message" msgid="3337626966248310367">"మీరు ఏదైనా మిగిలిన సమయం లేదా డేటాకు యాక్సెస్‌ను కోల్పోవచ్చు. తీసివేసే ముందు మీ ప్రదాతతో తనిఖీ చేయండి."</string>
     <string name="keywords_content_capture" msgid="5401877823529928976">"కంటెంట్ క్యాప్చర్, స్మార్ట్ సూచనలు"</string>
     <string name="content_capture" msgid="1709538093513983279">"స్మార్ట్ సూచనలు"</string>

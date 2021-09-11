@@ -1422,7 +1422,7 @@
     <string name="storage_title_usb" msgid="2015671467177303099">"USB கணினி இணைப்பு"</string>
     <string name="usb_connection_category" msgid="2888975803638116041">"இவ்வாறு இணை"</string>
     <string name="usb_mtp_title" msgid="6893938968831995500">"மீடியா சாதனம் (MTP)"</string>
-    <string name="usb_mtp_summary" msgid="4427354560399094322">"நீங்கள் Windows இல் மீடியா கோப்புகளை இடமாற்றவும் அல்லது Mac இல் Android ஃபைலின் இடமாற்றத்தைப் பயன்படுத்தவும் அனுமதிக்கிறது (www.android.com/filetransfer ஐப் பார்க்கவும்)"</string>
+    <string name="usb_mtp_summary" msgid="4427354560399094322">"நீங்கள் Windows இல் மீடியா ஃபைல்களை இடமாற்றவும் அல்லது Mac இல் Android ஃபைலின் இடமாற்றத்தைப் பயன்படுத்தவும் அனுமதிக்கிறது (www.android.com/filetransfer ஐப் பார்க்கவும்)"</string>
     <string name="usb_ptp_title" msgid="6629335976394685361">"கேமரா (PTP)"</string>
     <string name="usb_ptp_summary" msgid="460425275251168189">"கேமரா மென்பொருளைப் பயன்படுத்தி நீங்கள் படங்களை அனுப்பவும், மேலும் MTP ஆதரிக்காத கணினிகளில் எந்தக் கோப்புகளையும் பரிமாற்றவும் உதவுகிறது."</string>
     <string name="usb_midi_title" msgid="8626512517313340943">"MIDI"</string>
