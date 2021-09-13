@@ -28,8 +28,8 @@ import android.os.IBinder;
 import android.os.UserHandle;
 
 import com.android.car.bluetooth.BuiltinPackageDependency;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.ArrayList;

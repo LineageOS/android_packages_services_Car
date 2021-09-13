@@ -31,7 +31,7 @@ import android.os.RemoteException;
 import android.util.ArraySet;
 import android.util.SparseArray;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

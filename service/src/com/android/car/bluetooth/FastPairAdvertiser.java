@@ -28,7 +28,7 @@ import android.content.Context;
 import android.os.ParcelUuid;
 import android.util.Log;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;

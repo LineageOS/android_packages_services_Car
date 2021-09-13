@@ -27,8 +27,8 @@ import android.util.StatsEvent;
 import com.android.car.CarLog;
 import com.android.car.CarStatsLog;
 import com.android.car.internal.util.ConcurrentUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.util.Arrays;

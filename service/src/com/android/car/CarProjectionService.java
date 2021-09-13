@@ -68,7 +68,7 @@ import android.text.TextUtils;
 import com.android.car.BinderInterfaceContainer.BinderInterface;
 import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.internal.os.HandlerExecutor;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

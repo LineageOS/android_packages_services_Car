@@ -48,8 +48,8 @@ import com.android.car.CarDrivingStateService;
 import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;

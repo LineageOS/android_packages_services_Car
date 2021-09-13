@@ -35,7 +35,7 @@ import android.util.Log;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.util.SetMultimap;
 import com.android.internal.annotations.GuardedBy;
 

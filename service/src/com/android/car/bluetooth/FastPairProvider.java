@@ -29,7 +29,7 @@ import android.os.Handler;
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
 import com.android.car.R;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
  * An advertiser for the Bluetooth LE based Fast Pair service. FastPairProvider enables easy

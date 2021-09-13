@@ -40,7 +40,7 @@ import android.util.Pair;
 import android.util.SparseArray;
 import android.view.Display;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 
 import java.lang.ref.WeakReference;

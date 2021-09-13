@@ -75,7 +75,7 @@ import com.android.car.audio.hal.AudioControlWrapperV1;
 import com.android.car.audio.hal.HalAudioFocus;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.annotation.AttributeUsage;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.util.Preconditions;
 

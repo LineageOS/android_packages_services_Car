@@ -28,7 +28,7 @@ import android.media.AudioManager;
 
 import com.android.car.CarLog;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
  * A helper class wraps {@link AudioDeviceInfo}, and helps get/set the gain on a specific port

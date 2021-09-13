@@ -25,8 +25,8 @@ import android.content.pm.PackageManager;
 
 import androidx.test.filters.SmallTest;
 
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.stats.VmsClientLogger.ConnectionState;
-import com.android.car.util.IndentingPrintWriter;
 
 import org.junit.Before;
 import org.junit.Rule;

@@ -56,8 +56,8 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 

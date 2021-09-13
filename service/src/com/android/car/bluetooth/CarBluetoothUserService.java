@@ -30,7 +30,7 @@ import android.util.SparseBooleanArray;
 
 import com.android.car.CarLog;
 import com.android.car.PerUserCarServiceImpl;
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 import java.util.Arrays;
 import java.util.List;

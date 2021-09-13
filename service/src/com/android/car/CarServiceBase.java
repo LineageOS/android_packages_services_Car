@@ -16,7 +16,7 @@
 
 package com.android.car;
 
-import com.android.car.util.IndentingPrintWriter;
+import com.android.car.internal.util.IndentingPrintWriter;
 
 /**
  * Base class for all Car specific services.

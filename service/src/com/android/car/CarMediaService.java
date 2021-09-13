@@ -65,9 +65,9 @@ import android.util.Log;
 
 import com.android.car.internal.os.HandlerExecutor;
 import com.android.car.internal.util.DebugUtils;
+import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
-import com.android.car.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
