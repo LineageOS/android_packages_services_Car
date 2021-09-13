@@ -19,17 +19,11 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
-import static org.mockito.Mockito.eq;
-import static org.mockito.Mockito.verify;
-
 import android.os.PersistableBundle;
 
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.ArgumentCaptor;
-import org.mockito.Captor;
-import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
 import java.io.ByteArrayOutputStream;
@@ -48,12 +42,6 @@ public class ResultStoreTest {
     private File mTestInterimResultDir;
     private File mTestFinalResultDir;
     private ResultStore mResultStore;
-
-    @Mock
-    private ResultStore.FinalResultCallback mMockFinalResultCallback;
-    @Captor
-    private ArgumentCaptor<PersistableBundle> mBundleCaptor;
-
 
     @Before
     public void setUp() throws Exception {
@@ -131,11 +119,9 @@ public class ResultStoreTest {
     public void testGetFinalResult_whenNoData_shouldReceiveNull() throws Exception {
         String metricsConfigName = "my_metrics_config";
 
-        mResultStore.getFinalResult(metricsConfigName, true, mMockFinalResultCallback);
+        PersistableBundle bundle = mResultStore.getFinalResult(metricsConfigName, true);
 
-        verify(mMockFinalResultCallback).onFinalResult(eq(metricsConfigName),
-                mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue()).isNull();
+        assertThat(bundle).isNull();
     }
 
     @Test
@@ -144,11 +130,9 @@ public class ResultStoreTest {
         Files.write(new File(mTestFinalResultDir, metricsConfigName).toPath(),
                 "not a bundle".getBytes(StandardCharsets.UTF_8));
 
-        mResultStore.getFinalResult(metricsConfigName, true, mMockFinalResultCallback);
+        PersistableBundle bundle = mResultStore.getFinalResult(metricsConfigName, true);
 
-        verify(mMockFinalResultCallback).onFinalResult(eq(metricsConfigName),
-                mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue()).isNull();
+        assertThat(bundle).isNull();
     }
 
     @Test
@@ -156,12 +140,10 @@ public class ResultStoreTest {
         String testFinalFileName = "my_metrics_config";
         writeBundleToFile(mTestFinalResultDir, testFinalFileName, TEST_FINAL_BUNDLE);
 
-        mResultStore.getFinalResult(testFinalFileName, true, mMockFinalResultCallback);
+        PersistableBundle bundle = mResultStore.getFinalResult(testFinalFileName, true);
 
-        verify(mMockFinalResultCallback).onFinalResult(eq(testFinalFileName),
-                mBundleCaptor.capture());
         // should compare value instead of reference
-        assertThat(mBundleCaptor.getValue().toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
+        assertThat(bundle.toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
         assertThat(new File(mTestFinalResultDir, testFinalFileName).exists()).isFalse();
     }
 
@@ -170,12 +152,10 @@ public class ResultStoreTest {
         String testFinalFileName = "my_metrics_config";
         writeBundleToFile(mTestFinalResultDir, testFinalFileName, TEST_FINAL_BUNDLE);
 
-        mResultStore.getFinalResult(testFinalFileName, false, mMockFinalResultCallback);
+        PersistableBundle bundle = mResultStore.getFinalResult(testFinalFileName, false);
 
-        verify(mMockFinalResultCallback).onFinalResult(eq(testFinalFileName),
-                mBundleCaptor.capture());
         // should compare value instead of reference
-        assertThat(mBundleCaptor.getValue().toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
+        assertThat(bundle.toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
         assertThat(new File(mTestFinalResultDir, testFinalFileName).exists()).isTrue();
     }
 
@@ -234,6 +214,26 @@ public class ResultStoreTest {
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isTrue();
+    }
+
+    @Test
+    public void testDeleteResult_whenInterimResult_shouldDelete() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
+
+        mResultStore.deleteResult(metricsConfigName);
+
+        assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
+    }
+
+    @Test
+    public void testDeleteResult_whenFinalResult_shouldDelete() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        writeBundleToFile(mTestFinalResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
+
+        mResultStore.deleteResult(metricsConfigName);
+
+        assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isFalse();
     }
 
     private void writeBundleToFile(

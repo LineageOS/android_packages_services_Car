@@ -97,27 +97,23 @@ public class ResultStore {
      *
      * @param metricsConfigName name of the MetricsConfig.
      * @param deleteResult      if true, the final result will be deleted from disk.
-     * @param callback          for receiving the metrics output. If result does not exist, it will
-     *                          receive a null value.
      */
-    public void getFinalResult(
-            String metricsConfigName, boolean deleteResult, FinalResultCallback callback) {
+    public PersistableBundle getFinalResult(String metricsConfigName, boolean deleteResult) {
         File file = new File(mFinalResultDirectory, metricsConfigName);
         // if no final result exists for this metrics config, return immediately
         if (!file.exists()) {
-            callback.onFinalResult(metricsConfigName, null);
-            return;
+            return null;
         }
+        PersistableBundle result = null;
         try (FileInputStream fis = new FileInputStream(file)) {
-            PersistableBundle bundle = PersistableBundle.readFromStream(fis);
-            callback.onFinalResult(metricsConfigName, bundle);
+            result = PersistableBundle.readFromStream(fis);
         } catch (IOException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to get final result from disk.", e);
-            callback.onFinalResult(metricsConfigName, null);
         }
         if (deleteResult) {
             file.delete();
         }
+        return result;
     }
 
     /**
@@ -134,6 +130,27 @@ public class ResultStore {
     public void flushToDisk() {
         writeInterimResultsToFile();
         deleteAllStaleData(mInterimResultDirectory, mFinalResultDirectory);
+    }
+
+    /**
+     * Deletes script result associated with the given config name. If result does not exist, this
+     * method does not do anything.
+     */
+    public void deleteResult(String metricsConfigName) {
+        mInterimResultCache.remove(metricsConfigName);
+        deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
+        deleteFileInDirectory(mFinalResultDirectory, metricsConfigName);
+    }
+
+    /** Deletes all interim and final results stored in disk. */
+    public void deleteAllResults() {
+        mInterimResultCache.clear();
+        for (File interimResult : mInterimResultDirectory.listFiles()) {
+            interimResult.delete();
+        }
+        for (File finalResult : mFinalResultDirectory.listFiles()) {
+            finalResult.delete();
+        }
     }
 
     /** Writes dirty interim results to disk. */
@@ -178,11 +195,6 @@ public class ResultStore {
     private void deleteFileInDirectory(File interimResultDirectory, String metricsConfigName) {
         File file = new File(interimResultDirectory, metricsConfigName);
         file.delete();
-    }
-
-    /** Callback for receiving final metrics output. */
-    interface FinalResultCallback {
-        void onFinalResult(String metricsConfigName, PersistableBundle result);
     }
 
     /** Wrapper around a result and whether the result should be written to disk. */
