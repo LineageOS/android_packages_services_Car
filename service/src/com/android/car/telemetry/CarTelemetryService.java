@@ -15,7 +15,9 @@
  */
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED;
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNKNOWN;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
@@ -161,16 +163,26 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public void addMetricsConfig(@NonNull MetricsConfigKey key, @NonNull byte[] config) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
-        // TODO(b/198797367): if an older version exists, delete its script result/error
         mTelemetryHandler.post(() -> {
-            TelemetryProto.MetricsConfig metricsConfig;
-            int status;
+            Slog.d(CarLog.TAG_TELEMETRY, "Adding metrics config " + key.getName()
+                    + " to car telemetry service");
+            // TODO(b/199540952): If config is active, add it to DataBroker
+            TelemetryProto.MetricsConfig metricsConfig = null;
+            int status = ERROR_METRICS_CONFIG_UNKNOWN;
             try {
                 metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
-                status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
             } catch (InvalidProtocolBufferException e) {
                 Slog.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
                 status = ERROR_METRICS_CONFIG_PARSE_FAILED;
+            }
+            // if config can be parsed, add it to persistent storage
+            if (metricsConfig != null) {
+                status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
+            }
+            // If no error (a config is successfully added), script results from an older version
+            // should be deleted
+            if (status == ERROR_METRICS_CONFIG_NONE) {
+                mResultStore.deleteResult(key.getName());
             }
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
@@ -181,19 +193,19 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Removes a manifest based on the key.
+     * Removes a metrics config based on the key. This will also remove outputs produced by the
+     * MetricsConfig.
      */
     @Override
     public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeMetricsConfig");
-        // TODO(b/198797367): Delete script result/error associated with this MetricsConfig
         mTelemetryHandler.post(() -> {
-            if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY, "Removing manifest " + key.getName()
-                        + " from car telemetry service");
-            }
+            Slog.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
+                    + " from car telemetry service");
             // TODO(b/198792767): Check both config name and config version for deletion
+            // TODO(b/199540952): Stop and remove config from data broker
+            mResultStore.deleteResult(key.getName()); // delete the config's script results
             boolean success = mMetricsConfigStore.deleteMetricsConfig(key.getName());
             try {
                 mListener.onRemoveMetricsConfigStatus(key, success);
@@ -204,17 +216,18 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Removes all manifests.
+     * Removes all MetricsConfigs. This will also remove all MetricsConfig outputs.
      */
     @Override
     public void removeAllMetricsConfigs() {
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeAllMetricsConfig");
         mTelemetryHandler.post(() -> {
-            if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY, "Removing all manifest from car telemetry service");
-            }
-            // TODO(b/184087869): Implement
+            // TODO(b/199540952): Stop and remove all configs from DataBroker
+            Slog.d(CarLog.TAG_TELEMETRY,
+                    "Removing all metrics config from car telemetry service");
+            mMetricsConfigStore.deleteAllMetricsConfigs();
+            mResultStore.deleteAllResults();
         });
     }
 
@@ -228,7 +241,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendFinishedReports");
         if (DEBUG) {
-            Slog.d(CarLog.TAG_TELEMETRY, "Flushing reports for a manifest");
+            Slog.d(CarLog.TAG_TELEMETRY, "Flushing reports for a metrics config");
         }
     }
 
@@ -248,5 +261,15 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     @VisibleForTesting
     Handler getTelemetryHandler() {
         return mTelemetryHandler;
+    }
+
+    @VisibleForTesting
+    ResultStore getResultStore() {
+        return mResultStore;
+    }
+
+    @VisibleForTesting
+    MetricsConfigStore getMetricsConfigStore() {
+        return mMetricsConfigStore;
     }
 }

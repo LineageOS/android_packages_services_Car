@@ -339,8 +339,9 @@ public final class CarTelemetryManager extends CarManagerBase {
     }
 
     /**
-     * Removes a MetricsConfig from {@link com.android.car.telemetry.CarTelemetryService}. If the
-     * MetricsConfig does not exist, nothing will be removed.
+     * Removes a MetricsConfig from {@link com.android.car.telemetry.CarTelemetryService}. This
+     * will also remove outputs produced by the MetricsConfig. If the MetricsConfig does not exist,
+     * nothing will be removed.
      * The status of this API is sent back asynchronously via {@link CarTelemetryResultsListener}.
      *
      * @param key the unique key to identify the MetricsConfig. Name and version must be exact.
@@ -358,7 +359,8 @@ public final class CarTelemetryManager extends CarManagerBase {
     }
 
     /**
-     * Removes all MetricsConfigs from {@link com.android.car.telemetry.CarTelemetryService}.
+     * Removes all MetricsConfigs from {@link com.android.car.telemetry.CarTelemetryService}. This
+     * will also remove all MetricsConfig outputs.
      *
      * @hide
      */

@@ -87,6 +87,16 @@ public class MetricsConfigStoreTest {
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
     }
 
+    @Test
+    public void testDeleteAllMetricsConfigs_shouldDeleteAll() throws Exception {
+        writeConfigToDisk(METRICS_CONFIG_FOO);
+        writeConfigToDisk(METRICS_CONFIG_BAR);
+
+        mMetricsConfigStore.deleteAllMetricsConfigs();
+
+        assertThat(mTestMetricsConfigDir.listFiles()).isEmpty();
+    }
+
     private void writeConfigToDisk(TelemetryProto.MetricsConfig config) throws Exception {
         File file = new File(mTestMetricsConfigDir, config.getName());
         Files.write(file.toPath(), config.toByteArray());
