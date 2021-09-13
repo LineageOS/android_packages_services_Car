@@ -29,22 +29,14 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockUidIoStatsCollector : public UidIoStatsCollector {
+class MockUidIoStatsCollector : public UidIoStatsCollectorInterface {
 public:
     MockUidIoStatsCollector() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
-    MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
-    MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), latestStats, (), (const, override));
-    MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), deltaStats, (), (const, override));
-    MOCK_METHOD(std::string, filePath, (), (override));
-
-    void expectDeltaStats(const std::unordered_map<uid_t, IoUsage>& deltaStats) {
-        std::unordered_map<uid_t, UidIoUsage> stats;
-        for (const auto& [uid, ios] : deltaStats) {
-            stats[uid] = UidIoUsage{.uid = uid, .ios = ios};
-        }
-        EXPECT_CALL(*this, deltaStats()).WillOnce(::testing::Return(stats));
-    }
+    MOCK_METHOD((const std::unordered_map<uid_t, UidIoStats>), latestStats, (), (const, override));
+    MOCK_METHOD((const std::unordered_map<uid_t, UidIoStats>), deltaStats, (), (const, override));
+    MOCK_METHOD(bool, enabled, (), (const, override));
+    MOCK_METHOD(const std::string, filePath, (), (const, override));
 };
 
 }  // namespace watchdog

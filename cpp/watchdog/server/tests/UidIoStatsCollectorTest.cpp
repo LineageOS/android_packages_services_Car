@@ -32,10 +32,10 @@ using ::testing::UnorderedElementsAreArray;
 
 namespace {
 
-std::string toString(std::unordered_map<uid_t, UidIoUsage> usages) {
+std::string toString(std::unordered_map<uid_t, UidIoStats> uidIoStatsByUid) {
     std::string buffer;
-    for (const auto& [uid, usage] : usages) {
-        StringAppendF(&buffer, "{%s}\n", usage.toString().c_str());
+    for (const auto& [uid, stats] : uidIoStatsByUid) {
+        StringAppendF(&buffer, "{%d: %s}\n", uid, stats.toString().c_str());
     }
     return buffer;
 }
@@ -49,14 +49,20 @@ TEST(UidIoStatsCollectorTest, TestValidStatFile) {
                                      "1005678 500 100 30 50 300 400 100 200 45 60\n"
                                      "1009 0 0 0 0 40000 50000 20000 30000 0 300\n"
                                      "1001000 4000 3000 2000 1000 400 300 200 100 50 10\n";
-    std::unordered_map<uid_t, UidIoUsage> expectedFirstUsage =
+    std::unordered_map<uid_t, UidIoStats> expectedFirstUsage =
             {{1001234,
-              {.uid = 1001234,
-               .ios = {/*fgRdBytes=*/3000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
-                       /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}}},
-             {1005678, {.uid = 1005678, .ios = {30, 100, 50, 200, 45, 60}}},
-             {1009, {.uid = 1009, .ios = {0, 20000, 0, 30000, 0, 300}}},
-             {1001000, {.uid = 1001000, .ios = {2000, 200, 1000, 100, 50, 10}}}};
+              UidIoStats{/*fgRdBytes=*/3'000, /*bgRdBytes=*/0, /*fgWrBytes=*/500,
+                         /*bgWrBytes=*/0, /*fgFsync=*/20, /*bgFsync=*/0}},
+             {1005678,
+              UidIoStats{/*fgRdBytes=*/30, /*bgRdBytes=*/100, /*fgWrBytes=*/50, /*bgWrBytes=*/200,
+                         /*fgFsync=*/45, /*bgFsync=*/60}},
+             {1009,
+              UidIoStats{/*fgRdBytes=*/0, /*bgRdBytes=*/20'000, /*fgWrBytes=*/0,
+                         /*bgWrBytes=*/30'000,
+                         /*fgFsync=*/0, /*bgFsync=*/300}},
+             {1001000,
+              UidIoStats{/*fgRdBytes=*/2'000, /*bgRdBytes=*/200, /*fgWrBytes=*/1'000,
+                         /*bgWrBytes=*/100, /*fgFsync=*/50, /*bgFsync=*/10}}};
     TemporaryFile tf;
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
@@ -74,14 +80,17 @@ TEST(UidIoStatsCollectorTest, TestValidStatFile) {
                                       "1005678 600 100 40 50 1000 1000 1000 600 50 70\n"
                                       "1003456 300 500 200 300 0 0 0 0 50 0\n"
                                       "1001000 400 300 200 100 40 30 20 10 5 1\n";
-    std::unordered_map<uid_t, UidIoUsage> expectedSecondUsage =
+    std::unordered_map<uid_t, UidIoStats> expectedSecondUsage =
             {{1001234,
-              {.uid = 1001234,
-               .ios = {/*fgRdBytes=*/4000, /*bgRdBytes=*/0,
-                       /*fgWrBytes=*/450, /*bgWrBytes=*/0, /*fgFsync=*/25,
-                       /*bgFsync=*/0}}},
-             {1005678, {.uid = 1005678, .ios = {10, 900, 0, 400, 5, 10}}},
-             {1003456, {.uid = 1003456, .ios = {200, 0, 300, 0, 50, 0}}}};
+              UidIoStats{/*fgRdBytes=*/4'000, /*bgRdBytes=*/0,
+                         /*fgWrBytes=*/450, /*bgWrBytes=*/0, /*fgFsync=*/25,
+                         /*bgFsync=*/0}},
+             {1005678,
+              UidIoStats{/*fgRdBytes=*/10, /*bgRdBytes=*/900, /*fgWrBytes=*/0, /*bgWrBytes=*/400,
+                         /*fgFsync=*/5, /*bgFsync=*/10}},
+             {1003456,
+              UidIoStats{/*fgRdBytes=*/200, /*bgRdBytes=*/0, /*fgWrBytes=*/300, /*bgWrBytes=*/0,
+                         /*fgFsync=*/50, /*bgFsync=*/0}}};
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
     ASSERT_RESULT_OK(collector.collect());
 
