@@ -89,6 +89,7 @@ class MetricsConfigStore {
         } else if (currentVersion == metricsConfig.getVersion()) {
             return ERROR_METRICS_CONFIG_ALREADY_EXISTS;
         }
+        mActiveConfigs.put(metricsConfig.getName(), metricsConfig);
         mNameVersionMap.put(metricsConfig.getName(), metricsConfig.getVersion());
         try {
             Files.write(
@@ -108,7 +109,10 @@ class MetricsConfigStore {
         return new File(mConfigDirectory, metricsConfigName).delete();
     }
 
-    void deleteAllMetricsConfig() {
-        // TODO(b/198784116): implement
+    void deleteAllMetricsConfigs() {
+        mActiveConfigs.clear();
+        for (File file : mConfigDirectory.listFiles()) {
+            file.delete();
+        }
     }
 }

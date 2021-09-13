@@ -26,12 +26,13 @@ interface ICarTelemetryService {
     void addMetricsConfig(in MetricsConfigKey key, in byte[] metricsConfig);
 
     /**
-     * Removes a MetricsConfig based on the key.
+     * Removes a MetricsConfig based on the key. This will also remove outputs produced by the
+     * MetricsConfig.
      */
     void removeMetricsConfig(in MetricsConfigKey key);
 
     /**
-     * Removes all MetricsConfigs.
+     * Removes all MetricsConfigs. This will also remove all MetricsConfig outputs.
      */
     void removeAllMetricsConfigs();
 

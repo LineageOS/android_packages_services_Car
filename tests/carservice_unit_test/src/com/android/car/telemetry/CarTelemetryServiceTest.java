@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry;
 
+import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.eq;
@@ -27,6 +28,7 @@ import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.MetricsConfigKey;
 import android.content.Context;
 import android.os.Handler;
+import android.os.PersistableBundle;
 
 import androidx.test.filters.SmallTest;
 
@@ -66,6 +68,8 @@ public class CarTelemetryServiceTest {
     private CarTelemetryService mService;
     private File mTempSystemCarDir;
     private Handler mTelemetryHandler;
+    private MetricsConfigStore mMetricsConfigStore;
+    private ResultStore mResultStore;
 
     @Rule
     public MockitoRule mMockitoRule = MockitoJUnit.rule();
@@ -96,6 +100,9 @@ public class CarTelemetryServiceTest {
             return true;
         });
         waitForHandlerThreadToFinish();
+
+        mMetricsConfigStore = mService.getMetricsConfigStore();
+        mResultStore = mService.getResultStore();
     }
 
     @Test
@@ -123,7 +130,7 @@ public class CarTelemetryServiceTest {
 
     @Test
     public void testAddMetricsConfig_invalidMetricsConfig_shouldFail() throws Exception {
-        mService.addMetricsConfig(KEY_V1, "bad manifest".getBytes());
+        mService.addMetricsConfig(KEY_V1, "bad config".getBytes());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
@@ -145,32 +152,58 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testAddMetricsConfig_newerMetricsConfig_shouldReplace() throws Exception {
+    public void testAddMetricsConfig_newerMetricsConfig_shouldReplaceAndDeleteOldResult()
+            throws Exception {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
 
         mService.addMetricsConfig(KEY_V2, METRICS_CONFIG_V2.toByteArray());
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onAddMetricsConfigStatus(
                 eq(KEY_V2), eq(CarTelemetryManager.ERROR_METRICS_CONFIG_NONE));
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs())
+                .containsExactly(METRICS_CONFIG_V2);
+        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
     }
 
     @Test
-    public void testRemoveMetricsConfig_manifestExists_shouldSucceed() throws Exception {
+    public void testRemoveMetricsConfig_configExists_shouldDeleteScriptResult() throws Exception {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
 
         mService.removeMetricsConfig(KEY_V1);
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onRemoveMetricsConfigStatus(eq(KEY_V1), eq(true));
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
     }
 
     @Test
-    public void testRemoveMetricsConfig_manifestDoesNotExist_shouldFail() throws Exception {
+    public void testRemoveMetricsConfig_configDoesNotExist_shouldFail() throws Exception {
         mService.removeMetricsConfig(KEY_V1);
 
         waitForHandlerThreadToFinish();
         verify(mMockListener).onRemoveMetricsConfigStatus(eq(KEY_V1), eq(false));
+    }
+
+    @Test
+    public void testRemoveAllMetricsConfigs_shouldRemoveConfigsAndResults() throws Exception {
+        MetricsConfigKey key = new MetricsConfigKey("test config", 2);
+        TelemetryProto.MetricsConfig config =
+                TelemetryProto.MetricsConfig.newBuilder().setName(key.getName()).build();
+        mService.addMetricsConfig(key, config.toByteArray());
+        mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
+        mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
+        mResultStore.putFinalResult(key.getName(), new PersistableBundle());
+
+        mService.removeAllMetricsConfigs();
+
+        waitForHandlerThreadToFinish();
+        assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
+        assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
+        assertThat(mResultStore.getFinalResult(key.getName(), /* deleteResult = */ false)).isNull();
     }
 
     private void waitForHandlerThreadToFinish() throws Exception {
