@@ -594,6 +594,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 return;
             }
 
+            // Notify the client that the stream has ended.
+            notifyStreamStopped(callback);
+
             unlinkToDeathStreamCallbackLocked();
             mStreamCallback = null;
             Slog.i(TAG_EVS, "Last stream client has been disconnected.");
@@ -713,8 +716,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         synchronized (mLock) {
             int targetState = on ? SERVICE_STATE_REQUESTED : SERVICE_STATE_INACTIVE;
-            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type) !=
-                    ERROR_NONE) {
+            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type, /* token = */ null,
+                    mStreamCallback) != ERROR_NONE) {
                 Slog.e(TAG_EVS, "Failed to execute a service request.");
             }
 
