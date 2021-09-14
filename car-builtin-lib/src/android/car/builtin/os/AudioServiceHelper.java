@@ -16,12 +16,15 @@
 
 package android.car.builtin.os;
 
+import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 import static android.media.AudioManager.GET_DEVICES_INPUTS;
 import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.util.Slog;
+import android.media.AudioAttributes;
+import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioDeviceInfo;
 import android.media.AudioDevicePort;
 import android.media.AudioFormat;
@@ -246,6 +249,43 @@ public final class AudioServiceHelper {
             }
         }
         return false;
+    }
+
+    /**
+     * Returns the string representation of {@link android.media.AudioAttributes.AttributeUsage}.
+     *
+     * <p>See {@link android.media.AudioAttributes.usageToString}.
+     */
+    public static String usageToString(@AttributeUsage int usage) {
+        return AudioAttributes.usageToString(usage);
+    }
+
+    /**
+     * Returns the xsd string representation of
+     * {@link android.media.AudioAttributes.AttributeUsage}.
+     *
+     * <p>See {@link android.media.AudioAttributes.usageToXsdString}.
+     */
+    public static String usageToXsdString(@AttributeUsage int usage) {
+        return AudioAttributes.usageToXsdString(usage);
+    }
+
+    /**
+     * Returns {@link android.media.AudioAttributes.AttributeUsage} representation of
+     * xsd usage string.
+     *
+     * <p>See {@link android.media.AudioAttributes.xsdStringToUsage}.
+     */
+    public static int xsdStringToUsage(String usage) {
+        return AudioAttributes.xsdStringToUsage(usage);
+    }
+
+    /**
+     * Returns {@link android.media.AudioAttributes.AttributeUsage} for
+     * {@link android.media.AudioAttributes.AttributeUsage.USAGE_VIRTUAL_SOURCE}.
+     */
+    public static int getUsageVirtualSource() {
+        return USAGE_VIRTUAL_SOURCE;
     }
 
 
