@@ -69,7 +69,6 @@ import android.content.pm.ApplicationInfo;
 import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.HandlerThread;
@@ -407,11 +406,11 @@ public final class WatchdogPerfHandler {
 
     private void setPackageKillableStateForAllUsers(String packageName, boolean isKillable) {
         UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserInfo> userInfos = userManager.getAliveUsers();
+        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ true);
         String genericPackageName = null;
         synchronized (mLock) {
-            for (int i = 0; i < userInfos.size(); ++i) {
-                int userId = userInfos.get(i).id;
+            for (int i = 0; i < users.size(); ++i) {
+                int userId = users.get(i).getIdentifier();
                 String name = mPackageInfoHandler.getNameForUserPackage(packageName, userId);
                 if (name == null) {
                     continue;
@@ -455,10 +454,10 @@ public final class WatchdogPerfHandler {
         }
         List<PackageKillableState> packageKillableStates = new ArrayList<>();
         UserManager userManager = mContext.getSystemService(UserManager.class);
-        List<UserInfo> userInfos = userManager.getAliveUsers();
-        for (int i = 0; i < userInfos.size(); ++i) {
+        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ true);
+        for (int i = 0; i < users.size(); ++i) {
             packageKillableStates.addAll(
-                    getPackageKillableStatesForUserId(userInfos.get(i).id, pm));
+                    getPackageKillableStatesForUserId(users.get(i).getIdentifier(), pm));
         }
         if (DEBUG) {
             Slogf.d(TAG, "Returning all package killable states for all users");

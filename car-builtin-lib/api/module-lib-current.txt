@@ -100,15 +100,19 @@ package android.car.builtin.os {
   }
 
   public final class UserManagerHelper {
-    method public static android.graphics.Bitmap assignDefaultIcon(@NonNull android.content.Context, @NonNull android.os.UserHandle);
+    method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
     method public static String getDefaultUserTypeForUserInfoFlags(int);
     method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
+    method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
     method @Deprecated public static boolean isAdminUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isEnabledUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isEphemeralUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isGuestUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Deprecated public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean isPreCreatedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isProfileUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method @Nullable public static android.os.UserHandle preCreateUser(@NonNull android.os.UserManager, @NonNull String);
     method public static void setUserAdmin(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static void setUserRestriction(@NonNull android.os.UserManager, @NonNull String, boolean, @NonNull android.os.UserHandle);
     field public static final int FLAG_ADMIN = 2; // 0x2

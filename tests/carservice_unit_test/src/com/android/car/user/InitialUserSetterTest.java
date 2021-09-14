@@ -1115,7 +1115,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void verifyUserDeleted(@UserIdInt int userId) {
-        verify(mUm).removeUser(userId);
+        verify(mUm).removeUser(UserHandle.of(userId));
     }
 
     private void verifyFallbackDefaultBehaviorCalledFromCreateOrSwitch() {

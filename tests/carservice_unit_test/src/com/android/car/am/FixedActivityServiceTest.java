@@ -57,6 +57,7 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceUtils;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -89,6 +90,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private CarUserService mCarUserService;
     @Mock
     private CarPowerManager mCarPowerManager;
+    @Mock
+    private UserHandleHelper mUserHandleHelper;
 
     private FixedActivityService mFixedActivityService;
 
@@ -105,7 +108,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
         mFixedActivityService = new FixedActivityService(mContext, mActivityManager, mUserManager,
-                mDisplayManager);
+                mDisplayManager, mUserHandleHelper);
     }
 
     @After
@@ -344,7 +347,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     @Test
     public void onUserSwitchToUserWithEnabledProfile_noChangeInRunningActivities()
             throws Exception {
-        when(mUserManager.getEnabledProfileIds(11)).thenReturn(new int[]{10});
+        when(mUserHandleHelper.getEnabledProfiles(11)).thenReturn(Arrays.asList(UserHandle.of(10)));
         testClearingOfRunningActivitiesOnUserSwitch(
                 /* fromUserId = */ 10,
                 /* toUserId = */ 11,
@@ -390,7 +393,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
 
 
     private void expectNoProfileUser(@UserIdInt int userId) {
-        when(mUserManager.getEnabledProfileIds(userId)).thenReturn(new int[0]);
+        when(mUserHandleHelper.getEnabledProfiles(userId)).thenReturn(new ArrayList<UserHandle>());
     }
 
     private Intent expectComponentUnavailable(String pkgName, String className,

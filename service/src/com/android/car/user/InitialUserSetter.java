@@ -376,7 +376,7 @@ final class InitialUserSetter {
 
         if (newUser.getIdentifier() != currentUser.getIdentifier()) {
             Slogf.i(TAG, "Removing old guest %d", currentUser.getIdentifier());
-            if (!mUm.removeUser(currentUser.getIdentifier())) {
+            if (!mUm.removeUser(currentUser)) {
                 Slog.w(TAG, "Could not remove old guest " + currentUser.getIdentifier());
             }
         }
@@ -459,7 +459,7 @@ final class InitialUserSetter {
 
         if (actualUserId != userId) {
             Slog.i(TAG, "Removing old guest " + userId);
-            if (!mUm.removeUser(userId)) {
+            if (!mUm.removeUser(user)) {
                 Slog.w(TAG, "Could not remove old guest " + userId);
             }
         }

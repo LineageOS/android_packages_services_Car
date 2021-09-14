@@ -132,6 +132,7 @@ public final class AndroidMockitoHelper {
      */
     public static void mockUmGetAliveUsers(@NonNull UserManager um,
             @NonNull @UserIdInt int... userIds) {
+        mockUmGetUserHandles(um, true, userIds);
         List<UserInfo> users = UserTestingHelper.newUsers(userIds);
         when(um.getAliveUsers()).thenReturn(users);
     }
@@ -167,6 +168,8 @@ public final class AndroidMockitoHelper {
             @NonNull List<UserHandle> users) {
         Objects.requireNonNull(um);
         Objects.requireNonNull(users);
+        when(um.getUserHandles(excludeDying)).thenReturn(users);
+        // TODO(b/196179969): Remove following code
         // convert List<UserHandle> to List<UserInfos>
         List<UserInfo> userInfos = new ArrayList<UserInfo>();
         for (UserHandle userHandle : users) {
@@ -192,12 +195,17 @@ public final class AndroidMockitoHelper {
         when(um.getUsers()).thenReturn(UserTestingHelper.toList(userInfos));
     }
 
+    public static void mockUmGetAllUsers(@NonNull UserManager um, @NonNull UserHandle... users) {
+        mockUmGetUserHandles(um, false, users);
+    }
+
     /**
      * Mocks a call to {@code UserManager#isUserRunning(userId)}.
      */
     public static void mockUmIsUserRunning(@NonNull UserManager um, @UserIdInt int userId,
             boolean isRunning) {
         when(um.isUserRunning(userId)).thenReturn(isRunning);
+        when(um.isUserRunning(UserHandle.of(userId))).thenReturn(isRunning);
     }
 
     /**

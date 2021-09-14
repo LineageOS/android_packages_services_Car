@@ -17,9 +17,8 @@
 package com.android.car.watchdog;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockQueryService;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
-import static android.car.test.util.UserTestingHelper.UserInfoBuilder;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
@@ -38,7 +37,6 @@ import android.car.Car;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.watchdog.CarWatchdogManager;
 import android.content.Context;
-import android.content.pm.UserInfo;
 import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
@@ -76,9 +74,9 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
     private final Handler mMainHandler = new Handler(Looper.getMainLooper());
     private final Executor mExecutor =
             InstrumentationRegistry.getInstrumentation().getTargetContext().getMainExecutor();
-    private final UserInfo[] mUserInfos = new UserInfo[] {
-            new UserInfoBuilder(10).setName("user 1").build(),
-            new UserInfoBuilder(11).setName("user 2").build()
+    private final UserHandle[] mUsers = new UserHandle[] {
+            UserHandle.of(10),
+            UserHandle.of(11)
     };
 
     @Mock private Context mMockContext;
@@ -100,7 +98,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
         when(mMockContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
-        mockUmGetAllUsers(mUserManager, mUserInfos);
+        mockUmGetUserHandles(mUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mUserManager, 10, true);
         mockUmIsUserRunning(mUserManager, 11, false);
 

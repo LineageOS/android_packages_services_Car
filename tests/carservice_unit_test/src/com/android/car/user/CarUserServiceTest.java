@@ -239,7 +239,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mMockContext).getContentResolver();
-        doReturn(false).when(mMockedUserManager).isUserUnlockingOrUnlocked(anyInt());
+        doReturn(false).when(mMockedUserManager).isUserUnlockingOrUnlocked(any());
         doReturn(mMockedResources).when(mMockContext).getResources();
         doReturn(mMockedDrawable).when(mMockedResources)
                 .getDrawable(eq(R.drawable.ic_account_circle), eq(null));
@@ -2815,12 +2815,12 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void verifyUserRemoved(@UserIdInt int userId) {
-        verify(mMockedUserManager).removeUser(userId);
+        verify(mMockedUserManager).removeUser(UserHandle.of(userId));
     }
 
     private void verifyNoUserRemoved() {
         verify(mMockedUserManager, never()).removeUserOrSetEphemeral(anyInt(), anyBoolean());
-        verify(mMockedUserManager, never()).removeUser(anyInt());
+        verify(mMockedUserManager, never()).removeUser(any());
     }
 
     private void verifyAnyUserSwitch() throws Exception {

@@ -76,7 +76,7 @@ public class BluetoothDeviceConnectionPolicy {
                 public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                         CarPowerPolicy accumulatedPolicy) {
                     boolean isOn = accumulatedPolicy.isComponentEnabled(PowerComponent.BLUETOOTH);
-                    if (!mUserManager.isUserUnlocked(mUserId)) {
+                    if (!mUserManager.isUserUnlocked(UserHandle.of(mUserId))) {
                         logd("User " + mUserId + " is locked, ignoring bluetooth power change "
                                 + (isOn ? "on" : "off"));
                         return;

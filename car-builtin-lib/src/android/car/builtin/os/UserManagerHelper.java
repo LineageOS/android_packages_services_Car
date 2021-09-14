@@ -17,6 +17,7 @@
 package android.car.builtin.os;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.content.Context;
@@ -69,7 +70,8 @@ public final class UserManagerHelper {
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
     /** Assign default Icon for a given user. */
-    public static Bitmap assignDefaultIcon(@NonNull Context context, @NonNull UserHandle user) {
+    public static Bitmap assignDefaultIconForUser(@NonNull Context context,
+            @NonNull UserHandle user) {
         UserManager userManager = context.getSystemService(UserManager.class);
         UserInfo userInfo = userManager.getUserInfo(user.getIdentifier());
         if (userInfo == null) {
@@ -104,8 +106,18 @@ public final class UserManagerHelper {
     @NonNull
     public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
             boolean excludePartial, boolean excludeDying) {
-        List<UserInfo> users = userManager.getUsers(excludePartial, excludeDying,
+        return getUserHandles(userManager, excludePartial, excludeDying,
                 /* excludePreCreated= */ true);
+    }
+
+    /**
+     * Returns all users based on the boolean flags.
+     */
+    @NonNull
+    public static List<UserHandle> getUserHandles(@NonNull UserManager userManager,
+            boolean excludePartial, boolean excludeDying, boolean excludePreCreated) {
+        List<UserInfo> users = userManager.getUsers(excludePartial, excludeDying,
+                excludePreCreated);
 
         List<UserHandle> result = new ArrayList<>(users.size());
         for (UserInfo user : users) {
@@ -159,6 +171,23 @@ public final class UserManagerHelper {
     }
 
     /**
+     * Checks if a user is precreated.
+     */
+    public static boolean isPreCreatedUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).preCreated;
+    }
+
+    /**
+     * @deprecated Would be removed after more research in existing API
+     */
+    @Deprecated
+    public static boolean isInitializedUser(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.getUserInfo(user.getIdentifier()).isInitialized();
+    }
+
+    /**
      * Would be removed after more research in existing API.
      *
      * @deprecated Would be removed
@@ -181,9 +210,18 @@ public final class UserManagerHelper {
     }
 
     /**
-     * getDefaultUserType given userInfo flags.
+     * Gets DefaultUserType given userInfo flags.
      */
     public static String getDefaultUserTypeForUserInfoFlags(int userInfoFlag) {
         return UserInfo.getDefaultUserType(userInfoFlag);
+    }
+
+    /**
+     * Precreates user based on user type
+     */
+    @Nullable
+    public static UserHandle preCreateUser(@NonNull UserManager userManager, @NonNull String type) {
+        UserInfo userInfo = userManager.preCreateUser(type);
+        return userInfo == null ? null : userInfo.getUserHandle();
     }
 }

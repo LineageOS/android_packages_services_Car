@@ -132,6 +132,6 @@ public final class UserHelper {
         Preconditions.checkArgument(context != null, "Context cannot be null");
         Preconditions.checkArgument(user != null, "User cannot be null");
 
-        return UserManagerHelper.assignDefaultIcon(context, user);
+        return UserManagerHelper.assignDefaultIconForUser(context, user);
     }
 }

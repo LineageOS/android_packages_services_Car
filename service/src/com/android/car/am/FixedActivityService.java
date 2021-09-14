@@ -58,6 +58,7 @@ import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -268,19 +269,25 @@ public final class FixedActivityService implements CarServiceBase {
         launchIfNecessary();
     };
 
+    private final UserHandleHelper mUserHandleHelper;
+
     public FixedActivityService(Context context) {
         this(context, ActivityManager.getService(), context.getSystemService(UserManager.class),
-                context.getSystemService(DisplayManager.class));
+                context.getSystemService(DisplayManager.class),
+                new UserHandleHelper(context, context.getSystemService(UserManager.class)));
     }
 
+    @VisibleForTesting
     FixedActivityService(Context context, IActivityManager activityManager,
-            UserManager userManager, DisplayManager displayManager) {
+            UserManager userManager, DisplayManager displayManager,
+            UserHandleHelper userHandleHelper) {
         mContext = context;
         mAm = activityManager;
         mUm = userManager;
         mDm = displayManager;
         mHandler = new Handler(CarServiceUtils.getHandlerThread(
                 FixedActivityService.class.getSimpleName()).getLooper());
+        mUserHandleHelper = userHandleHelper;
     }
 
     @Override
@@ -589,14 +596,14 @@ public final class FixedActivityService implements CarServiceBase {
         if (userId == currentUser || userId == UserHandle.USER_SYSTEM) {
             return true;
         }
-        int[] profileIds = mUm.getEnabledProfileIds(currentUser);
+        List<UserHandle> profiles = mUserHandleHelper.getEnabledProfiles(currentUser);
         // null can happen in test env when UserManager is mocked. So this check is not necessary
         // in real env but add it to make test impl easier.
-        if (profileIds == null) {
+        if (profiles == null) {
             return false;
         }
-        for (int id : profileIds) {
-            if (id == userId) {
+        for (UserHandle profile : profiles) {
+            if (profile.getIdentifier() == userId) {
                 return true;
             }
         }
