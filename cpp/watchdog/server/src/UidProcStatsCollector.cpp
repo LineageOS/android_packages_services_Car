@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,13 +16,14 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "ProcPidStat.h"
+#include "UidProcStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
 #include <android-base/strings.h>
-#include <dirent.h>
 #include <log/log.h>
+
+#include <dirent.h>
 
 #include <string>
 #include <unordered_map>
@@ -64,7 +65,7 @@ bool parsePidStatLine(const std::string& line, PidStat* pidStat) {
     std::vector<std::string> fields = Split(line, " ");
 
     // Note: Regex parsing for the below logic increased the time taken to run the
-    // ProcPidStatTest#TestProcPidStatContentsFromDevice from 151.7ms to 1.3 seconds.
+    // UidProcStatsCollectorTest#TestProcPidStatContentsFromDevice from 151.7ms to 1.3 seconds.
 
     // Comm string is enclosed with ( ) brackets and may contain space(s). Thus calculate the
     // commEndOffset based on the field that contains the closing bracket.
@@ -191,7 +192,7 @@ Result<void> readPidStatusFile(const std::string& path, ProcessStats* processSta
 
 }  // namespace
 
-Result<void> ProcPidStat::collect() {
+Result<void> UidProcStatsCollector::collect() {
     if (!mEnabled) {
         return Error() << "Can not access PID stat files under " << kProcDirPath;
     }
@@ -231,7 +232,8 @@ Result<void> ProcPidStat::collect() {
     return {};
 }
 
-Result<std::unordered_map<pid_t, ProcessStats>> ProcPidStat::getProcessStatsLocked() const {
+Result<std::unordered_map<pid_t, ProcessStats>> UidProcStatsCollector::getProcessStatsLocked()
+        const {
     std::unordered_map<pid_t, ProcessStats> processStats;
     auto procDirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(mPath.c_str()), closedir);
     if (!procDirp) {

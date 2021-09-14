@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKPROCPIDSTAT_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKPROCPIDSTAT_H_
+#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKUIDPROCSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_TESTS_MOCKUIDPROCSTATSCOLLECTOR_H_
 
-#include "ProcPidStat.h"
+#include "UidProcStatsCollector.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>
@@ -30,9 +30,11 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockProcPidStat : public ProcPidStat {
+class MockUidProcStatsCollector : public UidProcStatsCollector {
 public:
-    MockProcPidStat() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
+    MockUidProcStatsCollector() {
+        ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true));
+    }
     MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
     MOCK_METHOD((const std::unordered_map<pid_t, ProcessStats>), latestStats, (),
@@ -45,4 +47,4 @@ public:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKPROCPIDSTAT_H_
+#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKUIDPROCSTATSCOLLECTOR_H_

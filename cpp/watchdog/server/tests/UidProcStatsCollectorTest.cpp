@@ -14,13 +14,13 @@
  * limitations under the License.
  */
 
-#include "ProcPidStat.h"
-
 #include "ProcPidDir.h"
+#include "UidProcStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
 #include <gmock/gmock.h>
+
 #include <inttypes.h>
 
 #include <algorithm>
@@ -119,7 +119,7 @@ std::string pidStatusStr(pid_t pid, uid_t uid, uint64_t vmPeakKb, uint64_t vmSiz
 
 }  // namespace
 
-TEST(ProcPidStatTest, TestValidStatFiles) {
+TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 453}},
             {1000, {1000, 1100}},
@@ -167,12 +167,12 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
-    ProcPidStat procPidStat(firstSnapshot.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(firstSnapshot.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    auto actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
@@ -219,18 +219,18 @@ TEST(ProcPidStatTest, TestValidStatFiles) {
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
-    procPidStat.mPath = secondSnapshot.path;
-    ASSERT_TRUE(procPidStat.enabled())
+    collector.mPath = secondSnapshot.path;
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
 }
 
-TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
+TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
             {100, {100}},          // Process terminates after scanning PID directory.
@@ -286,18 +286,18 @@ TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
-    ProcPidStat procPidStat(procDir.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(procDir.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    auto actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
 }
 
-TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
+TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1, 367, 453, 589}},
             {1000, {1000}},
@@ -347,12 +347,12 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
-    ProcPidStat procPidStat(firstSnapshot.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(firstSnapshot.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    auto actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
@@ -407,18 +407,18 @@ TEST(ProcPidStatTest, TestHandlesPidTidReuse) {
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
-    procPidStat.mPath = secondSnapshot.path;
-    ASSERT_TRUE(procPidStat.enabled())
+    collector.mPath = secondSnapshot.path;
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
 }
 
-TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
+TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
@@ -439,13 +439,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatFile) {
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
-    ProcPidStat procPidStat(procDir.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(procDir.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid process stat file";
+    ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid process stat file";
 }
 
-TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
+TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
@@ -466,13 +466,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedProcessStatusFile) {
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
-    ProcPidStat procPidStat(procDir.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(procDir.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid process status file";
+    ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid process status file";
 }
 
-TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
+TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
@@ -493,13 +493,13 @@ TEST(ProcPidStatTest, TestErrorOnCorruptedThreadStatFile) {
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
-    ProcPidStat procPidStat(procDir.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(procDir.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-    ASSERT_FALSE(procPidStat.collect().ok()) << "No error returned for invalid thread stat file";
+    ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid thread stat file";
 }
 
-TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
+TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
             {1, {1}},
     };
@@ -527,23 +527,23 @@ TEST(ProcPidStatTest, TestHandlesSpaceInCommName) {
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
-    ProcPidStat procPidStat(procDir.path);
-    ASSERT_TRUE(procPidStat.enabled())
+    UidProcStatsCollector collector(procDir.path);
+    ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(procPidStat.deltaStats());
+    auto actual = std::vector<ProcessStats>(collector.deltaStats());
     EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
                                              << toString(expected) << "\nActual:\n"
                                              << toString(actual);
 }
 
-TEST(ProcPidStatTest, TestProcPidStatContentsFromDevice) {
-    ProcPidStat procPidStat;
-    ASSERT_TRUE(procPidStat.enabled()) << "/proc/[pid]/.* files are inaccessible";
-    ASSERT_RESULT_OK(procPidStat.collect());
+TEST(UidProcStatsCollectorTest, TestProcPidStatContentsFromDevice) {
+    UidProcStatsCollector collector;
+    ASSERT_TRUE(collector.enabled()) << "/proc/[pid]/.* files are inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& processStats = procPidStat.deltaStats();
+    const auto& processStats = collector.deltaStats();
     // The below check should pass because there should be at least one process.
     EXPECT_GT(processStats.size(), 0);
 }

@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,16 +14,17 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
-#define CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_UIDPROCSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_UIDPROCSTATSCOLLECTOR_H_
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
 #include <gtest/gtest_prod.h>
-#include <inttypes.h>
-#include <stdint.h>
 #include <utils/Mutex.h>
 #include <utils/RefBase.h>
+
+#include <inttypes.h>
+#include <stdint.h>
 
 #include <string>
 #include <unordered_map>
@@ -53,21 +54,21 @@ struct PidStat {
 };
 
 struct ProcessStats {
-    int64_t tgid = -1;                              // -1 indicates a failure to read this value
-    int64_t uid = -1;                               // -1 indicates a failure to read this value
+    int64_t tgid = -1;  // -1 indicates a failure to read this value
+    int64_t uid = -1;   // -1 indicates a failure to read this value
     uint64_t vmPeakKb = 0;
     uint64_t vmSizeKb = 0;
     uint64_t vmHwmKb = 0;
     uint64_t vmRssKb = 0;
-    PidStat process = {};                           // Aggregated stats across all the threads
-    std::unordered_map<pid_t, PidStat> threads;     // Per-thread stat including the main thread
+    PidStat process = {};                        // Aggregated stats across all the threads
+    std::unordered_map<pid_t, PidStat> threads;  // Per-thread stat including the main thread
 };
 
 // Collector/parser for `/proc/[pid]/stat`, `/proc/[pid]/task/[tid]/stat` and /proc/[pid]/status`
 // files.
-class ProcPidStat : public RefBase {
+class UidProcStatsCollector : public RefBase {
 public:
-    explicit ProcPidStat(const std::string& path = kProcDirPath) :
+    explicit UidProcStatsCollector(const std::string& path = kProcDirPath) :
           mLatestProcessStats({}),
           mPath(path) {
         std::string pidStatPath = StringPrintf((mPath + kStatFileFormat).c_str(), PID_FOR_INIT);
@@ -79,7 +80,7 @@ public:
                 !access(pidStatusPath.c_str(), R_OK);
     }
 
-    virtual ~ProcPidStat() {}
+    virtual ~UidProcStatsCollector() {}
 
     // Collects per-process stats.
     virtual android::base::Result<void> collect();
@@ -130,13 +131,13 @@ private:
     std::string mPath;
 
     FRIEND_TEST(IoPerfCollectionTest, TestValidProcPidContents);
-    FRIEND_TEST(ProcPidStatTest, TestValidStatFiles);
-    FRIEND_TEST(ProcPidStatTest, TestHandlesProcessTerminationBetweenScanningAndParsing);
-    FRIEND_TEST(ProcPidStatTest, TestHandlesPidTidReuse);
+    FRIEND_TEST(UidProcStatsCollectorTest, TestValidStatFiles);
+    FRIEND_TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndParsing);
+    FRIEND_TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse);
 };
 
 }  // namespace watchdog
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_PROCPIDSTAT_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDPROCSTATSCOLLECTOR_H_

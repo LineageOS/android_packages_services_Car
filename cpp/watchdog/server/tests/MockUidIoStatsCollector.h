@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,10 +14,10 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATS_H_
-#define CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_
 
-#include "UidIoStats.h"
+#include "UidIoStatsCollector.h"
 
 #include <android-base/result.h>
 #include <gmock/gmock.h>
@@ -29,9 +29,9 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockUidIoStats : public UidIoStats {
+class MockUidIoStatsCollector : public UidIoStatsCollector {
 public:
-    MockUidIoStats() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
+    MockUidIoStatsCollector() { ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true)); }
     MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
     MOCK_METHOD((const std::unordered_map<uid_t, UidIoUsage>), latestStats, (), (const, override));
@@ -51,4 +51,4 @@ public:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_TESTS_MOCKUIDIOSTATSCOLLECTOR_H_

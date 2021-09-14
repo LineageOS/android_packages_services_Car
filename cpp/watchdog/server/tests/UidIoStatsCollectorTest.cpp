@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-#include "UidIoStats.h"
+#include "UidIoStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
@@ -42,7 +42,7 @@ std::string toString(std::unordered_map<uid_t, UidIoUsage> usages) {
 
 }  // namespace
 
-TEST(UidIoStatsTest, TestValidStatFile) {
+TEST(UidIoStatsCollectorTest, TestValidStatFile) {
     // Format: uid fgRdChar fgWrChar fgRdBytes fgWrBytes bgRdChar bgWrChar bgRdBytes bgWrBytes
     // fgFsync bgFsync
     constexpr char firstSnapshot[] = "1001234 5000 1000 3000 500 0 0 0 0 20 0\n"
@@ -61,11 +61,11 @@ TEST(UidIoStatsTest, TestValidStatFile) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(firstSnapshot, tf.path));
 
-    UidIoStats uidIoStats(tf.path);
-    ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
-    ASSERT_RESULT_OK(uidIoStats.collect());
+    UidIoStatsCollector collector(tf.path);
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& actualFirstUsage = uidIoStats.deltaStats();
+    const auto& actualFirstUsage = collector.deltaStats();
     EXPECT_THAT(actualFirstUsage, UnorderedElementsAreArray(expectedFirstUsage))
             << "Expected: " << toString(expectedFirstUsage)
             << "Actual: " << toString(actualFirstUsage);
@@ -83,15 +83,15 @@ TEST(UidIoStatsTest, TestValidStatFile) {
              {1005678, {.uid = 1005678, .ios = {10, 900, 0, 400, 5, 10}}},
              {1003456, {.uid = 1003456, .ios = {200, 0, 300, 0, 50, 0}}}};
     ASSERT_TRUE(WriteStringToFile(secondSnapshot, tf.path));
-    ASSERT_RESULT_OK(uidIoStats.collect());
+    ASSERT_RESULT_OK(collector.collect());
 
-    const auto& actualSecondUsage = uidIoStats.deltaStats();
+    const auto& actualSecondUsage = collector.deltaStats();
     EXPECT_THAT(actualSecondUsage, UnorderedElementsAreArray(expectedSecondUsage))
             << "Expected: " << toString(expectedSecondUsage)
             << "Actual: " << toString(actualSecondUsage);
 }
 
-TEST(UidIoStatsTest, TestErrorOnInvalidStatFile) {
+TEST(UidIoStatsCollectorTest, TestErrorOnInvalidStatFile) {
     // Format: uid fgRdChar fgWrChar fgRdBytes fgWrBytes bgRdChar bgWrChar bgRdBytes bgWrBytes
     // fgFsync bgFsync
     constexpr char contents[] = "1001234 5000 1000 3000 500 0 0 0 0 20 0\n"
@@ -102,9 +102,9 @@ TEST(UidIoStatsTest, TestErrorOnInvalidStatFile) {
     ASSERT_NE(tf.fd, -1);
     ASSERT_TRUE(WriteStringToFile(contents, tf.path));
 
-    UidIoStats uidIoStats(tf.path);
-    ASSERT_TRUE(uidIoStats.enabled()) << "Temporary file is inaccessible";
-    EXPECT_FALSE(uidIoStats.collect().ok()) << "No error returned for invalid file";
+    UidIoStatsCollector collector(tf.path);
+    ASSERT_TRUE(collector.enabled()) << "Temporary file is inaccessible";
+    EXPECT_FALSE(collector.collect().ok()) << "No error returned for invalid file";
 }
 
 }  // namespace watchdog

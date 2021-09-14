@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -16,7 +16,7 @@
 
 #define LOG_TAG "carwatchdogd"
 
-#include "UidIoStats.h"
+#include "UidIoStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
@@ -101,7 +101,7 @@ std::string IoUsage::toString() const {
                         metrics[FSYNC_COUNT][FOREGROUND], metrics[FSYNC_COUNT][BACKGROUND]);
 }
 
-Result<void> UidIoStats::collect() {
+Result<void> UidIoStatsCollector::collect() {
     if (!kEnabled) {
         return Error() << "Can not access " << kPath;
     }
@@ -129,7 +129,7 @@ Result<void> UidIoStats::collect() {
     return {};
 }
 
-Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStats::getUidIoUsagesLocked() const {
+Result<std::unordered_map<uid_t, UidIoUsage>> UidIoStatsCollector::getUidIoUsagesLocked() const {
     std::string buffer;
     if (!ReadFileToString(kPath, &buffer)) {
         return Error() << "ReadFileToString failed for " << kPath;

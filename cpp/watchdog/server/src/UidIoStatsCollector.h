@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
-#define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
@@ -94,12 +94,12 @@ struct UidIoUsage {
     }
 };
 
-class UidIoStats : public RefBase {
+class UidIoStatsCollector : public RefBase {
 public:
-    explicit UidIoStats(const std::string& path = kUidIoStatsPath) :
+    explicit UidIoStatsCollector(const std::string& path = kUidIoStatsPath) :
           kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
 
-    virtual ~UidIoStats() {}
+    virtual ~UidIoStatsCollector() {}
 
     // Collects the per-UID I/O usage.
     virtual android::base::Result<void> collect();
@@ -144,4 +144,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
