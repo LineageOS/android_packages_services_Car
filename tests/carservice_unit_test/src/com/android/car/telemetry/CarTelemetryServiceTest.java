@@ -19,7 +19,9 @@ package com.android.car.telemetry;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.eq;
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
@@ -45,6 +47,7 @@ import org.mockito.junit.MockitoJUnit;
 import org.mockito.junit.MockitoJUnitRunner;
 import org.mockito.junit.MockitoRule;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.nio.file.Files;
 import java.util.concurrent.CountDownLatch;
@@ -204,6 +207,62 @@ public class CarTelemetryServiceTest {
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
         assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
         assertThat(mResultStore.getFinalResult(key.getName(), /* deleteResult = */ false)).isNull();
+    }
+
+    @Test
+    public void testSendFinishedReports_whenNoReport_shouldNotReceiveResponse() throws Exception {
+        mService.sendFinishedReports(KEY_V1);
+
+        waitForHandlerThreadToFinish();
+        verify(mMockListener, never()).onResult(any(), any());
+        verify(mMockListener, never()).onError(any(), any());
+    }
+
+    @Test
+    public void testSendFinishedReports_whenFinalResult_shouldReceiveResult() throws Exception {
+        PersistableBundle finalResult = new PersistableBundle();
+        finalResult.putBoolean("finished", true);
+        mResultStore.putFinalResult(KEY_V1.getName(), finalResult);
+
+        mService.sendFinishedReports(KEY_V1);
+
+        waitForHandlerThreadToFinish();
+        ByteArrayOutputStream bos = new ByteArrayOutputStream();
+        finalResult.writeToStream(bos);
+        verify(mMockListener).onResult(eq(KEY_V1), eq(bos.toByteArray()));
+        // result should have been deleted
+        assertThat(mResultStore.getFinalResult(KEY_V1.getName(), false)).isNull();
+    }
+
+    @Test
+    public void testSendFinishedReports_whenError_shouldReceiveError() throws Exception {
+        TelemetryProto.TelemetryError error = TelemetryProto.TelemetryError.newBuilder()
+                .setErrorType(TelemetryProto.TelemetryError.ErrorType.LUA_RUNTIME_ERROR)
+                .setMessage("test error")
+                .build();
+        mResultStore.putError(KEY_V1.getName(), error);
+
+        mService.sendFinishedReports(KEY_V1);
+
+        waitForHandlerThreadToFinish();
+        verify(mMockListener).onError(eq(KEY_V1), eq(error.toByteArray()));
+        // error should have been deleted
+        assertThat(mResultStore.getError(KEY_V1.getName(), false)).isNull();
+    }
+
+    @Test
+    public void testSendFinishedReports_whenListenerNotSet_shouldDoNothing() throws Exception {
+        PersistableBundle finalResult = new PersistableBundle();
+        finalResult.putBoolean("finished", true);
+        mResultStore.putFinalResult(KEY_V1.getName(), finalResult);
+        mService.clearListener(); // no listener = no way to send back results
+
+        mService.sendFinishedReports(KEY_V1);
+
+        waitForHandlerThreadToFinish();
+        // if listener is null, nothing should be done, result should still be in result store
+        assertThat(mResultStore.getFinalResult(KEY_V1.getName(), false).toString())
+                .isEqualTo(finalResult.toString());
     }
 
     private void waitForHandlerThreadToFinish() throws Exception {
