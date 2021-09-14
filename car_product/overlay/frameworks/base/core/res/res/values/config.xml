@@ -156,4 +156,10 @@
      This flag should be enabled only when the product does not have any UI to toggle airplane
      mode like automotive devices.-->
     <bool name="config_autoResetAirplaneMode">true</bool>
+
+    <!-- The component name of the activity for the companion-device-manager notification access
+         confirmation. -->
+    <string name="config_notificationAccessConfirmationActivity" translatable="false">
+        com.android.car.settings/com.android.car.settings.notifications.NotificationAccessConfirmationActivity
+    </string>
 </resources>
