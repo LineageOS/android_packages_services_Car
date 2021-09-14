@@ -1,4 +1,3 @@
-<?xml version="1.0" encoding="utf-8"?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,15 +13,15 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape
-            android:shape="oval">
-            <solid
-                android:color="@color/keypad_background_color" />
-            <size
-                android:width="@dimen/dialer_keypad_button_size"
-                android:height="@dimen/dialer_keypad_button_size"/>
-        </shape>
-    </item>
-</layer-list>
+
+<TextView
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:id="@+id/restricted_dialing_mode_label"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:layout_marginTop="8dp"
+    android:padding="8dp"
+    android:textAppearance="@style/TextAppearance.Body2"
+    android:text="@string/restricted_dialing_mode_label"
+    android:alpha="0.8"
+    android:background="@drawable/restricted_dialing_mode_label_background"/>
