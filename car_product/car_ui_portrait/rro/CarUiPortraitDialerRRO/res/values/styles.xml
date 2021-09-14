@@ -20,18 +20,54 @@
         <item name="android:clickable">true</item>
         <item name="android:layout_width">wrap_content</item>
         <item name="android:layout_height">wrap_content</item>
-        <item name="android:layout_marginTop">16dp</item>
-        <item name="android:layout_marginRight">16dp</item>
-        <item name="android:layout_marginBottom">16dp</item>
-        <item name="android:layout_marginLeft">16dp</item>
+        <item name="android:layout_marginTop">12dp</item>
+        <item name="android:layout_marginRight">32dp</item>
+        <item name="android:layout_marginBottom">12dp</item>
+        <item name="android:layout_marginLeft">32dp</item>
         <item name="android:background">@drawable/keypad_default_background</item>
         <item name="android:focusable">true</item>
     </style>
 
-    <style name="DialpadPrimaryButton">
-        <item name="android:layout_width">match_parent</item>
-        <item name="android:layout_height">150dp</item>
-        <item name="android:layout_marginBottom">180dp</item>
-        <item name="android:scaleType">center</item>
+    <style name="TextAppearance.DialNumber" parent="android:style/TextAppearance">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">32sp</item>
+    </style>
+
+    <style name="SubheaderText" parent="android:style/TextAppearance">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+        <item name="android:textSize">24sp</item>
+        <item name="android:textFontWeight">500</item>
+        <item name="android:textStyle">normal</item>
+    </style>
+
+    <style name="AddFavoriteText">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <!-- Call history -->
+    <style name="TextAppearance.CallLogTitleDefault" parent="TextAppearance.Body1">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+    <!-- Customized text color for missed calls can be added here -->
+    <style name="TextAppearance.CallLogTitleMissedCall" parent="TextAppearance.Body1">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="DialpadSecondaryButton">
+        <item name="android:background">@drawable/dialer_ripple_background</item>
+        <item name="android:scaleType">centerInside</item>
+        <item name="android:tint">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.DialpadDisplayName" parent="TextAppearance.Body1"/>
+
+    <style name="TextAppearance.ContactResultTitle" parent="TextAppearance.Body1">
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
+    </style>
+
+    <style name="TextAppearance.TypeDownListSpan" parent="TextAppearance.Body3">
+        <item name="android:textStyle">bold</item>
+        <item name="android:textSize">32sp</item>
+        <item name="android:textColor">?android:attr/textColorPrimary</item>
     </style>
 </resources>

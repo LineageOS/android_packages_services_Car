@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="utf-8"?>
+<?xml version='1.0' encoding='UTF-8'?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -14,15 +14,6 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape
-            android:shape="oval">
-            <solid
-                android:color="@color/keypad_background_color" />
-            <size
-                android:width="@dimen/dialer_keypad_button_size"
-                android:height="@dimen/dialer_keypad_button_size"/>
-        </shape>
-    </item>
-</layer-list>
+<resources xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
+    <string name="restricted_dialing_mode_label">Dialpad usage is restricted while driving</string>
+</resources>
