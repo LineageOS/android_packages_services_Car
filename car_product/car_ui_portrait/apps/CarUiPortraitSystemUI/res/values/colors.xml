@@ -20,6 +20,7 @@
 
     <color name="car_nav_icon_fill_color">#FFFFFF</color>
     <color name="car_nav_icon_background_color">#282A2D</color>
+    <color name="car_nav_minimize_icon_fill_color">@android:color/black</color>
 
     <drawable name="system_bar_background">#000000</drawable>
     <color name="system_bar_text_color">#E8EAED</color>
