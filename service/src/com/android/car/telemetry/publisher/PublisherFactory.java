@@ -16,12 +16,12 @@
 
 package com.android.car.telemetry.publisher;
 
-import android.content.SharedPreferences;
 import android.os.Handler;
 
 import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 
+import java.io.File;
 import java.util.function.BiConsumer;
 
 /**
@@ -36,9 +36,9 @@ import java.util.function.BiConsumer;
 public class PublisherFactory {
     private final Object mLock = new Object();
     private final CarPropertyService mCarPropertyService;
+    private final File mRootDirectory;
     private final Handler mTelemetryHandler;
     private final StatsManagerProxy mStatsManager;
-    private final SharedPreferences mSharedPreferences;
     private VehiclePropertyPublisher mVehiclePropertyPublisher;
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
@@ -49,11 +49,11 @@ public class PublisherFactory {
             CarPropertyService carPropertyService,
             Handler handler,
             StatsManagerProxy statsManager,
-            SharedPreferences sharedPreferences) {
+            File rootDirectory) {
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         mStatsManager = statsManager;
-        mSharedPreferences = sharedPreferences;
+        mRootDirectory = rootDirectory;
     }
 
     /** Returns the publisher by given type. */
@@ -76,7 +76,7 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
                         mStatsPublisher = new StatsPublisher(
-                                mFailureConsumer, mStatsManager, mSharedPreferences);
+                                mFailureConsumer, mStatsManager, mRootDirectory);
                     }
                     return mStatsPublisher;
                 default:
