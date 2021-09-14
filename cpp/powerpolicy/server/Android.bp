@@ -33,7 +33,6 @@ cc_defaults {
         "libbinder",
         "libhidlbase",
         "liblog",
-        "libsysfsmonitor",
         "libtinyxml2",
         "libutils",
     ],
