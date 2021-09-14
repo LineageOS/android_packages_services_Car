@@ -352,8 +352,10 @@ public class BluetoothProfileDeviceManager {
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         profileFilter.addAction(BluetoothDevice.ACTION_UUID);
+        // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
         mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
-                profileFilter, null, null);
+                profileFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     /**

@@ -322,8 +322,10 @@ public class BluetoothDeviceConnectionPolicy {
         logd("init()");
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
+        // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
         mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
-                profileFilter, null, null);
+                profileFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
         CarPowerManagementService cpms = CarLocalServices.getService(
                 CarPowerManagementService.class);
         if (cpms != null) {

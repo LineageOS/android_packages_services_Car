@@ -344,8 +344,10 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             if (mIsPackageUpdateReceiverRegistered) {
                 mContext.unregisterReceiver(mPackageUpdateReceiver);
             }
+            // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
             mContext.registerReceiverAsUser(mPackageUpdateReceiver, currentUser,
-                    mPackageUpdateFilter, null, null);
+                    mPackageUpdateFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+                    Context.RECEIVER_NOT_EXPORTED);
             mIsPackageUpdateReceiverRegistered = true;
 
             mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] = isCurrentUserEphemeral()

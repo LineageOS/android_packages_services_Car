@@ -24,6 +24,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
@@ -210,8 +211,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         // No running activities
         boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent,
                 options, mValidDisplayId, userId);
-        verify(mContext).registerReceiverAsUser(receiverCaptor.capture(), eq(UserHandle.ALL),
-                any(IntentFilter.class), eq(null), eq(null));
+        verify(mContext).registerReceiverForAllUsers(receiverCaptor.capture(),
+                any(IntentFilter.class), eq(null), eq(null), anyInt());
         verify(mContext).startActivityAsUser(eq(intent), any(Bundle.class),
                 eq(UserHandle.of(userId)));
         assertThat(ret).isTrue();

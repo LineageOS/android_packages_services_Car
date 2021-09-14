@@ -212,7 +212,8 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
 
         mService.init();
 
-        verify(mContext).registerReceiverAsUser(captor.capture(), any(), any(), any(), any());
+        verify(mContext).registerReceiverForAllUsers(
+                captor.capture(), any(), any(), any(), anyInt());
         BroadcastReceiver receiver = captor.getValue();
         assertWithMessage("BroadcastReceiver captured on onCreate()")
                 .that(receiver).isNotNull();

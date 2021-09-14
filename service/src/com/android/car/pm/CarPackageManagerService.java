@@ -508,8 +508,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             pkgParseIntent.addAction(action);
         }
         pkgParseIntent.addDataScheme("package");
-        mContext.registerReceiverAsUser(mPackageParsingEventReceiver, UserHandle.ALL,
-                pkgParseIntent, null, null);
+        mContext.registerReceiverForAllUsers(mPackageParsingEventReceiver, pkgParseIntent,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
 
         List<Display> physicalDisplays = getPhysicalDisplays();
 

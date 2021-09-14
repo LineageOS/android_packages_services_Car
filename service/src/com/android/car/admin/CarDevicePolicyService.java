@@ -121,8 +121,10 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     @Override
     public void init() {
         Slogf.d(TAG, "init()");
-        mContext.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, new IntentFilter(
-                DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER), null, null);
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver,
+                new IntentFilter(DevicePolicyManager.ACTION_SHOW_NEW_USER_DISCLAIMER),
+                /* broadcastPermissions= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
