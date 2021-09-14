@@ -191,6 +191,14 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
     }
 
     /**
+     * Set the status of a user ID
+     */
+    public final void setUserUnlocked(int userId, boolean status) {
+        when(mMockUserManager.isUserUnlocked(userId)).thenReturn(status);
+        when(mMockUserManager.isUserUnlocked(UserHandle.of(userId))).thenReturn(status);
+    }
+
+    /**
      * For calls to {@code Settings}.
      */
     public class MockContext extends BroadcastInterceptingContext {
@@ -247,8 +255,6 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         @Override
         public @Nullable Object getSystemService(String name) {
             if ((name != null) && name.equals(getSystemServiceName(UserManager.class))) {
-                when(mMockUserManager.isUserUnlocked(mUserId)).thenReturn(true);
-                when(mMockUserManager.isUserUnlocked(UserHandle.of(mUserId))).thenReturn(true);
                 return mMockUserManager;
             } else if ((name != null) && mMockedServices.containsKey(name)) {
                 return mMockedServices.get(name);

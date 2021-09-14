@@ -29,10 +29,6 @@ import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.power.CarPowerPolicy;
-import android.car.hardware.power.CarPowerPolicyFilter;
-import android.car.hardware.power.ICarPowerPolicyListener;
-import android.car.hardware.power.PowerComponent;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -43,7 +39,6 @@ import android.content.IntentFilter;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.provider.Settings;
 import android.util.Log;
 
 import com.android.car.CarDrivingStateService;
@@ -51,8 +46,6 @@ import com.android.car.CarLocalServices;
 import com.android.car.CarLog;
 import com.android.car.CarPropertyService;
 import com.android.car.internal.util.IndentingPrintWriter;
-import com.android.car.power.CarPowerManagementService;
-import com.android.internal.annotations.VisibleForTesting;
 
 import java.util.List;
 import java.util.Objects;
@@ -74,48 +67,6 @@ public class BluetoothDeviceConnectionPolicy {
 
     @Nullable
     private Context mUserContext;
-
-    private final ICarPowerPolicyListener mPowerPolicyListener =
-            new ICarPowerPolicyListener.Stub() {
-                @Override
-                public void onPolicyChanged(CarPowerPolicy appliedPolicy,
-                        CarPowerPolicy accumulatedPolicy) {
-                    boolean isOn = accumulatedPolicy.isComponentEnabled(PowerComponent.BLUETOOTH);
-                    if (!mUserManager.isUserUnlocked(UserHandle.of(mUserId))) {
-                        if (DBG) {
-                            Slogf.d(TAG, "User %d is locked, ignoring bluetooth power change %s",
-                                    mUserId, (isOn ? "on" : "off"));
-                        }
-                        return;
-                    }
-                    if (isOn) {
-                        if (isBluetoothPersistedOn()) {
-                            enableBluetooth();
-                        }
-                        // The above isBluetoothPersistedOn() call is always true when the
-                        // adapter is on, but can be true or false if the adapter is off. If we
-                        // turned the adapter back on then this connectDevices() call would fail
-                        // at first here but be caught by the following adapter on broadcast
-                        // below. We'll only do this if the adapter is on.
-                        if (mBluetoothAdapter.getState() == BluetoothAdapter.STATE_ON) {
-                            connectDevices();
-                        }
-                    } else {
-                        // we'll turn off Bluetooth to disconnect devices and better the "off"
-                        // illusion
-                        if (DBG) {
-                            Slogf.d(TAG, "Car power policy turns off bluetooth."
-                                    + " Disable bluetooth adapter");
-                        }
-                        disableBluetooth();
-                    }
-                }
-    };
-
-    @VisibleForTesting
-    public ICarPowerPolicyListener getPowerPolicyListener() {
-        return mPowerPolicyListener;
-    }
 
     /**
      * A BroadcastReceiver that listens specifically for actions related to the profile we're
@@ -350,15 +301,6 @@ public class BluetoothDeviceConnectionPolicy {
         mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
         mUserContext.registerReceiver(mBluetoothBroadcastReceiver, profileFilter,
                 Context.RECEIVER_NOT_EXPORTED);
-        CarPowerManagementService cpms = CarLocalServices.getService(
-                CarPowerManagementService.class);
-        if (cpms != null) {
-            CarPowerPolicyFilter filter = new CarPowerPolicyFilter.Builder()
-                    .setComponents(PowerComponent.BLUETOOTH).build();
-            cpms.addPowerPolicyListener(filter, mPowerPolicyListener);
-        } else {
-            Slogf.w(TAG, "Cannot find CarPowerManagementService");
-        }
         mCarHelper.init();
 
         // Since we do this only on start up and on user switch, it's safe to kick off a connect on
@@ -380,11 +322,6 @@ public class BluetoothDeviceConnectionPolicy {
         if (DBG) {
             Slogf.d(TAG, "release()");
         }
-        CarPowerManagementService cpms =
-                CarLocalServices.getService(CarPowerManagementService.class);
-        if (cpms != null) {
-            cpms.removePowerPolicyListener(mPowerPolicyListener);
-        }
         if (mBluetoothBroadcastReceiver != null && mUserContext != null) {
             mUserContext.unregisterReceiver(mBluetoothBroadcastReceiver);
             mUserContext = null;
@@ -400,47 +337,6 @@ public class BluetoothDeviceConnectionPolicy {
             Slogf.d(TAG, "Connect devices for each profile");
         }
         mCarBluetoothService.connectDevices();
-    }
-
-    /**
-     * Get the persisted Bluetooth state from Settings
-     *
-     * @return True if the persisted Bluetooth state is on, false otherwise
-     */
-    private boolean isBluetoothPersistedOn() {
-        return (Settings.Global.getInt(
-                mContext.getContentResolver(), Settings.Global.BLUETOOTH_ON, -1) != 0);
-    }
-
-    /**
-     * Turn on the Bluetooth Adapter.
-     */
-    private void enableBluetooth() {
-        if (DBG) {
-            Slogf.d(TAG, "Enable bluetooth adapter");
-        }
-        if (mBluetoothAdapter == null) {
-            Slogf.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
-            return;
-        }
-        mBluetoothAdapter.enable();
-    }
-
-    /**
-     * Turn off the Bluetooth Adapter.
-     *
-     * Tells BluetoothAdapter to shut down _without_ persisting the off state as the desired state
-     * of the Bluetooth adapter for next start up.
-     */
-    private void disableBluetooth() {
-        if (DBG) {
-            Slogf.d(TAG, "Disable bluetooth, do not persist state across reboot");
-        }
-        if (mBluetoothAdapter == null) {
-            Slogf.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
-            return;
-        }
-        mBluetoothAdapter.disable(false);
     }
 
     /**

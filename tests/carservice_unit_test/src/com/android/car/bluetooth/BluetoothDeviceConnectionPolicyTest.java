@@ -16,9 +16,6 @@
 
 package com.android.car.bluetooth;
 
-import static android.car.hardware.power.PowerComponentUtil.FIRST_POWER_COMPONENT;
-import static android.car.hardware.power.PowerComponentUtil.LAST_POWER_COMPONENT;
-
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyFloat;
 import static org.mockito.ArgumentMatchers.anyInt;
@@ -38,7 +35,6 @@ import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyValue;
-import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
 import android.content.Context;
@@ -52,7 +48,6 @@ import androidx.test.filters.RequiresDevice;
 import com.android.car.CarDrivingStateService;
 import com.android.car.CarLocalServices;
 import com.android.car.CarPropertyService;
-import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
@@ -94,7 +89,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
     @Mock private CarBluetoothService mMockBluetoothService;
     @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private SystemInterface mMockSystemInterface;
-    @Mock private CarPowerManagementService mMockCarPowerManagementService;
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private CarDrivingStateService mMockCarDrivingStateService;
 
@@ -177,9 +171,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         // Get the seat occupancy listener
         doNothing().when(mMockCarPropertyService)
                 .registerListener(anyInt(), anyFloat(), mSeatListenerCaptor.capture());
-
-        CarLocalServices.addService(CarPowerManagementService.class,
-                mMockCarPowerManagementService);
     }
 
     @After
@@ -187,7 +178,10 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         if (mPolicy != null) {
             mPolicy.release();
         }
-        CarLocalServices.removeServiceForTest(CarPowerManagementService.class);
+        if (mMockContext != null) {
+            mMockContext.release();
+            mMockContext = null;
+        }
     }
 
     //--------------------------------------------------------------------------------------------//
@@ -244,38 +238,11 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
                 persistedState);
     }
 
-    /**
-     * Get the persisted Bluetooth on/off state from Settings. Does not reflect the actual
-     * adapter state.
-     *
-     * @return {@code true} if Bluetooth is persisted ON, {@code false} otherwise.
-     */
-    public boolean isBluetoothPersistedOn() {
-        return (Settings.Global.getInt(
-                mMockContext.getContentResolver(), Settings.Global.BLUETOOTH_ON, -1) != 0);
-    }
-
     private void sendAdapterStateChanged(int newState) {
         Assert.assertTrue(mMockContext != null);
         Intent intent = new Intent(BluetoothAdapter.ACTION_STATE_CHANGED);
         intent.putExtra(BluetoothAdapter.EXTRA_STATE, newState);
         mMockContext.sendBroadcast(intent);
-    }
-
-    private void sendPowerPolicyBluetoothOnOff(boolean isOn) throws Exception {
-        int[] allComponents = new int[LAST_POWER_COMPONENT - FIRST_POWER_COMPONENT + 1];
-        for (int component = FIRST_POWER_COMPONENT; component <= LAST_POWER_COMPONENT;
-                component++) {
-            allComponents[component - FIRST_POWER_COMPONENT] = component;
-        }
-        int[] noComponents = new int[]{};
-        CarPowerPolicy policy;
-        if (isOn) {
-            policy = new CarPowerPolicy("bt_on", allComponents, noComponents);
-        } else {
-            policy = new CarPowerPolicy("bt_off", noComponents, allComponents);
-        }
-        mPolicy.getPowerPolicyListener().onPolicyChanged(policy, policy);
     }
 
     private void sendSeatOnOccupied(int seat) {
@@ -343,104 +310,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
         turnAdapterOff(false);
         mPolicy.init();
         verify(mMockBluetoothService, times(0)).connectDevices();
-    }
-
-    //--------------------------------------------------------------------------------------------//
-    // Car Power Manager state changed event tests                                                //
-    //--------------------------------------------------------------------------------------------//
-
-    /**
-     * Preconditions:
-     * - Adapter is on
-     *
-     * Action:
-     * - Receive a SHUTDOWN_PREPARE call
-     *
-     * Outcome:
-     * - Adapter is turned off without persisting the off state.
-     */
-    @Test
-    public void testReceivePowerShutdownPrepare_disableBluetooth() throws Exception {
-        turnAdapterOn();
-        mPolicy.init();
-        reset(mMockBluetoothService);
-        reset(mMockBluetoothAdapter);
-
-        sendPowerPolicyBluetoothOnOff(false);
-        verify(mMockBluetoothAdapter, times(1)).disable(false);
-        Assert.assertTrue(isBluetoothPersistedOn());
-    }
-
-    /**
-     * Preconditions:
-     * - Adapter is off and is persisted off
-     * - Policy is initialized
-     *
-     * Action:
-     * - Power state ON is received
-     *
-     * Outcome:
-     * - Because the Adapter is persisted off, we should do nothing. The adapter should remain off
-     */
-    @Test
-    public void testReceivePowerOnBluetoothPersistedOff_doNothing() throws Exception {
-        turnAdapterOff(true);
-        mPolicy.init();
-        reset(mMockBluetoothService);
-        reset(mMockBluetoothAdapter);
-
-        sendPowerPolicyBluetoothOnOff(true);
-        verify(mMockBluetoothAdapter, times(0)).enable();
-        verify(mMockBluetoothService, times(0)).connectDevices();
-    }
-
-     /**
-     * Preconditions:
-     * - Adapter is off and is not persisted off
-     * - Policy is initialized
-     *
-     * Action:
-     * - Power state ON is received
-     *
-     * Outcome:
-     * - Because the Adapter is not persisted off, we should turn it back on. No attempt to connect
-     *   devices is made because we're yielding to the adapter ON event.
-     */
-    @Test
-    public void testReceivePowerOnBluetoothOffNotPersisted_BluetoothOnConnectDevices()
-            throws Exception {
-        turnAdapterOff(false);
-        // {@code turnAdapterOff(false)} should not change the persisted state in Settings;
-        // the persisted state can be anything, so explicitly set the persisted state to ON.
-        persistBluetoothSettingOn();
-        mPolicy.init();
-        reset(mMockBluetoothService);
-        reset(mMockBluetoothAdapter);
-
-        sendPowerPolicyBluetoothOnOff(true);
-        verify(mMockBluetoothAdapter, times(1)).enable();
-        verify(mMockBluetoothService, times(0)).connectDevices();
-    }
-
-    /**
-     * Preconditions:
-     * - Adapter is on
-     * - Policy is initialized
-     *
-     * Action:
-     * - Power state ON is received
-     *
-     * Outcome:
-     * - Because the Adapter on, we should attempt to connect devices
-     */
-    @Test
-    public void testReceivePowerOnBluetoothOn_connectDevices() throws Exception {
-        turnAdapterOn();
-        mPolicy.init();
-        reset(mMockBluetoothService);
-
-        sendPowerPolicyBluetoothOnOff(true);
-        verify(mMockBluetoothService, timeout(WAIT_TIMEOUT_MS).atLeastOnce()).connectDevices();
     }
 
     //--------------------------------------------------------------------------------------------//
