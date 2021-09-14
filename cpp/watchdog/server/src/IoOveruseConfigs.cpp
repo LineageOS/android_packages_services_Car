@@ -580,7 +580,8 @@ Result<void> IoOveruseConfigs::update(
     return {};
 }
 
-void IoOveruseConfigs::get(std::vector<ResourceOveruseConfiguration>* resourceOveruseConfigs) {
+void IoOveruseConfigs::get(
+        std::vector<ResourceOveruseConfiguration>* resourceOveruseConfigs) const {
     auto systemConfig = get(mSystemConfig, kSystemComponentUpdatableConfigs);
     if (systemConfig.has_value()) {
         systemConfig->componentType = ComponentType::SYSTEM;
@@ -601,7 +602,8 @@ void IoOveruseConfigs::get(std::vector<ResourceOveruseConfiguration>* resourceOv
 }
 
 std::optional<ResourceOveruseConfiguration> IoOveruseConfigs::get(
-        const ComponentSpecificConfig& componentSpecificConfig, const int32_t componentFilter) {
+        const ComponentSpecificConfig& componentSpecificConfig,
+        const int32_t componentFilter) const {
     if (componentSpecificConfig.mGeneric.name == kDefaultThresholdName) {
         return {};
     }
