@@ -52,8 +52,9 @@
                 android:id="@+id/grid_nav"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.carlauncher/.AppGridActivity"
-                systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_apps"
+                systemui:highlightWhenSelected="true"
+                systemui:toggleSelected="true"
                 systemui:intent="intent:#Intent;component=com.android.car.carlauncher/.AppGridActivity;launchFlags=0x24000000;end"
                 systemui:clearBackStack="true"/>
 
@@ -61,23 +62,25 @@
                 android:id="@+id/standalone_notifications"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.notification/.CarNotificationCenterActivity"
-                systemui:highlightWhenSelected="true"
+                systemui:packages="com.android.car.notification"
                 systemui:icon="@drawable/car_ic_notification"
+                systemui:highlightWhenSelected="true"
+                systemui:toggleSelected="true"
                 systemui:intent="intent:#Intent;component=com.android.car.notification/.CarNotificationCenterActivity;launchFlags=0x24000000;end"
                 systemui:longIntent="intent:#Intent;component=com.android.car.bugreport/.BugReportActivity;end"/>
 
             <com.android.systemui.car.systembar.CarSystemBarButton
                 android:id="@+id/hvac"
                 style="@style/SystemBarButton"
-                systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_hvac"
+                systemui:highlightWhenSelected="true"
                 systemui:broadcast="true"/>
 
             <com.android.systemui.car.systembar.AssitantButton
                 android:id="@+id/assist"
                 style="@style/SystemBarButton"
-                systemui:highlightWhenSelected="true"
                 systemui:icon="@drawable/car_ic_mic"
+                systemui:highlightWhenSelected="true"
                 systemui:useDefaultAppIconForRole="true"/>
         </LinearLayout>
 

@@ -42,6 +42,9 @@
     <dimen name="system_bar_user_icon_drawing_size">44dp</dimen>
     <dimen name="status_bar_system_icon_spacing">32dp</dimen>
 
+    <dimen name="system_bar_minimize_icon_height">17dp</dimen>
+    <dimen name="system_bar_minimize_icon_width">28dp</dimen>
+
     <dimen name="hvac_panel_handle_bar_container_height">64dp</dimen>
     <dimen name="hvac_panel_handle_bar_container_width">728dp</dimen>
     <dimen name="hvac_panel_handle_bar_height">6dp</dimen>
