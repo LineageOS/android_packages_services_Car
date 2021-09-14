@@ -14,15 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<layer-list xmlns:android="http://schemas.android.com/apk/res/android">
-    <item>
-        <shape
-            android:shape="oval">
-            <solid
-                android:color="@color/keypad_background_color" />
-            <size
-                android:width="@dimen/dialer_keypad_button_size"
-                android:height="@dimen/dialer_keypad_button_size"/>
-        </shape>
-    </item>
-</layer-list>
+<resources>
+    <dimen name="dialer_keypad_button_size">96dp</dimen>
+    <dimen name="dialpad_contact_avatar_size">64dp</dimen>
+</resources>
