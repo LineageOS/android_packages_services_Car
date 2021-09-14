@@ -15,11 +15,13 @@
  */
 
 #define LOG_TAG "carwatchdogd"
+#define DEBUG false  // STOPSHIP if true.
 
 #include "UidProcStatsCollector.h"
 
 #include <android-base/file.h>
 #include <android-base/parseint.h>
+#include <android-base/stringprintf.h>
 #include <android-base/strings.h>
 #include <log/log.h>
 
@@ -40,6 +42,7 @@ using ::android::base::ParseUint;
 using ::android::base::ReadFileToString;
 using ::android::base::Result;
 using ::android::base::Split;
+using ::android::base::StringAppendF;
 using ::android::base::Trim;
 
 namespace {
@@ -50,25 +53,36 @@ enum ReadError {
     NUM_ERRORS = 2,
 };
 
-// /proc/PID/stat or /proc/PID/task/TID/stat format:
-// <pid> <comm> <state> <ppid> <pgrp ID> <session ID> <tty_nr> <tpgid> <flags> <minor faults>
-// <children minor faults> <major faults> <children major faults> <user mode time>
-// <system mode time> <children user mode time> <children kernel mode time> <priority> <nice value>
-// <num threads> <start time since boot> <virtual memory size> <resident set size> <rss soft limit>
-// <start code addr> <end code addr> <start stack addr> <ESP value> <EIP> <bitmap of pending sigs>
-// <bitmap of blocked sigs> <bitmap of ignored sigs> <waiting channel> <num pages swapped>
-// <cumulative pages swapped> <exit signal> <processor #> <real-time prio> <agg block I/O delays>
-// <guest time> <children guest time> <start data addr> <end data addr> <start break addr>
-// <cmd line args start addr> <amd line args end addr> <env start addr> <env end addr> <exit code>
-// Example line: 1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0 ...etc...
+// Per-pid/tid stats.
+struct PidStat {
+    std::string comm = "";
+    std::string state = "";
+    uint64_t startTime = 0;
+    uint64_t majorFaults = 0;
+};
+
+/**
+ * /proc/PID/stat or /proc/PID/task/TID/stat format:
+ * <pid> <comm> <state> <ppid> <pgrp ID> <session ID> <tty_nr> <tpgid> <flags> <minor faults>
+ * <children minor faults> <major faults> <children major faults> <user mode time>
+ * <system mode time> <children user mode time> <children kernel mode time> <priority> <nice value>
+ * <num threads> <start time since boot> <virtual memory size> <resident set size> <rss soft limit>
+ * <start code addr> <end code addr> <start stack addr> <ESP value> <EIP> <bitmap of pending sigs>
+ * <bitmap of blocked sigs> <bitmap of ignored sigs> <waiting channel> <num pages swapped>
+ * <cumulative pages swapped> <exit signal> <processor #> <real-time prio> <agg block I/O delays>
+ * <guest time> <children guest time> <start data addr> <end data addr> <start break addr>
+ * <cmd line args start addr> <amd line args end addr> <env start addr> <env end addr> <exit code>
+ * Example line: 1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0 ...etc...
+ */
 bool parsePidStatLine(const std::string& line, PidStat* pidStat) {
     std::vector<std::string> fields = Split(line, " ");
 
-    // Note: Regex parsing for the below logic increased the time taken to run the
-    // UidProcStatsCollectorTest#TestProcPidStatContentsFromDevice from 151.7ms to 1.3 seconds.
-
-    // Comm string is enclosed with ( ) brackets and may contain space(s). Thus calculate the
-    // commEndOffset based on the field that contains the closing bracket.
+    /* Note: Regex parsing for the below logic increased the time taken to run the
+     * UidProcStatsCollectorTest#TestProcPidStatContentsFromDevice from 151.7ms to 1.3 seconds.
+     *
+     * Comm string is enclosed with ( ) brackets and may contain space(s). Thus calculate the
+     * commEndOffset based on the field that contains the closing bracket.
+     */
     size_t commEndOffset = 0;
     for (size_t i = 1; i < fields.size(); ++i) {
         pidStat->comm += fields[i];
@@ -80,20 +94,16 @@ bool parsePidStatLine(const std::string& line, PidStat* pidStat) {
     }
 
     if (pidStat->comm.front() != '(' || pidStat->comm.back() != ')') {
-        ALOGW("Comm string `%s` not enclosed in brackets", pidStat->comm.c_str());
+        ALOGD("Comm string `%s` not enclosed in brackets", pidStat->comm.c_str());
         return false;
     }
     pidStat->comm.erase(pidStat->comm.begin());
     pidStat->comm.erase(pidStat->comm.end() - 1);
 
-    // The required data is in the first 22 + |commEndOffset| fields so make sure there are at least
-    // these many fields in the file.
-    if (fields.size() < 22 + commEndOffset || !ParseInt(fields[0], &pidStat->pid) ||
-        !ParseInt(fields[3 + commEndOffset], &pidStat->ppid) ||
+    if (fields.size() < 22 + commEndOffset ||
         !ParseUint(fields[11 + commEndOffset], &pidStat->majorFaults) ||
-        !ParseUint(fields[19 + commEndOffset], &pidStat->numThreads) ||
         !ParseUint(fields[21 + commEndOffset], &pidStat->startTime)) {
-        ALOGW("Invalid proc pid stat contents: \"%s\"", line.c_str());
+        ALOGD("Invalid proc pid stat contents: \"%s\"", line.c_str());
         return false;
     }
     pidStat->state = fields[2 + commEndOffset];
@@ -144,53 +154,56 @@ Result<std::unordered_map<std::string, std::string>> readKeyValueFile(
     return contents;
 }
 
-// /proc/PID/status file format(*):
-// Tgid:    <Thread group ID of the process>
-// Uid:     <Read UID>   <Effective UID>   <Saved set UID>   <Filesystem UID>
-// VmPeak:  <Peak virtual memory size> kB
-// VmSize:  <Virtual memory size> kB
-// VmHWM:   <Peak resident set size> kB
-// VmRSS:   <Resident set size> kB
-//
-// (*) - Included only the fields that are parsed from the file.
-Result<void> readPidStatusFile(const std::string& path, ProcessStats* processStats) {
-    auto ret = readKeyValueFile(path, ":\t");
-    if (!ret.ok()) {
-        return Error(ret.error().code()) << ret.error();
+/**
+ * /proc/PID/status file format:
+ * Tgid:    <Thread group ID of the process>
+ * Uid:     <Read UID>   <Effective UID>   <Saved set UID>   <Filesystem UID>
+ *
+ * Note: Included only the fields that are parsed from the file.
+ */
+Result<std::tuple<uid_t, pid_t>> readPidStatusFile(const std::string& path) {
+    auto result = readKeyValueFile(path, ":\t");
+    if (!result.ok()) {
+        return Error(result.error().code()) << result.error();
     }
-    auto contents = ret.value();
+    auto contents = result.value();
     if (contents.empty()) {
         return Error(ERR_INVALID_FILE) << "Empty file " << path;
     }
+    int64_t uid = 0;
+    int64_t tgid = 0;
     if (contents.find("Uid") == contents.end() ||
-        !ParseInt(Split(contents["Uid"], "\t")[0], &processStats->uid)) {
-        return Error(ERR_INVALID_FILE) << "Failed to read 'UIDs' from file " << path;
+        !ParseInt(Split(contents["Uid"], "\t")[0], &uid)) {
+        return Error(ERR_INVALID_FILE) << "Failed to read 'UID' from file " << path;
     }
-    if (contents.find("Tgid") == contents.end() ||
-        !ParseInt(contents["Tgid"], &processStats->tgid)) {
+    if (contents.find("Tgid") == contents.end() || !ParseInt(contents["Tgid"], &tgid)) {
         return Error(ERR_INVALID_FILE) << "Failed to read 'Tgid' from file " << path;
     }
-    // Below Vm* fields may not be present for some processes so don't fail when they are missing.
-    if (contents.find("VmPeak") != contents.end() &&
-        !ParseUint(Split(contents["VmPeak"], " ")[0], &processStats->vmPeakKb)) {
-        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmPeak' from file " << path;
-    }
-    if (contents.find("VmSize") != contents.end() &&
-        !ParseUint(Split(contents["VmSize"], " ")[0], &processStats->vmSizeKb)) {
-        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmSize' from file " << path;
-    }
-    if (contents.find("VmHWM") != contents.end() &&
-        !ParseUint(Split(contents["VmHWM"], " ")[0], &processStats->vmHwmKb)) {
-        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmHWM' from file " << path;
-    }
-    if (contents.find("VmRSS") != contents.end() &&
-        !ParseUint(Split(contents["VmRSS"], " ")[0], &processStats->vmRssKb)) {
-        return Error(ERR_INVALID_FILE) << "Failed to parse 'VmRSS' from file " << path;
-    }
-    return {};
+    return std::make_tuple(uid, tgid);
 }
 
 }  // namespace
+
+std::string ProcessStats::toString() const {
+    return StringPrintf("{comm: %s, startTime: %" PRIu64 ", totalMajorFaults: %" PRIu64
+                        ", totalTasksCount: %d, ioBlockedTasksCount: %d}",
+                        comm.c_str(), startTime, totalMajorFaults, totalTasksCount,
+                        ioBlockedTasksCount);
+}
+
+std::string UidProcStats::toString() const {
+    std::string buffer;
+    StringAppendF(&buffer,
+                  "UidProcStats{totalMajorFaults: %" PRIu64 ", totalTasksCount: %d,"
+                  "ioBlockedTasksCount: %d, processStatsByPid: {",
+                  totalMajorFaults, totalTasksCount, ioBlockedTasksCount);
+    for (const auto& [pid, processStats] : processStatsByPid) {
+        StringAppendF(&buffer, "{pid: %" PRIi32 ", processStats: %s},", pid,
+                      processStats.toString().c_str());
+    }
+    StringAppendF(&buffer, "}");
+    return buffer;
+}
 
 Result<void> UidProcStatsCollector::collect() {
     if (!mEnabled) {
@@ -198,151 +211,156 @@ Result<void> UidProcStatsCollector::collect() {
     }
 
     Mutex::Autolock lock(mMutex);
-    const auto& processStats = getProcessStatsLocked();
-    if (!processStats.ok()) {
-        return Error() << processStats.error();
+    auto uidProcStatsByUid = readUidProcStatsLocked();
+    if (!uidProcStatsByUid.ok()) {
+        return Error() << uidProcStatsByUid.error();
     }
 
-    mDeltaProcessStats.clear();
-    for (const auto& it : *processStats) {
-        const ProcessStats& curStats = it.second;
-        const auto& cachedIt = mLatestProcessStats.find(it.first);
-        if (cachedIt == mLatestProcessStats.end() ||
-            cachedIt->second.process.startTime != curStats.process.startTime) {
-            // New/reused PID so don't calculate the delta.
-            mDeltaProcessStats.emplace_back(curStats);
+    mDeltaStats.clear();
+    for (const auto& [uid, currStats] : *uidProcStatsByUid) {
+        if (const auto& it = mLatestStats.find(uid); it == mLatestStats.end()) {
+            mDeltaStats[uid] = currStats;
             continue;
         }
-
-        ProcessStats deltaStats = curStats;
-        const ProcessStats& cachedStats = cachedIt->second;
-        deltaStats.process.majorFaults -= cachedStats.process.majorFaults;
-        for (auto& deltaThread : deltaStats.threads) {
-            const auto& cachedThread = cachedStats.threads.find(deltaThread.first);
-            if (cachedThread == cachedStats.threads.end() ||
-                cachedThread->second.startTime != deltaThread.second.startTime) {
-                // New TID or TID reused by the same PID so don't calculate the delta.
-                continue;
+        const auto& prevStats = mLatestStats[uid];
+        UidProcStats deltaStats = {
+                .totalTasksCount = currStats.totalTasksCount,
+                .ioBlockedTasksCount = currStats.ioBlockedTasksCount,
+        };
+        for (const auto& [pid, processStats] : currStats.processStatsByPid) {
+            ProcessStats deltaProcessStats = processStats;
+            if (const auto& it = prevStats.processStatsByPid.find(pid);
+                it != prevStats.processStatsByPid.end() &&
+                it->second.startTime == processStats.startTime &&
+                it->second.totalMajorFaults <= deltaProcessStats.totalMajorFaults) {
+                deltaProcessStats.totalMajorFaults =
+                        deltaProcessStats.totalMajorFaults - it->second.totalMajorFaults;
             }
-            deltaThread.second.majorFaults -= cachedThread->second.majorFaults;
+            deltaStats.totalMajorFaults += deltaProcessStats.totalMajorFaults;
+            deltaStats.processStatsByPid[pid] = deltaProcessStats;
         }
-        mDeltaProcessStats.emplace_back(deltaStats);
+        mDeltaStats[uid] = std::move(deltaStats);
     }
-    mLatestProcessStats = *processStats;
+    mLatestStats = std::move(*uidProcStatsByUid);
     return {};
 }
 
-Result<std::unordered_map<pid_t, ProcessStats>> UidProcStatsCollector::getProcessStatsLocked()
+Result<std::unordered_map<uid_t, UidProcStats>> UidProcStatsCollector::readUidProcStatsLocked()
         const {
-    std::unordered_map<pid_t, ProcessStats> processStats;
+    std::unordered_map<uid_t, UidProcStats> uidProcStatsByUid;
     auto procDirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(mPath.c_str()), closedir);
     if (!procDirp) {
         return Error() << "Failed to open " << mPath << " directory";
     }
-    dirent* pidDir = nullptr;
-    while ((pidDir = readdir(procDirp.get())) != nullptr) {
-        // 1. Read top-level pid stats.
+    for (dirent* pidDir = nullptr; (pidDir = readdir(procDirp.get())) != nullptr;) {
         pid_t pid = 0;
         if (pidDir->d_type != DT_DIR || !ParseInt(pidDir->d_name, &pid)) {
             continue;
         }
-        ProcessStats curStats;
-        std::string path = StringPrintf((mPath + kStatFileFormat).c_str(), pid);
-        auto ret = readPidStatFile(path, &curStats.process);
-        if (!ret.ok()) {
-            // PID may disappear between scanning the directory and parsing the stat file.
-            // Thus treat ERR_FILE_OPEN_READ errors as soft errors.
-            if (ret.error().code() != ERR_FILE_OPEN_READ) {
-                return Error() << "Failed to read top-level per-process stat file: "
-                               << ret.error().message().c_str();
+        auto result = readProcessStatsLocked(pid);
+        if (!result.ok()) {
+            if (result.error().code() != ERR_FILE_OPEN_READ) {
+                return Error() << result.error();
             }
-            ALOGW("Failed to read top-level per-process stat file %s: %s", path.c_str(),
-                  ret.error().message().c_str());
+            /* |ERR_FILE_OPEN_READ| is a soft-error because PID may disappear between scanning and
+             * reading directory/files.
+             */
+            if (DEBUG) {
+                ALOGD("%s", result.error().message().c_str());
+            }
             continue;
         }
-
-        // 2. Read aggregated process status.
-        path = StringPrintf((mPath + kStatusFileFormat).c_str(), curStats.process.pid);
-        ret = readPidStatusFile(path, &curStats);
-        if (!ret.ok()) {
-            if (ret.error().code() != ERR_FILE_OPEN_READ) {
-                return Error() << "Failed to read pid status for pid " << curStats.process.pid
-                               << ": " << ret.error().message().c_str();
-            }
-            ALOGW("Failed to read pid status for pid %" PRIu32 ": %s", curStats.process.pid,
-                  ret.error().message().c_str());
+        uid_t uid = std::get<0>(*result);
+        ProcessStats processStats = std::get<ProcessStats>(*result);
+        if (uidProcStatsByUid.find(uid) == uidProcStatsByUid.end()) {
+            uidProcStatsByUid[uid] = {};
         }
-
-        // 3. When failed to read tgid or uid, copy these from the previous collection.
-        if (curStats.tgid == -1 || curStats.uid == -1) {
-            const auto& it = mLatestProcessStats.find(curStats.process.pid);
-            if (it != mLatestProcessStats.end() &&
-                it->second.process.startTime == curStats.process.startTime) {
-                curStats.tgid = it->second.tgid;
-                curStats.uid = it->second.uid;
-            }
-        }
-
-        if (curStats.tgid != -1 && curStats.tgid != curStats.process.pid) {
-            ALOGW("Skipping non-process (i.e., Tgid != PID) entry for PID %" PRIu32,
-                  curStats.process.pid);
-            continue;
-        }
-
-        // 3. Fetch per-thread stats.
-        std::string taskDir = StringPrintf((mPath + kTaskDirFormat).c_str(), pid);
-        auto taskDirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(taskDir.c_str()), closedir);
-        if (!taskDirp) {
-            // Treat this as a soft error so at least the process stats will be collected.
-            ALOGW("Failed to open %s directory", taskDir.c_str());
-        }
-        dirent* tidDir = nullptr;
-        bool didReadMainThread = false;
-        while (taskDirp != nullptr && (tidDir = readdir(taskDirp.get())) != nullptr) {
-            pid_t tid = 0;
-            if (tidDir->d_type != DT_DIR || !ParseInt(tidDir->d_name, &tid)) {
-                continue;
-            }
-            if (processStats.find(tid) != processStats.end()) {
-                return Error() << "Process stats already exists for TID " << tid
-                               << ". Stats will be double counted";
-            }
-
-            PidStat curThreadStat = {};
-            path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
-            const auto& ret = readPidStatFile(path, &curThreadStat);
-            if (!ret.ok()) {
-                if (ret.error().code() != ERR_FILE_OPEN_READ) {
-                    return Error() << "Failed to read per-thread stat file: "
-                                   << ret.error().message().c_str();
-                }
-                // Maybe the thread terminated before reading the file so skip this thread and
-                // continue with scanning the next thread's stat.
-                ALOGW("Failed to read per-thread stat file %s: %s", path.c_str(),
-                      ret.error().message().c_str());
-                continue;
-            }
-            if (curThreadStat.pid == curStats.process.pid) {
-                didReadMainThread = true;
-            }
-            curStats.threads[curThreadStat.pid] = curThreadStat;
-        }
-        if (!didReadMainThread) {
-            // In the event of failure to read main-thread info (mostly because the process
-            // terminated during scanning/parsing), fill out the stat that are common between main
-            // thread and the process.
-            curStats.threads[curStats.process.pid] = PidStat{
-                    .pid = curStats.process.pid,
-                    .comm = curStats.process.comm,
-                    .state = curStats.process.state,
-                    .ppid = curStats.process.ppid,
-                    .numThreads = curStats.process.numThreads,
-                    .startTime = curStats.process.startTime,
-            };
-        }
-        processStats[curStats.process.pid] = curStats;
+        UidProcStats* uidProcStats = &uidProcStatsByUid[uid];
+        uidProcStats->totalMajorFaults += processStats.totalMajorFaults;
+        uidProcStats->totalTasksCount += processStats.totalTasksCount;
+        uidProcStats->ioBlockedTasksCount += processStats.ioBlockedTasksCount;
+        uidProcStats->processStatsByPid[pid] = std::move(processStats);
     }
-    return processStats;
+    return uidProcStatsByUid;
+}
+
+Result<std::tuple<uid_t, ProcessStats>> UidProcStatsCollector::readProcessStatsLocked(
+        pid_t pid) const {
+    // 1. Read top-level pid stats.
+    PidStat pidStat = {};
+    std::string path = StringPrintf((mPath + kStatFileFormat).c_str(), pid);
+    if (auto result = readPidStatFile(path, &pidStat); !result.ok()) {
+        return Error(result.error().code())
+                << "Failed to read top-level per-process stat file '%s': %s"
+                << result.error().message().c_str();
+    }
+
+    // 2. Read aggregated process status.
+    pid_t tgid = -1;
+    uid_t uid = -1;
+    path = StringPrintf((mPath + kStatusFileFormat).c_str(), pid);
+    if (auto result = readPidStatusFile(path); !result.ok()) {
+        if (result.error().code() != ERR_FILE_OPEN_READ) {
+            return Error() << "Failed to read pid status for pid " << pid << ": "
+                           << result.error().message().c_str();
+        }
+        for (const auto& [curUid, uidProcStats] : mLatestStats) {
+            if (const auto it = uidProcStats.processStatsByPid.find(pid);
+                it != uidProcStats.processStatsByPid.end() &&
+                it->second.startTime == pidStat.startTime) {
+                tgid = pid;
+                uid = curUid;
+                break;
+            }
+        }
+    } else {
+        uid = std::get<0>(*result);
+        tgid = std::get<1>(*result);
+    }
+
+    if (uid == -1 || tgid != pid) {
+        return Error(ERR_FILE_OPEN_READ)
+                << "Skipping PID '" << pid << "' because either Tgid != PID or invalid UID";
+    }
+
+    ProcessStats processStats = {
+            .comm = std::move(pidStat.comm),
+            .startTime = pidStat.startTime,
+            .totalTasksCount = 1,
+            /* Top-level process stats has the aggregated major page faults count and this should be
+             * persistent across thread creation/termination. Thus use the value from this field.
+             */
+            .totalMajorFaults = pidStat.majorFaults,
+            .ioBlockedTasksCount = pidStat.state == "D" ? 1 : 0,
+    };
+
+    // 3. Read per-thread stats.
+    std::string taskDir = StringPrintf((mPath + kTaskDirFormat).c_str(), pid);
+    bool didReadMainThread = false;
+    auto taskDirp = std::unique_ptr<DIR, int (*)(DIR*)>(opendir(taskDir.c_str()), closedir);
+    for (dirent* tidDir = nullptr;
+         taskDirp != nullptr && (tidDir = readdir(taskDirp.get())) != nullptr;) {
+        pid_t tid = 0;
+        if (tidDir->d_type != DT_DIR || !ParseInt(tidDir->d_name, &tid) || tid == pid) {
+            continue;
+        }
+
+        PidStat tidStat = {};
+        path = StringPrintf((taskDir + kStatFileFormat).c_str(), tid);
+        if (const auto& result = readPidStatFile(path, &tidStat); !result.ok()) {
+            if (result.error().code() != ERR_FILE_OPEN_READ) {
+                return Error() << "Failed to read per-thread stat file: "
+                               << result.error().message().c_str();
+            }
+            /* Maybe the thread terminated before reading the file so skip this thread and
+             * continue with scanning the next thread's stat.
+             */
+            continue;
+        }
+        processStats.ioBlockedTasksCount += tidStat.state == "D" ? 1 : 0;
+        processStats.totalTasksCount += 1;
+    }
+    return std::make_tuple(uid, processStats);
 }
 
 }  // namespace watchdog

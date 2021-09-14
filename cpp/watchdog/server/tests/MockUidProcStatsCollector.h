@@ -24,23 +24,22 @@
 
 #include <string>
 #include <unordered_map>
-#include <vector>
 
 namespace android {
 namespace automotive {
 namespace watchdog {
 
-class MockUidProcStatsCollector : public UidProcStatsCollector {
+class MockUidProcStatsCollector : public UidProcStatsCollectorInterface {
 public:
     MockUidProcStatsCollector() {
         ON_CALL(*this, enabled()).WillByDefault(::testing::Return(true));
     }
-    MOCK_METHOD(bool, enabled, (), (override));
     MOCK_METHOD(android::base::Result<void>, collect, (), (override));
-    MOCK_METHOD((const std::unordered_map<pid_t, ProcessStats>), latestStats, (),
+    MOCK_METHOD((const std::unordered_map<uid_t, UidProcStats>), latestStats, (),
                 (const, override));
-    MOCK_METHOD(const std::vector<ProcessStats>, deltaStats, (), (const, override));
-    MOCK_METHOD(std::string, dirPath, (), (override));
+    MOCK_METHOD((const std::unordered_map<uid_t, UidProcStats>), deltaStats, (), (const, override));
+    MOCK_METHOD(bool, enabled, (), (const, override));
+    MOCK_METHOD(const std::string, dirPath, (), (const, override));
 };
 
 }  // namespace watchdog

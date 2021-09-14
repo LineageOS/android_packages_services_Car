@@ -16,6 +16,7 @@
 
 #include "ProcPidDir.h"
 #include "UidProcStatsCollector.h"
+#include "UidProcStatsCollectorTestUtils.h"
 
 #include <android-base/file.h>
 #include <android-base/stringprintf.h>
@@ -33,76 +34,15 @@ namespace watchdog {
 using ::android::automotive::watchdog::testing::populateProcPidDir;
 using ::android::base::StringAppendF;
 using ::android::base::StringPrintf;
+using ::testing::UnorderedPointwise;
 
 namespace {
 
-std::string toString(const PidStat& stat) {
-    return StringPrintf("PID: %" PRIu32 ", PPID: %" PRIu32 ", Comm: %s, State: %s, "
-                        "Major page faults: %" PRIu64 ", Num threads: %" PRIu32
-                        ", Start time: %" PRIu64,
-                        stat.pid, stat.ppid, stat.comm.c_str(), stat.state.c_str(),
-                        stat.majorFaults, stat.numThreads, stat.startTime);
-}
-
-std::string toString(const ProcessStats& stats) {
-    std::string buffer;
-    StringAppendF(&buffer,
-                  "Tgid: %" PRIi64 ", UID: %" PRIi64 ", VmPeak: %" PRIu64 ", VmSize: %" PRIu64
-                  ", VmHWM: %" PRIu64 ", VmRSS: %" PRIu64 ", %s\n",
-                  stats.tgid, stats.uid, stats.vmPeakKb, stats.vmSizeKb, stats.vmHwmKb,
-                  stats.vmRssKb, toString(stats.process).c_str());
-    StringAppendF(&buffer, "\tThread stats:\n");
-    for (const auto& it : stats.threads) {
-        StringAppendF(&buffer, "\t\t%s\n", toString(it.second).c_str());
-    }
-    StringAppendF(&buffer, "\n");
-    return buffer;
-}
-
-std::string toString(const std::vector<ProcessStats>& stats) {
-    std::string buffer;
-    StringAppendF(&buffer, "Number of processes: %d\n", static_cast<int>(stats.size()));
-    for (const auto& it : stats) {
-        StringAppendF(&buffer, "%s", toString(it).c_str());
-    }
-    return buffer;
-}
-
-bool isEqual(const PidStat& lhs, const PidStat& rhs) {
-    return lhs.pid == rhs.pid && lhs.comm == rhs.comm && lhs.state == rhs.state &&
-            lhs.ppid == rhs.ppid && lhs.majorFaults == rhs.majorFaults &&
-            lhs.numThreads == rhs.numThreads && lhs.startTime == rhs.startTime;
-}
-
-bool isEqual(std::vector<ProcessStats>* lhs, std::vector<ProcessStats>* rhs) {
-    if (lhs->size() != rhs->size()) {
-        return false;
-    }
-    std::sort(lhs->begin(), lhs->end(), [&](const ProcessStats& l, const ProcessStats& r) -> bool {
-        return l.process.pid < r.process.pid;
-    });
-    std::sort(rhs->begin(), rhs->end(), [&](const ProcessStats& l, const ProcessStats& r) -> bool {
-        return l.process.pid < r.process.pid;
-    });
-    return std::equal(lhs->begin(), lhs->end(), rhs->begin(),
-                      [&](const ProcessStats& l, const ProcessStats& r) -> bool {
-                          if (l.tgid != r.tgid || l.uid != r.uid || l.vmPeakKb != r.vmPeakKb ||
-                              l.vmSizeKb != r.vmSizeKb || l.vmHwmKb != r.vmHwmKb ||
-                              l.vmRssKb != r.vmRssKb || !isEqual(l.process, r.process) ||
-                              l.threads.size() != r.threads.size()) {
-                              return false;
-                          }
-                          for (const auto& lIt : l.threads) {
-                              const auto& rIt = r.threads.find(lIt.first);
-                              if (rIt == r.threads.end()) {
-                                  return false;
-                              }
-                              if (!isEqual(lIt.second, rIt->second)) {
-                                  return false;
-                              }
-                          }
-                          return true;
-                      });
+MATCHER(UidProcStatsByUidEq, "") {
+    const auto& actual = std::get<0>(arg);
+    const auto& expected = std::get<1>(arg);
+    return actual.first == expected.first &&
+            ExplainMatchResult(UidProcStatsEq(expected.second), actual.second, result_listener);
 }
 
 std::string pidStatusStr(pid_t pid, uid_t uid) {
@@ -110,11 +50,14 @@ std::string pidStatusStr(pid_t pid, uid_t uid) {
                         uid);
 }
 
-std::string pidStatusStr(pid_t pid, uid_t uid, uint64_t vmPeakKb, uint64_t vmSizeKb,
-                         uint64_t vmHwmKb, uint64_t vmRssKb) {
-    return StringPrintf("%sVmPeak:\t%" PRIu64 "\nVmSize:\t%" PRIu64 "\nVmHWM:\t%" PRIu64
-                        "\nVmRSS:\t%" PRIu64 "\n",
-                        pidStatusStr(pid, uid).c_str(), vmPeakKb, vmSizeKb, vmHwmKb, vmRssKb);
+std::string toString(const std::unordered_map<uid_t, UidProcStats>& uidProcStatsByUid) {
+    std::string buffer;
+    StringAppendF(&buffer, "Number of UIDs: %" PRIi32 "\n",
+                  static_cast<int>(uidProcStatsByUid.size()));
+    for (const auto& [uid, stats] : uidProcStatsByUid) {
+        StringAppendF(&buffer, "{UID: %d, %s}", uid, stats.toString().c_str());
+    }
+    return buffer;
 }
 
 }  // namespace
@@ -127,107 +70,93 @@ TEST(UidProcStatsCollectorTest, TestValidStatFiles) {
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 220 0 0 0 0 0 0 0 2 0 0\n"},
-            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 1000\n"},
+            {1000, "1000 (system_server) D 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 13400\n"},
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, pidStatusStr(1, 0, 123, 456, 789, 345)},
-            {1000, pidStatusStr(1000, 10001234, 234, 567, 890, 123)},
+            {1, pidStatusStr(1, 0)},
+            {1000, pidStatusStr(1000, 10001234)},
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 0\n"},
-            {453, "453 (init) S 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
-            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 2 0 1000\n"},
-            {1100, "1100 (system_server) S 1 0 0 0 0 0 0 0 350 0 0 0 0 0 0 0 2 0 1200\n"},
+            {453, "453 (init) D 0 0 0 0 0 0 0 0 20 0 0 0 0 0 0 0 2 0 275\n"},
+            {1000, "1000 (system_server) D 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 2 0 13400\n"},
+            {1100, "1100 (system_server) D 1 0 0 0 0 0 0 0 350 0 0 0 0 0 0 0 2 0 13900\n"},
     };
 
-    std::vector<ProcessStats> expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .vmPeakKb = 123,
-             .vmSizeKb = 456,
-             .vmHwmKb = 789,
-             .vmRssKb = 345,
-             .process = {1, "init", "S", 0, 220, 2, 0},
-             .threads = {{1, {1, "init", "S", 0, 200, 2, 0}},
-                         {453, {453, "init", "S", 0, 20, 2, 275}}}},
-            {.tgid = 1000,
-             .uid = 10001234,
-             .vmPeakKb = 234,
-             .vmSizeKb = 567,
-             .vmHwmKb = 890,
-             .vmRssKb = 123,
-             .process = {1000, "system_server", "R", 1, 600, 2, 1000},
-             .threads = {{1000, {1000, "system_server", "R", 1, 250, 2, 1000}},
-                         {1100, {1100, "system_server", "S", 1, 350, 2, 1200}}}},
-    };
+    std::unordered_map<uid_t, UidProcStats> expected =
+            {{0,
+              UidProcStats{.totalMajorFaults = 220,
+                           .totalTasksCount = 2,
+                           .ioBlockedTasksCount = 1,
+                           .processStatsByPid = {{1, {"init", 0, 220, 2, 1}}}}},
+             {10001234,
+              UidProcStats{.totalMajorFaults = 600,
+                           .totalTasksCount = 2,
+                           .ioBlockedTasksCount = 2,
+                           .processStatsByPid = {{1000, {"system_server", 13'400, 600, 2, 2}}}}}};
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
     UidProcStatsCollector collector(firstSnapshot.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    auto actual = collector.deltaStats();
+
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "First snapshot doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
     pidToTids = {
             {1, {1, 453}}, {1000, {1000, 1400}},  // TID 1100 terminated and 1400 instantiated.
     };
 
     perProcessStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 920 0 0 0 0 0 0 0 2 0 0\n"},
-            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 1550 0 0 0 0 0 0 0 2 0 1000\n"},
+            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 1550 0 0 0 0 0 0 0 2 0 13400\n"},
     };
 
     perThreadStat = {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 0\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 320 0 0 0 0 0 0 0 2 0 275\n"},
-            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 1000\n"},
+            {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 600 0 0 0 0 0 0 0 2 0 13400\n"},
             // TID 1100 hits +400 major page faults before terminating. This is counted against
             // PID 1000's perProcessStat.
             {1400, "1400 (system_server) S 1 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 8977476\n"},
     };
 
-    expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .vmPeakKb = 123,
-             .vmSizeKb = 456,
-             .vmHwmKb = 789,
-             .vmRssKb = 345,
-             .process = {1, "init", "S", 0, 700, 2, 0},
-             .threads = {{1, {1, "init", "S", 0, 400, 2, 0}},
-                         {453, {453, "init", "S", 0, 300, 2, 275}}}},
-            {.tgid = 1000,
-             .uid = 10001234,
-             .vmPeakKb = 234,
-             .vmSizeKb = 567,
-             .vmHwmKb = 890,
-             .vmRssKb = 123,
-             .process = {1000, "system_server", "R", 1, 950, 2, 1000},
-             .threads = {{1000, {1000, "system_server", "R", 1, 350, 2, 1000}},
-                         {1400, {1400, "system_server", "S", 1, 200, 2, 8977476}}}},
-    };
+    expected = {{0,
+                 {.totalMajorFaults = 700,
+                  .totalTasksCount = 2,
+                  .ioBlockedTasksCount = 0,
+                  .processStatsByPid = {{1, {"init", 0, 700, 2, 0}}}}},
+                {10001234,
+                 {.totalMajorFaults = 950,
+                  .totalTasksCount = 2,
+                  .ioBlockedTasksCount = 0,
+                  .processStatsByPid = {{1000, {"system_server", 13'400, 950, 2, 0}}}}}};
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
     collector.mPath = secondSnapshot.path;
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    actual = collector.deltaStats();
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "Second snapshot doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
 }
 
 TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndParsing) {
@@ -248,7 +177,7 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
-            {1, "Pid:\t1\nTgid:\t1\nUid:\t0\t0\t0\t0\n"},
+            {1, pidStatusStr(1, 0)},
             // Process 1000 terminated.
             {2000, pidStatusStr(2000, 10001234)},
             {3000, pidStatusStr(3000, 10001234)},
@@ -261,40 +190,34 @@ TEST(UidProcStatsCollectorTest, TestHandlesProcessTerminationBetweenScanningAndP
             // TID 3300 terminated.
     };
 
-    std::vector<ProcessStats> expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .process = {1, "init", "S", 0, 220, 1, 0},
-             .threads = {{1, {1, "init", "S", 0, 200, 1, 0}}}},
-            {.tgid = -1,
-             .uid = -1,
-             .process = {1000, "system_server", "R", 1, 600, 1, 1000},
-             // Stats common between process and main-thread are copied when
-             // main-thread stats are not available.
-             .threads = {{1000, {1000, "system_server", "R", 1, 0, 1, 1000}}}},
-            {.tgid = 2000,
-             .uid = 10001234,
-             .process = {2000, "logd", "R", 1, 1200, 1, 4567},
-             .threads = {{2000, {2000, "logd", "R", 1, 0, 1, 4567}}}},
-            {.tgid = 3000,
-             .uid = 10001234,
-             .process = {3000, "disk I/O", "R", 1, 10300, 2, 67890},
-             .threads = {{3000, {3000, "disk I/O", "R", 1, 2400, 2, 67890}}}},
-    };
+    std::unordered_map<uid_t, UidProcStats> expected =
+            {{0,
+              UidProcStats{.totalMajorFaults = 220,
+                           .totalTasksCount = 1,
+                           .ioBlockedTasksCount = 0,
+                           .processStatsByPid = {{1, {"init", 0, 220, 1, 0}}}}},
+             {10001234,
+              UidProcStats{.totalMajorFaults = 11500,
+                           .totalTasksCount = 2,
+                           .ioBlockedTasksCount = 0,
+                           .processStatsByPid = {{2000, {"logd", 4567, 1200, 1, 0}},
+                                                 {3000, {"disk I/O", 67890, 10'300, 1, 0}}}}}};
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
     UidProcStatsCollector collector(procDir.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    auto actual = collector.deltaStats();
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "Proc pid contents doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
 }
 
 TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
@@ -320,42 +243,40 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
             {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 4 0 0\n"},
             {367, "367 (init) S 0 0 0 0 0 0 0 0 400 0 0 0 0 0 0 0 4 0 100\n"},
             {453, "453 (init) S 0 0 0 0 0 0 0 0 100 0 0 0 0 0 0 0 4 0 275\n"},
-            {589, "589 (init) S 0 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 4 0 600\n"},
+            {589, "589 (init) D 0 0 0 0 0 0 0 0 500 0 0 0 0 0 0 0 4 0 600\n"},
             {1000, "1000 (system_server) R 1 0 0 0 0 0 0 0 250 0 0 0 0 0 0 0 1 0 1000\n"},
             {2345, "2345 (logd) R 1 0 0 0 0 0 0 0 54354 0 0 0 0 0 0 0 1 0 456\n"},
     };
 
-    std::vector<ProcessStats> expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .process = {1, "init", "S", 0, 1200, 4, 0},
-             .threads = {{1, {1, "init", "S", 0, 200, 4, 0}},
-                         {367, {367, "init", "S", 0, 400, 4, 100}},
-                         {453, {453, "init", "S", 0, 100, 4, 275}},
-                         {589, {589, "init", "S", 0, 500, 4, 600}}}},
-            {.tgid = 1000,
-             .uid = 10001234,
-             .process = {1000, "system_server", "R", 1, 250, 1, 1000},
-             .threads = {{1000, {1000, "system_server", "R", 1, 250, 1, 1000}}}},
-            {.tgid = 2345,
-             .uid = 10001234,
-             .process = {2345, "logd", "R", 1, 54354, 1, 456},
-             .threads = {{2345, {2345, "logd", "R", 1, 54354, 1, 456}}}},
-    };
+    std::unordered_map<uid_t, UidProcStats> expected =
+            {{0,
+              UidProcStats{.totalMajorFaults = 1200,
+                           .totalTasksCount = 4,
+                           .ioBlockedTasksCount = 1,
+                           .processStatsByPid = {{1, {"init", 0, 1200, 4, 1}}}}},
+             {10001234,
+              UidProcStats{.totalMajorFaults = 54'604,
+                           .totalTasksCount = 2,
+                           .ioBlockedTasksCount = 0,
+                           .processStatsByPid = {{1000, {"system_server", 1000, 250, 1, 0}},
+                                                 {2345, {"logd", 456, 54'354, 1, 0}}}}}};
 
     TemporaryDir firstSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(firstSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
     UidProcStatsCollector collector(firstSnapshot.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << firstSnapshot.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "First snapshot doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    auto actual = collector.deltaStats();
+
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "First snapshot doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
 
     pidToTids = {
             {1, {1, 589}},       // TID 589 reused by the same process.
@@ -385,37 +306,34 @@ TEST(UidProcStatsCollectorTest, TestHandlesPidTidReuse) {
             {453, "453 (logd) D 1 0 0 0 0 0 0 0 1800 0 0 0 0 0 0 0 2 0 4770\n"},
     };
 
-    expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .process = {1, "init", "S", 0, 600, 2, 0},
-             .threads = {{1, {1, "init", "S", 0, 300, 2, 0}},
-                         {589, {589, "init", "S", 0, 300, 2, 2345}}}},
-            {.tgid = 367,
-             .uid = 10001234,
-             .process = {367, "system_server", "R", 1, 100, 2, 3450},
-             .threads = {{367, {367, "system_server", "R", 1, 50, 2, 3450}},
-                         {2000, {2000, "system_server", "R", 1, 50, 2, 3670}}}},
-            {.tgid = 1000,
-             .uid = 10001234,
-             .process = {1000, "logd", "R", 1, 2000, 2, 4650},
-             .threads = {{1000, {1000, "logd", "R", 1, 200, 2, 4650}},
-                         {453, {453, "logd", "D", 1, 1800, 2, 4770}}}},
-    };
+    expected = {{0,
+                 UidProcStats{.totalMajorFaults = 600,
+                              .totalTasksCount = 2,
+                              .ioBlockedTasksCount = 0,
+                              .processStatsByPid = {{1, {"init", 0, 600, 2, 0}}}}},
+                {10001234,
+                 UidProcStats{.totalMajorFaults = 2100,
+                              .totalTasksCount = 4,
+                              .ioBlockedTasksCount = 1,
+                              .processStatsByPid = {{367, {"system_server", 3450, 100, 2, 0}},
+                                                    {1000, {"logd", 4650, 2000, 2, 1}}}}}};
 
     TemporaryDir secondSnapshot;
     ASSERT_RESULT_OK(populateProcPidDir(secondSnapshot.path, pidToTids, perProcessStat,
                                         perProcessStatus, perThreadStat));
 
     collector.mPath = secondSnapshot.path;
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << secondSnapshot.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "Second snapshot doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    actual = collector.deltaStats();
+
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "Second snapshot doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
 }
 
 TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
@@ -440,6 +358,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatFile) {
                                         perThreadStat));
 
     UidProcStatsCollector collector(procDir.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
     ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid process stat file";
@@ -467,6 +386,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
                                         perThreadStat));
 
     UidProcStatsCollector collector(procDir.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
     ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid process status file";
@@ -474,11 +394,11 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedProcessStatusFile) {
 
 TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
     std::unordered_map<pid_t, std::vector<pid_t>> pidToTids = {
-            {1, {1}},
+            {1, {1, 234}},
     };
 
     std::unordered_map<pid_t, std::string> perProcessStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 678\n"},
     };
 
     std::unordered_map<pid_t, std::string> perProcessStatus = {
@@ -486,7 +406,8 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
     };
 
     std::unordered_map<pid_t, std::string> perThreadStat = {
-            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 CORRUPTED DATA\n"},
+            {1, "1 (init) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 2 0 678\n"},
+            {234, "234 (init) D 0 0 0 0 0 0 0 0 200 0 0 0 CORRUPTED DATA\n"},
     };
 
     TemporaryDir procDir;
@@ -494,6 +415,7 @@ TEST(UidProcStatsCollectorTest, TestErrorOnCorruptedThreadStatFile) {
                                         perThreadStat));
 
     UidProcStatsCollector collector(procDir.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
     ASSERT_FALSE(collector.collect().ok()) << "No error returned for invalid thread stat file";
@@ -516,34 +438,39 @@ TEST(UidProcStatsCollectorTest, TestHandlesSpaceInCommName) {
             {1, "1 (random process name with space) S 0 0 0 0 0 0 0 0 200 0 0 0 0 0 0 0 1 0 0\n"},
     };
 
-    std::vector<ProcessStats> expected = {
-            {.tgid = 1,
-             .uid = 0,
-             .process = {1, "random process name with space", "S", 0, 200, 1, 0},
-             .threads = {{1, {1, "random process name with space", "S", 0, 200, 1, 0}}}},
-    };
+    std::unordered_map<uid_t, UidProcStats> expected = {
+            {0,
+             UidProcStats{.totalMajorFaults = 200,
+                          .totalTasksCount = 1,
+                          .ioBlockedTasksCount = 0,
+                          .processStatsByPid = {
+                                  {1, {"random process name with space", 0, 200, 1, 0}}}}}};
 
     TemporaryDir procDir;
     ASSERT_RESULT_OK(populateProcPidDir(procDir.path, pidToTids, perProcessStat, perProcessStatus,
                                         perThreadStat));
 
     UidProcStatsCollector collector(procDir.path);
+
     ASSERT_TRUE(collector.enabled())
             << "Files under the path `" << procDir.path << "` are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
-    auto actual = std::vector<ProcessStats>(collector.deltaStats());
-    EXPECT_TRUE(isEqual(&expected, &actual)) << "Proc pid contents doesn't match.\nExpected:\n"
-                                             << toString(expected) << "\nActual:\n"
-                                             << toString(actual);
+    auto actual = collector.deltaStats();
+
+    EXPECT_THAT(actual, UnorderedPointwise(UidProcStatsByUidEq(), expected))
+            << "Proc pid contents doesn't match.\nExpected:\n"
+            << toString(expected) << "\nActual:\n"
+            << toString(actual);
 }
 
-TEST(UidProcStatsCollectorTest, TestProcPidStatContentsFromDevice) {
+TEST(UidProcStatsCollectorTest, TestUidProcStatsCollectorContentsFromDevice) {
     UidProcStatsCollector collector;
     ASSERT_TRUE(collector.enabled()) << "/proc/[pid]/.* files are inaccessible";
     ASSERT_RESULT_OK(collector.collect());
 
     const auto& processStats = collector.deltaStats();
+
     // The below check should pass because there should be at least one process.
     EXPECT_GT(processStats.size(), 0);
 }
