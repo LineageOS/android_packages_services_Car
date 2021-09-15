@@ -19,7 +19,7 @@
         <shape
             android:shape="rectangle">
             <solid
-                android:color="#52CCB0" />
+                android:color="#29cb86" />
             <corners android:radius="100dp"/>
             <size
                 android:width="416dp"
