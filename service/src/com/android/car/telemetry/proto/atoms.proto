@@ -27,6 +27,11 @@ message Atom {
   oneof pushed {
     AppStartMemoryStateCaptured app_start_memory_state_captured = 55;
   }
+
+  // Pulled events will start at field 10000.
+  oneof pulled {
+    ProcessMemoryState process_memory_state = 10013;
+  }
 }
 
 message AppStartMemoryStateCaptured {
@@ -39,4 +44,18 @@ message AppStartMemoryStateCaptured {
   optional int64 rss_in_bytes = 6;
   optional int64 cache_in_bytes = 7;
   optional int64 swap_in_bytes = 8;
+}
+
+message ProcessMemoryState {
+  optional int32 uid = 1;
+  optional string process_name = 2;
+  optional int32 oom_score = 3;
+  optional int64 pgfault = 4;
+  optional int64 pgmajfault = 5;
+  optional int64 usage_in_bytes = 6;
+  optional int64 cache_in_bytes = 7;
+  optional int64 swap_in_bytes = 8;
+  optional int64 rss_high_watermark_in_bytes = 9 [deprecated = true];
+  optional int64 start_time_nanos = 10;
+  optional int32 anon_rss_and_swap_in_kilobytes = 11;
 }
