@@ -104,7 +104,7 @@ public class BluetoothDeviceTypeChecker {
     private ParcelUuid[] blockingFetchUuids(BluetoothDevice device) {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_UUID);
-        mContext.registerReceiver(mUuidReceiver, filter);
+        mContext.registerReceiver(mUuidReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         mDeviceUUidsFuture = new CompletableFuture<>();
         if (!device.fetchUuidsWithSdp()) {
             Log.w(TAG, "fetching UUIDs failed.");

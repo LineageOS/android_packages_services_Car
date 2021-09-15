@@ -565,7 +565,7 @@ class FastPairGattServer {
     void setup() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevice.ACTION_PAIRING_REQUEST);
-        mContext.registerReceiver(mPairingAttemptsReceiver, filter);
+        mContext.registerReceiver(mPairingAttemptsReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
         mModelIdCharacteristic = new BluetoothGattCharacteristic(FAST_PAIR_MODEL_ID_UUID.getUuid(),
                 BluetoothGattCharacteristic.PROPERTY_READ,
                 BluetoothGattCharacteristic.PERMISSION_READ);

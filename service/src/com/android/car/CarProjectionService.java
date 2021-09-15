@@ -757,7 +757,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
     @Override
     public void init() {
         mContext.registerReceiver(
-                mBroadcastReceiver, new IntentFilter(WifiManager.WIFI_AP_STATE_CHANGED_ACTION));
+                mBroadcastReceiver, new IntentFilter(WifiManager.WIFI_AP_STATE_CHANGED_ACTION),
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     private void handleWifiApStateChange(int currState, int prevState, int errorCode,

@@ -138,7 +138,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         verify(mMockCarUserService).addUserLifecycleListener(
                 mUserLifecycleListenerArgumentCaptor.capture());
         verify(mMockContext).registerReceiver(mDisplayBroadcastReceiver.capture(),
-                any(IntentFilter.class));
+                any(IntentFilter.class), anyInt());
         verify(mCarPowerManager).setListener(mPowerStateListener.capture());
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         doAnswer(invocation -> mIsKeyguardLocked)
@@ -154,7 +154,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         CarUserNoticeService otherService = new CarUserNoticeService(mOtherMockContext);
         otherService.init();
 
-        verify(mOtherMockContext, never()).registerReceiver(any(), any());
+        verify(mOtherMockContext, never()).registerReceiver(any(), any(), anyInt());
     }
 
     @Test

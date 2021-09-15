@@ -203,7 +203,7 @@ public class BluetoothHeadsetFragment extends Fragment {
     void launchDevicePicker() {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothDevicePicker.ACTION_DEVICE_SELECTED);
-        getContext().registerReceiver(mPickerReceiver, filter);
+        getContext().registerReceiver(mPickerReceiver, filter, Context.RECEIVER_NOT_EXPORTED);
 
         Intent intent = new Intent(DEVICE_PICKER_ACTION);
         intent.setFlags(Intent.FLAG_ACTIVITY_EXCLUDE_FROM_RECENTS);

@@ -402,7 +402,8 @@ public final class CarUserNoticeService implements CarServiceBase {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(Intent.ACTION_SCREEN_OFF);
         intentFilter.addAction(Intent.ACTION_SCREEN_ON);
-        mContext.registerReceiver(mDisplayBroadcastReceiver, intentFilter);
+        mContext.registerReceiver(mDisplayBroadcastReceiver, intentFilter,
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

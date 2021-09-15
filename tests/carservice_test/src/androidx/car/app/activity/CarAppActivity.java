@@ -62,9 +62,10 @@ public class CarAppActivity extends Activity {
         if (getIntent().getBooleanExtra(BUNDLE_KEY_IS_SECOND_INSTANCE, false)) {
             getActionBar().setTitle(SECOND_INSTANCE_TITLE);
         }
-        this.registerReceiver(mShowDialogReceiver, new IntentFilter(ACTION_SHOW_DIALOG));
+        this.registerReceiver(mShowDialogReceiver, new IntentFilter(ACTION_SHOW_DIALOG),
+                Context.RECEIVER_NOT_EXPORTED);
         this.registerReceiver(mStartSecondInstanceReceiver,
-                new IntentFilter(ACTION_START_SECOND_INSTANCE));
+                new IntentFilter(ACTION_START_SECOND_INSTANCE), Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

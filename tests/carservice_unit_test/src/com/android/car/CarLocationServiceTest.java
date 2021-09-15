@@ -24,6 +24,7 @@ import static junit.framework.Assert.assertTrue;
 import static junit.framework.Assert.fail;
 
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
@@ -179,7 +180,7 @@ public class CarLocationServiceTest {
         ArgumentCaptor<IntentFilter> intentFilterArgument = ArgumentCaptor.forClass(
                 IntentFilter.class);
         verify(mMockContext).registerReceiver(eq(mCarLocationService),
-                intentFilterArgument.capture());
+                intentFilterArgument.capture(), anyInt());
         verify(mMockCarDrivingStateService).registerDrivingStateChangeListener(any());
         verify(mMockPerUserCarServiceHelper).registerServiceCallback(any());
         IntentFilter intentFilter = intentFilterArgument.getValue();
