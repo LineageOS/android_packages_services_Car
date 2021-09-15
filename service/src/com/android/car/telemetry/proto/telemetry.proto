@@ -83,6 +83,8 @@ message StatsPublisher {
     UNDEFINED = 0;  // default value, not used
     // Collects all the app start events with the initial used RSS/CACHE/SWAP memory.
     APP_START_MEMORY_STATE_CAPTURED = 1;
+    // Collects memory state of processes in 5-minute buckets (1 memory measurement per bucket).
+    PROCESS_MEMORY_STATE = 2;
   }
 
   // Required.
