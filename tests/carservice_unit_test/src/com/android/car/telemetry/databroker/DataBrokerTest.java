@@ -30,7 +30,6 @@ import android.annotation.Nullable;
 import android.car.hardware.CarPropertyConfig;
 import android.content.Context;
 import android.content.ServiceConnection;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.PersistableBundle;
@@ -52,6 +51,7 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.nio.file.Files;
 import java.util.Collections;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.PriorityBlockingQueue;
@@ -105,20 +105,19 @@ public class DataBrokerTest {
     @Mock
     private StatsManagerProxy mMockStatsManager;
     @Mock
-    private SharedPreferences mMockSharedPreferences;
-    @Mock
     private IBinder mMockScriptExecutorBinder;
     @Mock
     private ResultStore mMockResultStore;
 
     @Before
-    public void setUp() {
+    public void setUp() throws Exception {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
         // bind service should return true, otherwise broker is disabled
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         PublisherFactory factory = new PublisherFactory(
-                mMockCarPropertyService, mMockHandler, mMockStatsManager, mMockSharedPreferences);
+                mMockCarPropertyService, mMockHandler, mMockStatsManager,
+                Files.createTempDirectory("telemetry_test").toFile());
         mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {

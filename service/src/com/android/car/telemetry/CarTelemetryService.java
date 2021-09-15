@@ -95,9 +95,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             mResultStore = new ResultStore(mRootDirectory);
             mStatsManagerProxy = new StatsManagerImpl(
                     mContext.getSystemService(StatsManager.class));
-            // TODO(b/197968695): delay initialization of stats publisher
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mStatsManagerProxy, null);
+                    mStatsManagerProxy, mRootDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore);
             mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
             mDataBrokerController = new DataBrokerController(mDataBroker, mSystemMonitor);
