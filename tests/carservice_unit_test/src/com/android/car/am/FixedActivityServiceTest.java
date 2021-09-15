@@ -92,6 +92,8 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
     private CarPowerManager mCarPowerManager;
     @Mock
     private UserHandleHelper mUserHandleHelper;
+    @Mock
+    private Display mValidDisplay;
 
     private FixedActivityService mFixedActivityService;
 
@@ -107,6 +109,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
         doReturn(mCarUserService).when(() -> CarLocalServices.getService(CarUserService.class));
         doReturn(mCarPowerManager).when(() -> CarLocalServices.createCarPowerManager(mContext));
+        when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(mValidDisplay);
         mFixedActivityService = new FixedActivityService(mContext, mActivityManager, mUserManager,
                 mDisplayManager, mUserHandleHelper);
     }
@@ -257,6 +260,7 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         assertThat(ret).isTrue();
 
         int anotherValidDisplayId = mValidDisplayId + 1;
+        when(mDisplayManager.getDisplay(anotherValidDisplayId)).thenReturn(mValidDisplay);
         ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(anotherIntent,
                 options, anotherValidDisplayId, userId);
         verify(mContext).startActivityAsUser(eq(anotherIntent), any(Bundle.class),
@@ -274,6 +278,46 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
         boolean ret = mFixedActivityService.startFixedActivityModeForDisplayAndUser(intent, options,
                 invalidDisplayId, userId);
         assertThat(ret).isFalse();
+    }
+
+    @Test
+    public void testStartFixedActivityModeForDisplayAndUser_unavailableDisplay() {
+        int userId = 10;
+        Intent intent = new Intent(Intent.ACTION_MAIN);
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        int unavailableDisplayId = mValidDisplayId + 1;
+
+        boolean started = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, options, unavailableDisplayId, userId);
+        assertThat(started).isFalse();
+    }
+
+    @Test
+    public void testStartFixedActivityModeForDisplayAndUser_displayRemoved()
+            throws Exception {
+        int displayToBeRemoved = mValidDisplayId + 1;
+        when(mDisplayManager.getDisplay(displayToBeRemoved)).thenReturn(
+                mValidDisplay, // for startFixedActivityModeForDisplayAndUser
+                mValidDisplay, // for launchIf
+                null);
+        int userId = 10;
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        mockAmGetCurrentUser(userId);
+        expectNoActivityStack();
+
+        boolean started = mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, options, displayToBeRemoved, userId);
+        assertThat(started).isTrue();
+        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNotNull();
+
+        // The display is still valid.
+        mFixedActivityService.launchIfNecessary();
+        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNotNull();
+
+        // The display is removed.
+        mFixedActivityService.launchIfNecessary();
+        assertThat(mFixedActivityService.getRunningFixedActivity(displayToBeRemoved)).isNull();
     }
 
     @Test
