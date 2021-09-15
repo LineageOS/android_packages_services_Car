@@ -23,10 +23,8 @@ import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
-import android.content.BroadcastReceiver;
+import android.car.user.CarUserManager;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.database.ContentObserver;
 import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
@@ -36,16 +34,29 @@ import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
 import android.provider.Settings.System;
+import android.util.Log;
 import android.view.Display;
 
 import com.android.car.CarLog;
 import com.android.car.power.CarPowerManagementService;
+import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 
 /**
  * Interface that abstracts display operations
  */
 public interface DisplayInterface {
+
+    /**
+     * Sets the required services.
+     *
+     * @param carPowerManagementService {@link CarPowerManagementService} to listen to car power
+     *                                  management changes
+     * @param carUserService            {@link CarUserService} to listen to service life cycle
+     *                                  changes
+     */
+    void init(CarPowerManagementService carPowerManagementService, CarUserService carUserService);
+
     /**
      * Sets display brightness.
      *
@@ -62,12 +73,9 @@ public interface DisplayInterface {
 
     /**
      * Starts monitoring the display state change.
-     *
      * <p> When there is a change, {@link CarPowerManagementService} is notified.
-     *
-     * @param service {@link CarPowerManagementService} to listen to the change.
      */
-    void startDisplayStateMonitoring(CarPowerManagementService service);
+    void startDisplayStateMonitoring();
 
     /**
      * Stops monitoring the display state change.
@@ -88,6 +96,8 @@ public interface DisplayInterface {
      * Default implementation of display operations
      */
     class DefaultImpl implements DisplayInterface {
+        private static final String TAG = DisplayInterface.class.getSimpleName();
+        private static final boolean DEBUG = Log.isLoggable(TAG, Log.DEBUG);
         private final Context mContext;
         private final DisplayManager mDisplayManager;
         private final Object mLock = new Object();
@@ -96,7 +106,9 @@ public interface DisplayInterface {
         private final PowerManagerHelper mPowerManagerHelper;
         private final WakeLockInterface mWakeLockInterface;
         @GuardedBy("mLock")
-        private CarPowerManagementService mService;
+        private CarPowerManagementService mCarPowerManagementService;
+        @GuardedBy("mLock")
+        private CarUserService mCarUserService;
         @GuardedBy("mLock")
         private boolean mDisplayStateSet;
         @GuardedBy("mLock")
@@ -129,13 +141,6 @@ public interface DisplayInterface {
             }
         };
 
-        private final BroadcastReceiver mUserChangeReceiver = new BroadcastReceiver() {
-            @Override
-            public void onReceive(Context context, Intent intent) {
-                onUsersUpdate();
-            }
-        };
-
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
             mContext = context;
             mDisplayManager = context.getSystemService(DisplayManager.class);
@@ -143,34 +148,40 @@ public interface DisplayInterface {
             mMaximumBacklight = mPowerManagerHelper.getMaximumScreenBrightnessSetting();
             mMinimumBacklight = mPowerManagerHelper.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
-
-            // TODO(b/195996911): Remove hard coded string and implement proper fix
-            String action = "android.intent.action.USER_SWITCHED";
-            mContext.registerReceiverForAllUsers(mUserChangeReceiver, new IntentFilter(action),
-                    /* broadcastPermission= */ null, /* scheduler= */ null,
-                    Context.RECEIVER_NOT_EXPORTED);
         }
+
+        private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
+            if (DEBUG) {
+                Slogf.d(TAG, "DisplayInterface.DefaultImpl.onEvent(%s)", event);
+            }
+
+            if (event.getEventType() == CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING) {
+                onUsersUpdate();
+            }
+        };
 
         @Override
         public void refreshDisplayBrightness() {
+            CarPowerManagementService carPowerManagementService = null;
             synchronized (mLock) {
-                if (mService == null) {
-                    Slogf.e(CarLog.TAG_POWER, "Could not set brightness: "
-                            + "no CarPowerManagementService");
-                    return;
-                }
-                int gamma = GAMMA_SPACE_MAX;
-                try {
-                    int linear = System.getInt(
-                            getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
-                            System.SCREEN_BRIGHTNESS);
-                    gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
-                } catch (SettingNotFoundException e) {
-                    Slogf.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
-                }
-                int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
-                mService.sendDisplayBrightness(percentBright);
+                carPowerManagementService = mCarPowerManagementService;
             }
+            if (carPowerManagementService == null) {
+                Slogf.e(CarLog.TAG_POWER, "Could not set brightness: "
+                        + "no CarPowerManagementService");
+                return;
+            }
+            int gamma = GAMMA_SPACE_MAX;
+            try {
+                int linear = System.getInt(
+                        getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
+                        System.SCREEN_BRIGHTNESS);
+                gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
+            } catch (SettingNotFoundException e) {
+                Slogf.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
+            }
+            int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
+            carPowerManagementService.sendDisplayBrightness(percentBright);
         }
 
         private void handleMainDisplayChanged() {
@@ -180,7 +191,7 @@ public interface DisplayInterface {
                 if (mDisplayStateSet == isOn) { // same as what is set
                     return;
                 }
-                service = mService;
+                service = mCarPowerManagementService;
             }
             service.handleMainDisplayChanged(isOn);
         }
@@ -208,21 +219,40 @@ public interface DisplayInterface {
         }
 
         @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {
+        public void init(CarPowerManagementService carPowerManagementService,
+                CarUserService carUserService) {
             synchronized (mLock) {
-                mService = service;
+                mCarPowerManagementService = carPowerManagementService;
+                mCarUserService = carUserService;
                 mDisplayStateSet = isMainDisplayOn();
             }
+        }
+
+        @Override
+        public void startDisplayStateMonitoring() {
+            CarPowerManagementService carPowerManagementService;
+            CarUserService carUserService;
+            synchronized (mLock) {
+                carPowerManagementService = mCarPowerManagementService;
+                carUserService = mCarUserService;
+            }
+            carUserService.addUserLifecycleListener(mUserLifecycleListener);
             getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
                     .registerContentObserver(System.getUriFor(System.SCREEN_BRIGHTNESS),
-                    false,
-                    mBrightnessObserver);
-            mDisplayManager.registerDisplayListener(mDisplayListener, service.getHandler());
+                            false,
+                            mBrightnessObserver);
+            mDisplayManager.registerDisplayListener(mDisplayListener,
+                    carPowerManagementService.getHandler());
             refreshDisplayBrightness();
         }
 
         @Override
         public void stopDisplayStateMonitoring() {
+            CarUserService carUserService;
+            synchronized (mLock) {
+                carUserService = mCarUserService;
+            }
+            carUserService.removeUserLifecycleListener(mUserLifecycleListener);
             mDisplayManager.unregisterDisplayListener(mDisplayListener);
             getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
                     .unregisterContentObserver(mBrightnessObserver);
@@ -251,7 +281,7 @@ public interface DisplayInterface {
 
         private void onUsersUpdate() {
             synchronized (mLock) {
-                if (mService == null) {
+                if (mCarPowerManagementService == null) {
                     // CarPowerManagementService is not connected yet
                     return;
                 }

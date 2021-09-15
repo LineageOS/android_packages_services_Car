@@ -339,7 +339,8 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             Slogf.w(TAG, "Vehicle hal does not support power state yet.");
             onApPowerStateChange(CpmsState.ON, CarPowerStateListener.ON);
         }
-        mSystemInterface.startDisplayStateMonitoring(this);
+        mSystemInterface.init(this, mUserService);
+        mSystemInterface.startDisplayStateMonitoring();
         connectToPowerPolicyDaemon();
     }
 
