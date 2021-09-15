@@ -43,6 +43,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
+import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.RotaryEvent;
@@ -206,6 +207,9 @@ final class CarShellCommand extends ShellCommand {
             "watchdog-io-get-3p-foreground-bytes";
     private static final String COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK =
             "watchdog-control-health-check";
+
+    private static final String COMMAND_DRIVING_SAFETY_SET_REGION =
+            "set-drivingsafety-region";
 
     private static final String[] CREATE_OR_MANAGE_USERS_PERMISSIONS = new String[] {
             android.Manifest.permission.CREATE_USERS,
@@ -639,6 +643,10 @@ final class CarShellCommand extends ShellCommand {
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
         pw.println("\t  Set to true to disable the process health check.");
+
+        pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
+        pw.println("\t  Set driving safety region.");
+        pw.println("\t  Skipping REGION_STRING leads into resetting to all regions");
     }
 
     private static int showInvalidArguments(IndentingPrintWriter pw) {
@@ -973,6 +981,9 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK:
                 controlWatchdogProcessHealthCheck(args, writer);
+                break;
+            case COMMAND_DRIVING_SAFETY_SET_REGION:
+                setDrivingSafetyRegion(args, writer);
                 break;
             default:
                 writer.println("Unknown command: \"" + cmd + "\"");
@@ -2176,6 +2187,17 @@ final class CarShellCommand extends ShellCommand {
         } else {
             writer.printf("CarEvsService is set to use %s.\n", args[1]);
         }
+    }
+
+    private void setDrivingSafetyRegion(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 1 && args.length != 2) {
+            showInvalidArguments(writer);
+            return;
+        }
+        String region = args.length == 2 ? args[1] : CarPackageManager.DRIVING_SAFETY_REGION_ALL;
+        writer.println("Set driving safety region to:" + region);
+        CarLocalServices.getService(CarPackageManagerService.class).resetDrivingSafetyRegion(
+                region);
     }
 
     private void getRearviewCameraId(IndentingPrintWriter writer) {
