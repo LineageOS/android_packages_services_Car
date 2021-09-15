@@ -500,7 +500,9 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
 
-        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     @VisibleForTesting

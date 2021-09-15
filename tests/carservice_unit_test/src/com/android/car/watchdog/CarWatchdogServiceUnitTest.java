@@ -2306,7 +2306,8 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         ArgumentCaptor<BroadcastReceiver> receiverArgumentCaptor =
                 ArgumentCaptor.forClass(BroadcastReceiver.class);
         verify(mMockContext)
-                .registerReceiverForAllUsers(receiverArgumentCaptor.capture(), any(), any(), any());
+                .registerReceiverForAllUsers(receiverArgumentCaptor.capture(),
+                        any(), any(), any(), anyInt());
         mBroadcastReceiver = receiverArgumentCaptor.getValue();
         assertWithMessage("Broadcast receiver must be non-null").that(mBroadcastReceiver)
                 .isNotNull();
