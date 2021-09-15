@@ -41,7 +41,6 @@ import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.car.test.FakeHandlerWrapper;
-import com.android.car.test.FakeSharedPreferences;
 
 import com.google.common.collect.Range;
 
@@ -52,6 +51,10 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.Captor;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
+
+import java.io.File;
+import java.io.FileInputStream;
+import java.nio.file.Files;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatsPublisherTest {
@@ -92,10 +95,11 @@ public class StatsPublisherTest {
     private static final StatsLogProto.ConfigMetricsReportList EMPTY_STATS_REPORT =
             StatsLogProto.ConfigMetricsReportList.newBuilder().build();
 
-    private StatsPublisher mPublisher;  // subject
-    private final FakeSharedPreferences mFakeSharedPref = new FakeSharedPreferences();
     private final FakeHandlerWrapper mFakeHandlerWrapper =
             new FakeHandlerWrapper(Looper.getMainLooper(), FakeHandlerWrapper.Mode.QUEUEING);
+
+    private File mRootDirectory;
+    private StatsPublisher mPublisher;  // subject
     private Throwable mPublisherFailure;
 
     @Mock private DataSubscriber mMockDataSubscriber;
@@ -105,6 +109,7 @@ public class StatsPublisherTest {
 
     @Before
     public void setUp() throws Exception {
+        mRootDirectory = Files.createTempDirectory("telemetry_test").toFile();
         mPublisher = createRestartedPublisher();
         when(mMockDataSubscriber.getPublisherParam()).thenReturn(STATS_PUBLISHER_PARAMS_1);
         when(mMockDataSubscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
@@ -112,14 +117,14 @@ public class StatsPublisherTest {
     }
 
     /**
-     * Emulates a restart by creating a new StatsPublisher. StatsManager and SharedPreference
+     * Emulates a restart by creating a new StatsPublisher. StatsManager and PersistableBundle
      * stays the same.
      */
-    private StatsPublisher createRestartedPublisher() {
+    private StatsPublisher createRestartedPublisher() throws Exception {
         return new StatsPublisher(
                 this::onPublisherFailure,
                 mStatsManager,
-                mFakeSharedPref,
+                mRootDirectory,
                 mFakeHandlerWrapper.getMockHandler());
     }
 
@@ -161,7 +166,7 @@ public class StatsPublisherTest {
         mPublisher.removeDataSubscriber(mMockDataSubscriber);
 
         verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
-        assertThat(mFakeSharedPref.getAll().isEmpty()).isTrue();  // also removes from SharedPref.
+        assertThat(getSavedStatsConfigs().keySet()).isEmpty();
         assertThat(mPublisher.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
@@ -185,7 +190,7 @@ public class StatsPublisherTest {
         publisher2.removeAllDataSubscribers();
 
         verify(mStatsManager, times(1)).removeConfig(SUBSCRIBER_1_HASH);
-        assertThat(mFakeSharedPref.getAll().isEmpty()).isTrue();  // also removes from SharedPref.
+        assertThat(getSavedStatsConfigs().keySet()).isEmpty();
         assertThat(publisher2.hasDataSubscriber(mMockDataSubscriber)).isFalse();
     }
 
@@ -256,6 +261,13 @@ public class StatsPublisherTest {
 
         verify(mMockDataSubscriber).push(mBundleCaptor.capture());
         assertThat(mBundleCaptor.getValue().getInt("reportsCount")).isEqualTo(2);
+    }
+
+    private PersistableBundle getSavedStatsConfigs() throws Exception {
+        File savedConfigsFile = new File(mRootDirectory, StatsPublisher.SAVED_STATS_CONFIGS_FILE);
+        try (FileInputStream fileInputStream = new FileInputStream(savedConfigsFile)) {
+            return PersistableBundle.readFromStream(fileInputStream);
+        }
     }
 
     // TODO(b/189143813): add test cases when connecting to Statsd fails
