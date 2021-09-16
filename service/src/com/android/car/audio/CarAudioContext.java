@@ -16,6 +16,8 @@
 
 package com.android.car.audio;
 
+import static android.car.builtin.os.AudioServiceHelper.getUsageVirtualSource;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
 import android.annotation.IntDef;
@@ -207,7 +209,7 @@ public final class CarAudioContext {
 
         CONTEXT_TO_USAGES.put(INVALID,
                 new int[]{
-                        AudioAttributes.USAGE_VIRTUAL_SOURCE
+                        getUsageVirtualSource()
                 });
     }
 

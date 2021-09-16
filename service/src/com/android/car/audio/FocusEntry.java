@@ -15,6 +15,8 @@
  */
 package com.android.car.audio;
 
+import static android.car.builtin.os.AudioServiceHelper.usageToString;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -108,7 +110,8 @@ final class FocusEntry {
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dump(IndentingPrintWriter writer) {
-        writer.printf("%s - %s\n", getClientId(), mAudioFocusInfo.getAttributes().usageToString());
+        writer.printf("%s - %s\n", getClientId(),
+                usageToString(mAudioFocusInfo.getAttributes().getUsage()));
         writer.increaseIndent();
         // Prints in single line
         writer.printf("Receives Duck Events: %b, ", receivesDuckEvents());

@@ -16,6 +16,10 @@
 
 package com.android.car.audio.hal;
 
+import static android.car.builtin.os.AudioServiceHelper.usageToString;
+import static android.car.builtin.os.AudioServiceHelper.usageToXsdString;
+import static android.car.builtin.os.AudioServiceHelper.xsdStringToUsage;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -26,7 +30,6 @@ import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
 import android.hardware.automotive.audiocontrol.MutingInfo;
-import android.media.AudioAttributes;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
@@ -98,11 +101,11 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "onAudioFocusChange: usage " + AudioAttributes.usageToString(usage)
+            Slog.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }
         try {
-            String usageName = AudioAttributes.usageToXsdString(usage);
+            String usageName = usageToXsdString(usage);
             mAudioControl.onAudioFocusChange(usageName, zoneId, focusChange);
         } catch (RemoteException e) {
             throw new IllegalStateException("Failed to query IAudioControl#onAudioFocusChange", e);
@@ -218,13 +221,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
 
         @Override
         public void requestAudioFocus(String usage, int zoneId, int focusGain) {
-            @AttributeUsage int usageValue = AudioAttributes.xsdStringToUsage(usage);
+            @AttributeUsage int usageValue = xsdStringToUsage(usage);
             mListener.requestAudioFocus(usageValue, zoneId, focusGain);
         }
 
         @Override
         public void abandonAudioFocus(String usage, int zoneId) {
-            @AttributeUsage int usageValue = AudioAttributes.xsdStringToUsage(usage);
+            @AttributeUsage int usageValue = xsdStringToUsage(usage);
             mListener.abandonAudioFocus(usageValue, zoneId);
         }
     }

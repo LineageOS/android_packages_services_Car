@@ -16,6 +16,8 @@
 
 package com.android.car.audio.hal;
 
+import static android.car.builtin.os.AudioServiceHelper.usageToString;
+
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
@@ -25,7 +27,6 @@ import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
 import android.hardware.automotive.audiocontrol.V2_0.IFocusListener;
-import android.media.AudioAttributes;
 import android.os.RemoteException;
 import android.util.Log;
 
@@ -100,7 +101,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "onAudioFocusChange: usage " + AudioAttributes.usageToString(usage)
+            Slog.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }
         try {

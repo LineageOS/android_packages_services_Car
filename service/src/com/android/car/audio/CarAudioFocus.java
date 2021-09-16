@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static android.car.builtin.os.AudioServiceHelper.usageToString;
 import static android.media.AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
@@ -175,7 +176,7 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
     private int evaluateFocusRequestLocked(AudioFocusInfo afi) {
         Slog.i(TAG, "Evaluating " + focusEventToString(afi.getGainRequest())
                 + " request for client " + afi.getClientId()
-                + " with usage " + afi.getAttributes().usageToString());
+                + " with usage " + usageToString(afi.getAttributes().getUsage()));
 
         if (mIsFocusRestricted) {
             int audioContext = CarAudioContext.getContextForAttributes(afi.getAttributes());
@@ -219,8 +220,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                         "Client %s has already delayed requested focus for %s "
                                 + "- cannot request focus for %s on same listener.",
                         mDelayedRequest.getClientId(),
-                        mDelayedRequest.getAttributes().usageToString(),
-                        afi.getAttributes().usageToString()));
+                        usageToString(mDelayedRequest.getAttributes().getUsage()),
+                        usageToString(afi.getAttributes().getUsage())));
                 return AUDIOFOCUS_REQUEST_FAILED;
             }
         }
@@ -260,8 +261,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                             "Client %s has already requested focus for %s - cannot request focus "
                                     + "for %s on same listener.",
                             entry.getClientId(),
-                            entry.getAudioFocusInfo().getAttributes().usageToString(),
-                            afi.getAttributes().usageToString()));
+                            usageToString(entry.getAudioFocusInfo().getAttributes().getUsage()),
+                            usageToString(afi.getAttributes().getUsage())));
                     return AUDIOFOCUS_REQUEST_FAILED;
                 }
             }
@@ -305,8 +306,8 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
                             "Client %s has already requested focus for %s - cannot request focus "
                                     + "for %s on same listener.",
                             entry.getClientId(),
-                            entry.getAudioFocusInfo().getAttributes().usageToString(),
-                            afi.getAttributes().usageToString()));
+                            usageToString(entry.getAudioFocusInfo().getAttributes().getUsage()),
+                            usageToString(afi.getAttributes().getUsage())));
                     return AUDIOFOCUS_REQUEST_FAILED;
                 }
             }
