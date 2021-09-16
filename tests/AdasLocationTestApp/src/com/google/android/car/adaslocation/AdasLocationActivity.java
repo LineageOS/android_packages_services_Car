@@ -135,7 +135,7 @@ public final class AdasLocationActivity extends AppCompatActivity {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(LocationManager.MODE_CHANGED_ACTION);
         intentFilter.addAction(LocationManager.ACTION_ADAS_GNSS_ENABLED_CHANGED);
-        registerReceiver(mReceiver, intentFilter);
+        registerReceiver(mReceiver, intentFilter, Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override

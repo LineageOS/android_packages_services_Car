@@ -98,7 +98,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
             public void onReceive(Context context, Intent intent) {
                 mUserRemoveLatch.countDown();
             }
-        }, filter);
+        }, filter, Context.RECEIVER_NOT_EXPORTED);
 
         List<UserInfo> users = mUserManager.getAliveUsers();
 

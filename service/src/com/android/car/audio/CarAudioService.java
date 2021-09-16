@@ -507,7 +507,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
         intentFilter.addAction(AudioManager.MASTER_MUTE_CHANGED_ACTION);
-        mContext.registerReceiver(mLegacyVolumeChangedReceiver, intentFilter);
+        mContext.registerReceiver(mLegacyVolumeChangedReceiver, intentFilter,
+                Context.RECEIVER_NOT_EXPORTED);
     }
 
     private List<CarAudioDeviceInfo> generateCarAudioDeviceInfos() {

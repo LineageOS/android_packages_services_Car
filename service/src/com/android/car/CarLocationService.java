@@ -170,7 +170,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         logd("init");
         IntentFilter filter = new IntentFilter();
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
-        mContext.registerReceiver(this, filter);
+        mContext.registerReceiver(this, filter, Context.RECEIVER_NOT_EXPORTED);
         mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
         if (mCarDrivingStateService != null) {
             CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();

@@ -164,7 +164,8 @@ public interface SystemStateInterface {
                 final int corePoolSize = 1;
                 mExecutorService = Executors.newScheduledThreadPool(corePoolSize);
                 IntentFilter intentFilter = new IntentFilter(Intent.ACTION_BOOT_COMPLETED);
-                mContext.registerReceiver(mBroadcastReceiver, intentFilter);
+                mContext.registerReceiver(mBroadcastReceiver, intentFilter,
+                        Context.RECEIVER_NOT_EXPORTED);
             }
             mActionsList.add(Pair.create(action, delay));
         }

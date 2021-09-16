@@ -146,7 +146,7 @@ public class FastPairProvider {
         IntentFilter filter = new IntentFilter();
         filter.addAction(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
         filter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        mContext.registerReceiver(mDiscoveryModeChanged, filter);
+        mContext.registerReceiver(mDiscoveryModeChanged, filter, Context.RECEIVER_NOT_EXPORTED);
 
         mStarted = true;
     }
