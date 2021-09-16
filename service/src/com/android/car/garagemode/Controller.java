@@ -18,7 +18,6 @@ package com.android.car.garagemode;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.app.job.JobScheduler;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -66,7 +65,7 @@ public class Controller implements CarPowerStateListenerWithCompletion {
         mHandler = (handler == null ? new Handler(looper) : handler);
         mWakeupPolicy =
                 (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
-        mGarageMode = (garageMode == null ? new GarageMode(this) : garageMode);
+        mGarageMode = (garageMode == null ? new GarageMode(context, this) : garageMode);
     }
 
     /** init */
@@ -133,13 +132,6 @@ public class Controller implements CarPowerStateListenerWithCompletion {
         SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
         Slogf.d(TAG, "Sending broadcast with action: %s", i.getAction());
         systemInterface.sendBroadcastAsUser(i, UserHandle.ALL);
-    }
-
-    /**
-     * @return JobSchedulerService instance
-     */
-    JobScheduler getJobSchedulerService() {
-        return (JobScheduler) mContext.getSystemService(Context.JOB_SCHEDULER_SERVICE);
     }
 
     /**
