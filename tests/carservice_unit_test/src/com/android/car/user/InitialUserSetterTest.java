@@ -31,6 +31,7 @@ import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
+import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyString;
@@ -113,6 +114,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
 
     @Before
     public void setFixtures() {
+        when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
         mSetter = spy(new InitialUserSetter(mContext, mUm, mCarUserService, mListener,
                         mMockedUserHandleHelper, mLockPatternUtils, OWNER_NAME, GUEST_NAME));
         doReturn(mAmHelper).when(() -> ActivityManagerHelper.getInstance());

@@ -199,7 +199,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         mUidToZoneMap = new HashMap<>();
         mCarVolumeCallbackHandler = new CarVolumeCallbackHandler();
-        mCarAudioSettings = new CarAudioSettings(mContext.getContentResolver());
+        mCarAudioSettings = new CarAudioSettings(mContext);
         mAudioZoneIdToUserIdMapping = new SparseIntArray();
         mAudioVolumeAdjustmentContextsVersion =
                 mContext.getResources().getInteger(R.integer.audioVolumeAdjustmentContextsVersion);

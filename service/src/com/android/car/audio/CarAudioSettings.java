@@ -15,10 +15,12 @@
  */
 package com.android.car.audio;
 
-import android.annotation.NonNull;
+import static com.android.car.util.Utils.getContentResolverForUser;
+
 import android.annotation.UserIdInt;
 import android.car.settings.CarSettings;
 import android.content.ContentResolver;
+import android.content.Context;
 import android.provider.Settings;
 
 import java.util.Objects;
@@ -40,21 +42,23 @@ public class CarAudioSettings {
     // Key to persist master mute state in system settings
     private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
 
+    private final Context mContext;
     private final ContentResolver mContentResolver;
 
-    CarAudioSettings(@NonNull ContentResolver contentResolver) {
-        mContentResolver = Objects.requireNonNull(contentResolver);
+    CarAudioSettings(Context context) {
+        mContext = context;
+        mContentResolver = Objects.requireNonNull(context).getContentResolver();
     }
 
-    int getStoredVolumeGainIndexForUser(int userId, int zoneId, int groupId) {
-        return Settings.System.getIntForUser(mContentResolver,
-                getVolumeSettingsKeyForGroup(zoneId, groupId), -1, userId);
+    int getStoredVolumeGainIndexForUser(@UserIdInt int userId, int zoneId, int groupId) {
+        return getIntForUser(getVolumeSettingsKeyForGroup(zoneId, groupId), -1, userId);
     }
 
-    void storeVolumeGainIndexForUser(int userId, int zoneId, int groupId, int gainIndex) {
-        Settings.System.putIntForUser(mContentResolver,
-                getVolumeSettingsKeyForGroup(zoneId, groupId),
-                gainIndex, userId);
+    void storeVolumeGainIndexForUser(@UserIdInt int userId, int zoneId, int groupId,
+            int gainIndex) {
+        putIntForUser(getVolumeSettingsKeyForGroup(zoneId, groupId),
+                gainIndex,
+                userId);
     }
 
     void storeMasterMute(Boolean masterMuteValue) {
@@ -70,20 +74,17 @@ public class CarAudioSettings {
 
     void storeVolumeGroupMuteForUser(@UserIdInt int userId, int zoneId, int groupId,
             boolean isMuted) {
-        Settings.System.putIntForUser(mContentResolver,
-                getMuteSettingsKeyForGroup(zoneId, groupId),
+        putIntForUser(getMuteSettingsKeyForGroup(zoneId, groupId),
                 isMuted ? 1 : 0, userId);
     }
 
     boolean getVolumeGroupMuteForUser(@UserIdInt int userId, int zoneId, int groupId) {
-        return Settings.System.getIntForUser(mContentResolver,
-                getMuteSettingsKeyForGroup(zoneId, groupId),
+        return getIntForUser(getMuteSettingsKeyForGroup(zoneId, groupId),
                 /*disabled by default*/ 0, userId) != 0;
     }
 
     boolean isPersistVolumeGroupMuteEnabled(@UserIdInt int userId) {
-        return Settings.Secure.getIntForUser(mContentResolver,
-                CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
+        return getIntForUser(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
                 /*disabled by default*/ 0, userId) == 1;
     }
 
@@ -91,9 +92,17 @@ public class CarAudioSettings {
      * Determines if for a given userId the reject navigation on call setting is enabled
      */
     public boolean isRejectNavigationOnCallEnabledInSettings(@UserIdInt int userId) {
-        return Settings.Secure.getIntForUser(mContentResolver,
-                CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
+        return getIntForUser(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
                 /*disabled by default*/ 0, userId) == 1;
+    }
+
+    private int getIntForUser(String name, int defaultValue, @UserIdInt int userId) {
+        return Settings.System.getInt(getContentResolverForUser(mContext, userId),
+                name, defaultValue);
+    }
+
+    private void putIntForUser(String name, int value, @UserIdInt int userId) {
+        Settings.System.putInt(getContentResolverForUser(mContext, userId), name, value);
     }
 
     private static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {

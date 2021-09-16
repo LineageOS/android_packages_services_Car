@@ -19,6 +19,7 @@ package com.android.car.systeminterface;
 import static com.android.car.util.BrightnessUtils.GAMMA_SPACE_MAX;
 import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
+import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.app.ActivityManager;
 import android.car.builtin.util.Slog;
@@ -165,10 +166,9 @@ public interface DisplayInterface {
                 }
                 int gamma = GAMMA_SPACE_MAX;
                 try {
-                    int linear = System.getIntForUser(
-                            mContentResolver,
-                            System.SCREEN_BRIGHTNESS,
-                            ActivityManager.getCurrentUser());
+                    int linear = System.getInt(
+                            getContentResolverForUser(mContext, UserHandle.USER_CURRENT),
+                            System.SCREEN_BRIGHTNESS);
                     gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
                 } catch (SettingNotFoundException e) {
                     Slog.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
@@ -206,11 +206,10 @@ public interface DisplayInterface {
             }
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
-            System.putIntForUser(
-                    mContentResolver,
+            System.putInt(
+                    getContentResolverForUser(mContext, UserHandle.USER_CURRENT),
                     System.SCREEN_BRIGHTNESS,
-                    linear,
-                    ActivityManager.getCurrentUser());
+                    linear);
         }
 
         @Override

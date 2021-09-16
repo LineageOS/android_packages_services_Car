@@ -233,6 +233,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Before
     public void setUpMocks() {
         doReturn(mApplicationContext).when(mMockContext).getApplicationContext();
+        doReturn(mMockContext).when(mMockContext).createContextAsUser(any(), anyInt());
         doReturn(mLocationManager).when(mMockContext).getSystemService(Context.LOCATION_SERVICE);
         doReturn(InstrumentationRegistry.getTargetContext().getContentResolver())
                 .when(mMockContext).getContentResolver();

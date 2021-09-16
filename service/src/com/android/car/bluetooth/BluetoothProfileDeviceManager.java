@@ -22,6 +22,8 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_MAP_CLIENT_D
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PAN_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PBAP_CLIENT_DEVICES;
 
+import static com.android.car.util.Utils.getContentResolverForUser;
+
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothA2dpSink;
@@ -391,8 +393,8 @@ public class BluetoothProfileDeviceManager {
         logd("Loading device priority list snapshot using key '" + mSettingsKey + "'");
 
         // Read from Settings.Secure for our profile, as the current user.
-        String devicesStr = Settings.Secure.getStringForUser(mContext.getContentResolver(),
-                mSettingsKey, mUserId);
+        String devicesStr = Settings.Secure.getString(getContentResolverForUser(mContext, mUserId),
+                mSettingsKey);
         logd("Found Device String: '" + devicesStr + "'");
         if (devicesStr == null || "".equals(devicesStr)) {
             return false;
@@ -441,8 +443,8 @@ public class BluetoothProfileDeviceManager {
         }
 
         String devicesStr = sb.toString();
-        Settings.Secure.putStringForUser(mContext.getContentResolver(), mSettingsKey, devicesStr,
-                mUserId);
+        Settings.Secure.putString(getContentResolverForUser(mContext, mUserId), mSettingsKey,
+                devicesStr);
         logd("Committed key: " + mSettingsKey + ", value: '" + devicesStr + "'");
         return true;
     }

@@ -128,6 +128,11 @@ public class CarInputRotaryServiceTest {
         }
 
         @Override
+        public Context createContextAsUser(UserHandle user, int flags) {
+            return this;
+        }
+
+        @Override
         public ContentResolver getContentResolver() {
             return mContentResolver;
         }
