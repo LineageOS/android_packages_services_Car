@@ -21,7 +21,9 @@
 #include <android-base/logging.h>
 #include <com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.h>
 
+#include <sstream>
 #include <utility>
+#include <vector>
 
 extern "C" {
 #include "lauxlib.h"
@@ -42,10 +44,17 @@ enum LuaNumReturnedResults {
     ZERO_RETURNED_RESULTS = 0,
 };
 
+// TODO(199415783): Revisit the topic of limits to potentially move it to standalone file.
+constexpr int MAX_ARRAY_SIZE = 1000;
+
 // Helper method that goes over Lua table fields one by one and populates PersistableBundle
 // object wrapped in BundleWrapper.
 // It is assumed that Lua table is located on top of the Lua stack.
-void convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
+//
+// Returns false if the conversion encountered unrecoverable error.
+// Otherwise, returns true for success.
+bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
+                             ScriptExecutorListener* listener) {
     // Iterate over Lua table which is expected to be at the top of Lua stack.
     // lua_next call pops the key from the top of the stack and finds the next
     // key-value pair. It returns 0 if the next pair was not found.
@@ -56,6 +65,7 @@ void convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
         // -1 index is the top of the stack.
         // remove 'value' and keep 'key' for next iteration
         // Process each key-value depending on a type and push it to Java PersistableBundle.
+        // TODO(199531928): Consider putting limits on key sizes as well.
         const char* key = lua_tostring(lua, /* index = */ -2);
         if (lua_isboolean(lua, /* index = */ -1)) {
             bundleWrapper->putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
@@ -64,9 +74,54 @@ void convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
         } else if (lua_isnumber(lua, /* index = */ -1)) {
             bundleWrapper->putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
         } else if (lua_isstring(lua, /* index = */ -1)) {
+            // TODO(199415783): We need to have a limit on how long these strings could be.
             bundleWrapper->putString(key, lua_tostring(lua, /* index = */ -1));
+        } else if (lua_istable(lua, /* index =*/-1)) {
+            // Lua uses tables to represent an array.
+
+            // TODO(199438375): Document to users that we expect tables to be either only indexed or
+            // keyed but not both. If the table contains consecutively indexed values starting from
+            // 1, we will treat it as an array. lua_rawlen call returns the size of the indexed
+            // part. We copy this part into an array, but any keyed values in this table are
+            // ignored. There is a test that documents this current behavior. If a user wants a
+            // nested table to be represented by a PersistableBundle object, they must make sure
+            // that the nested table does not contain indexed data, including no key=1.
+            const auto kTableLength = lua_rawlen(lua, -1);
+            if (kTableLength > MAX_ARRAY_SIZE) {
+                std::ostringstream out;
+                out << "Returned table " << key << " exceeds maximum allowed size of "
+                    << MAX_ARRAY_SIZE
+                    << " elements. This key-value cannot be unpacked successfully. This error "
+                       "is unrecoverable.";
+                listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                                  out.str().c_str(), "");
+                return false;
+            }
+            if (kTableLength > 0) {
+                std::vector<int64_t> arr;
+                arr.reserve(kTableLength);  // pre-allocate enough memory for performance.
+                for (int i = 0; i < kTableLength; i++) {
+                    lua_rawgeti(lua, -1, i + 1);
+                    if (!lua_isinteger(lua, /* index = */ -1)) {
+                        std::ostringstream out;
+                        out << "Returned table " << key
+                            << " contains values of types other than expected integer. This "
+                               "key-value cannot be unpacked successfully. This error is "
+                               "unrecoverable.";
+                        listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                                          out.str().c_str(), "");
+                        lua_pop(lua, 1);
+                        return false;
+                    }
+                    arr.push_back(lua_tointeger(lua, /* index = */ -1));
+                    lua_pop(lua, 1);
+                }
+                bundleWrapper->putLongArray(key, arr);
+            }
         } else {
             // not supported yet...
+            // TODO(199439259): Instead of logging here, log and send to user instead, and continue
+            // unpacking the rest of the table.
             LOG(WARNING) << "key=" << key << " has a Lua type which is not supported yet. "
                          << "The bundle object will not have this key-value pair.";
         }
@@ -74,6 +129,7 @@ void convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
         lua_pop(lua, 1);
         // The key is at index -1, the table is at index -2 now.
     }
+    return true;
 }
 
 }  // namespace
@@ -161,10 +217,11 @@ int LuaEngine::onSuccess(lua_State* lua) {
 
     // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
-    convertLuaTableToBundle(lua, &bundleWrapper);
+    if (convertLuaTableToBundle(lua, &bundleWrapper, sListener)) {
+        // Forward the populated Bundle object to Java callback.
+        sListener->onSuccess(bundleWrapper.getBundle());
+    }
 
-    // Forward the populated Bundle object to Java callback.
-    sListener->onSuccess(bundleWrapper.getBundle());
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
     return ZERO_RETURNED_RESULTS;
@@ -182,10 +239,11 @@ int LuaEngine::onScriptFinished(lua_State* lua) {
 
     // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
-    convertLuaTableToBundle(lua, &bundleWrapper);
+    if (convertLuaTableToBundle(lua, &bundleWrapper, sListener)) {
+        // Forward the populated Bundle object to Java callback.
+        sListener->onScriptFinished(bundleWrapper.getBundle());
+    }
 
-    // Forward the populated Bundle object to Java callback.
-    sListener->onScriptFinished(bundleWrapper.getBundle());
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
     return ZERO_RETURNED_RESULTS;

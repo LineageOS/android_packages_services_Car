@@ -19,6 +19,8 @@
 
 #include "jni.h"
 
+#include <vector>
+
 namespace com {
 namespace android {
 namespace car {
@@ -40,6 +42,7 @@ public:
     void putInteger(const char* key, int value);
     void putDouble(const char* key, double value);
     void putString(const char* key, const char* value);
+    void putLongArray(const char* key, const std::vector<int64_t>& value);
 
     jobject getBundle();
 

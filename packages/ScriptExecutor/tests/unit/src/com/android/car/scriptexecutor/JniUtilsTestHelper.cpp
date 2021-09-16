@@ -27,6 +27,44 @@ namespace car {
 namespace scriptexecutor {
 namespace {
 
+template <typename T>
+bool hasIntegerArray(JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, T rawInputArray,
+                     const int arrayLength) {
+    const char* rawKey = env->GetStringUTFChars(key, nullptr);
+    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    // Assumes the table is on top of the stack.
+    auto* luaState = engine->getLuaState();
+    lua_pushstring(luaState, rawKey);
+    env->ReleaseStringUTFChars(key, rawKey);
+    lua_gettable(luaState, -2);
+    bool result = false;
+    if (!lua_istable(luaState, -1)) {
+        result = false;
+    } else {
+        // First, compare the input and Lua array sizes.
+        const auto kActualLength = lua_rawlen(luaState, -1);
+        if (arrayLength != kActualLength) {
+            // No need to compare further if number of elements in the two arrays are not equal.
+            result = false;
+        } else {
+            // Do element by element comparison.
+            bool is_equal = true;
+            for (int i = 0; i < arrayLength; ++i) {
+                lua_rawgeti(luaState, -1, i + 1);
+                if (!lua_isinteger(luaState, /* index = */ -1) ||
+                    (lua_tointeger(luaState, /* index = */ -1) != rawInputArray[i])) {
+                    is_equal = false;
+                }
+                lua_pop(luaState, 1);
+                if (!is_equal) break;
+            }
+            result = is_equal;
+        }
+    }
+    lua_pop(luaState, 1);
+    return result;
+}
+
 extern "C" {
 
 #include "lua.h"
@@ -127,6 +165,24 @@ JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHa
         env->ReleaseStringUTFChars(value, rawValue);
     }
     lua_pop(luaState, 1);
+    return result;
+}
+
+JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasIntArrayValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jintArray value) {
+    jint* rawInputArray = env->GetIntArrayElements(value, nullptr);
+    const auto kInputLength = env->GetArrayLength(value);
+    bool result = hasIntegerArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength);
+    env->ReleaseIntArrayElements(value, rawInputArray, JNI_ABORT);
+    return result;
+}
+
+JNIEXPORT bool JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeHasLongArrayValue(
+        JNIEnv* env, jobject object, jlong luaEnginePtr, jstring key, jlongArray value) {
+    jlong* rawInputArray = env->GetLongArrayElements(value, nullptr);
+    const auto kInputLength = env->GetArrayLength(value);
+    bool result = hasIntegerArray(env, object, luaEnginePtr, key, rawInputArray, kInputLength);
+    env->ReleaseLongArrayElements(value, rawInputArray, JNI_ABORT);
     return result;
 }
 
