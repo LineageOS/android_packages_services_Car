@@ -83,16 +83,19 @@ public class StatsPublisher extends AbstractPublisher {
                             AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
-                                    AtomsProto.ProcessMemoryState.OOM_SCORE_FIELD_NUMBER))
+                                    AtomsProto.ProcessMemoryState.OOM_ADJ_SCORE_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
-                                    AtomsProto.ProcessMemoryState.START_TIME_NANOS_FIELD_NUMBER))
+                                    AtomsProto.ProcessMemoryState.PAGE_FAULT_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
-                                    AtomsProto.ProcessMemoryState.USAGE_IN_BYTES_FIELD_NUMBER))
+                                    AtomsProto.ProcessMemoryState.PAGE_MAJOR_FAULT_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
-                                    AtomsProto.ProcessMemoryState.PGFAULT_FIELD_NUMBER))
+                                    AtomsProto.ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER))
+                    .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
+                            .setField(
+                                    AtomsProto.ProcessMemoryState.CACHE_IN_BYTES_FIELD_NUMBER))
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
                                     AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
