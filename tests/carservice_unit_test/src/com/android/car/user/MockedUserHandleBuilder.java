@@ -34,37 +34,47 @@ public final class MockedUserHandleBuilder {
         when(mUserHandleHelper.getExistingUserHandle(userId)).thenReturn(mUser);
     }
 
-    public MockedUserHandleBuilder setDisabled() {
+    private MockedUserHandleBuilder setDisabled() {
         when(mUserHandleHelper.isEnabledUser(mUser)).thenReturn(false);
         return this;
     }
 
-    public MockedUserHandleBuilder setAdmin() {
+    private MockedUserHandleBuilder setAdmin() {
         when(mUserHandleHelper.isAdminUser(mUser)).thenReturn(true);
         return this;
     }
 
-    public MockedUserHandleBuilder setGuest() {
+    private MockedUserHandleBuilder setGuest() {
         when(mUserHandleHelper.isGuestUser(mUser)).thenReturn(true);
         return this;
     }
 
-    public MockedUserHandleBuilder setEphemeral() {
+    private MockedUserHandleBuilder setEphemeral() {
         when(mUserHandleHelper.isEphemeralUser(mUser)).thenReturn(true);
         return this;
     }
 
-    public MockedUserHandleBuilder setProfile() {
+    private MockedUserHandleBuilder setProfile() {
         when(mUserHandleHelper.isProfileUser(mUser)).thenReturn(true);
         return this;
     }
 
-    public MockedUserHandleBuilder setManagedProfile() {
+    private MockedUserHandleBuilder setManagedProfile() {
         when(mUserHandleHelper.isManagedProfile(mUser)).thenReturn(true);
         return this;
     }
 
-    public UserHandle build() {
+    private MockedUserHandleBuilder setPreCreated() {
+        when(mUserHandleHelper.isPreCreatedUser(mUser)).thenReturn(true);
+        return this;
+    }
+
+    private MockedUserHandleBuilder setInitialized() {
+        when(mUserHandleHelper.isInitializedUser(mUser)).thenReturn(true);
+        return this;
+    }
+
+    private UserHandle build() {
         return mUser;
     }
 
@@ -106,5 +116,26 @@ public final class MockedUserHandleBuilder {
                     .setEphemeral().build();
         }
         return new MockedUserHandleBuilder(userHandleHelper, userId).setGuest().build();
+    }
+
+    public static UserHandle expectPreCreatedRegularUserExists(
+            @NonNull UserHandleHelper userHandleHelper, @UserIdInt int userId,
+            boolean isInitialized) {
+        if (isInitialized) {
+            return new MockedUserHandleBuilder(userHandleHelper, userId).setPreCreated()
+                    .setInitialized().build();
+        }
+        return new MockedUserHandleBuilder(userHandleHelper, userId).setPreCreated().build();
+    }
+
+    public static UserHandle expectPreCreatedGuestUserExists(
+            @NonNull UserHandleHelper userHandleHelper, @UserIdInt int userId,
+            boolean isInitialized) {
+        if (isInitialized) {
+            return new MockedUserHandleBuilder(userHandleHelper, userId).setGuest()
+                    .setPreCreated().setInitialized().build();
+        }
+        return new MockedUserHandleBuilder(userHandleHelper, userId).setGuest().setPreCreated()
+                .build();
     }
 }

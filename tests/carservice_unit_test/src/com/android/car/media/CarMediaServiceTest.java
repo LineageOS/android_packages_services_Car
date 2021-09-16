@@ -43,7 +43,6 @@ import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.ResolveInfo;
 import android.content.pm.ServiceInfo;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.media.session.MediaController;
 import android.media.session.MediaSession;
@@ -51,6 +50,7 @@ import android.media.session.MediaSessionManager;
 import android.media.session.PlaybackState;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import com.android.car.CarLocalServices;
@@ -59,6 +59,7 @@ import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
@@ -92,6 +93,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
+    @Mock private UserHandleHelper mUserHandleHelper;
 
     private CarMediaService mCarMediaService;
 
@@ -108,12 +110,12 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
 
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
-        UserInfo userInfo = new UserInfo(TEST_USER_ID, "test_user", UserInfo.FLAG_PRIMARY);
+        UserHandle user = UserHandle.of(TEST_USER_ID);
         AndroidMockitoHelper.mockAmGetCurrentUser(TEST_USER_ID);
-        AndroidMockitoHelper.mockUmGetUserInfo(mUserManager, userInfo);
+        when(mUserHandleHelper.isEphemeralUser(UserHandle.of(TEST_USER_ID))).thenReturn(false);
         doReturn(mMediaSessionManager).when(mContext).getSystemService(MediaSessionManager.class);
 
-        mCarMediaService = new CarMediaService(mContext, mUserService);
+        mCarMediaService = new CarMediaService(mContext, mUserService, mUserHandleHelper);
         CarLocalServices.addService(CarPowerManagementService.class,
                 mMockCarPowerManagementService);
     }
@@ -311,7 +313,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     private void mockUserUnlocked(boolean unlocked) {
-        when(mUserManager.isUserUnlocked(anyInt())).thenReturn(unlocked);
+        when(mUserManager.isUserUnlocked(any())).thenReturn(unlocked);
     }
 
     private ICarMediaSourceListener mockMediaSourceListener() {

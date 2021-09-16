@@ -1486,7 +1486,7 @@ final class CarShellCommand extends ShellCommand {
         }
 
         Slog.d(TAG, "createUser(): name=" + name
-                + ", flags=" + android.content.pm.UserInfo.flagsToString(flags)
+                + ", flags=" + flags
                 + ", guest=" + isGuest + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
         if (!halOnly) {
@@ -1518,18 +1518,29 @@ final class CarShellCommand extends ShellCommand {
         CreateUserRequest request = new CreateUserRequest();
 
         UserManager um = mContext.getSystemService(UserManager.class);
-        android.content.pm.UserInfo newUser =
-                isGuest ? um.createGuest(mContext, name) : um.createUser(name, flags);
+        UserHandle newUser;
+
+        try {
+            newUser = isGuest ? um.createGuest(mContext, name).getUserHandle()
+                    : um.createUser(name, flags).getUserHandle();
+        } catch (NullPointerException e) {
+            // TODO(b/196179969): in the following CLs createGuest and createUser would be
+            // replaced by the call which would return UserHandle. For now, it is possible
+            // that current call return null.
+            Slog.w(TAG, "NullPointerException while creating User: ", e);
+            newUser = null;
+        }
+
         if (newUser == null) {
             writer.printf("Failed to create user");
             return;
         }
-        writer.printf("New user: %s\n", newUser.toFullString());
-        Slog.i(TAG, "Created new user: " + newUser.toFullString());
+        writer.printf("New user: %s\n", newUser);
+        Slog.i(TAG, "Created new user: " + newUser);
 
-        request.newUserInfo.userId = newUser.id;
+        request.newUserInfo.userId = newUser.getIdentifier();
         request.newUserInfo.flags = UserHalHelper.convertFlags(new UserHandleHelper(mContext, um),
-                newUser.getUserHandle());
+                newUser);
 
         request.usersInfo = generateUsersInfo();
 
@@ -1555,8 +1566,8 @@ final class CarShellCommand extends ShellCommand {
             writer.printf("HAL failed: %s\n", e);
         } finally {
             if (!halOk.get()) {
-                writer.printf("Removing user %d due to HAL failure\n", newUser.id);
-                boolean removed = um.removeUser(newUser.id);
+                writer.printf("Removing user %d due to HAL failure\n", newUser.getIdentifier());
+                boolean removed = um.removeUser(newUser);
                 writer.printf("User removed: %b\n", removed);
             }
         }

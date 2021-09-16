@@ -36,7 +36,6 @@ import android.car.user.CarUserManager.UserLifecycleListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Handler;
@@ -58,6 +57,7 @@ import com.android.car.internal.util.IntArray;
 import com.android.car.user.CarUserService;
 import com.android.car.user.ExperimentalCarUserService;
 import com.android.car.user.ExperimentalCarUserService.ZoneUserBindingHelper;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -235,6 +235,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @GuardedBy("mLock")
     private int mDriverSeat = VehicleAreaSeat.SEAT_UNKNOWN;
+    private final UserHandleHelper mUserHandleHelper;
 
     public CarOccupantZoneService(Context context) {
         this(context, context.getSystemService(DisplayManager.class),
@@ -242,16 +243,19 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 context.getResources().getBoolean(
                         R.bool.enableProfileUserAssignmentForMultiDisplay)
                         && context.getPackageManager().hasSystemFeature(
-                        PackageManager.FEATURE_MANAGED_USERS));
+                                PackageManager.FEATURE_MANAGED_USERS),
+                new UserHandleHelper(context, context.getSystemService(UserManager.class)));
     }
 
     @VisibleForTesting
     public CarOccupantZoneService(Context context, DisplayManager displayManager,
-            UserManager userManager, boolean enableProfileUserAssignmentForMultiDisplay) {
+            UserManager userManager, boolean enableProfileUserAssignmentForMultiDisplay,
+            UserHandleHelper userHandleHelper) {
         mContext = context;
         mDisplayManager = displayManager;
         mUserManager = userManager;
         mEnableProfileUserAssignmentForMultiDisplay = enableProfileUserAssignmentForMultiDisplay;
+        mUserHandleHelper = userHandleHelper;
     }
 
     @Override
@@ -711,7 +715,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 Slogf.w(TAG, "Invalid profile user id: %d", userId);
                 return false;
             }
-            if (!mUserManager.isUserRunning(userId)) {
+            if (!mUserManager.isUserRunning(UserHandle.of(userId))) {
                 Slogf.w(TAG, "User%d is not running.", userId);
                 return false;
             }
@@ -1149,10 +1153,10 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @GuardedBy("mLock")
     private void updateEnabledProfilesLocked(int userId) {
         mProfileUsers.clear();
-        List<UserInfo> profileUsers = mUserManager.getEnabledProfiles(userId);
-        for (UserInfo userInfo : profileUsers) {
-            if (userInfo.id != userId) {
-                mProfileUsers.add(userInfo.id);
+        List<UserHandle> profileUsers = mUserHandleHelper.getEnabledProfiles(userId);
+        for (UserHandle profiles : profileUsers) {
+            if (profiles.getIdentifier() != userId) {
+                mProfileUsers.add(profiles.getIdentifier());
             }
         }
     }

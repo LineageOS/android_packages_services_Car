@@ -45,12 +45,31 @@ public final class UserHandleHelper {
     @Nullable
     public UserHandle getExistingUserHandle(@UserIdInt int userId) {
         List<UserHandle> users = UserManagerHelper.getUserHandles(mUserManager,
-                /* excludePartial= */ false, /* excludeDying= */ false);
+                /* excludePartial= */ false, /* excludeDying= */ false,
+                /* excludePreCreated= */ true);
 
         for (UserHandle user : users) {
             if (user.getIdentifier() == userId) return user;
         }
         return null;
+    }
+
+    /**
+     * Gets user handle if user exists
+     */
+    @NonNull
+    public List<UserHandle> getUserHandles(boolean excludePartial, boolean excludeDying,
+            boolean excludePreCreated) {
+        return UserManagerHelper.getUserHandles(mUserManager, excludePartial,
+                excludeDying, excludePreCreated);
+    }
+
+    /**
+     * Get enabled profiles
+     */
+    @NonNull
+    public List<UserHandle> getEnabledProfiles(@UserIdInt int userId) {
+        return getUserContextAwareUserManager(userId).getEnabledProfiles();
     }
 
     /**
@@ -96,10 +115,30 @@ public final class UserHandleHelper {
     }
 
     /**
+     * Is User Initialized?
+     */
+    public boolean isInitializedUser(UserHandle user) {
+        return UserManagerHelper.isInitializedUser(mUserManager, user);
+    }
+
+    /**
+     * Is user preCreated?
+     */
+    public boolean isPreCreatedUser(UserHandle user) {
+        return UserManagerHelper.isPreCreatedUser(mUserManager, user);
+    }
+
+
+    /**
      * Get profile group Id for the user
      */
     @UserIdInt
     public int getProfileGroupId(UserHandle user) {
         return UserManagerHelper.getProfileGroupId(mUserManager, user);
+    }
+
+    private UserManager getUserContextAwareUserManager(@UserIdInt int userId) {
+        Context userContext = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
+        return userContext.getSystemService(UserManager.class);
     }
 }

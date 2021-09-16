@@ -32,7 +32,6 @@ import android.car.hardware.power.ICarPowerStateListener;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.pm.UserInfo;
 import android.content.res.Resources;
 import android.frameworks.automotive.powerpolicy.internal.ICarPowerPolicySystemNotification;
 import android.frameworks.automotive.powerpolicy.internal.PolicyState;
@@ -69,6 +68,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserNoticeService;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
@@ -502,10 +502,11 @@ public class CarPowerManagementService extends ICarPower.Stub implements
     private void updateCarUserNoticeServiceIfNecessary() {
         try {
             int currentUserId = ActivityManager.getCurrentUser();
-            UserInfo currentUserInfo = mUserManager.getUserInfo(currentUserId);
+            UserHandleHelper userHandleHelper = new UserHandleHelper(mContext, mUserManager);
+            UserHandle currentUser = userHandleHelper.getExistingUserHandle(currentUserId);
             CarUserNoticeService carUserNoticeService =
                     CarLocalServices.getService(CarUserNoticeService.class);
-            if (currentUserInfo != null && currentUserInfo.isGuest()
+            if (currentUser != null && userHandleHelper.isGuestUser(currentUser)
                     && carUserNoticeService != null) {
                 Slogf.i(TAG, "Car user notice service will ignore all messages before user "
                         + "switch.");

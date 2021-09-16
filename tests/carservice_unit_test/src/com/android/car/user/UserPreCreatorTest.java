@@ -20,6 +20,8 @@ import static android.car.test.util.UserTestingHelper.getDefaultUserType;
 import static android.car.test.util.UserTestingHelper.newGuestUser;
 import static android.car.test.util.UserTestingHelper.newSecondaryUser;
 
+import static com.android.car.user.MockedUserHandleBuilder.expectPreCreatedGuestUserExists;
+import static com.android.car.user.MockedUserHandleBuilder.expectPreCreatedRegularUserExists;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static org.mockito.ArgumentMatchers.any;
@@ -33,8 +35,9 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.SyncAnswer;
-import android.car.test.util.UserTestingHelper.UserInfoBuilder;
+import android.content.Context;
 import android.content.pm.UserInfo;
+import android.os.UserHandle;
 import android.os.UserManager;
 
 import com.android.car.internal.os.CarSystemProperties;
@@ -56,6 +59,10 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Mock
     private UserManager mUserManager;
+    @Mock
+    private Context mContext;
+    @Mock
+    private UserHandleHelper mUserHandleHelper;
 
     private UserPreCreator mUserPreCreator;
 
@@ -66,7 +73,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Before
     public void setUpMocks() {
-        mUserPreCreator = spy(new UserPreCreator(mUserManager));
+        mUserPreCreator = spy(new UserPreCreator(mContext, mUserManager, mUserHandleHelper));
     }
 
     @Test
@@ -101,8 +108,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemovePreCreatedUser() throws Exception {
-        UserInfo user = expectPreCreatedUser(/* isGuest= */ false,
-                /* isInitialized= */ true);
+        UserHandle user = expectPreCreatedUser(/* isGuest= */ false, /* isInitialized= */ true);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
 
@@ -116,8 +122,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemovePreCreatedGuest() throws Exception {
-        UserInfo user = expectPreCreatedUser(/* isGuest= */ true,
-                /* isInitialized= */ true);
+        UserHandle user = expectPreCreatedUser(/* isGuest= */ true, /* isInitialized= */ true);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
         SyncAnswer<Boolean>  syncRemoveStatus = mockRemoveUser(PRE_CREATED_GUEST_ID);
@@ -130,8 +135,7 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     @Test
     public void testRemoveInvalidPreCreatedUser() throws Exception {
-        UserInfo user = expectPreCreatedUser(/* isGuest= */ false,
-                /* isInitialized= */ false);
+        UserHandle user = expectPreCreatedUser(/* isGuest= */ false, /* isInitialized= */ false);
         setNumberRequestedUsersProperty(0);
         setNumberRequestedGuestsProperty(0);
         SyncAnswer<Boolean>  syncRemoveStatus = mockRemoveUser(PRE_CREATED_USER_ID);
@@ -176,8 +180,8 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
         verify(mUserManager).preCreateUser(eq(userType));
     }
 
-    private void verifyUserRemoved(UserInfo user) throws Exception {
-        verify(mUserManager).removeUser(user.id);
+    private void verifyUserRemoved(UserHandle user) throws Exception {
+        verify(mUserManager).removeUser(user);
     }
 
     private void verifyPostPreCreatedUserSkipped() throws Exception {
@@ -210,28 +214,26 @@ public final class UserPreCreatorTest extends AbstractExtendedMockitoTestCase {
 
     private SyncAnswer<Boolean> mockRemoveUser(@UserIdInt int userId) {
         SyncAnswer<Boolean> syncRemoveStatus = SyncAnswer.forReturn(true);
-        when(mUserManager.removeUser(userId)).thenAnswer(syncRemoveStatus);
+        when(mUserManager.removeUser(UserHandle.of(userId))).thenAnswer(syncRemoveStatus);
 
         return syncRemoveStatus;
     }
 
     private void expectNoPreCreatedUser() throws Exception {
-        when(mUserManager.getUsers(/* excludePartial= */ true, /* excludeDying= */ true,
-                /* excludePreCreated= */ false)).thenReturn(new ArrayList<UserInfo>());
+        when(mUserHandleHelper.getUserHandles(/* excludePartial= */ true, /* excludeDying= */ true,
+                /* excludePreCreated= */ false)).thenReturn(new ArrayList<UserHandle>());
     }
 
-    private UserInfo expectPreCreatedUser(boolean isGuest, boolean isInitialized)
-            throws Exception {
+    private UserHandle expectPreCreatedUser(boolean isGuest, boolean isInitialized) {
         int userId = isGuest ? PRE_CREATED_GUEST_ID : PRE_CREATED_USER_ID;
-        UserInfo user = new UserInfoBuilder(userId)
-                .setGuest(isGuest)
-                .setPreCreated(true)
-                .setInitialized(isInitialized)
-                .build();
-
-        when(mUserManager.getUsers(/* excludePartial= */ true,
-                /* excludeDying= */ true, /* excludePreCreated= */ false))
-                .thenReturn(Arrays.asList(user));
+        UserHandle user;
+        if (isGuest) {
+            user = expectPreCreatedGuestUserExists(mUserHandleHelper, userId, isInitialized);
+        } else {
+            user = expectPreCreatedRegularUserExists(mUserHandleHelper, userId, isInitialized);
+        }
+        when(mUserHandleHelper.getUserHandles(/* excludePartial= */ true, /* excludeDying= */ true,
+                /* excludePreCreated= */ false)).thenReturn(Arrays.asList(user));
         return user;
     }
 }

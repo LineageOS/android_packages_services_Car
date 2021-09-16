@@ -298,7 +298,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 initialUserSetter == null ? new InitialUserSetter(context, this,
                         (u) -> setInitialUser(u), mUserHandleHelper) : initialUserSetter;
         mUserPreCreator =
-                userPreCreator == null ? new UserPreCreator(mUserManager) : userPreCreator;
+                userPreCreator == null ? new UserPreCreator(context, mUserManager) : userPreCreator;
         Resources resources = context.getResources();
         mSwitchGuestUserBeforeSleep = resources.getBoolean(
                 R.bool.config_switchGuestUserBeforeGoingSleep);
@@ -1240,7 +1240,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void removeCreatedUser(@NonNull UserHandle user, @NonNull String reason) {
-        Slog.i(TAG, "removing " + user.toString() + "; reason: " + reason);
+        Slogf.i(TAG, "removing %s reason: %s", user, reason);
 
         int userId = user.getIdentifier();
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_REMOVED, userId, reason);
@@ -1250,11 +1250,11 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         try {
-            if (!mUserManager.removeUser(userId)) {
-                Slog.w(TAG, "Failed to remove user " + user.toString());
+            if (!mUserManager.removeUser(user)) {
+                Slogf.w(TAG, "Failed to remove user %s", user);
             }
         } catch (Exception e) {
-            Slog.e(TAG, "Failed to remove user " + user.toString(), e);
+            Slogf.e(TAG, e, "Failed to remove user %s", user);
         }
     }
 
@@ -1683,14 +1683,14 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 continue;
             }
             if (mAmHelper.startUserInBackground(user)) {
-                if (mUserManager.isUserUnlockingOrUnlocked(user)) {
+                if (mUserManager.isUserUnlockingOrUnlocked(UserHandle.of(user))) {
                     // already unlocked / unlocking. No need to unlock.
                     startedUsers.add(user);
                 } else if (mAmHelper.unlockUser(user)) {
                     startedUsers.add(user);
                 } else { // started but cannot unlock
                     Slog.w(TAG, "Background user started but cannot be unlocked:" + user);
-                    if (mUserManager.isUserRunning(user)) {
+                    if (mUserManager.isUserRunning(UserHandle.of(user))) {
                         // add to started list so that it can be stopped later.
                         startedUsers.add(user);
                     }

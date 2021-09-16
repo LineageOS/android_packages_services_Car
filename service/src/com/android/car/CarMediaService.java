@@ -68,6 +68,7 @@ import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.user.CarUserService;
+import com.android.car.user.UserHandleHelper;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
@@ -292,7 +293,16 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 }
     };
 
+    private final UserHandleHelper mUserHandleHelper;
+
     public CarMediaService(Context context, CarUserService userService) {
+        this(context, userService,
+                new UserHandleHelper(context, context.getSystemService(UserManager.class)));
+    }
+
+    @VisibleForTesting
+    public CarMediaService(Context context, CarUserService userService,
+            @NonNull UserHandleHelper userHandleHelper) {
         mContext = context;
         mUserManager = mContext.getSystemService(UserManager.class);
         mMediaSessionManager = mContext.getSystemService(MediaSessionManager.class);
@@ -312,6 +322,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mPlayOnMediaSourceChangedConfig =
                 mContext.getResources().getInteger(R.integer.config_mediaSourceChangedAutoplay);
         mPlayOnBootConfig = mContext.getResources().getInteger(R.integer.config_mediaBootAutoplay);
+        mUserHandleHelper = userHandleHelper;
     }
 
     @Override
@@ -327,7 +338,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         if (userId == UserHandle.USER_SYSTEM) {
             return;
         }
-        if (mUserManager.isUserUnlocked(userId)) {
+        if (mUserManager.isUserUnlocked(UserHandle.of(userId))) {
             initUser(userId);
         } else {
             mPendingInit = true;
@@ -416,7 +427,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     private boolean isCurrentUserEphemeral() {
-        return mUserManager.getUserInfo(ActivityManager.getCurrentUser()).isEphemeral();
+        return mUserHandleHelper.isEphemeralUser(UserHandle.of(ActivityManager.getCurrentUser()));
     }
 
     // Sets a listener to be notified when the current power policy changes.

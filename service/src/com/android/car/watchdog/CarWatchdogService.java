@@ -45,7 +45,6 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
-import android.content.pm.UserInfo;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -385,19 +384,17 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         }
         UserManager userManager = mContext.getSystemService(UserManager.class);
 
-        List<UserInfo> users = userManager.getUsers();
+        List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ false);
         try {
             // TODO(b/152780162): reduce the number of RPC calls(isUserRunning).
-            for (UserInfo info : users) {
-                int userState = userManager.isUserRunning(info.id)
-                        ? UserState.USER_STATE_STARTED : UserState.USER_STATE_STOPPED;
-                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE, info.id,
-                        userState);
-                if (userState == UserState.USER_STATE_STOPPED) {
-                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/ true);
-                } else {
-                    mWatchdogProcessHandler.updateUserState(info.id, /*isStopped=*/ false);
-                }
+            for (UserHandle user : users) {
+                int userState = userManager.isUserRunning(user)
+                        ? UserState.USER_STATE_STARTED
+                        : UserState.USER_STATE_STOPPED;
+                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.USER_STATE,
+                        user.getIdentifier(), userState);
+                mWatchdogProcessHandler.updateUserState(user.getIdentifier(),
+                        userState == UserState.USER_STATE_STOPPED);
             }
         } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, "Notifying system state change failed: %s", e);

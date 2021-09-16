@@ -26,6 +26,7 @@ import android.app.ActivityManager;
 import android.app.admin.DevicePolicyManager;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.admin.ICarDevicePolicyService;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.user.UserCreationResult;
 import android.car.user.UserRemovalResult;
@@ -37,7 +38,6 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.content.pm.PackageManager;
-import android.content.pm.UserInfo;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.DebugUtils;
@@ -145,7 +145,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
             case CarDevicePolicyManager.USER_TYPE_REGULAR:
                 break;
             case CarDevicePolicyManager.USER_TYPE_ADMIN:
-                userInfoFlags = UserInfo.FLAG_ADMIN;
+                userInfoFlags = UserManagerHelper.FLAG_ADMIN;
                 break;
             case CarDevicePolicyManager.USER_TYPE_GUEST:
                 userType = UserManager.USER_TYPE_FULL_GUEST;
