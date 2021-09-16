@@ -26,12 +26,22 @@ option java_outer_classname = "StatsLogProto";
 
 import "packages/services/Car/service/src/com/android/car/telemetry/proto/atoms.proto";
 
+message DimensionsValueTuple {
+  repeated DimensionsValue dimensions_value = 1;
+}
+
 message DimensionsValue {
+  optional int32 field = 1;
+
   oneof value {
+    string value_str = 2;
     int32 value_int = 3;
+    int64 value_long = 4;
+    bool value_bool = 5;
+    float value_float = 6;
+    DimensionsValueTuple value_tuple = 7;
     uint64 value_str_hash = 8;
   }
-  reserved 1, 2, 4, 5, 6, 7;
 }
 
 message EventMetricData {
@@ -69,39 +79,23 @@ message StatsLogReport {
     GaugeMetricDataWrapper gauge_metrics = 8;
   }
 
+  optional DimensionsValue dimensions_path_in_what = 11;
+
   optional bool is_active = 14;
 
-  reserved 2, 3, 5, 6, 7, 9, 10, 11, 12, 13, 15, 16;
+  reserved 2, 3, 5, 6, 7, 9, 10, 12, 13, 15, 16;
 }
 
 message ConfigMetricsReport {
   repeated StatsLogReport metrics = 1;
 
-  enum DumpReportReason {
-    DEVICE_SHUTDOWN = 1;
-    CONFIG_UPDATED = 2;
-    CONFIG_REMOVED = 3;
-    GET_DATA_CALLED = 4;
-    ADB_DUMP = 5;
-    CONFIG_RESET = 6;
-    STATSCOMPANION_DIED = 7;
-    TERMINATION_SIGNAL_RECEIVED = 8;
-  }
-  optional DumpReportReason dump_report_reason = 8;
-
   repeated string strings = 9;
 
-  reserved 2, 3, 4, 5, 6, 7;
+  reserved 2, 3, 4, 5, 6, 7, 8;
 }
 
 message ConfigMetricsReportList {
-  message ConfigKey {
-    optional int32 uid = 1;
-    optional int64 id = 2;
-  }
-  optional ConfigKey config_key = 1;
-
   repeated ConfigMetricsReport reports = 2;
 
-  reserved 10;
+  reserved 1, 10;
 }

@@ -31,4 +31,12 @@ public class HashUtilsTest {
         assertThat(HashUtils.sha256("aa")).isEqualTo(-8157175689457624170L);
         assertThat(HashUtils.sha256("b")).isEqualTo(5357375904281011006L);
     }
+
+    @Test
+    public void testMurmur2Hash64() {
+        assertThat(HashUtils.murmur2Hash64("")).isEqualTo(-9117937525680267717L);
+        assertThat(HashUtils.murmur2Hash64("abcd")).isEqualTo(-4207384847647213435L);
+        assertThat(HashUtils.murmur2Hash64("com.sample.process.name"))
+            .isEqualTo(-5639285681030453830L);
+    }
 }
