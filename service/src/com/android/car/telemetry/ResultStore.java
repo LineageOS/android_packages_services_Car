@@ -27,6 +27,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.io.FileOutputStream;
 import java.io.IOException;
+import java.nio.file.Files;
 import java.util.Map;
 import java.util.concurrent.TimeUnit;
 
@@ -41,18 +42,23 @@ public class ResultStore {
     @VisibleForTesting
     static final String INTERIM_RESULT_DIR = "interim";
     @VisibleForTesting
+    static final String ERROR_RESULT_DIR = "error";
+    @VisibleForTesting
     static final String FINAL_RESULT_DIR = "final";
 
     /** Map keys are MetricsConfig names, which are also the file names in disk. */
     private final Map<String, InterimResult> mInterimResultCache = new ArrayMap<>();
 
     private final File mInterimResultDirectory;
+    private final File mErrorResultDirectory;
     private final File mFinalResultDirectory;
 
     ResultStore(File rootDirectory) {
         mInterimResultDirectory = new File(rootDirectory, INTERIM_RESULT_DIR);
+        mErrorResultDirectory = new File(rootDirectory, ERROR_RESULT_DIR);
         mFinalResultDirectory = new File(rootDirectory, FINAL_RESULT_DIR);
         mInterimResultDirectory.mkdirs();
+        mErrorResultDirectory.mkdirs();
         mFinalResultDirectory.mkdirs();
         // load results into memory to reduce the frequency of disk access
         loadInterimResultsIntoMemory();
@@ -67,7 +73,7 @@ public class ResultStore {
                         new InterimResult(PersistableBundle.readFromStream(fis)));
             } catch (IOException e) {
                 Slog.w(CarLog.TAG_TELEMETRY, "Failed to read result from disk.", e);
-                // TODO(b/195422219): record failure
+                // TODO(b/197153560): record failure
             }
         }
     }
@@ -97,6 +103,7 @@ public class ResultStore {
      *
      * @param metricsConfigName name of the MetricsConfig.
      * @param deleteResult      if true, the final result will be deleted from disk.
+     * @return the final result as PersistableBundle if exists, null otherwise
      */
     public PersistableBundle getFinalResult(String metricsConfigName, boolean deleteResult) {
         File file = new File(mFinalResultDirectory, metricsConfigName);
@@ -124,6 +131,42 @@ public class ResultStore {
         writePersistableBundleToFile(mFinalResultDirectory, metricsConfigName, result);
         deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
         mInterimResultCache.remove(metricsConfigName);
+    }
+
+    /** Returns the error result produced by the metrics config if exists, null otherwise. */
+    public TelemetryProto.TelemetryError getError(
+            String metricsConfigName, boolean deleteResult) {
+        File file = new File(mErrorResultDirectory, metricsConfigName);
+        // if no error exists for this metrics config, return immediately
+        if (!file.exists()) {
+            return null;
+        }
+        TelemetryProto.TelemetryError result = null;
+        try {
+            byte[] serializedBytes = Files.readAllBytes(file.toPath());
+            result = TelemetryProto.TelemetryError.parseFrom(serializedBytes);
+        } catch (IOException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "Failed to get error result from disk.", e);
+        }
+        if (deleteResult) {
+            file.delete();
+        }
+        return result;
+    }
+
+    /** Stores the error object produced by the script. */
+    public void putError(String metricsConfigName, TelemetryProto.TelemetryError error) {
+        mInterimResultCache.remove(metricsConfigName);
+        try {
+            Files.write(
+                    new File(mErrorResultDirectory, metricsConfigName).toPath(),
+                    error.toByteArray());
+            deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
+            mInterimResultCache.remove(metricsConfigName);
+        } catch (IOException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "Failed to write data to file", e);
+            // TODO(b/197153560): record failure
+        }
     }
 
     /** Persists data to disk. */
@@ -187,7 +230,7 @@ public class ResultStore {
             result.writeToStream(os);
         } catch (IOException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
-            // TODO(b/195422219): record failure
+            // TODO(b/197153560): record failure
         }
     }
 
@@ -220,7 +263,4 @@ public class ResultStore {
             return mDirty;
         }
     }
-
-    // TODO(b/195422227): Implement storing error results
-    // TODO(b/195422227): Implement deletion of interim results after MetricsConfig is removed
 }
