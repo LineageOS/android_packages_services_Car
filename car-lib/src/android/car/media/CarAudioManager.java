@@ -363,10 +363,14 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @see #createAudioPatch(String, int, int)
      * @see #releaseAudioPatch(CarAudioPatchHandle)
+     *
+     * @deprecated use {@link AudioManager#getDevices(int)} with
+     * {@link AudioManager#GET_DEVICES_INPUTS} instead
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @Deprecated
     public @NonNull String[] getExternalSources() {
         try {
             return mService.getExternalSources();
@@ -393,10 +397,13 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @see #getExternalSources()
      * @see #releaseAudioPatch(CarAudioPatchHandle)
+     *
+     * @deprecated use {@link android.media.HwAudioSource} instead
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @Deprecated
     public CarAudioPatchHandle createAudioPatch(String sourceAddress, @AttributeUsage int usage,
             int gainInMillibels) {
         try {
@@ -414,10 +421,13 @@ public final class CarAudioManager extends CarManagerBase {
      *
      * @see #getExternalSources()
      * @see #createAudioPatch(String, int, int)
+     *
+     * @deprecated use {@link android.media.HwAudioSource} instead
      * @hide
      */
     @SystemApi
     @RequiresPermission(Car.PERMISSION_CAR_CONTROL_AUDIO_SETTINGS)
+    @Deprecated
     public void releaseAudioPatch(CarAudioPatchHandle patch) {
         try {
             mService.releaseAudioPatch(patch);
