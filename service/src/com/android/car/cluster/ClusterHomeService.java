@@ -27,6 +27,7 @@ import android.app.ActivityOptions;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.ICarOccupantZoneCallback;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.cluster.ClusterHomeManager;
 import android.car.cluster.ClusterState;
@@ -45,7 +46,6 @@ import android.hardware.display.DisplayManager;
 import android.os.Bundle;
 import android.os.RemoteCallbackList;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.text.TextUtils;
 import android.view.Display;
 
@@ -84,6 +84,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private Insets mInsets = Insets.NONE;
     private int mUiType = ClusterHomeManager.UI_TYPE_CLUSTER_HOME;
     private Intent mLastIntent;
+    private int mLastIntentUserId = UserManagerHelper.USER_SYSTEM;
 
     private final RemoteCallbackList<IClusterHomeCallback> mClientCallbacks =
             new RemoteCallbackList<>();
@@ -126,6 +127,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     private void initClusterDisplay() {
         int clusterDisplayId = mOccupantZoneService.getDisplayIdForDriver(
                 CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER);
+        Slogf.d(TAG, "initClusterDisplay: displayId=%d", clusterDisplayId);
         if (clusterDisplayId == Display.INVALID_DISPLAY) {
             Slogf.i(TAG, "No cluster display is defined");
         }
@@ -152,7 +154,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         ActivityOptions activityOptions = ActivityOptions.makeBasic()
                 .setLaunchDisplayId(clusterDisplayId);
         mFixedActivityService.startFixedActivityModeForDisplayAndUser(
-                mLastIntent, activityOptions, clusterDisplayId, UserHandle.USER_SYSTEM);
+                mLastIntent, activityOptions, clusterDisplayId, mLastIntentUserId);
     }
 
     private final ICarOccupantZoneCallback mOccupantZoneCallback =
@@ -292,6 +294,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
     @Override
     public boolean startFixedActivityModeAsUser(Intent intent,
             Bundle activityOptionsBundle, int userId) {
+        Slogf.d(TAG, "startFixedActivityModeAsUser: intent=%s, userId=%d", intent, userId);
         enforcePermission(Car.PERMISSION_CAR_INSTRUMENT_CLUSTER_CONTROL);
         if (!mServiceEnabled) throw new IllegalStateException("Service is not enabled");
         if (mClusterDisplayId == Display.INVALID_DISPLAY) {
@@ -302,6 +305,7 @@ public class ClusterHomeService extends IClusterHomeService.Stub
         ActivityOptions activityOptions = ActivityOptions.fromBundle(activityOptionsBundle);
         activityOptions.setLaunchDisplayId(mClusterDisplayId);
         mLastIntent = intent;
+        mLastIntentUserId = userId;
         return mFixedActivityService.startFixedActivityModeForDisplayAndUser(
                 intent, activityOptions, mClusterDisplayId, userId);
     }

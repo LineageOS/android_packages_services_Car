@@ -133,6 +133,7 @@ package android.car.builtin.os {
     field public static final int FLAG_RESTRICTED = 8; // 0x8
     field public static final int FLAG_SYSTEM = 2048; // 0x800
     field public static final int USER_NULL = -10000; // 0xffffd8f0
+    field public static final int USER_SYSTEM = 0; // 0x0
     field @Deprecated public static final String USER_TYPE_FULL_GUEST = "android.os.usertype.full.GUEST";
   }
 

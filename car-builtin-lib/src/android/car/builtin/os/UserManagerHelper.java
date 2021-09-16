@@ -45,6 +45,9 @@ public final class UserManagerHelper {
     /** user id for invalid user */
     public static final @UserIdInt int USER_NULL = UserHandle.USER_NULL;
 
+    /** A user id constant to indicate the "system" user of the device */
+    public static final @UserIdInt int USER_SYSTEM = UserHandle.USER_SYSTEM;
+
     // TODO(b/197181121): Move it after making systemAPI
     /**
      * Type for Guest user
