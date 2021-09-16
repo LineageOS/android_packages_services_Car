@@ -169,10 +169,6 @@ public final class WatchdogPerfHandler {
 
     /** Initializes the handler. */
     public void init() {
-        /*
-         * TODO(b/183947162): Opt-in to receive package change broadcast and handle package enabled
-         *  state changes.
-         */
         /* First database read is expensive, so post it on a separate handler thread. */
         mHandlerThread.getThreadHandler().post(() -> {
             readFromDatabase();
@@ -708,13 +704,12 @@ public final class WatchdogPerfHandler {
                 for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
                     String packageName = packages.get(pkgIdx);
                     try {
-                        int oldEnabledState = -1;
                         if (!hasRecurringOveruse) {
-                            oldEnabledState = packageManager.getApplicationEnabledSetting(
+                            int currentEnabledState = packageManager.getApplicationEnabledSetting(
                                     packageName, userId);
-                            if (oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED
-                                    || oldEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
-                                    || oldEnabledState
+                            if (currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED
+                                    || currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
+                                    || currentEnabledState
                                     == COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
                                 continue;
                             }
@@ -724,9 +719,6 @@ public final class WatchdogPerfHandler {
                                 mContext.getPackageName());
                         overuseAction.resourceOveruseActionType = hasRecurringOveruse
                                 ? KILLED_RECURRING_OVERUSE : KILLED;
-                        if (oldEnabledState != -1) {
-                            usage.oldEnabledStateByPackage.put(packageName, oldEnabledState);
-                        }
                     } catch (RemoteException e) {
                         Slogf.e(TAG, "Failed to disable application for user %d, package '%s'",
                                 userId, packageName);
@@ -958,26 +950,7 @@ public final class WatchdogPerfHandler {
             writeStatsLocked();
         }
         for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-            PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
-            // Forgive the daily disabled package on date change.
-            for (Map.Entry<String, Integer> entry : usage.oldEnabledStateByPackage.entrySet()) {
-                try {
-                    IPackageManager packageManager = ActivityThread.getPackageManager();
-                    if (packageManager.getApplicationEnabledSetting(entry.getKey(),
-                            usage.userId)
-                            != COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED) {
-                        continue;
-                    }
-                    packageManager.setApplicationEnabledSetting(entry.getKey(),
-                            entry.getValue(),
-                            /* flags= */ 0, usage.userId, mContext.getPackageName());
-                } catch (RemoteException e) {
-                    Slogf.e(TAG,
-                            "Failed to reset enabled setting for disabled package '%s', user '%d'",
-                                    usage.genericPackageName, usage.userId);
-                }
-            }
-            usage.resetStatsLocked();
+            mUsageByUserPackage.valueAt(i).resetStatsLocked();
         }
         mLatestStatsReportDate = currentDate;
         if (DEBUG) {
@@ -1610,8 +1583,6 @@ public final class WatchdogPerfHandler {
         @GuardedBy("mLock")
         public final PackageIoUsage ioUsage = new PackageIoUsage();
         @GuardedBy("mLock")
-        public final ArrayMap<String, Integer> oldEnabledStateByPackage = new ArrayMap<>();
-        @GuardedBy("mLock")
         private @KillableState int mKillableState;
 
         /** Must be called only after acquiring {@link mLock} */
@@ -1699,7 +1670,6 @@ public final class WatchdogPerfHandler {
 
         @GuardedBy("mLock")
         public void resetStatsLocked() {
-            oldEnabledStateByPackage.clear();
             ioUsage.resetStats();
         }
     }
