@@ -40,7 +40,6 @@ import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
 import android.content.Context;
 import android.content.res.Resources;
-import android.graphics.Bitmap;
 import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -55,7 +54,6 @@ import com.android.car.internal.user.UserHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.util.UserIcons;
 
 import java.util.ArrayList;
 import java.util.Iterator;
@@ -206,7 +204,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                     Slogf.w(TAG, "createDriver(%s, %s) failed: %s", name, admin, err);
                 } else {
                     if (result.getStatus() == UserCreationResult.STATUS_SUCCESSFUL) {
-                        assignDefaultIcon(result.getUser());
+                        UserHelper.assignDefaultIcon(mContext, result.getUser());
                     }
                 }
                 super.onCompleted(result, err);
@@ -260,9 +258,8 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             return null;
         }
         // Passenger user should be a non-admin user.
-        UserHelper.setDefaultNonAdminRestrictions(mContext, user,
-                /* enable= */ true);
-        assignDefaultIcon(user);
+        UserHelper.setDefaultNonAdminRestrictions(mContext, user, /* enable= */ true);
+        UserHelper.assignDefaultIcon(mContext, user);
         return user;
     }
 
@@ -418,19 +415,6 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             startFirstPassenger(toUserId);
         }
         t.traceEnd();
-    }
-
-    /**
-     * Assigns a default icon to a user according to the user's id.
-     *
-     * @param user User whose avatar is set to default icon.
-     */
-    private void assignDefaultIcon(UserHandle user) {
-        int idForIcon = mUserHandleHelper.isGuestUser(user) ? UserHandle.USER_NULL
-                : user.getIdentifier();
-        Bitmap bitmap = UserIcons.convertToBitmap(
-                UserIcons.getDefaultUserIcon(mContext.getResources(), idForIcon, false));
-        mUserManager.setUserIcon(user.getIdentifier(), bitmap);
     }
 
     interface UserFilter {

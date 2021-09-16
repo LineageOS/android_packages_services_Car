@@ -31,6 +31,7 @@ import static com.android.internal.util.function.pooled.PooledLambda.obtainMessa
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
+import android.car.builtin.os.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
@@ -987,18 +988,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         return mStateEngine.getStateAndServiceType();
     }
 
-    // TODO(b/157082995): Replaces below method with what PackageManager provides.
-    @Nullable
-    private String getSystemUiPackageName() {
-        try {
-            ComponentName componentName = ComponentName.unflattenFromString(mContext.getResources()
-                    .getString(com.android.internal.R.string.config_systemUIServiceComponent));
-            return componentName.getPackageName();
-        } catch (RuntimeException e) {
-            throw new IllegalStateException("error while getting system UI package name.");
-        }
-    }
-
     /**
      * Returns a session token to be used to request the services.
      *
@@ -1011,7 +1000,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     public IBinder generateSessionToken() {
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CONTROL_CAR_EVS_ACTIVITY);
 
-        String systemUiPackageName = getSystemUiPackageName();
+        String systemUiPackageName = PackageManagerHelper.getSystemUiPackageName(mContext);
         IBinder token = new Binder();
         try {
             int systemUiUid = mContext.getPackageManager().getPackageUidAsUser(

@@ -80,6 +80,10 @@ package android.car.builtin.os {
     method public static boolean isUserDebugBuild();
   }
 
+  public final class PackageManagerHelper {
+    method @NonNull public static String getSystemUiPackageName(@NonNull android.content.Context);
+  }
+
   public final class ParcelHelper {
     method @Nullable public static android.util.ArraySet<?> readArraySet(@NonNull android.os.Parcel, @Nullable ClassLoader);
     method @Nullable public static byte[] readBlob(@NonNull android.os.Parcel);
@@ -105,7 +109,9 @@ package android.car.builtin.os {
 
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
+    method @NonNull public static String getDefaultUserName(@NonNull android.content.Context);
     method public static String getDefaultUserTypeForUserInfoFlags(int);
+    method public static int getMaxRunningUsers(@NonNull android.content.Context);
     method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
     method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
