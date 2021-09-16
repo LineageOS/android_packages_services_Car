@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -15,10 +15,8 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="default_audio_background_image_color">#DADCE0</color>
-    <color name="default_audio_background_color">#BDC1C6</color>
-
-    <color name="icon_tint">#000000</color>
-    <color name="media_button_tint">#000000</color>
-</resources>
+<shape
+    xmlns:android="http://schemas.android.com/apk/res/android"
+    android:shape="rectangle">
+    <corners android:radius="@dimen/control_bar_image_background_radius"/>
+</shape>
