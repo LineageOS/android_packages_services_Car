@@ -118,3 +118,37 @@ message Subscriber {
   // Ranges from 0 to 100. 0 being highest priority and 100 being lowest.
   optional int32 priority = 3;
 }
+
+// A message that encapsulates an error that's produced when collecting metrics.
+// Any changes here should also be reflected on
+// p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.aidl
+message TelemetryError {
+  enum ErrorType {
+    // Not used.
+    UNSPECIFIED = 0;
+
+    // Used when an error occurs in the ScriptExecutor code.
+    SCRIPT_EXECUTOR_ERROR = 1;
+
+    // Used when an error occurs while executing the Lua script (such as errors returned by
+    // lua_pcall)
+    LUA_RUNTIME_ERROR = 2;
+
+    // Used to log errors by a script itself, for instance, when a script received inputs outside
+    // of expected range.
+    LUA_SCRIPT_ERROR = 3;
+  }
+
+  // Required.
+  // A type that indicates the category of the error.
+  optional ErrorType error_type = 1;
+
+  // Required.
+  // Human readable message explaining the error or how to fix it.
+  optional string message = 2;
+
+  // Optional.
+  // If there is an exception, there will be stack trace. However this information is not always
+  // available.
+  optional string stack_trace = 3;
+}

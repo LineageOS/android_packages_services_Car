@@ -37,9 +37,12 @@ import java.util.concurrent.TimeUnit;
 public class ResultStoreTest {
     private static final PersistableBundle TEST_INTERIM_BUNDLE = new PersistableBundle();
     private static final PersistableBundle TEST_FINAL_BUNDLE = new PersistableBundle();
+    private static final TelemetryProto.TelemetryError TEST_TELEMETRY_ERROR =
+            TelemetryProto.TelemetryError.newBuilder().setMessage("test error").build();
 
     private File mTestRootDir;
     private File mTestInterimResultDir;
+    private File mTestErrorResultDir;
     private File mTestFinalResultDir;
     private ResultStore mResultStore;
 
@@ -50,6 +53,7 @@ public class ResultStoreTest {
 
         mTestRootDir = Files.createTempDirectory("car_telemetry_test").toFile();
         mTestInterimResultDir = new File(mTestRootDir, ResultStore.INTERIM_RESULT_DIR);
+        mTestErrorResultDir = new File(mTestRootDir, ResultStore.ERROR_RESULT_DIR);
         mTestFinalResultDir = new File(mTestRootDir, ResultStore.FINAL_RESULT_DIR);
 
         mResultStore = new ResultStore(mTestRootDir);
@@ -160,13 +164,25 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutFinalResult_shouldRemoveInterimResultFromMemory() throws Exception {
+    public void testGetError_whenNoError_shouldReceiveNull() {
         String metricsConfigName = "my_metrics_config";
-        mResultStore.putInterimResult(metricsConfigName, TEST_INTERIM_BUNDLE);
 
-        mResultStore.putFinalResult(metricsConfigName, TEST_FINAL_BUNDLE);
+        TelemetryProto.TelemetryError error = mResultStore.getError(metricsConfigName, true);
 
-        assertThat(mResultStore.getInterimResult(metricsConfigName)).isNull();
+        assertThat(error).isNull();
+    }
+
+    @Test
+    public void testGetError_shouldReceiveError() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        // write serialized error object to file
+        Files.write(
+                new File(mTestErrorResultDir, metricsConfigName).toPath(),
+                TEST_TELEMETRY_ERROR.toByteArray());
+
+        TelemetryProto.TelemetryError error = mResultStore.getError(metricsConfigName, true);
+
+        assertThat(error).isEqualTo(TEST_TELEMETRY_ERROR);
     }
 
     @Test
@@ -205,15 +221,26 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutFinalResultAndFlushToDisk_shouldRemoveInterimResultFile() throws Exception {
+    public void testPutFinalResult_shouldWriteResultAndRemoveInterimq() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
         mResultStore.putFinalResult(metricsConfigName, TEST_FINAL_BUNDLE);
-        mResultStore.flushToDisk();
 
+        assertThat(mResultStore.getInterimResult(metricsConfigName)).isNull();
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isTrue();
+    }
+
+    @Test
+    public void testPutError_shouldWriteErrorAndRemoveInterimResultFile() throws Exception {
+        String metricsConfigName = "my_metrics_config";
+        writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
+
+        mResultStore.putError(metricsConfigName, TEST_TELEMETRY_ERROR);
+
+        assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
+        assertThat(new File(mTestErrorResultDir, metricsConfigName).exists()).isTrue();
     }
 
     @Test

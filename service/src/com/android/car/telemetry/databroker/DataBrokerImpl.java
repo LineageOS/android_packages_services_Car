@@ -360,7 +360,13 @@ public class DataBrokerImpl implements DataBroker {
     /** Stores telemetry error and schedules the next task. */
     private void onScriptError(int errorType, String message, String stackTrace) {
         mTelemetryHandler.post(() -> {
-            // TODO(b/197005294): create error object
+            TelemetryProto.TelemetryError.Builder error = TelemetryProto.TelemetryError.newBuilder()
+                    .setErrorType(TelemetryProto.TelemetryError.ErrorType.forNumber(errorType))
+                    .setMessage(message);
+            if (stackTrace != null) {
+                error.setStackTrace(stackTrace);
+            }
+            mResultStore.putError(mCurrentScriptName, error.build());
             mCurrentScriptName = null;
             scheduleNextTask();
         });
