@@ -69,6 +69,15 @@ void BundleWrapper::putString(const char* key, const char* value) {
                             mJNIEnv->NewStringUTF(value));
 }
 
+void BundleWrapper::putLongArray(const char* key, const std::vector<int64_t>& value) {
+    jmethodID putLongArrayMethod =
+            mJNIEnv->GetMethodID(mBundleClass, "putLongArray", "(Ljava/lang/String;[J)V");
+
+    jlongArray array = mJNIEnv->NewLongArray(value.size());
+    mJNIEnv->SetLongArrayRegion(array, 0, value.size(), &value[0]);
+    mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, mJNIEnv->NewStringUTF(key), array);
+}
+
 jobject BundleWrapper::getBundle() {
     return mBundle;
 }
