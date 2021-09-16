@@ -46,6 +46,8 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
     jclass integerClass = env->FindClass("java/lang/Integer");
     jclass numberClass = env->FindClass("java/lang/Number");
     jclass stringClass = env->FindClass("java/lang/String");
+    jclass intArrayClass = env->FindClass("[I");
+    jclass longArrayClass = env->FindClass("[J");
     // TODO(b/188816922): Handle more types such as float and integer arrays,
     // and perhaps nested Bundles.
 
@@ -77,6 +79,41 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
             const char* rawStringValue = env->GetStringUTFChars((jstring)value, nullptr);
             lua_pushstring(luaEngine->getLuaState(), rawStringValue);
             env->ReleaseStringUTFChars((jstring)value, rawStringValue);
+        } else if (env->IsInstanceOf(value, intArrayClass)) {
+            jintArray intArray = static_cast<jintArray>(value);
+            const auto kLength = env->GetArrayLength(intArray);
+            // Arrays are represented as a table of sequential elements in Lua.
+            // We are creating a nested table to represent this array. We specify number of elements
+            // in the Java array to preallocate memory accordingly.
+            lua_createtable(luaEngine->getLuaState(), kLength, 0);
+            jint* rawIntArray = env->GetIntArrayElements(intArray, nullptr);
+            // Fills in the table at stack idx -2 with key value pairs, where key is a
+            // Lua index and value is an integer from the byte array at that index
+            for (int i = 0; i < kLength; i++) {
+                // Stack at index -1 is rawIntArray[i] after this push.
+                lua_pushinteger(luaEngine->getLuaState(), rawIntArray[i]);
+                lua_rawseti(luaEngine->getLuaState(), /* idx= */ -2,
+                            i + 1);  // lua index starts from 1
+            }
+            // JNI_ABORT is used because we do not need to copy back elements.
+            env->ReleaseIntArrayElements(intArray, rawIntArray, JNI_ABORT);
+        } else if (env->IsInstanceOf(value, longArrayClass)) {
+            jlongArray longArray = static_cast<jlongArray>(value);
+            const auto kLength = env->GetArrayLength(longArray);
+            // Arrays are represented as a table of sequential elements in Lua.
+            // We are creating a nested table to represent this array. We specify number of elements
+            // in the Java array to preallocate memory accordingly.
+            lua_createtable(luaEngine->getLuaState(), kLength, 0);
+            jlong* rawLongArray = env->GetLongArrayElements(longArray, nullptr);
+            // Fills in the table at stack idx -2 with key value pairs, where key is a
+            // Lua index and value is an integer from the byte array at that index
+            for (int i = 0; i < kLength; i++) {
+                lua_pushinteger(luaEngine->getLuaState(), rawLongArray[i]);
+                lua_rawseti(luaEngine->getLuaState(), /* idx= */ -2,
+                            i + 1);  // lua index starts from 1
+            }
+            // JNI_ABORT is used because we do not need to copy back elements.
+            env->ReleaseLongArrayElements(longArray, rawLongArray, JNI_ABORT);
         } else {
             // Other types are not implemented yet, skipping.
             continue;
