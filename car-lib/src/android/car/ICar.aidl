@@ -16,16 +16,19 @@
 
 package android.car;
 
+import android.car.ICarResultReceiver;
+
+import com.android.car.internal.ICarServiceHelper;
+
 /** @hide */
 interface ICar {
     /**
      * Helper binder is for ICarServiceHelper. It is for the communication from CarService ->
      * CarServiceHelperService.
-     * Receiver binder is type of ICarResultReceiver. It would set ICarSystemServerClient binder for
-     * CarServiceHelperService.
-     * DO NOT CHANGE the number.
+     * Receiver binder would set ICarSystemServerClient binder for CarServiceHelperService.
      */
-    oneway void setSystemServerConnections(in IBinder helper, in IBinder receiver) = 0;
+    oneway void setSystemServerConnections(in ICarServiceHelper helper,
+        in ICarResultReceiver receiver) = 0;
 
     // Rest of the calls are used for Apps to CarService communication
     IBinder getCarService(in String serviceName) = 11;
