@@ -200,6 +200,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             synchronized (mLock) {
                 if (requestActivityIfNecessaryLocked()) {
                     Slog.i(TAG_EVS, "Requested to launch the activity.");
+                } else {
+                    // Ensure we stops streaming
+                    mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
                 }
             }
         }
@@ -591,6 +594,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 return;
             }
 
+            // Notify the client that the stream has ended.
+            notifyStreamStopped(callback);
+
             unlinkToDeathStreamCallbackLocked();
             mStreamCallback = null;
             Slog.i(TAG_EVS, "Last stream client has been disconnected.");
@@ -625,6 +631,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             return false;
         }
 
+        // Request to launch an activity again after cleaning up
+        mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE);
         mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_REQUESTED,
                 mLastEvsHalEvent.getServiceType());
         return true;
@@ -708,8 +716,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
         synchronized (mLock) {
             int targetState = on ? SERVICE_STATE_REQUESTED : SERVICE_STATE_INACTIVE;
-            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type) !=
-                    ERROR_NONE) {
+            if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, targetState, type, /* token = */ null,
+                    mStreamCallback) != ERROR_NONE) {
                 Slog.e(TAG_EVS, "Failed to execute a service request.");
             }
 
@@ -1234,23 +1242,30 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         }
     }
 
-    /** Processes a streaming event and propagates it to registered clients */
-    private void processNewFrame(int id, @NonNull HardwareBuffer buffer) {
+    /**
+     * Processes a streaming event and propagates it to registered clients.
+     *
+     * @return True if this buffer is hold and used by the client, false otherwise.
+     */
+    private boolean processNewFrame(int id, @NonNull HardwareBuffer buffer) {
         Objects.requireNonNull(buffer);
 
         synchronized (mLock) {
-            mBufferRecords.add(id);
             if (mStreamCallback == null) {
-                return;
+                return false;
             }
 
             try {
                 mStreamCallback.onNewFrame(new CarEvsBufferDescriptor(id, buffer));
+                mBufferRecords.add(id);
             } catch (RemoteException e) {
                 // Likely the binder death incident
                 Slog.e(TAG_EVS, Log.getStackTraceString(e));
+                return false;
             }
         }
+
+        return true;
     }
 
     /** EVS stream event handler called after a native handler */
@@ -1261,7 +1276,11 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     /** EVS frame handler called after a native handler */
     private void postNativeFrameHandler(int id, HardwareBuffer buffer) {
-        processNewFrame(id, buffer);
+        if (!processNewFrame(id, buffer)) {
+            // No client uses this buffer.
+            Slog.d(TAG_EVS, "Returns buffer " + id + " because no client uses it.");
+            nativeDoneWithFrame(mNativeEvsServiceObj, id);
+        }
     }
 
     /** EVS service death handler called after a native handler */
