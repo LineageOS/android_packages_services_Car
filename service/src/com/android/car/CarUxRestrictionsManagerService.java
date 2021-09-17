@@ -16,6 +16,7 @@
 
 package com.android.car;
 
+import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
@@ -30,6 +31,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.util.Slog;
+import android.car.builtin.view.DisplayHelper;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
 import android.car.drivingstate.CarUxRestrictions;
@@ -58,11 +60,11 @@ import android.util.AtomicFile;
 import android.util.JsonReader;
 import android.util.JsonToken;
 import android.util.JsonWriter;
-import android.util.Log;
+import android.util.SparseIntArray;
 import android.view.Display;
-import android.view.DisplayAddress;
 
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.internal.util.IntArray;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.util.TransitionLog;
 import com.android.internal.annotations.GuardedBy;
@@ -81,6 +83,7 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.HashMap;
 import java.util.LinkedList;
 import java.util.List;
@@ -132,6 +135,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final DisplayManager mDisplayManager;
     private final CarDrivingStateService mDrivingStateService;
     private final CarPropertyService mCarPropertyService;
+    private final CarOccupantZoneService mCarOccupantZoneService;
     private final HandlerThread mClientDispatchThread  = CarServiceUtils.getHandlerThread(
             getClass().getSimpleName());
     private final Handler mClientDispatchHandler  = new Handler(mClientDispatchThread.getLooper());
@@ -156,7 +160,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      * port.
      */
     @GuardedBy("mLock")
-    private final Map<Integer, Integer> mPortLookup = new HashMap<>();
+    private final SparseIntArray mPortLookup = new SparseIntArray();
 
     @GuardedBy("mLock")
     private Map<Integer, CarUxRestrictionsConfiguration> mCarUxRestrictionsConfigurations;
@@ -186,18 +190,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     private final LinkedList<TransitionLog> mTransitionLogs = new LinkedList<>();
 
     public CarUxRestrictionsManagerService(Context context, CarDrivingStateService drvService,
-            CarPropertyService propertyService) {
+            CarPropertyService propertyService, CarOccupantZoneService carOccupantZoneService) {
         mContext = context;
         mDisplayManager = mContext.getSystemService(DisplayManager.class);
         mDrivingStateService = drvService;
         mCarPropertyService = propertyService;
+        mCarOccupantZoneService = carOccupantZoneService;
     }
 
     @Override
     public void init() {
         synchronized (mLock) {
-            mDefaultDisplayPhysicalPort = getDefaultDisplayPhysicalPort(mDisplayManager);
-            initPhysicalPort();
+            initPhysicalPortLocked();
 
             // Unrestricted until driving state information is received. During boot up, we don't
             // want
@@ -384,11 +388,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Slog.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
-        Integer physicalPort;
+        int physicalPort;
         synchronized (mLock) {
             physicalPort = getPhysicalPortLocked(displayId);
-            if (physicalPort == null) {
-                physicalPort = mDefaultDisplayPhysicalPort;
+            if (physicalPort == DisplayHelper.INVALID_PORT) {
+                Slog.e(TAG, "Invalid displayId=" + displayId);
+                return;
             }
         }
         mUxRClients.register(listener, new RemoteCallbackListCookie(physicalPort));
@@ -894,45 +899,18 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
     }
 
-    @VisibleForTesting
-    static int getDefaultDisplayPhysicalPort(DisplayManager displayManager) {
-        Display defaultDisplay = displayManager.getDisplay(Display.DEFAULT_DISPLAY);
-        DisplayAddress.Physical address = (DisplayAddress.Physical) defaultDisplay.getAddress();
+    @GuardedBy("mLock")
+    private void initPhysicalPortLocked() {
+        IntArray displayIds = mCarOccupantZoneService.getAllDisplayIdsForDriver(DISPLAY_TYPE_MAIN);
+        Slog.d(TAG, "displayIds: " + Arrays.toString(displayIds.toArray()));
 
-        if (address == null) {
-            Slog.e(TAG, "Default display does not have physical display port. Using 0 as port.");
-            return DEFAULT_PORT;
-        }
-        return address.getPort();
-    }
-
-    private void initPhysicalPort() {
-        for (Display display : mDisplayManager.getDisplays()) {
-            if (display.getType() == Display.TYPE_VIRTUAL) {
-                continue;
+        for (int i = 0; i < displayIds.size(); ++i) {
+            int port = getPhysicalPortLocked(displayIds.get(i));
+            if (i == 0) {
+                // The first port will be the default port.
+                mDefaultDisplayPhysicalPort = port;
             }
-
-            if (display.getDisplayId() == Display.DEFAULT_DISPLAY && display.getAddress() == null) {
-                // Assume default display is a physical display so assign an address if it
-                // does not have one (possibly due to lower graphic driver version).
-                if (Log.isLoggable(TAG, Log.INFO)) {
-                    Slog.i(TAG, "Default display does not have display address. Using default.");
-                }
-                synchronized (mLock) {
-                    mPhysicalPorts.add(mDefaultDisplayPhysicalPort);
-                }
-            } else if (display.getAddress() instanceof DisplayAddress.Physical) {
-                int port = ((DisplayAddress.Physical) display.getAddress()).getPort();
-                if (Log.isLoggable(TAG, Log.INFO)) {
-                    Slog.i(TAG, "Display " + display.getDisplayId() + " uses port " + port);
-                }
-                synchronized (mLock) {
-                    mPhysicalPorts.add(port);
-                }
-            } else {
-                Slog.w(TAG, "At init non-virtual display has a non-physical display address: "
-                        + display);
-            }
+            mPhysicalPorts.add(port);
         }
     }
 
@@ -999,43 +977,27 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     /**
-     * Returns the physical port id for the display or {@code null} if {@link
+     * Returns the physical port id for the display or {@code DisplayHelper.INVALID_PORT} if {@link
      * DisplayManager#getDisplay(int)} is not aware of the provided id.
      */
     @Nullable
     @GuardedBy("mLock")
-    private Integer getPhysicalPortLocked(int displayId) {
-        if (!mPortLookup.containsKey(displayId)) {
+    private int getPhysicalPortLocked(int displayId) {
+        int index = mPortLookup.indexOfKey(displayId);
+        if (index < 0) {
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
+                mPortLookup.delete(displayId);
                 Slog.w(TAG, "Could not retrieve display for id: " + displayId);
-                return null;
+                return DisplayHelper.INVALID_PORT;
             }
-            int port = doGetPhysicalPortLocked(display);
-            mPortLookup.put(displayId, port);
+            int port = DisplayHelper.getPhysicalPort(display);
+            if (port != DisplayHelper.INVALID_PORT) {
+                mPortLookup.put(displayId, port);
+                return port;
+            }
         }
-        return mPortLookup.get(displayId);
-    }
-
-    @GuardedBy("mLock")
-    private int doGetPhysicalPortLocked(@NonNull Display display) {
-        if (display.getType() == Display.TYPE_VIRTUAL) {
-            Slog.e(TAG, "Display " + display
-                    + " is a virtual display and does not have a known port.");
-            return mDefaultDisplayPhysicalPort;
-        }
-
-        DisplayAddress address = display.getAddress();
-        if (address == null) {
-            Slog.e(TAG, "Display " + display
-                    + " is not a virtual display but has null DisplayAddress.");
-            return mDefaultDisplayPhysicalPort;
-        } else if (!(address instanceof DisplayAddress.Physical)) {
-            Slog.e(TAG, "Display " + display + " has non-physical address: " + address);
-            return mDefaultDisplayPhysicalPort;
-        } else {
-            return ((DisplayAddress.Physical) address).getPort();
-        }
+        return mPortLookup.valueAt(index);
     }
 
     private CarUxRestrictions createUnrestrictedRestrictions() {

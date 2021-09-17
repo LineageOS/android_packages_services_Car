@@ -16,6 +16,8 @@
 
 package com.android.car;
 
+import static android.car.builtin.view.DisplayHelper.INVALID_PORT;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -30,6 +32,7 @@ import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.view.DisplayHelper;
 import android.car.media.CarAudioManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -49,7 +52,6 @@ import android.util.ArraySet;
 import android.util.SparseArray;
 import android.util.SparseIntArray;
 import android.view.Display;
-import android.view.DisplayAddress;
 
 import com.android.car.internal.ICarServiceHelper;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -73,7 +75,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     private static final String TAG = CarLog.tagFor(CarOccupantZoneService.class);
     private static final String ALL_COMPONENTS = "*";
-    private static final int INVALID_PORT = -1;
 
     private final Object mLock = new Object();
     private final Context mContext;
@@ -503,6 +504,24 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         return Display.INVALID_DISPLAY;
     }
 
+    public IntArray getAllDisplayIdsForDriver(int displayType) {
+        synchronized (mLock) {
+            OccupantConfig config = mActiveOccupantConfigs.get(mDriverZoneId);
+            if (config == null) {
+                return new IntArray(0);
+            }
+            IntArray displayIds = new IntArray(config.displayInfos.size());
+            Slogf.d(TAG, "getAllDisplayIdsForDriver: displayInfos=" + config.displayInfos);
+            for (int i = 0; i < config.displayInfos.size(); i++) {
+                DisplayInfo displayInfo = config.displayInfos.get(i);
+                if (displayInfo.displayType == displayType) {
+                    displayIds.add(displayInfo.display.getDisplayId());
+                }
+            }
+            return displayIds;
+        }
+    }
+
     @Override
     public int getDisplayIdForDriver(@DisplayTypeEnum int displayType) {
         enforcePermission(Car.ACCESS_PRIVATE_DISPLAY_ID);
@@ -595,14 +614,14 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
     @GuardedBy("mLock")
     @Nullable
     private DisplayConfig findDisplayConfigForDisplayLocked(Display display) {
-        int portAddress = getPortAddress(display);
+        int portAddress = DisplayHelper.getPhysicalPort(display);
         if (portAddress != INVALID_PORT) {
             DisplayConfig config = mDisplayPortConfigs.get(portAddress);
             if (config != null) {
                 return config;
             }
         }
-        return mDisplayUniqueIdConfigs.get(display.getUniqueId());
+        return mDisplayUniqueIdConfigs.get(DisplayHelper.getUniqueId(display));
     }
 
     @Override
@@ -1092,17 +1111,6 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                 mDisplayUniqueIdConfigs.put(uniqueId, displayConfig);
             }
         }
-    }
-
-    private int getPortAddress(Display display) {
-        DisplayAddress address = display.getAddress();
-        if (address instanceof DisplayAddress.Physical) {
-            DisplayAddress.Physical physicalAddress = (DisplayAddress.Physical) address;
-            if (physicalAddress != null) {
-                return physicalAddress.getPort();
-            }
-        }
-        return INVALID_PORT;
     }
 
     @GuardedBy("mLock")

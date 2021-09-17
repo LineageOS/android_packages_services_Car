@@ -15,6 +15,7 @@
  */
 package com.android.car;
 
+import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_IDLING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_MOVING;
 import static android.car.drivingstate.CarDrivingStateEvent.DRIVING_STATE_PARKED;
@@ -31,6 +32,7 @@ import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertFalse;
 import static org.junit.Assert.assertTrue;
 import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.doThrow;
@@ -53,10 +55,12 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.RemoteException;
 import android.os.SystemClock;
 import android.util.JsonWriter;
+import android.view.Display;
 
 import androidx.test.filters.MediumTest;
 import androidx.test.runner.AndroidJUnit4;
 
+import com.android.car.internal.util.IntArray;
 import com.android.car.systeminterface.SystemInterface;
 
 import org.junit.After;
@@ -100,6 +104,8 @@ public class CarUxRestrictionsManagerServiceTest {
     @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
+    private CarOccupantZoneService mMockCarOccupantZoneService;
+    @Mock
     private SystemInterface mMockSystemInterface;
 
     private Context mSpyContext;
@@ -118,8 +124,11 @@ public class CarUxRestrictionsManagerServiceTest {
 
         setUpMockParkedState();
 
+        when(mMockCarOccupantZoneService.getAllDisplayIdsForDriver(eq(DISPLAY_TYPE_MAIN)))
+                .thenReturn(IntArray.wrap(new int[Display.DEFAULT_DISPLAY]));
+
         mService = new CarUxRestrictionsManagerService(mSpyContext,
-                mMockDrivingStateService, mMockCarPropertyService);
+                mMockDrivingStateService, mMockCarPropertyService, mMockCarOccupantZoneService);
     }
 
     @After
@@ -345,7 +354,8 @@ public class CarUxRestrictionsManagerServiceTest {
         CarDrivingStateService drivingStateService = new CarDrivingStateService(mSpyContext,
                 mMockCarPropertyService);
         CarUxRestrictionsManagerService uxRestrictionsService = new CarUxRestrictionsManagerService(
-                mSpyContext, drivingStateService, mMockCarPropertyService);
+                mSpyContext, drivingStateService, mMockCarPropertyService,
+                mMockCarOccupantZoneService);
 
         CountDownLatch dispatchingStartedSignal = new CountDownLatch(1);
         CountDownLatch initCompleteSignal = new CountDownLatch(1);
@@ -447,7 +457,8 @@ public class CarUxRestrictionsManagerServiceTest {
         CarDrivingStateService drivingStateService = new CarDrivingStateService(mSpyContext,
                 mMockCarPropertyService);
         CarUxRestrictionsManagerService uxRestrictionService = new CarUxRestrictionsManagerService(
-                mSpyContext, drivingStateService, mMockCarPropertyService);
+                mSpyContext, drivingStateService, mMockCarPropertyService,
+                mMockCarOccupantZoneService);
 
         CountDownLatch dispatchingStartedSignal = new CountDownLatch(1);
         CountDownLatch initCompleteSignal = new CountDownLatch(1);
