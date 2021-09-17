@@ -22,6 +22,8 @@ import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_MAP_CLIENT_D
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PAN_DEVICES;
 import static android.car.settings.CarSettings.Secure.KEY_BLUETOOTH_PBAP_CLIENT_DEVICES;
 
+import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
@@ -141,6 +143,9 @@ public class BluetoothProfileDeviceManager {
     private int mAutoConnectPriority;
     @GuardedBy("mAutoConnectLock")
     private ArrayList<BluetoothDevice> mAutoConnectingDevices;
+
+    @Nullable
+    private Context mUserContext;
 
     private final BluetoothAdapter mBluetoothAdapter;
     private final BluetoothBroadcastReceiver mBluetoothBroadcastReceiver;
@@ -352,9 +357,9 @@ public class BluetoothProfileDeviceManager {
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         profileFilter.addAction(BluetoothDevice.ACTION_BOND_STATE_CHANGED);
         profileFilter.addAction(BluetoothDevice.ACTION_UUID);
-        // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
-        mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
-                profileFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
+        mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
+        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, profileFilter,
                 Context.RECEIVER_NOT_EXPORTED);
     }
 
@@ -364,10 +369,9 @@ public class BluetoothProfileDeviceManager {
      */
     public void stop() {
         logd("Stopping device management");
-        if (mBluetoothBroadcastReceiver != null) {
-            if (mContext != null) {
-                mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
-            }
+        if (mBluetoothBroadcastReceiver != null && mUserContext != null) {
+            mUserContext.unregisterReceiver(mBluetoothBroadcastReceiver);
+            mUserContext = null;
         }
         cancelAutoConnecting();
         commit();

@@ -218,6 +218,11 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         }
 
         @Override
+        public Context createContextAsUser(UserHandle user, @CreatePackageOptions int flags) {
+            return this;
+        }
+
+        @Override
         public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle user,
                 IntentFilter filter, String broadcastPermission, Handler scheduler,
                 @RegisterReceiverFlags int flags) {

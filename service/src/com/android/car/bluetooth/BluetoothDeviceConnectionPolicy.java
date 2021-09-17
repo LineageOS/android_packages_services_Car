@@ -16,6 +16,8 @@
 
 package com.android.car.bluetooth;
 
+import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
@@ -69,6 +71,9 @@ public class BluetoothDeviceConnectionPolicy {
     private final CarBluetoothService mCarBluetoothService;
     private final CarServicesHelper mCarHelper;
     private final UserManager mUserManager;
+
+    @Nullable
+    private Context mUserContext;
 
     private final ICarPowerPolicyListener mPowerPolicyListener =
             new ICarPowerPolicyListener.Stub() {
@@ -322,9 +327,9 @@ public class BluetoothDeviceConnectionPolicy {
         logd("init()");
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
-        // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
-        mContext.registerReceiverAsUser(mBluetoothBroadcastReceiver, UserHandle.CURRENT,
-                profileFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+        UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
+        mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
+        mUserContext.registerReceiver(mBluetoothBroadcastReceiver, profileFilter,
                 Context.RECEIVER_NOT_EXPORTED);
         CarPowerManagementService cpms = CarLocalServices.getService(
                 CarPowerManagementService.class);
@@ -359,8 +364,9 @@ public class BluetoothDeviceConnectionPolicy {
         if (cpms != null) {
             cpms.removePowerPolicyListener(mPowerPolicyListener);
         }
-        if (mBluetoothBroadcastReceiver != null) {
-            mContext.unregisterReceiver(mBluetoothBroadcastReceiver);
+        if (mBluetoothBroadcastReceiver != null && mUserContext != null) {
+            mUserContext.unregisterReceiver(mBluetoothBroadcastReceiver);
+            mUserContext = null;
         }
         mCarHelper.release();
     }
