@@ -19,17 +19,21 @@
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:layout_marginLeft="100dp">
-    <TextView
-        android:id="@+id/title"
-        android:layout_width="wrap_content"
+
+    <LinearLayout
+        android:layout_width="match_parent"
         android:layout_height="45dp"
-        android:maxLines="1"
         android:layout_marginBottom="48dp"
-        android:textAppearance="@style/TextAppearance.DialNumber"
-        android:autoSizeMinTextSize="24sp"
-        android:autoSizeMaxTextSize="28sp"
-        android:layout_marginLeft="150dp"
-        android:layout_alignParentTop="true"/>
+        android:layout_alignParentTop="true"
+        android:layout_alignLeft="@id/dialpad_fragment"
+        android:layout_alignRight="@id/dialpad_fragment">
+        <TextView
+            android:id="@+id/title"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:textAppearance="@style/TextAppearance.DialNumber"
+            android:gravity="center"/>
+    </LinearLayout>
 
     <com.android.car.ui.recyclerview.CarUiRecyclerView
         android:id="@+id/list_view"

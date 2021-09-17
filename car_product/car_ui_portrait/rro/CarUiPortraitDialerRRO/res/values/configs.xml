@@ -14,7 +14,7 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="tab_background_color">#282A2D</color>
-    <color name="divider_color">#2e3134</color>
+
+<resources>
+    <integer name="config_dialed_number_gravity">1</integer>
 </resources>
