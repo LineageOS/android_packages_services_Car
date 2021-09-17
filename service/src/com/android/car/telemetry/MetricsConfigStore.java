@@ -106,6 +106,7 @@ class MetricsConfigStore {
     /** Deletes the MetricsConfig from disk. Returns the success status. */
     boolean deleteMetricsConfig(String metricsConfigName) {
         mActiveConfigs.remove(metricsConfigName);
+        mNameVersionMap.remove(metricsConfigName);
         return new File(mConfigDirectory, metricsConfigName).delete();
     }
 
