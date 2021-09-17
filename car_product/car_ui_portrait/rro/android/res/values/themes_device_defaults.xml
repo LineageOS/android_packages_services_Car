@@ -15,7 +15,7 @@
 -->
 
 <!--
-    This is an override of frameworks/base/core/res/res/values/themes_device_default.xml
+    This is an override of frameworks/base/core/res/res/values/themes_device_defaults.xml
     It is how the device default is changed to match the desired look for a car theme.
 -->
 <resources>
@@ -41,6 +41,7 @@
 
 
         <!-- Color palette -->
+        <item name="android:colorBackgroundFloating">@color/floating_background_color</item>
         <item name="android:statusBarColor">@android:color/black</item>
         <item name="android:colorButtonNormal">@color/btn_device_default_dark</item>
         <item name="android:colorControlHighlight">@color/btn_device_default_dark</item>

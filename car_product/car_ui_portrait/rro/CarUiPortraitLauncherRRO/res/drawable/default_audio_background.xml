@@ -16,6 +16,11 @@
   -->
 
 <layer-list xmlns:android="http://schemas.android.com/apk/res/android">
+    <item>
+        <shape android:shape="rectangle">
+            <solid android:color="@color/default_audio_background_color"/>
+        </shape>
+    </item>
     <item android:bottom="@dimen/default_audio_icon_padding"
           android:top="@dimen/default_audio_icon_padding"
           android:right="@dimen/default_audio_icon_padding"
