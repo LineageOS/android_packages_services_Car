@@ -14,7 +14,10 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="tab_background_color">#282A2D</color>
-    <color name="divider_color">#2e3134</color>
-</resources>
+<overlay>
+    <item target="drawable/top_level_preference_background" value="@drawable/top_level_preference_background"/>
+    <item target="drawable/top_level_preference_highlight" value="@drawable/top_level_preference_highlight"/>
+
+    <item target="layout/top_level_preference" value="@layout/top_level_preference"/>
+
+</overlay>
