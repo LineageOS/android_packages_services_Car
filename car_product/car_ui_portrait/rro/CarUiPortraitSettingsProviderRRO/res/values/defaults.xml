@@ -16,5 +16,5 @@
   -->
 <resources>
     <!-- Set default screen orientation. -->
-    <integer name="def_user_rotation">1</integer>
+    <integer name="def_user_rotation">0</integer>
 </resources>
