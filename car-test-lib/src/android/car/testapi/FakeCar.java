@@ -19,6 +19,7 @@ package android.car.testapi;
 import android.car.Car;
 import android.car.ICar;
 import android.car.ICarBluetooth;
+import android.car.ICarResultReceiver;
 import android.car.cluster.IInstrumentClusterManagerService;
 import android.car.content.pm.ICarPackageManager;
 import android.car.diagnostic.ICarDiagnostic;
@@ -29,6 +30,8 @@ import android.content.Context;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
+
+import com.android.car.internal.ICarServiceHelper;
 
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
@@ -154,7 +157,8 @@ public class FakeCar {
         }
 
         @Override
-        public void setSystemServerConnections(IBinder helper, IBinder receiver)
+        public void setSystemServerConnections(ICarServiceHelper helper,
+                ICarResultReceiver receiver)
                 throws RemoteException {
             // Nothing to do yet.
         }

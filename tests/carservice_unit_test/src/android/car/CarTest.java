@@ -38,6 +38,7 @@ import android.os.ServiceManager;
 import android.util.Pair;
 
 import com.android.car.CarServiceUtils;
+import com.android.car.internal.ICarServiceHelper;
 
 import org.junit.After;
 import org.junit.Before;
@@ -70,7 +71,8 @@ public class CarTest {
     // It is tricky to mock this. So create placeholder version instead.
     private ICar.Stub mService = new ICar.Stub() {
         @Override
-        public void setSystemServerConnections(IBinder helper, IBinder receiver)
+        public void setSystemServerConnections(ICarServiceHelper helper,
+                ICarResultReceiver receiver)
                 throws RemoteException {
         }
 
