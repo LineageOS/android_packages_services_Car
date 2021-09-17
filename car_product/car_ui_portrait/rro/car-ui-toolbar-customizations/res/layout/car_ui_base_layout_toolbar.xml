@@ -89,10 +89,10 @@
                 android:id="@+id/car_ui_toolbar_title_logo_container"
                 android:layout_width="wrap_content"
                 android:layout_height="wrap_content"
+                android:layout_marginLeft="24dp"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
-                app:layout_constraintEnd_toStartOf="@id/car_ui_toolbar_title_container"
                 app:layout_constraintHorizontal_chainStyle="packed">
 
                 <ImageView
@@ -162,7 +162,7 @@
             <View
                 android:layout_width="match_parent"
                 android:layout_height="2dp"
-                android:background="?android:attr/listDivider"
+                android:background="@color/divider_color"
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintEnd_toEndOf="parent"
                 app:layout_constraintStart_toStartOf="parent" />
@@ -191,7 +191,7 @@
     <View
         android:layout_width="2dp"
         android:layout_height="match_parent"
-        android:background="?android:attr/listDivider"
+        android:background="@color/divider_color"
         android:focusable="false"
         app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
         app:layout_constraintTop_toBottomOf="@id/top_part_of_toolbar_focus_area"
