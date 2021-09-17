@@ -31,6 +31,7 @@ import android.app.ActivityManager;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.PackageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
@@ -50,7 +51,6 @@ import android.car.user.UserStartResult;
 import android.car.user.UserStopResult;
 import android.car.user.UserSwitchResult;
 import android.car.util.concurrent.AndroidFuture;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.content.pm.PackageManager.NameNotFoundException;
@@ -354,13 +354,16 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         writer.println("Relevant overlayable properties");
         Resources res = mContext.getResources();
         writer.increaseIndent();
-        writer.printf("owner_name=%s\n", res.getString(com.android.internal.R.string.owner_name));
+        writer.printf("owner_name=%s\n", UserManagerHelper.getDefaultUserName(mContext));
         writer.printf("default_guest_name=%s\n", res.getString(R.string.default_guest_name));
+        writer.printf("config_multiuserMaxRunningUsers=%d\n",
+                UserManagerHelper.getMaxRunningUsers(mContext));
         writer.decreaseIndent();
         writer.printf("User switch in process=%d\n", mUserIdForUserSwitchInProcess);
         writer.printf("Request Id for the user switch in process=%d\n ",
                     mRequestIdForUserSwitchInProcess);
-        writer.printf("System UI package name=%s\n", getSystemUiPackageName());
+        writer.printf("System UI package name=%s\n",
+                PackageManagerHelper.getSystemUiPackageName(mContext));
 
         writer.println("Relevant Global settings");
         writer.increaseIndent();
@@ -1499,10 +1502,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         checkManageUsersPermission("setUserSwitchUiCallback");
 
         // Confirm that caller is system UI.
-        String systemUiPackageName = getSystemUiPackageName();
-        if (systemUiPackageName == null) {
-            throw new IllegalStateException("System UI package not found.");
-        }
+        String systemUiPackageName = PackageManagerHelper.getSystemUiPackageName(mContext);
 
         try {
             int systemUiUid = mContext
@@ -1518,20 +1518,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         mUserSwitchUiReceiver = receiver;
-    }
-
-    // TODO(157082995): This information can be taken from
-    // PackageManageInternalImpl.getSystemUiServiceComponent
-    @Nullable
-    private String getSystemUiPackageName() {
-        try {
-            ComponentName componentName = ComponentName.unflattenFromString(mContext.getResources()
-                    .getString(com.android.internal.R.string.config_systemUIServiceComponent));
-            return componentName.getPackageName();
-        } catch (RuntimeException e) {
-            Slog.w(TAG, "error while getting system UI package name.", e);
-            return null;
-        }
     }
 
     private void updateDefaultUserRestriction() {

@@ -65,7 +65,6 @@ import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.car.test.mocks.BlockingAnswer;
-import android.car.test.util.BlockingResultReceiver;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
@@ -201,8 +200,6 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private final AndroidFuture<UserIdentificationAssociationResponse> mUserAssociationRespFuture =
             new AndroidFuture<>();
     private final int mAsyncCallTimeoutMs = 100;
-    private final BlockingResultReceiver mReceiver =
-            new BlockingResultReceiver(mAsyncCallTimeoutMs);
     private final InitialUserInfoResponse mGetUserInfoResponse = new InitialUserInfoResponse();
     private final SwitchUserResponse mSwitchUserResponse = new SwitchUserResponse();
 
@@ -702,6 +699,8 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     @Test
     // TODO(b/196179969): remove UserInfo usages
     public void testCreatePassenger() {
+        // assignDefaultIconForUser is not used for testing
+        doReturn(null).when(() -> UserHelper.assignDefaultIcon(any(), any()));
         doNothing()
                 .when(() -> UserHelper.setDefaultNonAdminRestrictions(any(), any(), anyBoolean()));
         int driverId = 90;

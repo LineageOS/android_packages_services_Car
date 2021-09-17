@@ -224,4 +224,20 @@ public final class UserManagerHelper {
         UserInfo userInfo = userManager.preCreateUser(type);
         return userInfo == null ? null : userInfo.getUserHandle();
     }
+
+    /**
+     * Gets the default name for a user.
+     */
+    @NonNull
+    public static String getDefaultUserName(@NonNull Context context) {
+        return context.getResources().getString(com.android.internal.R.string.owner_name);
+    }
+
+    /**
+     * Gets the maximum number of users that can be running at any given time.
+     */
+    public static int getMaxRunningUsers(@NonNull Context context) {
+        return context.getResources()
+                .getInteger(com.android.internal.R.integer.config_multiuserMaxRunningUsers);
+    }
 }

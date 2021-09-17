@@ -139,7 +139,7 @@ final class InitialUserSetter {
             @Nullable String newGuestName) {
         this(context, context.getSystemService(UserManager.class), carUserService, listener,
                 userHandleHelper, new LockPatternUtils(context),
-                context.getString(com.android.internal.R.string.owner_name), newGuestName);
+                UserManagerHelper.getDefaultUserName(context), newGuestName);
     }
 
     @VisibleForTesting
