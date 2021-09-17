@@ -30,6 +30,7 @@ import android.content.Context;
 import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
+import android.os.PersistableBundle;
 import android.os.RemoteException;
 
 import com.android.car.CarLocalServices;
@@ -50,7 +51,9 @@ import com.android.internal.annotations.VisibleForTesting;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
+import java.io.ByteArrayOutputStream;
 import java.io.File;
+import java.io.IOException;
 import java.util.List;
 
 /**
@@ -153,7 +156,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     }
 
     /**
-     * Send a telemetry metrics config to the service.
+     * Send a telemetry metrics config to the service. This method assumes
+     * {@link #setListener(ICarTelemetryServiceListener)} is called. Otherwise it does nothing.
      *
      * @param key    the unique key to identify the MetricsConfig.
      * @param config the serialized bytes of a MetricsConfig object.
@@ -163,9 +167,12 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
         mTelemetryHandler.post(() -> {
+            if (mListener == null) {
+                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                return;
+            }
             Slog.d(CarLog.TAG_TELEMETRY, "Adding metrics config " + key.getName()
                     + " to car telemetry service");
-            // TODO(b/199540952): If config is active, add it to DataBroker
             TelemetryProto.MetricsConfig metricsConfig = null;
             int status = ERROR_METRICS_CONFIG_UNKNOWN;
             try {
@@ -177,6 +184,8 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // if config can be parsed, add it to persistent storage
             if (metricsConfig != null) {
                 status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
+                // TODO(b/199410900): update logic once metrics configs have expiration dates
+                mDataBroker.addMetricsConfiguration(metricsConfig);
             }
             // If no error (a config is successfully added), script results from an older version
             // should be deleted
@@ -186,20 +195,25 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
             } catch (RemoteException e) {
-                Slog.d(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+                Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
             }
         });
     }
 
     /**
      * Removes a metrics config based on the key. This will also remove outputs produced by the
-     * MetricsConfig.
+     * MetricsConfig. This method assumes {@link #setListener(ICarTelemetryServiceListener)} is
+     * called. Otherwise it does nothing.
+     *
+     * @param key the unique identifier of a MetricsConfig.
      */
     @Override
     public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
-        mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeMetricsConfig");
         mTelemetryHandler.post(() -> {
+            if (mListener == null) {
+                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                return;
+            }
             Slog.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
                     + " from car telemetry service");
             // TODO(b/198792767): Check both config name and config version for deletion
@@ -209,7 +223,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             try {
                 mListener.onRemoveMetricsConfigStatus(key, success);
             } catch (RemoteException e) {
-                Slog.d(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+                Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
             }
         });
     }
@@ -232,16 +246,35 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     /**
      * Sends script results associated with the given key using the
-     * {@link ICarTelemetryServiceListener}.
+     * {@link ICarTelemetryServiceListener}. This method assumes listener is set. Otherwise it
+     * does nothing.
+     *
+     * @param key the unique identifier of a MetricsConfig.
      */
     @Override
     public void sendFinishedReports(@NonNull MetricsConfigKey key) {
-        // TODO(b/184087869): Implement
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendFinishedReports");
-        if (DEBUG) {
-            Slog.d(CarLog.TAG_TELEMETRY, "Flushing reports for a metrics config");
-        }
+        mTelemetryHandler.post(() -> {
+            if (mListener == null) {
+                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                return;
+            }
+            if (DEBUG) {
+                Slog.d(CarLog.TAG_TELEMETRY,
+                        "Flushing reports for metrics config " + key.getName());
+            }
+            PersistableBundle result = mResultStore.getFinalResult(key.getName(), true);
+            TelemetryProto.TelemetryError error = mResultStore.getError(key.getName(), true);
+            if (result != null) {
+                sendFinalResult(key, result);
+            } else if (error != null) {
+                sendError(key, error);
+            } else {
+                Slog.w(CarLog.TAG_TELEMETRY, "config " + key.getName()
+                        + " did not produce any results");
+            }
+        });
     }
 
     /**
@@ -254,6 +287,25 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendAllFinishedReports");
         if (DEBUG) {
             Slog.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
+        }
+    }
+
+    private void sendFinalResult(MetricsConfigKey key, PersistableBundle result) {
+        try (ByteArrayOutputStream bos = new ByteArrayOutputStream()) {
+            result.writeToStream(bos);
+            mListener.onResult(key, bos.toByteArray());
+        } catch (RemoteException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+        } catch (IOException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "failed to write bundle to output stream", e);
+        }
+    }
+
+    private void sendError(MetricsConfigKey key, TelemetryProto.TelemetryError error) {
+        try {
+            mListener.onError(key, error.toByteArray());
+        } catch (RemoteException e) {
+            Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
         }
     }
 
