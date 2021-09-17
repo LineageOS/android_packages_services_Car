@@ -149,12 +149,10 @@ public interface DisplayInterface {
             mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
 
-            mContext.registerReceiverAsUser(
-                    mUserChangeReceiver,
-                    UserHandle.ALL,
-                    new IntentFilter(Intent.ACTION_USER_SWITCHED),
-                    null,
-                    null);
+            mContext.registerReceiverForAllUsers(
+                    mUserChangeReceiver, new IntentFilter(Intent.ACTION_USER_SWITCHED),
+                    /* broadcastPermission= */ null, /* scheduler= */ null,
+                    Context.RECEIVER_NOT_EXPORTED);
         }
 
         @Override

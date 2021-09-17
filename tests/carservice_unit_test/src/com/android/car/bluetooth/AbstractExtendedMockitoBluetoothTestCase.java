@@ -26,6 +26,7 @@ import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
+import android.content.Context.RegisterReceiverFlags;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Handler;
@@ -218,10 +219,11 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
 
         @Override
         public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle user,
-                IntentFilter filter, String broadcastPermission, Handler scheduler) {
+                IntentFilter filter, String broadcastPermission, Handler scheduler,
+                @RegisterReceiverFlags int flags) {
             // We're basically ignoring the userhandle since the tests only assume one user anyway.
             // BroadcastInterceptingContext doesn't implement this hook either so this has to do.
-            return super.registerReceiver(receiver, filter);
+            return super.registerReceiver(receiver, filter, flags);
         }
 
         public void addMockedSystemService(Class<?> serviceClass, Object service) {

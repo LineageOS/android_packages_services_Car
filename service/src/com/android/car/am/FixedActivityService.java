@@ -349,8 +349,9 @@ public final class FixedActivityService implements CarServiceBase {
         filter.addAction(Intent.ACTION_PACKAGE_ADDED);
         filter.addAction(Intent.ACTION_PACKAGE_REMOVED);
         filter.addDataScheme("package");
-        mContext.registerReceiverAsUser(mBroadcastReceiver, UserHandle.ALL, filter,
-                /* broadcastPermission= */ null, /* scheduler= */ null);
+        mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
         try {
             mAm.registerTaskStackListener(mTaskStackListener);
             mAm.registerProcessObserver(mProcessObserver);

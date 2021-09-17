@@ -513,8 +513,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             pkgParseIntent.addAction(action);
         }
         pkgParseIntent.addDataScheme("package");
-        mContext.registerReceiverAsUser(mPackageParsingEventReceiver, UserHandle.ALL,
-                pkgParseIntent, null, null);
+        mContext.registerReceiverForAllUsers(mPackageParsingEventReceiver, pkgParseIntent,
+                /* broadcastPermission= */ null, /* scheduler= */ null,
+                Context.RECEIVER_NOT_EXPORTED);
 
         // CarOccupantZoneService makes it sure that the default display is a driver display.
         IntArray displayIdsForDriver = mCarOccupantZoneService.getAllDisplayIdsForDriver(
