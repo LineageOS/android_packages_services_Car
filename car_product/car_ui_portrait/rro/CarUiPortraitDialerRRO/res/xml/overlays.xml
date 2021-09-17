@@ -21,6 +21,7 @@
     <item target="drawable/dialer_ripple_background" value="@drawable/dialer_ripple_background"/>
     <item target="drawable/restricted_dialing_mode_label_background" value="@drawable/restricted_dialing_mode_label_background"/>
     <item target="drawable/ic_arrow_right" value="@drawable/ic_arrow_right"/>
+    <item target="drawable/ic_bluetooth" value="@drawable/ic_bluetooth"/>
 
     <item target="id/dialpad_fragment" value="@id/dialpad_fragment" />
     <item target="id/call_button" value="@id/call_button" />
@@ -36,11 +37,22 @@
     <item target="id/contact_result" value="@id/contact_result" />
     <item target="id/contact_name" value="@id/contact_name" />
     <item target="id/phone_number" value="@id/phone_number" />
+    <item target="id/no_hfp_error_container" value="@id/no_hfp_error_container" />
+    <item target="id/emergency_call_button" value="@id/emergency_call_button" />
+    <item target="id/error_icon" value="@id/error_icon" />
+    <item target="id/error_string" value="@id/error_string" />
+    <item target="id/connect_bluetooth_button" value="@id/connect_bluetooth_button" />
+
+    <item target="color/divider_color" value="@color/divider_color" />
+    <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
+
+    <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
 
     <item target="layout/dialpad_fragment_with_type_down" value="@layout/dialpad_fragment_with_type_down"/>
     <item target="layout/dialpad_user_profile" value="@layout/dialpad_user_profile"/>
     <item target="layout/type_down_list_item" value="@layout/type_down_list_item"/>
     <item target="layout/restricted_dialing_mode_label" value="@layout/restricted_dialing_mode_label"/>
+    <item target="layout/no_hfp" value="@layout/no_hfp"/>
 
     <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
     <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>

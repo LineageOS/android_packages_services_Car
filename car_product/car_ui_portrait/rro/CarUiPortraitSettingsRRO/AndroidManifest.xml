@@ -14,7 +14,12 @@
   ~ See the License for the specific language governing permissions and
   ~ limitations under the License.
   -->
-<resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="tab_background_color">#282A2D</color>
-    <color name="divider_color">#2e3134</color>
-</resources>
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+          package="com.android.car.settings.caruiportrait.rro">
+    <application android:hasCode="false"/>
+    <overlay android:priority="20"
+             android:targetName="CarSettings"
+             android:targetPackage="com.android.car.settings"
+             android:resourcesMap="@xml/overlays"
+             android:isStatic="true" />
+</manifest>

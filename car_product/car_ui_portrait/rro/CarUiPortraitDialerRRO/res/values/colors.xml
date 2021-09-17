@@ -16,4 +16,5 @@
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
     <color name="keypad_background_color">#E8EAED</color>
+    <color name="divider_color">#E8EAED</color>
 </resources>
