@@ -21,6 +21,7 @@ import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
 
 import android.app.ActivityManager;
+import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
@@ -32,7 +33,6 @@ import android.hardware.display.DisplayManager;
 import android.hardware.display.DisplayManager.DisplayListener;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings.SettingNotFoundException;
@@ -96,7 +96,7 @@ public interface DisplayInterface {
         private final Object mLock = new Object();
         private final int mMaximumBacklight;
         private final int mMinimumBacklight;
-        private final PowerManager mPowerManager;
+        private final PowerManagerHelper mPowerManagerHelper;
         private final WakeLockInterface mWakeLockInterface;
         @GuardedBy("mLock")
         private CarPowerManagementService mService;
@@ -140,13 +140,13 @@ public interface DisplayInterface {
         };
 
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
-            mActivityManager = (ActivityManager) context.getSystemService(Context.ACTIVITY_SERVICE);
             mContext = context;
+            mActivityManager = context.getSystemService(ActivityManager.class);
             mContentResolver = mContext.getContentResolver();
-            mDisplayManager = (DisplayManager) context.getSystemService(Context.DISPLAY_SERVICE);
-            mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
-            mMaximumBacklight = mPowerManager.getMaximumScreenBrightnessSetting();
-            mMinimumBacklight = mPowerManager.getMinimumScreenBrightnessSetting();
+            mDisplayManager = context.getSystemService(DisplayManager.class);
+            mPowerManagerHelper = new PowerManagerHelper(context);
+            mMaximumBacklight = mPowerManagerHelper.getMaximumScreenBrightnessSetting();
+            mMinimumBacklight = mPowerManagerHelper.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
 
             mContext.registerReceiverForAllUsers(
@@ -242,11 +242,11 @@ public interface DisplayInterface {
             if (on) {
                 mWakeLockInterface.switchToFullWakeLock();
                 Slog.i(CarLog.TAG_POWER, "on display");
-                mPowerManager.wakeUp(SystemClock.uptimeMillis());
+                mPowerManagerHelper.setDisplayState(/* on= */ true, SystemClock.uptimeMillis());
             } else {
                 mWakeLockInterface.switchToPartialWakeLock();
                 Slog.i(CarLog.TAG_POWER, "off display");
-                mPowerManager.goToSleep(SystemClock.uptimeMillis());
+                mPowerManagerHelper.setDisplayState(/* on= */ false, SystemClock.uptimeMillis());
             }
         }
 

@@ -16,13 +16,13 @@
 
 package com.android.car.systeminterface;
 
+import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slog;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
 import android.os.Looper;
-import android.os.PowerManager;
 import android.util.Pair;
 
 import com.android.car.internal.ICarServiceHelper;
@@ -84,7 +84,7 @@ public interface SystemStateInterface {
         private ICarServiceHelper mICarServiceHelper; // mHelperLatch becomes 0 when this is set
         private final CountDownLatch mHelperLatch = new CountDownLatch(1);
         private final Context mContext;
-        private final PowerManager mPowerManager;
+        private final PowerManagerHelper mPowerManagerHelper;
         private List<Pair<Runnable, Duration>> mActionsList = new ArrayList<>();
         private ScheduledExecutorService mExecutorService;
         private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
@@ -102,12 +102,13 @@ public interface SystemStateInterface {
         @VisibleForTesting
         public DefaultImpl(Context context) {
             mContext = context;
-            mPowerManager = (PowerManager) context.getSystemService(Context.POWER_SERVICE);
+            mPowerManagerHelper = new PowerManagerHelper(context);
         }
 
         @Override
         public void shutdown() {
-            mPowerManager.shutdown(false /* no confirm*/, null, true /* true */);
+            mPowerManagerHelper.shutdown(/* confirm= */ false , /* reason= */ null,
+                    /* wait= */ true);
         }
 
         @Override
