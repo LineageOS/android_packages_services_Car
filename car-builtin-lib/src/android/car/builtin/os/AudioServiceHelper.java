@@ -288,6 +288,35 @@ public final class AudioServiceHelper {
         return USAGE_VIRTUAL_SOURCE;
     }
 
+    /**
+     * Returns the string representation of volume adjustment.
+     *
+     * <p>See {@link android.media.AudioManager#adjustToString(int)}
+     */
+    public static String adjustToString(int adjustment) {
+        return AudioManager.adjustToString(adjustment);
+    }
+
+    /**
+     * Sets the system master mute state.
+     *
+     * <p>See {@link android.media.AudioManager#setMasterMute(boolean, int)}.
+     */
+    public static void setMasterMute(@NonNull AudioManager audioManager, boolean mute, int flags) {
+        Objects.requireNonNull(audioManager, "AudioManager must not be null.");
+        audioManager.setMasterMute(mute, flags);
+    }
+
+    /**
+     * Gets system master mute state.
+     *
+     * <p>See {@link android.media.AudioManager#isMasterMute()}.
+     */
+    public static boolean isMasterMute(@NonNull AudioManager audioManager) {
+        Objects.requireNonNull(audioManager, "AudioManager must not be null.");
+        return audioManager.isMasterMute();
+    }
+
 
     /**
      * Audio gain information for a particular device:

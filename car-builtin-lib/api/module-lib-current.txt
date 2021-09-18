@@ -45,11 +45,14 @@ package android.car.builtin.input {
 package android.car.builtin.os {
 
   public final class AudioServiceHelper {
+    method public static String adjustToString(int);
     method public static android.car.builtin.os.AudioServiceHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
     method public static android.car.builtin.os.AudioServiceHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
     method public static int getUsageVirtualSource();
+    method public static boolean isMasterMute(@NonNull android.media.AudioManager);
     method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.os.AudioServiceHelper.AudioPatchInfo);
     method public static boolean setAudioDeviceGain(@NonNull android.media.AudioManager, @NonNull String, int, boolean);
+    method public static void setMasterMute(@NonNull android.media.AudioManager, boolean, int);
     method public static String usageToString(int);
     method public static String usageToXsdString(int);
     method public static int xsdStringToUsage(String);
