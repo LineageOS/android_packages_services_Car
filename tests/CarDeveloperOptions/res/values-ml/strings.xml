@@ -1675,7 +1675,7 @@
     <string name="assisted_gps" msgid="5411780261117055175">"സഹായകരമായ GPS ഉപയോഗിക്കുക"</string>
     <string name="assisted_gps_enabled" msgid="2561022181775725369">"GPS-നെ സഹായിക്കുന്നതിന് സെർവർ ഉപയോഗിക്കുക (നെറ്റ്‌വർക്ക് ഉപയോഗം കുറയ്ക്കുന്നതിന് അൺചെക്കുചെയ്യുക)"</string>
     <string name="assisted_gps_disabled" msgid="6448758788217415937">"GPS-നെ സഹായിക്കുന്നതിന് സെർവർ ഉപയോഗിക്കുക (GPS പ്രകടനം മെച്ചപ്പെട്ടതാക്കുന്നതിന് അൺചെക്കുചെയ്യുക)"</string>
-    <string name="use_location_title" msgid="7724788634359496634">"ലൊക്കേഷനും Google തിരയലും"</string>
+    <string name="use_location_title" msgid="7724788634359496634">"ലൊക്കേഷനും Google Search-ഉം"</string>
     <string name="use_location_summary" msgid="7396716606067400283">"തിരയൽ ഫലങ്ങളും മറ്റ് സേവനങ്ങളും മെച്ചപ്പെടുത്താൻ നിങ്ങളുടെ ലൊക്കേഷൻ ഉപയോഗിക്കാൻ Google-നെ അനുവദിക്കുക"</string>
     <string name="location_access_title" msgid="8587974819606800029">"എന്റെ ലൊക്കേഷനിലേക്ക് ആക്‌സസ്സുചെയ്യുക"</string>
     <string name="location_access_summary" msgid="6919495149026354355">"നിങ്ങളുടെ അനുമതി ആവശ്യപ്പെട്ട അപ്ലിക്കേഷനുകളെ ലൊക്കേഷൻ വിവരങ്ങൾ ഉപയോഗിക്കാൻ അനുവദിക്കുക"</string>
@@ -4222,7 +4222,7 @@
       <item quantity="other">ക്യാമറ ആപ്പുകൾ</item>
       <item quantity="one">ക്യാമറ ആപ്പ്</item>
     </plurals>
-    <string name="default_calendar_app_title" msgid="6484001237347739255">"Calendar ആപ്പ്"</string>
+    <string name="default_calendar_app_title" msgid="6484001237347739255">"കലണ്ടർ ആപ്പ്"</string>
     <string name="default_contacts_app_title" msgid="1050372162465746272">"കോണ്‍‌ടാക്റ്റ് ആപ്പ്"</string>
     <plurals name="default_email_app_title" formatted="false" msgid="6875559046625447168">
       <item quantity="other">ഇമെയിൽ ക്ലയന്റ് ആപ്പുകൾ</item>

@@ -529,11 +529,11 @@
     <string name="crypt_keeper_warn_wipe" msgid="700814581500057050">"Ескерту: бекітпесін ашудың тағы <xliff:g id="COUNT">^1</xliff:g> әрекетінен кейін құрылғыңыздың деректері өшіріледі!"</string>
     <string name="crypt_keeper_enter_password" msgid="726933635335219421">"Кілстөзін теру"</string>
     <string name="crypt_keeper_failed_title" msgid="1906382607060855782">"Кодтау орындалмады"</string>
-    <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"Кодтау үзілді және аяқтау мүмкін болмайды. Нәтижесінде планшеттегі деректер қол жетімсіз. \n\n Планшетті қолдану мүмкін болу үшін зауыттық параметрін қайтару қажет. Планшетті қайта ретегеннен кейін орнату барысында Google есептік жазбаңыздағы сақтық көшірмелері арқылы деректерді қалпына келтіру мүмкіндігіңіз болады."</string>
-    <string name="crypt_keeper_failed_summary" product="default" msgid="2895589681839090312">"Кодтау үзілді және аяқтау мүмкін болмайды. Нәтижесінде телефондағы деректер қол жетімсіз. \n\nТелефонды қолдану мүмкін болу үшін зауыттық параметрін қайтару қажет. Телефонды қайта ретегеннен кейін орнату барысында Google есептік жазбаңыздағы сақтық көшірмелері арқылы деректерді қалпына келтіру мүмкіндігіңіз болады."</string>
+    <string name="crypt_keeper_failed_summary" product="tablet" msgid="7844833877734529625">"Кодтау үзілді және аяқтау мүмкін болмайды. Нәтижесінде планшеттегі деректер қол жетімсіз. \n\n Планшетті қолдану мүмкін болу үшін зауыттық параметрін қайтару қажет. Планшетті қайта ретегеннен кейін орнату барысында Google аккаунтыңыздағы сақтық көшірмелері арқылы деректерді қалпына келтіру мүмкіндігіңіз болады."</string>
+    <string name="crypt_keeper_failed_summary" product="default" msgid="2895589681839090312">"Кодтау үзілді және аяқтау мүмкін болмайды. Нәтижесінде телефондағы деректер қол жетімсіз. \n\nТелефонды қолдану мүмкін болу үшін зауыттық параметрін қайтару қажет. Телефонды қайта ретегеннен кейін орнату барысында Google аккаунтыңыздағы сақтық көшірмелері арқылы деректерді қалпына келтіру мүмкіндігіңіз болады."</string>
     <string name="crypt_keeper_data_corrupt_title" msgid="6561535293845985713">"Шифрлаудан шығару сәтсіз аяқталды"</string>
-    <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"Сіз енгізген құпия сөз дұрыс, бірақ, өкінішке орай, деректеріңіз бүлінген. \n\nПланшетті әрі қарай пайдалану үшін, зауыттық параметрлерді қалпына келтіруіңіз керек. Қалпына келтіргеннен кейін планшетті реттегенде, сізде Google есептік жазбаңызға сақтық көшірмесі жасалған барлық деректерді қалпына келтіру мүмкіндігі болады."</string>
-    <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"Сіз енгізген құпия сөз дұрыс, бірақ, өкінішке орай, деректеріңіз бүлінген. \n\nТелефонды әрі қарай пайдалану үшін, зауыттық параметрлерді қалпына келтіруіңіз керек. Қалпына келтіргеннен кейін телефонды реттегенде, сізде Google есептік жазбаңызға сақтық көшірмесі жасалған барлық деректерді қалпына келтіру мүмкіндігі болады."</string>
+    <string name="crypt_keeper_data_corrupt_summary" product="tablet" msgid="7018748502706237323">"Сіз енгізген құпия сөз дұрыс, бірақ, өкінішке орай, деректеріңіз бүлінген. \n\nПланшетті әрі қарай пайдалану үшін, зауыттық параметрлерді қалпына келтіруіңіз керек. Қалпына келтіргеннен кейін планшетті реттегенде, сізде Google аккаунтыңызға сақтық көшірмесі жасалған барлық деректерді қалпына келтіру мүмкіндігі болады."</string>
+    <string name="crypt_keeper_data_corrupt_summary" product="default" msgid="5798580588985326937">"Сіз енгізген құпия сөз дұрыс, бірақ, өкінішке орай, деректеріңіз бүлінген. \n\nТелефонды әрі қарай пайдалану үшін, зауыттық параметрлерді қалпына келтіруіңіз керек. Қалпына келтіргеннен кейін телефонды реттегенде, сізде Google аккаунтыңызға сақтық көшірмесі жасалған барлық деректерді қалпына келтіру мүмкіндігі болады."</string>
     <string name="crypt_keeper_switch_input_method" msgid="4744137470890459582">"Енгізу әдістерін ауыстыру"</string>
     <string name="suggested_lock_settings_title" msgid="1518155558803371661">"Телефоныңызды қорғаңыз"</string>
     <string name="suggested_lock_settings_summary" product="tablet" msgid="1861066918594412519">"Планшетті қорғау үшін экран құлпын орнатыңыз"</string>
@@ -1585,8 +1585,8 @@
     <string name="reset_esim_error_msg" msgid="4716366079119742235">"Жүктеп алынған SIM карталарын қатеге байланысты жою мүмкін емес.\n\nҚұрылғыны қайта қосып, әрекетті қайталаңыз."</string>
     <string name="master_clear_title" msgid="1560712943955904673">"Барлық деректерді өшіру (зауыттық параметрлерді қайтару)"</string>
     <string name="master_clear_short_title" msgid="919098101581335101">"Барлық деректерді өшіру"</string>
-    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Планшетіңіздің "<b>"ішкі жадынан"</b>" барлық дерек өшеді, оның ішінде:\n\n"<li>"Google есептік жазбаңыз"</li>\n<li>"Жүйе мен қолданба деректері және параметрлері"</li>\n<li>"Жүктеп алынған қолданбалар"</li></string>
-    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Телефонның "<b>"ішкі жадынан"</b>" барлық дерек өшеді, оның ішінде:\n\n"<li>"Google есептік жазбаңыз"</li>\n<li>"Жүйе мен қолданба деректері және параметрлері"</li>\n<li>"Жүктеп алынған қолданбалар"</li></string>
+    <string name="master_clear_desc" product="tablet" msgid="3432373610755760899">"Планшетіңіздің "<b>"ішкі жадынан"</b>" барлық дерек өшеді, оның ішінде:\n\n"<li>"Google аккаунтыңыз"</li>\n<li>"Жүйе мен қолданба деректері және параметрлері"</li>\n<li>"Жүктеп алынған қолданбалар"</li></string>
+    <string name="master_clear_desc" product="default" msgid="8765543541962866697">"Телефонның "<b>"ішкі жадынан"</b>" барлық дерек өшеді, оның ішінде:\n\n"<li>"Google аккаунтыңыз"</li>\n<li>"Жүйе мен қолданба деректері және параметрлері"</li>\n<li>"Жүктеп алынған қолданбалар"</li></string>
     <string name="master_clear_accounts" product="default" msgid="3432884235445405376">\n\n"Сіз келесі аккаунттарға кірдіңіз:\n"</string>
     <string name="master_clear_other_users_present" product="default" msgid="5993259656117566767">\n\n"Осы құрылғыда басқа пайдаланушылар бар.\n"</string>
     <string name="master_clear_desc_also_erases_external" msgid="3947303501615091903"><li>"Mузыка"</li>\n<li>"Фотосуреттер"</li>\n<li>"Басқа пайдаланушы деректері"</li></string>
@@ -2866,7 +2866,7 @@
     <string name="user_add_user_type_title" msgid="8672326434351387845">"Қосу"</string>
     <string name="user_add_max_count" msgid="4524573950126500416">"<xliff:g id="USER_COUNT">%1$d</xliff:g> пайдаланушыға дейін қоса аласыз"</string>
     <string name="user_add_user_item_summary" msgid="6114355152711455716">"Пайдаланушылардың өздерінің қолданбалары мен мазмұны болады"</string>
-    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"Өз есептік жазбаңыздан қолданбалар мен мазмұнға қол жетімділікті шектеуіңізге болады"</string>
+    <string name="user_add_profile_item_summary" msgid="6386283837789573755">"Өз аккаунтыңыздан қолданбалар мен мазмұнға қол жетімділікті шектеуіңізге болады"</string>
     <string name="user_add_user_item_title" msgid="6835385073795492410">"Пайдаланушы"</string>
     <string name="user_add_profile_item_title" msgid="4932743891449790664">"Шектелген профайл"</string>
     <string name="user_add_user_title" msgid="2320897397066676472">"Жаңа пайдаланушы қосылсын ба?"</string>
@@ -2966,8 +2966,8 @@
     <string name="user_rename" msgid="5624446289379780361">"АТАУЫН ӨЗГЕРТУ"</string>
     <string name="app_restrictions_custom_label" msgid="8791627858467265176">"Қолданба шектеулерін орнату"</string>
     <string name="user_restrictions_controlled_by" msgid="3442508299902131033">"<xliff:g id="APP">%1$s</xliff:g> басқарады"</string>
-    <string name="app_sees_restricted_accounts" msgid="2210750497683265281">"Бұл қолданбаның есептік жазбаларыңызға кіру мүмкіндігі бар"</string>
-    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="5028333644657350816">"Бұл қолданба есептік жазбаларыңызға қатынаса алады. <xliff:g id="APP">%1$s</xliff:g> басқарады"</string>
+    <string name="app_sees_restricted_accounts" msgid="2210750497683265281">"Бұл қолданбаның аккаунттарыңызға кіру мүмкіндігі бар"</string>
+    <string name="app_sees_restricted_accounts_and_controlled_by" msgid="5028333644657350816">"Бұл қолданба аккаунттарыңызға қатынаса алады. <xliff:g id="APP">%1$s</xliff:g> басқарады"</string>
     <string name="restriction_wifi_config_title" msgid="1689176998451296068">"Wi‑Fi және ұялы"</string>
     <string name="restriction_wifi_config_summary" msgid="2450206736438594690">"Wi‑Fi және ұялы желілерді өзгертуге рұқсат беру"</string>
     <string name="restriction_bluetooth_config_title" msgid="34551118506640221">"Bluetooth"</string>

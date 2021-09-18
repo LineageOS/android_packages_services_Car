@@ -4180,7 +4180,7 @@
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"हाल ही का सुरक्षा लॉग"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"कोई नहीं"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"इंस्टॉल किए गए ऐप्लिकेशन"</string>
-    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ऐप्लिकेशन की संख्या अनुमानित है. हो सकता है इसमें Play स्टोर के बाहर से इंस्टॉल किए गए ऐप्लिकेशन शामिल ना हों."</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ऐप्लिकेशन की संख्या अनुमानित है. हो सकता है इसमें Play Store के बाहर से इंस्टॉल किए गए ऐप्लिकेशन शामिल ना हों."</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
       <item quantity="one">कम से कम <xliff:g id="COUNT_1">%d</xliff:g> ऐप्लिकेशन</item>
       <item quantity="other">कम से कम <xliff:g id="COUNT_1">%d</xliff:g> ऐप्लिकेशन</item>

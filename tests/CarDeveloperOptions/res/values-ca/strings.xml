@@ -1166,7 +1166,7 @@
     <string name="account_settings" msgid="1937600532993930396">"Comptes"</string>
     <string name="accessibility_category_work" msgid="2808942060489460727">"Comptes del perfil de treball: <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_category_personal" msgid="1423427301759058762">"Comptes del perfil personal"</string>
-    <string name="accessibility_work_account_title" msgid="3195468574776888011">"Compte de la feina: <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
+    <string name="accessibility_work_account_title" msgid="3195468574776888011">"Compte de treball: <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="accessibility_personal_account_title" msgid="7251761883688839354">"Compte personal: <xliff:g id="MANAGED_BY">%s</xliff:g>"</string>
     <string name="search_settings" msgid="5809250790214921377">"Cerca"</string>
     <string name="display_settings" msgid="1045535829232307190">"Pantalla"</string>
@@ -4172,7 +4172,7 @@
     <string name="enterprise_privacy_exposure_category" msgid="4474576266043636753">"Tipus d\'informació que la teva organització pot veure"</string>
     <string name="enterprise_privacy_exposure_changes_category" msgid="1877045221796512001">"Canvis fets per l\'administrador de la teva organització"</string>
     <string name="enterprise_privacy_device_access_category" msgid="2967602674816237833">"El teu accés a aquest dispositiu"</string>
-    <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Dades associades al teu compte de la feina, com ara el correu electrònic i el calendari"</string>
+    <string name="enterprise_privacy_enterprise_data" msgid="6551504749971424942">"Dades associades al teu compte de treball, com ara el correu electrònic i el calendari"</string>
     <string name="enterprise_privacy_installed_packages" msgid="4376014821459811800">"Llista de les aplicacions que hi ha al dispositiu"</string>
     <string name="enterprise_privacy_usage_stats" msgid="445762931318731975">"Temps dedicat i dades utilitzades en cada aplicació"</string>
     <string name="enterprise_privacy_network_logs" msgid="5427398751599441159">"Registre del trànsit de xarxa més recent"</string>

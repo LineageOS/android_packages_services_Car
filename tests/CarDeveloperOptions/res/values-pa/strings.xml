@@ -4180,7 +4180,7 @@
     <string name="enterprise_privacy_security_logs" msgid="8936969480449604726">"ਸਭ ਤੋਂ ਹਾਲੀਆ ਸੁਰੱਖਿਆ ਲੌਗ"</string>
     <string name="enterprise_privacy_none" msgid="5990646476868794882">"ਕੋਈ ਨਹੀਂ"</string>
     <string name="enterprise_privacy_enterprise_installed_packages" msgid="6575025134782391212">"ਐਪਾਂ ਸਥਾਪਤ ਕੀਤੀਆਂ ਗਈਆਂ"</string>
-    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ਐਪਾਂ ਦੀ ਗਿਣਤੀ ਅਨੁਮਾਨਿਤ ਹੈ। ਹੋ ਸਕਦਾ ਹੈ ਇਸ ਵਿੱਚ Play ਸਟੋਰ ਤੋਂ ਬਾਹਰੋਂ ਸਥਾਪਤ ਕੀਤੀਆਂ ਐਪਾਂ ਸ਼ਾਮਲ ਨਾ ਹੋਣ।"</string>
+    <string name="enterprise_privacy_apps_count_estimation_info" msgid="5020730108878608500">"ਐਪਾਂ ਦੀ ਗਿਣਤੀ ਅਨੁਮਾਨਿਤ ਹੈ। ਹੋ ਸਕਦਾ ਹੈ ਇਸ ਵਿੱਚ Play Store ਤੋਂ ਬਾਹਰੋਂ ਸਥਾਪਤ ਕੀਤੀਆਂ ਐਪਾਂ ਸ਼ਾਮਲ ਨਾ ਹੋਣ।"</string>
     <plurals name="enterprise_privacy_number_packages_lower_bound" formatted="false" msgid="5161417161943060602">
       <item quantity="one">ਨਿਊਨਤਮ <xliff:g id="COUNT_1">%d</xliff:g> ਐਪ</item>
       <item quantity="other">ਨਿਊਨਤਮ <xliff:g id="COUNT_1">%d</xliff:g> ਐਪਾਂ</item>
