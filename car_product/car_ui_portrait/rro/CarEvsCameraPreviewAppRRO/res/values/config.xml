@@ -17,4 +17,7 @@
     <!-- Shade of the background behind the camera window. 1.0 for fully opaque, 0.0 for fully
          transparent. -->
     <item name="config_cameraBackgroundScrim" format="float" type="dimen">0.7</item>
+
+    <!-- In-plane rotation angle of the rearview camera device in degree -->
+    <integer name="config_evsRearviewCameraInPlaneRotationAngle">180</integer>
 </resources>
