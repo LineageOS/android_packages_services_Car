@@ -93,6 +93,7 @@
                 app:layout_constraintBottom_toBottomOf="parent"
                 app:layout_constraintTop_toTopOf="parent"
                 app:layout_constraintStart_toStartOf="parent"
+                app:layout_constraintEnd_toStartOf="@id/car_ui_toolbar_title_container"
                 app:layout_constraintHorizontal_chainStyle="packed">
 
                 <ImageView
