@@ -425,12 +425,20 @@ public final class FixedActivityService implements CarServiceBase {
                 return false;
             }
             for (int i = mRunningActivities.size() - 1; i >= 0; i--) {
+                int displayIdForActivity = mRunningActivities.keyAt(i);
+                Display display = mDm.getDisplay(displayIdForActivity);
+                if (display == null) {
+                    Slog.e(TAG_AM, "Stop fixed activity for non-available display"
+                            + displayIdForActivity);
+                    mRunningActivities.removeAt(i);
+                    continue;
+                }
+
                 RunningActivityInfo activityInfo = mRunningActivities.valueAt(i);
                 activityInfo.isVisible = false;
                 if (isUserAllowedToLaunchActivity(activityInfo.userId)) {
                     continue;
                 }
-                final int displayIdForActivity = mRunningActivities.keyAt(i);
                 if (activityInfo.taskId != INVALID_TASK_ID) {
                     Slog.i(TAG_AM, "Finishing fixed activity on user switching:"
                             + activityInfo);
@@ -442,12 +450,6 @@ public final class FixedActivityService implements CarServiceBase {
                     CarServiceUtils.runOnMain(() -> {
                         // This code cannot be off-loaded to the common thread as it creates
                         // the presentation (which is a dialog) and sets its content view.
-                        Display display = mDm.getDisplay(displayIdForActivity);
-                        if (display == null) {
-                            Slog.e(TAG_AM, "Display not available, cannot launnch window:"
-                                    + displayIdForActivity);
-                            return;
-                        }
                         // TODO(b/195836034) Change to launch blank activity instead.
                         /*Presentation p = new Presentation(mContext, display,
                                 android.R.style.Theme_Black_NoTitleBar_Fullscreen,
@@ -557,7 +559,8 @@ public final class FixedActivityService implements CarServiceBase {
         }
     }
 
-    private void launchIfNecessary() {
+    @VisibleForTesting
+    void launchIfNecessary() {
         launchIfNecessary(Display.INVALID_DISPLAY);
     }
 
