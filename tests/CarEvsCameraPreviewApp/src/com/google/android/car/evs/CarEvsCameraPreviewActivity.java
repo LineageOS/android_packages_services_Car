@@ -166,7 +166,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
         filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
         // Need to register the receiver for all users, because we want to receive the Intent after
         // the user is changed.
-        registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
+        registerReceiverForAllUsers(mBroadcastReceiver, filter, /* broadcastPermission= */ null,
+                /* scheduler= */ null, Context.RECEIVER_NOT_EXPORTED);
     }
 
     @Override
