@@ -28,7 +28,6 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.ArgumentMatchers.eq;
-import static org.mockito.ArgumentMatchers.isNull;
 import static org.mockito.ArgumentMatchers.same;
 import static org.mockito.Mockito.atLeast;
 import static org.mockito.Mockito.clearInvocations;
@@ -46,23 +45,21 @@ import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
+import android.car.builtin.util.AssistUtilsHelper;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInputCallback;
 import android.car.input.RotaryEvent;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.pm.PackageManager;
 import android.net.Uri;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.provider.Settings;
-import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
 import android.view.KeyEvent;
 
@@ -70,7 +67,6 @@ import androidx.test.core.app.ApplicationProvider;
 
 import com.android.car.hal.InputHalService;
 import com.android.car.user.CarUserService;
-import com.android.internal.app.AssistUtils;
 
 import com.google.common.collect.Range;
 
@@ -94,7 +90,7 @@ public class CarInputServiceTest {
 
     @Mock InputHalService mInputHalService;
     @Mock TelecomManager mTelecomManager;
-    @Mock AssistUtils mAssistUtils;
+    @Mock AssistUtilsHelper mAssistUtilsHelper;
     @Mock CarInputService.KeyEventListener mDefaultMainListener;
     @Mock CarInputService.KeyEventListener mInstrumentClusterKeyListener;
     @Mock Supplier<String> mLastCallSupplier;
@@ -113,7 +109,7 @@ public class CarInputServiceTest {
     @Before
     public void setUp() {
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
-                mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
+                mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtilsHelper,
                 mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
                 mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mBluetoothAdapter);
         mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
@@ -355,41 +351,25 @@ public class CarInputServiceTest {
 
     @Test
     public void voiceKey_shortPress_withoutRegisteredEventHandler_triggersAssistUtils() {
-        when(mAssistUtils.getAssistComponentForUser(anyInt()))
-                .thenReturn(new ComponentName("pkg", "cls"));
+        when(mAssistUtilsHelper.hasAssistantComponentForUser(any())).thenReturn(true);
 
         send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
         send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
 
-        ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
-        verify(mAssistUtils).showSessionForActiveService(
-                bundleCaptor.capture(),
-                eq(VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK),
-                any(),
-                isNull());
-        assertThat(bundleCaptor.getValue().getBoolean(CarInputService.EXTRA_CAR_PUSH_TO_TALK))
-                .isTrue();
+        verify(mAssistUtilsHelper).showPushToTalkSessionForActiveService(any());
     }
 
     @Test
     public void voiceKey_longPress_withoutRegisteredEventHandler_triggersAssistUtils() {
-        when(mAssistUtils.getAssistComponentForUser(anyInt()))
-                .thenReturn(new ComponentName("pkg", "cls"));
+        when(mAssistUtilsHelper.hasAssistantComponentForUser(any())).thenReturn(true);
 
         send(Key.DOWN, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
         flushHandler();
 
-        ArgumentCaptor<Bundle> bundleCaptor = ArgumentCaptor.forClass(Bundle.class);
-        verify(mAssistUtils).showSessionForActiveService(
-                bundleCaptor.capture(),
-                eq(VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK),
-                any(),
-                isNull());
-        assertThat(bundleCaptor.getValue().getBoolean(CarInputService.EXTRA_CAR_PUSH_TO_TALK))
-                .isTrue();
+        verify(mAssistUtilsHelper).showPushToTalkSessionForActiveService(any());
 
         send(Key.UP, KeyEvent.KEYCODE_VOICE_ASSIST, Display.MAIN);
-        verifyNoMoreInteractions(ignoreStubs(mAssistUtils));
+        verifyNoMoreInteractions(ignoreStubs(mAssistUtilsHelper));
     }
 
     @Test

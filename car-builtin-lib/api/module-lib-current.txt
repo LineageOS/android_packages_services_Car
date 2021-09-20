@@ -147,6 +147,17 @@ package android.car.builtin.os {
 
 package android.car.builtin.util {
 
+  public final class AssistUtilsHelper {
+    ctor public AssistUtilsHelper(android.content.Context);
+    method public boolean hasAssistantComponentForUser(android.os.UserHandle);
+    method public void showPushToTalkSessionForActiveService(android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper);
+  }
+
+  public static interface AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper {
+    method public void onFailed();
+    method public void onShown();
+  }
+
   public final class AtomicFileHelper {
     method public static boolean exists(android.util.AtomicFile);
   }
