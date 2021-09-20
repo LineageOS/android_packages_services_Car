@@ -34,6 +34,7 @@
     <item target="id/optional_timer_separator" value="@id/optional_timer_separator"/>
     <item target="id/primary_text" value="@id/primary_text" />
     <item target="id/secondary_text" value="@id/secondary_text"/>
+    <item target="id/title" value="@id/title"/>
 
     <item target="id/button_trio" value="@id/button_trio"/>
     <item target="id/button_center" value="@id/button_center"/>
@@ -44,6 +45,7 @@
     <item target="layout/card_fragment" value="@layout/card_fragment" />
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
     <item target="layout/descriptive_text" value="@layout/descriptive_text" />
+    <item target="layout/title_bar_display_area_view" value="@layout/title_bar_display_area_view" />
 
     <item target="dimen/card_background_image_blur_radius" value="@dimen/card_background_image_blur_radius" />
     <item target="dimen/control_bar_height" value="@dimen/control_bar_height"/>
