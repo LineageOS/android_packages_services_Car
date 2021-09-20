@@ -24,7 +24,10 @@ import android.car.Car.CarServiceLifecycleListener;
 import android.car.CarNotConnectedException;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
+import android.content.BroadcastReceiver;
+import android.content.Context;
 import android.content.Intent;
+import android.content.IntentFilter;
 import android.graphics.PixelFormat;
 import android.hardware.display.DisplayManager;
 import android.os.Bundle;
@@ -146,11 +149,32 @@ public class CarEvsCameraPreviewActivity extends Activity {
         }
     };
 
+    private final BroadcastReceiver mBroadcastReceiver = new BroadcastReceiver() {
+        @Override
+        public void onReceive(Context context, Intent intent) {
+            if (Intent.ACTION_CLOSE_SYSTEM_DIALOGS.equals(intent.getAction())) {
+                finish();
+            } else {
+                Log.e(TAG, "Unexpected intent " + intent);
+            }
+        }
+    };
+
+    // To close the PreviewActiivty when Home button is clicked.
+    private void registerBroadcastReceiver() {
+        IntentFilter filter = new IntentFilter();
+        filter.addAction(Intent.ACTION_CLOSE_SYSTEM_DIALOGS);
+        // Need to register the receiver for all users, because we want to receive the Intent after
+        // the user is changed.
+        registerReceiverForAllUsers(mBroadcastReceiver, filter, null, null);
+    }
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d(TAG, "onCreate");
         super.onCreate(savedInstanceState);
 
+        registerBroadcastReceiver();
         parseExtra(getIntent());
 
         setShowWhenLocked(true);
@@ -256,6 +280,8 @@ public class CarEvsCameraPreviewActivity extends Activity {
             WindowManager wm = getSystemService(WindowManager.class);
             wm.removeView(mRootView);
         }
+
+        unregisterReceiver(mBroadcastReceiver);
     }
 
     private void handleVideoStreamLocked() {
