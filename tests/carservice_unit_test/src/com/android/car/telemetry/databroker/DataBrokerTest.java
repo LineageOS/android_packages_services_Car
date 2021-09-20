@@ -32,6 +32,7 @@ import android.content.Context;
 import android.content.ServiceConnection;
 import android.os.Handler;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -400,6 +401,20 @@ public class DataBrokerTest {
                 PersistableBundle publishedData, @Nullable PersistableBundle savedState,
                 IScriptExecutorListener listener)
                 throws RemoteException {
+            mApiInvocationCount++;
+            mSavedState = savedState;
+            mListener = listener;
+            if (mFailApi > 0) {
+                mFailApi--;
+                throw new RemoteException("Simulated failure");
+            }
+        }
+
+        @Override
+        public void invokeScriptForLargeInput(String scriptBody, String functionName,
+                ParcelFileDescriptor publishedDataFileDescriptor,
+                @Nullable PersistableBundle savedState,
+                IScriptExecutorListener listener) throws RemoteException {
             mApiInvocationCount++;
             mSavedState = savedState;
             mListener = listener;
