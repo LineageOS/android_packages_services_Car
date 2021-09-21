@@ -160,7 +160,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private final IntentFilter mPackageUpdateFilter;
     @GuardedBy("mLock")
-    private boolean mIsPackageUpdateReceiverRegistered;
+    @Nullable
+    private Context mUserContext;
 
     /**
      * Listens to {@link Intent#ACTION_PACKAGE_REMOVED}, so we can fall back to a previously used
@@ -352,14 +353,12 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         maybeInitSharedPrefs(userId);
 
         synchronized (mLock) {
-            if (mIsPackageUpdateReceiverRegistered) {
-                mContext.unregisterReceiver(mPackageUpdateReceiver);
+            if (mUserContext != null) {
+                mUserContext.unregisterReceiver(mPackageUpdateReceiver);
             }
-            // TODO(b/195996539): Replace with createContestAsUser().registerReceiver()
-            mContext.registerReceiverAsUser(mPackageUpdateReceiver, currentUser,
-                    mPackageUpdateFilter, /* broadcastPermission= */ null, /* scheduler= */ null,
+            mUserContext = mContext.createContextAsUser(currentUser, /* flags= */ 0);
+            mUserContext.registerReceiver(mPackageUpdateReceiver, mPackageUpdateFilter,
                     Context.RECEIVER_NOT_EXPORTED);
-            mIsPackageUpdateReceiverRegistered = true;
 
             mPrimaryMediaComponents[MEDIA_SOURCE_MODE_PLAYBACK] = isCurrentUserEphemeral()
                     ? getDefaultMediaSource() : getLastMediaSource(MEDIA_SOURCE_MODE_PLAYBACK);

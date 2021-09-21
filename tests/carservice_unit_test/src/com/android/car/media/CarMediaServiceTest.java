@@ -107,6 +107,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
         when(mContext.checkCallingOrSelfPermission(anyString()))
                 .thenReturn(PackageManager.PERMISSION_GRANTED);
         when(mContext.getPackageManager()).thenReturn(mPackageManager);
+        when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
 
         doReturn(mResources).when(mContext).getResources();
         doReturn(mUserManager).when(mContext).getSystemService(UserManager.class);
