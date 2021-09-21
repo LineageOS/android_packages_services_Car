@@ -16,6 +16,7 @@
 
 #include "MockCarWatchdogServiceForSystem.h"
 #include "MockWatchdogProcessService.h"
+#include "PackageInfoTestUtils.h"
 #include "WatchdogServiceHelper.h"
 
 #include <binder/IBinder.h>
@@ -68,22 +69,6 @@ private:
 };
 
 }  // namespace internal
-
-namespace {
-
-PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType uidType,
-                                 ComponentType componentType,
-                                 ApplicationCategoryType appCategoryType) {
-    PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = packageName;
-    packageInfo.packageIdentifier.uid = uid;
-    packageInfo.uidType = uidType;
-    packageInfo.componentType = componentType;
-    packageInfo.appCategoryType = appCategoryType;
-    return packageInfo;
-}
-
-}  // namespace
 
 class WatchdogServiceHelperTest : public ::testing::Test {
 protected:

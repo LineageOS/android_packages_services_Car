@@ -16,6 +16,7 @@
 
 #include "MockWatchdogServiceHelper.h"
 #include "PackageInfoResolver.h"
+#include "PackageInfoTestUtils.h"
 
 #include <android-base/stringprintf.h>
 #include <android/automotive/watchdog/internal/ApplicationCategoryType.h>
@@ -47,20 +48,6 @@ namespace {
 using PackageToAppCategoryMap =
         std::unordered_map<std::string,
                            android::automotive::watchdog::internal::ApplicationCategoryType>;
-
-PackageInfo constructPackageInfo(const char* packageName, int32_t uid, UidType uidType,
-                                 ComponentType componentType,
-                                 ApplicationCategoryType appCategoryType,
-                                 std::vector<std::string> sharedUidPackages = {}) {
-    PackageInfo packageInfo;
-    packageInfo.packageIdentifier.name = packageName;
-    packageInfo.packageIdentifier.uid = uid;
-    packageInfo.uidType = uidType;
-    packageInfo.componentType = componentType;
-    packageInfo.appCategoryType = appCategoryType;
-    packageInfo.sharedUidPackages = sharedUidPackages;
-    return packageInfo;
-}
 
 std::string toString(const std::unordered_map<uid_t, PackageInfo>& mappings) {
     std::string buffer = "{";

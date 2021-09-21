@@ -1,4 +1,4 @@
-/**
+/*
  * Copyright (c) 2020, The Android Open Source Project
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
@@ -14,8 +14,8 @@
  * limitations under the License.
  */
 
-#ifndef CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
-#define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#ifndef CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
+#define CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
 
 #include <android-base/result.h>
 #include <android-base/stringprintf.h>
@@ -46,11 +46,12 @@ enum MetricType {
     METRIC_TYPES,
 };
 
-class IoUsage {
+// Defines the per-UID I/O stats.
+class UidIoStats {
 public:
-    IoUsage() : metrics{{0}} {};
-    IoUsage(int64_t fgRdBytes, int64_t bgRdBytes, int64_t fgWrBytes, int64_t bgWrBytes,
-            int64_t fgFsync, int64_t bgFsync) {
+    UidIoStats() : metrics{{0}} {};
+    UidIoStats(int64_t fgRdBytes, int64_t bgRdBytes, int64_t fgWrBytes, int64_t bgWrBytes,
+               int64_t fgFsync, int64_t bgFsync) {
         metrics[READ_BYTES][FOREGROUND] = fgRdBytes;
         metrics[READ_BYTES][BACKGROUND] = bgRdBytes;
         metrics[WRITE_BYTES][FOREGROUND] = fgWrBytes;
@@ -58,9 +59,9 @@ public:
         metrics[FSYNC_COUNT][FOREGROUND] = fgFsync;
         metrics[FSYNC_COUNT][BACKGROUND] = bgFsync;
     }
-    IoUsage& operator-=(const IoUsage& rhs);
-    bool operator==(const IoUsage& usage) const {
-        return memcmp(&metrics, &usage.metrics, sizeof(metrics)) == 0;
+    UidIoStats& operator-=(const UidIoStats& rhs);
+    bool operator==(const UidIoStats& stats) const {
+        return memcmp(&metrics, &stats.metrics, sizeof(metrics)) == 0;
     }
     int64_t sumReadBytes() const {
         const auto& [fgBytes, bgBytes] =
@@ -81,57 +82,56 @@ public:
     int64_t metrics[METRIC_TYPES][UID_STATES];
 };
 
-struct UidIoUsage {
-    uid_t uid = 0;  // Linux user id.
-    IoUsage ios = {};
-    UidIoUsage& operator-=(const UidIoUsage& rhs) {
-        ios -= rhs.ios;
-        return *this;
-    }
-    bool operator==(const UidIoUsage& rhs) const { return uid == rhs.uid && ios == rhs.ios; }
-    std::string toString() const {
-        return android::base::StringPrintf("Uid: %d, Usage: {%s}", uid, ios.toString().c_str());
-    }
+// Collector/Parser for `/proc/uid_io/stats`.
+class UidIoStatsCollectorInterface : public RefBase {
+public:
+    // Collects the per-UID I/O stats.
+    virtual android::base::Result<void> collect() = 0;
+    // Returns the latest per-uid I/O stats.
+    virtual const std::unordered_map<uid_t, UidIoStats> latestStats() const = 0;
+    // Returns the delta of per-uid I/O stats since the last before collection.
+    virtual const std::unordered_map<uid_t, UidIoStats> deltaStats() const = 0;
+    // Returns true only when the per-UID I/O stats file is accessible.
+    virtual bool enabled() const = 0;
+    // Returns the path for the per-UID I/O stats file.
+    virtual const std::string filePath() const = 0;
 };
 
-class UidIoStats : public RefBase {
+class UidIoStatsCollector final : public UidIoStatsCollectorInterface {
 public:
-    explicit UidIoStats(const std::string& path = kUidIoStatsPath) :
+    explicit UidIoStatsCollector(const std::string& path = kUidIoStatsPath) :
           kEnabled(!access(path.c_str(), R_OK)), kPath(path) {}
 
-    virtual ~UidIoStats() {}
+    ~UidIoStatsCollector() {}
 
-    // Collects the per-UID I/O usage.
-    virtual android::base::Result<void> collect();
+    android::base::Result<void> collect() override;
 
-    virtual const std::unordered_map<uid_t, UidIoUsage> latestStats() const {
+    const std::unordered_map<uid_t, UidIoStats> latestStats() const override {
         Mutex::Autolock lock(mMutex);
-        return mLatestUidIoUsages;
+        return mLatestStats;
     }
 
-    virtual const std::unordered_map<uid_t, UidIoUsage> deltaStats() const {
+    const std::unordered_map<uid_t, UidIoStats> deltaStats() const override {
         Mutex::Autolock lock(mMutex);
-        return mDeltaUidIoUsages;
+        return mDeltaStats;
     }
 
-    // Returns true when the uid_io stats file is accessible. Otherwise, returns false.
-    // Called by IoPerfCollection and tests.
-    virtual bool enabled() { return kEnabled; }
+    bool enabled() const override { return kEnabled; }
 
-    virtual std::string filePath() { return kPath; }
+    const std::string filePath() const override { return kPath; }
 
 private:
     // Reads the contents of |kPath|.
-    android::base::Result<std::unordered_map<uid_t, UidIoUsage>> getUidIoUsagesLocked() const;
+    android::base::Result<std::unordered_map<uid_t, UidIoStats>> readUidIoStatsLocked() const;
 
     // Makes sure only one collection is running at any given time.
     mutable Mutex mMutex;
 
     // Latest dump from the file at |kPath|.
-    std::unordered_map<uid_t, UidIoUsage> mLatestUidIoUsages GUARDED_BY(mMutex);
+    std::unordered_map<uid_t, UidIoStats> mLatestStats GUARDED_BY(mMutex);
 
-    // Delta of per-UID I/O usage since last before collection.
-    std::unordered_map<uid_t, UidIoUsage> mDeltaUidIoUsages GUARDED_BY(mMutex);
+    // Delta of per-UID I/O stats since last before collection.
+    std::unordered_map<uid_t, UidIoStats> mDeltaStats GUARDED_BY(mMutex);
 
     // True if kPath is accessible.
     const bool kEnabled;
@@ -144,4 +144,4 @@ private:
 }  // namespace automotive
 }  // namespace android
 
-#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDIOSTATS_H_
+#endif  //  CPP_WATCHDOG_SERVER_SRC_UIDIOSTATSCOLLECTOR_H_
