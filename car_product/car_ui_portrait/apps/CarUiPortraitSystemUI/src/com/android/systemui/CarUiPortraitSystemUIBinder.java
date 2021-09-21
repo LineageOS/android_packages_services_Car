@@ -16,9 +16,11 @@
 
 package com.android.systemui;
 
+import com.android.systemui.car.window.ExtendedOverlayWindowModule;
+
 import dagger.Module;
 
 /** Binder for AAECarSystemUI specific {@link SystemUI} modules and components. */
-@Module
+@Module(includes = {ExtendedOverlayWindowModule.class})
 abstract class CarUiPortraitSystemUIBinder extends CarSystemUIBinder {
 }
