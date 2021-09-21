@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.scriptexecutorinterface;
 
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
@@ -23,19 +24,39 @@ import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener
  * An internal API provided by isolated Script Executor process
  * for executing Lua scripts in a sandboxed environment
  */
-interface IScriptExecutor {
+oneway interface IScriptExecutor {
   /**
-   * Executes a specified function in provided Lua script with given input arguments.
+   * Executes a specified function in a provided Lua script with given input arguments.
    *
    * @param scriptBody complete body of Lua script that also contains the function to be invoked
    * @param functionName the name of the function to execute
    * @param publishedData input data provided by the source which the function handles
    * @param savedState key-value pairs preserved from the previous invocation of the function
-   * @param listener callback for the sandboxed environent to report back script execution results, errors, and logs
+   * @param listener callback for the sandboxed environment to report back script execution results,
+   * errors, and logs
    */
   void invokeScript(String scriptBody,
                     String functionName,
                     in PersistableBundle publishedData,
+                    in @nullable PersistableBundle savedState,
+                    in IScriptExecutorListener listener);
+
+  /**
+   * Executes a specified function in a provided Lua script with given input arguments.
+   * This is a specialized version of invokeScript API above for a case when publishedData input
+   * could be potentially large and overflow Binder's buffer.
+   *
+   * @param scriptBody complete body of Lua script that also contains the function to be invoked
+   * @param functionName the name of the function to execute
+   * @param publishedDataFileDescriptor file descriptor which is be used to open a pipe to read
+   * large amount of input data. The input data is then handled by the provided Lua function.
+   * @param savedState key-value pairs preserved from the previous invocation of the function
+   * @param listener callback for the sandboxed environment to report back script execution results,
+   * errors, and logs
+   */
+  void invokeScriptForLargeInput(String scriptBody,
+                    String functionName,
+                    in ParcelFileDescriptor publishedDataFileDescriptor,
                     in @nullable PersistableBundle savedState,
                     in IScriptExecutorListener listener);
 }

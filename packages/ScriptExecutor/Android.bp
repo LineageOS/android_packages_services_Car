@@ -80,6 +80,7 @@ android_app {
 
     srcs: [
         ":iscriptexecutor_aidl",
+        ":iscriptexecutorconstants_aidl",
         "src/**/*.java"
     ],
 
@@ -98,8 +99,8 @@ android_app {
     aidl: {
         include_dirs: [
             // TODO(b/198195711): Remove once we compile against SDK.
-	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-	],
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
     },
 
     jni_libs: [
@@ -119,8 +120,8 @@ java_test_helper_library {
     aidl: {
         include_dirs: [
             // TODO(b/198195711): Remove once we compile against SDK.
-	    "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-	],
+            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
+        ],
     },
 }
 
