@@ -27,7 +27,6 @@ import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
@@ -44,9 +43,8 @@ import java.util.List;
  * CarBluetoothService - Maintains the current user's Bluetooth devices and profile connections.
  *
  * For each user, creates:
- *   1) Set of {@link BluetoothProfileDeviceManager} objects, responsible for maintaining a list of
- *      the user's known devices. These provide an interface to auto-connect devices for the given
- *      profile.
+ *   1) A {@link BluetoothDeviceManager} object, responsible for maintaining a list of
+ *      the user's known devices.
  *   2) A {@link BluetoothProfileInhibitManager} object that will maintain a set of inhibited
  *      profiles for each device, keeping a device from connecting on those profiles. This provides
  *      an interface to request and release inhibits.
@@ -77,21 +75,20 @@ public class CarBluetoothService implements CarServiceBase {
     private final Object mPerUserLock = new Object();
 
     @GuardedBy("mPerUserLock")
-    private BluetoothPowerPolicy mBluetoothPowerPolicy = null;
+    private BluetoothPowerPolicy mBluetoothPowerPolicy;
 
-    // Set of Bluetooth Profile Device Managers, own the priority connection lists, updated on user
+    // The Bluetooth Device Manager, owns the priority connection list, updated on user
     // switch
-    private final SparseArray<BluetoothProfileDeviceManager> mProfileDeviceManagers =
-            new SparseArray<>();
+    private BluetoothDeviceManager mDeviceManager;
 
     // Profile-Inhibit Manager that will temporarily inhibit connections on profiles, per user
     @GuardedBy("mPerUserLock")
-    private BluetoothProfileInhibitManager mInhibitManager = null;
+    private BluetoothProfileInhibitManager mInhibitManager;
 
     // Default Bluetooth device connection policy, per user, enabled with an overlay
     private final boolean mUseDefaultPolicy;
     @GuardedBy("mPerUserLock")
-    private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy = null;
+    private BluetoothDeviceConnectionPolicy mBluetoothDeviceConnectionPolicy;
 
     // Listen for user switch events from the PerUserCarService
     @GuardedBy("mPerUserLock")
@@ -186,15 +183,6 @@ public class CarBluetoothService implements CarServiceBase {
     }
 
     /**
-     * Returns the list of profiles that the Autoconnection policy attempts to connect on
-     *
-     * @return The list of managed Bluetooth profiles
-     */
-    public static List<Integer> getManagedProfiles() {
-        return sManagedProfiles;
-    }
-
-    /**
      * Initialize the user context using the current active user.
      *
      * Only call this following a known user switch once we've connected to the user service helper.
@@ -206,7 +194,7 @@ public class CarBluetoothService implements CarServiceBase {
         }
         mUserId = ActivityManager.getCurrentUser();
         createBluetoothUserServiceLocked();
-        createBluetoothProfileDeviceManagersLocked();
+        createBluetoothDeviceManagerLocked();
         createBluetoothProfileInhibitManagerLocked();
         createBluetoothPowerPolicyLocked();
 
@@ -232,7 +220,7 @@ public class CarBluetoothService implements CarServiceBase {
         destroyBluetoothDeviceConnectionPolicyLocked();
         destroyBluetoothPowerPolicyLocked();
         destroyBluetoothProfileInhibitManagerLocked();
-        destroyBluetoothProfileDeviceManagersLocked();
+        destroyBluetoothDeviceManagerLocked();
         destroyBluetoothUserServiceLocked();
         mPerUserCarService = null;
         mUserId = UserManagerHelper.USER_NULL;
@@ -269,7 +257,9 @@ public class CarBluetoothService implements CarServiceBase {
      */
     @GuardedBy("mPerUserLock")
     private void destroyBluetoothUserServiceLocked() {
-        if (mCarBluetoothUserService == null) return;
+        if (mCarBluetoothUserService == null) {
+            return;
+        }
         try {
             mCarBluetoothUserService.closeBluetoothConnectionProxies();
         } catch (RemoteException e) {
@@ -282,60 +272,31 @@ public class CarBluetoothService implements CarServiceBase {
      * Clears out Profile Device Managers and re-creates them for the current user.
      */
     @GuardedBy("mPerUserLock")
-    private void createBluetoothProfileDeviceManagersLocked() {
+    private void createBluetoothDeviceManagerLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Creating device manager");
+        }
         if (mUserId == UserManagerHelper.USER_NULL) {
             if (DBG) {
                 Slogf.d(TAG, "No foreground user, cannot create profile device managers");
             }
             return;
         }
-        for (int profileId : sManagedProfiles) {
-            BluetoothProfileDeviceManager deviceManager = mProfileDeviceManagers.get(profileId);
-            if (deviceManager != null) {
-                deviceManager.stop();
-                mProfileDeviceManagers.remove(profileId);
-                if (DBG) {
-                    Slogf.d(TAG, "Existing device manager removed for profile %s",
-                            BluetoothUtils.getProfileName(profileId));
-                }
-            }
-
-            deviceManager = BluetoothProfileDeviceManager.create(mContext, mUserId,
-                    mCarBluetoothUserService, profileId);
-            if (deviceManager == null) {
-                if (DBG) {
-                    Slogf.d(TAG, "Failed to create profile device manager for %s",
-                            BluetoothUtils.getProfileName(profileId));
-                }
-                continue;
-            }
-            mProfileDeviceManagers.put(profileId, deviceManager);
-            if (DBG) {
-                Slogf.d(TAG, "Created profile device manager for %s",
-                        BluetoothUtils.getProfileName(profileId));
-            }
-        }
-
-        for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-            int key = mProfileDeviceManagers.keyAt(i);
-            BluetoothProfileDeviceManager deviceManager =
-                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-            deviceManager.start();
-        }
+        mDeviceManager = BluetoothDeviceManager.create(mContext);
+        mDeviceManager.start();
     }
 
     /**
      * Stops and clears the entire set of Profile Device Managers.
      */
     @GuardedBy("mPerUserLock")
-    private void destroyBluetoothProfileDeviceManagersLocked() {
-        for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-            int key = mProfileDeviceManagers.keyAt(i);
-            BluetoothProfileDeviceManager deviceManager =
-                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-            deviceManager.stop();
+    private void destroyBluetoothDeviceManagerLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Destroying device manager");
         }
-        mProfileDeviceManagers.clear();
+        if (mDeviceManager == null) return;
+        mDeviceManager.stop();
+        mDeviceManager = null;
     }
 
     /**
@@ -469,28 +430,22 @@ public class CarBluetoothService implements CarServiceBase {
             Slogf.d(TAG, "Connect devices for each profile");
         }
         synchronized (mPerUserLock) {
-            for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-                int key = mProfileDeviceManagers.keyAt(i);
-                BluetoothProfileDeviceManager deviceManager =
-                        (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-                deviceManager.beginAutoConnecting();
+            if (mDeviceManager != null) {
+                mDeviceManager.beginAutoConnecting();
             }
         }
     }
 
     /**
-     * Get the Auto Connect priority for a paired Bluetooth Device.
+     * Get the Auto Connect priority list
      *
-     * @param profile  - BluetoothProfile to get priority list for
      * @return A list of BluetoothDevice objects, ordered by highest priority first
      */
-    public List<BluetoothDevice> getProfileDevicePriorityList(int profile) {
+    public List<BluetoothDevice> getProfileDevicePriorityList() {
         enforceBluetoothAdminPermission();
         synchronized (mPerUserLock) {
-            BluetoothProfileDeviceManager deviceManager =
-                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(profile);
-            if (deviceManager != null) {
-                return deviceManager.getDeviceListSnapshot();
+            if (mDeviceManager != null) {
+                return mDeviceManager.getDeviceListSnapshot();
             }
         }
         return new ArrayList<BluetoothDevice>();
@@ -499,17 +454,14 @@ public class CarBluetoothService implements CarServiceBase {
     /**
      * Get the Auto Connect priority for a paired Bluetooth Device.
      *
-     * @param profile  - BluetoothProfile to get priority for
-     * @param device   - Device to get priority for
+     * @param device BluetoothDevice to get priority for
      * @return integer priority value, or -1 if no priority available.
      */
-    public int getDeviceConnectionPriority(int profile, BluetoothDevice device) {
+    public int getDeviceConnectionPriority(BluetoothDevice device) {
         enforceBluetoothAdminPermission();
         synchronized (mPerUserLock) {
-            BluetoothProfileDeviceManager deviceManager =
-                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(profile);
-            if (deviceManager != null) {
-                return deviceManager.getDeviceConnectionPriority(device);
+            if (mDeviceManager != null) {
+                return mDeviceManager.getDeviceConnectionPriority(device);
             }
         }
         return -1;
@@ -518,17 +470,14 @@ public class CarBluetoothService implements CarServiceBase {
     /**
      * Set the Auto Connect priority for a paired Bluetooth Device.
      *
-     * @param profile  - BluetoothProfile to set priority for
-     * @param device   - Device to set priority (Tag)
-     * @param priority - What priority level to set to
+     * @param device   Device to set priority (Tag)
+     * @param priority What priority level to set to
      */
-    public void setDeviceConnectionPriority(int profile, BluetoothDevice device, int priority) {
+    public void setDeviceConnectionPriority(BluetoothDevice device, int priority) {
         enforceBluetoothAdminPermission();
         synchronized (mPerUserLock) {
-            BluetoothProfileDeviceManager deviceManager =
-                    (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(profile);
-            if (deviceManager != null) {
-                deviceManager.setDeviceConnectionPriority(device, priority);
+            if (mDeviceManager != null) {
+                mDeviceManager.setDeviceConnectionPriority(device, priority);
             }
         }
         return;
@@ -612,13 +561,8 @@ public class CarBluetoothService implements CarServiceBase {
                 writer.printf("BluetoothDeviceConnectionPolicy: null\n");
             }
 
-            // Profile Device Manager statuses
-            for (int i = 0; i < mProfileDeviceManagers.size(); i++) {
-                int key = mProfileDeviceManagers.keyAt(i);
-                BluetoothProfileDeviceManager deviceManager =
-                        (BluetoothProfileDeviceManager) mProfileDeviceManagers.get(key);
-                deviceManager.dump(writer);
-            }
+            // Device Manager status
+            mDeviceManager.dump(writer);
 
             // Profile Inhibits
             if (mInhibitManager != null) {
