@@ -58,6 +58,7 @@ java_sdk_library {
         "//packages/services/Car/tests/carservice_unit_test",
         "//packages/services/Car/cpp/watchdog/car-watchdog-lib",
         "//frameworks/opt/car/services",
+        "//cts/tests/tests/car_builtin",
     ],
 
     compile_dex: true,
