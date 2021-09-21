@@ -66,7 +66,7 @@ public class PerUserCarServiceImpl extends ProxiedService {
     @Override
     public void onCreate() {
         Context context = getApplicationContext();
-        Slogf.i(TAG, "created for user %d", context.getUserId());
+        Slogf.i(TAG, "created for user %s", context.getUser());
 
         mPerUserCarServiceBinder = new PerUserCarServiceBinder();
         mCarBluetoothUserService = new CarBluetoothUserService(this);
@@ -76,7 +76,7 @@ public class PerUserCarServiceImpl extends ProxiedService {
 
     @Override
     public void onDestroy() {
-        Slogf.i(TAG, "destroyed for user %d", getApplicationContext().getUserId());
+        Slogf.i(TAG, "destroyed for user %s", getApplicationContext().getUser());
 
         mPerUserCarServiceBinder = null;
     }
