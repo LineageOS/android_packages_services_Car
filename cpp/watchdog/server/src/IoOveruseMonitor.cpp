@@ -170,10 +170,11 @@ void IoOveruseMonitor::terminate() {
 }
 
 Result<void> IoOveruseMonitor::onPeriodicCollection(
-        time_t time, SystemState systemState, const android::wp<UidIoStats>& uidIoStats,
-        [[maybe_unused]] const android::wp<ProcStat>& procStat,
-        [[maybe_unused]] const android::wp<ProcPidStat>& procPidStat) {
-    if (uidIoStats == nullptr) {
+        time_t time, SystemState systemState,
+        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+        [[maybe_unused]] const android::wp<ProcStat>& procStat) {
+    android::sp<UidStatsCollectorInterface> uidStatsCollectorSp = uidStatsCollector.promote();
+    if (uidStatsCollectorSp == nullptr) {
         return Error() << "Per-UID I/O stats collector must not be null";
     }
 
@@ -191,36 +192,24 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     mLastUserPackageIoMonitorTime = time;
     const auto [startTime, durationInSeconds] = calculateStartAndDuration(curGmt);
 
-    auto perUidIoUsage = uidIoStats.promote()->deltaStats();
-    /*
-     * TODO(b/185849350): Maybe move the packageInfo fetching logic into UidIoStats module.
-     *  This will also help avoid fetching package names in IoPerfCollection module.
-     */
-    std::vector<uid_t> seenUids;
-    for (auto it = perUidIoUsage.begin(); it != perUidIoUsage.end();) {
-        /*
-         * UidIoStats::deltaStats returns entries with zero write bytes because other metrics
-         * in these entries are non-zero.
-         */
-        if (it->second.ios.sumWriteBytes() == 0) {
-            it = perUidIoUsage.erase(it);
-            continue;
-        }
-        seenUids.push_back(it->first);
-        ++it;
-    }
-    if (perUidIoUsage.empty()) {
+    auto uidStats = uidStatsCollectorSp->deltaStats();
+    if (uidStats.empty()) {
         return {};
     }
-    const auto packageInfosByUid = mPackageInfoResolver->getPackageInfosForUids(seenUids);
     std::unordered_map<uid_t, IoOveruseStats> overusingNativeStats;
     bool isGarageModeActive = systemState == SystemState::GARAGE_MODE;
-    for (const auto& [uid, uidIoStats] : perUidIoUsage) {
-        const auto& packageInfo = packageInfosByUid.find(uid);
-        if (packageInfo == packageInfosByUid.end()) {
+    for (const auto& curUidStats : uidStats) {
+        if (curUidStats.ioStats.sumWriteBytes() == 0 || !curUidStats.hasPackageInfo()) {
+            /* 1. Ignore UIDs with zero written bytes since the last collection because they are
+             * either already accounted for or no writes made since system start.
+             *
+             * 2. UID stats without package info is not useful because the stats isn't attributed to
+             * any package/service.
+             */
             continue;
         }
-        UserPackageIoUsage curUsage(packageInfo->second, uidIoStats.ios, isGarageModeActive);
+        UserPackageIoUsage curUsage(curUidStats.packageInfo, curUidStats.ioStats,
+                                    isGarageModeActive);
         UserPackageIoUsage* dailyIoUsage;
         if (auto cachedUsage = mUserPackageDailyIoUsageById.find(curUsage.id());
             cachedUsage != mUserPackageDailyIoUsageById.end()) {
@@ -235,7 +224,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
         const auto threshold = mIoOveruseConfigs->fetchThreshold(dailyIoUsage->packageInfo);
 
         PackageIoOveruseStats stats;
-        stats.uid = uid;
+        stats.uid = curUidStats.packageInfo.packageIdentifier.uid;
         stats.shouldNotify = false;
         stats.ioOveruseStats.startTime = startTime;
         stats.ioOveruseStats.durationInSeconds = durationInSeconds;
@@ -272,7 +261,7 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
              */
             stats.shouldNotify = true;
             if (dailyIoUsage->packageInfo.uidType == UidType::NATIVE) {
-                overusingNativeStats[uid] = stats.ioOveruseStats;
+                overusingNativeStats[stats.uid] = stats.ioOveruseStats;
             }
             shouldSyncWatchdogService = true;
         } else if (dailyIoUsage->packageInfo.uidType != UidType::NATIVE &&
@@ -320,10 +309,10 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
 Result<void> IoOveruseMonitor::onCustomCollection(
         time_t time, SystemState systemState,
         [[maybe_unused]] const std::unordered_set<std::string>& filterPackages,
-        const android::wp<UidIoStats>& uidIoStats, const android::wp<ProcStat>& procStat,
-        const android::wp<ProcPidStat>& procPidStat) {
+        const android::wp<UidStatsCollectorInterface>& uidStatsCollector,
+        const android::wp<ProcStat>& procStat) {
     // Nothing special for custom collection.
-    return onPeriodicCollection(time, systemState, uidIoStats, procStat, procPidStat);
+    return onPeriodicCollection(time, systemState, uidStatsCollector, procStat);
 }
 
 Result<void> IoOveruseMonitor::onPeriodicMonitor(
@@ -380,13 +369,13 @@ Result<void> IoOveruseMonitor::onPeriodicMonitor(
     return {};
 }
 
-Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) {
+Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) const {
     // TODO(b/183436216): Dump the list of killed/disabled packages. Dump the list of packages that
     //  exceed xx% of their threshold.
     return {};
 }
 
-bool IoOveruseMonitor::dumpHelpText(int fd) {
+bool IoOveruseMonitor::dumpHelpText(int fd) const {
     return WriteStringToFd(StringPrintf(kHelpText, name().c_str(), kResetResourceOveruseStatsFlag),
                            fd);
 }
@@ -438,7 +427,7 @@ Result<void> IoOveruseMonitor::updateResourceOveruseConfigurations(
 }
 
 Result<void> IoOveruseMonitor::getResourceOveruseConfigurations(
-        std::vector<ResourceOveruseConfiguration>* configs) {
+        std::vector<ResourceOveruseConfiguration>* configs) const {
     std::shared_lock readLock(mRwMutex);
     if (!isInitializedLocked()) {
         return Error(Status::EX_ILLEGAL_STATE) << name() << " is not initialized";
@@ -496,7 +485,7 @@ Result<void> IoOveruseMonitor::removeIoOveruseListener(
     return {};
 }
 
-Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats) {
+Result<void> IoOveruseMonitor::getIoOveruseStats(IoOveruseStats* ioOveruseStats) const {
     if (!isInitialized()) {
         return Error(Status::EX_ILLEGAL_STATE) << "I/O overuse monitor is not initialized";
     }
@@ -580,14 +569,14 @@ bool IoOveruseMonitor::findListenerAndProcessLocked(const sp<IBinder>& binder,
 }
 
 IoOveruseMonitor::UserPackageIoUsage::UserPackageIoUsage(const PackageInfo& pkgInfo,
-                                                         const IoUsage& ioUsage,
+                                                         const UidIoStats& uidIoStats,
                                                          const bool isGarageModeActive) {
     packageInfo = pkgInfo;
     if (isGarageModeActive) {
-        writtenBytes.garageModeBytes = ioUsage.sumWriteBytes();
+        writtenBytes.garageModeBytes = uidIoStats.sumWriteBytes();
     } else {
-        writtenBytes.foregroundBytes = ioUsage.metrics[WRITE_BYTES][FOREGROUND];
-        writtenBytes.backgroundBytes = ioUsage.metrics[WRITE_BYTES][BACKGROUND];
+        writtenBytes.foregroundBytes = uidIoStats.metrics[WRITE_BYTES][FOREGROUND];
+        writtenBytes.backgroundBytes = uidIoStats.metrics[WRITE_BYTES][BACKGROUND];
     }
 }
 
