@@ -241,17 +241,11 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
             return null;
         }
         // createPassenger doesn't use user HAL because user HAL doesn't support profile user yet.
-        UserHandle user;
-        try {
-            user = mUserManager.createProfileForUser(name,
-                    UserManager.USER_TYPE_PROFILE_MANAGED, /* flags */ 0, driverId).getUserHandle();
-        } catch (NullPointerException e) {
-            // TODO(b/196179969): SHIPSTOP remove this try catch block
-            // This is possible when createProfileForUser return null. As UserInfo is eliminated,
-            // createProfileForUser result can't be checked. In future CLs, createProfileForUser
-            // will be updated with the call which return user Handle.
-            user = null;
-        }
+        UserManager userManager = mContext.createContextAsUser(driver, /* flags= */ 0)
+                .getSystemService(UserManager.class);
+        UserHandle user = userManager.createProfile(name, UserManager.USER_TYPE_PROFILE_MANAGED,
+                /* disallowedPackages= */ null);
+
         if (user == null) {
             // Couldn't create user, most likely because there are too many.
             Slogf.w(TAG, "can't create a profile for user %d", driverId);

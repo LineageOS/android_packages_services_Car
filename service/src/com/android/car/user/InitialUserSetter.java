@@ -519,7 +519,7 @@ final class InitialUserSetter {
             Slog.w(TAG, "guest being replaced is not ephemeral: " + user);
         }
 
-        if (!mUm.markGuestForDeletion(user.getIdentifier())) {
+        if (!UserManagerHelper.markGuestForDeletion(mUm, user)) {
             // Don't need to recover in case of failure - most likely create new user will fail
             // because there is already a guest
             Slog.w(TAG, "failed to mark guest " + user.getIdentifier() + " for deletion");
@@ -591,7 +591,7 @@ final class InitialUserSetter {
         // sets all guests as ephemeral - should it fail or just warn?
 
         int flags = UserHalHelper.toUserInfoFlags(halFlags);
-        String type = UserHalHelper.isGuest(halFlags) ? UserManager.USER_TYPE_FULL_GUEST
+        String type = UserHalHelper.isGuest(halFlags) ? UserManagerHelper.USER_TYPE_FULL_GUEST
                 : UserManager.USER_TYPE_FULL_SECONDARY;
 
         if (DBG) {

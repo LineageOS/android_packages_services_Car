@@ -18,6 +18,7 @@ package com.android.car.user;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.content.Context;
 import android.os.UserHandle;
@@ -186,9 +187,8 @@ public final class UserPreCreator {
     @Nullable
     UserHandle preCreateUsers(boolean isGuest) {
         String traceMsg = "pre-create" + (isGuest ? "-guest" : "-user");
-        // NOTE: we want to get rid of UserManagerHelper, so let's call UserManager directly
-        String userType =
-                isGuest ? UserManager.USER_TYPE_FULL_GUEST : UserManager.USER_TYPE_FULL_SECONDARY;
+        String userType = isGuest ? UserManagerHelper.USER_TYPE_FULL_GUEST
+                : UserManager.USER_TYPE_FULL_SECONDARY;
         UserHandle user = null;
         try {
             user = mUserManager.preCreateUser(userType).getUserHandle();
@@ -217,7 +217,7 @@ public final class UserPreCreator {
      */
     @VisibleForTesting
     void logPrecreationFailure(@NonNull String operation, @Nullable Exception cause) {
-        int maxNumberUsers = UserManager.getMaxSupportedUsers();
+        int maxNumberUsers = UserManagerHelper.getMaxSupportedUsers();
         int currentNumberUsers = mUserManager.getUserCount();
         String message = new StringBuilder(operation.length() + 100)
                 .append(operation).append(" failed. Number users: ").append(currentNumberUsers)

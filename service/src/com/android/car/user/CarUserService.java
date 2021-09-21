@@ -948,8 +948,9 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // it's counter-intuitive that it's "allowed even when disallowed" when it
         // "has caller restrictions"
         boolean evenWhenDisallowed = hasCallerRestrictions;
-        int result = mUserManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
-        if (result == UserManager.REMOVE_RESULT_ERROR) {
+        int result = UserManagerHelper.removeUserOrSetEphemeral(mUserManager, userId,
+                evenWhenDisallowed);
+        if (result == UserManagerHelper.REMOVE_RESULT_ERROR) {
             sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
             return;
         }
@@ -960,15 +961,17 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         }
 
         switch (result) {
-            case UserManager.REMOVE_RESULT_REMOVED:
-            case UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED:
+            case UserManagerHelper.REMOVE_RESULT_REMOVED:
+            case UserManagerHelper.REMOVE_RESULT_ALREADY_BEING_REMOVED:
                 sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_REMOVED
                                 : UserRemovalResult.STATUS_SUCCESSFUL, receiver);
-            case UserManager.REMOVE_RESULT_SET_EPHEMERAL:
+                break;
+            case UserManagerHelper.REMOVE_RESULT_SET_EPHEMERAL:
                 sendUserRemovalResult(userId,
                         isLastAdmin ? UserRemovalResult.STATUS_SUCCESSFUL_LAST_ADMIN_SET_EPHEMERAL
                                 : UserRemovalResult.STATUS_SUCCESSFUL_SET_EPHEMERAL, receiver);
+                break;
             default:
                 sendUserRemovalResult(userId, UserRemovalResult.STATUS_ANDROID_FAILURE, receiver);
         }
@@ -1098,7 +1101,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     private void handleCreateUser(@Nullable String name, @NonNull String userType,
             int flags, int timeoutMs, @NonNull AndroidFuture<UserCreationResult> receiver,
             boolean hasCallerRestrictions) {
-        boolean isGuest = userType.equals(UserManager.USER_TYPE_FULL_GUEST);
+        boolean isGuest = userType.equals(UserManagerHelper.USER_TYPE_FULL_GUEST);
         if (isGuest && flags != 0) {
             // Non-zero flags are not allowed when creating a guest user.
             Slogf.e(TAG, "Invalid flags %d specified when creating a guest user %s", flags, name);
@@ -1116,7 +1119,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     validCombination = flags == 0
                         || (flags & UserManagerHelper.FLAG_ADMIN) == UserManagerHelper.FLAG_ADMIN;
                     break;
-                case UserManager.USER_TYPE_FULL_GUEST:
+                case UserManagerHelper.USER_TYPE_FULL_GUEST:
                     validCombination = true;
                     break;
                 default:
@@ -1149,8 +1152,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         UserHandle newUser;
         try {
             newUser = isGuest
-                    ? mUserManager.createGuest(mContext, name).getUserHandle()
-                    : mUserManager.createUser(name, userType, flags).getUserHandle();
+                    ? UserManagerHelper.createGuest(mContext, mUserManager, name)
+                    : UserManagerHelper.createUser(mUserManager, name, userType, flags);
             if (newUser == null) {
                 Slog.w(TAG, "um.createUser() returned null for user of type " + userType
                         + " and flags " + flags);
@@ -1163,14 +1166,6 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // TODO(b/196179969): enabled the log
             //EventLog.writeEvent(EventLogTags.CAR_USER_SVC_CREATE_USER_USER_CREATED, newUser.id,
             //        UserHelperLite.safeName(newUser.name), newUser.userType, newUser.flags);
-        } catch (NullPointerException e) {
-            // TODO(b/196179969): SHIPSTOP Remove it in follow-up CL, possible due to
-            // getUserHandle();
-            // This is possible when createGuest or createUser return null. As UserInfo is
-            // eliminated, createGuest or createUser result can't be checked. In future CLs,
-            // createGuest or createUser will be updated with the call which return user Handle.
-            sendUserCreationResultFailure(receiver, UserCreationResult.STATUS_ANDROID_FAILURE);
-            return;
         } catch (RuntimeException e) {
             Slog.e(TAG, "Error creating user of type " + userType + " and flags"
                     + flags, e);
