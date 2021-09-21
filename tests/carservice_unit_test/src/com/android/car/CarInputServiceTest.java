@@ -61,6 +61,7 @@ import android.os.Looper;
 import android.os.Message;
 import android.os.SystemClock;
 import android.os.UserHandle;
+import android.provider.Settings;
 import android.service.voice.VoiceInteractionSession;
 import android.telecom.TelecomManager;
 import android.view.KeyEvent;
@@ -131,6 +132,16 @@ public class CarInputServiceTest {
         if (mCarInputService != null) {
             mCarInputService.release();
         }
+    }
+
+    @Test
+    public void testConstantValueMatching() {
+        assertWithMessage(
+                "CarInputService.LONG_PRESS_TIMEOUT ('%s') must match the string defined in "
+                        + "Settings.Secure.LONG_PRESS_TIMEOUT",
+                CarInputService.LONG_PRESS_TIMEOUT).that(
+                CarInputService.LONG_PRESS_TIMEOUT).isEqualTo(
+                Settings.Secure.LONG_PRESS_TIMEOUT);
     }
 
     @Test

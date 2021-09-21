@@ -88,6 +88,9 @@ public class CarInputService extends ICarInput.Stub
     private static final int MAX_RETRIES_FOR_ENABLING_ACCESSIBILITY_SERVICES = 5;
     private static final String TAG = CarLog.TAG_INPUT;
 
+    @VisibleForTesting
+    static final String LONG_PRESS_TIMEOUT = "long_press_timeout";
+
     /** An interface to receive {@link KeyEvent}s as they occur. */
     public interface KeyEventListener {
         /** Called when a key event occurs. */
@@ -243,7 +246,7 @@ public class CarInputService extends ICarInput.Stub
     private static int getViewLongPressDelay(Context context) {
         return Settings.Secure.getInt(
                 getContentResolverForUser(context, UserHandle.USER_CURRENT),
-                Settings.Secure.LONG_PRESS_TIMEOUT,
+                LONG_PRESS_TIMEOUT,
                 ViewConfiguration.getLongPressTimeout());
     }
 
