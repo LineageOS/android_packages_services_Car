@@ -57,13 +57,15 @@ public final class CarFeatureController implements CarServiceBase {
 
     private static final String TAG = CarLog.tagFor(CarFeatureController.class);
 
+    // We define this here for compatibility with older feature lists only
+    private static final String BLUETOOTH_SERVICE = "car_bluetooth";
+
     // Use HaseSet for better search performance. Memory consumption is fixed and it not an issue.
     // Should keep alphabetical order under each bucket.
     // Update CarFeatureTest as well when this is updated.
     private static final HashSet<String> MANDATORY_FEATURES = new HashSet<>(Arrays.asList(
             Car.APP_FOCUS_SERVICE,
             Car.AUDIO_SERVICE,
-            Car.BLUETOOTH_SERVICE,
             Car.CAR_BUGREPORT_SERVICE,
             Car.CAR_DEVICE_POLICY_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
@@ -80,6 +82,7 @@ public final class CarFeatureController implements CarServiceBase {
             Car.PROPERTY_SERVICE,
             Car.TEST_SERVICE,
             // All items below here are deprecated, but still should be supported
+            BLUETOOTH_SERVICE,
             Car.CABIN_SERVICE,
             Car.HVAC_SERVICE,
             Car.SENSOR_SERVICE,
