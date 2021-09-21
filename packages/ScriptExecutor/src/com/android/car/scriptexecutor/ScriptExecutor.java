@@ -21,10 +21,18 @@ import android.content.Intent;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
+import android.os.RemoteException;
+import android.util.Log;
+import android.util.Slog;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
+import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorConstants;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
+
+import java.io.IOException;
+import java.io.InputStream;
 
 /**
  * Executes Lua code in an isolated process with provided source code
@@ -51,6 +59,36 @@ public final class ScriptExecutor extends Service {
             mNativeHandler.post(() ->
                     nativeInvokeScript(mLuaEnginePtr, scriptBody, functionName, publishedData,
                             savedState, listener));
+        }
+
+        @Override
+        public void invokeScriptForLargeInput(String scriptBody, String functionName,
+                ParcelFileDescriptor publishedDataFileDescriptor, PersistableBundle savedState,
+                IScriptExecutorListener listener) {
+            mNativeHandler.post(() -> {
+                PersistableBundle publishedData;
+                try (InputStream input = new ParcelFileDescriptor.AutoCloseInputStream(
+                        publishedDataFileDescriptor)) {
+                    publishedData = PersistableBundle.readFromStream(input);
+                } catch (IOException e) {
+                    try {
+                        listener.onError(IScriptExecutorConstants.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
+                                e.getMessage(), "");
+                    } catch (RemoteException remoteException) {
+                        if (Log.isLoggable(TAG, Log.ERROR)) {
+                            // At least log "message" here, in case it was never sent back via
+                            // the callback.
+                            Slog.e(TAG, "failed while calling listener with exception ", e);
+                        }
+                    }
+                    return;
+                }
+
+                // TODO(b/189241508): Start passing publishedData instead of null
+                // once publishedData parser is implemented.
+                nativeInvokeScript(mLuaEnginePtr, scriptBody, functionName, null,
+                        savedState, listener);
+            });
         }
     }
 

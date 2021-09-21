@@ -80,6 +80,7 @@ android_app {
 
     srcs: [
         ":iscriptexecutor_aidl",
+        ":iscriptexecutorconstants_aidl",
         "src/**/*.java"
     ],
 

@@ -17,6 +17,7 @@
 package com.android.car.scriptexecutor;
 
 import static com.google.common.truth.Truth.assertThat;
+import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.junit.Assert.fail;
 
@@ -25,6 +26,7 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
 import android.os.IBinder;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -40,6 +42,7 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
+import java.io.OutputStream;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
 
@@ -131,7 +134,6 @@ public final class ScriptExecutorTest {
             fail(e.getMessage());
         }
     }
-
 
     private void runScriptAndWaitForError(String script, String function) throws RemoteException {
         runScriptAndWaitForResponse(script, function, new PersistableBundle());
@@ -658,6 +660,49 @@ public final class ScriptExecutorTest {
                 IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_success can push only a single parameter from Lua - a Lua table");
+    }
+
+    @Test
+    public void invokeScriptLargeInput_largePublishedData() throws Exception {
+        // Verifies that large input does not overwhelm Binder's buffer because pipes are used
+        // instead.
+        // TODO(b/189241508): Once publishedData parsing is implemented, change the script and
+        //  the test to process the published data input and return something meaningful.
+        String script =
+                "function large_published_data(state)\n"
+                        + "    result = {success = true}\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+
+        ParcelFileDescriptor[] fds = ParcelFileDescriptor.createPipe();
+        ParcelFileDescriptor writeFd = fds[1];
+        ParcelFileDescriptor readFd = fds[0];
+
+        PersistableBundle bundle = new PersistableBundle();
+        int n = 1 << 20; // 1024 * 1024 values, roughly 1 Million.
+        long[] array8Mb = new long[n];
+        for (int i = 0; i < n; i++) {
+            array8Mb[i] = i;
+        }
+        bundle.putLongArray("array", array8Mb);
+
+        mScriptExecutor.invokeScriptForLargeInput(script, "large_published_data", readFd,
+                mSavedState,
+                mFakeScriptExecutorListener);
+
+        readFd.close();
+        try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writeFd)) {
+            bundle.writeToStream(outputStream);
+        }
+
+        boolean gotResponse = mFakeScriptExecutorListener.mResponseLatch.await(
+                SCRIPT_PROCESSING_TIMEOUT_SEC,
+                TimeUnit.SECONDS);
+
+        assertWithMessage("Failed to get the callback method called by the script on time").that(
+                gotResponse).isTrue();
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getBoolean("success")).isTrue();
     }
 }
 
