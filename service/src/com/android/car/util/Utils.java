@@ -20,6 +20,11 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BO
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.SuppressLint;
+import android.annotation.UserIdInt;
+import android.app.ActivityManager;
+import android.content.ContentResolver;
+import android.content.Context;
+import android.os.UserHandle;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 
@@ -149,5 +154,24 @@ public final class Utils {
             details = "private constructor")
     private Utils() {
         throw new UnsupportedOperationException("contains only static methods");
+    }
+
+    /**
+     * Returns the content resolver for the given user. This can be used to put/get the
+     * user's settings.
+     *
+     * @param context The context of the package.
+     * @param userId The id of the user which the content resolver is being requested for. It also
+     * accepts {@link UserHandle#USER_CURRENT}.
+     */
+    public static ContentResolver getContentResolverForUser(Context context,
+            @UserIdInt int userId) {
+        if (userId == UserHandle.CURRENT.getIdentifier()) {
+            userId = ActivityManager.getCurrentUser();
+        }
+        return context
+                .createContextAsUser(
+                        UserHandle.of(userId), /* flags= */ 0)
+                .getContentResolver();
     }
 }

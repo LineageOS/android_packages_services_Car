@@ -20,6 +20,7 @@ import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_
 
 import static com.android.car.bluetooth.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -239,12 +240,11 @@ public class CarInputService extends ICarInput.Stub
         }
     };
 
-    private static int getViewLongPressDelay(ContentResolver cr) {
-        return Settings.Secure.getIntForUser(
-                cr,
+    private static int getViewLongPressDelay(Context context) {
+        return Settings.Secure.getInt(
+                getContentResolverForUser(context, UserHandle.USER_CURRENT),
                 Settings.Secure.LONG_PRESS_TIMEOUT,
-                ViewConfiguration.getLongPressTimeout(),
-                UserHandle.USER_CURRENT);
+                ViewConfiguration.getLongPressTimeout());
     }
 
     public CarInputService(Context context, InputHalService inputHalService,
@@ -255,7 +255,7 @@ public class CarInputService extends ICarInput.Stub
                 event -> InputManagerHelper.injectInputEvent(
                         context.getSystemService(InputManager.class), event),
                 () -> Calls.getLastOutgoingCall(context),
-                () -> getViewLongPressDelay(context.getContentResolver()),
+                () -> getViewLongPressDelay(context),
                 () -> context.getResources().getBoolean(R.bool.config_callButtonEndsOngoingCall),
                 new InputCaptureClientController(context),
                 BluetoothAdapter.getDefaultAdapter());
@@ -723,11 +723,10 @@ public class CarInputService extends ICarInput.Stub
             return;
         }
         List<String> accessibilityServicesToBeEnabled = getAccessibilityServicesToBeEnabled();
-        ContentResolver contentResolver = mContext.getContentResolver();
+        ContentResolver contentResolverForUser = getContentResolverForUser(mContext, userId);
         List<String> alreadyEnabledServices = createServiceListFromSettingsString(
-                Settings.Secure.getStringForUser(contentResolver,
-                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                        userId));
+                Settings.Secure.getString(contentResolverForUser,
+                        Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES));
 
         int retry = 0;
         while (!alreadyEnabledServices.containsAll(accessibilityServicesToBeEnabled)
@@ -740,25 +739,21 @@ public class CarInputService extends ICarInput.Stub
                     enabledServicesList.add(serviceToBeEnabled);
                 }
             }
-            Settings.Secure.putStringForUser(contentResolver,
+            Settings.Secure.putString(contentResolverForUser,
                     Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                    String.join(ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR, enabledServicesList),
-                    userId);
+                    String.join(ENABLED_ACCESSIBILITY_SERVICES_SEPARATOR, enabledServicesList));
             // Read again to account for any race condition with other parts of the code that might
             // be enabling other accessibility services.
             alreadyEnabledServices = createServiceListFromSettingsString(
-                    Settings.Secure.getStringForUser(contentResolver,
-                            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES,
-                            userId));
+                    Settings.Secure.getString(contentResolverForUser,
+                            Settings.Secure.ENABLED_ACCESSIBILITY_SERVICES));
             retry++;
         }
         if (!alreadyEnabledServices.containsAll(accessibilityServicesToBeEnabled)) {
             Slogf.e(TAG, "Failed to enable accessibility services");
         }
 
-        Settings.Secure.putStringForUser(contentResolver,
-                Settings.Secure.ACCESSIBILITY_ENABLED,
-                "1",
-                userId);
+        Settings.Secure.putString(contentResolverForUser, Settings.Secure.ACCESSIBILITY_ENABLED,
+                "1");
     }
 }

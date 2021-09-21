@@ -19,6 +19,7 @@ package com.android.car.user;
 import static android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
@@ -253,7 +254,7 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private boolean isNoticeScreenEnabledInSetting(@UserIdInt int userId) {
-        return Settings.Secure.getIntForUser(mContext.getContentResolver(),
+        return Settings.Secure.getIntForUser(getContentResolverForUser(mContext, userId),
                 CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER,
                 1 /*enable by default*/, userId) == 1;
     }

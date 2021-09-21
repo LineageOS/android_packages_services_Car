@@ -106,6 +106,7 @@ public class CarBluetoothServiceTest {
                 .thenReturn(mMockBluetoothManager);
         when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
         when(mMockBluetoothManager.getAdapter()).thenReturn(mMockBluetoothAdapter);
+        when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
 
         // Make sure we grab and store CarBluetoothService's user switch callback so we can
         // invoke it at any time.

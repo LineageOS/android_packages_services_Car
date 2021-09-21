@@ -122,6 +122,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
 
         putSettingsInt(CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER, 1);
 
+        when(mMockContext.createContextAsUser(any(), anyInt())).thenReturn(mMockContext);
         when(mMockContext.getResources()).thenReturn(mMockedResources);
         when(mMockContext.getContentResolver())
                 .thenReturn(InstrumentationRegistry.getInstrumentation().getTargetContext()
