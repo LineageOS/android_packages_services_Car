@@ -747,11 +747,16 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  runs the given command (use --h to see the available commands)");
     }
 
+    // Override Binder.onShellCommand and there is no shell id check.
+    // All critical operations should be protected with permissions inside CarShellCommand.
     @Override
     public void onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err,
             String[] args, ShellCallback callback, ResultReceiver resultReceiver)
                     throws RemoteException {
-        newCarShellCommand().exec(this, in, out, err, args, callback, resultReceiver);
+        int result = newCarShellCommand().exec(this, in, out, err, args);
+        if (resultReceiver != null) {
+            resultReceiver.send(result, null);
+        }
     }
 
     private CarShellCommand newCarShellCommand() {

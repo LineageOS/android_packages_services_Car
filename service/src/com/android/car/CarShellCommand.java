@@ -85,7 +85,6 @@ import android.os.Binder;
 import android.os.Build;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ShellCommand;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -111,6 +110,7 @@ import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
 import com.android.car.watchdog.CarWatchdogService;
 import com.android.internal.util.Preconditions;
+import com.android.modules.utils.BasicShellCommandHandler;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -123,7 +123,7 @@ import java.util.concurrent.TimeUnit;
 import java.util.concurrent.TimeoutException;
 import java.util.concurrent.atomic.AtomicBoolean;
 
-final class CarShellCommand extends ShellCommand {
+final class CarShellCommand extends BasicShellCommandHandler {
 
     private static final String NO_INITIAL_USER = "N/A";
 
