@@ -123,7 +123,7 @@ public final class NotificationHelper {
 
         if (DEBUG) {
             Slog.d(TAG, "Showing new managed notification (id "
-                    + NEW_USER_DISCLAIMER_NOTIFICATION_ID + " on user " + context.getUserId());
+                    + NEW_USER_DISCLAIMER_NOTIFICATION_ID + " on user " + context.getUser());
         }
         context.getSystemService(NotificationManager.class)
                 .notifyAsUser(TAG, NEW_USER_DISCLAIMER_NOTIFICATION_ID,
@@ -136,7 +136,7 @@ public final class NotificationHelper {
     public static void cancelUserDisclaimerNotification(int userId, Context context) {
         if (DEBUG) {
             Slog.d(TAG, "Canceling notification " + NEW_USER_DISCLAIMER_NOTIFICATION_ID
-                    + " for user " + context.getUserId());
+                    + " for user " + context.getUser());
         }
         context.getSystemService(NotificationManager.class)
                 .cancelAsUser(TAG, NEW_USER_DISCLAIMER_NOTIFICATION_ID, UserHandle.of(userId));

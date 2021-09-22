@@ -247,7 +247,7 @@ abstract class CarMultiUserTestBase extends CarApiTestBase {
 
     protected void assertCanAddUser() {
         Bundle restrictions = mUserManager.getUserRestrictions();
-        Log.d(TAG, "Restrictions for user " + getContext().getUserId() + ": "
+        Log.d(TAG, "Restrictions for user " + getContext().getUser() + ": "
                 + AndroidHelper.toString(restrictions));
         assertWithMessage("%s restriction", UserManager.DISALLOW_ADD_USER)
                 .that(restrictions.getBoolean(UserManager.DISALLOW_ADD_USER, false)).isFalse();

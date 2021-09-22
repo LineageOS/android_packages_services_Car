@@ -1704,7 +1704,7 @@ final class CarShellCommand extends ShellCommand {
     private CarUserManager getCarUserManager(@NonNull IndentingPrintWriter writer,
             @UserIdInt int userId) {
         Context context;
-        if (userId == mContext.getUserId()) {
+        if (userId == mContext.getUser().getIdentifier()) {
             context = mContext;
         } else {
             context = mContext.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
