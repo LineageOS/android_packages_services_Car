@@ -116,6 +116,24 @@ public class MockedPowerHalService extends PowerHalService {
         doSendState(SET_SHUTDOWN_CANCELLED, 0);
     }
 
+    @Override
+    public void sendShutdownPrepare() {
+        Log.i(TAG, "sendShutdownPrepare");
+        super.sendShutdownPrepare();
+    }
+
+    @Override
+    public void sendHibernationEntry(int wakeupTimeSec) {
+        Log.i(TAG, "sendHibernationEntry");
+        doSendState(SET_HIBERNATION_ENTRY, wakeupTimeSec);
+    }
+
+    @Override
+    public void sendHibernationExit() {
+        Log.i(TAG, "sendHibernationExit");
+        doSendState(SET_HIBERNATION_EXIT, 0);
+    }
+
     public synchronized int[] waitForSend(long timeoutMs) throws Exception {
         if (mSentStates.size() == 0) {
             wait(timeoutMs);

@@ -171,13 +171,15 @@ public class PowerHalService extends HalServiceBase {
      */
     public static final class PowerState {
 
-        @IntDef({SHUTDOWN_TYPE_POWER_OFF, SHUTDOWN_TYPE_DEEP_SLEEP, SHUTDOWN_TYPE_HIBERNATION})
+        @IntDef({SHUTDOWN_TYPE_UNDEFINED, SHUTDOWN_TYPE_POWER_OFF, SHUTDOWN_TYPE_DEEP_SLEEP,
+                SHUTDOWN_TYPE_HIBERNATION})
         @Retention(RetentionPolicy.SOURCE)
         public @interface ShutdownType {}
 
-        public static final int SHUTDOWN_TYPE_POWER_OFF = 0;
-        public static final int SHUTDOWN_TYPE_DEEP_SLEEP = 1;
-        public static final int SHUTDOWN_TYPE_HIBERNATION = 2;
+        public static final int SHUTDOWN_TYPE_UNDEFINED = 0;
+        public static final int SHUTDOWN_TYPE_POWER_OFF = 1;
+        public static final int SHUTDOWN_TYPE_DEEP_SLEEP = 2;
+        public static final int SHUTDOWN_TYPE_HIBERNATION = 3;
         /**
          * One of STATE_*
          */

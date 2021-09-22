@@ -135,6 +135,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                     break;
                 case CarPowerStateListener.SHUTDOWN_ENTER:
                 case CarPowerStateListener.SUSPEND_ENTER:
+                case CarPowerStateListener.HIBERNATION_ENTER:
                     powerCycle = PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER;
                     mWatchdogPerfHandler.writeToDatabase();
                     break;

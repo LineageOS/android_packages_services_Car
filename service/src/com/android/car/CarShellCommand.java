@@ -100,6 +100,7 @@ import com.android.car.evs.CarEvsService;
 import com.android.car.garagemode.GarageModeService;
 import com.android.car.hal.HalCallback;
 import com.android.car.hal.InputHalService;
+import com.android.car.hal.PowerHalService;
 import com.android.car.hal.UserHalHelper;
 import com.android.car.hal.UserHalService;
 import com.android.car.hal.VehicleHal;
@@ -145,6 +146,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private static final String COMMAND_PROJECTION_UI_MODE = "projection-ui-mode";
     private static final String COMMAND_RESUME = "resume";
     private static final String COMMAND_SUSPEND = "suspend";
+    private static final String COMMAND_HIBERNATE = "hibernate";
     private static final String COMMAND_SET_UID_TO_ZONE = "set-audio-zone-for-uid";
     private static final String COMMAND_RESET_VOLUME_CONTEXT = "reset-selected-volume-context";
     private static final String COMMAND_SET_MUTE_CAR_VOLUME_GROUP = "set-mute-car-volume-group";
@@ -253,6 +255,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_RESUME,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_SUSPEND,
+                android.Manifest.permission.DEVICE_POWER);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_HIBERNATE,
                 android.Manifest.permission.DEVICE_POWER);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_DEFINE_POWER_POLICY,
                 android.Manifest.permission.DEVICE_POWER);
@@ -844,7 +848,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 writer.println("Resume: Simulating resuming from Deep Sleep");
                 break;
             case COMMAND_SUSPEND:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(false);
+                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
+                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
+                writer.println("Suspend: Simulating powering down to Deep Sleep");
+                break;
+            case COMMAND_HIBERNATE:
+                mCarPowerManagementService.forceSuspendAndMaybeReboot(false,
+                        PowerHalService.PowerState.SHUTDOWN_TYPE_HIBERNATION);
                 writer.println("Suspend: Simulating powering down to Deep Sleep");
                 break;
             case COMMAND_SET_UID_TO_ZONE:
@@ -1923,7 +1933,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 mGarageModeService.dump(writer);
                 break;
             case PARAM_REBOOT:
-                mCarPowerManagementService.forceSuspendAndMaybeReboot(true);
+                mCarPowerManagementService.forceSuspendAndMaybeReboot(true,
+                        PowerHalService.PowerState.SHUTDOWN_TYPE_DEEP_SLEEP);
                 writer.println("Entering Garage Mode. Will reboot when it completes.");
                 break;
             default:
