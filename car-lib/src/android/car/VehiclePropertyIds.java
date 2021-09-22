@@ -334,8 +334,11 @@ public final class VehiclePropertyIds {
      *  <li>Long[4] = rear left ticks
      * </ul>
      *
-     * <p>configArray is used to indicate the micrometers-per-wheel-tick value and
-     * which wheels are supported. configArray is set as follows:
+     * <p>configArray is used to indicate the micrometers-per-wheel-tick values and
+     * which wheels are supported. Each micrometers-per-wheel-tick value is static (i.e. will not
+     * update based on wheel's status) and a best approximation. For example, if a vehicle has
+     * multiple rim/tire size options, the micrometers-per-wheel-tick values are set to those for
+     * the typically expected rim/tire size. configArray is set as follows:
      *
      * <ul>
      *  <li>configArray[0], bits [0:3] = supported wheels.  Uses {@link VehicleAreaWheel}.
