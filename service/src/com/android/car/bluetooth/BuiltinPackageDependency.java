@@ -30,15 +30,24 @@ public class BuiltinPackageDependency {
     /** Package name of builtin, Will be becessary to send Intent. */
     public static final String BUILTIN_CAR_SERVICE_PACKAGE_NAME = "com.android.car";
 
-    /** {@code com.android.car.admin.FactoryResetActivity} class */
-    public static final String FACTORY_RESET_ACTIVITY_CLASS =
-            "com.android.car.admin.FactoryResetActivity";
+    /** {@code com.android.car.admin.NotificationHelper} class. */
+    public static final String NOTIFICATION_HELPER_CLASS =
+            "com.android.car.admin.NotificationHelper";
 
     /** {@code com.android.car.am.ContinuousBlankActivity} */
     public static final String BLANK_ACTIVITY_CLASS = "com.android.car.am.ContinuousBlankActivity";
 
-    /** {@code com.android.car.admin.FactoryResetActivity#sendNotification()} */
-    public static final String FACTORY_RESET_ACTIVITY_SEND_NOTIFICATION = "sendNotification";
+    /** {@code com.android.car.admin.NotificationHelper#showFactoryResetNotification()} */
+    public static final String NOTIFICATION_HELPER_SHOW_FACTORY_RESET_NOTIFICATION =
+            "showFactoryResetNotification";
+
+    /** {@code com.android.car.admin.NotificationHelper#showUserDisclaimerNotification()} */
+    public static final String NOTIFICATION_HELPER_SHOW_USER_DISCLAIMER_NOTIFICATION =
+            "showUserDisclaimerNotification";
+
+    /** {@code com.android.car.admin.NotificationHelper#cancelUserDisclaimerNotification()} */
+    public static final String NOTIFICATION_HELPER_CANCEL_USER_DISCLAIMER_NOTIFICATION =
+            "cancelUserDisclaimerNotification";
 
     /** {@code com.android.car.pm.CarSafetyAccessibilityService} */
     public static final String CAR_ACCESSIBILITY_SERVICE_CLASS =

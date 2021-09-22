@@ -160,7 +160,7 @@ public final class NotificationHelper {
     /**
      * Sends the notification warning the user about the factory reset.
      */
-    public static void sendFactoryResetNotification(Context context, ICarResultReceiver callback) {
+    public static void showFactoryResetNotification(Context context, ICarResultReceiver callback) {
         // The factory request is received by CarService - which runs on system user - but the
         // notification will be sent to all users.
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());

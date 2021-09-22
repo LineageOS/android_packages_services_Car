@@ -45,6 +45,8 @@ import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceBase;
+import com.android.car.CarServiceUtils;
+import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.internal.util.IndentingPrintWriter;
@@ -75,6 +77,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     private final Object mLock = new Object();
     private final CarUserService mCarUserService;
     private final Context mContext;
+    private final Context mCarServiceBuiltinPackageContext;
 
     @Retention(RetentionPolicy.SOURCE)
     @IntDef(flag = false, prefix = { PREFIX_NEW_USER_DISCLAIMER_STATUS }, value = {
@@ -113,9 +116,11 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     };
 
     public CarDevicePolicyService(@NonNull Context context,
+            @NonNull Context carServiceBuiltinPackageContext,
             @NonNull CarUserService carUserService) {
         mCarUserService = carUserService;
         mContext = context;
+        mCarServiceBuiltinPackageContext = carServiceBuiltinPackageContext;
     }
 
     @Override
@@ -211,7 +216,16 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
     @Override
     public void setUserDisclaimerAcknowledged(int userId) {
         setUserDisclaimerStatus(userId, NEW_USER_DISCLAIMER_STATUS_ACKED);
-        NotificationHelper.cancelUserDisclaimerNotification(userId, mContext);
+
+        // Making following call with code in other package / classloader.
+        // NotificationHelper.cancelUserDisclaimerNotification(userId,
+        // mCarServiceBuiltinPackageContext);
+        CarServiceUtils.executeAMethod(mCarServiceBuiltinPackageContext.getClassLoader(),
+                BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS,
+                BuiltinPackageDependency.NOTIFICATION_HELPER_CANCEL_USER_DISCLAIMER_NOTIFICATION,
+                /* instance= */null, new Class[]{int.class, Context.class},
+                new Object[]{userId, mCarServiceBuiltinPackageContext}, false);
+
         DevicePolicyManager dpm = mContext.createContextAsUser(UserHandle.of(userId), 0)
                 .getSystemService(DevicePolicyManager.class);
         dpm.resetNewUserDisclaimer();
@@ -228,7 +242,16 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
     private void showNewUserDisclaimer(@UserIdInt int userId) {
         // TODO(b/175057848) persist status so it's shown again if car service crashes?
-        NotificationHelper.showUserDisclaimerNotification(userId, mContext);
+
+        // Making following call with code in other package / classloader.
+        // NotificationHelper.showUserDisclaimerNotification(userId,
+        // mCarServiceBuiltinPackageContext);
+        CarServiceUtils.executeAMethod(mCarServiceBuiltinPackageContext.getClassLoader(),
+                BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS,
+                BuiltinPackageDependency.NOTIFICATION_HELPER_SHOW_USER_DISCLAIMER_NOTIFICATION,
+                /* instance= */null, new Class[]{int.class, Context.class},
+                new Object[]{userId, mCarServiceBuiltinPackageContext}, false);
+
         setUserDisclaimerStatus(userId, NEW_USER_DISCLAIMER_STATUS_NOTIFICATION_SENT);
     }
 

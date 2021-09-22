@@ -54,9 +54,9 @@ import android.os.UserManager;
 import android.util.EventLog;
 
 import com.android.car.admin.CarDevicePolicyService;
-import com.android.car.admin.NotificationHelper;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
+import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.cluster.ClusterHomeService;
 import com.android.car.cluster.ClusterNavigationService;
@@ -345,7 +345,7 @@ public class ICarImpl extends ICar.Stub {
         }
         mCarDevicePolicyService = constructWithTrace(
                 t, CarDevicePolicyService.class, () -> new CarDevicePolicyService(mContext,
-                        mCarUserService));
+                        mCarServiceBuiltinPackageContext, mCarUserService));
         if (mFeatureController.isFeatureEnabled(Car.CLUSTER_HOME_SERVICE)) {
             if (!mFeatureController.isFeatureEnabled(Car.CAR_INSTRUMENT_CLUSTER_SERVICE)) {
                 mClusterHomeService = constructWithTrace(
@@ -866,7 +866,13 @@ public class ICarImpl extends ICar.Stub {
             assertCallingFromSystemProcess();
 
             mCarPowerManagementService.setFactoryResetCallback(callback);
-            NotificationHelper.sendFactoryResetNotification(mContext, callback);
+            // Making following call with code in other package / classloader.
+            // NotificationHelper.sendNotification(mCarServiceBuiltinPackageContext, callback);
+            CarServiceUtils.executeAMethod(mCarServiceBuiltinPackageContext.getClassLoader(),
+                    BuiltinPackageDependency.NOTIFICATION_HELPER_CLASS,
+                    BuiltinPackageDependency.NOTIFICATION_HELPER_SHOW_FACTORY_RESET_NOTIFICATION,
+                    /* instance= */null, new Class[]{Context.class, ICarResultReceiver.class},
+                    new Object[]{mCarServiceBuiltinPackageContext, callback}, false);
         }
     }
 }
