@@ -272,6 +272,80 @@ public final class WatchdogStorageUnitTest {
     }
 
     @Test
+    public void testDeleteUserPackage() throws Exception {
+        ArrayList<WatchdogStorage.UserPackageSettingsEntry> settingsEntries = sampleSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+
+        assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+
+        int deleteUserId = 100;
+        String deletePackageName = "system_package.non_critical.A";
+
+        mService.deleteUserPackage(deleteUserId, deletePackageName);
+
+        settingsEntries.removeIf(
+                (s) -> s.userId == deleteUserId && s.packageName.equals(deletePackageName));
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(settingsEntries);
+
+        ioUsageStatsEntries.removeIf(
+                (e) -> e.userId == deleteUserId && e.packageName.equals(deletePackageName));
+
+        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
+                .containsExactlyElementsIn(ioUsageStatsEntries);
+    }
+
+    @Test
+    public void testDeleteUserPackageWithNonexistentPackage() throws Exception {
+        injectSampleUserPackageSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+
+        int deleteUserId = 100;
+        String deletePackageName = "system_package.non_existent.A";
+
+        mService.deleteUserPackage(deleteUserId, deletePackageName);
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(sampleSettings());
+
+        ioUsageStatsEntries.removeIf(
+                (e) -> e.userId == deleteUserId && e.packageName.equals(deletePackageName));
+
+        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
+                .containsExactlyElementsIn(ioUsageStatsEntries);
+    }
+
+    @Test
+    public void testDeleteUserPackageWithHistoricalIoOveruseStats()
+            throws Exception {
+        ArrayList<WatchdogStorage.UserPackageSettingsEntry> settingsEntries = sampleSettings();
+
+        assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
+                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isTrue();
+
+        int deleteUserId = 100;
+        String deletePackageName = "system_package.non_critical.A";
+
+        mService.deleteUserPackage(deleteUserId, deletePackageName);
+
+        settingsEntries.removeIf(
+                (s) -> s.userId == deleteUserId && s.packageName.equals(deletePackageName));
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(settingsEntries);
+
+        IoOveruseStats actual = mService.getHistoricalIoOveruseStats(
+                /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
+
+        assertWithMessage("Fetched historical I/O overuse stats").that(actual).isNull();
+    }
+
+    @Test
     public void testTruncateStatsOutsideRetentionPeriodOnDateChange() throws Exception {
         injectSampleUserPackageSettings();
         setDate(/* numDaysAgo= */ 1);
@@ -341,8 +415,8 @@ public final class WatchdogStorageUnitTest {
         assertThat(mService.saveUserPackageSettings(expected)).isTrue();
     }
 
-    private static List<WatchdogStorage.UserPackageSettingsEntry> sampleSettings() {
-        return Arrays.asList(
+    private static ArrayList<WatchdogStorage.UserPackageSettingsEntry> sampleSettings() {
+        return new ArrayList<>(Arrays.asList(
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 100, "system_package.non_critical.A", KILLABLE_STATE_YES),
                 new WatchdogStorage.UserPackageSettingsEntry(
@@ -354,14 +428,14 @@ public final class WatchdogStorageUnitTest {
                 new WatchdogStorage.UserPackageSettingsEntry(
                         /* userId= */ 101, "system_package.non_critical.B", KILLABLE_STATE_YES),
                 new WatchdogStorage.UserPackageSettingsEntry(
-                        /* userId= */ 101, "vendor_package.critical.C", KILLABLE_STATE_NEVER));
+                        /* userId= */ 101, "vendor_package.critical.C", KILLABLE_STATE_NEVER)));
     }
 
-    private List<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
+    private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsBetweenDates(
             int includingStartDaysAgo, int excludingEndDaysAgo) {
         ZonedDateTime currentDate = mTimeSource.now().atZone(ZONE_OFFSET)
                 .truncatedTo(STATS_TEMPORAL_UNIT);
-        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        ArrayList<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
         for (int i = includingStartDaysAgo; i < excludingEndDaysAgo; ++i) {
             entries.addAll(sampleStatsForDate(
                     currentDate.minus(i, STATS_TEMPORAL_UNIT).toEpochSecond(),
@@ -370,9 +444,16 @@ public final class WatchdogStorageUnitTest {
         return entries;
     }
 
-    private static List<WatchdogStorage.IoUsageStatsEntry> sampleStatsForDate(
+    private ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForToday() {
+        long currentTime = mTimeSource.now().atZone(ZONE_OFFSET)
+                .truncatedTo(STATS_TEMPORAL_UNIT).toEpochSecond();
+        long duration = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - currentTime;
+        return sampleStatsForDate(currentTime, duration);
+    }
+
+    private static ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForDate(
             long statsDateEpoch, long duration) {
-        List<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
+        ArrayList<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
         for (int i = 100; i < 101; ++i) {
             entries.add(constructIoUsageStatsEntry(
                     /* userId= */ i, "system_package.non_critical.A", statsDateEpoch, duration,

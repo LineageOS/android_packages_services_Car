@@ -158,6 +158,21 @@ public final class WatchdogStorage {
         return entries;
     }
 
+    /** Deletes user package settings and resource overuse stats. */
+    public void deleteUserPackage(@UserIdInt int userId, String packageName) {
+        UserPackage userPackage = mUserPackagesByKey.get(UserPackage.getKey(userId, packageName));
+        if (userPackage == null) {
+            Slogf.w(TAG, "Failed to find unique database id for user id '%d' and package '%s",
+                    userId, packageName);
+            return;
+        }
+        mUserPackagesByKey.remove(userPackage.getKey());
+        mUserPackagesById.remove(userPackage.getUniqueId());
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
+            UserPackageSettingsTable.deleteUserPackage(db, userId, packageName);
+        }
+    }
+
     /**
      * Returns the aggregated historical I/O overuse stats for the given user package or
      * {@code null} when stats are not available.
@@ -346,6 +361,15 @@ public final class WatchdogStorage {
                 }
                 return userPackages;
             }
+        }
+
+        public static void deleteUserPackage(SQLiteDatabase db, @UserIdInt int userId,
+                String packageName) {
+            String whereClause = COLUMN_USER_ID + "= ? and " + COLUMN_PACKAGE_NAME + "= ?";
+            String[] whereArgs = new String[]{String.valueOf(userId), packageName};
+            int deletedRows = db.delete(TABLE_NAME, whereClause, whereArgs);
+            Slogf.i(TAG, "Deleted %d user package settings db rows for user %d and package %s",
+                    deletedRows, userId, packageName);
         }
     }
 
