@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -16,12 +16,6 @@
   -->
 
 <resources>
-    <color name="default_audio_background_image_color">#DADCE0</color>
-    <color name="default_audio_background_color">#BDC1C6</color>
-    <color name="title_bar_display_area_handle_bar_color">#e8eaed</color>
-    <color name="title_bar_display_area_background_color">#ffffff</color>
-
-    <color name="icon_tint">#000000</color>
-    <color name="media_button_tint">@color/icon_tint</color>
-    <color name="dialer_button_icon_color">@color/icon_tint</color>
+    <style name="Theme.DeviceDefault.NoActionBar.Notification" parent="@android:Theme.DeviceDefault.NoActionBar">
+    </style>
 </resources>
