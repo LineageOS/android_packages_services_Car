@@ -26,4 +26,5 @@
     <item target="id/close_button" value="@id/close_button"/>
 
     <item target="dimen/config_cameraBackgroundScrim" value="@dimen/config_cameraBackgroundScrim"/>
+    <item target="integer/config_evsRearviewCameraInPlaneRotationAngle" value="@integer/config_evsRearviewCameraInPlaneRotationAngle"/>
 </overlay>
