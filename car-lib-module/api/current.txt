@@ -231,6 +231,16 @@ package android.car {
     field public static final int GEAR_UNKNOWN = 0; // 0x0
   }
 
+  public final class VehicleIgnitionState {
+    method @NonNull public static String toString(int);
+    field public static final int ACC = 3; // 0x3
+    field public static final int LOCK = 1; // 0x1
+    field public static final int OFF = 2; // 0x2
+    field public static final int ON = 4; // 0x4
+    field public static final int START = 5; // 0x5
+    field public static final int UNDEFINED = 0; // 0x0
+  }
+
   public final class VehiclePropertyIds {
     ctor @Deprecated public VehiclePropertyIds();
     method public static String toString(int);
