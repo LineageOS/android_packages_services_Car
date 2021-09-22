@@ -21,12 +21,11 @@ import android.os.SystemClock;
 
 import com.android.car.telemetry.TelemetryProto;
 
+import java.util.Objects;
+
 /**
  * Subscriber class that receives published data and schedules tasks for execution.
  * All methods of this class must be accessed on telemetry thread.
- *
- * <p>TODO(b/187743369): implement equals() and hash() functions, as they are used in publishers
- *                       to check equality of subscribers.
  */
 public class DataSubscriber {
 
@@ -79,5 +78,22 @@ public class DataSubscriber {
     /** Returns the priority of subscriber. */
     public int getPriority() {
         return mSubscriber.getPriority();
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof DataSubscriber)) {
+            return false;
+        }
+        DataSubscriber other = (DataSubscriber) o;
+        return mMetricsConfig.getName().equals(other.getMetricsConfig().getName())
+                && mMetricsConfig.getVersion() == other.getMetricsConfig().getVersion()
+                && mSubscriber.getHandler().equals(other.getSubscriber().getHandler());
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mMetricsConfig.getName(), mMetricsConfig.getVersion(),
+                mSubscriber.getHandler());
     }
 }
