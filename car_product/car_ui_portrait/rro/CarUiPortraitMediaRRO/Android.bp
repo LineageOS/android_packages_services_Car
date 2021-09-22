@@ -22,4 +22,9 @@ android_app {
         "--no-resource-deduping",
         "--no-resource-removal"
     ],
+    static_libs: [
+        "androidx-constraintlayout_constraintlayout",
+        "car-apps-common",
+
+    ],
 }
