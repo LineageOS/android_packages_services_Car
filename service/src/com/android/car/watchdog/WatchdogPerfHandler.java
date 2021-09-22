@@ -735,17 +735,15 @@ public final class WatchdogPerfHandler {
         }
     }
 
-    /** Resets the resource overuse stats for the given generic package names. */
+    /** Resets the resource overuse settings and stats for the given generic package names. */
     public void resetResourceOveruseStats(Set<String> genericPackageNames) {
         synchronized (mLock) {
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                 PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                 if (genericPackageNames.contains(usage.genericPackageName)) {
                     usage.resetStatsLocked();
-                    /*
-                     * TODO(b/192294393): When the stats are persisted in local DB, reset the stats
-                     *  for this package from local DB.
-                     */
+                    usage.verifyAndSetKillableStateLocked(/* isKillable= */ true);
+                    mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
                 }
             }
         }
