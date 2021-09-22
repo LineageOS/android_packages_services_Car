@@ -37,6 +37,7 @@ import androidx.test.filters.SmallTest;
 import com.android.car.CarLocalServices;
 import com.android.car.CarPropertyService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.systeminterface.SystemStateInterface;
 
 import org.junit.Before;
 import org.junit.Rule;
@@ -84,6 +85,8 @@ public class CarTelemetryServiceTest {
     private ICarTelemetryServiceListener mMockListener;
     @Mock
     private SystemInterface mMockSystemInterface;
+    @Mock
+    private SystemStateInterface mMockSystemStateInterface;
 
     @Before
     public void setUp() throws Exception {
@@ -92,6 +95,7 @@ public class CarTelemetryServiceTest {
 
         mTempSystemCarDir = Files.createTempDirectory("telemetry_test").toFile();
         when(mMockSystemInterface.getSystemCarDir()).thenReturn(mTempSystemCarDir);
+        when(mMockSystemInterface.getSystemStateInterface()).thenReturn(mMockSystemStateInterface);
 
         mService = new CarTelemetryService(mContext, mMockCarPropertyService);
         mService.init();

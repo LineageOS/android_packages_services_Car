@@ -39,7 +39,7 @@ import java.util.Map;
  * TelemetryProto.MetricsConfig}. All of the methods are blocking so the class should only be
  * accessed on the telemetry thread.
  */
-class MetricsConfigStore {
+public class MetricsConfigStore {
     @VisibleForTesting
     static final String METRICS_CONFIG_DIR = "metrics_configs";
 
@@ -47,7 +47,7 @@ class MetricsConfigStore {
     private Map<String, TelemetryProto.MetricsConfig> mActiveConfigs;
     private Map<String, Integer> mNameVersionMap;
 
-    MetricsConfigStore(File rootDirectory) {
+    public MetricsConfigStore(File rootDirectory) {
         mConfigDirectory = new File(rootDirectory, METRICS_CONFIG_DIR);
         mConfigDirectory.mkdirs();
         mActiveConfigs = new ArrayMap<>();
@@ -70,7 +70,7 @@ class MetricsConfigStore {
     /**
      * Returns all active {@link TelemetryProto.MetricsConfig} from disk.
      */
-    List<TelemetryProto.MetricsConfig> getActiveMetricsConfigs() {
+    public List<TelemetryProto.MetricsConfig> getActiveMetricsConfigs() {
         return new ArrayList<>(mActiveConfigs.values());
     }
 
@@ -80,7 +80,7 @@ class MetricsConfigStore {
      * @param metricsConfig the config to be persisted to disk.
      * @return true if the MetricsConfig should start receiving data, false otherwise.
      */
-    int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
+    public int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
         // TODO(b/198823862): Validate config version
         // TODO(b/197336485): Check expiration date for MetricsConfig
         int currentVersion = mNameVersionMap.getOrDefault(metricsConfig.getName(), -1);
@@ -104,12 +104,13 @@ class MetricsConfigStore {
     }
 
     /** Deletes the MetricsConfig from disk. Returns the success status. */
-    boolean deleteMetricsConfig(String metricsConfigName) {
+    public boolean deleteMetricsConfig(String metricsConfigName) {
         mActiveConfigs.remove(metricsConfigName);
         return new File(mConfigDirectory, metricsConfigName).delete();
     }
 
-    void deleteAllMetricsConfigs() {
+    /** Deletes all MetricsConfigs from disk. */
+    public void deleteAllMetricsConfigs() {
         mActiveConfigs.clear();
         for (File file : mConfigDirectory.listFiles()) {
             file.delete();

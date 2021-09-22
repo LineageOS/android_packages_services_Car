@@ -46,7 +46,7 @@ import java.io.FileWriter;
 import java.io.IOException;
 
 @RunWith(MockitoJUnitRunner.class)
-public class SystemMonitorUnitTest {
+public class SystemMonitorTest {
 
     @Rule public final TemporaryFolder temporaryFolder = new TemporaryFolder();
 
