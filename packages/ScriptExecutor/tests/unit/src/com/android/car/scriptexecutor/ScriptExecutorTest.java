@@ -182,7 +182,8 @@ public final class ScriptExecutorTest {
         // Expect to get back a bundle with a single string key: string value pair:
         // {"hello": "world"}
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("hello")).isEqualTo("world");
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("hello")).isEqualTo(
+                "world");
     }
 
     @Test
@@ -198,7 +199,8 @@ public final class ScriptExecutorTest {
 
         // Expect to get back a bundle with 4 keys, each corresponding to a distinct supported type.
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo("hello");
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("string")).isEqualTo(
+                "hello");
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getBoolean("boolean")).isEqualTo(true);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getInt("integer")).isEqualTo(1);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getDouble("number")).isEqualTo(1.1);
@@ -216,10 +218,11 @@ public final class ScriptExecutorTest {
 
         runScriptAndWaitForResponse(script, "nested", mSavedState);
 
-        // Bundle does not contain any value under "nested_table" key, because nested tables are
-        // not supported yet.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(4);
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("nested_table")).isNull();
+        // Verify that expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "nested tables are not supported");
     }
 
     @Test
@@ -303,26 +306,32 @@ public final class ScriptExecutorTest {
                         + "    result = {}\n"
                         + "    result.int_array = state.int_array\n"
                         + "    result.long_array = state.long_array\n"
+                        + "    result.string_array = state.string_array\n"
                         + "    on_success(result)\n"
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
         int[] int_array = new int[]{1, 2};
         long[] int_array_in_long = new long[]{1, 2};
         long[] long_array = new long[]{1, 2, 3};
+        String[] string_array = new String[]{"one", "two", "three"};
         previousState.putIntArray("int_array", int_array);
         previousState.putLongArray("long_array", long_array);
+        previousState.putStringArray("string_array", string_array);
 
 
         runScriptAndWaitForResponse(script, "arrays", previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
-        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(2);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(3);
         // Lua has only one lua_Integer. Here Java long is used to represent it when data is
         // transferred from Lua to CarTelemetryService.
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("int_array")).isEqualTo(
                 int_array_in_long);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
                 long_array);
+        assertThat(
+                mFakeScriptExecutorListener.mSavedBundle.getStringArray("string_array")).isEqualTo(
+                string_array);
     }
 
     @Test
@@ -349,6 +358,29 @@ public final class ScriptExecutorTest {
         assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
         assertThat(mFakeScriptExecutorListener.mSavedBundle.getLongArray("long_array")).isEqualTo(
                 expected_array);
+    }
+
+    @Test
+    public void invokeScript_processesStringArray()
+            throws RemoteException {
+        // Verify that an array modified by a script is properly sent back by the callback.
+        // TODO(b/189241508): update function signatures.
+        String script =
+                "function process_string_array(state)\n"
+                        + "    result = {}\n"
+                        + "    result.answer = state.string_array[1] .. state.string_array[2]\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+        PersistableBundle previousState = new PersistableBundle();
+        String[] string_array = new String[]{"Hello ", "world!"};
+        previousState.putStringArray("string_array", string_array);
+
+        runScriptAndWaitForResponse(script, "process_string_array", previousState);
+
+        // Verify that keys are preserved but the values are modified as expected.
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mSavedBundle.getString("answer")).isEqualTo(
+                "Hello world!");
     }
 
     @Test
@@ -399,10 +431,8 @@ public final class ScriptExecutorTest {
         // Verify that expected error is received.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
                 IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
-        assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
-                "Returned table mixed_array contains values of types other than expected integer."
-                        + " This key-value cannot be unpacked successfully. This error is "
-                        + "unrecoverable.");
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "Returned Lua arrays must have elements of the same type.");
     }
 
     @Test

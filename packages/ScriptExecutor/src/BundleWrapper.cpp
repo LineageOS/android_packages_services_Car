@@ -65,6 +65,8 @@ void BundleWrapper::putDouble(const char* key, double value) {
 void BundleWrapper::putString(const char* key, const char* value) {
     jmethodID putStringMethod = mJNIEnv->GetMethodID(mBundleClass, "putString",
                                                      "(Ljava/lang/String;Ljava/lang/String;)V");
+    // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
+    // to create a string).
     mJNIEnv->CallVoidMethod(mBundle, putStringMethod, mJNIEnv->NewStringUTF(key),
                             mJNIEnv->NewStringUTF(value));
 }
@@ -76,6 +78,21 @@ void BundleWrapper::putLongArray(const char* key, const std::vector<int64_t>& va
     jlongArray array = mJNIEnv->NewLongArray(value.size());
     mJNIEnv->SetLongArrayRegion(array, 0, value.size(), &value[0]);
     mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, mJNIEnv->NewStringUTF(key), array);
+}
+
+void BundleWrapper::putStringArray(const char* key, const std::vector<std::string>& value) {
+    jmethodID putStringArrayMethod =
+            mJNIEnv->GetMethodID(mBundleClass, "putStringArray",
+                                 "(Ljava/lang/String;[Ljava/lang/String;)V");
+
+    jobjectArray array =
+            mJNIEnv->NewObjectArray(value.size(), mJNIEnv->FindClass("java/lang/String"), nullptr);
+    // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
+    // to create a string).
+    for (int i = 0; i < value.size(); i++) {
+        mJNIEnv->SetObjectArrayElement(array, i, mJNIEnv->NewStringUTF(value[i].c_str()));
+    }
+    mJNIEnv->CallVoidMethod(mBundle, putStringArrayMethod, mJNIEnv->NewStringUTF(key), array);
 }
 
 jobject BundleWrapper::getBundle() {
