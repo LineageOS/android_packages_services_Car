@@ -16,9 +16,16 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.os.Handler;
+
+import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.MetricsConfigStore;
+import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
+
+import java.time.Duration;
 
 /**
  * DataBrokerController instantiates the DataBroker and manages what Publishers
@@ -30,15 +37,42 @@ public class DataBrokerController {
     public static final int TASK_PRIORITY_MED = 50;
     public static final int TASK_PRIORITY_LOW = 100;
 
-    private MetricsConfig mMetricsConfig;
     private final DataBroker mDataBroker;
+    private final Handler mTelemetryHandler;
+    private final MetricsConfigStore mMetricsConfigStore;
     private final SystemMonitor mSystemMonitor;
+    private final SystemStateInterface mSystemStateInterface;
 
-    public DataBrokerController(DataBroker dataBroker, SystemMonitor systemMonitor) {
+    public DataBrokerController(
+            DataBroker dataBroker,
+            Handler telemetryHandler,
+            MetricsConfigStore metricsConfigStore,
+            SystemMonitor systemMonitor,
+            SystemStateInterface systemStateInterface) {
         mDataBroker = dataBroker;
-        mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
+        mTelemetryHandler = telemetryHandler;
+        mMetricsConfigStore = metricsConfigStore;
         mSystemMonitor = systemMonitor;
+        mSystemStateInterface = systemStateInterface;
+
+        mDataBroker.setOnScriptFinishedCallback(this::onScriptFinished);
         mSystemMonitor.setSystemMonitorCallback(this::onSystemMonitorEvent);
+        mSystemStateInterface.scheduleActionForBootCompleted(
+                this::startMetricsCollection, Duration.ZERO);
+    }
+
+    /**
+     * Starts collecting data. Once data is sent by publishers, DataBroker will arrange scripts to
+     * run. This method is called by some thread on executor service, therefore the work needs to
+     * be posted on the telemetry thread.
+     */
+    private void startMetricsCollection() {
+        mTelemetryHandler.post(() -> {
+            for (TelemetryProto.MetricsConfig config :
+                    mMetricsConfigStore.getActiveMetricsConfigs()) {
+                mDataBroker.addMetricsConfiguration(config);
+            }
+        });
     }
 
     /**
@@ -47,8 +81,7 @@ public class DataBrokerController {
      * @param metricsConfig the metrics config.
      */
     public void onNewMetricsConfig(MetricsConfig metricsConfig) {
-        mMetricsConfig = metricsConfig;
-        mDataBroker.addMetricsConfiguration(mMetricsConfig);
+        mDataBroker.addMetricsConfiguration(metricsConfig);
     }
 
     /**
@@ -74,7 +107,7 @@ public class DataBrokerController {
                 || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_HI) {
             mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_HI);
         } else if (event.getCpuUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED
-                    || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED) {
+                || event.getMemoryUsageLevel() == SystemMonitorEvent.USAGE_LEVEL_MED) {
             mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_MED);
         } else {
             mDataBroker.setTaskExecutionPriority(TASK_PRIORITY_LOW);
