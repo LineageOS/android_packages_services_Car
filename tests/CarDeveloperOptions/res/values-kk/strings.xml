@@ -3382,7 +3382,7 @@
     <string name="vr_listener_security_warning_title" msgid="7019322246707645361">"Көмекші VR қызметтеріне <xliff:g id="SERVICE">%1$s</xliff:g> пайдалануға рұқсат беру керек пе?"</string>
     <string name="vr_listener_security_warning_summary" msgid="5093225583584522067">"<xliff:g id="VR_LISTENER_NAME">%1$s</xliff:g> қолданбаларды виртуалды шындық режимінде пайдаланып жатқанда іске қосыла алады."</string>
     <string name="display_vr_pref_title" msgid="1088464812293416981">"Құрылғы VR режимінде болғанда"</string>
-    <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Бұлыңғырлықты азайту (ұсынылады)"</string>
+    <string name="display_vr_pref_low_persistence" msgid="3132583929174794245">"Бұлдырлықты азайту (ұсынылады)"</string>
     <string name="display_vr_pref_off" msgid="4681320968818852691">"Жыпылықтауды азайту"</string>
     <string name="picture_in_picture_title" msgid="4960733106166035448">"Суреттегі сурет"</string>
     <string name="picture_in_picture_empty_text" msgid="8664071475324685241">"Орнатылған қолданбалардың ешқайсысы \"сурет ішіндегі сурет\" режимін қолдамайды"</string>

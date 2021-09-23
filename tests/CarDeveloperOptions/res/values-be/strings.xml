@@ -2157,7 +2157,7 @@
     <string name="accessibility_summary_state_disabled" msgid="9197369047683087620">"Выключана"</string>
     <string name="accessibility_summary_state_stopped" msgid="3170264683616172746">"Сэрвіс працуе некарэктна. Націсніце, каб даведацца больш."</string>
     <string name="accessibility_description_state_stopped" msgid="7666178628053039493">"Сэрвіс працуе некарэктна."</string>
-    <string name="enable_quick_setting" msgid="1580451877998661255">"Паказваць у Хуткіх наладах"</string>
+    <string name="enable_quick_setting" msgid="1580451877998661255">"Паказваць у хуткіх наладах"</string>
     <string name="daltonizer_type" msgid="6890356081036026791">"Рэжым карэкцыі"</string>
     <plurals name="accessibilty_autoclick_preference_subtitle_extremely_short_delay" formatted="false" msgid="3810676455925024813">
       <item quantity="one">Надзвычай кароткая затрымка (<xliff:g id="CLICK_DELAY_LABEL_1">%1$d</xliff:g> мс)</item>
