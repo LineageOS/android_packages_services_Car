@@ -24,6 +24,7 @@ import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
@@ -121,6 +122,7 @@ public class BluetoothFastPairTest {
     static final int TEST_PIN_NUMBER = 66051;
     static final int TEST_MODEL_ID = 4386;
     static final byte[] TEST_MODEL_ID_BYTES = {0x00, 0x11, 0x22};
+    static final int ASYNC_CALL_TIMEOUT_MILLIS = 200;
     byte[] mAdvertisementExpectedResults = new byte[]{0x00, 0x50, 0x00, 0x00, 0x00, 0x00, 0x00,
             0x11, 0x00};
     @Mock
@@ -452,6 +454,22 @@ public class BluetoothFastPairTest {
         assertThat(serviceData.size()).isEqualTo(1);
         assertThat(serviceData.get(FastPairAdvertiser.FastPairServiceUuid))
                 .isEqualTo(TEST_MODEL_ID_BYTES);
+    }
+
+    @Test
+    public void testStopAdvertisements() {
+        mTestFastPairProvider.start();
+        when(mMockBluetoothAdapter.isDiscovering()).thenReturn(true);
+        Intent scanMode = new Intent(BluetoothAdapter.ACTION_SCAN_MODE_CHANGED);
+        scanMode.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
+                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+        mTestFastPairProvider.mDiscoveryModeChanged.onReceive(mMockContext, scanMode);
+
+        when(mMockBluetoothAdapter.isDiscovering()).thenReturn(false);
+        scanMode.putExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
+                BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE);
+        mTestFastPairProvider.mDiscoveryModeChanged.onReceive(mMockContext, scanMode);
+        verify(mMockLeAdvertiser, timeout(ASYNC_CALL_TIMEOUT_MILLIS)).stopAdvertisingSet(any());
     }
 
     void sendPairingKey(int pairingKey) {
