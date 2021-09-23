@@ -59,6 +59,9 @@ public class DataBrokerImpl implements DataBroker {
     private static final int MSG_HANDLE_TASK = 1;
     private static final int MSG_BIND_TO_SCRIPT_EXECUTOR = 2;
 
+    /** Bind to script executor 5 times before entering disabled state. */
+    private static final int MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS = 5;
+
     private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
     private static final String SCRIPT_EXECUTOR_CLASS =
             "com.android.car.scriptexecutor.ScriptExecutor";
@@ -87,8 +90,14 @@ public class DataBrokerImpl implements DataBroker {
      */
     private boolean mDisabled = false;
 
+    /** Current number of attempts to bind to ScriptExecutor. */
+    private int mBindScriptExecutorAttempts = 0;
+
     /** Priority of current system to determine if a {@link ScriptExecutionTask} can run. */
     private int mPriority = 1;
+
+    /** Waiting period between attempts to bind script executor. Can be shortened for tests. */
+    @VisibleForTesting long mBindScriptExecutorDelayMillis = 3_000L;
 
     /**
      * Name of the script that's currently running. If no script is running, value is null.
@@ -144,9 +153,21 @@ public class DataBrokerImpl implements DataBroker {
                 mServiceConnection,
                 Context.BIND_AUTO_CREATE,
                 UserHandle.SYSTEM);
-        if (!success) {
-            Slog.w(CarLog.TAG_TELEMETRY, "failed to get valid connection to ScriptExecutor");
-            unbindScriptExecutor();
+        if (success) {
+            mBindScriptExecutorAttempts = 0; // reset
+            return;
+        }
+        unbindScriptExecutor();
+        mBindScriptExecutorAttempts++;
+        if (mBindScriptExecutorAttempts < MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS) {
+            Slog.w(CarLog.TAG_TELEMETRY,
+                    "failed to get valid connection to ScriptExecutor, retrying in "
+                            + mBindScriptExecutorDelayMillis + "ms.");
+            mTelemetryHandler.sendEmptyMessageDelayed(MSG_BIND_TO_SCRIPT_EXECUTOR,
+                    mBindScriptExecutorDelayMillis);
+        } else {
+            Slog.w(CarLog.TAG_TELEMETRY, "failed to get valid connection to ScriptExecutor, "
+                    + "disabling DataBroker");
             disableBroker();
         }
     }
@@ -166,7 +187,10 @@ public class DataBrokerImpl implements DataBroker {
         }
     }
 
-    /** Enters into a disabled state because something irrecoverable happened. */
+    /**
+     * Enters into a disabled state because something irrecoverable happened.
+     * TODO(b/200841260): expose the state to the caller.
+     */
     private void disableBroker() {
         mDisabled = true;
         // remove all MetricConfigs, disable all publishers, stop receiving data
@@ -323,6 +347,7 @@ public class DataBrokerImpl implements DataBroker {
                 // upon successful binding, a task will be scheduled to run if there are any
                 mTelemetryHandler.sendEmptyMessage(MSG_BIND_TO_SCRIPT_EXECUTOR);
             } else {
+                Slog.d(CarLog.TAG_TELEMETRY, "invoking script executor");
                 // update current name because a script is currently running
                 mCurrentScriptName = task.getMetricsConfig().getName();
                 mScriptExecutor.invokeScript(

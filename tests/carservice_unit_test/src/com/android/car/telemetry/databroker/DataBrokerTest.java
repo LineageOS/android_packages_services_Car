@@ -50,7 +50,9 @@ import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
 import org.mockito.Mockito;
+import org.mockito.invocation.InvocationOnMock;
 import org.mockito.junit.MockitoJUnitRunner;
+import org.mockito.stubbing.Answer;
 
 import java.nio.file.Files;
 import java.util.Collections;
@@ -114,8 +116,6 @@ public class DataBrokerTest {
     public void setUp() throws Exception {
         when(mMockCarPropertyService.getPropertyList())
                 .thenReturn(Collections.singletonList(PROP_CONFIG));
-        // bind service should return true, otherwise broker is disabled
-        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         PublisherFactory factory = new PublisherFactory(
                 mMockCarPropertyService, mMockHandler, mMockStatsManager,
                 Files.createTempDirectory("telemetry_test").toFile());
@@ -295,11 +295,24 @@ public class DataBrokerTest {
     }
 
     @Test
-    public void testScheduleNextTask_whenBindScriptExecutorFailed_shouldDisableBroker()
+    public void testScheduleNextTask_bindScriptExecutorFailedOnce_shouldRebind()
             throws Exception {
-        // fail all future attempts to bind to it
         Mockito.reset(mMockContext);
-        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(false);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenAnswer(
+                new Answer() {
+                    private int mCount = 0;
+
+                    @Override
+                    public Object answer(InvocationOnMock invocation) {
+                        if (mCount++ == 1) {
+                            return false; // fail first attempt
+                        }
+                        ServiceConnection conn = invocation.getArgument(1);
+                        conn.onServiceConnected(null, mMockScriptExecutorBinder);
+                        return true; // second attempt should succeed
+                    }
+                });
+        mDataBroker.mBindScriptExecutorDelayMillis = 0L; // immediately rebind for testing purpose
         mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
         PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
         taskQueue.add(mHighPriorityTask);
@@ -308,7 +321,27 @@ public class DataBrokerTest {
         mDataBroker.scheduleNextTask();
 
         waitForHandlerThreadToFinish();
-        // all subscribers should have been removed
+        assertThat(taskQueue.peek()).isNull();
+        assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(1);
+    }
+
+    @Test
+    public void testScheduleNextTask_bindScriptExecutorFailedMultipleTimes_shouldDisableBroker()
+            throws Exception {
+        // fail 6 future attempts to bind to it
+        Mockito.reset(mMockContext);
+        when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any()))
+                .thenReturn(false, false, false, false, false, false);
+        mDataBroker.mBindScriptExecutorDelayMillis = 0L; // immediately rebind for testing purpose
+        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask);
+
+        // will rebind to ScriptExecutor if it is null
+        mDataBroker.scheduleNextTask();
+
+        waitForHandlerThreadToFinish();
+        // broker disabled, all subscribers should have been removed
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
         assertThat(mFakeScriptExecutor.getApiInvocationCount()).isEqualTo(0);
     }

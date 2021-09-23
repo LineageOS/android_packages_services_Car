@@ -53,6 +53,7 @@ android_app {
         "com.android.car.keventreader-client",
         "guava",
         "android.car.cluster.navigation",
+        "cartelemetry-protos",
         "car-experimental-api-static-lib",
     ],
 

@@ -381,4 +381,9 @@
     <!-- Fullscreen Activity Test -->
     <string name="nav_to_full_screen" translatable="false">Navigate to Full Screen</string>
     <string name="cancel" translatable="false">Cancel</string>
+
+    <!-- CarTelemetryService Test -->
+    <string name="send_on_gear_change" translatable="false">Send MetricsConfig on_gear_change</string>
+    <string name="remove_on_gear_change" translatable="false">Remove MetricsConfig on_gear_change</string>
+    <string name="get_on_gear_change" translatable="false">Get on_gear_change Report</string>
 </resources>
