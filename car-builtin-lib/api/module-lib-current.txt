@@ -11,12 +11,44 @@ package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
+    method @Deprecated public android.app.TaskInfo findRootTask(int);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();
+    method @Deprecated @Nullable public android.util.SparseArray<android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer> getTopTasks();
+    method public void registerProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    method @Deprecated public void registerTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
+    method public boolean removeTask(int);
+    method public void setFocusedRootTask(int);
     method public boolean startUserInBackground(int);
     method public boolean startUserInForeground(int);
     method public void stopAllTasksForUser(int);
     method public int stopUserWithDelayedLocking(int, boolean);
     method public boolean unlockUser(int);
+    method public void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
+    method @Deprecated public void unregisterTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
+  }
+
+  @Deprecated public static interface ActivityManagerHelper.OnTaskStackChangeListener {
+    method @Deprecated public default void onTaskStackChanged();
+  }
+
+  public static interface ActivityManagerHelper.ProcessObserverCallback {
+    method public default void onForegroundActivitiesChanged(int, int, boolean);
+    method public default void onProcessDied(int, int);
+  }
+
+  @Deprecated public static class ActivityManagerHelper.TopTaskInfoContainer {
+    ctor @Deprecated public ActivityManagerHelper.TopTaskInfoContainer(android.content.ComponentName, int, int, int, int, int, int, android.content.ComponentName, int[], String[]);
+    method @Deprecated public boolean isMatching(android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer);
+    field @Deprecated @Nullable public final android.content.ComponentName baseActivity;
+    field @Deprecated public final int[] childTaskIds;
+    field @Deprecated public final String[] childTaskNames;
+    field @Deprecated public final int displayId;
+    field @Deprecated public final int position;
+    field @Deprecated public final int rootTaskId;
+    field @Deprecated public final int rootTaskUserId;
+    field @Deprecated public final int taskId;
+    field @Deprecated @Nullable public final android.content.ComponentName topActivity;
+    field @Deprecated public final int userId;
   }
 
   public final class KeyguardManagerHelper {

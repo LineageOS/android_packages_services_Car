@@ -15,6 +15,8 @@
  */
 package com.android.car;
 
+import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
+
 import static androidx.test.platform.app.InstrumentationRegistry.getInstrumentation;
 
 import static org.junit.Assert.assertTrue;
@@ -34,8 +36,6 @@ import android.view.Display;
 
 import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.MediumTest;
-
-import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 
 import org.junit.After;
 import org.junit.Before;

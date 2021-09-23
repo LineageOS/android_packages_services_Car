@@ -17,18 +17,29 @@
 package android.car.builtin.app;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
+import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
+import android.app.IProcessObserver;
+import android.app.TaskInfo;
+import android.app.TaskStackListener;
 import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
+import android.content.ComponentName;
 import android.os.Bundle;
 import android.os.RemoteException;
+import android.util.SparseArray;
 
 import com.android.internal.annotations.GuardedBy;
 
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Objects;
 import java.util.concurrent.Callable;
 
 /**
@@ -38,7 +49,7 @@ import java.util.concurrent.Callable;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class ActivityManagerHelper {
 
-    private static final String TAG = "ActivityManagerHelper";
+    private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
 
     private static Object sLock = new Object();
 
@@ -48,7 +59,7 @@ public final class ActivityManagerHelper {
     private static ActivityManagerHelper sActivityManagerBuiltIn;
 
     private ActivityManagerHelper() {
-        mAm =  ActivityManager.getService();
+        mAm = ActivityManager.getService();
     }
 
     /**
@@ -131,9 +142,9 @@ public final class ActivityManagerHelper {
     }
 
     /**
-     *  Creates an ActivityOptions from the Bundle generated from ActivityOptions.
-     *  TODO(b/195598146): Replace the usage of this with {@code ActivityOptions.fromBundle}
-     *  as soon as it is exposed as ModuleApi.
+     * Creates an ActivityOptions from the Bundle generated from ActivityOptions.
+     * TODO(b/195598146): Replace the usage of this with {@code ActivityOptions.fromBundle}
+     * as soon as it is exposed as ModuleApi.
      */
     @NonNull
     public static ActivityOptions createActivityOptions(@NonNull Bundle bOptions) {
@@ -152,5 +163,286 @@ public final class ActivityManagerHelper {
         String msg = String.format(format, args);
         Slog.e(TAG, msg, e);
         return new IllegalStateException(msg, e);
+    }
+
+    /**
+     * Container to hold info on top task in an Activity stack
+     */
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    public static class TopTaskInfoContainer {
+        @Nullable public final ComponentName topActivity;
+        public final int taskId;
+        public final int rootTaskId;
+        public final int userId;
+        public final int rootTaskUserId;
+        public final int displayId;
+        public final int position;
+        @Nullable public final ComponentName baseActivity;
+        public final int[] childTaskIds;
+        public final String[] childTaskNames;
+
+        public TopTaskInfoContainer(ComponentName topActivity, int taskId, int userId,
+                int rootTaskId, int rootTaskUserId, int displayId, int position,
+                ComponentName baseActivity, int[] childTaskIds, String[] childTaskNames) {
+            this.topActivity = topActivity;
+            this.taskId = taskId;
+            this.userId = userId;
+            this.rootTaskId = rootTaskId;
+            this.rootTaskUserId = rootTaskUserId;
+            this.displayId = displayId;
+            this.position = position;
+            this.baseActivity = baseActivity;
+            this.childTaskIds = childTaskIds;
+            this.childTaskNames = childTaskNames;
+        }
+
+        public boolean isMatching(TopTaskInfoContainer taskInfo) {
+            return taskInfo != null
+                    && Objects.equals(this.topActivity, taskInfo.topActivity)
+                    && this.taskId == taskInfo.taskId
+                    && this.displayId == taskInfo.displayId
+                    && this.position == taskInfo.position
+                    && this.userId == taskInfo.userId;
+        }
+
+        @Override
+        public String toString() {
+            return String.format(
+                    "TaskInfoContainer [topActivity=%s, taskId=%d, userId=%d, displayId=%d, "
+                            + "position=%d]", topActivity, taskId, userId, displayId, position);
+        }
+    }
+
+    private final Object mLock = new Object();
+
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    public interface OnTaskStackChangeListener {
+        default void onTaskStackChanged() {}
+    }
+
+    @GuardedBy("mLock")
+    private ArrayList<OnTaskStackChangeListener> mTaskStackChangeListeners = new ArrayList<>();
+
+    private final TaskStackListener mTaskStackListener = new TaskStackListener() {
+        @Override
+        public void onTaskStackChanged() throws RemoteException {
+            List<OnTaskStackChangeListener> listeners;
+            synchronized (mLock) {
+                listeners = mTaskStackChangeListeners;
+            }
+            for (int i = 0, size = listeners.size(); i < size; ++i) {
+                listeners.get(i).onTaskStackChanged();
+            }
+        }
+    };
+
+    /**
+     * Registers a listener to be called when the task stack is changed.
+     * @param listener a listener to register
+     */
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    public void registerTaskStackChangeListener(OnTaskStackChangeListener listener) {
+        synchronized (mLock) {
+            if (mTaskStackChangeListeners.isEmpty()) {
+                try {
+                    mAm.registerTaskStackListener(mTaskStackListener);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to register listener", e);
+                    throw new RuntimeException(e);
+                }
+            }
+            // Make a copy of listeners not to affect on-going listeners.
+            mTaskStackChangeListeners =
+                    (ArrayList<OnTaskStackChangeListener>) mTaskStackChangeListeners.clone();
+            mTaskStackChangeListeners.add(listener);
+        }
+    }
+
+    /**
+     * Unregisters a listener.
+     * @param listener a listener to unregister
+     */
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    public void unregisterTaskStackChangeListener(OnTaskStackChangeListener listener) {
+        synchronized (mLock) {
+            // Make a copy of listeners not to affect on-going listeners.
+            mTaskStackChangeListeners =
+                    (ArrayList<OnTaskStackChangeListener>) mTaskStackChangeListeners.clone();
+            mTaskStackChangeListeners.remove(listener);
+            if (mTaskStackChangeListeners.isEmpty()) {
+                try {
+                    mAm.unregisterTaskStackListener(mTaskStackListener);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to unregister listener", e);
+                    throw new RuntimeException(e);
+                }
+            }
+        }
+    }
+
+    /**
+     * Gets the top visible tasks of each display.
+     * @return A {@link SparseArray} that maps displayId to {@link TopTaskInfoContainer}
+     */
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    @Nullable
+    public SparseArray<TopTaskInfoContainer> getTopTasks() {
+        List<ActivityTaskManager.RootTaskInfo> infos = getAllRootTaskInfos();
+        if (infos == null) return null;
+
+        SparseArray<TopTaskInfoContainer> topTasks = new SparseArray<>();
+        for (int i = 0, size = infos.size(); i < size; ++i) {
+            ActivityTaskManager.RootTaskInfo info = infos.get(i);
+            int displayId = info.displayId;
+            if (info.childTaskNames.length == 0
+                    || !info.visible) { // empty stack or not shown
+                continue;
+            }
+            TopTaskInfoContainer currentTopTaskInfo = topTasks.get(displayId);
+
+            if (currentTopTaskInfo == null || info.position > currentTopTaskInfo.position) {
+                TopTaskInfoContainer newTopTaskInfo = new TopTaskInfoContainer(
+                        info.topActivity, info.childTaskIds[info.childTaskIds.length - 1],
+                        info.childTaskUserIds[info.childTaskUserIds.length - 1],
+                        info.taskId, info.userId, info.displayId, info.position, info.baseActivity,
+                        info.childTaskIds, info.childTaskNames);
+                topTasks.put(displayId, newTopTaskInfo);
+                Slogf.i(TAG, "Updating top task to: " + newTopTaskInfo);
+            }
+        }
+        return topTasks;
+    }
+
+    @Nullable
+    private List<RootTaskInfo> getAllRootTaskInfos() {
+        try {
+            return mAm.getAllRootTaskInfos();
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to getAllRootTaskInfos", e);
+            return null;
+        }
+    }
+
+    /**
+     * Finds the root task of the given taskId.
+     * @return a {@link TaskInfo} if the root task exists, or {@code null}.
+     */
+    @Deprecated  // Will be replaced with TaskOrganizer based implementation
+    public TaskInfo findRootTask(int taskId) {
+        List<ActivityTaskManager.RootTaskInfo> infos = getAllRootTaskInfos();
+        for (int i = 0, size = infos.size(); i < size; ++i) {
+            ActivityTaskManager.RootTaskInfo info = infos.get(i);
+            for (int j = 0; j < info.childTaskIds.length; ++j) {
+                if (info.childTaskIds[j] == taskId) {
+                    return info;
+                }
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Makes the root task of the given taskId focused.
+     */
+    public void setFocusedRootTask(int taskId) {
+        try {
+            mAm.setFocusedRootTask(taskId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to setFocusedRootTask", e);
+        }
+    }
+
+    /**
+     * Removes the given task.
+     */
+    public boolean removeTask(int taskId) {
+        try {
+            return mAm.removeTask(taskId);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Failed to removeTask", e);
+        }
+        return false;
+    }
+
+    public interface ProcessObserverCallback {
+        default void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
+        }
+        default void onProcessDied(int pid, int uid) {}
+    }
+
+    @GuardedBy("mLock")
+    private ArrayList<ProcessObserverCallback> mProcessObserverCallbacks = new ArrayList<>();
+
+    private final IProcessObserver.Stub mProcessObserver = new IProcessObserver.Stub() {
+        @Override
+        public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities)
+                throws RemoteException {
+            List<ProcessObserverCallback> callbacks;
+            synchronized (mLock) {
+                callbacks = mProcessObserverCallbacks;
+            }
+            for (int i = 0, size = callbacks.size(); i < size; ++i) {
+                callbacks.get(i).onForegroundActivitiesChanged(pid, uid, foregroundActivities);
+            }
+        }
+
+        @Override
+        public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes)
+                throws RemoteException {
+            // Not used
+        }
+
+        @Override
+        public void onProcessDied(int pid, int uid) throws RemoteException {
+            List<ProcessObserverCallback> callbacks;
+            synchronized (mLock) {
+                callbacks = mProcessObserverCallbacks;
+            }
+            for (int i = 0, size = callbacks.size(); i < size; ++i) {
+                callbacks.get(i).onProcessDied(pid, uid);
+            }
+        }
+    };
+
+    /**
+     * Registers a callback to be invoked when the process states are changed.
+     * @param callback a callback to register
+     */
+    public void registerProcessObserverCallback(ProcessObserverCallback callback) {
+        synchronized (mLock) {
+            if (mProcessObserverCallbacks.isEmpty()) {
+                try {
+                    mAm.registerProcessObserver(mProcessObserver);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to register ProcessObserver", e);
+                    throw new RuntimeException(e);
+                }
+            }
+            // Make a copy of callbacks not to affect on-going callbacks.
+            mProcessObserverCallbacks =
+                    (ArrayList<ProcessObserverCallback>) mProcessObserverCallbacks.clone();
+            mProcessObserverCallbacks.add(callback);
+        }
+    }
+
+    /**
+     * Unregisters the given callback.
+     * @param callback a callback to unregister
+     */
+    public void unregisterProcessObserverCallback(ProcessObserverCallback callback) {
+        synchronized (mLock) {
+            // Make a copy of callbacks not to affect on-going callbacks.
+            mProcessObserverCallbacks =
+                    (ArrayList<ProcessObserverCallback>) mProcessObserverCallbacks.clone();
+            mProcessObserverCallbacks.remove(callback);
+            if (mProcessObserverCallbacks.isEmpty()) {
+                try {
+                    mAm.unregisterProcessObserver(mProcessObserver);
+                } catch (RemoteException e) {
+                    Slogf.e(TAG, "Failed to unregister listener", e);
+                    throw new RuntimeException(e);
+                }
+            }
+        }
     }
 }
