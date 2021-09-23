@@ -21,6 +21,7 @@
     <item target="bool/car_ui_toolbar_logo_fills_nav_icon_space" value="@bool/car_ui_toolbar_logo_fills_nav_icon_space" />
     <item target="bool/car_ui_toolbar_tab_flexible_layout" value="@bool/car_ui_toolbar_tab_flexible_layout" />
     <item target="bool/car_ui_scrollbar_enable" value="@bool/car_ui_scrollbar_enable" />
+    <item target="bool/car_ui_toolbar_tabs_on_second_row" value="@bool/car_ui_toolbar_tabs_on_second_row" />
 
     <item target="id/car_ui_toolbar_nav_icon_container" value="@id/car_ui_toolbar_nav_icon_container" />
     <item target="id/car_ui_toolbar_nav_icon" value="@id/car_ui_toolbar_nav_icon" />

@@ -190,7 +190,7 @@
     <!-- Hairline to the right of the tabs -->
     <View
         android:layout_width="2dp"
-        android:layout_height="match_parent"
+        android:layout_height="0dp"
         android:background="@color/divider_color"
         android:focusable="false"
         app:layout_constraintStart_toEndOf="@id/left_part_of_toolbar_focus_area"
