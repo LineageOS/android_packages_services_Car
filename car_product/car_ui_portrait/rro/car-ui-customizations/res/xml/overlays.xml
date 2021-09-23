@@ -35,7 +35,6 @@
     <item target="color/car_ui_text_color_secondary" value="@color/car_ui_text_color_secondary" />
     <item target="color/car_ui_toolbar_tab_item_selector" value="@color/car_ui_toolbar_tab_item_selector" />
 
-
     <item target="drawable/car_ui_toolbar_background" value="@drawable/car_ui_toolbar_background" />
     <item target="drawable/car_ui_toolbar_menu_item_divider" value="@drawable/car_ui_toolbar_menu_item_divider" />
     <item target="drawable/car_ui_toolbar_menu_item_icon_ripple" value="@drawable/car_ui_toolbar_menu_item_icon_ripple" />
