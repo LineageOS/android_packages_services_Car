@@ -33,6 +33,7 @@ cc_defaults {
         "libbinder",
         "liblog",
         "libutils",
+        "packagemanager_aidl-cpp",
     ],
 }
 
