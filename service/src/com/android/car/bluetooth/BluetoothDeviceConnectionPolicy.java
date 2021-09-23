@@ -25,7 +25,7 @@ import android.car.VehicleAreaSeat;
 import android.car.VehicleAreaType;
 import android.car.VehiclePropertyIds;
 import android.car.VehicleSeatOccupancyState;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
@@ -82,8 +82,10 @@ public class BluetoothDeviceConnectionPolicy {
                         CarPowerPolicy accumulatedPolicy) {
                     boolean isOn = accumulatedPolicy.isComponentEnabled(PowerComponent.BLUETOOTH);
                     if (!mUserManager.isUserUnlocked(UserHandle.of(mUserId))) {
-                        logd("User " + mUserId + " is locked, ignoring bluetooth power change "
-                                + (isOn ? "on" : "off"));
+                        if (DBG) {
+                            Slogf.d(TAG, "User %d is locked, ignoring bluetooth power change %s",
+                                    mUserId, (isOn ? "on" : "off"));
+                        }
                         return;
                     }
                     if (isOn) {
@@ -101,7 +103,10 @@ public class BluetoothDeviceConnectionPolicy {
                     } else {
                         // we'll turn off Bluetooth to disconnect devices and better the "off"
                         // illusion
-                        logd("Car power policy turns off bluetooth. Disable bluetooth adapter");
+                        if (DBG) {
+                            Slogf.d(TAG, "Car power policy turns off bluetooth."
+                                    + " Disable bluetooth adapter");
+                        }
                         disableBluetooth();
                     }
                 }
@@ -126,8 +131,10 @@ public class BluetoothDeviceConnectionPolicy {
             BluetoothDevice device = intent.getParcelableExtra(BluetoothDevice.EXTRA_DEVICE);
             if (BluetoothAdapter.ACTION_STATE_CHANGED.equals(action)) {
                 int state = intent.getIntExtra(BluetoothAdapter.EXTRA_STATE, -1);
-                logd("Bluetooth Adapter state changed: ",
-                        BluetoothUtils.getAdapterStateName(state));
+                if (DBG) {
+                    Slogf.d(TAG, "Bluetooth Adapter state changed: %s",
+                            BluetoothUtils.getAdapterStateName(state));
+                }
                 if (state == BluetoothAdapter.STATE_ON) {
                     connectDevices();
                 }
@@ -148,10 +155,14 @@ public class BluetoothDeviceConnectionPolicy {
 
         CarServicesHelper() {
             mCarPropertyService = CarLocalServices.getService(CarPropertyService.class);
-            if (mCarPropertyService == null) Slog.w(TAG, "Cannot find CarPropertyService");
+            if (mCarPropertyService == null) {
+                Slogf.w(TAG, "Cannot find CarPropertyService");
+            }
             mDriverSeat = getDriverSeatLocationFromVhal();
             mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
-            if (mCarDrivingStateService == null) Slog.w(TAG, "Cannot find mCarDrivingStateService");
+            if (mCarDrivingStateService == null) {
+                Slogf.w(TAG, "Cannot find mCarDrivingStateService");
+            }
         }
 
         /**
@@ -207,7 +218,9 @@ public class BluetoothDeviceConnectionPolicy {
                 return;
             }
             CarPropertyValue value = event.getCarPropertyValue();
-            logd("Car property changed: ", value.toString());
+            if (DBG) {
+                Slogf.d(TAG, "Car property changed: %s", value);
+            }
             if (mBluetoothAdapter.isEnabled()
                     && (value.getPropertyId() == VehiclePropertyIds.SEAT_OCCUPANCY)
                     && ((int) value.getValue() == VehicleSeatOccupancyState.OCCUPIED)
@@ -245,9 +258,13 @@ public class BluetoothDeviceConnectionPolicy {
                 List<CarPropertyConfig> availableProp = mCarPropertyService.getPropertyConfigList(
                         new int[] {VehiclePropertyIds.INFO_DRIVER_SEAT});
                 if (availableProp.isEmpty() || availableProp.get(0) == null) {
-                    logd("Driver seat location property is not in config list.");
+                    if (DBG) {
+                        Slogf.d(TAG, "Driver seat location property is not in config list.");
+                    }
                 } else {
-                    logd("Driver seat location property is not ready yet.");
+                    if (DBG) {
+                        Slogf.d(TAG, "Driver seat location property is not ready yet.");
+                    }
                 }
                 return defaultLocation;
             }
@@ -324,7 +341,9 @@ public class BluetoothDeviceConnectionPolicy {
      * and start the state machine -{@link BluetoothAutoConnectStateMachine}
      */
     public void init() {
-        logd("init()");
+        if (DBG) {
+            Slogf.d(TAG, "init()");
+        }
         IntentFilter profileFilter = new IntentFilter();
         profileFilter.addAction(BluetoothAdapter.ACTION_STATE_CHANGED);
         UserHandle currentUser = UserHandle.of(ActivityManager.getCurrentUser());
@@ -338,7 +357,7 @@ public class BluetoothDeviceConnectionPolicy {
                     .setComponents(PowerComponent.BLUETOOTH).build();
             cpms.addPowerPolicyListener(filter, mPowerPolicyListener);
         } else {
-            Slog.w(TAG, "Cannot find CarPowerManagementService");
+            Slogf.w(TAG, "Cannot find CarPowerManagementService");
         }
         mCarHelper.init();
 
@@ -358,7 +377,9 @@ public class BluetoothDeviceConnectionPolicy {
      * {@link BluetoothAutoConnectStateMachine}
      */
     public void release() {
-        logd("release()");
+        if (DBG) {
+            Slogf.d(TAG, "release()");
+        }
         CarPowerManagementService cpms =
                 CarLocalServices.getService(CarPowerManagementService.class);
         if (cpms != null) {
@@ -375,7 +396,9 @@ public class BluetoothDeviceConnectionPolicy {
      * Tell each Profile device manager that its time to begin auto connecting devices
      */
     public void connectDevices() {
-        logd("Connect devices for each profile");
+        if (DBG) {
+            Slogf.d(TAG, "Connect devices for each profile");
+        }
         mCarBluetoothService.connectDevices();
     }
 
@@ -393,9 +416,11 @@ public class BluetoothDeviceConnectionPolicy {
      * Turn on the Bluetooth Adapter.
      */
     private void enableBluetooth() {
-        logd("Enable bluetooth adapter");
+        if (DBG) {
+            Slogf.d(TAG, "Enable bluetooth adapter");
+        }
         if (mBluetoothAdapter == null) {
-            Slog.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
+            Slogf.e(TAG, "Cannot enable Bluetooth adapter. The object is null.");
             return;
         }
         mBluetoothAdapter.enable();
@@ -408,9 +433,11 @@ public class BluetoothDeviceConnectionPolicy {
      * of the Bluetooth adapter for next start up.
      */
     private void disableBluetooth() {
-        logd("Disable bluetooth, do not persist state across reboot");
+        if (DBG) {
+            Slogf.d(TAG, "Disable bluetooth, do not persist state across reboot");
+        }
         if (mBluetoothAdapter == null) {
-            Slog.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
+            Slogf.e(TAG, "Cannot disable Bluetooth adapter. The object is null.");
             return;
         }
         mBluetoothAdapter.disable(false);
@@ -424,14 +451,5 @@ public class BluetoothDeviceConnectionPolicy {
         writer.increaseIndent();
         writer.printf("UserId: %d\n", mUserId);
         writer.decreaseIndent();
-    }
-
-    /**
-     * Print to debug if debug is enabled
-     */
-    private static void logd(String... msgParts) {
-        if (DBG) {
-            Slog.d(TAG, String.join(" ", msgParts));
-        }
     }
 }

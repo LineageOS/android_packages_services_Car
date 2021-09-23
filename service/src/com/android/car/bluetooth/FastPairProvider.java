@@ -19,7 +19,7 @@ package com.android.car.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -66,7 +66,7 @@ public class FastPairProvider {
         @Override
         public void onPairingCompleted(boolean successful) {
             if (DBG) {
-                Slog.d(TAG, "onPairingCompleted " + successful);
+                Slogf.d(TAG, "onPairingCompleted %s", successful);
             }
             if (successful || mScanMode != BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
                 advertiseAccountKeys();
@@ -84,7 +84,7 @@ public class FastPairProvider {
         public void onReceive(Context context, Intent intent) {
             String action = intent.getAction();
             if (DBG) {
-                Slog.d(TAG, "onReceive, " + action);
+                Slogf.d(TAG, "onReceive, %s", action);
             }
             switch (action) {
                 case BluetoothAdapter.ACTION_SCAN_MODE_CHANGED:
@@ -92,7 +92,7 @@ public class FastPairProvider {
                             .getIntExtra(BluetoothAdapter.EXTRA_SCAN_MODE,
                                     BluetoothAdapter.SCAN_MODE_NONE);
                     if (DBG) {
-                        Slog.d(TAG, "NewScanMode = " + mScanMode);
+                        Slogf.d(TAG, "NewScanMode = %d", mScanMode);
                     }
                     if (mScanMode == BluetoothAdapter.SCAN_MODE_CONNECTABLE_DISCOVERABLE) {
                         if (mBluetoothAdapter.isDiscovering()) {
@@ -144,10 +144,10 @@ public class FastPairProvider {
      */
     public void start() {
         if (mModelId == 0) {
-            Slog.w(TAG, "Model ID undefined, disabling");
+            Slogf.w(TAG, "Model ID undefined, disabling");
             return;
         }
-        Slog.d(TAG, "modelId == " + mModelId);
+        Slogf.d(TAG, "modelId == %d", mModelId);
         mFastPairAdvertiserHandler = new Handler(
                 CarServiceUtils.getHandlerThread(FastPairUtils.THREAD_NAME).getLooper());
         IntentFilter filter = new IntentFilter();

@@ -24,9 +24,9 @@ import android.bluetooth.le.AdvertisingSet;
 import android.bluetooth.le.AdvertisingSetCallback;
 import android.bluetooth.le.AdvertisingSetParameters;
 import android.bluetooth.le.BluetoothLeAdvertiser;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.ParcelUuid;
-import android.util.Log;
 
 import com.android.car.internal.util.IndentingPrintWriter;
 
@@ -81,7 +81,7 @@ class FastPairAdvertiser {
      */
     void advertiseModelId() {
         if (DBG) {
-            Log.d(TAG, "AdvertiseModelId");
+            Slogf.d(TAG, "AdvertiseModelId");
         }
         mAdvertisingSetParameters = new AdvertisingSetParameters.Builder()
                 .setLegacyMode(true)
@@ -102,7 +102,7 @@ class FastPairAdvertiser {
      */
     void advertiseAccountKeys() {
         if (DBG) {
-            Log.d(TAG, "AdvertiseAccountKeys");
+            Slogf.d(TAG, "AdvertiseAccountKeys");
         }
         mAdvertisingSetParameters = new AdvertisingSetParameters.Builder()
                 .setLegacyMode(true)
@@ -124,7 +124,7 @@ class FastPairAdvertiser {
      */
     void stopAdvertising() {
         if (DBG) {
-            Log.d(TAG, "stoppingAdvertising");
+            Slogf.d(TAG, "stoppingAdvertising");
         }
         if (mBluetoothLeAdvertiser == null) return;
         mBluetoothLeAdvertiser.stopAdvertisingSet(mAdvertisingSetCallback);
@@ -157,7 +157,7 @@ class FastPairAdvertiser {
     private void startAdvertising() {
         if (!initializeBluetoothLeAdvertiser()) return;
         if (!mAdvertising) {
-            if (DBG) Log.d(TAG, "startingAdvertising");
+            if (DBG) Slogf.d(TAG, "startingAdvertising");
             mBluetoothLeAdvertiser.startAdvertisingSet(mAdvertisingSetParameters, mData, null, null,
                     null, mAdvertisingSetCallback);
         }
@@ -169,8 +169,7 @@ class FastPairAdvertiser {
         public void onAdvertisingSetStarted(AdvertisingSet advertisingSet, int txPower,
                 int status) {
             if (DBG) {
-                Log.d(TAG, "onAdvertisingSetStarted(): txPower:" + txPower + " , status: "
-                        + status);
+                Slogf.d(TAG, "onAdvertisingSetStarted(): txPower: %s, status: %s", txPower, status);
             }
             mAdvertising = true;
             if (advertisingSet == null) return;
@@ -179,14 +178,14 @@ class FastPairAdvertiser {
 
         @Override
         public void onAdvertisingSetStopped(AdvertisingSet advertisingSet) {
-            if (DBG) Log.d(TAG, "onAdvertisingSetStopped():");
+            if (DBG) Slogf.d(TAG, "onAdvertisingSetStopped():");
             mAdvertising = false;
         }
 
         @Override
         public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
                 String address) {
-            if (DBG) Log.d(TAG, "onOwnAddressRead Type= " + addressType + " Address= " + address);
+            if (DBG) Slogf.d(TAG, "onOwnAddressRead Type= %s, Address= %s", addressType, address);
             mCallbacks.onRpaUpdated(mBluetoothAdapter.getRemoteDevice(address));
         }
     };

@@ -24,7 +24,7 @@ import android.bluetooth.BluetoothPan;
 import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.util.Log;
 import android.util.SparseBooleanArray;
 
@@ -45,6 +45,7 @@ import java.util.concurrent.locks.ReentrantLock;
 public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
 
     private static final String TAG = CarLog.tagFor(CarBluetoothUserService.class);
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
 
     private static final int PROXY_OPERATION_TIMEOUT_MS = 8_000;
 
@@ -106,7 +107,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
      */
     @Override
     public void setupBluetoothConnectionProxies() {
-        logd("Initiate connections to profile proxies");
+        if (DBG) {
+            Slogf.d(TAG, "Initiate connections to profile proxies");
+        }
 
         // Clear existing proxy objects
         closeBluetoothConnectionProxies();
@@ -115,7 +118,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         // Operations on the proxies expect them to be connected. Functions below should call
         // waitForProxies() to best effort wait for them to be up if Bluetooth is enabled.
         for (int profile : sProfilesToConnect) {
-            logd("Creating proxy for %s", BluetoothUtils.getProfileName(profile));
+            if (DBG) {
+                Slogf.d(TAG, "Creating proxy for %s", BluetoothUtils.getProfileName(profile));
+            }
             mBluetoothAdapter.getProfileProxy(mService.getApplicationContext(),
                     mProfileListener, profile);
         }
@@ -127,7 +132,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
      */
     @Override
     public void closeBluetoothConnectionProxies() {
-        logd("Clean up profile proxy objects");
+        if (DBG) {
+            Slogf.d(TAG, "Clean up profile proxy objects");
+        }
         mBluetoothProxyLock.lock();
         try {
             mBluetoothAdapter.closeProfileProxy(BluetoothProfile.A2DP_SINK, mBluetoothA2dpSink);
@@ -164,7 +171,10 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     private BluetoothProfile.ServiceListener mProfileListener =
             new BluetoothProfile.ServiceListener() {
         public void onServiceConnected(int profile, BluetoothProfile proxy) {
-            logd("onServiceConnected profile: %s", BluetoothUtils.getProfileName(profile));
+            if (DBG) {
+                Slogf.d(TAG, "onServiceConnected profile: %s",
+                        BluetoothUtils.getProfileName(profile));
+            }
 
             // Grab the profile proxy object and update the status book keeping in one step so the
             // book keeping and proxy objects never disagree
@@ -187,8 +197,10 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                         mBluetoothPan = (BluetoothPan) proxy;
                         break;
                     default:
-                        logd("Unhandled profile connected: %s",
-                                BluetoothUtils.getProfileName(profile));
+                        if (DBG) {
+                            Slogf.d(TAG, "Unhandled profile connected: %s",
+                                    BluetoothUtils.getProfileName(profile));
+                        }
                         break;
                 }
 
@@ -196,12 +208,14 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                     mBluetoothProfileStatus.put(profile, true);
                     mConnectedProfiles++;
                     if (mConnectedProfiles == sProfilesToConnect.size()) {
-                        logd("All profiles have connected");
+                        if (DBG) {
+                            Slogf.d(TAG, "All profiles have connected");
+                        }
                         mConditionAllProxiesConnected.signal();
                     }
                 } else {
-                    Slog.w(TAG, "Received duplicate service connection event for: "
-                            + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Received duplicate service connection event for: %s",
+                            BluetoothUtils.getProfileName(profile));
                 }
             } finally {
                 mBluetoothProxyLock.unlock();
@@ -209,15 +223,18 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         }
 
         public void onServiceDisconnected(int profile) {
-            logd("onServiceDisconnected profile: %s", BluetoothUtils.getProfileName(profile));
+            if (DBG) {
+                Slogf.d(TAG, "onServiceDisconnected profile: %s",
+                        BluetoothUtils.getProfileName(profile));
+            }
             mBluetoothProxyLock.lock();
             try {
                 if (mBluetoothProfileStatus.get(profile, false)) {
                     mBluetoothProfileStatus.put(profile, false);
                     mConnectedProfiles--;
                 } else {
-                    Slog.w(TAG, "Received duplicate service disconnection event for: "
-                            + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Received duplicate service disconnection event for: %s",
+                            BluetoothUtils.getProfileName(profile));
                 }
             } finally {
                 mBluetoothProxyLock.unlock();
@@ -252,7 +269,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
      * @return True if the condition was satisfied within the timeout, False otherwise
      */
     private boolean waitForProxies(int timeout /* ms */) {
-        logd("waitForProxies()");
+        if (DBG) {
+            Slogf.d(TAG, "waitForProxies()");
+        }
         // If bluetooth isn't on then the operation waiting on proxies was never meant to actually
         // work regardless if Bluetooth comes on within the timeout period or not. Return false.
         if (!mBluetoothAdapter.isEnabled()) return false;
@@ -260,13 +279,13 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             while (mConnectedProfiles != sProfilesToConnect.size()) {
                 if (!mConditionAllProxiesConnected.await(
                         timeout, TimeUnit.MILLISECONDS)) {
-                    Slog.e(TAG, "Timeout while waiting for proxies, Connected: "
-                            + mConnectedProfiles + "/" + sProfilesToConnect.size());
+                    Slogf.e(TAG, "Timeout while waiting for proxies, Connected: %d/%d",
+                            mConnectedProfiles, sProfilesToConnect.size());
                     return false;
                 }
             }
         } catch (InterruptedException e) {
-            Slog.w(TAG, "waitForProxies: interrupted", e);
+            Slogf.w(TAG, "waitForProxies: interrupted", e);
             Thread.currentThread().interrupt();
             return false;
         }
@@ -282,17 +301,19 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     @Override
     public boolean bluetoothConnectToProfile(int profile, BluetoothDevice device) {
         if (device == null) {
-            Slog.e(TAG, "Cannot connect to profile on null device");
+            Slogf.e(TAG, "Cannot connect to profile on null device");
             return false;
         }
-        logd("Trying to connect to %s (%s) Profile: %s", device.getName(), device.getAddress(),
-                BluetoothUtils.getProfileName(profile));
+        if (DBG) {
+            Slogf.d(TAG, "Trying to connect to %s (%s) Profile: %s",
+                    device.getName(), device.getAddress(), BluetoothUtils.getProfileName(profile));
+        }
         mBluetoothProxyLock.lock();
         try {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slog.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
+                    Slogf.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
                     return false;
                 }
             }
@@ -308,7 +329,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 case BluetoothProfile.PAN:
                     return mBluetoothPan.connect(device);
                 default:
-                    Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
                     break;
             }
         } finally {
@@ -326,17 +347,20 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     @Override
     public boolean bluetoothDisconnectFromProfile(int profile, BluetoothDevice device) {
         if (device == null) {
-            Slog.e(TAG, "Cannot disconnect from profile on null device");
+            Slogf.e(TAG, "Cannot disconnect from profile on null device");
             return false;
         }
-        logd("Trying to disconnect from %s (%s) Profile: %s", device.getName(), device.getAddress(),
-                BluetoothUtils.getProfileName(profile));
+        if (DBG) {
+            Slogf.d(TAG, "Trying to disconnect from %s (%s) Profile: %s",
+                    device.getName(), device.getAddress(),
+                    BluetoothUtils.getProfileName(profile));
+        }
         mBluetoothProxyLock.lock();
         try {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slog.e(TAG, "Cannot disconnect from Profile. Proxy Unavailable");
+                    Slogf.e(TAG, "Cannot disconnect from Profile. Proxy Unavailable");
                     return false;
                 }
             }
@@ -352,7 +376,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 case BluetoothProfile.PAN:
                     return mBluetoothPan.disconnect(device);
                 default:
-                    Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
                     break;
             }
         } finally {
@@ -370,8 +394,8 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     @Override
     public int getConnectionPolicy(int profile, BluetoothDevice device) {
         if (device == null) {
-            Slog.e(TAG, "Cannot get " + BluetoothUtils.getProfileName(profile)
-                    + " profile connection policy on null device");
+            Slogf.e(TAG, "Cannot get %s profile connection policy on null device",
+                    BluetoothUtils.getProfileName(profile));
             return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
         }
         int policy;
@@ -380,8 +404,8 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slog.e(TAG, "Cannot get " + BluetoothUtils.getProfileName(profile)
-                            + " profile connection policy. Proxy Unavailable");
+                    Slogf.e(TAG, "Cannot get %s profile connection policy. Proxy Unavailable",
+                            BluetoothUtils.getProfileName(profile));
                     return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
                 }
             }
@@ -399,15 +423,18 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                     policy = mBluetoothPbapClient.getConnectionPolicy(device);
                     break;
                 default:
-                    Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
                     policy = BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
                     break;
             }
         } finally {
             mBluetoothProxyLock.unlock();
         }
-        logd("%s connection policy for %s (%s) = %d", BluetoothUtils.getProfileName(profile),
-                device.getName(), device.getAddress(), policy);
+        if (DBG) {
+            Slogf.d(TAG, "%s connection policy for %s (%s) = %d",
+                    BluetoothUtils.getProfileName(profile),
+                    device.getName(), device.getAddress(), policy);
+        }
         return policy;
     }
 
@@ -421,20 +448,22 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     @Override
     public void setConnectionPolicy(int profile, BluetoothDevice device, int policy) {
         if (device == null) {
-            Slog.e(TAG, "Cannot set " + BluetoothUtils.getProfileName(profile)
-                    + " profile connection policy on null device");
+            Slogf.e(TAG, "Cannot set %s profile connection policy on null device",
+                    BluetoothUtils.getProfileName(profile));
             return;
         }
-        logd("Setting %s connection policy for %s (%s) to %d",
-                BluetoothUtils.getProfileName(profile), device.getName(), device.getAddress(),
-                policy);
+        if (DBG) {
+            Slogf.d(TAG, "Setting %s connection policy for %s (%s) to %d",
+                    BluetoothUtils.getProfileName(profile), device.getName(), device.getAddress(),
+                    policy);
+        }
         mBluetoothProxyLock.lock();
         try {
             if (!isBluetoothConnectionProxyAvailable(profile)) {
                 if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
                         && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slog.e(TAG, "Cannot set " + BluetoothUtils.getProfileName(profile)
-                            + " profile connection policy. Proxy Unavailable");
+                    Slogf.e(TAG, "Cannot set %s profile connection policy. Proxy Unavailable",
+                            BluetoothUtils.getProfileName(profile));
                     return;
                 }
             }
@@ -452,7 +481,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                     mBluetoothPbapClient.setConnectionPolicy(device, policy);
                     break;
                 default:
-                    Slog.w(TAG, "Unknown Profile: " + BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
                     break;
             }
         } finally {
@@ -473,14 +502,5 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         pw.printf("BluetoothMapClient: %s\n", mBluetoothMapClient);
         pw.printf("BluetoothPan: %s\n", mBluetoothPan);
         mFastPairProvider.dump(pw);
-    }
-
-    /**
-     * Log to debug if debug output is enabled
-     */
-    private void logd(String message, Object... args) {
-        if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, String.format(message, args));
-        }
     }
 }
