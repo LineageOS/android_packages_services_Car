@@ -20,20 +20,16 @@
     android:layout_height="match_parent"
     android:layout_marginLeft="100dp">
 
-    <LinearLayout
+    <TextView
+        android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="45dp"
         android:layout_marginBottom="48dp"
         android:layout_alignParentTop="true"
         android:layout_alignLeft="@id/dialpad_fragment"
-        android:layout_alignRight="@id/dialpad_fragment">
-        <TextView
-            android:id="@+id/title"
-            android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            android:textAppearance="@style/TextAppearance.DialNumber"
-            android:gravity="center"/>
-    </LinearLayout>
+        android:layout_alignRight="@id/dialpad_fragment"
+        android:textAppearance="@style/TextAppearance.DialNumber"
+        android:gravity="center"/>
 
     <com.android.car.ui.recyclerview.CarUiRecyclerView
         android:id="@+id/list_view"
@@ -70,7 +66,7 @@
         <ImageButton
             android:id="@+id/delete_button"
             android:layout_width="@dimen/dialer_keypad_button_size"
-            android:layout_height="match_parent"
+            android:layout_height="@dimen/dialer_keypad_button_size"
             style="@style/DialpadSecondaryButton"
             android:src="@drawable/ic_backspace"
             android:layout_marginLeft="64dp"
