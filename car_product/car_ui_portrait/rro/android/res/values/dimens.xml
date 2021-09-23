@@ -32,9 +32,11 @@
     <!-- Dialog image size -->
     <dimen name="car_alert_dialog_title_image_size">@dimen/car_card_header_height</dimen>
     <!-- Default dialog margin -->
-    <dimen name="car_alert_dialog_margin">24dp</dimen>
+    <dimen name="car_alert_dialog_margin">36dp</dimen>
     <!-- Dialog button layout height -->
     <dimen name="button_layout_height">88dp</dimen>
+    <!-- Default dialog button margin -->
+    <dimen name="car_alert_dialog_button_margin">24dp</dimen>
 
     <!-- ****** Toast dimens ***** -->
 
