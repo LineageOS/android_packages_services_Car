@@ -14,6 +14,7 @@
   ~ limitations under the License.
   -->
 <overlay>
+    <item target="color/dialer_button_icon_color" value="@color/dialer_button_icon_color"/>
     <item target="color/icon_tint" value="@color/icon_tint" />
     <item target="color/media_button_tint" value="@color/media_button_tint"/>
 
@@ -41,6 +42,8 @@
     <item target="id/button_left" value="@id/button_left"/>
     <item target="id/button_right" value="@id/button_right"/>
 
+    <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
+
     <item target="layout/card_content_media" value="@layout/card_content_media" />
     <item target="layout/card_fragment" value="@layout/card_fragment" />
     <item target="layout/car_launcher" value="@layout/car_launcher"/>
@@ -51,13 +54,13 @@
     <item target="dimen/control_bar_height" value="@dimen/control_bar_height"/>
     <item target="dimen/control_bar_padding" value="@dimen/control_bar_padding"/>
     <item target="dimen/default_app_display_area_height" value="@dimen/default_app_display_area_height"/>
+    <item target="dimen/button_tap_target_size" value="@dimen/button_tap_target_size"/>
     <item target="dimen/title_bar_display_area_height" value="@dimen/title_bar_display_area_height"/>
     <item target="dimen/title_bar_display_area_touch_drag_threshold" value="@dimen/title_bar_display_area_touch_drag_threshold"/>
     <item target="dimen/total_screen_height" value="@dimen/total_screen_height"/>
     <item target="dimen/total_screen_width" value="@dimen/total_screen_width"/>
 
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
-    <item target="integer/enter_exit_animation_foreground_display_area_duration_ms" value="@integer/enter_exit_animation_foreground_display_area_duration_ms"/>
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
     <item target="array/config_foregroundDAComponents" value="@array/config_foregroundDAComponents"/>

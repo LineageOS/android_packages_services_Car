@@ -16,6 +16,7 @@
   -->
 
 <overlay>
+    <item target="attr/categoryCall" value="@attr/categoryCall"/>
     <item target="attr/cardCornerRadius" value="@attr/cardCornerRadius"/>
     <item target="attr/isHeadsUp" value="@attr/isHeadsUp"/>
     <item target="attr/maxLines" value="@attr/maxLines"/>
@@ -27,10 +28,21 @@
     <item target="bool/config_showFooterForNotifications" value="@bool/config_showFooterForNotifications"/>
     <item target="bool/config_showRecentAndOldHeaders" value="@bool/config_showRecentAndOldHeaders"/>
 
+    <item target="color/icon_tint" value="@color/icon_tint"/>
+    <item target="color/call_accept_button" value="@color/call_accept_button"/>
+    <item target="color/call_decline_button" value="@color/call_decline_button"/>
+
+    <item target="color/action_button_background_color" value="@color/action_button_background_color"/>
+    <item target="color/clear_all_button_background_color" value="@color/clear_all_button_background_color"/>
+    <item target="color/primary_text_color" value="@color/primary_text_color"/>
+    <item target="color/secondary_text_color" value="@color/secondary_text_color"/>
+
     <item target="dimen/action_button_height" value="@dimen/action_button_height" />
     <item target="dimen/action_button_radius" value="@dimen/action_button_radius" />
+    <item target="dimen/action_button_padding_bottom" value="@dimen/action_button_padding_bottom"/>
     <item target="dimen/action_view_left_margin" value="@dimen/action_view_left_margin" />
     <item target="dimen/action_view_right_margin" value="@dimen/action_view_right_margin" />
+    <item target="dimen/body_big_icon_margin" value="@dimen/body_big_icon_margin"/>
     <item target="dimen/car_notification_card_inner_top_margin" value="@dimen/car_notification_card_inner_top_margin"/>
     <item target="dimen/card_start_margin" value="@dimen/card_start_margin" />
     <item target="dimen/card_body_margin_bottom" value="@dimen/card_body_margin_bottom" />
@@ -66,11 +78,25 @@
     <item target="string/config_headsUpNotificationAnimationHelper" value="@string/config_headsUpNotificationAnimationHelper" />
     <item target="string/notification_header" value="@string/notification_header"/>
 
+    <item target="style/ClearAllButton" value="@style/ClearAllButton"/>
     <item target="style/NotificationActionButtonBase" value="@style/NotificationActionButtonBase"/>
     <item target="style/NotificationActionViewLayout" value="@style/NotificationActionViewLayout"/>
     <item target="style/NotificationBodContentText" value="@style/NotificationBodyContentText" />
     <item target="style/NotificationBodyTitleText" value="@style/NotificationBodyTitleText" />
+    <item target="style/NotificationActionButtonText" value="@style/NotificationActionButtonText"/>
+    <item target="style/Theme.DeviceDefault.NoActionBar.Notification" value="@style/Theme.DeviceDefault.NoActionBar.Notification"/>
 
     <item target="dimen/card_min_bottom_padding" value="@dimen/card_min_bottom_padding"/>
     <item target="dimen/card_min_top_padding" value="@dimen/card_min_top_padding"/>
+
+    <item target="layout/car_headsup_notification_header_view" value="@layout/car_headsup_notification_header_view"/>
+    <item target="id/app_icon" value="@id/app_icon"/>
+    <item target="id/header_text" value="@id/header_text"/>
+
+    <item target="layout/car_headsup_notification_body_view" value="@layout/car_headsup_notification_body_view"/>
+    <item target="id/notification_body_icon" value="@id/notification_body_icon"/>
+    <item target="id/notification_body_title" value="@id/notification_body_title"/>
+    <item target="id/notification_body_content" value="@id/notification_body_content"/>
+
+    <item target="layout/call_headsup_notification_template" value="@layout/call_headsup_notification_template"/>
 </overlay>
