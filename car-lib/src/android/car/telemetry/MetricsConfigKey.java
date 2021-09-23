@@ -20,6 +20,8 @@ import android.annotation.NonNull;
 import android.os.Parcel;
 import android.os.Parcelable;
 
+import java.util.Objects;
+
 /**
  * A parcelable that wraps around the Manifest name and version.
  *
@@ -59,6 +61,20 @@ public final class MetricsConfigKey implements Parcelable {
     @Override
     public int describeContents() {
         return 0;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (!(o instanceof MetricsConfigKey)) {
+            return false;
+        }
+        MetricsConfigKey other = (MetricsConfigKey) o;
+        return mName.equals(other.getName()) && mVersion == other.getVersion();
+    }
+
+    @Override
+    public int hashCode() {
+        return Objects.hash(mName, mVersion);
     }
 
     public static final @NonNull Parcelable.Creator<MetricsConfigKey> CREATOR =
