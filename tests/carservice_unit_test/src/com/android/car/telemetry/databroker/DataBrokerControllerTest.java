@@ -18,14 +18,21 @@ package com.android.car.telemetry.databroker;
 
 import static com.google.common.truth.Truth.assertThat;
 
+import static org.mockito.ArgumentMatchers.eq;
 import static org.mockito.Mockito.any;
 import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
+import android.os.Handler;
+
+import com.android.car.systeminterface.SystemStateInterface;
+import com.android.car.telemetry.MetricsConfigStore;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.ArgumentCaptor;
@@ -34,12 +41,16 @@ import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.Arrays;
+
 @RunWith(MockitoJUnitRunner.class)
-public class DataBrokerControllerUnitTest {
+public class DataBrokerControllerTest {
 
     @Mock private DataBroker mMockDataBroker;
-
+    @Mock private Handler mMockHandler;
+    @Mock private MetricsConfigStore mMockMetricsConfigStore;
     @Mock private SystemMonitor mMockSystemMonitor;
+    @Mock private SystemStateInterface mMockSystemStateInterface;
 
     @Captor ArgumentCaptor<TelemetryProto.MetricsConfig> mConfigCaptor;
 
@@ -68,6 +79,15 @@ public class DataBrokerControllerUnitTest {
                           .addSubscribers(SUBSCRIBER)
                           .build();
 
+    @Before
+    public void setup() {
+        when(mMockHandler.post(any(Runnable.class))).thenAnswer(i -> {
+            Runnable runnable = i.getArgument(0);
+            runnable.run();
+            return true;
+        });
+    }
+
     @Test
     public void testOnNewConfig_configPassedToDataBroker() {
         mController.onNewMetricsConfig(CONFIG);
@@ -82,6 +102,18 @@ public class DataBrokerControllerUnitTest {
         // into controller's constructor with @InjectMocks
         verify(mMockDataBroker).setOnScriptFinishedCallback(
                 any(DataBroker.ScriptFinishedCallback.class));
+    }
+
+    @Test
+    public void testOnBootCompleted_shouldStartMetricsCollection() {
+        when(mMockMetricsConfigStore.getActiveMetricsConfigs()).thenReturn(Arrays.asList(CONFIG));
+        ArgumentCaptor<Runnable> mRunnableCaptor = ArgumentCaptor.forClass(Runnable.class);
+        verify(mMockSystemStateInterface).scheduleActionForBootCompleted(
+                mRunnableCaptor.capture(), any());
+
+        mRunnableCaptor.getValue().run(); // startMetricsCollection();
+
+        verify(mMockDataBroker).addMetricsConfiguration(eq(CONFIG));
     }
 
     @Test
