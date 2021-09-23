@@ -369,9 +369,9 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             updateMediaSessionCallbackForCurrentUser();
             notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK);
             notifyListeners(MEDIA_SOURCE_MODE_BROWSE);
-
-            startMediaConnectorService(shouldStartPlayback(mPlayOnBootConfig), currentUser);
         }
+
+        startMediaConnectorService(shouldStartPlayback(mPlayOnBootConfig), currentUser);
     }
 
     private void maybeInitSharedPrefs(@UserIdInt int userId) {
@@ -405,10 +405,18 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
      * is more reliable than using active MediaSessions from MediaSessionManager.
      */
     private void startMediaConnectorService(boolean startPlayback, UserHandle currentUser) {
-        Intent serviceStart = new Intent(MEDIA_CONNECTION_ACTION);
-        serviceStart.setPackage(mContext.getResources().getString(R.string.serviceMediaConnection));
-        serviceStart.putExtra(EXTRA_AUTOPLAY, startPlayback);
-        mContext.startForegroundServiceAsUser(serviceStart, currentUser);
+        synchronized (mLock) {
+            if (mUserContext == null) {
+                Slogf.wtf(CarLog.TAG_MEDIA,
+                        "Cannot start MediaConnection service. User has not been initialized");
+                return;
+            }
+            Intent serviceStart = new Intent(MEDIA_CONNECTION_ACTION);
+            serviceStart.setPackage(
+                    mContext.getResources().getString(R.string.serviceMediaConnection));
+            serviceStart.putExtra(EXTRA_AUTOPLAY, startPlayback);
+            mUserContext.startForegroundService(serviceStart);
+        }
     }
 
     private boolean sharedPrefsInitialized() {
