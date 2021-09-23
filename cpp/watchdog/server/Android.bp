@@ -39,6 +39,7 @@ cc_defaults {
         "libbinder",
         "liblog",
         "libutils",
+        "packagemanager_aidl-cpp",
     ],
     header_libs: [
         "libgtest_prod_headers",
