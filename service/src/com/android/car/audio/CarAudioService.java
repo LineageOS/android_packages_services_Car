@@ -15,6 +15,7 @@
  */
 package com.android.car.audio;
 
+import static android.car.builtin.os.AudioServiceHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
@@ -313,7 +314,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
             writer.println("Current State:");
             writer.increaseIndent();
-            writer.printf("Master muted? %b\n", mAudioManager.isMasterMute());
+            writer.printf("Master muted? %b\n", isMasterMute(mAudioManager));
             if (mCarAudioPowerListener != null) {
                 writer.printf("Audio enabled? %b\n", mCarAudioPowerListener.isAudioEnabled());
             }
@@ -426,7 +427,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     void setMasterMute(boolean mute, int flags) {
-        mAudioManager.setMasterMute(mute, flags);
+        AudioServiceHelper.setMasterMute(mAudioManager, mute, flags);
 
         // Master Mute only applies to primary zone
         callbackMasterMuteChange(PRIMARY_AUDIO_ZONE, flags);
@@ -437,7 +438,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
         // Persists master mute state if applicable
         if (mPersistMasterMuteState) {
-            mCarAudioSettings.storeMasterMute(mAudioManager.isMasterMute());
+            mCarAudioSettings.storeMasterMute(isMasterMute(mAudioManager));
         }
     }
 
