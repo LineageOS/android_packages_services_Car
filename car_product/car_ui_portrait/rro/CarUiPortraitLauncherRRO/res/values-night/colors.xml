@@ -22,5 +22,4 @@
     <color name="title_bar_display_area_background_color">#000000</color>
 
     <color name="icon_tint">#e8eaed</color>
-    <color name="media_button_tint">#e8eaed</color>
 </resources>

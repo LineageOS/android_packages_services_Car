@@ -33,4 +33,5 @@
 
     <!-- Whether to show Recents/Older header for notifications list -->
     <bool name="config_showRecentAndOldHeaders">false</bool>
+
 </resources>

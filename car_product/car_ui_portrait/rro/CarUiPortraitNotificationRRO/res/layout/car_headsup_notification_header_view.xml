@@ -1,4 +1,4 @@
-<?xml version="1.0" encoding="UTF-8" ?>
+<?xml version="1.0" encoding="utf-8" ?>
 <!--
   ~ Copyright (C) 2021 The Android Open Source Project
   ~
@@ -15,13 +15,15 @@
   ~ limitations under the License.
   -->
 
-<resources>
-    <color name="default_audio_background_image_color">#DADCE0</color>
-    <color name="default_audio_background_color">#BDC1C6</color>
-    <color name="title_bar_display_area_handle_bar_color">#e8eaed</color>
-    <color name="title_bar_display_area_background_color">#ffffff</color>
+<!-- Do not show app icon or name for HUNs -->
+<merge xmlns:android="http://schemas.android.com/apk/res/android">
+    <ImageView
+        android:id="@+id/app_icon"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
 
-    <color name="icon_tint">#000000</color>
-    <color name="media_button_tint">@color/icon_tint</color>
-    <color name="dialer_button_icon_color">@color/icon_tint</color>
-</resources>
+    <TextView
+        android:id="@+id/header_text"
+        android:layout_width="0dp"
+        android:layout_height="0dp"/>
+</merge>

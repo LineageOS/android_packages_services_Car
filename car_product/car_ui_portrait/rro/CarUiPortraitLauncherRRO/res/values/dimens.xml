@@ -50,4 +50,6 @@
     <dimen name="default_audio_icon_inner_icon_size">40dp</dimen>
 
     <dimen name="control_bar_image_background_radius">24dp</dimen>
+
+    <dimen name="button_tap_target_size">88dp</dimen>
 </resources>
