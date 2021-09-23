@@ -27,7 +27,6 @@ import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.MetricsConfigKey;
 import android.content.Context;
-import android.content.SharedPreferences;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.PersistableBundle;
@@ -54,7 +53,6 @@ import com.google.protobuf.InvalidProtocolBufferException;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
 import java.io.IOException;
-import java.util.List;
 
 /**
  * CarTelemetryService manages OEM telemetry collection, processing and communication
@@ -67,7 +65,6 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     private final Context mContext;
     private final CarPropertyService mCarPropertyService;
-    private final File mRootDirectory;
     private final HandlerThread mTelemetryThread = CarServiceUtils.getHandlerThread(
             CarTelemetryService.class.getSimpleName());
     private final Handler mTelemetryHandler = new Handler(mTelemetryThread.getLooper());
@@ -78,38 +75,33 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     private MetricsConfigStore mMetricsConfigStore;
     private PublisherFactory mPublisherFactory;
     private ResultStore mResultStore;
-    private SharedPreferences mSharedPrefs;
     private StatsManagerProxy mStatsManagerProxy;
     private SystemMonitor mSystemMonitor;
 
     public CarTelemetryService(Context context, CarPropertyService carPropertyService) {
         mContext = context;
         mCarPropertyService = carPropertyService;
-        SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
-        // full root directory path is /data/system/car/telemetry
-        mRootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
     }
 
     @Override
     public void init() {
         mTelemetryHandler.post(() -> {
+            SystemInterface systemInterface = CarLocalServices.getService(SystemInterface.class);
+            // full root directory path is /data/system/car/telemetry
+            File rootDirectory = new File(systemInterface.getSystemCarDir(), TELEMETRY_DIR);
             // initialize all necessary components
-            mMetricsConfigStore = new MetricsConfigStore(mRootDirectory);
-            mResultStore = new ResultStore(mRootDirectory);
+            mMetricsConfigStore = new MetricsConfigStore(rootDirectory);
+            mResultStore = new ResultStore(rootDirectory);
             mStatsManagerProxy = new StatsManagerImpl(
                     mContext.getSystemService(StatsManager.class));
             mPublisherFactory = new PublisherFactory(mCarPropertyService, mTelemetryHandler,
-                    mStatsManagerProxy, mRootDirectory);
+                    mStatsManagerProxy, rootDirectory);
             mDataBroker = new DataBrokerImpl(mContext, mPublisherFactory, mResultStore);
             mSystemMonitor = SystemMonitor.create(mContext, mTelemetryHandler);
-            mDataBrokerController = new DataBrokerController(mDataBroker, mSystemMonitor);
-
-            // start collecting data. once data is sent by publisher, scripts will be able to run
-            List<TelemetryProto.MetricsConfig> activeConfigs =
-                    mMetricsConfigStore.getActiveMetricsConfigs();
-            for (TelemetryProto.MetricsConfig config : activeConfigs) {
-                mDataBroker.addMetricsConfiguration(config);
-            }
+            // controller starts metrics collection after boot complete
+            mDataBrokerController = new DataBrokerController(mDataBroker, mTelemetryHandler,
+                    mMetricsConfigStore, mSystemMonitor,
+                    systemInterface.getSystemStateInterface());
         });
     }
 
