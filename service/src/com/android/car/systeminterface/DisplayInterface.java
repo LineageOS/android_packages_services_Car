@@ -23,7 +23,7 @@ import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.app.ActivityManager;
 import android.car.builtin.power.PowerManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.ContentResolver;
 import android.content.Context;
@@ -160,8 +160,8 @@ public interface DisplayInterface {
         public void refreshDisplayBrightness() {
             synchronized (mLock) {
                 if (mService == null) {
-                    Slog.e(CarLog.TAG_POWER,
-                            "Could not set brightness: no CarPowerManagementService");
+                    Slogf.e(CarLog.TAG_POWER, "Could not set brightness: "
+                            + "no CarPowerManagementService");
                     return;
                 }
                 int gamma = GAMMA_SPACE_MAX;
@@ -171,7 +171,7 @@ public interface DisplayInterface {
                             System.SCREEN_BRIGHTNESS);
                     gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
                 } catch (SettingNotFoundException e) {
-                    Slog.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
+                    Slogf.e(CarLog.TAG_POWER, "Could not get SCREEN_BRIGHTNESS: ", e);
                 }
                 int percentBright = (gamma * 100 + ((GAMMA_SPACE_MAX + 1) / 2)) / GAMMA_SPACE_MAX;
                 mService.sendDisplayBrightness(percentBright);
@@ -240,11 +240,11 @@ public interface DisplayInterface {
             }
             if (on) {
                 mWakeLockInterface.switchToFullWakeLock();
-                Slog.i(CarLog.TAG_POWER, "on display");
+                Slogf.i(CarLog.TAG_POWER, "on display");
                 mPowerManagerHelper.setDisplayState(/* on= */ true, SystemClock.uptimeMillis());
             } else {
                 mWakeLockInterface.switchToPartialWakeLock();
-                Slog.i(CarLog.TAG_POWER, "off display");
+                Slogf.i(CarLog.TAG_POWER, "off display");
                 mPowerManagerHelper.setDisplayState(/* on= */ false, SystemClock.uptimeMillis());
             }
         }

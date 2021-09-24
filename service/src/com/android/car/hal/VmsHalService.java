@@ -20,7 +20,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.VehicleAreaType;
 import android.car.builtin.os.BuildHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.vms.VmsAssociatedLayer;
 import android.car.vms.VmsAvailableLayers;
 import android.car.vms.VmsClient;
@@ -105,26 +105,26 @@ public class VmsHalService extends HalServiceBase {
     private final VmsClientCallback mClientCallback = new VmsClientCallback() {
         @Override
         public void onClientConnected(VmsClient client) {
-            Slog.wtf(TAG, "onClientConnnected triggered for local client");
+            Slogf.wtf(TAG, "onClientConnnected triggered for local client");
         }
 
         @Override
         public void onSubscriptionStateChanged(VmsSubscriptionState subscriptionState) {
-            if (DBG) Slog.d(TAG, "Handling a subscription state change");
+            if (DBG) Slogf.d(TAG, "Handling a subscription state change");
             setPropertyValue(createSubscriptionStateMessage(VmsMessageType.SUBSCRIPTIONS_CHANGE,
                             subscriptionState));
         }
 
         @Override
         public void onLayerAvailabilityChanged(VmsAvailableLayers availableLayers) {
-            if (DBG) Slog.d(TAG, "Handling a layer availability change");
+            if (DBG) Slogf.d(TAG, "Handling a layer availability change");
             setPropertyValue(createAvailableLayersMessage(VmsMessageType.AVAILABILITY_CHANGE,
                             availableLayers));
         }
 
         @Override
         public void onPacketReceived(int providerId, VmsLayer layer, byte[] packet) {
-            if (DBG) Slog.d(TAG, "Handling a data message for Layer: " + layer);
+            if (DBG) Slogf.d(TAG, "Handling a data message for Layer: " + layer);
             setPropertyValue(createDataMessage(layer, providerId, packet));
         }
     };
@@ -152,16 +152,15 @@ public class VmsHalService extends HalServiceBase {
         int propId = context.getResources().getInteger(
                 com.android.car.R.integer.vmsHalClientMetricsProperty);
         if (propId == 0) {
-            Slog.i(TAG, "Metrics collection disabled");
+            Slogf.i(TAG, "Metrics collection disabled");
             return 0;
         }
         if ((propId & VehiclePropertyGroup.MASK) != VehiclePropertyGroup.VENDOR) {
-            Slog.w(TAG, String.format("Metrics collection disabled, non-vendor property: 0x%x",
-                    propId));
+            Slogf.w(TAG, "Metrics collection disabled, non-vendor property: 0x%x", propId);
             return 0;
         }
 
-        Slog.i(TAG, String.format("Metrics collection property: 0x%x", propId));
+        Slogf.i(TAG, "Metrics collection property: 0x%x", propId);
         return propId;
     }
 
@@ -192,13 +191,13 @@ public class VmsHalService extends HalServiceBase {
     public void init() {
         synchronized (mLock) {
             if (!mIsSupported) {
-                Slog.i(TAG, "VmsHalService VHAL property not supported");
+                Slogf.i(TAG, "VmsHalService VHAL property not supported");
                 return; // Do not continue initialization
             }
             connectVmsClient();
         }
 
-        Slog.i(TAG, "Initializing VmsHalService VHAL property");
+        Slogf.i(TAG, "Initializing VmsHalService VHAL property");
         mVehicleHal.subscribeProperty(this, HAL_PROPERTY_ID);
 
         mHandler.post(() ->
@@ -214,7 +213,7 @@ public class VmsHalService extends HalServiceBase {
             }
         }
         if (DBG) {
-            Slog.d(TAG, "Releasing VmsHalService VHAL property");
+            Slogf.d(TAG, "Releasing VmsHalService VHAL property");
         }
         mVehicleHal.unsubscribeProperty(this, HAL_PROPERTY_ID);
     }
@@ -244,7 +243,7 @@ public class VmsHalService extends HalServiceBase {
     @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     public void dumpMetrics(FileDescriptor fd) {
         if (mClientMetricsProperty == 0) {
-            Slog.w(TAG, "Metrics collection is disabled");
+            Slogf.w(TAG, "Metrics collection is disabled");
             return;
         }
 
@@ -253,10 +252,10 @@ public class VmsHalService extends HalServiceBase {
             vehicleProp = mVehicleHal.get(mClientMetricsProperty);
         } catch (RuntimeException e) {
             // Failures to retrieve metrics should be non-fatal
-            Slog.e(TAG, "While reading metrics from client", e);
+            Slogf.e(TAG, "While reading metrics from client", e);
         }
         if (vehicleProp == null) {
-            if (DBG) Slog.d(TAG, "Metrics unavailable");
+            if (DBG) Slogf.d(TAG, "Metrics unavailable");
             return;
         }
 
@@ -264,7 +263,7 @@ public class VmsHalService extends HalServiceBase {
             fout.write(toByteArray(vehicleProp.value.bytes));
             fout.flush();
         } catch (IOException e) {
-            Slog.e(TAG, "Error writing metrics to output stream", e);
+            Slogf.e(TAG, "Error writing metrics to output stream", e);
         }
     }
 
@@ -276,18 +275,18 @@ public class VmsHalService extends HalServiceBase {
      */
     @Override
     public void onHalEvents(List<VehiclePropValue> values) {
-        if (DBG) Slog.d(TAG, "Handling a VMS property change");
+        if (DBG) Slogf.d(TAG, "Handling a VMS property change");
         for (VehiclePropValue v : values) {
             ArrayList<Integer> vec = v.value.int32Values;
             int messageType;
             try {
                 messageType = vec.get(VmsBaseMessageIntegerValuesIndex.MESSAGE_TYPE);
             } catch (IndexOutOfBoundsException e) {
-                Slog.e(TAG, "Invalid event, no message type", e);
+                Slogf.e(TAG, "Invalid event, no message type", e);
                 continue;
             }
 
-            if (DBG) Slog.d(TAG, "Received " + VmsMessageType.toString(messageType) + " message");
+            if (DBG) Slogf.d(TAG, "Received " + VmsMessageType.toString(messageType) + " message");
             try {
                 switch (messageType) {
                     case VmsMessageType.DATA:
@@ -324,10 +323,10 @@ public class VmsHalService extends HalServiceBase {
                         handleStartSessionEvent(vec);
                         break;
                     default:
-                        Slog.e(TAG, "Unexpected message type: " + messageType);
+                        Slogf.e(TAG, "Unexpected message type: " + messageType);
                 }
             } catch (IndexOutOfBoundsException e) {
-                Slog.e(TAG, "While handling " + VmsMessageType.toString(messageType), e);
+                Slogf.e(TAG, "While handling " + VmsMessageType.toString(messageType), e);
             }
         }
     }
@@ -344,7 +343,7 @@ public class VmsHalService extends HalServiceBase {
                 try {
                     mClient.unregister();
                 } catch (RemoteException e) {
-                    Slog.wtf(TAG, "Local broker should not throw RemoteException", e);
+                    Slogf.wtf(TAG, "Local broker should not throw RemoteException", e);
                 }
                 mClient = null;
             }
@@ -354,7 +353,7 @@ public class VmsHalService extends HalServiceBase {
     private static VmsClient initVmsClient(Handler handler, VmsClientCallback callback) {
         VmsBrokerService brokerService = CarLocalServices.getService(VmsBrokerService.class);
         if (brokerService == null) {
-            Slog.e(TAG, "Broker service is not enabled");
+            Slogf.e(TAG, "Broker service is not enabled");
             return null;
         }
         VmsClient client = new VmsClient(brokerService, new HandlerExecutor(handler), callback,
@@ -363,7 +362,7 @@ public class VmsHalService extends HalServiceBase {
         try {
             client.register();
         } catch (RemoteException e) {
-            Slog.wtf(TAG, "Local broker should not throw RemoteException", e);
+            Slogf.wtf(TAG, "Local broker should not throw RemoteException", e);
         }
         return client;
     }
@@ -388,7 +387,7 @@ public class VmsHalService extends HalServiceBase {
     private void handleStartSessionEvent(List<Integer> message) {
         int coreId = message.get(VmsStartSessionMessageIntegerValuesIndex.SERVICE_ID);
         int clientId = message.get(VmsStartSessionMessageIntegerValuesIndex.CLIENT_ID);
-        Slog.i(TAG, "Starting new session with coreId: " + coreId + " client: " + clientId);
+        Slogf.i(TAG, "Starting new session with coreId: " + coreId + " client: " + clientId);
 
         if (coreId != mCoreId) {
             // Reset VmsClient
@@ -415,11 +414,11 @@ public class VmsHalService extends HalServiceBase {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
-            Slog.d(TAG,
+            Slogf.d(TAG,
                     "Handling a data event for Layer: " + vmsLayer + " Publisher: " + publisherId);
         }
         if (payload.length == 0) {
-            Slog.e(TAG, "Get 0 length payload while handling data event");
+            Slogf.e(TAG, "Get 0 length payload while handling data event");
             return;
         }
         getVmsClient().publishPacket(publisherId, vmsLayer, payload);
@@ -436,7 +435,7 @@ public class VmsHalService extends HalServiceBase {
      */
     private void handleSubscribeEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
-        if (DBG) Slog.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
+        if (DBG) Slogf.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer);
         mSubscriptionHelper.subscribe(vmsLayer);
     }
 
@@ -454,7 +453,7 @@ public class VmsHalService extends HalServiceBase {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
-            Slog.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer
+            Slogf.d(TAG, "Handling a subscribe event for Layer: " + vmsLayer
                     + " Publisher: " + publisherId);
         }
         mSubscriptionHelper.subscribe(vmsLayer, publisherId);
@@ -471,7 +470,7 @@ public class VmsHalService extends HalServiceBase {
      */
     private void handleUnsubscribeEvent(List<Integer> message) {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
-        if (DBG) Slog.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
+        if (DBG) Slogf.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer);
         mSubscriptionHelper.unsubscribe(vmsLayer);
     }
 
@@ -489,7 +488,7 @@ public class VmsHalService extends HalServiceBase {
         VmsLayer vmsLayer = parseVmsLayerFromMessage(message);
         int publisherId = parsePublisherIdFromMessage(message);
         if (DBG) {
-            Slog.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer
+            Slogf.d(TAG, "Handling an unsubscribe event for Layer: " + vmsLayer
                     + " Publisher: " + publisherId);
         }
         mSubscriptionHelper.unsubscribe(vmsLayer, publisherId);
@@ -514,10 +513,10 @@ public class VmsHalService extends HalServiceBase {
      */
     private void handlePublisherIdRequest(byte[] payload) {
         if (DBG) {
-            Slog.d(TAG, "Handling a publisher id request event");
+            Slogf.d(TAG, "Handling a publisher id request event");
         }
         if (payload.length == 0) {
-            Slog.e(TAG, "Get 0 length payload while handling data event");
+            Slogf.e(TAG, "Get 0 length payload while handling data event");
             return;
         }
 
@@ -543,7 +542,7 @@ public class VmsHalService extends HalServiceBase {
      * </ul>
      */
     private void handlePublisherInfoRequest(List<Integer> message) {
-        if (DBG) Slog.d(TAG, "Handling a publisher info request event");
+        if (DBG) Slogf.d(TAG, "Handling a publisher info request event");
         int publisherId = message.get(VmsPublisherInformationIntegerValuesIndex.PUBLISHER_ID);
 
         VehiclePropValue vehicleProp =
@@ -584,7 +583,7 @@ public class VmsHalService extends HalServiceBase {
                 message.get(
                         VmsOfferingMessageIntegerValuesIndex.NUMBER_OF_OFFERS);
         if (DBG) {
-            Slog.d(TAG, "Handling an offering event of " + numLayerDependencies
+            Slogf.d(TAG, "Handling an offering event of " + numLayerDependencies
                     + " layers for Publisher: " + publisherId);
         }
 
@@ -639,7 +638,7 @@ public class VmsHalService extends HalServiceBase {
 
         synchronized (mLock) {
             if (!mIsSupported) {
-                Slog.w(TAG, "HAL unsupported while attempting to send "
+                Slogf.w(TAG, "HAL unsupported while attempting to send "
                         + VmsMessageType.toString(messageType));
                 return;
             }
@@ -648,7 +647,7 @@ public class VmsHalService extends HalServiceBase {
         try {
             mVehicleHal.set(vehicleProp);
         } catch (RuntimeException e) {
-            Slog.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
+            Slogf.e(TAG, "While sending " + VmsMessageType.toString(messageType), e);
             if (mPropagatePropertyException) {
                 throw new IllegalStateException(e);
             }

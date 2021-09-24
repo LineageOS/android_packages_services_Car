@@ -22,7 +22,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.hardware.automotive.audiocontrol.V2_0.IAudioControl;
 import android.hardware.automotive.audiocontrol.V2_0.ICloseHandle;
@@ -71,7 +71,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
             try {
                 mCloseHandle.close();
             } catch (RemoteException e) {
-                Slog.e(TAG, "Failed to close focus listener", e);
+                Slogf.e(TAG, "Failed to close focus listener", e);
             } finally {
                 mCloseHandle = null;
             }
@@ -88,12 +88,12 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
 
     @Override
     public void registerFocusListener(HalFocusListener focusListener) {
-        Slog.d(TAG, "Registering focus listener on AudioControl HAL");
+        Slogf.d(TAG, "Registering focus listener on AudioControl HAL");
         IFocusListener listenerWrapper = new FocusListenerWrapper(focusListener);
         try {
             mCloseHandle = mAudioControlV2.registerFocusListener(listenerWrapper);
         } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to register focus listener");
+            Slogf.e(TAG, "Failed to register focus listener");
             throw new IllegalStateException("IAudioControl#registerFocusListener failed", e);
         }
     }
@@ -101,7 +101,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
+            Slogf.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }
         try {
@@ -131,7 +131,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         try {
             mAudioControlV2.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Slog.e(TAG, "setFadeTowardFront failed", e);
+            Slogf.e(TAG, "setFadeTowardFront failed", e);
         }
     }
 
@@ -140,7 +140,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
         try {
             mAudioControlV2.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Slog.e(TAG, "setBalanceTowardRight failed", e);
+            Slogf.e(TAG, "setBalanceTowardRight failed", e);
         }
     }
 
@@ -175,7 +175,7 @@ public final class AudioControlWrapperV2 implements AudioControlWrapper {
     }
 
     private void serviceDied(long cookie) {
-        Slog.w(TAG, "IAudioControl@2.0 died. Fetching new handle");
+        Slogf.w(TAG, "IAudioControl@2.0 died. Fetching new handle");
         mAudioControlV2 = AudioControlWrapperV2.getService();
         linkToDeath(mDeathRecipient);
         if (mDeathRecipient != null) {

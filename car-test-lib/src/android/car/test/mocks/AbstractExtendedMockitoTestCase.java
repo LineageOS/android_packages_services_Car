@@ -321,6 +321,8 @@ public abstract class AbstractExtendedMockitoTestCase {
         doAnswer((invocation) -> {
             return addWtf(invocation);
         }).when(() -> Slog.wtf(anyString(), anyString(), any(Throwable.class)));
+        // NOTE: android.car.builtin.util.Slogf calls android.util.Slog behind the scenes, so no
+        // need to check for calls of the former...
     }
 
     private Object addWtf(InvocationOnMock invocation) {

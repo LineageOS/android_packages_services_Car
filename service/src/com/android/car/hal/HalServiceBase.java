@@ -18,7 +18,7 @@ package com.android.car.hal;
 
 
 import android.annotation.NonNull;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropConfig;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 
@@ -90,7 +90,7 @@ public abstract class HalServiceBase {
      * Handles errors and pass error codes  when setting properties.
      */
     public void onPropertySetError(int property, int area, int errorCode) {
-        Slog.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
+        Slogf.d(MY_TAG, getClass().getSimpleName() + ".onPropertySetError(): property=" + property
                 + ", area=" + area + " , errorCode = " + errorCode);
     }
 

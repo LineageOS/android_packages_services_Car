@@ -22,7 +22,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.SystemApi;
 import android.app.ActivityOptions;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.cluster.IInstrumentClusterManagerCallback;
 import android.car.cluster.IInstrumentClusterManagerService;
 import android.car.cluster.renderer.IInstrumentCluster;
@@ -109,14 +109,13 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         IInstrumentClusterNavigation navigationBinder = getNavigationBinder(
                 /* retryOnFail= */ false);
         if (navigationBinder == null) {
-            Slog.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:"
-                    + bundle);
+            Slogf.e(TAG, "onNavigationStateChanged failed, renderer not ready, Bundle:" + bundle);
             return;
         }
         try {
             navigationBinder.onNavigationStateChanged(bundle);
         } catch (RemoteException e) {
-            Slog.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
+            Slogf.e(TAG, "onNavigationStateChanged failed, bundle:" + bundle, e);
         }
     }
 
@@ -133,7 +132,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             try {
                 return navigationBinder.getInstrumentClusterInfo();
             } catch (RemoteException e) {
-                Slog.e(TAG, "getInstrumentClusterInfo failed", e);
+                Slogf.e(TAG, "getInstrumentClusterInfo failed", e);
             }
         }
         throw new IllegalStateException("cannot access renderer service");
@@ -155,7 +154,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         @Override
         public void onServiceConnected(ComponentName name, IBinder binder) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
+                Slogf.d(TAG, "onServiceConnected, name: " + name + ", binder: " + binder);
             }
             IInstrumentCluster service = IInstrumentCluster.Stub.asInterface(binder);
             ContextOwner navContextOwner;
@@ -172,7 +171,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         @Override
         public void onServiceDisconnected(ComponentName name) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "onServiceDisconnected, name: " + name);
+                Slogf.d(TAG, "onServiceDisconnected, name: " + name);
             }
             mContext.unbindService(this);
             synchronized (mLock) {
@@ -222,7 +221,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             try {
                 mLock.wait(RENDERER_SERVICE_WAIT_TIMEOUT_MS);
             } catch (InterruptedException e) {
-                Slog.d(TAG, "waitForRenderer, interrupted", e);
+                Slogf.d(TAG,  "waitForRenderer, interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }
@@ -248,7 +247,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                 navigationBinder = renderer.getNavigationService();
                 break;
             } catch (RemoteException e) {
-                Slog.e(TAG, "RemoteException from renderer", e);
+                Slogf.e(TAG, "RemoteException from renderer", e);
                 renderer = null;
             }
         }
@@ -264,7 +263,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     @Override
     public void init() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "init");
+            Slogf.d(TAG, "init");
         }
 
         // TODO(b/124246323) Start earlier once data storage for cluster is clarified
@@ -288,7 +287,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     @Override
     public void release() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "release");
+            Slogf.d(TAG, "release");
         }
 
         synchronized (mLock) {
@@ -318,19 +317,19 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         try {
             service.setNavigationContextOwner(owner.uid, owner.pid);
         } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to call setNavigationContextOwner", e);
+            Slogf.e(TAG, "Failed to call setNavigationContextOwner", e);
         }
     }
 
     private boolean isRendererServiceEnabled() {
         if (TextUtils.isEmpty(mRenderingServiceConfig)) {
-            Slog.d(TAG, "Instrument cluster renderer was not configured");
+            Slogf.d(TAG, "Instrument cluster renderer was not configured");
             return false;
         }
         boolean explicitlyDisabled = "true".equals(Settings.Global
                 .getString(mContext.getContentResolver(), DISABLE_INSTRUMENTATION_SERVICE));
         if (explicitlyDisabled) {
-            Slog.i(TAG, "Instrument cluster renderer explicitly disabled by settings");
+            Slogf.i(TAG, "Instrument cluster renderer explicitly disabled by settings");
             return false;
         }
         return true;
@@ -341,7 +340,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             return false;
         }
 
-        Slog.d(TAG, "bindInstrumentClusterRendererService, component: " + mRenderingServiceConfig);
+        Slogf.d(TAG, "bindInstrumentClusterRendererService, component: " + mRenderingServiceConfig);
 
         Intent intent = new Intent();
         intent.setComponent(ComponentName.unflattenFromString(mRenderingServiceConfig));
@@ -365,7 +364,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
     @Override
     public void onKeyEvent(KeyEvent event) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
+            Slogf.d(TAG, "InstrumentClusterService#onKeyEvent: " + event);
         }
 
         IInstrumentCluster service = getInstrumentClusterRendererService();
@@ -373,7 +372,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             try {
                 service.onKeyEvent(event);
             } catch (RemoteException e) {
-                Slog.e(TAG, "onKeyEvent", e);
+                Slogf.e(TAG, "onKeyEvent", e);
             }
         }
     }
@@ -424,7 +423,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         public void rebind() {
             InstrumentClusterService service = mService.get();
             if (service == null) {
-                Slog.i(TAG, "rebind null service");
+                Slogf.i(TAG, "rebind null service");
                 return;
             }
 
@@ -444,7 +443,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
         public void handleMessage(Message msg) {
             InstrumentClusterService service = mService.get();
             if (service == null) {
-                Slog.i(TAG, "handleMessage null service");
+                Slogf.i(TAG, "handleMessage null service");
                 return;
             }
 
@@ -454,7 +453,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             }
 
             if (!bound) {
-                Slog.w(TAG, "Failed to bound to render service, next attempt in "
+                Slogf.w(TAG, "Failed to bound to render service, next attempt in "
                         + NEXT_REBIND_ATTEMPT_DELAY_MS + "ms.");
 
                 int attempts = msg.arg1;
@@ -462,7 +461,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                     sendMessageDelayed(obtainMessage(0, attempts, 0),
                             NEXT_REBIND_ATTEMPT_DELAY_MS);
                 } else {
-                    Slog.wtf(TAG, "Failed to rebind with cluster rendering service");
+                    Slogf.wtf(TAG, "Failed to rebind with cluster rendering service");
                 }
             }
         }

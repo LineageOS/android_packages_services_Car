@@ -24,7 +24,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.car.builtin.os.UserManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.net.Uri;
@@ -360,8 +360,8 @@ final class FocusInteraction {
                     }
                     return AUDIOFOCUS_REQUEST_GRANTED;
                 default:
-                    Slog.e(TAG, String.format("Unsupported CarAudioContext %d - rejecting request",
-                            holderRow[requestedContext]));
+                    Slogf.e(TAG, "Unsupported CarAudioContext %d - rejecting request",
+                            holderRow[requestedContext]);
                     return AUDIOFOCUS_REQUEST_FAILED;
             }
         }

@@ -17,7 +17,7 @@
 package com.android.car.systeminterface;
 
 import android.car.builtin.power.PowerManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -123,7 +123,7 @@ public interface SystemStateInterface {
                 int retVal = mICarServiceHelper.forceSuspend(SUSPEND_TRY_TIMEOUT_MS);
                 deviceEnteredSleep = retVal == 0;
             } catch (Exception e) {
-                Slog.e(TAG, "Unable to enter deep sleep", e);
+                Slogf.e(TAG, "Unable to enter deep sleep", e);
             }
             return deviceEnteredSleep;
         }
@@ -150,7 +150,7 @@ public interface SystemStateInterface {
             if (mICarServiceHelper != null) {
                 return true;
             }
-            Slog.e(TAG, "Unable to enter deep sleep: ICarServiceHelper is still null "
+            Slogf.e(TAG, "Unable to enter deep sleep: ICarServiceHelper is still null "
                     + "after waiting " + MAX_WAIT_FOR_HELPER_SEC + " seconds");
             return false;
         }

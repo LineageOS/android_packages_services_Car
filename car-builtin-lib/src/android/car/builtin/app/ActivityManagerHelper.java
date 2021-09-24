@@ -28,7 +28,6 @@ import android.app.IActivityManager;
 import android.app.IProcessObserver;
 import android.app.TaskInfo;
 import android.app.TaskStackListener;
-import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.os.Bundle;
@@ -134,7 +133,7 @@ public final class ActivityManagerHelper {
                     if (info.childTaskUserIds[i] == userId) {
                         int taskId = info.childTaskIds[i];
                         if (!mAm.removeTask(taskId)) {
-                            Slog.w(TAG, "could not remove task " + taskId);
+                            Slogf.w(TAG, "could not remove task " + taskId);
                         }
                     }
                 }
@@ -164,7 +163,7 @@ public final class ActivityManagerHelper {
 
     private RuntimeException logAndReThrow(Exception e, String format, Object...args) {
         String msg = String.format(format, args);
-        Slog.e(TAG, msg, e);
+        Slogf.e(TAG, msg, e);
         return new IllegalStateException(msg, e);
     }
 

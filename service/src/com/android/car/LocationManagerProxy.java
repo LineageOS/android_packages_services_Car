@@ -18,7 +18,7 @@ package com.android.car;
 
 import android.annotation.NonNull;
 import android.car.ILocationManagerProxy;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.location.Location;
 import android.location.LocationManager;
@@ -38,7 +38,7 @@ public class LocationManagerProxy extends ILocationManagerProxy.Stub {
      */
     public LocationManagerProxy(Context context) {
         if (DBG) {
-            Slog.d(TAG, "constructed.");
+            Slogf.d(TAG, "constructed.");
         }
         mLocationManager = (LocationManager) context.getSystemService(Context.LOCATION_SERVICE);
     }
@@ -56,7 +56,7 @@ public class LocationManagerProxy extends ILocationManagerProxy.Stub {
     @Override
     public Location getLastKnownLocation(@NonNull String provider) {
         if (DBG) {
-            Slog.d(TAG, "Getting last known location for provider " + provider);
+            Slogf.d(TAG, "Getting last known location for provider " + provider);
         }
         return mLocationManager.getLastKnownLocation(provider);
     }

@@ -15,7 +15,7 @@
  */
 package com.android.car.audio;
 
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioFormat;
 import android.media.AudioManager;
@@ -83,10 +83,9 @@ final class CarAudioDynamicRouting {
                             AudioMixingRule.RULE_MATCH_ATTRIBUTE_USAGE);
                 }
                 if (Log.isLoggable(CarLog.TAG_AUDIO, Log.DEBUG)) {
-                    Slog.d(CarLog.TAG_AUDIO, String.format(
-                            "Address: %s AudioContext: %s sampleRate: %d channels: %d usages: %s",
-                            address, carAudioContext, info.getSampleRate(), info.getChannelCount(),
-                            Arrays.toString(usages)));
+                    Slogf.d(CarLog.TAG_AUDIO, "Address: %s AudioContext: %s sampleRate: %d "
+                            + "channels: %d usages: %s", address, carAudioContext,
+                            info.getSampleRate(), info.getChannelCount(), Arrays.toString(usages));
                 }
             }
             if (hasContext) {

@@ -17,7 +17,7 @@
 package android.car.builtin.app;
 
 import android.annotation.SystemApi;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.RemoteException;
 import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
@@ -44,7 +44,7 @@ public final class KeyguardManagerHelper {
         try {
             locked = mWindowManager.isKeyguardLocked();
         } catch (RemoteException e) {
-            Slog.w(TAG, "Failed to get Keyguard state", e);
+            Slogf.w(TAG, "Failed to get Keyguard state", e);
         }
         return locked;
     }

@@ -27,7 +27,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -133,7 +133,7 @@ public class PropertyHalService extends HalServiceBase {
         mSubscribedHalPropIds = new HashSet<Integer>();
         mVehicleHal = vehicleHal;
         if (mDbg) {
-            Slog.d(TAG, "started PropertyHalService");
+            Slogf.d(TAG, "started PropertyHalService");
         }
     }
 
@@ -153,7 +153,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public SparseArray<CarPropertyConfig<?>> getPropertyList() {
         if (mDbg) {
-            Slog.d(TAG, "getPropertyList");
+            Slogf.d(TAG, "getPropertyList");
         }
         synchronized (mLock) {
             if (mMgrPropIdToCarPropConfig.size() == 0) {
@@ -206,7 +206,7 @@ public class PropertyHalService extends HalServiceBase {
         try {
             return getProperty(mgrPropId, areaId);
         } catch (Exception e) {
-            Slog.e(TAG, "get property value failed for property id: 0x "
+            Slogf.e(TAG, "get property value failed for property id: 0x "
                     + toHexString(mgrPropId) + " area id: 0x" + toHexString(areaId)
                     + " exception: " + e);
             return null;
@@ -308,7 +308,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void subscribeProperty(int mgrPropId, float rate) {
         if (mDbg) {
-            Slog.d(TAG, "subscribeProperty propId=0x" + toHexString(mgrPropId) + ", rate=" + rate);
+            Slogf.d(TAG, "subscribeProperty propId=0x" + toHexString(mgrPropId) + ", rate=" + rate);
         }
         int halPropId = managerToHalPropId(mgrPropId);
         if (!isPropertySupportedInVehicle(halPropId)) {
@@ -334,7 +334,7 @@ public class PropertyHalService extends HalServiceBase {
      */
     public void unsubscribeProperty(int mgrPropId) {
         if (mDbg) {
-            Slog.d(TAG, "unsubscribeProperty propId=0x" + toHexString(mgrPropId));
+            Slogf.d(TAG, "unsubscribeProperty propId=0x" + toHexString(mgrPropId));
         }
         int halPropId = managerToHalPropId(mgrPropId);
         if (!isPropertySupportedInVehicle(halPropId)) {
@@ -352,14 +352,14 @@ public class PropertyHalService extends HalServiceBase {
     @Override
     public void init() {
         if (mDbg) {
-            Slog.d(TAG, "init()");
+            Slogf.d(TAG, "init()");
         }
     }
 
     @Override
     public void release() {
         if (mDbg) {
-            Slog.d(TAG, "release()");
+            Slogf.d(TAG, "release()");
         }
         synchronized (mLock) {
             for (Integer halProp : mSubscribedHalPropIds) {
@@ -392,12 +392,12 @@ public class PropertyHalService extends HalServiceBase {
                     mHalPropIdToVehiclePropConfig.put(p.prop, p);
                 }
                 if (mDbg) {
-                    Slog.d(TAG, "takeSupportedProperties: " + toHexString(p.prop));
+                    Slogf.d(TAG, "takeSupportedProperties: " + toHexString(p.prop));
                 }
             }
         }
         if (mDbg) {
-            Slog.d(TAG, "takeSupportedProperties() took " + allProperties.size()
+            Slogf.d(TAG, "takeSupportedProperties() took " + allProperties.size()
                     + " properties");
         }
         // If vehicle hal support to select permission for vendor properties.
@@ -423,12 +423,12 @@ public class PropertyHalService extends HalServiceBase {
                     continue;
                 }
                 if (!isPropertySupportedInVehicle(v.prop)) {
-                    Slog.e(TAG, "Property is not supported: 0x" + toHexString(v.prop));
+                    Slogf.e(TAG, "Property is not supported: 0x" + toHexString(v.prop));
                     continue;
                 }
                 // Check payload if it is a userdebug build.
                 if (BuildHelper.isDebuggableBuild() && !mPropIds.checkPayload(v)) {
-                    Slog.e(TAG, "Drop event for property: " + v + " because it is failed "
+                    Slogf.e(TAG, "Drop event for property: " + v + " because it is failed "
                             + "in payload checking.");
                     continue;
                 }

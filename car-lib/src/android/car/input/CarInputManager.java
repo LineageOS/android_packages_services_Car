@@ -26,7 +26,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.CarOccupantZoneManager;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -411,7 +411,8 @@ public final class CarInputManager extends CarManagerBase {
         }
         callbackHolder.mExecutor.execute(() -> {
             if (DEBUG) {
-                Slog.d(TAG, "Firing events " + events + " on callback " + callbackHolder.mCallback);
+                Slogf.d(TAG, "Firing events " + events + " on callback "
+                        + callbackHolder.mCallback);
             }
             callbackHolder.mCallback.onCustomInputEvents(targetDisplayType, events);
         });

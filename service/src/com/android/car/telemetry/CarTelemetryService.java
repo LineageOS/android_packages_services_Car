@@ -22,7 +22,7 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNK
 import android.annotation.NonNull;
 import android.app.StatsManager;
 import android.car.Car;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.telemetry.ICarTelemetryService;
 import android.car.telemetry.ICarTelemetryServiceListener;
 import android.car.telemetry.MetricsConfigKey;
@@ -126,7 +126,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "setListener");
         mTelemetryHandler.post(() -> {
             if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY, "Setting the listener for car telemetry service");
+                Slogf.d(CarLog.TAG_TELEMETRY, "Setting the listener for car telemetry service");
             }
             mListener = listener;
         });
@@ -141,7 +141,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "clearListener");
         mTelemetryHandler.post(() -> {
             if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY, "Clearing the listener for car telemetry service");
+                Slogf.d(CarLog.TAG_TELEMETRY, "Clearing the listener for car telemetry service");
             }
             mListener = null;
         });
@@ -160,17 +160,17 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "addMetricsConfig");
         mTelemetryHandler.post(() -> {
             if (mListener == null) {
-                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
-            Slog.d(CarLog.TAG_TELEMETRY, "Adding metrics config " + key.getName()
+            Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config " + key.getName()
                     + " to car telemetry service");
             TelemetryProto.MetricsConfig metricsConfig = null;
             int status = ERROR_METRICS_CONFIG_UNKNOWN;
             try {
                 metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
             } catch (InvalidProtocolBufferException e) {
-                Slog.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
+                Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
                 status = ERROR_METRICS_CONFIG_PARSE_FAILED;
             }
             // if config can be parsed, add it to persistent storage
@@ -187,7 +187,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
             } catch (RemoteException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+                Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
             }
         });
     }
@@ -203,10 +203,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
         mTelemetryHandler.post(() -> {
             if (mListener == null) {
-                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
-            Slog.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
+            Slogf.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
                     + " from car telemetry service");
             // TODO(b/198792767): Check both config name and config version for deletion
             // TODO(b/199540952): Stop and remove config from data broker
@@ -215,7 +215,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             try {
                 mListener.onRemoveMetricsConfigStatus(key, success);
             } catch (RemoteException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+                Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
             }
         });
     }
@@ -229,7 +229,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeAllMetricsConfig");
         mTelemetryHandler.post(() -> {
             // TODO(b/199540952): Stop and remove all configs from DataBroker
-            Slog.d(CarLog.TAG_TELEMETRY,
+            Slogf.d(CarLog.TAG_TELEMETRY,
                     "Removing all metrics config from car telemetry service");
             mMetricsConfigStore.deleteAllMetricsConfigs();
             mResultStore.deleteAllResults();
@@ -249,11 +249,11 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendFinishedReports");
         mTelemetryHandler.post(() -> {
             if (mListener == null) {
-                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
+                Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
             if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY,
+                Slogf.d(CarLog.TAG_TELEMETRY,
                         "Flushing reports for metrics config " + key.getName());
             }
             PersistableBundle result = mResultStore.getFinalResult(key.getName(), true);
@@ -263,7 +263,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             } else if (error != null) {
                 sendError(key, error);
             } else {
-                Slog.w(CarLog.TAG_TELEMETRY, "config " + key.getName()
+                Slogf.w(CarLog.TAG_TELEMETRY, "config " + key.getName()
                         + " did not produce any results");
             }
         });
@@ -278,7 +278,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mContext.enforceCallingOrSelfPermission(
                 Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "sendAllFinishedReports");
         if (DEBUG) {
-            Slog.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
+            Slogf.d(CarLog.TAG_TELEMETRY, "Flushing all reports");
         }
     }
 
@@ -287,9 +287,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             result.writeToStream(bos);
             mListener.onResult(key, bos.toByteArray());
         } catch (RemoteException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "failed to write bundle to output stream", e);
+            Slogf.w(CarLog.TAG_TELEMETRY,  "failed to write bundle to output stream", e);
         }
     }
 
@@ -297,7 +297,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         try {
             mListener.onError(key, error.toByteArray());
         } catch (RemoteException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
         }
     }
 

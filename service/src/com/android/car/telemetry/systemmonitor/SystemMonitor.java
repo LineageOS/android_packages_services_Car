@@ -19,9 +19,9 @@ package com.android.car.telemetry.systemmonitor;
 import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.app.ActivityManager.MemoryInfo;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.Handler;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -125,7 +125,7 @@ public class SystemMonitor {
             String line = reader.readLine();
             String[] vals = line.split("\\s+", NUM_LOADAVG_VALS + 1);
             if (vals.length < NUM_LOADAVG_VALS) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Loadavg wrong format");
+                Slogf.w(CarLog.TAG_TELEMETRY, "Loadavg wrong format");
                 return null;
             }
             CpuLoadavg cpuLoadavg = new CpuLoadavg();
@@ -134,7 +134,7 @@ public class SystemMonitor {
             cpuLoadavg.mFifteenMinutesVal = Float.parseFloat(vals[2]);
             return cpuLoadavg;
         } catch (IOException | NumberFormatException ex) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to read loadavg file.", ex);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read loadavg file.", ex);
             return null;
         }
     }

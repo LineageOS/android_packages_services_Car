@@ -16,7 +16,7 @@
 package com.android.car;
 
 import android.car.Car;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.test.ICarTest;
 import android.content.Context;
 import android.os.IBinder;
@@ -73,12 +73,12 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
 
     @Override
     public void stopCarService(IBinder token) throws RemoteException {
-        Slog.d(TAG, "stopCarService, token: " + token);
+        Slogf.d(TAG, "stopCarService, token: " + token);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
 
         synchronized (mLock) {
             if (mTokens.containsKey(token)) {
-                Slog.w(TAG, "Calling stopCarService twice with the same token.");
+                Slogf.w(TAG, "Calling stopCarService twice with the same token.");
                 return;
             }
 
@@ -94,13 +94,13 @@ class CarTestService extends ICarTest.Stub implements CarServiceBase {
 
     @Override
     public void startCarService(IBinder token) throws RemoteException {
-        Slog.d(TAG, "startCarService, token: " + token);
+        Slogf.d(TAG, "startCarService, token: " + token);
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_CAR_TEST_SERVICE);
         releaseToken(token);
     }
 
     private void releaseToken(IBinder token) {
-        Slog.d(TAG, "releaseToken, token: " + token);
+        Slogf.d(TAG, "releaseToken, token: " + token);
         synchronized (mLock) {
             DeathRecipient deathRecipient = mTokens.remove(token);
             if (deathRecipient != null) {

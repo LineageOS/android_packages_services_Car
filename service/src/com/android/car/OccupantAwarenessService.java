@@ -19,7 +19,7 @@ package com.android.car;
 import android.annotation.NonNull;
 import android.car.Car;
 import android.car.builtin.os.ServiceManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.occupantawareness.IOccupantAwarenessEventCallback;
 import android.car.occupantawareness.OccupantAwarenessDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection.VehicleOccupantRole;
@@ -86,7 +86,7 @@ public class OccupantAwarenessService
         /** Handle callback death. */
         @Override
         public void onCallbackDied(IOccupantAwarenessEventCallback listener) {
-            Slog.i(TAG, "binderDied: " + listener.asBinder());
+            Slogf.i(TAG, "binderDied: " + listener.asBinder());
 
             OccupantAwarenessService service = mOasService.get();
             if (service != null) {
@@ -153,7 +153,7 @@ public class OccupantAwarenessService
                             .asInterface(ServiceManagerHelper.getService(OAS_SERVICE_ID));
 
             if (mOasHal == null) {
-                Slog.e(TAG, "Failed to find OAS hal_service at: [" + OAS_SERVICE_ID + "]");
+                Slogf.e(TAG, "Failed to find OAS hal_service at: [" + OAS_SERVICE_ID + "]");
                 return;
             }
 
@@ -162,7 +162,7 @@ public class OccupantAwarenessService
                 mOasHal.setCallback(mHalListener);
             } catch (RemoteException e) {
                 mOasHal = null;
-                Slog.e(TAG, "Failed to set callback: " + e);
+                Slogf.e(TAG, "Failed to set callback: " + e);
                 return;
             }
 
@@ -184,14 +184,14 @@ public class OccupantAwarenessService
             try {
                 hal.startDetection();
             } catch (RemoteException e) {
-                Slog.e(TAG, "startDetection() HAL invocation failed: " + e, e);
+                Slogf.e(TAG, "startDetection() HAL invocation failed: " + e, e);
 
                 synchronized (mLock) {
                     mOasHal = null;
                 }
             }
         } else {
-            Slog.e(TAG, "No HAL is connected. Cannot request graph start");
+            Slogf.e(TAG, "No HAL is connected. Cannot request graph start");
         }
     }
 
@@ -209,14 +209,14 @@ public class OccupantAwarenessService
             try {
                 hal.stopDetection();
             } catch (RemoteException e) {
-                Slog.e(TAG, "stopDetection() HAL invocation failed: " + e, e);
+                Slogf.e(TAG, "stopDetection() HAL invocation failed: " + e, e);
 
                 synchronized (mLock) {
                     mOasHal = null;
                 }
             }
         } else {
-            Slog.e(TAG, "No HAL is connected. Cannot request graph stop");
+            Slogf.e(TAG, "No HAL is connected. Cannot request graph stop");
         }
     }
 
@@ -250,7 +250,7 @@ public class OccupantAwarenessService
                 return hal.getCapabilityForRole(role);
             } catch (RemoteException e) {
 
-                Slog.e(TAG, "getCapabilityForRole() HAL invocation failed: " + e, e);
+                Slogf.e(TAG, "getCapabilityForRole() HAL invocation failed: " + e, e);
 
                 synchronized (mLock) {
                     mOasHal = null;
@@ -259,10 +259,8 @@ public class OccupantAwarenessService
                 return SystemStatusEvent.DETECTION_TYPE_NONE;
             }
         } else {
-            Slog.e(
-                    TAG,
-                    "getCapabilityForRole(): No HAL interface has been provided. Cannot get"
-                            + " capabilities");
+            Slogf.e(TAG, "getCapabilityForRole(): No HAL interface has been provided. Cannot get"
+                    + " capabilities");
             return SystemStatusEvent.DETECTION_TYPE_NONE;
         }
     }
@@ -285,7 +283,7 @@ public class OccupantAwarenessService
 
         synchronized (mLock) {
             if (mOasHal == null) {
-                Slog.e(TAG, "Attempting to register a listener, but could not connect to HAL.");
+                Slogf.e(TAG, "Attempting to register a listener, but could not connect to HAL.");
                 return;
             }
 
@@ -332,7 +330,7 @@ public class OccupantAwarenessService
                 listener.onStatusChanged(statusEvent);
             } catch (RemoteException e) {
                 // It's likely the connection snapped. Let binder death handle the situation.
-                Slog.e(TAG, "onStatusChanged() invocation failed: " + e, e);
+                Slogf.e(TAG, "onStatusChanged() invocation failed: " + e, e);
             }
         }
         mListeners.finishBroadcast();
@@ -348,7 +346,7 @@ public class OccupantAwarenessService
                 listener.onDetectionEvent(detection);
             } catch (RemoteException e) {
                 // It's likely the connection snapped. Let binder death handle the situation.
-                Slog.e(TAG, "onDetectionEvent() invocation failed: " + e, e);
+                Slogf.e(TAG, "onDetectionEvent() invocation failed: " + e, e);
             }
         }
         mListeners.finishBroadcast();
@@ -366,7 +364,7 @@ public class OccupantAwarenessService
 
     private static void logd(String msg) {
         if (DBG) {
-            Slog.d(TAG, msg);
+            Slogf.d(TAG, msg);
         }
     }
 

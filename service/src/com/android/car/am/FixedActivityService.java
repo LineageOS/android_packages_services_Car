@@ -30,7 +30,7 @@ import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import android.car.builtin.content.pm.PackageManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleListener;
@@ -135,7 +135,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (Log.isLoggable(TAG_AM, Log.DEBUG)) {
-            Slog.d(TAG_AM, "onEvent(" + event + ")");
+            Slogf.d(TAG_AM, "onEvent(" + event + ")");
         }
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
             synchronized (FixedActivityService.this.mLock) {
@@ -154,12 +154,12 @@ public final class FixedActivityService implements CarServiceBase {
                     || Intent.ACTION_PACKAGE_REMOVED.equals(action)) {
                 Uri packageData = intent.getData();
                 if (packageData == null) {
-                    Slog.w(TAG_AM, "null packageData");
+                    Slogf.w(TAG_AM, "null packageData");
                     return;
                 }
                 String packageName = packageData.getSchemeSpecificPart();
                 if (packageName == null) {
-                    Slog.w(TAG_AM, "null packageName");
+                    Slogf.w(TAG_AM, "null packageName");
                     return;
                 }
                 int uid = intent.getIntExtra(Intent.EXTRA_UID, INVALID_UID);
@@ -172,7 +172,7 @@ public final class FixedActivityService implements CarServiceBase {
                         // displays. Package name is ignored as one package can affect
                         // others.
                         if (info.userId == userId) {
-                            Slog.i(TAG_AM, "Package changed:" + packageName
+                            Slogf.i(TAG_AM, "Package changed:" + packageName
                                     + ",user:" + userId + ",action:" + action);
                             info.resetCrashCounterLocked();
                             tryLaunch = true;
@@ -192,7 +192,7 @@ public final class FixedActivityService implements CarServiceBase {
             new OnTaskStackChangeListener() {
                 @Override
                 public void onTaskStackChanged() {
-                    if (DBG) Slog.d(TAG_AM, "onTaskStackChanged");
+                    if (DBG) Slogf.d(TAG_AM, "onTaskStackChanged");
                     launchIfNecessary();
                 }
             };
@@ -334,7 +334,7 @@ public final class FixedActivityService implements CarServiceBase {
             carPowerManager.setListener(mCarPowerStateListener);
         } catch (Exception e) {
             // should not happen
-            Slog.e(TAG_AM, "Got exception from CarPowerManager", e);
+            Slogf.e(TAG_AM, "Got exception from CarPowerManager", e);
         }
     }
 
@@ -370,7 +370,7 @@ public final class FixedActivityService implements CarServiceBase {
     private boolean launchIfNecessary(int displayId) {
         SparseArray<TopTaskInfoContainer> infos = mAm.getTopTasks();
         if (infos == null) {
-            Slog.e(TAG_AM, "cannot get RootTaskInfo from AM");
+            Slogf.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;
         }
         long now = SystemClock.elapsedRealtime();
@@ -378,7 +378,7 @@ public final class FixedActivityService implements CarServiceBase {
             if (mRunningActivities.size() == 0) {
                 // it must have been stopped.
                 if (DBG) {
-                    Slog.i(TAG_AM, "empty activity list", new RuntimeException());
+                    Slogf.i(TAG_AM, "empty activity list", new RuntimeException());
                 }
                 return false;
             }
@@ -386,7 +386,7 @@ public final class FixedActivityService implements CarServiceBase {
                 int displayIdForActivity = mRunningActivities.keyAt(i);
                 Display display = mDm.getDisplay(displayIdForActivity);
                 if (display == null) {
-                    Slog.e(TAG_AM, "Stop fixed activity for non-available display"
+                    Slogf.e(TAG_AM, "Stop fixed activity for non-available display"
                             + displayIdForActivity);
                     mRunningActivities.removeAt(i);
                     continue;
@@ -398,7 +398,7 @@ public final class FixedActivityService implements CarServiceBase {
                     continue;
                 }
                 if (activityInfo.taskId != INVALID_TASK_ID) {
-                    Slog.i(TAG_AM, "Finishing fixed activity on user switching:"
+                    Slogf.i(TAG_AM, "Finishing fixed activity on user switching:"
                             + activityInfo);
                     mAm.removeTask(activityInfo.taskId);
                     CarServiceUtils.runOnMain(() -> {
@@ -415,7 +415,7 @@ public final class FixedActivityService implements CarServiceBase {
                         synchronized (mLock) {
                             RunningActivityInfo info = mRunningActivities.get(displayIdForActivity);
                             if (info != null && info.userId == ActivityManager.getCurrentUser()) {
-                                Slog.i(TAG_AM, "Do not show Presentation, new req already made");
+                                Slogf.i(TAG_AM, "Do not show Presentation, new req already made");
                                 return;
                             }
                             mBlockingPresentations.append(displayIdForActivity, p);
@@ -440,7 +440,7 @@ public final class FixedActivityService implements CarServiceBase {
                     continue;
                 }
                 activityInfo.previousTaskId = taskInfo.taskId;
-                Slog.i(TAG_AM, "Unmatched top activity will be removed:"
+                Slogf.i(TAG_AM, "Unmatched top activity will be removed:"
                         + taskInfo.topActivity + " top task id:" + activityInfo.previousTaskId
                         + " user:" + topUserId + " display:" + taskInfo.displayId);
                 activityInfo.inBackground = false;
@@ -478,13 +478,13 @@ public final class FixedActivityService implements CarServiceBase {
                     // re-tried too many times, give up for now.
                     if (!activityInfo.failureLogged) {
                         activityInfo.failureLogged = true;
-                        Slog.w(TAG_AM, "Too many relaunch failure of fixed activity:"
+                        Slogf.w(TAG_AM, "Too many relaunch failure of fixed activity:"
                                 + activityInfo);
                     }
                     continue;
                 }
 
-                Slog.i(TAG_AM, "Launching Activity for fixed mode. Intent:" + activityInfo.intent
+                Slogf.i(TAG_AM, "Launching Activity for fixed mode. Intent:" + activityInfo.intent
                         + ",userId:" + UserHandle.of(activityInfo.userId) + ",displayId:"
                         + mRunningActivities.keyAt(i));
                 // Increase retry count if task is not in background. In case like other app is
@@ -502,7 +502,7 @@ public final class FixedActivityService implements CarServiceBase {
                     activityInfo.isVisible = true;
                     activityInfo.lastLaunchTimeMs = SystemClock.elapsedRealtime();
                 } catch (Exception e) { // Catch all for any app related issues.
-                    Slog.w(TAG_AM, "Cannot start activity:" + activityInfo.intent, e);
+                    Slogf.w(TAG_AM, "Cannot start activity:" + activityInfo.intent, e);
                 }
             }
             RunningActivityInfo activityInfo = mRunningActivities.get(displayId);
@@ -520,7 +520,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private void logComponentNotFound(ComponentName component, @UserIdInt int userId,
             Exception e) {
-        Slog.e(TAG_AM, "Specified Component not found:" + component
+        Slogf.e(TAG_AM, "Specified Component not found:" + component
                 + " for userid:" + userId, e);
     }
 
@@ -570,7 +570,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private boolean isDisplayAllowedForFixedMode(int displayId) {
         if (displayId == Display.DEFAULT_DISPLAY || displayId == Display.INVALID_DISPLAY) {
-            Slog.w(TAG_AM, "Target display cannot be used for fixed mode, displayId:" + displayId,
+            Slogf.w(TAG_AM, "Target display cannot be used for fixed mode, displayId:" + displayId,
                     new RuntimeException());
             return false;
         }
@@ -594,20 +594,18 @@ public final class FixedActivityService implements CarServiceBase {
             return false;
         }
         if (options == null) {
-            Slog.e(TAG_AM, "startFixedActivityModeForDisplayAndUser, null options");
+            Slogf.e(TAG_AM, "startFixedActivityModeForDisplayAndUser, null options");
             return false;
         }
         if (!isUserAllowedToLaunchActivity(userId)) {
-            Slog.e(TAG_AM, "startFixedActivityModeForDisplayAndUser, requested user:" + userId
+            Slogf.e(TAG_AM, "startFixedActivityModeForDisplayAndUser, requested user:" + userId
                     + " cannot launch activity, Intent:" + intent);
             return false;
         }
         ComponentName component = intent.getComponent();
         if (component == null) {
-            Slog.e(TAG_AM,
-                    "startFixedActivityModeForDisplayAndUser: No component specified for "
-                            + "requested Intent"
-                            + intent);
+            Slogf.e(TAG_AM, "startFixedActivityModeForDisplayAndUser: No component specified for "
+                    + "requested Intent" + intent);
             return false;
         }
         if (!isComponentAvailable(component, userId)) {

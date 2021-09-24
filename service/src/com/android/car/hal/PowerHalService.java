@@ -23,7 +23,7 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.DISPLAY_B
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.Nullable;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
@@ -228,7 +228,7 @@ public class PowerHalService extends HalServiceBase {
      * Send WaitForVhal message to VHAL
      */
     public void sendWaitForVhal() {
-        Slog.i(CarLog.TAG_POWER, "send wait for vhal");
+        Slogf.i(CarLog.TAG_POWER, "send wait for vhal");
         setPowerState(VehicleApPowerStateReport.WAIT_FOR_VHAL, 0);
     }
 
@@ -237,7 +237,7 @@ public class PowerHalService extends HalServiceBase {
      * @param wakeupTimeSec Notify VHAL when system wants to be woken from sleep.
      */
     public void sendSleepEntry(int wakeupTimeSec) {
-        Slog.i(CarLog.TAG_POWER, "send sleep entry");
+        Slogf.i(CarLog.TAG_POWER, "send sleep entry");
         setPowerState(VehicleApPowerStateReport.DEEP_SLEEP_ENTRY, wakeupTimeSec);
     }
 
@@ -246,7 +246,7 @@ public class PowerHalService extends HalServiceBase {
      * Notifies VHAL when SOC has woken.
      */
     public void sendSleepExit() {
-        Slog.i(CarLog.TAG_POWER, "send sleep exit");
+        Slogf.i(CarLog.TAG_POWER, "send sleep exit");
         setPowerState(VehicleApPowerStateReport.DEEP_SLEEP_EXIT, 0);
     }
 
@@ -254,7 +254,7 @@ public class PowerHalService extends HalServiceBase {
      * Send Shutdown Postpone message to VHAL
      */
     public void sendShutdownPostpone(int postponeTimeMs) {
-        Slog.i(CarLog.TAG_POWER, "send shutdown postpone, time:" + postponeTimeMs);
+        Slogf.i(CarLog.TAG_POWER, "send shutdown postpone, time:" + postponeTimeMs);
         setPowerState(VehicleApPowerStateReport.SHUTDOWN_POSTPONE, postponeTimeMs);
     }
 
@@ -262,7 +262,7 @@ public class PowerHalService extends HalServiceBase {
      * Send Shutdown Start message to VHAL
      */
     public void sendShutdownStart(int wakeupTimeSec) {
-        Slog.i(CarLog.TAG_POWER, "send shutdown start");
+        Slogf.i(CarLog.TAG_POWER, "send shutdown start");
         setPowerState(VehicleApPowerStateReport.SHUTDOWN_START, wakeupTimeSec);
     }
 
@@ -270,7 +270,7 @@ public class PowerHalService extends HalServiceBase {
      * Send On message to VHAL
      */
     public void sendOn() {
-        Slog.i(CarLog.TAG_POWER, "send on");
+        Slogf.i(CarLog.TAG_POWER, "send on");
         setPowerState(VehicleApPowerStateReport.ON, 0);
     }
 
@@ -278,7 +278,7 @@ public class PowerHalService extends HalServiceBase {
      * Send Shutdown Prepare message to VHAL
      */
     public void sendShutdownPrepare() {
-        Slog.i(CarLog.TAG_POWER, "send shutdown prepare");
+        Slogf.i(CarLog.TAG_POWER, "send shutdown prepare");
         setPowerState(VehicleApPowerStateReport.SHUTDOWN_PREPARE, 0);
     }
 
@@ -286,7 +286,7 @@ public class PowerHalService extends HalServiceBase {
      * Send Shutdown Cancel message to VHAL
      */
     public void sendShutdownCancel() {
-        Slog.i(CarLog.TAG_POWER, "send shutdown cancel");
+        Slogf.i(CarLog.TAG_POWER, "send shutdown cancel");
         setPowerState(VehicleApPowerStateReport.SHUTDOWN_CANCELLED, 0);
     }
 
@@ -307,9 +307,9 @@ public class PowerHalService extends HalServiceBase {
         }
         try {
             mHal.set(VehicleProperty.DISPLAY_BRIGHTNESS, 0).to(brightness);
-            Slog.i(CarLog.TAG_POWER, "send display brightness = " + brightness);
+            Slogf.i(CarLog.TAG_POWER, "send display brightness = " + brightness);
         } catch (ServiceSpecificException | IllegalArgumentException e) {
-            Slog.e(CarLog.TAG_POWER, "cannot set DISPLAY_BRIGHTNESS", e);
+            Slogf.e(CarLog.TAG_POWER, "cannot set DISPLAY_BRIGHTNESS", e);
         }
     }
 
@@ -318,10 +318,10 @@ public class PowerHalService extends HalServiceBase {
             int[] values = { state, additionalParam };
             try {
                 mHal.set(VehicleProperty.AP_POWER_STATE_REPORT, 0).to(values);
-                Slog.i(CarLog.TAG_POWER, "setPowerState=" + powerStateReportName(state)
+                Slogf.i(CarLog.TAG_POWER, "setPowerState=" + powerStateReportName(state)
                         + " param=" + additionalParam);
             } catch (ServiceSpecificException e) {
-                Slog.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE_REPORT", e);
+                Slogf.e(CarLog.TAG_POWER, "cannot set to AP_POWER_STATE_REPORT", e);
             }
         }
     }
@@ -335,7 +335,7 @@ public class PowerHalService extends HalServiceBase {
         try {
             state = mHal.get(int[].class, VehicleProperty.AP_POWER_STATE_REQ);
         } catch (ServiceSpecificException e) {
-            Slog.e(CarLog.TAG_POWER, "Cannot get AP_POWER_STATE_REQ", e);
+            Slogf.e(CarLog.TAG_POWER, "Cannot get AP_POWER_STATE_REQ", e);
             return null;
         }
         return new PowerState(state[VehicleApPowerStateReqIndex.STATE],
@@ -385,7 +385,7 @@ public class PowerHalService extends HalServiceBase {
                 mMaxDisplayBrightness = brightnessProperty.areaConfigs.size() > 0
                         ? brightnessProperty.areaConfigs.get(0).maxInt32Value : 0;
                 if (mMaxDisplayBrightness <= 0) {
-                    Slog.w(CarLog.TAG_POWER, "Max display brightness from vehicle HAL is invalid:"
+                    Slogf.w(CarLog.TAG_POWER, "Max display brightness from vehicle HAL is invalid:"
                             + mMaxDisplayBrightness);
                     mMaxDisplayBrightness = 1;
                 }
@@ -446,12 +446,11 @@ public class PowerHalService extends HalServiceBase {
                         state = v.value.int32Values.get(VehicleApPowerStateReqIndex.STATE);
                         param = v.value.int32Values.get(VehicleApPowerStateReqIndex.ADDITIONAL);
                     } catch (IndexOutOfBoundsException e) {
-                        Slog.e(CarLog.TAG_POWER,
-                                "Received invalid event, ignore, int32Values: "
+                        Slogf.e(CarLog.TAG_POWER, "Received invalid event, ignore, int32Values: "
                                 + v.value.int32Values, e);
                         break;
                     }
-                    Slog.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ="
+                    Slogf.i(CarLog.TAG_POWER, "Received AP_POWER_STATE_REQ="
                             + powerStateReqName(state) + " param=" + param);
                     listener.onApPowerStateChange(new PowerState(state, param));
                     break;
@@ -465,21 +464,20 @@ public class PowerHalService extends HalServiceBase {
                     try {
                         brightness = v.value.int32Values.get(0) * MAX_BRIGHTNESS / maxBrightness;
                     } catch (IndexOutOfBoundsException e) {
-                        Slog.e(CarLog.TAG_POWER,
-                                "Received invalid event, ignore, int32Values: "
+                        Slogf.e(CarLog.TAG_POWER, "Received invalid event, ignore, int32Values: "
                                 + v.value.int32Values, e);
                         break;
                     }
                     if (brightness < 0) {
-                        Slog.e(CarLog.TAG_POWER, "invalid brightness: " + brightness
+                        Slogf.e(CarLog.TAG_POWER, "invalid brightness: " + brightness
                                 + ", set to 0");
                         brightness = 0;
                     } else if (brightness > MAX_BRIGHTNESS) {
-                        Slog.e(CarLog.TAG_POWER, "invalid brightness: "
-                                + brightness + ", set to " + MAX_BRIGHTNESS);
+                        Slogf.e(CarLog.TAG_POWER, "invalid brightness: " + brightness + ", set to "
+                                + MAX_BRIGHTNESS);
                         brightness = MAX_BRIGHTNESS;
                     }
-                    Slog.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
+                    Slogf.i(CarLog.TAG_POWER, "Received DISPLAY_BRIGHTNESS=" + brightness);
                     listener.onDisplayBrightnessChange(brightness);
                     break;
                 }

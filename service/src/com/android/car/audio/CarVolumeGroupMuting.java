@@ -20,7 +20,7 @@ import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.audiocontrol.MutingInfo;
 import android.util.Log;
 import android.util.SparseArray;
@@ -74,7 +74,7 @@ final class CarVolumeGroupMuting {
      */
     public void carMuteChanged() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "carMuteChanged");
+            Slogf.d(TAG, "carMuteChanged");
         }
 
         List<MutingInfo> mutingInfo = generateMutingInfo();

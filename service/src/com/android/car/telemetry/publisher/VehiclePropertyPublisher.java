@@ -17,7 +17,7 @@
 package com.android.car.telemetry.publisher;
 
 import android.car.VehiclePropertyIds;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.property.CarPropertyEvent;
 import android.car.hardware.property.ICarPropertyEventListener;
@@ -67,7 +67,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                 @Override
                 public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
                     if (DEBUG) {
-                        Slog.d(CarLog.TAG_TELEMETRY,
+                        Slogf.d(CarLog.TAG_TELEMETRY,
                                 "Received " + events.size() + " vehicle property events");
                     }
                     for (CarPropertyEvent event : events) {
@@ -124,7 +124,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     public void removeDataSubscriber(DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.VEHICLE_PROPERTY) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "Expected VEHICLE_PROPERTY publisher, but received "
                             + publisherParam.getPublisherCase().name());
             return;

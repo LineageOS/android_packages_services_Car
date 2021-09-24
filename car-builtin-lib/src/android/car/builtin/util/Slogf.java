@@ -66,7 +66,7 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#v(String, String, Throwable)}. */
-    public static int v(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int v(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.v(tag, msg, tr);
     }
 
@@ -76,7 +76,7 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#d(String, String, Throwable)}. */
-    public static int d(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int d(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.d(tag, msg, tr);
     }
 
@@ -86,7 +86,7 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#i(String, String, Throwable)}. */
-    public static int i(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int i(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.i(tag, msg, tr);
     }
 
@@ -96,12 +96,12 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#w(String, String, Throwable)}. */
-    public static int w(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int w(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.w(tag, msg, tr);
     }
 
     /** Same as {@link Slog#w(String, String)}. */
-    public static int w(@NonNull String tag, @NonNull Throwable  tr) {
+    public static int w(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.w(tag, tr);
     }
 
@@ -111,7 +111,7 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#e(String, String, Throwable)}. */
-    public static int e(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int e(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.e(tag, msg, tr);
     }
 
@@ -131,12 +131,12 @@ public final class Slogf {
     }
 
     /** Same as {@link Slog#wtf(String, Throwable). */
-    public static int wtf(@NonNull String tag, @NonNull Throwable  tr) {
+    public static int wtf(@NonNull String tag, @NonNull Throwable tr) {
         return Slog.wtf(tag, tr);
     }
 
     /** Same as {@link Slog#wtf(String, String, Throwable)}. */
-    public static int wtf(@NonNull String tag, @NonNull String msg, @NonNull Throwable  tr) {
+    public static int wtf(@NonNull String tag, @NonNull String msg, @NonNull Throwable tr) {
         return Slog.wtf(tag, msg, tr);
     }
 

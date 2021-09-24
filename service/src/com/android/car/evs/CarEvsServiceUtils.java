@@ -16,7 +16,7 @@
 package com.android.car.evs;
 
 import android.annotation.SystemApi;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager;
 import android.car.evs.CarEvsManager.CarEvsStreamEvent;
 
@@ -61,7 +61,7 @@ public final class CarEvsServiceUtils {
                 outputStatus = CarEvsManager.STREAM_EVENT_OTHER_ERRORS;
                 break;
             default:
-                Slog.w(TAG, "Invalid event type: " + inputEvent);
+                Slogf.w(TAG, "Invalid event type: " + inputEvent);
                 break;
         }
 

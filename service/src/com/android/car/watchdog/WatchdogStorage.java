@@ -21,7 +21,6 @@ import static com.android.car.watchdog.CarWatchdogService.SYSTEM_INSTANCE;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.automotive.watchdog.PerStateBytes;
-import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
 import android.car.watchdog.PackageKillableState.KillableState;
@@ -256,7 +255,7 @@ public final class WatchdogStorage {
                         return false;
                     }
                 } catch (SQLException e) {
-                    Slog.e(TAG, "Failed to insert " + tableName + " entry [" + rows.get(i) + "]",
+                    Slogf.e(TAG, "Failed to insert " + tableName + " entry [" + rows.get(i) + "]",
                             e);
                     return false;
                 }

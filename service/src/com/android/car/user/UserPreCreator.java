@@ -19,7 +19,7 @@ package com.android.car.user;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.os.UserManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -69,11 +69,11 @@ public final class UserPreCreator {
         int numberRequestedUsers = CarSystemProperties.getNumberPreCreatedUsers().orElse(0);
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_PRE_CREATION_REQUESTED, numberRequestedUsers,
                 numberRequestedGuests);
-        Slog.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests
+        Slogf.d(TAG, "managePreCreatedUsers(): OEM asked for " + numberRequestedGuests
                 + " guests and " + numberRequestedUsers + " users");
 
         if (numberRequestedGuests < 0 || numberRequestedUsers < 0) {
-            Slog.w(TAG, "preCreateUsers(): invalid values provided by OEM; "
+            Slogf.w(TAG, "preCreateUsers(): invalid values provided by OEM; "
                     + "number_pre_created_guests=" + numberRequestedGuests
                     + ", number_pre_created_users=" + numberRequestedUsers);
             return;
@@ -84,7 +84,7 @@ public final class UserPreCreator {
                 /* excludeDying= */ true, /* excludePreCreated= */ false);
 
         int allUsersSize = allUsers.size();
-        Slog.d(TAG, "preCreateUsers: total users size is " + allUsersSize);
+        Slogf.d(TAG, "preCreateUsers: total users size is " + allUsersSize);
 
         int numberExistingGuests = 0;
         int numberExistingUsers = 0;
@@ -104,7 +104,7 @@ public final class UserPreCreator {
             int userId = user.getIdentifier();
             if (!mUserHandleHelper.isPreCreatedUser(user)) continue;
             if (!mUserHandleHelper.isInitializedUser(user)) {
-                Slog.w(TAG, "Found invalid pre-created user that needs to be removed: "
+                Slogf.w(TAG, "Found invalid pre-created user that needs to be removed: "
                         + user);
                 invalidPreCreatedUsers.append(userId, /* notUsed=*/ true);
                 continue;
@@ -123,7 +123,7 @@ public final class UserPreCreator {
                 }
             }
         }
-        Slog.i(TAG, "managePreCreatedUsers(): system already has " + numberExistingGuests
+        Slogf.i(TAG, "managePreCreatedUsers(): system already has " + numberExistingGuests
                 + " pre-created guests," + numberExistingUsers + " pre-created users, and these"
                 + " invalid users: " + invalidPreCreatedUsers
                 + " and these extra pre-created users: " + extraPreCreatedUsers);
@@ -140,7 +140,7 @@ public final class UserPreCreator {
                 numberInvalidUsersToRemove);
 
         if (numberGuestsToAdd == 0 && numberUsersToAdd == 0 && numberInvalidUsersToRemove == 0) {
-            Slog.i(TAG, "managePreCreatedUsers(): everything in sync");
+            Slogf.i(TAG, "managePreCreatedUsers(): everything in sync");
             return;
         }
 
@@ -152,7 +152,7 @@ public final class UserPreCreator {
         }
 
         int totalNumberToRemove = extraPreCreatedUsers.size();
-        Slog.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
+        Slogf.d(TAG, "Must delete " + totalNumberToRemove + " pre-created users");
         if (totalNumberToRemove > 0) {
             int[] usersToRemove = new int[totalNumberToRemove];
             for (int i = 0; i < totalNumberToRemove; i++) {
@@ -164,7 +164,7 @@ public final class UserPreCreator {
         if (numberInvalidUsersToRemove > 0) {
             for (int i = 0; i < numberInvalidUsersToRemove; i++) {
                 int userId = invalidPreCreatedUsers.keyAt(i);
-                Slog.w(TAG, "removing invalid pre-created user " + userId);
+                Slogf.w(TAG, "removing invalid pre-created user " + userId);
                 mUserManager.removeUser(UserHandle.of(userId));
             }
         }
@@ -172,11 +172,11 @@ public final class UserPreCreator {
 
     private void preCreateUsers(int size, boolean isGuest) {
         String msg = isGuest ? "preCreateGuests-" + size : "preCreateUsers-" + size;
-        Slog.d(TAG, "preCreateUsers: " + msg);
+        Slogf.d(TAG, "preCreateUsers: " + msg);
         for (int i = 1; i <= size; i++) {
             UserHandle preCreated = preCreateUsers(isGuest);
             if (preCreated == null) {
-                Slog.w(TAG, "Could not pre-create" + (isGuest ? " guest" : "")
+                Slogf.w(TAG, "Could not pre-create" + (isGuest ? " guest" : "")
                         + " user #" + i);
                 continue;
             }
@@ -207,7 +207,7 @@ public final class UserPreCreator {
 
     private void removePreCreatedUsers(int[] usersToRemove) {
         for (int userId : usersToRemove) {
-            Slog.i(TAG, "removing pre-created user with id " + userId);
+            Slogf.i(TAG, "removing pre-created user with id " + userId);
             mUserManager.removeUser(UserHandle.of(userId));
         }
     }
@@ -223,9 +223,9 @@ public final class UserPreCreator {
                 .append(operation).append(" failed. Number users: ").append(currentNumberUsers)
                 .append(" Max: ").append(maxNumberUsers).toString();
         if (cause == null) {
-            Slog.w(TAG, message);
+            Slogf.w(TAG, message);
         } else {
-            Slog.w(TAG, message, cause);
+            Slogf.w(TAG,  message, cause);
         }
     }
 }

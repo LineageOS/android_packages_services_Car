@@ -22,7 +22,7 @@ import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioDeviceInfo;
@@ -172,7 +172,7 @@ public final class AudioServiceHelper {
         // implementation should ignore.
         AudioPortConfig sinkConfig = sinkPort.buildConfig(0,
                 AudioFormat.CHANNEL_OUT_DEFAULT, AudioFormat.ENCODING_DEFAULT, null);
-        Slog.d(TAG, "createAudioPatch sinkConfig: " + sinkConfig);
+        Slogf.d(TAG, "createAudioPatch sinkConfig: " + sinkConfig);
 
         // Configure the source port to match the output port except for a gain adjustment
         AudioGain audioGain = Objects.requireNonNull(getAudioGain(sourceDevice.getPort()),
@@ -199,7 +199,7 @@ public final class AudioServiceHelper {
         Preconditions.checkNotNull(patch[0],
                 "createAudioPatch didn't provide expected single handle [source: %s,sink: %s]",
                 sinkDevice, sourceDevice);
-        Slog.d(TAG, "Audio patch created: " + patch[0]);
+        Slogf.d(TAG, "Audio patch created: " + patch[0]);
 
         return createAudioPatchInfo(patch[0]);
     }
