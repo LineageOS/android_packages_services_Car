@@ -32,6 +32,7 @@ import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
@@ -62,7 +63,6 @@ import android.content.pm.Signature;
 import android.content.res.Resources;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -1040,7 +1040,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private boolean isDebugBuild() {
-        return Build.IS_USERDEBUG || Build.IS_ENG;
+        return BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild();
     }
 
     /**

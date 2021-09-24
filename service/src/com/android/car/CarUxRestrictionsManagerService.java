@@ -30,6 +30,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.os.BinderHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.view.DisplayHelper;
 import android.car.drivingstate.CarDrivingStateEvent;
@@ -48,7 +49,6 @@ import android.content.pm.PackageManager;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.hardware.display.DisplayManager;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.Process;
@@ -689,7 +689,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     }
 
     private boolean isDebugBuild() {
-        return Build.IS_USERDEBUG || Build.IS_ENG;
+        return BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild();
     }
 
     @Override

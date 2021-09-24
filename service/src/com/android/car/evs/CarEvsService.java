@@ -31,6 +31,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
@@ -53,7 +54,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -1068,7 +1068,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         CarServiceUtils.assertPermission(mContext, Car.PERMISSION_USE_CAR_EVS_CAMERA);
         Objects.requireNonNull(id);
 
-        if (!Build.IS_DEBUGGABLE) {
+        if (!BuildHelper.isDebuggableBuild()) {
             // This method is not allowed in the release build.
             return false;
         }

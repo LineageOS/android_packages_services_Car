@@ -41,6 +41,7 @@ import android.app.UiModeManager;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.content.pm.CarPackageManager;
@@ -83,7 +84,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleDisplay;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemClock;
@@ -739,7 +739,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             Slog.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
                     + Arrays.toString(requiredPermissions));
         }
-        if (Build.IS_USER && requiredPermissions == null) {
+        if (BuildHelper.isUserBuild() && requiredPermissions == null) {
             throw new SecurityException("The command '" + cmd + "' requires non-user build");
         }
         if (requiredPermissions != null) {
