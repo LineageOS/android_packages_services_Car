@@ -50,6 +50,7 @@
     <uses-permission android:name="android.car.permission.READ_CAR_STEERING"/>
     <uses-permission android:name="android.car.permission.STORAGE_MONITORING"/>
     <uses-permission android:name="android.car.permission.CAR_DYNAMICS_STATE"/>
+    <uses-permission android:name="android.car.permission.CONTROL_APP_BLOCKING"/>
     <!-- use for CarServiceTest -->
     <uses-permission android:name="android.car.permission.USE_CAR_TELEMETRY_SERVICE"/>
     <!-- Allow querying and writing to any property -->
