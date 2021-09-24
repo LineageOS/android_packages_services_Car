@@ -158,6 +158,18 @@ package android.car.builtin.os {
 
 }
 
+package android.car.builtin.power {
+
+  public final class PowerManagerHelper {
+    ctor public PowerManagerHelper(android.content.Context);
+    method public int getMaximumScreenBrightnessSetting();
+    method public int getMinimumScreenBrightnessSetting();
+    method public void setDisplayState(boolean, long);
+    method public void shutdown(boolean, String, boolean);
+  }
+
+}
+
 package android.car.builtin.util {
 
   public final class AtomicFileHelper {
