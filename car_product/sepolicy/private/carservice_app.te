@@ -107,3 +107,7 @@ binder_call(carservice_app, gpuservice)
 
 # Allow reading and writing /proc/loadavg/
 allow carservice_app proc_loadavg:file { open read getattr };
+
+# Allow finding game_service and content_capture_service
+allow carservice_app game_service:service_manager find;
+allow carservice_app content_capture_service:service_manager find;

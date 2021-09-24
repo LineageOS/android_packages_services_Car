@@ -102,6 +102,7 @@ public class CarBugreportManagerTest extends CarApiTestBase {
         // TODO: Check the contents of the zip file and the extra output.
     }
 
+    @Ignore("b/200992054")
     @Test
     public void test_requestBugreport_cannotRunMultipleBugreports() throws Exception {
         getPermissions();
