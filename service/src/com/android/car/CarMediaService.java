@@ -348,7 +348,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
 
     private void initUser(@UserIdInt int userId) {
         Slog.d(CarLog.TAG_MEDIA, "initUser(): userId=" + userId + ", mSharedPrefs=" + mSharedPrefs);
-        UserHandle currentUser = new UserHandle(userId);
+        UserHandle currentUser = UserHandle.of(userId);
 
         maybeInitSharedPrefs(userId);
 
@@ -472,7 +472,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             int userId = ActivityManager.getCurrentUser();
             writer.printf("Number of active media sessions (for current user %d): %d\n", userId,
                     mMediaSessionManager.getActiveSessionsForUser(/* notificationListener= */ null,
-                            new UserHandle(userId)).size());
+                            UserHandle.of(userId)).size());
 
             writer.printf("Disabled by power policy: %s\n", mIsDisabledByPowerPolicy);
             if (mIsDisabledByPowerPolicy) {
@@ -643,7 +643,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             mMediaSessionManager.removeOnActiveSessionsChangedListener(mSessionsListener);
         }
         mSessionsListener = new SessionChangedListener(ActivityManager.getCurrentUser());
-        UserHandle currentUserHandle = new UserHandle(ActivityManager.getCurrentUser());
+        UserHandle currentUserHandle = UserHandle.of(ActivityManager.getCurrentUser());
         mMediaSessionManager.addOnActiveSessionsChangedListener(null, currentUserHandle,
                 new HandlerExecutor(mHandler), mSessionsListener);
         mMediaSessionUpdater.registerCallbacks(mMediaSessionManager.getActiveSessionsForUser(null,
@@ -832,7 +832,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         notifyListeners(MEDIA_SOURCE_MODE_PLAYBACK);
 
         startMediaConnectorService(shouldStartPlayback(mPlayOnMediaSourceChangedConfig),
-                new UserHandle(ActivityManager.getCurrentUser()));
+                UserHandle.of(ActivityManager.getCurrentUser()));
         // Reset current playback state for the new source, in the case that the app is in an error
         // state (e.g. not signed in). This state will be updated from the app callback registered
         // below, to make sure mCurrentPlaybackState reflects the current source only.
@@ -840,7 +840,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
             mCurrentPlaybackState = PlaybackState.STATE_NONE;
             updateActiveMediaControllerLocked(mMediaSessionManager
                     .getActiveSessionsForUser(null,
-                            new UserHandle(ActivityManager.getCurrentUser())));
+                            UserHandle.of(ActivityManager.getCurrentUser())));
         }
     }
 
