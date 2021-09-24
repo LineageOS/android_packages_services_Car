@@ -49,10 +49,11 @@ void BundleWrapper::putBoolean(const char* key, bool value) {
                             static_cast<jboolean>(value));
 }
 
-void BundleWrapper::putInteger(const char* key, int value) {
-    jmethodID putIntMethod = mJNIEnv->GetMethodID(mBundleClass, "putInt", "(Ljava/lang/String;I)V");
-    mJNIEnv->CallVoidMethod(mBundle, putIntMethod, mJNIEnv->NewStringUTF(key),
-                            static_cast<jint>(value));
+void BundleWrapper::putLong(const char* key, int64_t value) {
+    jmethodID putLongMethod =
+            mJNIEnv->GetMethodID(mBundleClass, "putLong", "(Ljava/lang/String;J)V");
+    mJNIEnv->CallVoidMethod(mBundle, putLongMethod, mJNIEnv->NewStringUTF(key),
+                            static_cast<jlong>(value));
 }
 
 void BundleWrapper::putDouble(const char* key, double value) {
