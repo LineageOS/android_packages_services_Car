@@ -25,6 +25,7 @@ import static org.mockito.Mockito.anyInt;
 import static org.mockito.Mockito.anyString;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.verifyNoMoreInteractions;
 import static org.mockito.Mockito.when;
 
 import android.bluetooth.BluetoothAdapter;
@@ -339,10 +340,25 @@ public class BluetoothFastPairTest {
         assertThat(mTestGattServer.validatePairingRequest(encryptedRequest,
                 testKey.getKeySpec())).isTrue();
         //send Wrong Pairing Key
-        sendPairingKey(-1);
+        sendPairingKey(-2);
         mTestGattServer.processPairingKey(encryptedPairingKey);
         verify(mMockBluetoothDevice).setPairingConfirmation(false);
     }
+
+    @Test
+    public void testNoPairingKey() {
+        FastPairUtils.AccountKey testKey = new FastPairUtils.AccountKey(TEST_SHARED_SECRET);
+        mTestGattServer.setSharedSecretKey(testKey.toBytes());
+        byte[] encryptedRequest = mTestGattServer.encrypt(TEST_PAIRING_REQUEST);
+
+        byte[] encryptedPairingKey = mTestGattServer.encrypt(TEST_PAIRING_KEY);
+
+        assertThat(mTestGattServer.validatePairingRequest(encryptedRequest,
+                testKey.getKeySpec())).isTrue();
+        mTestGattServer.processPairingKey(encryptedPairingKey);
+        verifyNoMoreInteractions(mMockBluetoothDevice);
+    }
+
 
     @Test
     public void testValidPairingKeyAutoAccept() {
@@ -445,5 +461,6 @@ public class BluetoothFastPairTest {
         pairingRequest.putExtra(BluetoothDevice.EXTRA_PAIRING_KEY, pairingKey);
         pairingRequest.putExtra(BluetoothDevice.EXTRA_DEVICE, mMockBluetoothDevice);
         mTestGattServer.mPairingAttemptsReceiver.onReceive(mMockContext, pairingRequest);
+
     }
 }
