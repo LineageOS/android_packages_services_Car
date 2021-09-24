@@ -61,9 +61,6 @@ import java.util.concurrent.Executors;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.TimeUnit;
 
-
-// TODO(b/171405561): Add test cases to cover scenarios where different callbacks are registered
-//     against different display types (e.g. main and cluster)
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public final class CarInputManagerTest extends MockedCarTestBase {
@@ -736,6 +733,86 @@ public final class CarInputManagerTest extends MockedCarTestBase {
     }
 
     @Test
+    public void testCallbacksForDifferentDisplays_keyInputEvents_mainDisplay() throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertKeyEvent(KeyEvent.KEYCODE_HOME, CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
+                mCallback0);
+        assertNoKeyEventSent(mCallback1);
+    }
+
+    @Test
+    public void testCallbacksForDifferentDisplays_keyInputEvents_clusterDisplay() throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertKeyEvent(KeyEvent.KEYCODE_HOME,
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+        assertNoKeyEventSent(mCallback0);
+    }
+
+    @Test
+    public void testCallbacksForDifferentDisplays_customInputEvents_mainDisplay() throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertCustomInputEvent(CUSTOM_EVENT_F1,
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN, /* repeatedCounter= */ 1,
+                mCallback0);
+        assertNoCustomInputEventSent(mCallback1);
+    }
+
+    @Test
+    public void testCallbacksForDifferentDisplays_customInputEvents_clusterDisplay()
+            throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertCustomInputEvent(CUSTOM_EVENT_F1,
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, /* repeatedCounter= */ 1,
+                mCallback1);
+        assertNoCustomInputEventSent(mCallback0);
+    }
+
+    @Test
+    public void testCallbacksForDifferentDisplays_rotaryEvents_mainDisplay() throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertRotaryNavigationEvent(
+                CarOccupantZoneManager.DISPLAY_TYPE_MAIN, /* numClicks= */ 1,
+                mCallback0);
+        assertNoRotaryEventSent(mCallback1);
+    }
+
+    @Test
+    public void testCallbacksForDifferentDisplays_rotaryEvents_clusterDisplay() throws Exception {
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_MAIN, mCallback0);
+        registerCallbackForAllInputs(CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER,
+                mCallback1);
+
+        sendAndAssertRotaryNavigationEvent(
+                CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER, /* numClicks= */ 1,
+                mCallback1);
+        assertNoRotaryEventSent(mCallback0);
+    }
+
+    private void registerCallbackForAllInputs(int displayType, CaptureCallback callback) {
+        int respMain = mCarInputManager.requestInputEventCapture(
+                displayType,
+                new int[]{CarInputManager.INPUT_TYPE_ALL_INPUTS},
+                CarInputManager.CAPTURE_REQ_FLAGS_TAKE_ALL_EVENTS_FOR_DISPLAY, callback);
+        assertThat(respMain).isEqualTo(CarInputManager.INPUT_CAPTURE_RESPONSE_SUCCEEDED);
+    }
+
+    @Test
     public void testInputTypeSystemNavigateKeys() throws Exception {
         int r = mCarInputManager.requestInputEventCapture(
                 CarOccupantZoneManager.DISPLAY_TYPE_MAIN,
@@ -762,6 +839,53 @@ public final class CarInputManagerTest extends MockedCarTestBase {
         assertThat(callback.getkeyEvents()).contains(
                 new Pair<>(displayType,
                         Collections.singletonList(keyEvent)));
+    }
+
+    private void sendAndAssertCustomInputEvent(int inputCode, int displayType, int repeatedCounter,
+            CaptureCallback callback)
+            throws Exception {
+        injectCustomInputEvent(inputCode,
+                convertToVehicleDisplay(displayType), repeatedCounter);
+
+        callback.waitForCustomInputEvent();
+        assertThat(callback.getCustomInputEvents()).hasSize(1);
+        Pair<Integer, List<CustomInputEvent>> customInputEvents =
+                callback.getCustomInputEvents().get(0);
+        assertThat(customInputEvents.second).hasSize(1);
+        CustomInputEvent customInputEvent = customInputEvents.second.get(0);
+        assertThat(customInputEvent.getInputCode()).isEqualTo(inputCode);
+        assertThat(customInputEvent.getTargetDisplayType()).isEqualTo(displayType);
+        assertThat(customInputEvent.getRepeatCounter()).isEqualTo(repeatedCounter);
+    }
+
+    /**
+     * Utility method to convert CarOccupantZoneManager display type to Vehicle HAL display type
+     */
+    private static int convertToVehicleDisplay(int vehicleDisplayType) {
+        switch (vehicleDisplayType) {
+            case CarOccupantZoneManager.DISPLAY_TYPE_MAIN:
+                return VehicleDisplay.MAIN;
+            case CarOccupantZoneManager.DISPLAY_TYPE_INSTRUMENT_CLUSTER:
+                return VehicleDisplay.INSTRUMENT_CLUSTER;
+            default:
+                throw new IllegalArgumentException(
+                        "CarOccupantZone display type {" + vehicleDisplayType
+                                + "} has no equivalent in VehicleDisplay display type");
+        }
+    }
+
+    private void sendAndAssertRotaryNavigationEvent(int displayType, int numClicks,
+            CaptureCallback callback)
+            throws Exception {
+        injectRotaryNavigationEvent(convertToVehicleDisplay(displayType),
+                numClicks);
+
+        callback.waitForRotaryEvent();
+        assertThat(callback.getRotaryEvents()).hasSize(1);
+        Pair<Integer, List<RotaryEvent>> capturedEvents = callback.getRotaryEvents().get(0);
+        assertThat(capturedEvents.second).hasSize(1);
+        RotaryEvent rotaryEvent = capturedEvents.second.get(0);
+        assertThat(rotaryEvent.getNumberOfClicks()).isEqualTo(numClicks);
     }
 
     /**
@@ -820,6 +944,18 @@ public final class CarInputManagerTest extends MockedCarTestBase {
 
     private void assertNoStateChange(CaptureCallback callback) {
         assertThat(callback.getStateChanges()).isEmpty();
+    }
+
+    private void assertNoKeyEventSent(CaptureCallback callback) {
+        assertThat(callback.getkeyEvents()).isEmpty();
+    }
+
+    private void assertNoCustomInputEventSent(CaptureCallback callback) {
+        assertThat(callback.getCustomInputEvents()).isEmpty();
+    }
+
+    private void assertNoRotaryEventSent(CaptureCallback callback) {
+        assertThat(callback.getRotaryEvents()).isEmpty();
     }
 
     private void assertStateChange(int expectedTargetDisplayTarget, int[] expectedInputTypes,
