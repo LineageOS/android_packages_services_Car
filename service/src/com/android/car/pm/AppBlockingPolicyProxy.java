@@ -15,6 +15,7 @@
  */
 package com.android.car.pm;
 
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.content.pm.CarAppBlockingPolicy;
 import android.car.content.pm.ICarAppBlockingPolicy;
@@ -81,7 +82,7 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
 
     public void connect() {
         Intent intent = new Intent();
-        intent.setComponent(mServiceInfo.getComponentName());
+        intent.setComponent(PackageManagerHelper.getComponentName(mServiceInfo));
         mContext.bindServiceAsUser(intent, this, Context.BIND_AUTO_CREATE | Context.BIND_IMPORTANT,
                 UserHandle.CURRENT_OR_SELF);
         synchronized (mLock) {

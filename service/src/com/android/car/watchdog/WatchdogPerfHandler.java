@@ -42,7 +42,6 @@ import static com.android.car.watchdog.WatchdogStorage.ZONE_OFFSET;
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
-import android.app.ActivityThread;
 import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
@@ -52,6 +51,7 @@ import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.watchdog.CarWatchdogManager;
 import android.car.watchdog.IResourceOveruseListener;
@@ -66,7 +66,6 @@ import android.car.watchdog.ResourceOveruseStats;
 import android.car.watchdoglib.CarWatchdogDaemonHelper;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
-import android.content.pm.IPackageManager;
 import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
@@ -674,7 +673,6 @@ public final class WatchdogPerfHandler {
     /** Handle packages that exceed resource overuse thresholds */
     private void handleIoOveruseKilling(SparseBooleanArray recurringIoOverusesByUid,
             SparseArray<String> genericPackageNamesByUid) {
-        IPackageManager packageManager = ActivityThread.getPackageManager();
         synchronized (mLock) {
             for (int i = 0; i < recurringIoOverusesByUid.size(); i++) {
                 int uid = recurringIoOverusesByUid.keyAt(i);
@@ -704,8 +702,9 @@ public final class WatchdogPerfHandler {
                     String packageName = packages.get(pkgIdx);
                     try {
                         if (!hasRecurringOveruse) {
-                            int currentEnabledState = packageManager.getApplicationEnabledSetting(
-                                    packageName, userId);
+                            int currentEnabledState =
+                                    PackageManagerHelper.getApplicationEnabledSettingForUser(
+                                            packageName, userId);
                             if (currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED
                                     || currentEnabledState == COMPONENT_ENABLED_STATE_DISABLED_USER
                                     || currentEnabledState
@@ -713,7 +712,7 @@ public final class WatchdogPerfHandler {
                                 continue;
                             }
                         }
-                        packageManager.setApplicationEnabledSetting(packageName,
+                        PackageManagerHelper.setApplicationEnabledSettingForUser(packageName,
                                 COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED, /* flags= */ 0, userId,
                                 mContext.getPackageName());
                         overuseAction.resourceOveruseActionType = hasRecurringOveruse

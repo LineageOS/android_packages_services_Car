@@ -20,6 +20,7 @@ import static android.car.content.pm.CarPackageManager.DRIVING_SAFETY_ACTIVITY_M
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.content.pm.CarPackageManager;
 import android.content.Context;
@@ -63,8 +64,8 @@ public class CarAppMetadataReader {
             String packageName, @UserIdInt int userId)  throws NameNotFoundException {
         final PackageManager pm = context.getPackageManager();
         PackageInfo pkgInfo =
-                pm.getPackageInfoAsUser(
-                        packageName, PackageManager.GET_ACTIVITIES
+                PackageManagerHelper.getPackageInfoAsUser(pm, packageName,
+                        PackageManager.GET_ACTIVITIES
                                 | PackageManager.GET_META_DATA
                                 | PackageManager.MATCH_DISABLED_COMPONENTS
                                 | PackageManager.MATCH_DIRECT_BOOT_AWARE

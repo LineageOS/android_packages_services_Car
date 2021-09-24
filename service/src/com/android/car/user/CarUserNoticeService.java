@@ -27,6 +27,7 @@ import android.app.ActivityManager;
 import android.app.AppOpsManager;
 import android.car.CarNotConnectedException;
 import android.car.builtin.app.KeyguardManagerHelper;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
@@ -276,7 +277,8 @@ public final class CarUserNoticeService implements CarServiceBase {
         String packageName = mServiceIntent.getComponent().getPackageName();
         int packageUid;
         try {
-            packageUid = mContext.getPackageManager().getPackageUidAsUser(packageName, userId);
+            packageUid = PackageManagerHelper.getPackageUidAsUser(mContext.getPackageManager(),
+                    packageName, userId);
         } catch (PackageManager.NameNotFoundException e) {
             Slog.wtf(TAG, "Target package for config_userNoticeUiService not found:"
                     + packageName + " userId:" + userId);

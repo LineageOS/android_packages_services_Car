@@ -31,6 +31,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
@@ -778,8 +779,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         }
         // if it is system app and client specified the flag, do not check signature
         if ((info.flags & AppBlockingPackageInfo.FLAG_SYSTEM_APP) == 0 ||
-                (!packageInfo.applicationInfo.isSystemApp() &&
-                        !packageInfo.applicationInfo.isUpdatedSystemApp())) {
+                (!PackageManagerHelper.isSystemApp(packageInfo.applicationInfo)
+                        && !PackageManagerHelper.isUpdatedSystemApp(packageInfo.applicationInfo))) {
             Signature[] signatures = packageInfo.signatures;
             if (!isAnySignatureMatching(signatures, info.signatures)) {
                 return false;
@@ -828,7 +829,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
             Map<String, Set<String>> configBlocklist) {
         PackageInfo info;
         try {
-            info = mPackageManager.getPackageInfoAsUser(packageName,
+            info = PackageManagerHelper.getPackageInfoAsUser(mPackageManager, packageName,
                     PackageManager.GET_SIGNATURES | PackageManager.GET_ACTIVITIES
                             | PackageManager.MATCH_DIRECT_BOOT_AWARE
                             | PackageManager.MATCH_DIRECT_BOOT_UNAWARE
@@ -847,8 +848,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         int flags = 0;
         Set<String> activities = new ArraySet<>();
 
-        if (info.applicationInfo.isSystemApp()
-                || info.applicationInfo.isUpdatedSystemApp()) {
+        if (PackageManagerHelper.isSystemApp(info.applicationInfo)
+                || PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)) {
             flags = AppBlockingPackageInfo.FLAG_SYSTEM_APP;
         }
 
@@ -886,8 +887,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
           source. This prevents side-loaded apps to fake DO.  Bypass the check
           for debug builds for development convenience. */
         if (!isDebugBuild()
-                && !info.applicationInfo.isSystemApp()
-                && !info.applicationInfo.isUpdatedSystemApp()) {
+                && !PackageManagerHelper.isSystemApp(info.applicationInfo)
+                && !PackageManagerHelper.isUpdatedSystemApp(info.applicationInfo)) {
             try {
                 if (mAllowedAppInstallSources != null) {
                     String installerName = mPackageManager.getInstallerPackageName(

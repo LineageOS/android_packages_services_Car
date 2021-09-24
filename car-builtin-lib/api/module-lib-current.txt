@@ -66,6 +66,27 @@ package android.car.builtin.content {
 
 }
 
+package android.car.builtin.content.pm {
+
+  public class PackageManagerHelper {
+    method public static int getApplicationEnabledSettingForUser(@NonNull String, int) throws android.os.RemoteException;
+    method public static android.content.ComponentName getComponentName(android.content.pm.ComponentInfo);
+    method @Nullable public static String[] getNamesForUids(@NonNull android.content.pm.PackageManager, int[]);
+    method public static android.content.pm.PackageInfo getPackageInfoAsUser(@NonNull android.content.pm.PackageManager, @NonNull String, int, int) throws android.content.pm.PackageManager.NameNotFoundException;
+    method public static int getPackageUidAsUser(@NonNull android.content.pm.PackageManager, @NonNull String, int) throws android.content.pm.PackageManager.NameNotFoundException;
+    method @NonNull public static String getSystemUiPackageName(@NonNull android.content.Context);
+    method public static boolean isOdmApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isOemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isProductApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isSystemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isSystemExtApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isUpdatedSystemApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static boolean isVendorApp(@NonNull android.content.pm.ApplicationInfo);
+    method public static void setApplicationEnabledSettingForUser(@NonNull String, int, int, int, @NonNull String) throws android.os.RemoteException;
+  }
+
+}
+
 package android.car.builtin.input {
 
   public class InputManagerHelper {
@@ -123,10 +144,6 @@ package android.car.builtin.os {
     method public static boolean isEngBuild();
     method public static boolean isUserBuild();
     method public static boolean isUserDebugBuild();
-  }
-
-  public final class PackageManagerHelper {
-    method @NonNull public static String getSystemUiPackageName(@NonNull android.content.Context);
   }
 
   public final class ParcelHelper {
