@@ -42,6 +42,16 @@ package android.car.builtin.input {
 
 }
 
+package android.car.builtin.job {
+
+  public final class JobSchedulerHelper {
+    ctor public JobSchedulerHelper(android.content.Context);
+    method public int getNumberOfPendingJobs();
+    method public int getNumberOfRunningJobsAtIdle();
+  }
+
+}
+
 package android.car.builtin.os {
 
   public final class AudioServiceHelper {

@@ -18,13 +18,12 @@ package com.android.car.garagemode;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.app.job.JobInfo;
-import android.app.job.JobScheduler;
-import android.app.job.JobSnapshot;
+import android.car.builtin.job.JobSchedulerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.content.Context;
 import android.content.Intent;
 import android.os.Handler;
 import android.os.UserHandle;
@@ -46,10 +45,9 @@ import java.util.concurrent.CancellationException;
 import java.util.concurrent.CompletableFuture;
 
 /**
- * Class that interacts with JobScheduler, controls system idleness and monitor jobs which are
- * in GarageMode interest
+ * Class that interacts with JobScheduler through JobSchedulerHelper, controls system idleness and
+ * monitor jobs which are in GarageMode interest.
  */
-
 class GarageMode {
 
     private static final String TAG = CarLog.tagFor(GarageMode.class) + "_"
@@ -77,9 +75,9 @@ class GarageMode {
     private static final int ADDITIONAL_CHECKS_TO_DO = 1;
 
     private final Controller mController;
-    private final JobScheduler mJobScheduler;
     private final Object mLock = new Object();
     private final Handler mHandler;
+    private final JobSchedulerHelper mJobSchedulerHelper;
 
     private CarPowerManagementService mCarPowerManagementService;
     @GuardedBy("mLock")
@@ -103,7 +101,7 @@ class GarageMode {
                 finish();
                 return;
             }
-            int numberRunning = numberOfIdleJobsRunning();
+            int numberRunning = mJobSchedulerHelper.getNumberOfRunningJobsAtIdle();
             if (numberRunning > 0) {
                 Slogf.d(TAG, "%d jobs are still running. Need to wait more ...", numberRunning);
                 synchronized (mLock) {
@@ -112,7 +110,7 @@ class GarageMode {
             } else {
                 // No idle-mode jobs are running.
                 // Are there any scheduled idle jobs that could run now?
-                int numberReadyToRun = numberOfPendingJobs();
+                int numberReadyToRun = mJobSchedulerHelper.getNumberOfPendingJobs();
                 if (numberReadyToRun == 0) {
                     Slogf.d(TAG, "No jobs are running. No jobs are pending. Exiting Garage Mode.");
                     finish();
@@ -161,7 +159,8 @@ class GarageMode {
                 if (mStartedBackgroundUsers.isEmpty() || !mBackgroundUserStopInProcess) return;
                 userToStop = mStartedBackgroundUsers.valueAt(0);
             }
-            if (numberOfIdleJobsRunning() == 0) { // all jobs done or stopped.
+            // All jobs done or stopped.
+            if (mJobSchedulerHelper.getNumberOfRunningJobsAtIdle() == 0) {
                 // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
                 if (userToStop != UserHandle.USER_SYSTEM) {
                     CarLocalServices.getService(CarUserService.class)
@@ -201,11 +200,11 @@ class GarageMode {
     @GuardedBy("mLock")
     private boolean mBackgroundUserStopInProcess;
 
-    GarageMode(Controller controller) {
-        mGarageModeActive = false;
+    GarageMode(Context context, Controller controller) {
         mController = controller;
-        mJobScheduler = controller.getJobSchedulerService();
+        mGarageModeActive = false;
         mHandler = controller.getHandler();
+        mJobSchedulerHelper = new JobSchedulerHelper(context);
     }
 
     void init() {
@@ -261,21 +260,12 @@ class GarageMode {
                     (mIdleCheckerIsRunning ? "" : "not "));
         }
 
-        List<String> jobList = new ArrayList<>();
-        int numJobs = getListOfIdleJobsRunning(jobList);
+        int numJobs = mJobSchedulerHelper.getNumberOfRunningJobsAtIdle();
         if (numJobs > 0) {
             writer.printf("GarageMode is waiting for %d jobs:\n", numJobs);
-            // Dump the names of the jobs that we are waiting for
-            for (int idx = 0; idx < jobList.size(); idx++) {
-                writer.printf("   %d: %s\n", idx + 1, jobList.get(idx));
-            }
         } else {
-            // Dump the names of the pending jobs that we are waiting for
-            numJobs = getListOfPendingJobs(jobList);
-            writer.printf("GarageMode is waiting for %d pending idle jobs:\n", jobList.size());
-            for (int idx = 0; idx < jobList.size(); idx++) {
-                writer.printf("   %d: %s\n", idx + 1, jobList.get(idx));
-            }
+            numJobs = mJobSchedulerHelper.getNumberOfPendingJobs();
+            writer.printf("GarageMode is waiting for %d pending idle jobs:\n", numJobs);
         }
     }
 
@@ -400,56 +390,5 @@ class GarageMode {
 
     private void stopMonitoringThread() {
         mHandler.removeCallbacks(mRunnable);
-    }
-
-    private int numberOfIdleJobsRunning() {
-        return getListOfIdleJobsRunning(null);
-    }
-
-    private int getListOfIdleJobsRunning(List<String> jobList) {
-        if (jobList != null) {
-            jobList.clear();
-        }
-        List<JobInfo> startedJobs = mJobScheduler.getStartedJobs();
-        if (startedJobs == null) {
-            return 0;
-        }
-        int count = 0;
-        for (int idx = 0; idx < startedJobs.size(); idx++) {
-            JobInfo jobInfo = startedJobs.get(idx);
-            if (jobInfo.isRequireDeviceIdle()) {
-                count++;
-                if (jobList != null) {
-                    jobList.add(jobInfo.toString());
-                }
-            }
-        }
-        return count;
-    }
-
-    private int numberOfPendingJobs() {
-        return getListOfPendingJobs(null);
-    }
-
-    private int getListOfPendingJobs(List<String> jobList) {
-        if (jobList != null) {
-            jobList.clear();
-        }
-        List<JobSnapshot> allScheduledJobs = mJobScheduler.getAllJobSnapshots();
-        if (allScheduledJobs == null) {
-            return 0;
-        }
-        int numberPending = 0;
-        for (int idx = 0; idx < allScheduledJobs.size(); idx++) {
-            JobSnapshot scheduledJob = allScheduledJobs.get(idx);
-            JobInfo jobInfo = scheduledJob.getJobInfo();
-            if (scheduledJob.isRunnable() && jobInfo.isRequireDeviceIdle()) {
-                numberPending++;
-                if (jobList != null) {
-                    jobList.add(jobInfo.toString());
-                }
-            }
-        }
-        return numberPending;
     }
 }

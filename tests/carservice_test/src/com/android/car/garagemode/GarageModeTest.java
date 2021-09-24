@@ -30,6 +30,7 @@ import android.app.job.JobScheduler;
 import android.car.user.CarUserManager;
 import android.car.user.CarUserManager.UserLifecycleEvent;
 import android.car.user.CarUserManager.UserLifecycleListener;
+import android.content.Context;
 import android.os.Handler;
 import android.os.Looper;
 
@@ -66,6 +67,8 @@ public final class GarageModeTest {
     public final MockitoRule rule = MockitoJUnit.rule();
     private GarageMode mGarageMode;
     @Mock
+    private Context mContext;
+    @Mock
     private Controller mController;
     @Mock
     private JobScheduler mJobScheduler;
@@ -76,9 +79,9 @@ public final class GarageModeTest {
     @Before
     public void setUp() {
         when(mController.getHandler()).thenReturn(mHandler);
-        when(mController.getJobSchedulerService()).thenReturn(mJobScheduler);
+        when(mContext.getSystemService(JobScheduler.class)).thenReturn(mJobScheduler);
 
-        mGarageMode = new GarageMode(mController);
+        mGarageMode = new GarageMode(mContext, mController);
         CarLocalServices.removeServiceForTest(CarUserService.class);
         CarLocalServices.addService(CarUserService.class, mCarUserService);
         mGarageMode.init();
@@ -145,13 +148,13 @@ public final class GarageModeTest {
         when(mockCarPowerManagementService.garageModeShouldExitImmediately()).thenReturn(true);
 
         // Check exit immediately without future
-        GarageMode garageMode = new GarageMode(mController);
+        GarageMode garageMode = new GarageMode(mContext, mController);
         garageMode.init();
         garageMode.enterGarageMode(/* future= */ null);
         assertThat(garageMode.isGarageModeActive()).isFalse();
 
         // Create new instance of GarageMode
-        garageMode = new GarageMode(mController);
+        garageMode = new GarageMode(mContext, mController);
         garageMode.init();
         // Check exit immediately with future
         CompletableFuture<Void> future = new CompletableFuture<>();
@@ -160,7 +163,7 @@ public final class GarageModeTest {
         assertThat(future.isDone()).isTrue();
 
         // Create new instance of GarageMode
-        garageMode = new GarageMode(mController);
+        garageMode = new GarageMode(mContext, mController);
         garageMode.init();
         // Check exit immediately with completed future
         garageMode.enterGarageMode(future);
