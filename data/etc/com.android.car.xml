@@ -16,6 +16,7 @@
   -->
 <permissions>
     <privapp-permissions package="com.android.car">
+        <permission name="android.permission.AUTOMOTIVE_GNSS_CONTROLS"/>
         <permission name="android.permission.LOCATION_HARDWARE"/>
         <permission name="android.permission.MANAGE_USERS"/>
         <permission name="android.permission.MODIFY_AUDIO_ROUTING"/>

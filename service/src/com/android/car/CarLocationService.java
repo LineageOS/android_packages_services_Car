@@ -27,6 +27,10 @@ import android.car.drivingstate.ICarDrivingStateChangeListener;
 import android.car.hardware.power.CarPowerManager;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListenerWithCompletion;
+import android.car.hardware.power.CarPowerPolicy;
+import android.car.hardware.power.CarPowerPolicyFilter;
+import android.car.hardware.power.ICarPowerPolicyListener;
+import android.car.hardware.power.PowerComponent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -45,7 +49,9 @@ import android.util.JsonWriter;
 
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
+import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.io.File;
@@ -86,7 +92,6 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private static final String IS_FROM_MOCK_PROVIDER = "isFromMockProvider";
     private static final String CAPTURE_TIME = "captureTime";
 
-    // Used internally for mHandlerThread synchronization
     private final Object mLock = new Object();
 
     // Used internally for mILocationManagerProxy synchronization
@@ -100,9 +105,60 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private CarPowerManager mCarPowerManager;
     private CarDrivingStateService mCarDrivingStateService;
     private PerUserCarServiceHelper mPerUserCarServiceHelper;
+    private final CarPowerManagementService mCarPowerManagementService;
+
+    @GuardedBy("mLock")
+    private LocationManager mLocationManager;
 
     // Allows us to interact with the {@link LocationManager} as the foreground user.
     private ILocationManagerProxy mILocationManagerProxy;
+
+    // Used for supporting features such as suspend to RAM and suspend to disk. Power policy
+    // listener listens to changes in the PowerComponent.LOCATION state. If PowerComponent.LOCATION
+    // is disabled, suspend gnss functionality. If PowerComponent.LOCATION is enabled, resume gnss
+    // functionality.
+    private final ICarPowerPolicyListener mPowerPolicyListener =
+            new ICarPowerPolicyListener.Stub() {
+                @Override
+                public void onPolicyChanged(CarPowerPolicy appliedPolicy,
+                        CarPowerPolicy accumulatedPolicy) {
+                    LocationManager locationManager;
+
+                    synchronized (mLock) {
+                        // LocationManager can be temporarily unavailable during boot up. Reacquire
+                        // here if mLocationManager is null.
+                        if (mLocationManager == null) {
+                            logd("Null location manager. Retry.");
+                            mLocationManager = mContext.getSystemService(LocationManager.class);
+                        }
+
+                        // If LocationManager is still null after the retry, return.
+                        if (mLocationManager == null) {
+                            logd("Null location manager. Skip gnss controls.");
+                            return;
+                        }
+
+                        locationManager = mLocationManager;
+                    }
+
+                    boolean isOn =
+                            accumulatedPolicy.isComponentEnabled(PowerComponent.LOCATION);
+                    if (isOn) {
+                        logd("Resume GNSS requests.");
+                        locationManager.setAutoGnssSuspended(false);
+                        if (locationManager.isAutoGnssSuspended()) {
+                            Slogf.w(TAG,
+                                    "isAutoGnssSuspended is true. GNSS should NOT be suspended.");
+                        }
+                    } else {
+                        logd("Suspend GNSS requests.");
+                        locationManager.setAutoGnssSuspended(true);
+                        if (!locationManager.isAutoGnssSuspended()) {
+                            Slogf.w(TAG, "isAutoGnssSuspended is false. GNSS should be suspended.");
+                        }
+                    }
+                }
+    };
 
     // Maintains mILocationManagerProxy for the current foreground user.
     private final PerUserCarServiceHelper.ServiceCallback mUserServiceCallback =
@@ -166,6 +222,12 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     public CarLocationService(Context context) {
         logd("constructed");
         mContext = context;
+
+        mCarPowerManagementService = CarLocalServices.getService(
+                CarPowerManagementService.class);
+        if (mCarPowerManagementService == null) {
+            Slogf.w(TAG, "Cannot find CarPowerManagementService.");
+        }
     }
 
     @Override
@@ -174,6 +236,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         IntentFilter filter = new IntentFilter();
         filter.addAction(LocationManager.MODE_CHANGED_ACTION);
         mContext.registerReceiver(this, filter, Context.RECEIVER_NOT_EXPORTED);
+
         mCarDrivingStateService = CarLocalServices.getService(CarDrivingStateService.class);
         if (mCarDrivingStateService != null) {
             CarDrivingStateEvent event = mCarDrivingStateService.getCurrentDrivingState();
@@ -192,6 +255,17 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         if (mPerUserCarServiceHelper != null) {
             mPerUserCarServiceHelper.registerServiceCallback(mUserServiceCallback);
         }
+
+        synchronized (mLock) {
+            mLocationManager = mContext.getSystemService(LocationManager.class);
+            if (mLocationManager == null) {
+                Slogf.w(TAG, "Null location manager.");
+            }
+        }
+
+        // Power policy listener will check for the LocationManager dependency and reacquire it if
+        // is not available yet at time of boot.
+        addPowerPolicyListener();
     }
 
     @Override
@@ -206,6 +280,9 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
         }
         if (mPerUserCarServiceHelper != null) {
             mPerUserCarServiceHelper.unregisterServiceCallback(mUserServiceCallback);
+        }
+        if (mCarPowerManagementService != null) {
+            mCarPowerManagementService.removePowerPolicyListener(mPowerPolicyListener);
         }
         mContext.unregisterReceiver(this);
     }
@@ -286,6 +363,27 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                 Slogf.e(TAG, "RemoteException from ILocationManagerProxy", e);
             }
         }
+    }
+
+    /**
+     * If config_enableCarLocationServiceGnssControlsForPowerManagement is true, add a power policy
+     * listener.
+     */
+    private void addPowerPolicyListener() {
+        if (mCarPowerManagementService == null) {
+            return;
+        }
+
+        if (!mContext.getResources().getBoolean(
+                R.bool.config_enableCarLocationServiceGnssControlsForPowerManagement)) {
+            logd("GNSS controls not enabled.");
+            return;
+        }
+
+        CarPowerPolicyFilter carPowerPolicyFilter = new CarPowerPolicyFilter.Builder()
+                .setComponents(PowerComponent.LOCATION).build();
+        mCarPowerManagementService.addPowerPolicyListener(
+                carPowerPolicyFilter, mPowerPolicyListener);
     }
 
     /** Tells whether the current foreground user is the headless system user. */

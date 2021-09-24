@@ -415,6 +415,10 @@
     <!-- A configuration flag to adjust Wifi for suspend. -->
     <bool name="config_wifiAdjustmentForSuspend">false</bool>
 
+    <!-- A configuration flag to adjust enabling and disabling the GNSS Location Provider for Power
+         Management purposes such as Supsend to RAM. -->
+    <bool name="config_enableCarLocationServiceGnssControlsForPowerManagement" translatable="false">true</bool>
+
     <!-- A configuration flag to prevent the templated apps from showing dialogs. This is done in
          the view of driver safety as templated apps can potentially show a dialog with custom UI
          which can be a distraction hazard for the driver. -->
