@@ -17,7 +17,6 @@ package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.test.mocks.CarArgumentMatchers.isUserHandle;
-import static android.car.test.util.UserTestingHelper.newUser;
 import static android.os.UserHandle.USER_SYSTEM;
 
 import static com.android.car.user.MockedUserHandleBuilder.expectAdminUserExists;
@@ -49,6 +48,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
@@ -60,7 +60,6 @@ import android.provider.Settings;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.car.user.InitialUserSetter.Builder;
 import com.android.car.user.InitialUserSetter.InitialUserInfo;
-import com.android.internal.widget.LockPatternUtils;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -93,7 +92,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private CarUserService mCarUserService;
 
     @Mock
-    private LockPatternUtils mLockPatternUtils;
+    private LockPatternHelper mLockPatternHelper;
 
     @Mock
     private UserHandleHelper mMockedUserHandleHelper;
@@ -116,7 +115,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void setFixtures() {
         when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
         mSetter = spy(new InitialUserSetter(mContext, mUm, mCarUserService, mListener,
-                        mMockedUserHandleHelper, mLockPatternUtils, OWNER_NAME, GUEST_NAME));
+                        mMockedUserHandleHelper, mLockPatternHelper, OWNER_NAME, GUEST_NAME));
         doReturn(mAmHelper).when(() -> ActivityManagerHelper.getInstance());
         mockGetCurrentUser(CURRENT_USER_ID);
     }
@@ -1052,7 +1051,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void expectUserIsSecure(@UserIdInt int userId) {
-        when(mLockPatternUtils.isSecure(userId)).thenReturn(true);
+        when(mLockPatternHelper.isSecure(userId)).thenReturn(true);
     }
 
     private void expectGuestReplaced(int existingGuestId, UserHandle newGuest) {
