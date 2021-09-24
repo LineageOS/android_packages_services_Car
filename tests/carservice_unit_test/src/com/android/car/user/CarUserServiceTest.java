@@ -708,8 +708,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         int passengerId = 99;
         String userName = "testUser";
         UserHandle passenger = expectManagedProfileExists(mMockedUserHandleHelper, passengerId);
-        doReturn(new UserInfo(passengerId, "", 0)).when(mMockedUserManager).createProfileForUser(
-                eq(userName), eq(UserManager.USER_TYPE_PROFILE_MANAGED), eq(0), eq(driverId));
+
+        mockCreateProfile(driverId, userName, passenger);
+
         UserHandle driver = expectRegularUserExists(mMockedUserHandleHelper, driverId);
         assertThat(mExperimentalCarUserService.createPassenger(userName, driverId))
                 .isEqualTo(passenger);
@@ -719,8 +720,9 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     public void testCreatePassenger_IfMaximumProfileAlreadyCreated() {
         UserHandle driver = expectManagedProfileExists(mMockedUserHandleHelper, 90);
         String userName = "testUser";
-        doReturn(null).when(mMockedUserManager).createProfileForUser(eq(userName),
-                eq(UserManager.USER_TYPE_PROFILE_MANAGED), anyInt(), anyInt());
+
+        mockCreateProfile(driver.getIdentifier(), userName, null);
+
         assertThat(mExperimentalCarUserService.createPassenger(userName, driver.getIdentifier()))
                 .isNull();
     }
@@ -2383,6 +2385,16 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
                 ActivityManager.USER_OP_ERROR_IS_SYSTEM);
         userOpFlagTesT(CarUserService.USER_OP_ERROR_RELATED_USERS_CANNOT_STOP,
                 ActivityManager.USER_OP_ERROR_RELATED_USERS_CANNOT_STOP);
+    }
+
+    private void mockCreateProfile(int profileOwner, String profileName, UserHandle profile) {
+        Context userContext = mock(Context.class);
+        UserManager userManager = mock(UserManager.class);
+        when(mMockContext.createContextAsUser(UserHandle.of(profileOwner), /* flags= */ 0))
+                .thenReturn(userContext);
+        when(userContext.getSystemService(UserManager.class)).thenReturn(userManager);
+        when(userManager.createProfile(eq(profileName), eq(UserManager.USER_TYPE_PROFILE_MANAGED),
+                any())).thenReturn(profile);
     }
 
     private void userOpFlagTesT(int carConstant, int amConstant) {

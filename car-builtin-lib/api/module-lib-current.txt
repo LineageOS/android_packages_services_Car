@@ -122,9 +122,13 @@ package android.car.builtin.os {
 
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
+    method @Deprecated @Nullable public static android.os.UserHandle createGuest(@NonNull android.content.Context, @NonNull android.os.UserManager, @Nullable String);
+    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, @NonNull String, int);
+    method @Deprecated @Nullable public static android.os.UserHandle createUser(@NonNull android.os.UserManager, @Nullable String, int);
     method @NonNull public static String getDefaultUserName(@NonNull android.content.Context);
     method public static String getDefaultUserTypeForUserInfoFlags(int);
     method public static int getMaxRunningUsers(@NonNull android.content.Context);
+    method @Deprecated public static int getMaxSupportedUsers();
     method @Deprecated public static int getProfileGroupId(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean);
     method @NonNull public static java.util.List<android.os.UserHandle> getUserHandles(@NonNull android.os.UserManager, boolean, boolean, boolean);
@@ -135,7 +139,9 @@ package android.car.builtin.os {
     method @Deprecated public static boolean isInitializedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static boolean isPreCreatedUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Deprecated public static boolean isProfileUser(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
+    method public static boolean markGuestForDeletion(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method @Nullable public static android.os.UserHandle preCreateUser(@NonNull android.os.UserManager, @NonNull String);
+    method @Deprecated public static int removeUserOrSetEphemeral(@NonNull android.os.UserManager, int, boolean);
     method public static void setUserAdmin(@NonNull android.os.UserManager, @NonNull android.os.UserHandle);
     method public static void setUserRestriction(@NonNull android.os.UserManager, @NonNull String, boolean, @NonNull android.os.UserHandle);
     field public static final int FLAG_ADMIN = 2; // 0x2
@@ -151,6 +157,10 @@ package android.car.builtin.os {
     field public static final int FLAG_QUIET_MODE = 128; // 0x80
     field public static final int FLAG_RESTRICTED = 8; // 0x8
     field public static final int FLAG_SYSTEM = 2048; // 0x800
+    field @Deprecated public static final int REMOVE_RESULT_ALREADY_BEING_REMOVED = 2; // 0x2
+    field @Deprecated public static final int REMOVE_RESULT_ERROR = 3; // 0x3
+    field @Deprecated public static final int REMOVE_RESULT_REMOVED = 0; // 0x0
+    field @Deprecated public static final int REMOVE_RESULT_SET_EPHEMERAL = 1; // 0x1
     field public static final int USER_NULL = -10000; // 0xffffd8f0
     field public static final int USER_SYSTEM = 0; // 0x0
     field @Deprecated public static final String USER_TYPE_FULL_GUEST = "android.os.usertype.full.GUEST";

@@ -1532,8 +1532,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         UserHandle newUser;
 
         try {
-            newUser = isGuest ? um.createGuest(mContext, name).getUserHandle()
-                    : um.createUser(name, flags).getUserHandle();
+            newUser = isGuest ? UserManagerHelper.createGuest(mContext, um, name)
+                    : UserManagerHelper.createUser(um, name, flags);
         } catch (NullPointerException e) {
             // TODO(b/196179969): in the following CLs createGuest and createUser would be
             // replaced by the call which would return UserHandle. For now, it is possible

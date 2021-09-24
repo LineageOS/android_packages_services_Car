@@ -72,6 +72,35 @@ public final class UserManagerHelper {
     public static final int FLAG_SYSTEM = UserInfo.FLAG_SYSTEM;
     public static final int FLAG_PROFILE = UserInfo.FLAG_PROFILE;
 
+    // TODO(b/199446770): Convert to system API
+    /**
+     * @deprecated Would be after converting to system API
+     */
+    @Deprecated
+    public static final int REMOVE_RESULT_ERROR = UserManager.REMOVE_RESULT_ERROR;
+
+    //TODO(b/199446770): Convert to system API
+    /**
+     * @deprecated Would be after converting to system API
+     */
+    @Deprecated
+    public static final int REMOVE_RESULT_REMOVED = UserManager.REMOVE_RESULT_REMOVED;
+
+    //TODO(b/199446770): Convert to system API
+    /**
+     * @deprecated Would be after converting to system API
+     */
+    @Deprecated
+    public static final int REMOVE_RESULT_ALREADY_BEING_REMOVED =
+                UserManager.REMOVE_RESULT_ALREADY_BEING_REMOVED;
+
+    //TODO(b/199446770): Convert to system API
+    /**
+     * @deprecated Would be after converting to system API
+     */
+    @Deprecated
+    public static final int REMOVE_RESULT_SET_EPHEMERAL = UserManager.REMOVE_RESULT_SET_EPHEMERAL;
+
     /** Assign default Icon for a given user. */
     public static Bitmap assignDefaultIconForUser(@NonNull Context context,
             @NonNull UserHandle user) {
@@ -242,5 +271,73 @@ public final class UserManagerHelper {
     public static int getMaxRunningUsers(@NonNull Context context) {
         return context.getResources()
                 .getInteger(com.android.internal.R.integer.config_multiuserMaxRunningUsers);
+    }
+
+    /**
+     * Creates guest
+     *
+     * @deprecated Would be removed after converting to system API
+     */
+    @Deprecated
+    @Nullable
+    public static UserHandle createGuest(@NonNull Context context, @NonNull UserManager userManager,
+            @Nullable String name) {
+        UserInfo userInfo = userManager.createGuest(context, name);
+        return userInfo == null ? null : userInfo.getUserHandle();
+    }
+
+    /**
+     * Creates user
+     *
+     * @deprecated Would be removed after converting to system API
+     */
+    @Deprecated
+    @Nullable
+    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
+            @NonNull String userType, int flags) {
+        UserInfo userInfo = userManager.createUser(name, userType, flags);
+        return userInfo == null ? null : userInfo.getUserHandle();
+    }
+
+    /**
+     * Creates user
+     *
+     * @deprecated Would be removed after converting to system API
+     */
+    @Deprecated
+    @Nullable
+    public static UserHandle createUser(@NonNull UserManager userManager, @Nullable String name,
+            int flags) {
+        UserInfo userInfo = userManager.createUser(name, flags);
+        return userInfo == null ? null : userInfo.getUserHandle();
+    }
+
+    /**
+     * Removes users or sets it as ephemeral if {@code userId} is current user.
+     *
+     * @deprecated Would be removed after converting to system API
+     */
+    @Deprecated
+    public static int removeUserOrSetEphemeral(@NonNull UserManager userManager, int userId,
+            boolean evenWhenDisallowed) {
+        return userManager.removeUserOrSetEphemeral(userId, evenWhenDisallowed);
+    }
+
+    /**
+     * Gets maximum supported users
+     *
+     * @deprecated Would be removed after converting to system API
+     */
+    @Deprecated
+    public static int getMaxSupportedUsers() {
+        return UserManager.getMaxSupportedUsers();
+    }
+
+    /**
+     * Marks guest for deletion
+     */
+    public static boolean markGuestForDeletion(@NonNull UserManager userManager,
+            @NonNull UserHandle user) {
+        return userManager.markGuestForDeletion(user.getIdentifier());
     }
 }

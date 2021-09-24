@@ -155,7 +155,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
                 userInfoFlags = UserManagerHelper.FLAG_ADMIN;
                 break;
             case CarDevicePolicyManager.USER_TYPE_GUEST:
-                userType = UserManager.USER_TYPE_FULL_GUEST;
+                userType = UserManagerHelper.USER_TYPE_FULL_GUEST;
                 break;
             default:
                 Slogf.d(TAG, "createUser(): invalid userType (%s) / flags (%08x) "
