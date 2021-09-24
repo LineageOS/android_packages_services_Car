@@ -26,7 +26,6 @@ import static android.car.evs.CarEvsManager.SERVICE_STATE_UNAVAILABLE;
 import static android.car.evs.CarEvsManager.STREAM_EVENT_STREAM_STOPPED;
 
 import static com.android.car.CarLog.TAG_EVS;
-import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -117,9 +116,6 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
 
     // Interval for connecting to the EVS HAL service trial
     private static final long EVS_HAL_SERVICE_BIND_RETRY_INTERVAL_MS = 1000;
-
-    // Code to identify a message to request an activity again
-    private static final int MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT = 0;
 
     // Service request priorities
     private static final int REQUEST_PRIORITY_HIGH = 0;
@@ -223,6 +219,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
                 }
             };
+
+    private final Runnable mActivityRequestTimeoutRunnable = () -> handleActivityRequestTimeout();
 
     // CarEvsService state machine implementation to handle all state transitions.
     private final class StateMachine {
@@ -385,7 +383,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
 
                     // Reset a timer for this new request
-                    mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
+                    mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
                     break;
 
                 case SERVICE_STATE_ACTIVE:
@@ -435,7 +433,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
 
                     // Reset a timer for this new request
-                    mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
+                    mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
                     break;
 
                 case SERVICE_STATE_ACTIVE:
@@ -459,9 +457,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
 
             // Arms the timer
-            mHandler.sendMessageDelayed(obtainMessage(CarEvsService::handleActivityRequestTimeout,
-                    CarEvsService.this).setWhat(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT),
-                    STREAM_START_REQUEST_TIMEOUT_MS);
+            mHandler.postDelayed(mActivityRequestTimeoutRunnable, STREAM_START_REQUEST_TIMEOUT_MS);
 
             mState = SERVICE_STATE_REQUESTED;
             mServiceType = service;
@@ -523,8 +519,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     }
 
                     if (mStreamCallback != null) {
-                        mHandler.sendMessage(obtainMessage(
-                                CarEvsService::notifyStreamStopped, mStreamCallback));
+                        // keep old reference for Runnable.
+                        ICarEvsStreamCallback previousCallback = mStreamCallback;
+                        mHandler.post(() -> notifyStreamStopped(previousCallback));
                     }
 
                     mStreamCallback = callback;
@@ -918,7 +915,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         Objects.requireNonNull(callback);
 
         if (isSessionToken(token)) {
-            mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
+            mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
         }
 
         final int priority = token != null ? REQUEST_PRIORITY_HIGH : REQUEST_PRIORITY_LOW;
@@ -1175,7 +1172,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             }
 
             // Cancel a pending message to check a request timeout
-            mHandler.removeMessages(MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT);
+            mHandler.removeCallbacks(mActivityRequestTimeoutRunnable);
         }
     }
 
@@ -1294,8 +1291,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         Slog.d(TAG_EVS, "Trying to connect to the EVS HAL service.");
         if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE) != ERROR_NONE) {
             // Try to restore a connection again after a given amount of time
-            mHandler.sendMessageDelayed(obtainMessage(
-                    CarEvsService::connectToHalServiceIfNecessary, this, intervalInMillis),
+            mHandler.postDelayed(() -> connectToHalServiceIfNecessary(intervalInMillis),
                     intervalInMillis);
         }
     }
