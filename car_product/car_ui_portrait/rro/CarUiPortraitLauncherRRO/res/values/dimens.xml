@@ -18,7 +18,7 @@
     <dimen name="card_icon_margin_start">8dp</dimen>
     <dimen name="card_content_margin_start">16dp</dimen>
 
-    <dimen name="descriptive_text_vertical_margin">16dp</dimen>
+    <dimen name="descriptive_text_vertical_margin">23dp</dimen>
 
     <dimen name="control_bar_image_size">120dp</dimen>
     <dimen name="control_bar_app_icon_size">36dp</dimen>
