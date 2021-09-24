@@ -37,7 +37,6 @@ cc_test {
     name: "vehicle_binding_integration_test",
     test_suites: [
         "device-tests",
-        "vts"
     ],
     require_root: true,
     defaults: ["vehicle_binding_util_defaults"],
