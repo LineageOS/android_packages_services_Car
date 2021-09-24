@@ -28,6 +28,7 @@ import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
+import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
@@ -44,7 +45,6 @@ import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.widget.LockPatternUtils;
 
 import java.io.PrintWriter;
 import java.lang.annotation.Retention;
@@ -120,7 +120,7 @@ final class InitialUserSetter {
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
     private final UserManager mUm;
     private final CarUserService mCarUserService;
-    private final LockPatternUtils mLockPatternUtils;
+    private final LockPatternHelper mLockPatternHelper;
 
     private final String mNewUserName;
     private final String mNewGuestName;
@@ -138,21 +138,22 @@ final class InitialUserSetter {
             @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper,
             @Nullable String newGuestName) {
         this(context, context.getSystemService(UserManager.class), carUserService, listener,
-                userHandleHelper, new LockPatternUtils(context),
+                userHandleHelper, new LockPatternHelper(context),
                 UserManagerHelper.getDefaultUserName(context), newGuestName);
     }
 
     @VisibleForTesting
     InitialUserSetter(@NonNull Context context, @NonNull UserManager um,
             @NonNull CarUserService carUserService, @NonNull Consumer<UserHandle> listener,
-            @NonNull UserHandleHelper userHandleHelper, @NonNull LockPatternUtils lockPatternUtils,
-            @Nullable String newUserName, @Nullable String newGuestName) {
+            @NonNull UserHandleHelper userHandleHelper,
+            @NonNull LockPatternHelper lockPatternHelper, @Nullable String newUserName,
+            @Nullable String newGuestName) {
         mContext = context;
         mUm = um;
         mCarUserService = carUserService;
         mListener = listener;
         mUserHandleHelper = userHandleHelper;
-        mLockPatternUtils = lockPatternUtils;
+        mLockPatternHelper = lockPatternHelper;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
     }
@@ -478,7 +479,7 @@ final class InitialUserSetter {
     public boolean canReplaceGuestUser(UserHandle user) {
         if (!mUserHandleHelper.isGuestUser(user)) return false;
 
-        if (mLockPatternUtils.isSecure(user.getIdentifier())) {
+        if (mLockPatternHelper.isSecure(user.getIdentifier())) {
             if (DBG) {
                 Slog.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
                         + user.getIdentifier() + " has secure lock pattern");

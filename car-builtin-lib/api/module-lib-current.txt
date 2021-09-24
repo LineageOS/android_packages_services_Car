@@ -226,3 +226,12 @@ package android.car.builtin.view {
 
 }
 
+package android.car.builtin.widget {
+
+  public final class LockPatternHelper {
+    ctor public LockPatternHelper(android.content.Context);
+    method public boolean isSecure(int);
+  }
+
+}
+
