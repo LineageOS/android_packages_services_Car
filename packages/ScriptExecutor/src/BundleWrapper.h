@@ -19,6 +19,7 @@
 
 #include "jni.h"
 
+#include <string>
 #include <vector>
 
 namespace com {
@@ -43,6 +44,7 @@ public:
     void putDouble(const char* key, double value);
     void putString(const char* key, const char* value);
     void putLongArray(const char* key, const std::vector<int64_t>& value);
+    void putStringArray(const char* key, const std::vector<std::string>& value);
 
     jobject getBundle();
 

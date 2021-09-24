@@ -22,6 +22,7 @@
 #include <com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.h>
 
 #include <sstream>
+#include <string>
 #include <utility>
 #include <vector>
 
@@ -53,6 +54,7 @@ constexpr int MAX_ARRAY_SIZE = 1000;
 //
 // Returns false if the conversion encountered unrecoverable error.
 // Otherwise, returns true for success.
+// TODO(b/200849134): Refactor this function.
 bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                              ScriptExecutorListener* listener) {
     // Iterate over Lua table which is expected to be at the top of Lua stack.
@@ -97,26 +99,72 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                                   out.str().c_str(), "");
                 return false;
             }
-            if (kTableLength > 0) {
-                std::vector<int64_t> arr;
-                arr.reserve(kTableLength);  // pre-allocate enough memory for performance.
-                for (int i = 0; i < kTableLength; i++) {
-                    lua_rawgeti(lua, -1, i + 1);
-                    if (!lua_isinteger(lua, /* index = */ -1)) {
-                        std::ostringstream out;
-                        out << "Returned table " << key
-                            << " contains values of types other than expected integer. This "
-                               "key-value cannot be unpacked successfully. This error is "
-                               "unrecoverable.";
-                        listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
-                                          out.str().c_str(), "");
-                        lua_pop(lua, 1);
-                        return false;
-                    }
-                    arr.push_back(lua_tointeger(lua, /* index = */ -1));
-                    lua_pop(lua, 1);
+            if (kTableLength <= 0) {
+                std::ostringstream out;
+                out << "A value with key=" << key
+                    << " appears to be a nested table that does not represent an array of data. "
+                       "Such nested tables are not supported yet. This script error is "
+                       "unrecoverable.";
+                listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                                  out.str().c_str(), "");
+                return false;
+            }
+
+            std::vector<int64_t> longArray;
+            std::vector<std::string> stringArray;
+            int originalLuaType = LUA_TNIL;
+            for (int i = 0; i < kTableLength; i++) {
+                lua_rawgeti(lua, -1, i + 1);
+                // Lua allows arrays to have values of varying type. We need to force all Lua
+                // arrays to stick to single type within the same array. We use the first value
+                // in the array to determine the type of all values in the array that follow
+                // after. If the second, third, etc element of the array does not match the type
+                // of the first element we stop the extraction and return an error via a
+                // callback.
+                if (i == 0) {
+                    originalLuaType = lua_type(lua, /* index = */ -1);
                 }
-                bundleWrapper->putLongArray(key, arr);
+                int currentType = lua_type(lua, /* index= */ -1);
+                if (currentType != originalLuaType) {
+                    std::ostringstream out;
+                    out << "Returned Lua arrays must have elements of the same type. Returned "
+                           "table with key="
+                        << key << " has the first element of type=" << originalLuaType
+                        << ", but the element at index=" << i + 1 << " has type=" << currentType
+                        << ". Integer type codes are defined in lua.h file. This error is "
+                           "unrecoverable.";
+                    listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+                                      out.str().c_str(), "");
+                    lua_pop(lua, 1);
+                    return false;
+                }
+                switch (currentType) {
+                    case LUA_TNUMBER:
+                        if (!lua_isinteger(lua, /* index = */ -1)) {
+                            LOG(WARNING) << "Floating array types are not supported yet. Skipping.";
+                        } else {
+                            longArray.push_back(lua_tointeger(lua, /* index = */ -1));
+                        }
+                        break;
+                    case LUA_TSTRING:
+                        // TODO(b/200833728): Investigate optimizations to minimize string
+                        // copying. For example, populate JNI object array one element at a
+                        // time, as we go.
+                        stringArray.push_back(lua_tostring(lua, /* index = */ -1));
+                        break;
+                    default:
+                        LOG(WARNING) << "Lua array with elements of type=" << currentType
+                                     << " are not supported. Skipping.";
+                }
+                lua_pop(lua, 1);
+            }
+            switch (originalLuaType) {
+                case LUA_TNUMBER:
+                    bundleWrapper->putLongArray(key, longArray);
+                    break;
+                case LUA_TSTRING:
+                    bundleWrapper->putStringArray(key, stringArray);
+                    break;
             }
         } else {
             // not supported yet...
