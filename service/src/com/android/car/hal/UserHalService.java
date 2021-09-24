@@ -22,7 +22,6 @@ import static android.car.VehiclePropertyIds.SWITCH_USER;
 import static android.car.VehiclePropertyIds.USER_IDENTIFICATION_ASSOCIATION;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
-import static com.android.internal.util.function.pooled.PooledLambda.obtainMessage;
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -191,23 +190,19 @@ public final class UserHalService extends HalServiceBase {
             VehiclePropValue value = values.get(i);
             switch (value.prop) {
                 case INITIAL_USER_INFO:
-                    mHandler.sendMessage(obtainMessage(
-                            UserHalService::handleOnInitialUserInfoResponse, this, value));
+                    mHandler.post(() -> handleOnInitialUserInfoResponse(value));
                     break;
                 case SWITCH_USER:
-                    mHandler.sendMessage(obtainMessage(
-                            UserHalService::handleOnSwitchUserResponse, this, value));
+                    mHandler.post(() -> handleOnSwitchUserResponse(value));
                     break;
                 case CREATE_USER:
-                    mHandler.sendMessage(obtainMessage(
-                            UserHalService::handleOnCreateUserResponse, this, value));
+                    mHandler.post(() -> handleOnCreateUserResponse(value));
                     break;
                 case REMOVE_USER:
                     Slog.w(TAG, "Received REMOVE_USER HAL event: " + value);
                     break;
                 case USER_IDENTIFICATION_ASSOCIATION:
-                    mHandler.sendMessage(obtainMessage(
-                            UserHalService::handleOnUserIdentificationAssociation, this, value));
+                    mHandler.post(() -> handleOnUserIdentificationAssociation(value));
                     break;
                 default:
                     Slog.w(TAG, "received unsupported event from HAL: " + value);
@@ -352,9 +347,7 @@ public final class UserHalService extends HalServiceBase {
 
     private void sendHalRequest(int requestId, int timeoutMs, @NonNull VehiclePropValue request,
             @NonNull HalCallback<?> callback) {
-        mHandler.sendMessageDelayed(obtainMessage(
-                UserHalService::handleCheckIfRequestTimedOut, this, requestId).setWhat(requestId),
-                timeoutMs);
+        mHandler.postDelayed(() -> handleCheckIfRequestTimedOut(requestId), requestId, timeoutMs);
         try {
             if (DBG) Slog.d(TAG, "Calling hal.set(): " + request);
             mHal.set(request);
