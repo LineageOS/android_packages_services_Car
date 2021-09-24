@@ -48,6 +48,7 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
     jclass stringClass = env->FindClass("java/lang/String");
     jclass intArrayClass = env->FindClass("[I");
     jclass longArrayClass = env->FindClass("[J");
+    jclass stringArrayClass = env->FindClass("[Ljava/lang/String;");
     // TODO(b/188816922): Handle more types such as float and integer arrays,
     // and perhaps nested Bundles.
 
@@ -76,9 +77,14 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
             /* Pushes a double onto the stack */
             lua_pushnumber(luaEngine->getLuaState(), env->CallDoubleMethod(value, numberMethod));
         } else if (env->IsInstanceOf(value, stringClass)) {
-            const char* rawStringValue = env->GetStringUTFChars((jstring)value, nullptr);
+            // Produces a string in Modified UTF-8 encoding. Any null character
+            // inside the original string is converted into two-byte encoding.
+            // This way we can directly use the output of GetStringUTFChars in C API that
+            // expects a null-terminated string.
+            const char* rawStringValue =
+                    env->GetStringUTFChars(static_cast<jstring>(value), nullptr);
             lua_pushstring(luaEngine->getLuaState(), rawStringValue);
-            env->ReleaseStringUTFChars((jstring)value, rawStringValue);
+            env->ReleaseStringUTFChars(static_cast<jstring>(value), rawStringValue);
         } else if (env->IsInstanceOf(value, intArrayClass)) {
             jintArray intArray = static_cast<jintArray>(value);
             const auto kLength = env->GetArrayLength(intArray);
@@ -114,6 +120,23 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
             }
             // JNI_ABORT is used because we do not need to copy back elements.
             env->ReleaseLongArrayElements(longArray, rawLongArray, JNI_ABORT);
+        } else if (env->IsInstanceOf(value, stringArrayClass)) {
+            jobjectArray stringArray = static_cast<jobjectArray>(value);
+            const auto kLength = env->GetArrayLength(stringArray);
+            // Arrays are represented as a table of sequential elements in Lua.
+            // We are creating a nested table to represent this array. We specify number of elements
+            // in the Java array to preallocate memory accordingly.
+            lua_createtable(luaEngine->getLuaState(), kLength, 0);
+            // Fills in the table at stack idx -2 with key value pairs, where key is a Lua index and
+            // value is an string value extracted from the object array at that index
+            for (int i = 0; i < kLength; i++) {
+                jstring element = static_cast<jstring>(env->GetObjectArrayElement(stringArray, i));
+                const char* rawStringValue = env->GetStringUTFChars(element, nullptr);
+                lua_pushstring(luaEngine->getLuaState(), rawStringValue);
+                env->ReleaseStringUTFChars(element, rawStringValue);
+                // lua index starts from 1
+                lua_rawseti(luaEngine->getLuaState(), /* idx= */ -2, i + 1);
+            }
         } else {
             // Other types are not implemented yet, skipping.
             continue;
