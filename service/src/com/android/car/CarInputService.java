@@ -16,7 +16,6 @@
 package com.android.car;
 
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
-import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
 import static com.android.car.bluetooth.BuiltinPackageDependency.CAR_ACCESSIBILITY_SERVICE_CLASS;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
@@ -32,6 +31,8 @@ import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.builtin.input.InputManagerHelper;
+import android.car.builtin.util.AssistUtilsHelper;
+import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper;
 import android.car.builtin.util.Slogf;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -66,8 +67,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
-import com.android.internal.app.AssistUtils;
-import com.android.internal.app.IVoiceInteractionSessionShowCallback;
 
 import java.util.ArrayList;
 import java.util.Arrays;
@@ -151,8 +150,8 @@ public class CarInputService extends ICarInput.Stub
         }
     }
 
-    private final IVoiceInteractionSessionShowCallback mShowCallback =
-            new IVoiceInteractionSessionShowCallback.Stub() {
+    private final VoiceInteractionSessionShowCallbackHelper mShowCallback =
+            new VoiceInteractionSessionShowCallbackHelper() {
                 @Override
                 public void onFailed() {
                     Slogf.w(TAG, "Failed to show VoiceInteractionSession");
@@ -160,20 +159,16 @@ public class CarInputService extends ICarInput.Stub
 
                 @Override
                 public void onShown() {
-                    Slogf.d(TAG, "IVoiceInteractionSessionShowCallback onShown()");
+                    Slogf.d(TAG, "VoiceInteractionSessionShowCallbackHelper onShown()");
                 }
             };
-
-    @VisibleForTesting
-    static final String EXTRA_CAR_PUSH_TO_TALK =
-            "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
     private final Context mContext;
     private final InputHalService mInputHalService;
     private final CarUserService mUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final TelecomManager mTelecomManager;
-    private final AssistUtils mAssistUtils;
+    private final AssistUtilsHelper mAssistUtilsHelper;
 
     // The default handler for main-display input events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
@@ -254,7 +249,7 @@ public class CarInputService extends ICarInput.Stub
             CarUserService userService, CarOccupantZoneService occupantZoneService) {
         this(context, inputHalService, userService, occupantZoneService,
                 new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
-                context.getSystemService(TelecomManager.class), new AssistUtils(context),
+                context.getSystemService(TelecomManager.class), new AssistUtilsHelper(context),
                 event -> InputManagerHelper.injectInputEvent(
                         context.getSystemService(InputManager.class), event),
                 () -> Calls.getLastOutgoingCall(context),
@@ -267,7 +262,7 @@ public class CarInputService extends ICarInput.Stub
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
             CarOccupantZoneService occupantZoneService, Handler handler,
-            TelecomManager telecomManager, AssistUtils assistUtils,
+            TelecomManager telecomManager, AssistUtilsHelper assistUtilsHelper,
             KeyEventListener mainDisplayHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
@@ -278,7 +273,7 @@ public class CarInputService extends ICarInput.Stub
         mUserService = userService;
         mCarOccupantZoneService = occupantZoneService;
         mTelecomManager = telecomManager;
-        mAssistUtils = assistUtils;
+        mAssistUtilsHelper = assistUtilsHelper;
         mMainDisplayHandler = mainDisplayHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mLongPressDelaySupplier = longPressDelaySupplier;
@@ -662,18 +657,15 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private void launchDefaultVoiceAssistantHandler() {
-        Slogf.i(TAG, "voice key, invoke AssistUtils");
+        Slogf.d(TAG, "voice key, invoke AssistUtilsHelper");
 
-        if (mAssistUtils.getAssistComponentForUser(ActivityManager.getCurrentUser()) == null) {
-            Slogf.w(TAG, "Unable to retrieve assist component for current user");
+        if (mAssistUtilsHelper.hasAssistantComponentForUser(
+                UserHandle.of(ActivityManager.getCurrentUser()))) {
+            mAssistUtilsHelper.showPushToTalkSessionForActiveService(mShowCallback);
             return;
         }
 
-        final Bundle args = new Bundle();
-        args.putBoolean(EXTRA_CAR_PUSH_TO_TALK, true);
-
-        mAssistUtils.showSessionForActiveService(args,
-                SHOW_SOURCE_PUSH_TO_TALK, mShowCallback, null /*activityToken*/);
+        Slogf.w(TAG, "Unable to retrieve assist component for current user");
     }
 
     /**

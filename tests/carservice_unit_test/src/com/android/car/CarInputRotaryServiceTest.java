@@ -31,6 +31,7 @@ import static org.mockito.Mockito.when;
 import android.annotation.UserIdInt;
 import android.bluetooth.BluetoothAdapter;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.util.AssistUtilsHelper;
 import android.car.testapi.BlockingUserLifecycleListener;
 import android.car.user.CarUserManager;
 import android.content.ContentResolver;
@@ -52,7 +53,6 @@ import com.android.car.hal.InputHalService;
 import com.android.car.hal.UserHalService;
 import com.android.car.internal.common.CommonConstants.UserLifecycleEventType;
 import com.android.car.user.CarUserService;
-import com.android.internal.app.AssistUtils;
 import com.android.internal.util.test.BroadcastInterceptingContext;
 import com.android.internal.util.test.FakeSettingsProvider;
 
@@ -80,7 +80,7 @@ public class CarInputRotaryServiceTest {
 
     @Mock private InputHalService mInputHalService;
     @Mock private TelecomManager mTelecomManager;
-    @Mock private AssistUtils mAssistUtils;
+    @Mock private AssistUtilsHelper mAssistUtilsHelper;
     @Mock private CarInputService.KeyEventListener mDefaultMainListener;
     @Mock private Supplier<String> mLastCallSupplier;
     @Mock private IntSupplier mLongPressDelaySupplier;
@@ -295,7 +295,7 @@ public class CarInputRotaryServiceTest {
                 mUxRestrictionService);
 
         mCarInputService = new CarInputService(mMockContext, mInputHalService, mCarUserService,
-                mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtils,
+                mCarOccupantZoneService, mHandler, mTelecomManager, mAssistUtilsHelper,
                 mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
                 mShouldCallButtonEndOngoingCallSupplier, mCaptureController, mBluetoothAdapter);
         mCarInputService.init();
