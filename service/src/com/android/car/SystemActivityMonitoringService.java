@@ -191,7 +191,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
             Slog.i(CarLog.TAG_AM, "restarting root activity with user id " + rootTask.userId);
         }
-        mContext.startActivityAsUser(rootTask.baseIntent, new UserHandle(rootTask.userId));
+        mContext.startActivityAsUser(rootTask.baseIntent, UserHandle.of(rootTask.userId));
     }
 
     public void registerActivityLaunchListener(ActivityLaunchListener listener) {
@@ -285,7 +285,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(displayId);
         mContext.startActivityAsUser(newActivityIntent, options.toBundle(),
-                new UserHandle(currentTask.userId));
+                UserHandle.of(currentTask.userId));
         // Now make stack with new activity focused.
         findTaskAndGrantFocus(newActivityIntent.getComponent());
     }
