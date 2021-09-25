@@ -68,7 +68,7 @@ package android.car.builtin.content {
 
 package android.car.builtin.content.pm {
 
-  public class PackageManagerHelper {
+  public final class PackageManagerHelper {
     method public static int getApplicationEnabledSettingForUser(@NonNull String, int) throws android.os.RemoteException;
     method public static android.content.ComponentName getComponentName(android.content.pm.ComponentInfo);
     method @Nullable public static String[] getNamesForUids(@NonNull android.content.pm.PackageManager, int[]);

@@ -37,11 +37,11 @@ import android.text.TextUtils;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class PackageManagerHelper {
-    private PackageManagerHelper()  {
-        throw new UnsupportedOperationException();
-    }
+public final class PackageManagerHelper {
 
+    private PackageManagerHelper() {
+        throw new UnsupportedOperationException("provides only static methods");
+    }
 
     /**
      * Gets the name of the {@code SystemUI} package.
