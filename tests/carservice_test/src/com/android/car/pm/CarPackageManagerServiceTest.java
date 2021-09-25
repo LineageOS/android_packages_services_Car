@@ -49,6 +49,7 @@ import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
+import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -145,6 +146,7 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
+    @Ignore("b/195574985")
     @Test
     public void testBlockingActivity_doTemplateActivity_showingDialog_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), CarAppActivity.class));
