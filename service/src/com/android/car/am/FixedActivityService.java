@@ -21,15 +21,14 @@ import static android.os.Process.INVALID_UID;
 import static com.android.car.CarLog.TAG_AM;
 
 import android.annotation.NonNull;
-import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.ActivityTaskManager.RootTaskInfo;
-import android.app.IActivityManager;
-import android.app.IProcessObserver;
 import android.app.Presentation;
-import android.app.TaskStackListener;
+import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
+import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
+import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.user.CarUserManager;
@@ -45,7 +44,6 @@ import android.content.pm.PackageManager;
 import android.hardware.display.DisplayManager;
 import android.net.Uri;
 import android.os.Handler;
-import android.os.RemoteException;
 import android.os.SystemClock;
 import android.os.UserHandle;
 import android.os.UserManager;
@@ -128,7 +126,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private final Context mContext;
 
-    private final IActivityManager mAm;
+    private final ActivityManagerHelper mAm;
 
     private final DisplayManager mDm;
 
@@ -189,45 +187,21 @@ public final class FixedActivityService implements CarServiceBase {
     };
 
     // It says listener but is actually callback.
-    private final TaskStackListener mTaskStackListener = new TaskStackListener() {
-        @Override
-        public void onTaskStackChanged() {
-            launchIfNecessary();
-        }
-
-        @Override
-        public void onTaskCreated(int taskId, ComponentName componentName) {
-            launchIfNecessary();
-        }
-
-        @Override
-        public void onTaskRemoved(int taskId) {
-            launchIfNecessary();
-        }
-
-        @Override
-        public void onTaskMovedToFront(int taskId) {
-            launchIfNecessary();
-        }
-
-        @Override
-        public void onTaskRemovalStarted(int taskId) {
-            launchIfNecessary();
-        }
-    };
+    private final OnTaskStackChangeListener mTaskStackChangeListener =
+            new OnTaskStackChangeListener() {
+                @Override
+                public void onTaskStackChanged() {
+                    if (DBG) Slog.d(TAG_AM, "onTaskStackChanged");
+                    launchIfNecessary();
+                }
+            };
 
 
-    private final IProcessObserver mProcessObserver = new IProcessObserver.Stub() {
+    private final ProcessObserverCallback mProcessObserver = new ProcessObserverCallback() {
         @Override
         public void onForegroundActivitiesChanged(int pid, int uid, boolean foregroundActivities) {
             launchIfNecessary();
         }
-
-        @Override
-        public void onForegroundServicesChanged(int pid, int uid, int fgServiceTypes) {
-            // ignore
-        }
-
         @Override
         public void onProcessDied(int pid, int uid) {
             launchIfNecessary();
@@ -272,13 +246,14 @@ public final class FixedActivityService implements CarServiceBase {
     private final UserHandleHelper mUserHandleHelper;
 
     public FixedActivityService(Context context) {
-        this(context, ActivityManager.getService(), context.getSystemService(UserManager.class),
+        this(context, ActivityManagerHelper.getInstance(),
+                context.getSystemService(UserManager.class),
                 context.getSystemService(DisplayManager.class),
                 new UserHandleHelper(context, context.getSystemService(UserManager.class)));
     }
 
     @VisibleForTesting
-    FixedActivityService(Context context, IActivityManager activityManager,
+    FixedActivityService(Context context, ActivityManagerHelper activityManager,
             UserManager userManager, DisplayManager displayManager,
             UserHandleHelper userHandleHelper) {
         mContext = context;
@@ -352,12 +327,8 @@ public final class FixedActivityService implements CarServiceBase {
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
                 /* broadcastPermission= */ null, /* scheduler= */ null,
                 Context.RECEIVER_NOT_EXPORTED);
-        try {
-            mAm.registerTaskStackListener(mTaskStackListener);
-            mAm.registerProcessObserver(mProcessObserver);
-        } catch (RemoteException e) {
-            Slog.e(TAG_AM, "remote exception from AM", e);
-        }
+        mAm.registerTaskStackChangeListener(mTaskStackChangeListener);
+        mAm.registerProcessObserverCallback(mProcessObserver);
         try {
             carPowerManager.setListener(mCarPowerStateListener);
         } catch (Exception e) {
@@ -382,23 +353,9 @@ public final class FixedActivityService implements CarServiceBase {
         mHandler.removeCallbacks(mActivityCheckRunnable);
         CarUserService userService = CarLocalServices.getService(CarUserService.class);
         userService.removeUserLifecycleListener(mUserLifecycleListener);
-        try {
-            mAm.unregisterTaskStackListener(mTaskStackListener);
-            mAm.unregisterProcessObserver(mProcessObserver);
-        } catch (RemoteException e) {
-            Slog.e(TAG_AM, "remote exception from AM", e);
-        }
+        mAm.unregisterTaskStackChangeListener(mTaskStackChangeListener);
+        mAm.unregisterProcessObserverCallback(mProcessObserver);
         mContext.unregisterReceiver(mBroadcastReceiver);
-    }
-
-    @Nullable
-    private List<RootTaskInfo> getRootTaskInfos() {
-        try {
-            return mAm.getAllRootTaskInfos();
-        } catch (RemoteException e) {
-            Slog.e(TAG_AM, "remote exception from AM", e);
-        }
-        return null;
     }
 
     /**
@@ -410,7 +367,7 @@ public final class FixedActivityService implements CarServiceBase {
      *         launched. It will return false for {@link Display#INVALID_DISPLAY} {@code displayId}.
      */
     private boolean launchIfNecessary(int displayId) {
-        List<RootTaskInfo> infos = getRootTaskInfos();
+        SparseArray<TopTaskInfoContainer> infos = mAm.getTopTasks();
         if (infos == null) {
             Slog.e(TAG_AM, "cannot get RootTaskInfo from AM");
             return false;
@@ -442,11 +399,7 @@ public final class FixedActivityService implements CarServiceBase {
                 if (activityInfo.taskId != INVALID_TASK_ID) {
                     Slog.i(TAG_AM, "Finishing fixed activity on user switching:"
                             + activityInfo);
-                    try {
-                        mAm.removeTask(activityInfo.taskId);
-                    } catch (RemoteException e) {
-                        Slog.e(TAG_AM, "remote exception from AM", e);
-                    }
+                    mAm.removeTask(activityInfo.taskId);
                     CarServiceUtils.runOnMain(() -> {
                         // This code cannot be off-loaded to the common thread as it creates
                         // the presentation (which is a dialog) and sets its content view.
@@ -471,27 +424,27 @@ public final class FixedActivityService implements CarServiceBase {
                 }
                 mRunningActivities.removeAt(i);
             }
-            for (RootTaskInfo taskInfo : infos) {
+            for (int i = 0, size = infos.size(); i < size; ++i) {
+                TopTaskInfoContainer taskInfo = infos.valueAt(i);
                 RunningActivityInfo activityInfo = mRunningActivities.get(taskInfo.displayId);
                 if (activityInfo == null) {
                     continue;
                 }
-                int topUserId = taskInfo.childTaskUserIds[taskInfo.childTaskUserIds.length - 1];
+                int topUserId = taskInfo.userId;
                 if (activityInfo.intent.getComponent().equals(taskInfo.topActivity)
-                        && activityInfo.userId == topUserId && taskInfo.visible) {
+                        && activityInfo.userId == topUserId) {
                     // top one is matching.
                     activityInfo.isVisible = true;
-                    activityInfo.taskId = taskInfo.childTaskIds[taskInfo.childTaskIds.length - 1];
+                    activityInfo.taskId = taskInfo.taskId;
                     continue;
                 }
-                activityInfo.previousTaskId =
-                        taskInfo.childTaskIds[taskInfo.childTaskIds.length - 1];
+                activityInfo.previousTaskId = taskInfo.taskId;
                 Slog.i(TAG_AM, "Unmatched top activity will be removed:"
                         + taskInfo.topActivity + " top task id:" + activityInfo.previousTaskId
                         + " user:" + topUserId + " display:" + taskInfo.displayId);
                 activityInfo.inBackground = false;
-                for (int i = 0; i < taskInfo.childTaskIds.length - 1; i++) {
-                    if (activityInfo.taskId == taskInfo.childTaskIds[i]) {
+                for (int j = 0; j < taskInfo.childTaskIds.length - 1; j++) {
+                    if (activityInfo.taskId == taskInfo.childTaskIds[j]) {
                         activityInfo.inBackground = true;
                     }
                 }

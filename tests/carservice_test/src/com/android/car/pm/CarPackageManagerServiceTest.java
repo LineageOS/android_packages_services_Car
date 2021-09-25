@@ -39,6 +39,7 @@ import android.os.Bundle;
 import android.support.test.uiautomator.By;
 import android.support.test.uiautomator.Configurator;
 import android.support.test.uiautomator.UiDevice;
+import android.support.test.uiautomator.UiObject2;
 import android.support.test.uiautomator.Until;
 import android.view.Display;
 
@@ -52,15 +53,17 @@ import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
+import java.util.concurrent.CopyOnWriteArrayList;
 import java.util.concurrent.CountDownLatch;
 import java.util.concurrent.TimeUnit;
-import java.util.concurrent.atomic.AtomicReference;
 
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPackageManagerServiceTest {
     private static final String ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID =
             "com.android.systemui:id/blocking_text";
+    private static final String ACTIVITY_BLOCKING_ACTIVITY_EXIT_BUTTON_ID =
+            "com.android.systemui:id/exit_button";
 
     // cf_x86_auto is very slow, so uses very long timeout.
     private static final int UI_TIMEOUT_MS = 20_000;
@@ -72,8 +75,8 @@ public class CarPackageManagerServiceTest {
 
     private UiDevice mDevice;
 
-    // NOTE: Assume there is only one testing Activity.
-    private static final AtomicReference<TempActivity> sTestingActivity = new AtomicReference<>();
+    private static final CopyOnWriteArrayList<TempActivity> sTestingActivities =
+            new CopyOnWriteArrayList<>();
 
     @Before
     public void setUp() throws Exception {
@@ -93,15 +96,14 @@ public class CarPackageManagerServiceTest {
     public void tearDown() throws Exception {
         setDrivingStateParked();
 
-        TempActivity testingActivity = sTestingActivity.get();
-        if (testingActivity != null) {
+        for (TempActivity testingActivity : sTestingActivities) {
             testingActivity.finishCompletely();
         }
     }
 
     @Test
     public void testBlockingActivity_doActivity_isNotBlocked() throws Exception {
-        startActivity(toComponentName(getTestContext(), DoActivity.class));
+        startDoActivity(/* extra= */ null);
 
         assertThat(mDevice.wait(Until.findObject(By.text(
                 DoActivity.class.getSimpleName())),
@@ -111,10 +113,7 @@ public class CarPackageManagerServiceTest {
 
     @Test
     public void testBlockingActivity_doActivity_showingDialog_isNotBlocked() throws Exception {
-        Intent intent = new Intent();
-        intent.putExtra(DoActivity.INTENT_EXTRA_SHOW_DIALOG, true);
-        intent.setComponent(toComponentName(getTestContext(), DoActivity.class));
-        startActivity(intent);
+        startDoActivity(DoActivity.INTENT_EXTRA_SHOW_DIALOG);
 
         assertThat(mDevice.wait(Until.findObject(By.text(
                 DoActivity.DIALOG_TITLE)),
@@ -163,8 +162,26 @@ public class CarPackageManagerServiceTest {
     public void testBlockingActivity_nonDoActivity_isBlocked() throws Exception {
         startNonDoActivity(NonDoActivity.EXTRA_DO_NOTHING);
 
-        assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
-                UI_TIMEOUT_MS)).isNotNull();
+        // The label should be 'Close app' since NonDoActivity is the root task.
+        assertBlockingActivityFoundAndExit("Close app");
+
+        // To exit ABA will close nonDoActivity.
+        assertBlockingActivityNotFound();
+        assertThat(mDevice.getCurrentActivityName()).isNotEqualTo(
+                NonDoActivity.class.getSimpleName());
+    }
+
+
+    @Test
+    public void testBlockingActivity_DoLaunchesNonDoOnCreate_isBlocked() throws Exception {
+        startDoActivity(DoActivity.INTENT_EXTRA_LAUNCH_NONDO);
+
+        // The label should be 'Back' since NonDo's root task is DO.
+        assertBlockingActivityFoundAndExit("Back");
+
+        // To exit ABA will show the root task, DoActivity.
+        assertBlockingActivityNotFound();
+        assertThat(mDevice.getCurrentActivityName()).isEqualTo(DoActivity.class.getSimpleName());
     }
 
     @Test
@@ -212,6 +229,16 @@ public class CarPackageManagerServiceTest {
                 NOT_FOUND_UI_TIMEOUT_MS)).isNotNull();
     }
 
+    private void assertBlockingActivityFoundAndExit(String exitLabel) {
+        assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
+                UI_TIMEOUT_MS)).isNotNull();
+        UiObject2 button = mDevice.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_EXIT_BUTTON_ID));
+        // TODO(b/200948830): Make the test not to compare the text directly.
+        assertThat(button.getText()).isEqualTo(exitLabel);
+
+        button.click();
+    }
+
     private void startActivity(ComponentName name) {
         Intent intent = new Intent();
         intent.setComponent(name);
@@ -236,6 +263,16 @@ public class CarPackageManagerServiceTest {
         options.setLaunchDisplayId(Display.DEFAULT_DISPLAY);
 
         getContext().startActivity(intent, options.toBundle());
+    }
+
+    private void startDoActivity(String extra) {
+        Intent intent = new Intent()
+                .setComponent(toComponentName(getTestContext(), DoActivity.class))
+                .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+        if (extra != null) {
+            intent.putExtra(extra, true);
+        }
+        startActivity(intent);
     }
 
     private void ensureHomeIsDisplayed() {
@@ -316,9 +353,14 @@ public class CarPackageManagerServiceTest {
         public static final String INTENT_EXTRA_SHOW_DIALOG = "SHOW_DIALOG";
         public static final String DIALOG_TITLE = "Title";
 
+        public static final String INTENT_EXTRA_LAUNCH_NONDO = "LAUNCH_NONDO";
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
+            if (getIntent().getBooleanExtra(INTENT_EXTRA_LAUNCH_NONDO, false)) {
+                startActivity(new Intent(this, NonDoActivity.class));
+            }
             if (getIntent().getBooleanExtra(INTENT_EXTRA_SHOW_DIALOG, false)) {
                 AlertDialog dialog = new AlertDialog.Builder(DoActivity.this)
                         .setTitle(DIALOG_TITLE)
@@ -332,22 +374,28 @@ public class CarPackageManagerServiceTest {
     /** Activity that closes itself after some timeout to clean up the screen. */
     public static class TempActivity extends Activity {
         private final CountDownLatch mDestroyed = new CountDownLatch(1);
+
         @Override
         protected void onCreate(Bundle savedInstanceState) {
             super.onCreate(savedInstanceState);
-            sTestingActivity.set(this);
+            setTitle(this.getClass().getSimpleName());
+            sTestingActivities.add(this);
         }
 
         @Override
         protected void onDestroy() {
-            sTestingActivity.set(null);
+            sTestingActivities.remove(this);
             super.onDestroy();
             mDestroyed.countDown();
         }
 
         void finishCompletely() throws InterruptedException {
             finish();
-            mDestroyed.await(ACTIVITY_TIMEOUT_MS, TimeUnit.MILLISECONDS);
+            waitForDestroy();
+        }
+
+        boolean waitForDestroy() throws InterruptedException {
+            return mDestroyed.await(ACTIVITY_TIMEOUT_MS, TimeUnit.MILLISECONDS);
         }
     }
 

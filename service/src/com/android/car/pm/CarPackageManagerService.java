@@ -18,6 +18,7 @@ package com.android.car.pm;
 
 import static android.Manifest.permission.QUERY_ALL_PACKAGES;
 import static android.car.CarOccupantZoneManager.DISPLAY_TYPE_MAIN;
+import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_ACTIVITY_NAME;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_BLOCKED_TASK_ID;
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
@@ -28,7 +29,6 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.PendingIntent;
 import android.car.Car;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -88,7 +88,6 @@ import com.android.car.CarServiceUtils;
 import com.android.car.CarUxRestrictionsManagerService;
 import com.android.car.R;
 import com.android.car.SystemActivityMonitoringService;
-import com.android.car.SystemActivityMonitoringService.TopTaskInfoContainer;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.IntArray;
 import com.android.car.internal.util.LocalLog;
@@ -524,7 +523,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (activityName == null) return false;
         if (!callerCanQueryPackage(activityName.getPackageName())) return false;
 
-        RootTaskInfo info = mSystemActivityMonitoringService.getFocusedStackForTopActivity(
+        TopTaskInfoContainer info = mSystemActivityMonitoringService.getTaskInfoForTopActivity(
                 activityName);
         if (info == null) { // not top in focused stack
             return true;
@@ -1292,39 +1291,28 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         if (!mEnableActivityBlocking) {
             Slog.d(TAG, "Current activity " + topTask.topActivity
                     + " not allowed, blocking disabled. Number of tasks in stack:"
-                    + topTask.taskInfo.childTaskIds.length);
+                    + topTask.childTaskIds.length);
             return;
         }
         if (Log.isLoggable(TAG, Log.DEBUG)) {
             Slog.d(TAG, "Current activity " + topTask.topActivity
                     + " not allowed, will block, number of tasks in stack:"
-                    + topTask.taskInfo.childTaskIds.length);
+                    + topTask.childTaskIds.length);
         }
 
-        // Figure out the root activity of blocked task.
-        String taskRootActivity = null;
-        for (int i = 0; i < topTask.taskInfo.childTaskIds.length; i++) {
-            // topTask.taskId is the task that should be blocked.
-            if (topTask.taskInfo.childTaskIds[i] == topTask.taskId) {
-                // stackInfo represents an ActivityStack. Its fields taskIds and taskNames
-                // are 1:1 mapped, where taskNames is the name of root activity in this task.
-                taskRootActivity = topTask.taskInfo.childTaskNames[i];
-                break;
-            }
-        }
+        // Figure out the root task of blocked task.
+        ComponentName rootTaskActivityName = topTask.baseActivity;
 
         boolean isRootDO = false;
-        if (taskRootActivity != null) {
-            ComponentName taskRootComponentName =
-                    ComponentName.unflattenFromString(taskRootActivity);
+        if (rootTaskActivityName != null) {
             isRootDO = isActivityDistractionOptimized(
-                    taskRootComponentName.getPackageName(), taskRootComponentName.getClassName());
+                    rootTaskActivityName.getPackageName(), rootTaskActivityName.getClassName());
         }
 
         Intent newActivityIntent = createBlockingActivityIntent(
                 mActivityBlockingActivity, topTask.displayId,
-                topTask.topActivity.flattenToShortString(), topTask.taskId, taskRootActivity,
-                isRootDO);
+                topTask.topActivity.flattenToShortString(), topTask.taskId,
+                rootTaskActivityName.flattenToString(), isRootDO);
 
         // Intent contains all info to debug what is blocked - log into both logcat and dumpsys.
         String log = "Starting blocking activity with intent: " + newActivityIntent.toUri(0);
