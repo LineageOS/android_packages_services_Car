@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"Umuhimu wa kiwango cha chaguomsingi"</string>
-    <string name="importance_high" msgid="3141530792377745041">"Umuhimu wa kiwango cha juu"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Unahitaji kurejesha mipangilio ya kiwandani"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Data yote kwenye mfumo wa habari na burudani itafutwa. Baada ya kuweka upya, unaweza kuweka wasifu mpya."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Zaidi"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"Imeshindwa kuleta maelezo ya kebo CAN"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"Kebo ya CAN haifanyi kazi. Ondoa kisha urudishe tena kisanduku cha sehemu kuu na uzime kisha uwashe gari"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"Kifaa Changu"</string>

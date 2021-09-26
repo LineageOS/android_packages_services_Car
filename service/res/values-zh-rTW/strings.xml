@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"預設重要性"</string>
-    <string name="importance_high" msgid="3141530792377745041">"高重要性"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"必須恢復原廠設定"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"系統將清除資訊娛樂系統中的所有資料。重設完成後即可設定新的設定檔。"</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"更多"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"控制器區域網路發生問題"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"控制器區域網路無回應。請將主機盒插頭拔下並插回，然後重新啟動車輛"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"我的裝置"</string>

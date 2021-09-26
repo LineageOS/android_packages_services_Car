@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"ప్రాముఖ్యత ఆటోమేటిక్ సెట్టింగ్‌గా ఉన్నది"</string>
-    <string name="importance_high" msgid="3141530792377745041">"అధిక ప్రాముఖ్యత"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ఫ్యాక్టరీ రీసెట్ చేయడం అవసరం"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"సమాచారంతో కూడిన వినోదం సిస్టమ్‌లోని మొత్తం డేటా ఫ్యాక్టరీ రీసెట్ చేయబడుతుంది. రీసెట్ చేసిన తర్వాత, మీరు కొత్త ప్రొఫైల్‌ను సెటప్ చేయవచ్చు."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"మరిన్ని"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN బస్సు విఫలమైంది"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN బస్సు స్పందించలేదు. హెడ్ యూనిట్ బాక్స్‌‍‌ని ప్లగ్ మరియు అన్‌ప్లగ్ చేసి కారుని పునఃప్రారంభించుము"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"నా పరికరం"</string>

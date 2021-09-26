@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"डिफ़ॉल्ट अहमियत"</string>
-    <string name="importance_high" msgid="3141530792377745041">"ज़्यादा अहमियत वाला"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"फ़ैक्ट्री रीसेट ज़रूरी है"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"सूचना और मनोरंजन की सुविधा देने वाले डिवाइस से, पूरा डेटा हमेशा के लिए मिटा दिया जाएगा. रीसेट करने के बाद, आप एक नई प्रोफ़ाइल सेट अप कर सकते हैं."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ज़्यादा देखें"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\'CAN बस\' काम नहीं कर पा रहा है"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"\'CAN बस\' जवाब नहीं दे रहा है. हेडयूनिट बॉक्स का प्लग निकालकर वापस लगाएं और कार को रीस्टार्ट करें"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"मेरा डिवाइस"</string>

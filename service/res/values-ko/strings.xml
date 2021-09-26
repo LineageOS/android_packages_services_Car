@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"중요도가 기본인 알림 채널"</string>
-    <string name="importance_high" msgid="3141530792377745041">"중요도가 높은 알림 채널"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"초기화해야 함"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"인포테인먼트 시스템의 모든 데이터가 삭제됩니다. 초기화 후 새 프로필을 설정할 수 있습니다."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"더보기"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN 버스 실패"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN 버스가 응답하지 않습니다. 헤드유닛 박스를 분리한 후 다시 연결한 다음 시동을 다시 걸어 보세요."</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"내 기기"</string>

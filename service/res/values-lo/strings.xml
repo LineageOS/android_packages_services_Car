@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"ຄວາມສຳຄັນເລີ່ມຕົ້ນ"</string>
-    <string name="importance_high" msgid="3141530792377745041">"ຄວາມສໍາຄັນສູງ"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ຕ້ອງຣິເຊັດເປັນຄ່າຈາກໂຮງງານ"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ຂໍ້ມູນທັງໝົດໃນລະບົບສາລະບັນເທີງຈະຖືກລຶບ. ຫຼັງຈາກຣີເຊັດແລ້ວ, ທ່ານສາມາດຕັ້ງຄ່າໂປຣໄຟລ໌ໃໝ່."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"ເພີ່ມເຕີມ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN bus ບໍ່ສຳເລັດ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus ບໍ່ຕອບສະໜອງ. ຖອດປລັກກ່ອງເຄື່ອງຫຼິ້ນວິທະຍຸ (Headunit) ແລ້ວສຽບເຂົ້າຄືນໃໝ່ ແລະ ຣິສະຕາດລົດ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ອຸປະກອນຂອງຂ້ອຍ"</string>

@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"Verstekbelang"</string>
-    <string name="importance_high" msgid="3141530792377745041">"Groot belang"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"Fabriekterugstelling word vereis"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"Alle data in die inligtingvermaakstelsel sal uitgevee word. Jy kan ná die terugstelling \'n nuwe profiel opstel."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"Meer"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN-bus het misluk"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN-bus reageer nie. Ontprop hoofeenheidkas, prop dit weer in, en herbegin die motor"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"My Toestel"</string>

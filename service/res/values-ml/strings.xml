@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"ഡിഫോൾട്ട് പ്രാധാന്യം"</string>
-    <string name="importance_high" msgid="3141530792377745041">"ഉയർന്ന പ്രാധാന്യം"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"ഫാക്‌ടറി റീസെറ്റ് നടത്തേണ്ടതുണ്ട്"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"ഇൻഫോറ്റേയിൻമെന്റ് സിസ്‌റ്റത്തിലെ എല്ലാ ഡാറ്റയും മായ്ക്കും. റീസെറ്റിന് ശേഷം, നിങ്ങൾക്ക് പുതിയ പ്രൊഫൈൽ സജ്ജീകരിക്കാം."</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"കൂടുതൽ"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"CAN ബസ് പരാജയപ്പെട്ടു"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN ബസ് പ്രതികരിക്കുന്നില്ല. ഹെഡ്‌യൂണിറ്റ് ബോക്‌സ്, അൺപ്ലഗ് ചെയ്‌ത്, വീണ്ടും പ്ലഗ് ചെയ്‌ത്, കാർ റീസ്‌റ്റാർട്ട് ചെയ്യുക"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"എന്റെ ഉപകരണം"</string>

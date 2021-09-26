@@ -16,11 +16,6 @@
 
 <resources xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:xliff="urn:oasis:names:tc:xliff:document:1.2">
-    <string name="importance_default" msgid="8587741629268312938">"ပုံမှန် အရေးပါမှု"</string>
-    <string name="importance_high" msgid="3141530792377745041">"အလွန်အရေးပါသည်"</string>
-    <string name="factory_reset_notification_title" msgid="2530056626309489398">"စက်ရုံထုတ်အတိုင်း ပြင်ဆင်သတ်မှတ်ရန် လိုအပ်သည်"</string>
-    <string name="factory_reset_notification_text" msgid="6517642677900094724">"သတင်းနှင့်ဖျော်ဖြေရေး စနစ်ရှိ ဒေတာအားလုံးကို ဖျက်လိုက်ပါမည်။ ပြင်ဆင်သတ်မှတ်ပြီးနောက် ပရိုဖိုင်အသစ် ထည့်သွင်းနိုင်သည်။"</string>
-    <string name="factory_reset_notification_button" msgid="5450535366202106371">"နောက်ထပ်"</string>
     <string name="car_can_bus_failure" msgid="2334035748788283914">"\"CAN bus\" စနစ် အသုံးပြုမှု မအောင်မြင်ပါ"</string>
     <string name="car_can_bus_failure_desc" msgid="4125516222786484733">"CAN bus စနစ်က တုန့်ပြန်မှုမရှိပါ။ စက်အထိုင်ဘောက်စ်ကို ပလတ်ဖြုတ်ပြီး ပြန်တပ်ကာ ကားကို ပြန်လည်စတင်ပါ"</string>
     <string name="trust_device_default_name" msgid="4213625926070261253">"ကျွန်ုပ်၏စက်"</string>
