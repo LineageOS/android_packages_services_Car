@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.os.Parcel;
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.TelemetryProto;
@@ -67,6 +68,18 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
      */
     public boolean isAssociatedWithMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
         return mSubscriber.getMetricsConfig().equals(metricsConfig);
+    }
+
+    /**
+     * Returns the script input data size in bytes.
+     * TODO(b/201545154): Investigate how to get bundle size without making a full copy.
+     */
+    public int getDataSizeBytes() {
+        Parcel parcel = Parcel.obtain();
+        parcel.writePersistableBundle(mData);
+        int size = parcel.dataSize();
+        parcel.recycle();
+        return size;
     }
 
     @Override
