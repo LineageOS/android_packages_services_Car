@@ -88,7 +88,6 @@ import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
-import com.android.internal.util.function.TriConsumer;
 
 import java.time.ZoneOffset;
 import java.time.ZonedDateTime;
@@ -1438,23 +1437,15 @@ public final class WatchdogPerfHandler {
 
     private static IoOveruseConfiguration toIoOveruseConfiguration(
             android.automotive.watchdog.internal.IoOveruseConfiguration internalConfig) {
-        TriConsumer<Map<String, PerStateBytes>, String, String> replaceKey =
-                (map, oldKey, newKey) -> {
-                    PerStateBytes perStateBytes = map.get(oldKey);
-                    if (perStateBytes != null) {
-                        map.put(newKey, perStateBytes);
-                        map.remove(oldKey);
-                    }
-                };
         PerStateBytes componentLevelThresholds =
                 toPerStateBytes(internalConfig.componentLevelThresholds.perStateWriteBytes);
         ArrayMap<String, PerStateBytes> packageSpecificThresholds =
                 toPerStateBytesMap(internalConfig.packageSpecificThresholds);
         ArrayMap<String, PerStateBytes> appCategorySpecificThresholds =
                 toPerStateBytesMap(internalConfig.categorySpecificThresholds);
-        replaceKey.accept(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
+        replaceKey(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MAPS,
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MAPS);
-        replaceKey.accept(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
+        replaceKey(appCategorySpecificThresholds, INTERNAL_APPLICATION_CATEGORY_TYPE_MEDIA,
                 ResourceOveruseConfiguration.APPLICATION_CATEGORY_TYPE_MEDIA);
         List<IoOveruseAlertThreshold> systemWideThresholds =
                 toIoOveruseAlertThresholds(internalConfig.systemWideThresholds);
