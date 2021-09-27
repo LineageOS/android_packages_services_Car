@@ -284,7 +284,7 @@ public final class CarUserNoticeService implements CarServiceBase {
                     + packageName + " userId:" + userId);
             return false;
         }
-        appOpsManager.setMode(AppOpsManager.OP_SYSTEM_ALERT_WINDOW, packageUid, packageName,
+        appOpsManager.setMode(AppOpsManager.OPSTR_SYSTEM_ALERT_WINDOW, packageUid, packageName,
                 AppOpsManager.MODE_ALLOWED);
         Slog.i(TAG, "Granted SYSTEM_ALERT_WINDOW permission to package:" + packageName
                 + " package uid:" + packageUid);
