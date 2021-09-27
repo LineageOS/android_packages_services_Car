@@ -50,25 +50,12 @@ public final class BluetoothUtilsGetProfileNameTest {
     public static Collection provideParams() {
         return Arrays.asList(
             new Object[][] {
-                {BluetoothProfile.HEADSET, "HFP Server"},
-                {BluetoothProfile.A2DP, "A2DP Source"},
-                {BluetoothProfile.HEALTH, "HDP"},
-                {BluetoothProfile.HID_HOST, "HID Host"},
                 {BluetoothProfile.PAN, "PAN"},
-                {BluetoothProfile.PBAP, "PBAP Server"},
-                {BluetoothProfile.GATT, "GATT Client"},
-                {BluetoothProfile.GATT_SERVER, "GATT Server"},
-                {BluetoothProfile.MAP, "MAP Server"},
-                {BluetoothProfile.SAP, "SAP"},
                 {BluetoothProfile.A2DP_SINK, "A2DP Sink"},
                 {BluetoothProfile.AVRCP_CONTROLLER, "AVRCP Controller"},
-                {BluetoothProfile.AVRCP, "AVRCP Target"},
                 {BluetoothProfile.HEADSET_CLIENT, "HFP Client"},
                 {BluetoothProfile.PBAP_CLIENT, "PBAP Client"},
                 {BluetoothProfile.MAP_CLIENT, "MAP Client"},
-                {BluetoothProfile.HID_DEVICE, "HID Device"},
-                {BluetoothProfile.OPP, "OPP"},
-                {BluetoothProfile.HEARING_AID, "Hearing Aid"},
                 {0, "unknown"},
                 {22, "unknown"}
             });
