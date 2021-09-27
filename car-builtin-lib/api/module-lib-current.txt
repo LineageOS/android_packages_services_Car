@@ -169,6 +169,10 @@ package android.car.builtin.os {
     method public static void set(@NonNull String, @Nullable String);
   }
 
+  public final class TraceHelper {
+    field public static final long TRACE_TAG_CAR_SERVICE = 524288L; // 0x80000L
+  }
+
   public final class UserManagerHelper {
     method public static android.graphics.Bitmap assignDefaultIconForUser(@NonNull android.content.Context, @NonNull android.os.UserHandle);
     method @Deprecated @Nullable public static android.os.UserHandle createGuest(@NonNull android.content.Context, @NonNull android.os.UserManager, @Nullable String);

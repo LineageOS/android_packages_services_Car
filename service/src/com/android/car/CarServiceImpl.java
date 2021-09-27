@@ -21,6 +21,7 @@ import static android.os.SystemClock.elapsedRealtime;
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.os.SystemPropertiesHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.util.Slog;
 import android.content.Intent;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -29,7 +30,6 @@ import android.os.IHwBinder.DeathRecipient;
 import android.os.Process;
 import android.os.RemoteException;
 import android.os.SystemProperties;
-import android.os.Trace;
 import android.util.EventLog;
 
 import com.android.car.internal.common.EventLogTags;
@@ -55,7 +55,7 @@ public class CarServiceImpl extends ProxiedService {
     @Override
     public void onCreate() {
         LimitedTimingsTraceLog initTiming = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
-                Trace.TRACE_TAG_SYSTEM_SERVER, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
+                TraceHelper.TRACE_TAG_CAR_SERVICE, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         initTiming.traceBegin("CarService.onCreate");
 
         initTiming.traceBegin("getVehicle");

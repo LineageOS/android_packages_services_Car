@@ -32,6 +32,7 @@ import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
@@ -75,7 +76,6 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -1814,7 +1814,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         // Must use a different TimingsTraceLog because it's another thread
         Slogf.d(TAG, "Notifying %d app listeners of %s", listenersSize, event);
         int userId = event.getUserId();
-        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         int eventType = event.getEventType();
         t.traceBegin("notify-app-listeners-user-" + userId + "-event-" + eventType);
         for (int i = 0; i < listenersSize; i++) {
@@ -1842,7 +1842,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void handleNotifyServiceUserLifecycleListeners(UserLifecycleEvent event) {
-        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         if (mUserLifecycleListeners.isEmpty()) {
             Slog.w(TAG, "Not notifying internal UserLifecycleListeners");
             return;
@@ -1873,7 +1873,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void onUserSwitching(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         Slog.i(TAG, "onUserSwitching() callback for user " + toUserId);
-        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("onUserSwitching-" + toUserId);
 
         // Switch HAL users if user switch is not requested by CarUserService
