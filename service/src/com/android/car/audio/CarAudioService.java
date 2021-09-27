@@ -36,6 +36,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
 import android.car.builtin.os.AudioServiceHelper;
 import android.car.builtin.os.AudioServiceHelper.AudioPatchInfo;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
@@ -1375,11 +1376,11 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                             + userId + ") to audioZoneId(" + audioZoneId + ")");
         }
         // If the user has changed, be sure to remove from current routing
-        // This would be true even if the new user is UserHandle.USER_NULL,
+        // This would be true even if the new user is UserManagerHelper.USER_NULL,
         // as that indicates the user has logged out.
         removeUserIdDeviceAffinitiesLocked(prevUserId);
 
-        if (userId == UserHandle.USER_NULL) {
+        if (userId == UserManagerHelper.USER_NULL) {
             // Reset zone back to driver user id
             resetZoneToDefaultUser(audioZone, driverUserId);
             setUserIdForAudioZoneLocked(userId, audioZoneId);
@@ -1432,7 +1433,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             Slog.d(CarLog.TAG_AUDIO,
                     "removeUserIdDeviceAffinities(" + userId + ") Succeeded");
         }
-        if (userId == UserHandle.USER_NULL) {
+        if (userId == UserManagerHelper.USER_NULL) {
             return;
         }
         if (!mAudioPolicy.removeUserIdDeviceAffinity(userId)) {
@@ -1443,7 +1444,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
 
     @GuardedBy("mImplLock")
     private @UserIdInt int getUserIdForZoneLocked(int audioZoneId) {
-        return mAudioZoneIdToUserIdMapping.get(audioZoneId, UserHandle.USER_NULL);
+        return mAudioZoneIdToUserIdMapping.get(audioZoneId, UserManagerHelper.USER_NULL);
     }
 
     @GuardedBy("mImplLock")

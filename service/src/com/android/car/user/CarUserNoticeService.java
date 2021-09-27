@@ -28,6 +28,7 @@ import android.app.AppOpsManager;
 import android.car.CarNotConnectedException;
 import android.car.builtin.app.KeyguardManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.settings.CarSettings;
@@ -104,7 +105,7 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     @GuardedBy("mLock")
     @UserIdInt
-    private int mUserId = UserHandle.USER_NULL;
+    private int mUserId = UserManagerHelper.USER_NULL;
 
     @GuardedBy("mLock")
     private CarPowerManager mCarPowerManager;
@@ -114,7 +115,7 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     @GuardedBy("mLock")
     @UserIdInt
-    private int mIgnoreUserId = UserHandle.USER_NULL;
+    private int mIgnoreUserId = UserManagerHelper.USER_NULL;
 
     private final UserLifecycleListener mUserLifecycleListener = event -> {
         if (DBG) Slog.d(TAG, "onEvent(" + event + ")");
@@ -309,15 +310,15 @@ public final class CarUserNoticeService implements CarServiceBase {
                 }
                 return;
             } else {
-                mIgnoreUserId = UserHandle.USER_NULL;
+                mIgnoreUserId = UserManagerHelper.USER_NULL;
             }
         }
-        if (userId == UserHandle.USER_NULL) {
+        if (userId == UserManagerHelper.USER_NULL) {
             if (DBG) Slog.d(TAG, "Notice UI not necessary: userId " + userId);
             return;
         }
         // headless user 0 is ignored.
-        if (userId == UserHandle.USER_SYSTEM) {
+        if (userId == UserHandle.SYSTEM.getIdentifier()) {
             if (DBG) Slog.d(TAG, "Notice UI not necessary: userId " + userId);
             return;
         }
@@ -421,7 +422,7 @@ public final class CarUserNoticeService implements CarServiceBase {
         CarPowerManager carPowerManager;
         synchronized (mLock) {
             carPowerManager = mCarPowerManager;
-            mUserId = UserHandle.USER_NULL;
+            mUserId = UserManagerHelper.USER_NULL;
         }
         carPowerManager.clearListener();
         stopUi(/* clearUiShown= */ true);
@@ -435,7 +436,7 @@ public final class CarUserNoticeService implements CarServiceBase {
                 writer.println("*CarUserNoticeService* disabled");
                 return;
             }
-            if (mUserId == UserHandle.USER_NULL) {
+            if (mUserId == UserManagerHelper.USER_NULL) {
                 writer.println("*CarUserNoticeService* User not started yet.");
                 return;
             }

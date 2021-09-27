@@ -154,7 +154,7 @@ class GarageMode {
     private final Runnable mStopUserCheckRunnable = new Runnable() {
         @Override
         public void run() {
-            int userToStop = UserHandle.USER_SYSTEM; // BG user never becomes system user.
+            int userToStop = UserHandle.SYSTEM.getIdentifier(); // BG user never becomes system user
             synchronized (mLock) {
                 if (mStartedBackgroundUsers.isEmpty() || !mBackgroundUserStopInProcess) return;
                 userToStop = mStartedBackgroundUsers.valueAt(0);
@@ -162,7 +162,7 @@ class GarageMode {
             // All jobs done or stopped.
             if (mJobSchedulerHelper.getNumberOfRunningJobsAtIdle() == 0) {
                 // Keep user until job scheduling is stopped. Otherwise, it can crash jobs.
-                if (userToStop != UserHandle.USER_SYSTEM) {
+                if (userToStop != UserHandle.SYSTEM.getIdentifier()) {
                     CarLocalServices.getService(CarUserService.class)
                             .stopBackgroundUserInGagageMode(userToStop);
                     synchronized (mLock) {

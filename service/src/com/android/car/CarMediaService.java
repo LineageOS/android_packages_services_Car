@@ -336,7 +336,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
     }
 
     private void maybeInitUser(int userId) {
-        if (userId == UserHandle.USER_SYSTEM) {
+        if (userId == UserHandle.SYSTEM.getIdentifier()) {
             return;
         }
         if (mUserManager.isUserUnlocked(UserHandle.of(userId))) {
@@ -623,7 +623,7 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
                 + ", mPendingInit=" + mPendingInit);
         mCommonThreadHandler.post(() -> {
             // No need to handle system user, non current foreground user.
-            if (userId == UserHandle.USER_SYSTEM
+            if (userId == UserHandle.SYSTEM.getIdentifier()
                     || userId != ActivityManager.getCurrentUser()) {
                 return;
             }

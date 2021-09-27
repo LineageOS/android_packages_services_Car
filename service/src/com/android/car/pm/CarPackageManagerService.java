@@ -968,11 +968,11 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         AppBlockingPackageInfoWrapper wrapper =
                 getPackageInfoWrapperForUser(packageName, userId, configAllowlist, configBlocklist);
 
-        if (wrapper == null && userId != UserHandle.USER_SYSTEM) {
+        if (wrapper == null && userId != UserHandle.SYSTEM.getIdentifier()) {
             Slog.d(TAG, "Updating allowlist and denylist mapping for package: " + packageName
-                    + " for UserId: " + UserHandle.USER_SYSTEM);
+                    + " for UserId: " + UserHandle.SYSTEM.getIdentifier());
             // check package for system user, in case package is disabled for current user
-            wrapper = getPackageInfoWrapperForUser(packageName, UserHandle.USER_SYSTEM,
+            wrapper = getPackageInfoWrapperForUser(packageName, UserHandle.SYSTEM.getIdentifier(),
                     configAllowlist, configBlocklist);
         }
 

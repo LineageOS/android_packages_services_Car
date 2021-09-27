@@ -706,7 +706,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
     private void runResetOccupantZoneId(String occupantZoneIdString) {
         int occupantZoneId = Integer.parseInt(occupantZoneIdString);
         if (!mCarOccupantZoneService
-                .assignProfileUserToOccupantZone(occupantZoneId, UserHandle.USER_NULL)) {
+                .assignProfileUserToOccupantZone(occupantZoneId, UserManagerHelper.USER_NULL)) {
             throw new IllegalStateException("Failed to reset occupantZoneId "
                     + occupantZoneIdString);
         }
@@ -1335,7 +1335,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
                 if (!TextUtils.isEmpty(resp.userNameToCreate)) {
                     writer.printf("User name: %s\n", resp.userNameToCreate);
                 }
-                if (resp.userToSwitchOrCreate.userId != UserHandle.USER_NULL) {
+                if (resp.userToSwitchOrCreate.userId != UserManagerHelper.USER_NULL) {
                     writer.printf("User id: %d\n", resp.userToSwitchOrCreate.userId);
                 }
                 if (resp.userToSwitchOrCreate.flags != UserFlags.NONE) {

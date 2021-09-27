@@ -1009,7 +1009,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         IBinder token = new Binder();
         try {
             int systemUiUid = PackageManagerHelper.getPackageUidAsUser(mContext.getPackageManager(),
-                    systemUiPackageName, UserHandle.USER_SYSTEM);
+                    systemUiPackageName, UserHandle.SYSTEM.getIdentifier());
             int callerUid = Binder.getCallingUid();
             if (systemUiUid == callerUid) {
                 setSessionToken(token);

@@ -23,13 +23,13 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.annotation.NonNull;
 import android.annotation.UserIdInt;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.settings.CarSettings;
 import android.database.ContentObserver;
 import android.net.Uri;
 import android.os.Handler;
 import android.os.Looper;
-import android.os.UserHandle;
 import android.provider.Settings;
 
 import com.android.car.CarLog;
@@ -300,7 +300,7 @@ final class FocusInteraction {
 
     private void navigationOnCallSettingChanged() {
         synchronized (mLock) {
-            if (mUserId != UserHandle.USER_NULL) {
+            if (mUserId != UserManagerHelper.USER_NULL) {
                 setRejectNavigationOnCallLocked(isRejectNavigationOnCallEnabledInSettings(mUserId));
             }
         }
@@ -378,7 +378,7 @@ final class FocusInteraction {
                         .unregisterContentObserver(mContentObserver);
                 mContentObserver = null;
             }
-            if (mUserId == UserHandle.USER_NULL) {
+            if (mUserId == UserManagerHelper.USER_NULL) {
                 setRejectNavigationOnCallLocked(false);
                 return;
             }

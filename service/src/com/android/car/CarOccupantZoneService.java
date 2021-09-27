@@ -31,6 +31,7 @@ import android.car.CarOccupantZoneManager.OccupantZoneInfo;
 import android.car.ICarOccupantZone;
 import android.car.ICarOccupantZoneCallback;
 import android.car.VehicleAreaSeat;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.media.CarAudioManager;
@@ -156,7 +157,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
 
     @VisibleForTesting
     static class OccupantConfig {
-        public int userId = UserHandle.USER_NULL;
+        public int userId = UserManagerHelper.USER_NULL;
         public final ArrayList<DisplayInfo> displayInfos = new ArrayList<>();
         public int audioZoneId = CarAudioManager.INVALID_AUDIO_ZONE;
 
@@ -312,7 +313,8 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                         Slogf.w(TAG, "cannot find the zone(%d)", zoneId);
                         return false;
                     }
-                    if (zoneConfig.userId != UserHandle.USER_NULL && zoneConfig.userId != userId) {
+                    if (zoneConfig.userId != UserManagerHelper.USER_NULL
+                            && zoneConfig.userId != userId) {
                         Slogf.w(TAG, "other user already occupies the zone(%d)", zoneId);
                         return false;
                     }
@@ -327,7 +329,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
                     for (int i = 0; i < mActiveOccupantConfigs.size(); ++i) {
                         OccupantConfig config = mActiveOccupantConfigs.valueAt(i);
                         if (config.userId == userId) {
-                            config.userId = UserHandle.USER_NULL;
+                            config.userId = UserManagerHelper.USER_NULL;
                             break;
                         }
                     }
@@ -640,7 +642,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
         synchronized (mLock) {
             OccupantConfig config = mActiveOccupantConfigs.get(occupantZoneId);
             if (config == null) {
-                return UserHandle.USER_NULL;
+                return UserManagerHelper.USER_NULL;
             }
             return config.userId;
         }
@@ -728,7 +730,7 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             }
             updateEnabledProfilesLocked(currentUser);
 
-            if (!mProfileUsers.contains(userId) && userId != UserHandle.USER_NULL) {
+            if (!mProfileUsers.contains(userId) && userId != UserManagerHelper.USER_NULL) {
                 // current user can change while this call is happening, so return false rather
                 // than throwing exception
                 Slogf.w(TAG, "Invalid profile user id: %d", userId);
@@ -742,12 +744,12 @@ public final class CarOccupantZoneService extends ICarOccupantZone.Stub
             if (config == null) {
                 throw new IllegalArgumentException("Invalid occupantZoneId:" + occupantZoneId);
             }
-            if (config.userId == userId && userId != UserHandle.USER_NULL) {
+            if (config.userId == userId && userId != UserManagerHelper.USER_NULL) {
                 Slogf.w(TAG, "assignProfileUserToOccupantZone zone:%d already set to user:%",
                         occupantZoneId, userId);
                 return true;
             }
-            if (userId == UserHandle.USER_NULL) {
+            if (userId == UserManagerHelper.USER_NULL) {
                 config.userId = currentUser;
             } else {
                 config.userId = userId;

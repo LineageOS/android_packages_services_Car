@@ -203,7 +203,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      * User Id for the user switch in process, if any.
      */
     @GuardedBy("mLockUser")
-    private int mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+    private int mUserIdForUserSwitchInProcess = UserManagerHelper.USER_NULL;
     /**
      * Request Id for the user switch in process, if any.
      */
@@ -497,7 +497,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
      */
     public void setInitialUser(@Nullable UserHandle user) {
         EventLog.writeEvent(EventLogTags.CAR_USER_SVC_SET_INITIAL_USER,
-                user == null ? UserHandle.USER_NULL : user.getIdentifier());
+                user == null ? UserManagerHelper.USER_NULL : user.getIdentifier());
         synchronized (mLockUser) {
             mInitialUser = user;
         }
@@ -830,7 +830,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                             + UserHalHelper.halCallbackStatusToString(halCallbackStatus)
                             + ") for response " + resp);
                     sendUserSwitchResult(receiver, resultStatus);
-                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                    mUserIdForUserSwitchInProcess = UserManagerHelper.USER_NULL;
                     return;
                 }
 
@@ -845,7 +845,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                     resultStatus =
                             UserSwitchResult.STATUS_TARGET_USER_ABANDONED_DUE_TO_A_NEW_REQUEST;
                     sendUserSwitchResult(receiver, resultStatus);
-                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                    mUserIdForUserSwitchInProcess = UserManagerHelper.USER_NULL;
                     return;
                 }
 
@@ -872,7 +872,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 }
 
                 if (mRequestIdForUserSwitchInProcess == 0) {
-                    mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
+                    mUserIdForUserSwitchInProcess = UserManagerHelper.USER_NULL;
                 }
             }
             sendUserSwitchResult(receiver, halCallbackStatus, resultStatus, resp.errorMessage);
@@ -995,8 +995,8 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
         int userId = user.getIdentifier();
 
-        if (userId == UserHandle.USER_NULL) {
-            Slog.wtf(TAG, "notifyHalUserRemoved() called for UserHandle.USER_NULL");
+        if (userId == UserManagerHelper.USER_NULL) {
+            Slog.wtf(TAG, "notifyHalUserRemoved() called for UserManagerHelper.USER_NULL");
             return;
         }
 
@@ -1431,7 +1431,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void updateUserSwitchInProcess(int requestId, @UserIdInt int targetUserId) {
         synchronized (mLockUser) {
-            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
+            if (mUserIdForUserSwitchInProcess != UserManagerHelper.USER_NULL) {
                 // Some other user switch is in process.
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Slog.d(TAG, "User switch for user: " + mUserIdForUserSwitchInProcess
@@ -1552,7 +1552,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         ArrayList<Runnable> tasks = null;
         synchronized (mLockUser) {
             sendPostSwitchToHalLocked(userId);
-            if (userId == UserHandle.USER_SYSTEM) {
+            if (userId == UserHandle.SYSTEM.getIdentifier()) {
                 if (!mUser0Unlocked) { // user 0, unlocked, do this only once
                     updateDefaultUserRestriction();
                     tasks = new ArrayList<>(mUser0UnlockTasks);
@@ -1792,17 +1792,24 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private void sendPostSwitchToHalLocked(@UserIdInt int userId) {
-        if (mUserIdForUserSwitchInProcess == UserHandle.USER_NULL
-                || mUserIdForUserSwitchInProcess != userId
-                || mRequestIdForUserSwitchInProcess == 0) {
-            if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "No user switch request Id. No android post switch sent.");
+        int userIdForUserSwitchInProcess;
+        int requestIdForUserSwitchInProcess;
+        synchronized (mLockUser) {
+            if (mUserIdForUserSwitchInProcess == UserManagerHelper.USER_NULL
+                    || mUserIdForUserSwitchInProcess != userId
+                    || mRequestIdForUserSwitchInProcess == 0) {
+                if (Log.isLoggable(TAG, Log.DEBUG)) {
+                    Slog.d(TAG, "No user switch request Id. No android post switch sent.");
+                }
+                return;
             }
-            return;
+            userIdForUserSwitchInProcess = mUserIdForUserSwitchInProcess;
+            requestIdForUserSwitchInProcess = mRequestIdForUserSwitchInProcess;
+
+            mUserIdForUserSwitchInProcess = UserManagerHelper.USER_NULL;
+            mRequestIdForUserSwitchInProcess = 0;
         }
-        postSwitchHalResponse(mRequestIdForUserSwitchInProcess, mUserIdForUserSwitchInProcess);
-        mUserIdForUserSwitchInProcess = UserHandle.USER_NULL;
-        mRequestIdForUserSwitchInProcess = 0;
+        postSwitchHalResponse(requestIdForUserSwitchInProcess, userIdForUserSwitchInProcess);
     }
 
     private void handleNotifyAppUserLifecycleListeners(UserLifecycleEvent event) {
@@ -1823,7 +1830,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             data.putInt(CarUserManager.BUNDLE_PARAM_ACTION, eventType);
 
             int fromUserId = event.getPreviousUserId();
-            if (fromUserId != UserHandle.USER_NULL) {
+            if (fromUserId != UserManagerHelper.USER_NULL) {
                 data.putInt(CarUserManager.BUNDLE_PARAM_PREVIOUS_USER_ID, fromUserId);
             }
             Slogf.d(TAG, "Notifying listener %s", listener);
@@ -1886,7 +1893,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private void notifyHalLegacySwitch(@UserIdInt int fromUserId, @UserIdInt int toUserId) {
         synchronized (mLockUser) {
-            if (mUserIdForUserSwitchInProcess != UserHandle.USER_NULL) {
+            if (mUserIdForUserSwitchInProcess != UserManagerHelper.USER_NULL) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
                     Slog.d(TAG, "notifyHalLegacySwitch(" + fromUserId + ", " + toUserId
                             + "): not needed, normal switch for " + mUserIdForUserSwitchInProcess);
@@ -1940,7 +1947,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
         LocationManager locationManager =
                 (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         locationManager.setLocationEnabledForUser(
-                /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
+                /* enabled= */ false, UserHandle.SYSTEM);
     }
 
     private void checkInteractAcrossUsersPermission(String message) {
@@ -2002,17 +2009,21 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
 
     private static boolean hasManageUsersPermission() {
         final int callingUid = Binder.getCallingUid();
-        return UserHandle.isSameApp(callingUid, Process.SYSTEM_UID)
+        return isSameApp(callingUid, Process.SYSTEM_UID)
                 || callingUid == Process.ROOT_UID
                 || hasPermissionGranted(MANAGE_USERS, callingUid);
     }
 
     private static boolean hasManageUsersOrPermission(String alternativePermission) {
         final int callingUid = Binder.getCallingUid();
-        return UserHandle.isSameApp(callingUid, Process.SYSTEM_UID)
+        return isSameApp(callingUid, Process.SYSTEM_UID)
                 || callingUid == Process.ROOT_UID
                 || hasPermissionGranted(MANAGE_USERS, callingUid)
                 || hasPermissionGranted(alternativePermission, callingUid);
+    }
+
+    private static boolean isSameApp(int uid1, int uid2) {
+        return UserHandle.getAppId(uid1) == UserHandle.getAppId(uid2);
     }
 
     private static boolean hasManageOrCreateUsersPermission() {

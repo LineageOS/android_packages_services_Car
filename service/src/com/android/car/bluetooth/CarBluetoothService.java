@@ -21,12 +21,12 @@ import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetooth;
 import android.car.ICarBluetoothUserService;
 import android.car.IPerUserCarService;
+import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.pm.PackageManager;
 import android.os.IBinder;
 import android.os.RemoteException;
-import android.os.UserHandle;
 import android.util.Log;
 import android.util.SparseArray;
 
@@ -147,7 +147,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      *                            to in order to receive user switch events
      */
     public CarBluetoothService(Context context, PerUserCarServiceHelper userSwitchService) {
-        mUserId = UserHandle.USER_NULL;
+        mUserId = UserManagerHelper.USER_NULL;
         mContext = context;
         mUserServiceHelper = userSwitchService;
         mUseDefaultPolicy = mContext.getResources().getBoolean(
@@ -231,7 +231,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         destroyBluetoothProfileDeviceManagersLocked();
         destroyBluetoothUserServiceLocked();
         mPerUserCarService = null;
-        mUserId = UserHandle.USER_NULL;
+        mUserId = UserManagerHelper.USER_NULL;
     }
 
     /**
@@ -279,7 +279,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      */
     @GuardedBy("mPerUserLock")
     private void createBluetoothProfileDeviceManagersLocked() {
-        if (mUserId == UserHandle.USER_NULL) {
+        if (mUserId == UserManagerHelper.USER_NULL) {
             if (DBG) {
                 Slogf.d(TAG, "No foreground user, cannot create profile device managers");
             }
@@ -342,7 +342,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         if (DBG) {
             Slogf.d(TAG, "Creating inhibit manager");
         }
-        if (mUserId == UserHandle.USER_NULL) {
+        if (mUserId == UserManagerHelper.USER_NULL) {
             if (DBG) {
                 Slogf.d(TAG, "No foreground user, cannot create profile inhibit manager");
             }
@@ -374,7 +374,7 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
         if (DBG) {
             Slogf.d(TAG, "Creating device connection policy");
         }
-        if (mUserId == UserHandle.USER_NULL) {
+        if (mUserId == UserManagerHelper.USER_NULL) {
             if (DBG) {
                 Slogf.d(TAG, "No foreground user, cannot create device connection policy");
             }

@@ -468,7 +468,7 @@ final class InitialUserSetter {
 
     private void unlockSystemUserIfNecessary(@UserIdInt int userId) {
         // If system user is the only user to unlock, it will be handled when boot is complete.
-        if (userId != UserHandle.USER_SYSTEM) {
+        if (userId != UserHandle.SYSTEM.getIdentifier()) {
             unlockSystemUser();
         }
     }
@@ -630,12 +630,12 @@ final class InitialUserSetter {
         // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
         // update the state and USER_SYSTEM unlock happens twice.
         t.traceBegin("am.startUser");
-        boolean started = am.startUserInBackground(UserHandle.USER_SYSTEM);
+        boolean started = am.startUserInBackground(UserHandle.SYSTEM.getIdentifier());
         t.traceEnd();
         if (!started) {
             Slog.w(TAG, "could not restart system user in foreground; trying unlock instead");
             t.traceBegin("am.unlockUser");
-            boolean unlocked = am.unlockUser(UserHandle.USER_SYSTEM);
+            boolean unlocked = am.unlockUser(UserHandle.SYSTEM.getIdentifier());
             t.traceEnd();
             if (!unlocked) {
                 Slog.w(TAG, "could not unlock system user neither");
@@ -705,7 +705,7 @@ final class InitialUserSetter {
      * <ol>
      *     <li>Check for a boot user override via {@code CarProperties#boot_user_override_id()}</li>
      *     <li>Check for the last active user in the system</li>
-     *     <li>Fallback to the smallest user id that is not {@link UserHandle.USER_SYSTEM}</li>
+     *     <li>Fallback to the smallest user id that is not {@link UserHandle.SYSTEM}</li>
      * </ol>
      *
      * If any step fails to retrieve the stored id or the retrieved id does not exist on device,
@@ -720,7 +720,7 @@ final class InitialUserSetter {
         List<Integer> allUsers = userListToUserIdList(getAllUsers());
 
         if (allUsers.isEmpty()) {
-            return UserHandle.USER_NULL;
+            return UserManagerHelper.USER_NULL;
         }
 
         //TODO(b/150416512): Check if it is still supported, if not remove it.
@@ -771,7 +771,7 @@ final class InitialUserSetter {
      */
     private List<UserHandle> getAllUsers() {
         if (UserManager.isHeadlessSystemUserMode()) {
-            return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.USER_SYSTEM);
+            return getAllUsersExceptSystemUserAndSpecifiedUser(UserHandle.SYSTEM.getIdentifier());
         } else {
             return UserManagerHelper.getUserHandles(mUm, /* excludePartial= */ false,
                     /* excludeDying= */ false);
@@ -791,7 +791,7 @@ final class InitialUserSetter {
         for (Iterator<UserHandle> iterator = users.iterator(); iterator.hasNext(); ) {
             UserHandle user = iterator.next();
             if (user.getIdentifier() == userId
-                    || user.getIdentifier() == UserHandle.USER_SYSTEM) {
+                    || user.getIdentifier() == UserHandle.SYSTEM.getIdentifier()) {
                 // Remove user with userId from the list.
                 iterator.remove();
             }
@@ -824,12 +824,12 @@ final class InitialUserSetter {
     private void resetUserIdGlobalProperty(@NonNull String name) {
         if (DBG) Slog.d(TAG, "resetting global property " + name);
 
-        Settings.Global.putInt(mContext.getContentResolver(), name, UserHandle.USER_NULL);
+        Settings.Global.putInt(mContext.getContentResolver(), name, UserManagerHelper.USER_NULL);
     }
 
     private int getUserIdGlobalProperty(@NonNull String name) {
         int userId = Settings.Global.getInt(mContext.getContentResolver(), name,
-                UserHandle.USER_NULL);
+                UserManagerHelper.USER_NULL);
         if (DBG) Slog.d(TAG, "getting global property " + name + ": " + userId);
 
         return userId;

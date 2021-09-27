@@ -551,7 +551,7 @@ public final class FixedActivityService implements CarServiceBase {
 
     private boolean isUserAllowedToLaunchActivity(@UserIdInt int userId) {
         int currentUser = ActivityManager.getCurrentUser();
-        if (userId == currentUser || userId == UserHandle.USER_SYSTEM) {
+        if (userId == currentUser || userId == UserHandle.SYSTEM.getIdentifier()) {
             return true;
         }
         List<UserHandle> profiles = mUserHandleHelper.getEnabledProfiles(currentUser);

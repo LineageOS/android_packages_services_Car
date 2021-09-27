@@ -122,7 +122,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
                     int currentUser = ActivityManager.getCurrentUser();
                     logd("Current user: %s", currentUser);
                     if (UserManager.isHeadlessSystemUserMode()
-                            && currentUser > UserHandle.USER_SYSTEM) {
+                            && currentUser > UserHandle.SYSTEM.getIdentifier()) {
                         asyncOperation(() -> loadLocation());
                     }
                 }
@@ -288,7 +288,7 @@ public class CarLocationService extends BroadcastReceiver implements CarServiceB
     private boolean isCurrentUserHeadlessSystemUser() {
         int currentUserId = ActivityManager.getCurrentUser();
         return UserManager.isHeadlessSystemUserMode()
-                && currentUserId == UserHandle.USER_SYSTEM;
+                && currentUserId == UserHandle.SYSTEM.getIdentifier();
     }
 
     /**

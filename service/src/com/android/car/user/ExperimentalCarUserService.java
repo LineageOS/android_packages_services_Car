@@ -89,7 +89,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
     private final Object mLock = new Object();
     // Only one passenger is supported.
     @GuardedBy("mLock")
-    private @UserIdInt int mLastPassengerId = UserHandle.USER_NULL;
+    private @UserIdInt int mLastPassengerId = UserManagerHelper.USER_NULL;
 
     @GuardedBy("mLock")
     private ZoneUserBindingHelper mZoneUserBindingHelper;
@@ -361,7 +361,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         synchronized (mLock) {
             // NULL passengerId means the last passenger.
             // This is to avoid accessing mPassengerId without obtaining mLock.
-            if (passengerId == UserHandle.USER_NULL) {
+            if (passengerId == UserManagerHelper.USER_NULL) {
                 passengerId = mLastPassengerId;
             }
             UserHandle passenger = mUserHandleHelper.getExistingUserHandle(passengerId);
@@ -389,7 +389,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
                 Slogf.w(TAG, "could not unassign user %d from occupant zone", passengerId);
                 return false;
             }
-            mLastPassengerId = UserHandle.USER_NULL;
+            mLastPassengerId = UserManagerHelper.USER_NULL;
         }
         for (PassengerCallback callback : mPassengerCallbacks) {
             callback.onPassengerStopped(passengerId);
@@ -402,7 +402,7 @@ public final class ExperimentalCarUserService extends IExperimentalCarUserServic
         TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("onUserSwitching-" + toUserId);
 
-        stopPassengerInternal(/* passengerId= */ UserHandle.USER_NULL, false);
+        stopPassengerInternal(/* passengerId= */ UserManagerHelper.USER_NULL, false);
 
         if (mEnablePassengerSupport && isPassengerDisplayAvailable()) {
             setupPassengerUser();

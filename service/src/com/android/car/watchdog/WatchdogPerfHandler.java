@@ -808,7 +808,7 @@ public final class WatchdogPerfHandler {
         synchronized (mLock) {
             for (int i = 0; i < settingsEntries.size(); ++i) {
                 WatchdogStorage.UserPackageSettingsEntry entry = settingsEntries.get(i);
-                if (entry.userId == UserHandle.USER_ALL) {
+                if (entry.userId == UserHandle.ALL.getIdentifier()) {
                     if (entry.killableState != KILLABLE_STATE_YES) {
                         mDefaultNotKillableGenericPackages.add(entry.packageName);
                     }
@@ -865,7 +865,7 @@ public final class WatchdogPerfHandler {
             }
             for (String packageName : mDefaultNotKillableGenericPackages) {
                 entries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                        UserHandle.USER_ALL, packageName, KILLABLE_STATE_NO));
+                        UserHandle.ALL.getIdentifier(), packageName, KILLABLE_STATE_NO));
             }
             if (!mWatchdogStorage.saveUserPackageSettings(entries)) {
                 Slogf.e(TAG, "Failed to write user package settings to database");

@@ -161,12 +161,12 @@ class VendorServiceController implements UserLifecycleListener {
 
         for (VendorServiceConnection connection : mConnections.values()) {
             final int connectedUserId = connection.mUser.getIdentifier();
-            if (connectedUserId != UserHandle.USER_SYSTEM && connectedUserId != userId) {
+            if (connectedUserId != UserHandle.SYSTEM.getIdentifier() && connectedUserId != userId) {
                 connection.stopOrUnbindService();
             }
         }
 
-        if (userId != UserHandle.USER_SYSTEM) {
+        if (userId != UserHandle.SYSTEM.getIdentifier()) {
             startOrBindServicesForUser(UserHandle.of(userId));
         } else {
             Slog.e(TAG, "Unexpected to receive switch user event for system user");
@@ -180,9 +180,9 @@ class VendorServiceController implements UserLifecycleListener {
             Slog.i(TAG, "onUserLockedChanged, user: " + userId
                     + ", unlocked: " + unlocked + ", currentUser: " + currentUserId);
         }
-        if (unlocked && (userId == currentUserId || userId == UserHandle.USER_SYSTEM)) {
+        if (unlocked && (userId == currentUserId || userId == UserHandle.SYSTEM.getIdentifier())) {
             startOrBindServicesForUser(UserHandle.of(userId));
-        } else if (!unlocked && userId != UserHandle.USER_SYSTEM) {
+        } else if (!unlocked && userId != UserHandle.SYSTEM.getIdentifier()) {
             for (ConnectionKey key : mConnections.keySet()) {
                 if (key.mUserHandle.getIdentifier() == userId) {
                     stopOrUnbindService(key.mVendorServiceInfo, key.mUserHandle);

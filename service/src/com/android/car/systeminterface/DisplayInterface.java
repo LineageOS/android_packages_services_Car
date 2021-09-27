@@ -222,7 +222,7 @@ public interface DisplayInterface {
                     System.getUriFor(System.SCREEN_BRIGHTNESS),
                     false,
                     mBrightnessObserver,
-                    UserHandle.USER_ALL);
+                    UserHandle.ALL.getIdentifier());
             mDisplayManager.registerDisplayListener(mDisplayListener, service.getHandler());
             refreshDisplayBrightness();
         }

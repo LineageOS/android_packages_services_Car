@@ -124,7 +124,7 @@ public final class UserHalHelper {
         checkArgument(user != null, "user cannot be null");
 
         int flags = UserFlags.NONE;
-        if (user.getIdentifier() == UserHandle.USER_SYSTEM) {
+        if (user.getIdentifier() == UserHandle.SYSTEM.getIdentifier()) {
             flags |= UserFlags.SYSTEM;
         }
         if (userHandleHelper.isAdminUser(user)) {
@@ -409,7 +409,7 @@ public final class UserHalHelper {
 
         switch (response.action) {
             case InitialUserInfoResponseAction.DEFAULT:
-                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
+                response.userToSwitchOrCreate.userId = UserManagerHelper.USER_NULL;
                 response.userToSwitchOrCreate.flags = UserFlags.NONE;
                 break;
             case InitialUserInfoResponseAction.SWITCH:
@@ -420,7 +420,7 @@ public final class UserHalHelper {
             case InitialUserInfoResponseAction.CREATE:
                 assertMinimumSize(prop, 4); // request_id, action_type, user_id, user_flags
                 // user id is set at index 2, but it's ignored
-                response.userToSwitchOrCreate.userId = UserHandle.USER_NULL;
+                response.userToSwitchOrCreate.userId = UserManagerHelper.USER_NULL;
                 response.userToSwitchOrCreate.flags = prop.value.int32Values.get(3);
                 if (stringValues.length > 1) {
                     response.userNameToCreate = stringValues[1];
@@ -666,7 +666,7 @@ public final class UserHalHelper {
     @NonNull
     private static UsersInfo emptyUsersInfo() {
         UsersInfo usersInfo = new UsersInfo();
-        usersInfo.currentUser.userId = UserHandle.USER_NULL;
+        usersInfo.currentUser.userId = UserManagerHelper.USER_NULL;
         usersInfo.currentUser.flags = UserFlags.NONE;
         return usersInfo;
     }
