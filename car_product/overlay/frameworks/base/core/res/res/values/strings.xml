@@ -20,5 +20,5 @@
     <string name="owner_name">Driver</string>
     <string name="permlab_accessCoarseLocation">access approximate location only in the foreground</string>
     <!--- Action button in the dialog triggered if microphone is disabled but an app tried to access it. [CHAR LIMIT=60] -->
-    <string name="sensor_privacy_start_use_dialog_turn_on_button">Enable Microphone</string>
+    <string name="sensor_privacy_start_use_dialog_turn_on_button">Turn on microphone</string>
 </resources>
