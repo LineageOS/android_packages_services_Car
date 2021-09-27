@@ -15,6 +15,7 @@
  */
 package com.android.car.bluetooth;
 
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.SharedPreferences;
 import android.util.Log;
@@ -78,7 +79,7 @@ class FastPairUtils {
                     filter[(int) (k / 8)] |= 1 << (k % 8);
                 }
             } catch (Exception e) {
-                Log.e(TAG, e.toString());
+                Slogf.e(TAG, "error calculating bloom: %s", e);
             }
         }
         return filter;
@@ -95,11 +96,11 @@ class FastPairUtils {
             if (readAccountKey != null) {
                 keys.add(new FastPairUtils.AccountKey(readAccountKey));
             } else {
-                Log.w(TAG, "Read account key == " + readAccountKey);
+                Slogf.w(TAG, "Read account key == %s", readAccountKey);
             }
         }
 
-        Log.d(TAG, "Read " + keys.size() + "/" + accountKeyCount + " keys.");
+        Slogf.d(TAG, "Read %d/%d keys.", keys.size(), accountKeyCount);
         return keys;
     }
 

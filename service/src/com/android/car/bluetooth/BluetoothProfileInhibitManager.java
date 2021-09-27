@@ -23,7 +23,7 @@ import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothManager;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
@@ -60,6 +60,7 @@ public class BluetoothProfileInhibitManager {
     // Per-User information
     private final int mUserId;
     private final ICarBluetoothUserService mBluetoothUserProxies;
+    private final String mLogHeader;
 
     private final Object mProfileInhibitsLock = new Object();
 
@@ -206,10 +207,12 @@ public class BluetoothProfileInhibitManager {
 
         @Override
         public void binderDied() {
-            logd("Releasing inhibit request on profile "
-                    + BluetoothUtils.getProfileName(mParams.getProfile())
-                    + " for device " + mParams.getDevice()
-                    + ": requesting process died");
+            if (DBG) {
+                Slogf.d(TAG, "%s Releasing inhibit request on profile %s for device %s"
+                                + ": requesting process died",
+                        mLogHeader, BluetoothUtils.getProfileName(mParams.getProfile()),
+                        mParams.getDevice());
+            }
             removeSelf();
         }
     }
@@ -227,6 +230,7 @@ public class BluetoothProfileInhibitManager {
             ICarBluetoothUserService bluetoothUserProxies) {
         mContext = context;
         mUserId = userId;
+        mLogHeader = "[User: " + mUserId + "]";
         mBluetoothUserProxies = bluetoothUserProxies;
         BluetoothManager bluetoothManager = mContext.getSystemService(BluetoothManager.class);
         mBluetoothAdapter = bluetoothManager.getAdapter();
@@ -243,7 +247,9 @@ public class BluetoothProfileInhibitManager {
             return;
         }
 
-        logd("Restoring profile inhibits: " + savedBluetoothConnection);
+        if (DBG) {
+            Slogf.d(TAG, "%s Restoring profile inhibits: %s", mLogHeader, savedBluetoothConnection);
+        }
 
         synchronized (mProfileInhibitsLock) {
             for (String paramsStr : savedBluetoothConnection.split(SETTINGS_DELIMITER)) {
@@ -253,10 +259,13 @@ public class BluetoothProfileInhibitManager {
                             params, RESTORED_PROFILE_INHIBIT_TOKEN);
                     mProfileInhibits.put(params, record);
                     mRestoredInhibits.add(record);
-                    logd("Restored profile inhibits for " + params);
+                    if (DBG) {
+                        Slogf.d(TAG, "%s Restored profile inhibits for %s", mLogHeader, params);
+                    }
                 } catch (IllegalArgumentException e) {
                     // We won't ever be able to fix a bad parse, so skip it and move on.
-                    loge("Bad format for saved profile inhibit: " + paramsStr + ", " + e);
+                    Slogf.e(TAG, "%s Bad format for saved profile inhibit: %s, %s",
+                            mLogHeader, paramsStr, e);
                 }
             }
         }
@@ -281,8 +290,10 @@ public class BluetoothProfileInhibitManager {
                 mContext.getContentResolver(), KEY_BLUETOOTH_PROFILES_INHIBITED,
                 savedDisconnects, mUserId);
 
-        logd("Committed key: " + KEY_BLUETOOTH_PROFILES_INHIBITED + ", value: '"
-                + savedDisconnects + "'");
+        if (DBG) {
+            Slogf.d(TAG, "%s Committed key: %s, value: '%s'",
+                    mLogHeader, KEY_BLUETOOTH_PROFILES_INHIBITED, savedDisconnects);
+        }
     }
 
     /**
@@ -311,8 +322,10 @@ public class BluetoothProfileInhibitManager {
      * @return True if the profile was successfully inhibited, false if an error occurred.
      */
     boolean requestProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Request profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
-                + ", device " + device.getAddress());
+        if (DBG) {
+            Slogf.d(TAG, "%s Request profile inhibit: profile %s, device %s",
+                    mLogHeader, BluetoothUtils.getProfileName(profile), device.getAddress());
+        }
         BluetoothConnection params = new BluetoothConnection(profile, device);
         InhibitRecord record = new InhibitRecord(params, token);
         return addInhibitRecord(record);
@@ -329,15 +342,17 @@ public class BluetoothProfileInhibitManager {
      * @return True if the request was released, false if an error occurred.
      */
     boolean releaseProfileInhibit(BluetoothDevice device, int profile, IBinder token) {
-        logd("Release profile inhibit: profile " + BluetoothUtils.getProfileName(profile)
-                + ", device " + device.getAddress());
+        if (DBG) {
+            Slogf.d(TAG, "%s Release profile inhibit: profile %s, device %s",
+                    mLogHeader, BluetoothUtils.getProfileName(profile), device.getAddress());
+        }
 
         BluetoothConnection params = new BluetoothConnection(profile, device);
         InhibitRecord record;
         record = findInhibitRecord(params, token);
 
         if (record == null) {
-            Slog.e(TAG, "Record not found");
+            Slogf.e(TAG, "Record not found");
             return false;
         }
 
@@ -356,14 +371,14 @@ public class BluetoothProfileInhibitManager {
 
             Set<InhibitRecord> previousRecords = mProfileInhibits.get(params);
             if (findInhibitRecord(params, record.getToken()) != null) {
-                Slog.e(TAG, "Inhibit request already registered - skipping duplicate");
+                Slogf.e(TAG, "Inhibit request already registered - skipping duplicate");
                 return false;
             }
 
             try {
                 record.getToken().linkToDeath(record, 0);
             } catch (RemoteException e) {
-                Slog.e(TAG, "Could not link to death on inhibit token (already dead?)", e);
+                Slogf.e(TAG, "Could not link to death on inhibit token (already dead?)", e);
                 return false;
             }
 
@@ -381,9 +396,12 @@ public class BluetoothProfileInhibitManager {
                         // Add it to the already-disabled list, and do nothing else.
                         mAlreadyDisabledProfiles.add(params);
 
-                        logd("Profile " + BluetoothUtils.getProfileName(params.getProfile())
-                                + " already disabled for device " + params.getDevice()
-                                + " - suppressing re-enable");
+                        if (DBG) {
+                            Slogf.d(TAG, "%s Profile %s already disabled for device %s"
+                                            + " - suppressing re-enable",
+                                    mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
+                                    params.getDevice());
+                        }
                     } else {
                         mBluetoothUserProxies.setConnectionPolicy(
                                 params.getProfile(),
@@ -392,12 +410,14 @@ public class BluetoothProfileInhibitManager {
                         mBluetoothUserProxies.bluetoothDisconnectFromProfile(
                                 params.getProfile(),
                                 params.getDevice());
-                        logd("Disabled profile "
-                                + BluetoothUtils.getProfileName(params.getProfile())
-                                + " for device " + params.getDevice());
+                        if (DBG) {
+                            Slogf.d(TAG, "%s Disabled profile %s for device %s",
+                                    mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
+                                    params.getDevice());
+                        }
                     }
                 } catch (RemoteException e) {
-                    Slog.e(TAG, "Could not disable profile", e);
+                    Slogf.e(TAG, "Could not disable profile", e);
                     record.getToken().unlinkToDeath(record, 0);
                     mProfileInhibits.remove(params, record);
                     return false;
@@ -436,7 +456,7 @@ public class BluetoothProfileInhibitManager {
                 return false;
             }
             if (!mProfileInhibits.containsEntry(params, record)) {
-                Slog.e(TAG, "Record already removed");
+                Slogf.e(TAG, "Record already removed");
                 // Removing something a second time vacuously succeeds.
                 return true;
             }
@@ -470,9 +490,11 @@ public class BluetoothProfileInhibitManager {
         if (mAlreadyDisabledProfiles.remove(params)) {
             // The profile does not need any state changes, since it was disabled
             // before it was inhibited. Leave it disabled.
-            logd("Not restoring profile "
-                    + BluetoothUtils.getProfileName(params.getProfile()) + " for device "
-                    + params.getDevice() + " - was manually disabled");
+            if (DBG) {
+                Slogf.d(TAG, "%s Not restoring profile %s for device %s - was manually disabled",
+                        mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
+                        params.getDevice());
+            }
             return true;
         }
 
@@ -484,11 +506,14 @@ public class BluetoothProfileInhibitManager {
             mBluetoothUserProxies.bluetoothConnectToProfile(
                     params.getProfile(),
                     params.getDevice());
-            logd("Restored profile " + BluetoothUtils.getProfileName(params.getProfile())
-                    + " for device " + params.getDevice());
+            if (DBG) {
+                Slogf.d(TAG, "%s Restored profile %s for device %s",
+                        mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
+                        params.getDevice());
+            }
             return true;
         } catch (RemoteException e) {
-            loge("Could not enable profile: " + e);
+            Slogf.e(TAG, "%s Could not enable profile: %s", mLogHeader, e);
             return false;
         }
     }
@@ -521,8 +546,11 @@ public class BluetoothProfileInhibitManager {
             tryRemoveRestoredProfileInhibitsLocked();
 
             if (!mRestoredInhibits.isEmpty()) {
-                logd("Could not remove all restored profile inhibits - "
-                            + "trying again in " + RESTORE_BACKOFF_MILLIS + "ms");
+                if (DBG) {
+                    Slogf.d(TAG, "%s Could not remove all restored profile inhibits - "
+                            + "trying again in %dms",
+                            mLogHeader, RESTORE_BACKOFF_MILLIS);
+                }
                 mHandler.postDelayed(
                         this::removeRestoredProfileInhibits,
                         RESTORED_PROFILE_INHIBIT_TOKEN,
@@ -535,7 +563,10 @@ public class BluetoothProfileInhibitManager {
      * Release all active inhibit records prior to user switch or shutdown
      */
     private  void releaseAllInhibitsBeforeUnbind() {
-        logd("Unbinding CarBluetoothUserService - releasing all profile inhibits");
+        if (DBG) {
+            Slogf.d(TAG, "%s Unbinding CarBluetoothUserService - releasing all profile inhibits",
+                    mLogHeader);
+        }
 
         synchronized (mProfileInhibitsLock) {
             for (BluetoothConnection params : mProfileInhibits.keySet()) {
@@ -572,8 +603,8 @@ public class BluetoothProfileInhibitManager {
         try {
             return mBluetoothUserProxies.isBluetoothConnectionProxyAvailable(profile);
         } catch (RemoteException e) {
-            loge("Car BT Service Remote Exception. Proxy for "
-                    + BluetoothUtils.getProfileName(profile) + " not available.");
+            Slogf.e(TAG, "%s Car BT Service Remote Exception. Proxy for %s not available.",
+                    mLogHeader, BluetoothUtils.getProfileName(profile));
         }
         return false;
     }
@@ -596,28 +627,5 @@ public class BluetoothProfileInhibitManager {
         writer.printf("Inhibited profiles: %s\n", inhibits);
 
         writer.decreaseIndent();
-    }
-
-    /**
-     * Log a message to Log.DEBUG
-     */
-    private void logd(String msg) {
-        if (DBG) {
-            Slog.d(TAG, "[User: " + mUserId + "] " + msg);
-        }
-    }
-
-    /**
-     * Log a message to Log.WARN
-     */
-    private void logw(String msg) {
-        Slog.w(TAG, "[User: " + mUserId + "] " + msg);
-    }
-
-    /**
-     * Log a message to Log.ERROR
-     */
-    private void loge(String msg) {
-        Slog.e(TAG, "[User: " + mUserId + "] " + msg);
     }
 }

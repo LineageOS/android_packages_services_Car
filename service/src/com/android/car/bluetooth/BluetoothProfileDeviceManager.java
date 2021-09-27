@@ -37,7 +37,7 @@ import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.bluetooth.BluetoothUuid;
 import android.car.ICarBluetoothUserService;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -154,6 +154,8 @@ public class BluetoothProfileDeviceManager {
     private final ICarBluetoothUserService mBluetoothUserProxies;
     private final Handler mHandler = new Handler(
             CarServiceUtils.getHandlerThread(CarBluetoothService.THREAD_NAME).getLooper());
+    private final String mLogHeader;
+
     /**
      * A BroadcastReceiver that listens specifically for actions related to the profile we're
      * tracking and uses them to update the status.
@@ -195,8 +197,10 @@ public class BluetoothProfileDeviceManager {
      * @param state - The new profile connection state of the device
      */
     private void handleDeviceConnectionStateChange(BluetoothDevice device, int state) {
-        logd("Connection state changed [device: " + device + ", state: "
-                        + BluetoothUtils.getConnectionStateName(state) + "]");
+        if (DBG) {
+            Slogf.d(TAG, "%s Connection state changed [device: %s, state: %s]",
+                    mLogHeader, device, BluetoothUtils.getConnectionStateName(state));
+        }
         if (state == BluetoothProfile.STATE_CONNECTED) {
             if (isAutoConnecting() && isAutoConnectingDevice(device)) {
                 continueAutoConnecting();
@@ -223,8 +227,10 @@ public class BluetoothProfileDeviceManager {
      * @param state - The new bond state of the device
      */
     private void handleDeviceBondStateChange(BluetoothDevice device, int state) {
-        logd("Bond state has changed [device: " + device + ", state: "
-                + BluetoothUtils.getBondStateName(state) + "]");
+        if (DBG) {
+            Slogf.d(TAG, "%s Bond state has changed [device: %s, state: %s]",
+                    mLogHeader, device, BluetoothUtils.getBondStateName(state));
+        }
         if (state == BluetoothDevice.BOND_NONE) {
             mBondingDevices.remove(device.getAddress());
             // Note: We have seen cases of unbonding events being sent without actually
@@ -250,7 +256,9 @@ public class BluetoothProfileDeviceManager {
      * @param uuids - The incoming set of supported UUIDs for the device
      */
     private void handleDeviceUuidEvent(BluetoothDevice device, Parcelable[] uuids) {
-        logd("UUIDs found, device: " + device);
+        if (DBG) {
+            Slogf.d(TAG, "%s UUIDs found, device: %s", mLogHeader, device);
+        }
         if (!mBondingDevices.remove(device.getAddress())) return;
         if (uuids != null) {
             ParcelUuid[] uuidsToSend = new ParcelUuid[uuids.length];
@@ -271,7 +279,10 @@ public class BluetoothProfileDeviceManager {
      * @param state - The new state of the Bluetooth adapter
      */
     private void handleAdapterStateChange(int state) {
-        logd("Bluetooth Adapter state changed: " + BluetoothUtils.getAdapterStateName(state));
+        if (DBG) {
+            Slogf.d(TAG, "%s Bluetooth Adapter state changed: %s",
+                    mLogHeader, BluetoothUtils.getAdapterStateName(state));
+        }
         // Crashes of the BT stack mean we're not promised to see all the state changes we
         // might want to see. In order to be a bit more robust to crashes, we'll treat any
         // non-ON state as a time to cancel auto-connect. This gives us a better chance of
@@ -340,13 +351,17 @@ public class BluetoothProfileDeviceManager {
         BluetoothManager bluetoothManager =
                 Objects.requireNonNull(mContext.getSystemService(BluetoothManager.class));
         mBluetoothAdapter = Objects.requireNonNull(bluetoothManager.getAdapter());
+
+        mLogHeader = "[" + BluetoothUtils.getProfileName(mProfileId) + " - User: " + mUserId + "]";
     }
 
     /**
      * Begin managing devices for this profile. Sets the start state from persistent memory.
      */
     public void start() {
-        logd("Starting device management");
+        if (DBG) {
+            Slogf.d(TAG, "%s Starting device management", mLogHeader);
+        }
         load();
         synchronized (mAutoConnectLock) {
             mConnecting = false;
@@ -370,7 +385,9 @@ public class BluetoothProfileDeviceManager {
      * and cleans up local resources.
      */
     public void stop() {
-        logd("Stopping device management");
+        if (DBG) {
+            Slogf.d(TAG, "%s Stopping device management", mLogHeader);
+        }
         if (mBluetoothBroadcastReceiver != null && mUserContext != null) {
             mUserContext.unregisterReceiver(mBluetoothBroadcastReceiver);
             mUserContext = null;
@@ -390,12 +407,17 @@ public class BluetoothProfileDeviceManager {
      * @return true on success, false otherwise
      */
     private boolean load() {
-        logd("Loading device priority list snapshot using key '" + mSettingsKey + "'");
+        if (DBG) {
+            Slogf.d(TAG, "%s Loading device priority list snapshot using key '%s'",
+                    mLogHeader, mSettingsKey);
+        }
 
         // Read from Settings.Secure for our profile, as the current user.
         String devicesStr = Settings.Secure.getString(getContentResolverForUser(mContext, mUserId),
                 mSettingsKey);
-        logd("Found Device String: '" + devicesStr + "'");
+        if (DBG) {
+            Slogf.d(TAG, "%s Found Device String: '%s'", mLogHeader, devicesStr);
+        }
         if (devicesStr == null || "".equals(devicesStr)) {
             return false;
         }
@@ -413,7 +435,7 @@ public class BluetoothProfileDeviceManager {
                 BluetoothDevice device = mBluetoothAdapter.getRemoteDevice(address);
                 devices.add(device);
             } catch (IllegalArgumentException e) {
-                logw("Unable to parse address '" + address + "' to a device");
+                Slogf.w(TAG, "%s Unable to parse address '%s' to a device", mLogHeader, address);
                 continue;
             }
         }
@@ -422,7 +444,9 @@ public class BluetoothProfileDeviceManager {
             mPrioritizedDevices = devices;
         }
 
-        logd("Loaded Priority list: " + devices);
+        if (DBG) {
+            Slogf.d(TAG, "%s Loaded Priority list: %s", mLogHeader, devices);
+        }
         return true;
     }
 
@@ -445,7 +469,9 @@ public class BluetoothProfileDeviceManager {
         String devicesStr = sb.toString();
         Settings.Secure.putString(getContentResolverForUser(mContext, mUserId), mSettingsKey,
                 devicesStr);
-        logd("Committed key: " + mSettingsKey + ", value: '" + devicesStr + "'");
+        if (DBG) {
+            Slogf.d(TAG, "%s Committed key: %s, value: '%s'", mLogHeader, mSettingsKey, devicesStr);
+        }
         return true;
     }
 
@@ -454,7 +480,10 @@ public class BluetoothProfileDeviceManager {
      * we can make sure things haven't changed on us between the last two times we've ran.
      */
     private void sync() {
-        logd("Syncing the priority list with the adapter's list of bonded devices");
+        if (DBG) {
+            Slogf.d(TAG, "%s Syncing the priority list with the adapter's list of bonded devices",
+                    mLogHeader);
+        }
         Set<BluetoothDevice> bondedDevices = mBluetoothAdapter.getBondedDevices();
         for (BluetoothDevice device : bondedDevices) {
             addDevice(device); // No-op if device is already in the priority list
@@ -492,7 +521,9 @@ public class BluetoothProfileDeviceManager {
         if (device == null) return;
         synchronized (mPrioritizedDevicesLock) {
             if (mPrioritizedDevices.contains(device)) return;
-            logd("Add device " + device);
+            if (DBG) {
+                Slogf.d(TAG, "%s Add device %s", mLogHeader, device);
+            }
             mPrioritizedDevices.add(device);
             commit();
         }
@@ -507,7 +538,9 @@ public class BluetoothProfileDeviceManager {
         if (device == null) return;
         synchronized (mPrioritizedDevicesLock) {
             if (!mPrioritizedDevices.contains(device)) return;
-            logd("Remove device " + device);
+            if (DBG) {
+                Slogf.d(TAG, "%s Remove device %s", mLogHeader, device);
+            }
             mPrioritizedDevices.remove(device);
             commit();
         }
@@ -521,7 +554,9 @@ public class BluetoothProfileDeviceManager {
      */
     public int getDeviceConnectionPriority(BluetoothDevice device) {
         if (device == null) return -1;
-        logd("Get connection priority of " + device);
+        if (DBG) {
+            Slogf.d(TAG, "%s Get connection priority of %s", mLogHeader, device);
+        }
         synchronized (mPrioritizedDevicesLock) {
             return mPrioritizedDevices.indexOf(device);
         }
@@ -545,7 +580,10 @@ public class BluetoothProfileDeviceManager {
                 mPrioritizedDevices.remove(device);
                 if (priority > mPrioritizedDevices.size()) priority = mPrioritizedDevices.size();
             }
-            logd("Set connection priority of " + device + " to " + priority);
+            if (DBG) {
+                Slogf.d(TAG, "%s Set connection priority of %s to %d",
+                        mLogHeader, device, priority);
+            }
             mPrioritizedDevices.add(priority, device);
             commit();
         }
@@ -558,11 +596,13 @@ public class BluetoothProfileDeviceManager {
      * @return true on success, false otherwise
      */
     private boolean connect(BluetoothDevice device) {
-        logd("Connecting " + device);
+        if (DBG) {
+            Slogf.d(TAG, "%s Connecting %s", mLogHeader, device);
+        }
         try {
             return mBluetoothUserProxies.bluetoothConnectToProfile(mProfileId, device);
         } catch (RemoteException e) {
-            logw("Failed to connect " + device + ", Reason: " + e);
+            Slogf.w(TAG, "%s Failed to connect %s, Reason: %s", mLogHeader, device, e);
         }
         return false;
     }
@@ -574,11 +614,13 @@ public class BluetoothProfileDeviceManager {
      * @return true on success, false otherwise
      */
     private boolean disconnect(BluetoothDevice device) {
-        logd("Disconnecting " + device);
+        if (DBG) {
+            Slogf.d(TAG, "%s Disconnecting %s", mLogHeader, device);
+        }
         try {
             return mBluetoothUserProxies.bluetoothDisconnectFromProfile(mProfileId, device);
         } catch (RemoteException e) {
-            logw("Failed to disconnect " + device + ", Reason: " + e);
+            Slogf.w(TAG, "%s Failed to disconnect %s, Reason: %s", mLogHeader, device, e);
         }
         return false;
     }
@@ -593,7 +635,8 @@ public class BluetoothProfileDeviceManager {
         try {
             return mBluetoothUserProxies.getConnectionPolicy(mProfileId, device);
         } catch (RemoteException e) {
-            logw("Failed to get stack connection policy for " + device + ", Reason: " + e);
+            Slogf.w(TAG, "%s Failed to get stack connection policy for %s, Reason: %s",
+                    mLogHeader, device, e);
         }
         return BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
     }
@@ -606,12 +649,15 @@ public class BluetoothProfileDeviceManager {
      * @return true on success, false otherwise
      */
     private boolean setConnectionPolicy(BluetoothDevice device, int policy) {
-        logd("Set " + device + " stack connection policy to "
-                + BluetoothUtils.getConnectionPolicyName(policy));
+        if (DBG) {
+            Slogf.d(TAG, "%s Set %s stack connection policy to %s",
+                    mLogHeader, device, BluetoothUtils.getConnectionPolicyName(policy));
+        }
         try {
             mBluetoothUserProxies.setConnectionPolicy(mProfileId, device, policy);
         } catch (RemoteException e) {
-            logw("Failed to set stack connection policy for " + device + ", Reason: " + e);
+            Slogf.w(TAG, "%s Failed to set stack connection policy for %s, Reason: %s",
+                    mLogHeader, device, e);
             return false;
         }
         return true;
@@ -624,19 +670,29 @@ public class BluetoothProfileDeviceManager {
      * If we are already connecting, or no devices are present, then no work is done.
      */
     public void beginAutoConnecting() {
-        logd("Request to begin auto connection process");
+        if (DBG) {
+            Slogf.d(TAG, "%s Request to begin auto connection process", mLogHeader);
+        }
         synchronized (mAutoConnectLock) {
             if (isAutoConnecting()) {
-                logd("Auto connect requested while we are already auto connecting.");
+                if (DBG) {
+                    Slogf.d(TAG, "%s Auto connect requested while we are already auto connecting.",
+                            mLogHeader);
+                }
                 return;
             }
             if (mBluetoothAdapter.getState() != BluetoothAdapter.STATE_ON) {
-                logd("Bluetooth Adapter is not on, cannot connect devices");
+                if (DBG) {
+                    Slogf.d(TAG, "%s Bluetooth Adapter is not on, cannot connect devices",
+                            mLogHeader);
+                }
                 return;
             }
             mAutoConnectingDevices = getDeviceListSnapshot();
             if (mAutoConnectingDevices.size() == 0) {
-                logd("No saved devices to auto-connect to.");
+                if (DBG) {
+                    Slogf.d(TAG, "%s No saved devices to auto-connect to.", mLogHeader);
+                }
                 cancelAutoConnecting();
                 return;
             }
@@ -653,7 +709,10 @@ public class BluetoothProfileDeviceManager {
     private void autoConnectWithTimeout() {
         synchronized (mAutoConnectLock) {
             if (!isAutoConnecting()) {
-                logd("Autoconnect process was cancelled, skipping connecting next device.");
+                if (DBG) {
+                    Slogf.d(TAG, "%s Autoconnect process was cancelled,"
+                                    + " skipping connecting next device.", mLogHeader);
+                }
                 return;
             }
             if (mAutoConnectPriority < 0 || mAutoConnectPriority >= mAutoConnectingDevices.size()) {
@@ -661,17 +720,23 @@ public class BluetoothProfileDeviceManager {
             }
 
             BluetoothDevice device = mAutoConnectingDevices.get(mAutoConnectPriority);
-            logd("Auto connecting (" + mAutoConnectPriority + ") device: " + device);
+            if (DBG) {
+                Slogf.d(TAG, "%s Auto connecting (%d) device: %s",
+                        mLogHeader, mAutoConnectPriority, device);
+            }
 
             mHandler.post(() -> {
                 boolean connectStatus = connect(device);
                 if (!connectStatus) {
-                    logw("Connection attempt immediately failed, moving to the next device");
+                    Slogf.w(TAG,
+                            "%s Connection attempt immediately failed, moving to the next device",
+                            mLogHeader);
                     continueAutoConnecting();
                 }
             });
             mHandler.postDelayed(() -> {
-                logw("Auto connect process has timed out connecting to " + device);
+                Slogf.w(TAG, "%s Auto connect process has timed out connecting to %s",
+                        mLogHeader, device);
                 continueAutoConnecting();
             }, AUTO_CONNECT_TOKEN, AUTO_CONNECT_TIMEOUT_MS);
         }
@@ -682,16 +747,23 @@ public class BluetoothProfileDeviceManager {
      * devices are available.
      */
     private void continueAutoConnecting() {
-        logd("Continue auto-connect process on next device");
+        if (DBG) {
+            Slogf.d(TAG, "%s Continue auto-connect process on next device", mLogHeader);
+        }
         synchronized (mAutoConnectLock) {
             if (!isAutoConnecting()) {
-                logd("Autoconnect process was cancelled, no need to continue.");
+                if (DBG) {
+                    Slogf.d(TAG, "%s Autoconnect process was cancelled, no need to continue.",
+                            mLogHeader);
+                }
                 return;
             }
             mHandler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
             mAutoConnectPriority++;
             if (mAutoConnectPriority >= mAutoConnectingDevices.size()) {
-                logd("No more devices to connect to");
+                if (DBG) {
+                    Slogf.d(TAG, "%s No more devices to connect to", mLogHeader);
+                }
                 cancelAutoConnecting();
                 return;
             }
@@ -709,7 +781,9 @@ public class BluetoothProfileDeviceManager {
      * If there are no auto-connects in process this will do nothing.
      */
     private void cancelAutoConnecting() {
-        logd("Cleaning up any auto-connect process");
+        if (DBG) {
+            Slogf.d(TAG, "%s Cleaning up any auto-connect process", mLogHeader);
+        }
         synchronized (mAutoConnectLock) {
             if (!isAutoConnecting()) return;
             mHandler.removeCallbacksAndMessages(AUTO_CONNECT_TOKEN);
@@ -751,7 +825,9 @@ public class BluetoothProfileDeviceManager {
      * Will do nothing if the device isn't bonded.
      */
     private void addBondedDeviceIfSupported(BluetoothDevice device) {
-        logd("Add device " + device + " if it is supported");
+        if (DBG) {
+            Slogf.d(TAG, "%s Add device %s if it is supported", mLogHeader, device);
+        }
         if (device.getBondState() != BluetoothDevice.BOND_BONDED) return;
         if (BluetoothUuid.containsAnyUuid(device.getUuids(), mProfileUuids)
                 && getConnectionPolicy(device) >= BluetoothProfile.CONNECTION_POLICY_ALLOWED) {
@@ -768,11 +844,15 @@ public class BluetoothProfileDeviceManager {
      * @param uuids - The set of UUIDs for the device, which may include our profile
      */
     private void provisionDeviceIfSupported(BluetoothDevice device, ParcelUuid[] uuids) {
-        logd("Checking UUIDs for device: " + device);
+        if (DBG) {
+            Slogf.d(TAG, "%s Checking UUIDs for device: %s", mLogHeader, device);
+        }
         if (BluetoothUuid.containsAnyUuid(uuids, mProfileUuids)) {
             int policy = getConnectionPolicy(device);
-            logd("Device " + device + " supports this profile. Connection Policy: "
-                    + BluetoothUtils.getConnectionPolicyName(policy));
+            if (DBG) {
+                Slogf.d(TAG, "%s Device %s supports this profile. Connection Policy: %s",
+                        mLogHeader, device, BluetoothUtils.getConnectionPolicyName(policy));
+            }
             // Transition from FORBIDDEN to any other Bluetooth stack policy value is supposed
             // to be a user choice, enabled through the Settings applications. That's why we don't
             // do it here for them.
@@ -785,7 +865,10 @@ public class BluetoothProfileDeviceManager {
                 return;
             }
         }
-        logd("Provisioning of " + device + " has ended without connection policy being set");
+        if (DBG) {
+            Slogf.d(TAG, "%s Provisioning of %s has ended without connection policy being set",
+                    mLogHeader, device);
+        }
     }
 
     /**
@@ -795,12 +878,14 @@ public class BluetoothProfileDeviceManager {
      */
     private void triggerConnections(BluetoothDevice device) {
         for (int profile : mProfileTriggers) {
-            logd("Trigger connection to " + BluetoothUtils.getProfileName(profile) + "on "
-                    + device);
+            if (DBG) {
+                Slogf.d(TAG, "%s Trigger connection to %s on %s",
+                        mLogHeader, BluetoothUtils.getProfileName(profile), device);
+            }
             try {
                 mBluetoothUserProxies.bluetoothConnectToProfile(profile, device);
             } catch (RemoteException e) {
-                logw("Failed to connect " + device + ", Reason: " + e);
+                Slogf.w(TAG, "%s Failed to connect %s, Reason: %s", mLogHeader, device, e);
             }
         }
     }
@@ -827,24 +912,5 @@ public class BluetoothProfileDeviceManager {
         writer.decreaseIndent();
 
         writer.decreaseIndent();
-    }
-
-    /**
-     * Log a message to DEBUG
-     */
-    private void logd(String msg) {
-        if (DBG) {
-            Slog.d(TAG,
-                    "[" + BluetoothUtils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
-                            + msg);
-        }
-    }
-
-    /**
-     * Log a message to WARN
-     */
-    private void logw(String msg) {
-        Slog.w(TAG, "[" + BluetoothUtils.getProfileName(mProfileId) + " - User: " + mUserId + "] "
-                + msg);
     }
 }
