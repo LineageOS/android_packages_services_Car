@@ -15,7 +15,7 @@
  */
 package com.android.car.am;
 
-import static android.app.ActivityTaskManager.INVALID_TASK_ID;
+import static android.car.builtin.app.ActivityManagerHelper.INVALID_TASK_ID;
 import static android.os.Process.INVALID_UID;
 
 import static com.android.car.CarLog.TAG_AM;

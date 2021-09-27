@@ -25,6 +25,7 @@ package android.car.builtin.app {
     method public boolean unlockUser(int);
     method public void unregisterProcessObserverCallback(android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback);
     method @Deprecated public void unregisterTaskStackChangeListener(android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener);
+    field public static final int INVALID_TASK_ID = -1; // 0xffffffff
   }
 
   @Deprecated public static interface ActivityManagerHelper.OnTaskStackChangeListener {
