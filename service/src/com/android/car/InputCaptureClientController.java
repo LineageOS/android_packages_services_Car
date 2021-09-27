@@ -39,7 +39,6 @@ import android.util.SparseArray;
 import android.view.KeyEvent;
 
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.util.ArrayUtils;
 import com.android.internal.util.Preconditions;
 
 import java.io.PrintWriter;
@@ -180,7 +179,8 @@ public class InputCaptureClientController {
             if (client.mGrantedTypes.isEmpty()) {
                 inputTypesToDispatch = EMPTY_INPUT_TYPES;
             } else {
-                inputTypesToDispatch = ArrayUtils.convertToIntArray(client.mGrantedTypes);
+                inputTypesToDispatch = client.mGrantedTypes.stream().mapToInt(
+                        Integer::intValue).toArray();
             }
             mClientsToDispatch.put(client.mCallback, inputTypesToDispatch);
         }
