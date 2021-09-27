@@ -35,6 +35,7 @@ import android.car.CarProjectionManager.ProjectionAccessPointCallback;
 import android.car.ICarProjection;
 import android.car.ICarProjectionKeyEventHandler;
 import android.car.ICarProjectionStatusListener;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.projection.ProjectionOptions;
 import android.car.projection.ProjectionStatus;
@@ -405,8 +406,8 @@ class CarProjectionService extends ICarProjection.Stub implements CarServiceBase
         final int packageUid;
 
         try {
-            packageUid =
-                    mContext.getPackageManager().getPackageUidAsUser(packageName, userHandleId);
+            packageUid = PackageManagerHelper.getPackageUidAsUser(mContext.getPackageManager(),
+                    packageName, userHandleId);
         } catch (PackageManager.NameNotFoundException e) {
             throw new SecurityException("Package " + packageName + " does not exist", e);
         }

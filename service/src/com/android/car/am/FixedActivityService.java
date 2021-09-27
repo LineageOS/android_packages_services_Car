@@ -29,6 +29,7 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.hardware.power.CarPowerManager;
 import android.car.user.CarUserManager;
@@ -526,7 +527,7 @@ public final class FixedActivityService implements CarServiceBase {
     private boolean isComponentAvailable(ComponentName component, @UserIdInt int userId) {
         PackageInfo packageInfo;
         try {
-            packageInfo = mContext.getPackageManager().getPackageInfoAsUser(
+            packageInfo = PackageManagerHelper.getPackageInfoAsUser(mContext.getPackageManager(),
                     component.getPackageName(), PackageManager.GET_ACTIVITIES, userId);
         } catch (PackageManager.NameNotFoundException e) {
             logComponentNotFound(component, userId, e);

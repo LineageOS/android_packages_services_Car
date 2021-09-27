@@ -30,7 +30,7 @@ import static com.android.car.CarLog.TAG_EVS;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.builtin.os.PackageManagerHelper;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.evs.CarEvsBufferDescriptor;
 import android.car.evs.CarEvsManager;
@@ -1008,7 +1008,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
         String systemUiPackageName = PackageManagerHelper.getSystemUiPackageName(mContext);
         IBinder token = new Binder();
         try {
-            int systemUiUid = mContext.getPackageManager().getPackageUidAsUser(
+            int systemUiUid = PackageManagerHelper.getPackageUidAsUser(mContext.getPackageManager(),
                     systemUiPackageName, UserHandle.USER_SYSTEM);
             int callerUid = Binder.getCallingUid();
             if (systemUiUid == callerUid) {

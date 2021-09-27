@@ -31,7 +31,7 @@ import android.app.ActivityManager;
 import android.car.ICarResultReceiver;
 import android.car.ICarUserService;
 import android.car.builtin.app.ActivityManagerHelper;
-import android.car.builtin.os.PackageManagerHelper;
+import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
