@@ -49,6 +49,9 @@ import java.util.concurrent.Callable;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class ActivityManagerHelper {
 
+    /** Invalid task ID. */
+    public static final int INVALID_TASK_ID = ActivityTaskManager.INVALID_TASK_ID;
+
     private static final String TAG = "CAR.AM";  // CarLog.TAG_AM
 
     private static Object sLock = new Object();
