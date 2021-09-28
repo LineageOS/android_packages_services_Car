@@ -407,6 +407,48 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
                 /* runningFixedActivityExpected = */ true);
     }
 
+    @Test
+    public void userSwitchedToNotAllowedUser_launchesBlankActivity() throws Exception {
+        String blankActivityComponentName = "package/blankActivityClassName";
+        int userId = 10;
+        int taskId = 1234;
+        int notAllowedUserId = 11;
+        when(mContext.getString(anyInt())).thenReturn(blankActivityComponentName);
+        when(mDisplayManager.getDisplay(mValidDisplayId)).thenReturn(
+                mValidDisplay, // for startFixedActivityModeForDisplayAndUser
+                mValidDisplay, // for launchIf
+                null);
+        ActivityOptions options = new ActivityOptions(new Bundle());
+        Intent intent = expectComponentAvailable("test_package", "com.test.dude", userId);
+        mockAmGetCurrentUser(userId);
+        SparseArray<TopTaskInfoContainer> rootTaskInfo =  createRootTaskInfo(intent, userId,
+                mValidDisplayId, taskId);
+        expectRootTaskInfo(rootTaskInfo);
+
+        mFixedActivityService.startFixedActivityModeForDisplayAndUser(
+                intent, options, mValidDisplayId, userId);
+        mockAmGetCurrentUser(notAllowedUserId);
+        mFixedActivityService.launchIfNecessary();
+
+        ArgumentCaptor<Intent> intentCaptor = ArgumentCaptor.forClass(Intent.class);
+        ArgumentCaptor<Bundle> activityOptionsCaptor = ArgumentCaptor.forClass(Bundle.class);
+        ArgumentCaptor<UserHandle> userHandleCaptor = ArgumentCaptor.forClass(UserHandle.class);
+
+        verify(mContext).startActivityAsUser(intentCaptor.capture(),
+                activityOptionsCaptor.capture(), userHandleCaptor.capture());
+        assertThat(userHandleCaptor.getValue()).isEqualTo(
+                UserHandle.of(ActivityManager.getCurrentUser()));
+        assertThat(ActivityOptions.fromBundle(activityOptionsCaptor.getValue())
+                .getLaunchDisplayId()).isEqualTo(mValidDisplayId);
+        Intent blankActivityIntent =  intentCaptor.getValue();
+        assertThat(blankActivityIntent.getComponent()).isEqualTo(
+                ComponentName.unflattenFromString(blankActivityComponentName));
+        assertThat(blankActivityIntent.getFlags() & Intent.FLAG_ACTIVITY_NEW_TASK)
+                .isEqualTo(Intent.FLAG_ACTIVITY_NEW_TASK);
+        assertThat(blankActivityIntent.getFlags() & Intent.FLAG_ACTIVITY_NO_HISTORY)
+                .isEqualTo(Intent.FLAG_ACTIVITY_NO_HISTORY);
+    }
+
     private void testClearingOfRunningActivitiesOnUserSwitch(int fromUserId, int toUserId,
             boolean runningFixedActivityExpected) throws Exception {
         ActivityOptions options = new ActivityOptions(new Bundle());
@@ -436,7 +478,6 @@ public final class FixedActivityServiceTest extends AbstractExtendedMockitoTestC
                     .isNull();
         }
     }
-
 
     private void expectNoProfileUser(@UserIdInt int userId) {
         when(mUserHandleHelper.getEnabledProfiles(userId)).thenReturn(new ArrayList<UserHandle>());
