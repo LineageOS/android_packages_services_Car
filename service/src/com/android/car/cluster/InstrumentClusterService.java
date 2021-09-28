@@ -15,6 +15,7 @@
  */
 package com.android.car.cluster;
 
+import static android.car.builtin.app.ActivityManagerHelper.createActivityOptions;
 import static android.car.cluster.renderer.InstrumentClusterRenderingService.EXTRA_BUNDLE_KEY_FOR_INSTRUMENT_CLUSTER_HELPER;
 import static android.car.settings.CarSettings.Global.DISABLE_INSTRUMENTATION_SERVICE;
 
@@ -191,7 +192,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
                 public boolean startFixedActivityModeForDisplayAndUser(Intent intent,
                         Bundle activityOptionsBundle, int userId) {
                     Binder.clearCallingIdentity();
-                    ActivityOptions options = new ActivityOptions(activityOptionsBundle);
+                    ActivityOptions options = createActivityOptions(activityOptionsBundle);
                     FixedActivityService service = CarLocalServices.getService(
                             FixedActivityService.class);
                     return service.startFixedActivityModeForDisplayAndUser(intent, options,
