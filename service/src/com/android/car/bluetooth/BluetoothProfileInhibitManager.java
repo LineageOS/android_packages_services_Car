@@ -407,9 +407,6 @@ public class BluetoothProfileInhibitManager {
                                 params.getProfile(),
                                 params.getDevice(),
                                 BluetoothProfile.CONNECTION_POLICY_FORBIDDEN);
-                        mBluetoothUserProxies.bluetoothDisconnectFromProfile(
-                                params.getProfile(),
-                                params.getDevice());
                         if (DBG) {
                             Slogf.d(TAG, "%s Disabled profile %s for device %s",
                                     mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
@@ -503,9 +500,6 @@ public class BluetoothProfileInhibitManager {
                     params.getProfile(),
                     params.getDevice(),
                     BluetoothProfile.CONNECTION_POLICY_ALLOWED);
-            mBluetoothUserProxies.bluetoothConnectToProfile(
-                    params.getProfile(),
-                    params.getDevice());
             if (DBG) {
                 Slogf.d(TAG, "%s Restored profile %s for device %s",
                         mLogHeader, BluetoothUtils.getProfileName(params.getProfile()),
