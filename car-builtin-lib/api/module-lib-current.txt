@@ -323,6 +323,10 @@ package android.car.builtin.view {
     field public static final int INVALID_PORT = -1; // 0xffffffff
   }
 
+  public final class KeyEventHelper {
+    method public static void setDisplayId(@NonNull android.view.KeyEvent, int);
+  }
+
 }
 
 package android.car.builtin.widget {

@@ -34,6 +34,7 @@ import android.car.builtin.input.InputManagerHelper;
 import android.car.builtin.util.AssistUtilsHelper;
 import android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper;
 import android.car.builtin.util.Slogf;
+import android.car.builtin.view.KeyEventHelper;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
 import android.car.input.ICarInput;
@@ -378,7 +379,7 @@ public class CarInputService extends ICarInput.Stub
         int newDisplayId = mCarOccupantZoneService.getDisplayIdForDriver(targetDisplayType);
 
         // Display id is overridden even if already set.
-        event.setDisplayId(newDisplayId);
+        KeyEventHelper.setDisplayId(event, newDisplayId);
     }
 
     @Override
