@@ -40,7 +40,7 @@ public:
     // Family of methods that puts the provided 'value' into the PersistableBundle
     // under provided 'key'.
     void putBoolean(const char* key, bool value);
-    void putInteger(const char* key, int value);
+    void putLong(const char* key, int64_t value);
     void putDouble(const char* key, double value);
     void putString(const char* key, const char* value);
     void putLongArray(const char* key, const std::vector<int64_t>& value);
