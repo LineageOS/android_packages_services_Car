@@ -119,7 +119,6 @@ final class InitialUserSetter {
     // implementation (where local is implemented by ActivityManagerInternal / UserManagerInternal)
     private final UserManager mUm;
     private final CarUserService mCarUserService;
-    private final LockPatternHelper mLockPatternHelper;
 
     private final String mNewUserName;
     private final String mNewGuestName;
@@ -137,22 +136,19 @@ final class InitialUserSetter {
             @NonNull Consumer<UserHandle> listener, @NonNull UserHandleHelper userHandleHelper,
             @Nullable String newGuestName) {
         this(context, context.getSystemService(UserManager.class), carUserService, listener,
-                userHandleHelper, new LockPatternHelper(context),
-                UserManagerHelper.getDefaultUserName(context), newGuestName);
+                userHandleHelper, UserManagerHelper.getDefaultUserName(context), newGuestName);
     }
 
     @VisibleForTesting
     InitialUserSetter(@NonNull Context context, @NonNull UserManager um,
             @NonNull CarUserService carUserService, @NonNull Consumer<UserHandle> listener,
-            @NonNull UserHandleHelper userHandleHelper,
-            @NonNull LockPatternHelper lockPatternHelper, @Nullable String newUserName,
+            @NonNull UserHandleHelper userHandleHelper, @Nullable String newUserName,
             @Nullable String newGuestName) {
         mContext = context;
         mUm = um;
         mCarUserService = carUserService;
         mListener = listener;
         mUserHandleHelper = userHandleHelper;
-        mLockPatternHelper = lockPatternHelper;
         mNewUserName = newUserName;
         mNewGuestName = newGuestName;
     }
@@ -478,7 +474,7 @@ final class InitialUserSetter {
     public boolean canReplaceGuestUser(UserHandle user) {
         if (!mUserHandleHelper.isGuestUser(user)) return false;
 
-        if (mLockPatternHelper.isSecure(user.getIdentifier())) {
+        if (LockPatternHelper.isSecure(mContext, user.getIdentifier())) {
             if (DBG) {
                 Slogf.d(TAG, "replaceGuestIfNeeded(), skipped, since user "
                         + user.getIdentifier() + " has secure lock pattern");

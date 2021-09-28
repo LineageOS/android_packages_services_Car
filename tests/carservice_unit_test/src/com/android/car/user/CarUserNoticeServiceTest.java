@@ -18,13 +18,13 @@ package com.android.car.user;
 
 import static android.car.test.mocks.AndroidMockitoHelper.mockContextGetService;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doAnswer;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
@@ -85,8 +85,6 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     private PackageManager mMockPackageManager;
     @Mock
     private CarPowerManager mCarPowerManager;
-    @Mock
-    private KeyguardManagerHelper mMockKeyguardManagerHelper;
 
     @Captor
     private ArgumentCaptor<BroadcastReceiver> mDisplayBroadcastReceiver;
@@ -107,7 +105,8 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
         session
             .spyStatic(CarLocalServices.class)
-            .spyStatic(ActivityManager.class);
+            .spyStatic(ActivityManager.class)
+            .spyStatic(KeyguardManagerHelper.class);
     }
 
     /**
@@ -133,8 +132,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         mockContextGetService(mMockContext, AppOpsManager.class, mMockAppOpsManager);
         mockContextGetService(mMockContext, PackageManager.class, mMockPackageManager);
         when(mMockPackageManager.getPackageUidAsUser(any(), anyInt())).thenReturn(1);
-        mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler,
-                mMockKeyguardManagerHelper);
+        mCarUserNoticeService = new CarUserNoticeService(mMockContext, mHandler);
         mCarUserNoticeService.init();
         verify(mMockCarUserService).addUserLifecycleListener(
                 mUserLifecycleListenerArgumentCaptor.capture());
@@ -143,7 +141,7 @@ public class CarUserNoticeServiceTest extends AbstractExtendedMockitoCarServiceT
         verify(mCarPowerManager).setListener(mPowerStateListener.capture());
         when(mMockContext.bindServiceAsUser(any(), any(), anyInt(), any())).thenReturn(true);
         doAnswer(invocation -> mIsKeyguardLocked)
-                .when(mMockKeyguardManagerHelper).isKeyguardLocked();
+                .when(() -> KeyguardManagerHelper.isKeyguardLocked());
     }
 
     @Test

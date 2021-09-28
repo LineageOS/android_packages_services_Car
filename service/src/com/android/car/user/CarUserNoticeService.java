@@ -83,8 +83,6 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     private final Context mContext;
 
-    private final KeyguardManagerHelper mKeyguardManagerHelper;
-
     // null means feature disabled.
     @Nullable
     private final Intent mServiceIntent;
@@ -218,14 +216,12 @@ public final class CarUserNoticeService implements CarServiceBase {
     };
 
     public CarUserNoticeService(Context context) {
-        this(context, new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
-                new KeyguardManagerHelper());
+        this(context, new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()));
     }
 
     @VisibleForTesting
-    CarUserNoticeService(Context context, Handler handler, KeyguardManagerHelper helper) {
+    CarUserNoticeService(Context context, Handler handler) {
         mCommonThreadHandler = handler;
-        mKeyguardManagerHelper = helper;
         Resources res = context.getResources();
         String componentName = res.getString(R.string.config_userNoticeUiService);
         if (componentName.isEmpty()) {
@@ -247,7 +243,7 @@ public final class CarUserNoticeService implements CarServiceBase {
 
     private boolean checkKeyguardLockedWithPolling() {
         mCommonThreadHandler.removeCallbacks(mKeyguardPollingRunnable);
-        boolean locked = mKeyguardManagerHelper.isKeyguardLocked();
+        boolean locked = KeyguardManagerHelper.isKeyguardLocked();
         if (locked) {
             mCommonThreadHandler.postDelayed(mKeyguardPollingRunnable,
                     KEYGUARD_POLLING_INTERVAL_MS);
