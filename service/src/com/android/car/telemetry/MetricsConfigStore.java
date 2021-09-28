@@ -21,8 +21,8 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NON
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNKNOWN;
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
 
+import android.car.builtin.util.Slogf;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -97,7 +97,7 @@ public class MetricsConfigStore {
                     metricsConfig.toByteArray());
         } catch (IOException e) {
             // TODO(b/197336655): record failure
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
             return ERROR_METRICS_CONFIG_UNKNOWN;
         }
         return ERROR_METRICS_CONFIG_NONE;

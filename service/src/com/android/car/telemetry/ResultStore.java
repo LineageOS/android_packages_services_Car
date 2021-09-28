@@ -16,9 +16,9 @@
 
 package com.android.car.telemetry;
 
+import android.car.builtin.util.Slogf;
 import android.os.PersistableBundle;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
@@ -72,7 +72,7 @@ public class ResultStore {
                         file.getName(),
                         new InterimResult(PersistableBundle.readFromStream(fis)));
             } catch (IOException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Failed to read result from disk.", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to read result from disk.", e);
                 // TODO(b/197153560): record failure
             }
         }
@@ -115,7 +115,7 @@ public class ResultStore {
         try (FileInputStream fis = new FileInputStream(file)) {
             result = PersistableBundle.readFromStream(fis);
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to get final result from disk.", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to get final result from disk.", e);
         }
         if (deleteResult) {
             file.delete();
@@ -146,7 +146,7 @@ public class ResultStore {
             byte[] serializedBytes = Files.readAllBytes(file.toPath());
             result = TelemetryProto.TelemetryError.parseFrom(serializedBytes);
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to get error result from disk.", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to get error result from disk.", e);
         }
         if (deleteResult) {
             file.delete();
@@ -164,7 +164,7 @@ public class ResultStore {
             deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
             mInterimResultCache.remove(metricsConfigName);
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to write data to file", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write data to file", e);
             // TODO(b/197153560): record failure
         }
     }
@@ -229,7 +229,7 @@ public class ResultStore {
         try (FileOutputStream os = new FileOutputStream(new File(dir, metricsConfigName))) {
             result.writeToStream(os);
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write result to file", e);
             // TODO(b/197153560): record failure
         }
     }

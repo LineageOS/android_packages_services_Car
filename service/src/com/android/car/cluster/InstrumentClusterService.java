@@ -221,7 +221,7 @@ public class InstrumentClusterService implements CarServiceBase, KeyEventListene
             try {
                 mLock.wait(RENDERER_SERVICE_WAIT_TIMEOUT_MS);
             } catch (InterruptedException e) {
-                Slogf.d(TAG,  "waitForRenderer, interrupted", e);
+                Slogf.d(TAG, "waitForRenderer, interrupted", e);
                 Thread.currentThread().interrupt();
             }
         }

@@ -413,7 +413,7 @@ public final class CarServiceUtils {
         } catch (Exception e) {
             String msg = "cannot load class:" + className + " method:" + methodName;
             if (ignoreFailure) {
-                Slogf.w(TAG,  msg, e);
+                Slogf.w(TAG, msg, e);
                 return null;
             } else {
                 throw new RuntimeException(msg, e);

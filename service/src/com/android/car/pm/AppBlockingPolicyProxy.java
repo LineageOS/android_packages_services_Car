@@ -103,7 +103,7 @@ public class AppBlockingPolicyProxy implements ServiceConnection {
         try {
             mContext.unbindService(this);
         } catch (IllegalArgumentException e) {
-            Slogf.w(TAG,  "unbind", e);
+            Slogf.w(TAG, "unbind", e);
         }
     }
 

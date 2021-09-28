@@ -338,7 +338,7 @@ public class CarStorageMonitoringService extends ICarStorageMonitoring.Stub
                     try {
                         mListeners.getBroadcastItem(i).onSnapshot(delta);
                     } catch (RemoteException e) {
-                        Slogf.w(TAG,  "failed to dispatch snapshot", e);
+                        Slogf.w(TAG, "failed to dispatch snapshot", e);
                     }
                 });
         mListeners.finishBroadcast();
