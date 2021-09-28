@@ -23,12 +23,14 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import static com.android.car.internal.SystemConstants.ICAR_SYSTEM_SERVER_CLIENT;
 
 import android.annotation.MainThread;
+import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
@@ -45,10 +47,9 @@ import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
 import android.os.Bundle;
 import android.os.IBinder;
+import android.os.Parcel;
 import android.os.Process;
 import android.os.RemoteException;
-import android.os.ResultReceiver;
-import android.os.ShellCallback;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.EventLog;
@@ -162,6 +163,10 @@ public class ICarImpl extends ICar.Stub {
     private final String mVehicleInterfaceName;
 
     private final ICarSystemServerClientImpl mICarSystemServerClientImpl;
+
+    private final BinderHelper.ShellCommandListener mCmdListener =
+            (FileDescriptor in, FileDescriptor out, FileDescriptor err, String[] args) ->
+                    newCarShellCommand().exec(ICarImpl.this, in, out, err, args);
 
     public ICarImpl(Context serviceContext, Context builtinContext, IVehicle vehicle,
             SystemInterface systemInterface, String vehicleInterfaceName) {
@@ -747,16 +752,14 @@ public class ICarImpl extends ICar.Stub {
         writer.println("\t  runs the given command (use --h to see the available commands)");
     }
 
-    // Override Binder.onShellCommand and there is no shell id check.
-    // All critical operations should be protected with permissions inside CarShellCommand.
     @Override
-    public void onShellCommand(FileDescriptor in, FileDescriptor out, FileDescriptor err,
-            String[] args, ShellCallback callback, ResultReceiver resultReceiver)
-                    throws RemoteException {
-        int result = newCarShellCommand().exec(this, in, out, err, args);
-        if (resultReceiver != null) {
-            resultReceiver.send(result, null);
+    public boolean onTransact(int code, @NonNull Parcel data, @Nullable Parcel reply,
+            int flags) throws RemoteException {
+        // Shell cmd is handled specially.
+        if (BinderHelper.onTransactForCmd(code, data, reply, flags, mCmdListener)) {
+            return true;
         }
+        return super.onTransact(code, data, reply, flags);
     }
 
     private CarShellCommand newCarShellCommand() {
