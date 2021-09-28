@@ -54,6 +54,7 @@ import android.hardware.automotive.vehicle.V2_0.VehicleArea;
 import android.hardware.automotive.vehicle.V2_0.VehicleGear;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
+import android.os.Bundle;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.Looper;
@@ -471,7 +472,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                         .addFlags(Intent.FLAG_ACTIVITY_NO_ANIMATION);
                 if (priority == REQUEST_PRIORITY_HIGH) {
                     mSessionToken = new Binder();
-                    evsIntent.putExtra(CarEvsManager.EXTRA_SESSION_TOKEN, mSessionToken);
+                    Bundle bundle = new Bundle();
+                    bundle.putBinder(CarEvsManager.EXTRA_SESSION_TOKEN, mSessionToken);
+                    evsIntent.replaceExtras(bundle);
                 }
                 mContext.startActivity(evsIntent);
             }
