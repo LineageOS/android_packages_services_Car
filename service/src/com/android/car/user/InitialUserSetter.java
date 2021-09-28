@@ -24,6 +24,7 @@ import android.annotation.Nullable;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
@@ -32,7 +33,6 @@ import android.car.builtin.widget.LockPatternHelper;
 import android.car.settings.CarSettings;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.UserFlags;
-import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.provider.Settings;
@@ -625,7 +625,7 @@ final class InitialUserSetter {
         Slog.i(TAG, "unlocking system user");
         ActivityManagerHelper am = ActivityManagerHelper.getInstance();
 
-        TimingsTraceLog t = new TimingsTraceLog(TAG, Trace.TRACE_TAG_SYSTEM_SERVER);
+        TimingsTraceLog t = new TimingsTraceLog(TAG, TraceHelper.TRACE_TAG_CAR_SERVICE);
         t.traceBegin("UnlockSystemUser");
         // This is for force changing state into RUNNING_LOCKED. Otherwise unlock does not
         // update the state and USER_SYSTEM unlock happens twice.

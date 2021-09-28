@@ -29,6 +29,7 @@ import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
 import android.car.builtin.util.TimingsTraceLog;
@@ -48,7 +49,6 @@ import android.os.Process;
 import android.os.RemoteException;
 import android.os.ResultReceiver;
 import android.os.ShellCallback;
-import android.os.Trace;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.EventLog;
@@ -177,7 +177,7 @@ public class ICarImpl extends ICar.Stub {
             @Nullable CarWatchdogService carWatchdogService,
             @Nullable ICarPowerPolicySystemNotification powerPolicyDaemon) {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(
-                CAR_SERVICE_INIT_TIMING_TAG, Trace.TRACE_TAG_SYSTEM_SERVER,
+                CAR_SERVICE_INIT_TIMING_TAG, TraceHelper.TRACE_TAG_CAR_SERVICE,
                 CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
         t.traceBegin("ICarImpl.constructor");
 
@@ -428,7 +428,7 @@ public class ICarImpl extends ICar.Stub {
     @MainThread
     void init() {
         LimitedTimingsTraceLog t = new LimitedTimingsTraceLog(CAR_SERVICE_INIT_TIMING_TAG,
-                Trace.TRACE_TAG_SYSTEM_SERVER, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
+                TraceHelper.TRACE_TAG_CAR_SERVICE, CAR_SERVICE_INIT_TIMING_MIN_DURATION_MS);
 
         t.traceBegin("ICarImpl.init");
 
