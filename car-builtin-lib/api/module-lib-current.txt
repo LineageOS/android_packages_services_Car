@@ -57,6 +57,11 @@ package android.car.builtin.app {
     method public boolean isKeyguardLocked();
   }
 
+  public final class VoiceInteractionHelper {
+    method public static boolean isAvailable();
+    method public static void setEnabled(boolean) throws android.os.RemoteException;
+  }
+
 }
 
 package android.car.builtin.content {

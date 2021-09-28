@@ -73,7 +73,6 @@ import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -116,8 +115,6 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
     private Car mCar;
     @Mock
     private CarUserService mCarUserService;
-    @Mock
-    private IVoiceInteractionManagerService mVoiceInteractionManagerService;
     @Mock
     private ICarPowerPolicySystemNotification mPowerPolicyDaemon;
 
@@ -404,7 +401,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                mVoiceInteractionManagerService, new AtomicFile(mComponentStateFile.getFile()));
+                new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 null, mCarUserService, mPowerPolicyDaemon, mPowerComponentHandler,
                 /* silentModeHwStatePath= */ null, /* silentModeKernelStatePath= */ null,
