@@ -18,7 +18,7 @@ package android.car;
 
 import android.annotation.NonNull;
 import android.car.annotation.ValueTypeDef;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyManager;
 import android.car.hardware.property.ICarProperty;
@@ -278,7 +278,7 @@ public final class CarInfoManager extends CarManagerBase {
                 return carProp.getValue();
             }
         } catch (Exception e) {
-            Slog.e(TAG, "Failed to get property value for 0x:" + Integer.toHexString(propId)
+            Slogf.e(TAG, "Failed to get property value for 0x:" + Integer.toHexString(propId)
                     + " ,returns default value" + defaultValue);
         }
         return defaultValue;

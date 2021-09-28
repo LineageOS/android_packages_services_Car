@@ -16,7 +16,7 @@
 
 package com.android.car.internal.util;
 
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.Process;
 
 import java.util.concurrent.CountDownLatch;
@@ -124,7 +124,7 @@ public class ConcurrentUtils {
      */
     public static void wtfIfLockHeld(String tag, Object lock) {
         if (Thread.holdsLock(lock)) {
-            Slog.wtf(tag, "Lock mustn't be held");
+            Slogf.wtf(tag, "Lock mustn't be held");
         }
     }
 
@@ -133,7 +133,7 @@ public class ConcurrentUtils {
      */
     public static void wtfIfLockNotHeld(String tag, Object lock) {
         if (!Thread.holdsLock(lock)) {
-            Slog.wtf(tag, "Lock must be held");
+            Slogf.wtf(tag, "Lock must be held");
         }
     }
 

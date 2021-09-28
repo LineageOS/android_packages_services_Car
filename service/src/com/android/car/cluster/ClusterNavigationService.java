@@ -19,7 +19,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.Car;
 import android.car.CarAppFocusManager;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.cluster.renderer.IInstrumentClusterNavigation;
 import android.car.navigation.CarNavigationInstrumentCluster;
 import android.content.Context;
@@ -106,7 +106,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
     @Override
     public void init() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "initClusterNavigationService");
+            Slogf.d(TAG, "initClusterNavigationService");
         }
         mAppFocusService.registerContextOwnerChangedCallback(this /* FocusOwnershipCallback */);
     }
@@ -114,7 +114,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
     @Override
     public void release() {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "releaseClusterNavigationService");
+            Slogf.d(TAG, "releaseClusterNavigationService");
         }
         setClusterServiceCallback(null);
         mAppFocusService.unregisterContextOwnerChangedCallback(this);
@@ -168,7 +168,7 @@ public class ClusterNavigationService extends IInstrumentClusterNavigation.Stub
                     || (!acquire && !Objects.equals(mNavContextOwner, requester))) {
                 // Nothing to do here. Either the same owner is acquiring twice, or someone is
                 // abandoning a focus they didn't have.
-                Slog.w(TAG, "Invalid nav context owner change (acquiring: " + acquire
+                Slogf.w(TAG, "Invalid nav context owner change (acquiring: " + acquire
                         + "), current owner: [" + mNavContextOwner
                         + "], requester: [" + requester + "]");
                 return;

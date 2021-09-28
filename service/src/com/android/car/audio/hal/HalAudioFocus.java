@@ -25,7 +25,7 @@ import static android.media.AudioManager.AUDIOFOCUS_REQUEST_GRANTED;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.annotation.NonNull;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.media.AudioAttributes;
 import android.media.AudioFocusRequest;
@@ -95,14 +95,14 @@ public final class HalAudioFocus implements HalFocusListener {
             Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                     "Invalid zoneId %d provided in requestAudioFocus", zoneId);
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "Requesting focus gain " + focusGain + " with usage "
+                Slogf.d(TAG, "Requesting focus gain " + focusGain + " with usage "
                         + usageToString(usage) + " and zoneId " + zoneId);
             }
             HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId).get(
                     usage);
             if (currentRequest != null) {
                 if (Log.isLoggable(TAG, Log.DEBUG)) {
-                    Slog.d(TAG, "A request already exists for zoneId " + zoneId + " and usage "
+                    Slogf.d(TAG, "A request already exists for zoneId " + zoneId + " and usage "
                             + usage);
                 }
                 mAudioControlWrapper.onAudioFocusChange(usage, zoneId, currentRequest.mFocusStatus);
@@ -120,7 +120,7 @@ public final class HalAudioFocus implements HalFocusListener {
             Preconditions.checkArgument(mHalFocusRequestsByZoneAndUsage.contains(zoneId),
                     "Invalid zoneId %d provided in abandonAudioFocus", zoneId);
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "Abandoning focus with usage " + usageToString(usage)
+                Slogf.d(TAG, "Abandoning focus with usage " + usageToString(usage)
                         + " for zoneId " + zoneId);
             }
             abandonAudioFocusLocked(usage, zoneId);
@@ -131,7 +131,7 @@ public final class HalAudioFocus implements HalFocusListener {
      * Clear out all existing focus requests. Called when HAL dies.
      */
     public void reset() {
-        Slog.d(TAG, "Resetting HAL Audio Focus requests");
+        Slogf.d(TAG, "Resetting HAL Audio Focus requests");
         synchronized (mLock) {
             for (int i = 0; i < mHalFocusRequestsByZoneAndUsage.size(); i++) {
                 int zoneId = mHalFocusRequestsByZoneAndUsage.keyAt(i);
@@ -201,7 +201,7 @@ public final class HalAudioFocus implements HalFocusListener {
 
         if (currentRequest == null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "No focus to abandon for usage " + usageToString(usage)
+                Slogf.d(TAG, "No focus to abandon for usage " + usageToString(usage)
                         + " and zoneId " + zoneId);
             }
             return;
@@ -210,14 +210,13 @@ public final class HalAudioFocus implements HalFocusListener {
         int result = mAudioManager.abandonAudioFocusRequest(currentRequest.mAudioFocusRequest);
         if (result == AUDIOFOCUS_REQUEST_GRANTED) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
-                Slog.d(TAG, "Abandoned focus for usage " + usageToString(usage)
+                Slogf.d(TAG, "Abandoned focus for usage " + usageToString(usage)
                         + "and zoneId " + zoneId);
             }
             mAudioControlWrapper.onAudioFocusChange(usage, zoneId, AUDIOFOCUS_LOSS);
         } else {
-            Slog.w(TAG,
-                    "Failed to abandon focus for usage " + usageToString(usage)
-                            + " and zoneId " + zoneId);
+            Slogf.w(TAG, "Failed to abandon focus for usage " + usageToString(usage)
+                    + " and zoneId " + zoneId);
         }
     }
 
@@ -277,7 +276,7 @@ public final class HalAudioFocus implements HalFocusListener {
         } else if (requestResult == AUDIOFOCUS_REQUEST_FAILED) {
             resultingFocusGain = AUDIOFOCUS_LOSS;
         } else if (requestResult == AUDIOFOCUS_REQUEST_DELAYED) {
-            Slog.w(TAG, "Delayed result for request with usage "
+            Slogf.w(TAG, "Delayed result for request with usage "
                     + usageToString(usage) + ", zoneId " + zoneId
                     + ", and focusGain " + focusGain);
             resultingFocusGain = AUDIOFOCUS_LOSS;

@@ -22,7 +22,7 @@ import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleHvacFanDirection;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.property.VehicleVendorPermission;
 import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardStatus;
 import android.hardware.automotive.vehicle.V2_0.ElectronicTollCollectionCardType;
@@ -613,7 +613,7 @@ public class PropertyHalServiceIds {
         if (p != null) {
             // Property ID exists.  Return read permission.
             if (p.first == null) {
-                Slog.e(TAG, "propId is not available for reading : 0x" + toHexString(propId));
+                Slogf.e(TAG, "propId is not available for reading : 0x" + toHexString(propId));
             }
             return p.first;
         } else if (isVendorProperty(propId)) {
@@ -635,7 +635,7 @@ public class PropertyHalServiceIds {
         if (p != null) {
             // Property ID exists.  Return write permission.
             if (p.second == null) {
-                Slog.e(TAG, "propId is not writable : 0x" + toHexString(propId));
+                Slogf.e(TAG, "propId is not writable : 0x" + toHexString(propId));
             }
             return p.second;
         } else if (isVendorProperty(propId)) {
@@ -793,7 +793,7 @@ public class PropertyHalServiceIds {
             return true;
         }
         if (!checkFormatForAllProperties(propValue)) {
-            Slog.e(TAG, "Property value" + propValue + "has an invalid data format");
+            Slogf.e(TAG, "Property value" + propValue + "has an invalid data format");
             return false;
         }
         if (mPropToValidValue.containsKey(propValue.prop)) {
@@ -823,7 +823,7 @@ public class PropertyHalServiceIds {
                 + rawValue.int64Values.size() + rawValue.bytes.size()
                 + rawValue.stringValue.length();
         if (sizeOfAllValue == 0) {
-            Slog.e(TAG, "Property value is empty: " + propValue);
+            Slogf.e(TAG, "Property value is empty: " + propValue);
             return false;
         }
         switch (propId & VehiclePropertyType.MASK) {
@@ -869,7 +869,7 @@ public class PropertyHalServiceIds {
                 try {
                     integerList.add(f.getInt(clazz));
                 } catch (IllegalAccessException | RuntimeException e) {
-                    Slog.w(TAG, "Failed to get value");
+                    Slogf.w(TAG, "Failed to get value");
                 }
             }
         }

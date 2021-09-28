@@ -22,7 +22,7 @@ import static com.android.car.UpdatablePackageDependency.PROXIED_SERVICE_SET_BUI
 
 import android.annotation.Nullable;
 import android.app.Service;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.Intent;
 import android.os.IBinder;
@@ -114,7 +114,7 @@ public class ServiceProxy extends Service {
         } catch (Exception e) {
             String msg = "cannot load method:" + methodName + " for:" + mRealServiceClassName;
             if (ignoreFailure) {
-                Slog.w(TAG, msg, e);
+                Slogf.w(TAG, msg, e);
                 return null;
             } else {
                 throw new RuntimeException(msg, e);

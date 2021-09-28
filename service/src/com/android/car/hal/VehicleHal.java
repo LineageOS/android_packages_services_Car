@@ -26,7 +26,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.CheckResult;
 import android.annotation.Nullable;
 import android.car.VehiclePropertyIds;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.property.CarPropertyManager;
 import android.content.Context;
 import android.hardware.automotive.vehicle.V2_0.IVehicle;
@@ -200,7 +200,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     private void fetchAllPropConfigs() {
         synchronized (mLock) {
             if (!mAllProperties.isEmpty()) { // already set
-                Slog.i(CarLog.TAG_HAL, "fetchAllPropConfigs already fetched");
+                Slogf.i(CarLog.TAG_HAL, "fetchAllPropConfigs already fetched");
                 return;
             }
         }
@@ -208,7 +208,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         try {
             configs = mHalClient.getAllPropConfigs();
             if (configs == null || configs.size() == 0) {
-                Slog.e(CarLog.TAG_HAL, "getAllPropConfigs returned empty configs");
+                Slogf.e(CarLog.TAG_HAL, "getAllPropConfigs returned empty configs");
                 return;
             }
         } catch (RemoteException e) {
@@ -219,7 +219,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             // Create map of all properties
             for (VehiclePropConfig p : configs) {
                 if (DBG) {
-                    Slog.i(CarLog.TAG_HAL, "Add config for prop:" + Integer.toHexString(p.prop)
+                    Slogf.i(CarLog.TAG_HAL, "Add config for prop:" + Integer.toHexString(p.prop)
                             + " config:" + p);
                 }
                 mAllProperties.put(p.prop, p);
@@ -294,7 +294,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 mHalClient.unsubscribe(p);
             } catch (RemoteException e) {
                 //  Ignore exceptions on shutdown path.
-                Slog.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
+                Slogf.w(CarLog.TAG_HAL, "Failed to unsubscribe", e);
             }
         }
         // keep the looper thread as should be kept for the whole life cycle.
@@ -373,7 +373,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public void subscribeProperty(HalServiceBase service, int property,
             float samplingRateHz, int flags) throws IllegalArgumentException {
         if (DBG) {
-            Slog.i(CarLog.TAG_HAL, "subscribeProperty, service:" + service
+            Slogf.i(CarLog.TAG_HAL, "subscribeProperty, service:" + service
                     + ", " + toCarPropertyLog(property));
         }
         VehiclePropConfig config;
@@ -396,11 +396,11 @@ public class VehicleHal extends IVehicleCallback.Stub {
             try {
                 mHalClient.subscribe(opts);
             } catch (RemoteException e) {
-                Slog.e(CarLog.TAG_HAL, "Failed to subscribe to " + toCarPropertyLog(property),
+                Slogf.e(CarLog.TAG_HAL, "Failed to subscribe to " + toCarPropertyLog(property),
                         e);
             }
         } else {
-            Slog.e(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
+            Slogf.e(CarLog.TAG_HAL, "Cannot subscribe to " + toCarPropertyLog(property));
         }
     }
 
@@ -410,7 +410,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
      */
     public void unsubscribeProperty(HalServiceBase service, int property) {
         if (DBG) {
-            Slog.i(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
+            Slogf.i(CarLog.TAG_HAL, "unsubscribeProperty, service:" + service
                     + ", " + toCarPropertyLog(property));
         }
         VehiclePropConfig config;
@@ -419,7 +419,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
 
         if (config == null) {
-            Slog.e(CarLog.TAG_HAL, "unsubscribeProperty " + toCarPropertyLog(property)
+            Slogf.e(CarLog.TAG_HAL, "unsubscribeProperty " + toCarPropertyLog(property)
                     + " does not exist");
         } else if (isPropertySubscribable(config)) {
             synchronized (mLock) {
@@ -429,11 +429,11 @@ public class VehicleHal extends IVehicleCallback.Stub {
             try {
                 mHalClient.unsubscribe(property);
             } catch (RemoteException e) {
-                Slog.e(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
+                Slogf.e(CarLog.TAG_SERVICE, "Failed to unsubscribe: "
                         + toCarPropertyLog(property), e);
             }
         } else {
-            Slog.e(CarLog.TAG_HAL, "Cannot unsubscribe " + toCarPropertyLog(property));
+            Slogf.e(CarLog.TAG_HAL, "Cannot unsubscribe " + toCarPropertyLog(property));
         }
     }
 
@@ -463,7 +463,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             try {
                 return get(propertyId);
             } catch (Exception e) {
-                Slog.e(CarLog.TAG_HAL, "Cannot get " + toCarPropertyLog(propertyId), e);
+                Slogf.e(CarLog.TAG_HAL, "Cannot get " + toCarPropertyLog(propertyId), e);
                 lastException = e;
             }
         }
@@ -501,7 +501,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
     public VehiclePropValue get(int propertyId, int areaId)
             throws IllegalArgumentException, ServiceSpecificException {
         if (DBG) {
-            Slog.i(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
+            Slogf.i(CarLog.TAG_HAL, "get, " + toCarPropertyLog(propertyId)
                     + toCarAreaLog(areaId));
         }
         return mHalClient.getValue(createPropValue(propertyId, areaId));
@@ -619,7 +619,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             for (VehiclePropValue v : propValues) {
                 HalServiceBase service = mPropertyHandlers.get(v.prop);
                 if (service == null) {
-                    Slog.e(CarLog.TAG_HAL, "HalService not found for prop: 0x"
+                    Slogf.e(CarLog.TAG_HAL, "HalService not found for prop: 0x"
                             + toHexString(v.prop));
                     continue;
                 }
@@ -651,8 +651,8 @@ public class VehicleHal extends IVehicleCallback.Stub {
     @Override
     public void onPropertySetError(@CarPropertyManager.CarSetPropertyErrorCode int errorCode,
             int propId, int areaId) {
-        Slog.e(CarLog.TAG_HAL, String.format("onPropertySetError, errorCode: %d, prop: 0x%x, "
-                + "area: 0x%x", errorCode, propId, areaId));
+        Slogf.e(CarLog.TAG_HAL, "onPropertySetError, errorCode: %d, prop: 0x%x, area: 0x%x",
+                errorCode, propId, areaId);
         if (propId != VehicleProperty.INVALID) {
             HalServiceBase service;
             synchronized (mLock) {
@@ -869,7 +869,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
         }
         // rate in Hz
         if (sampleRate <= 0) {
-            Slog.e(CarLog.TAG_HAL, "Inject events at an invalid sample rate: " + sampleRate);
+            Slogf.e(CarLog.TAG_HAL, "Inject events at an invalid sample rate: " + sampleRate);
             return;
         }
         long period = (long) (1000 / sampleRate);
@@ -916,7 +916,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
                 }
                 break;
             default:
-                Slog.e(CarLog.TAG_HAL, "Property type unsupported:" + propertyType);
+                Slogf.e(CarLog.TAG_HAL, "Property type unsupported:" + propertyType);
                 return null;
         }
         return v;
@@ -973,7 +973,7 @@ public class VehicleHal extends IVehicleCallback.Stub {
             HalClient client =  mClient.get();
             if (client != null) {
                 if (DBG) {
-                    Slog.i(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropValue.prop)
+                    Slogf.i(CarLog.TAG_HAL, "set, " + toCarPropertyLog(mPropValue.prop)
                             + toCarAreaLog(mPropValue.areaId));
                 }
                 client.setValue(mPropValue);

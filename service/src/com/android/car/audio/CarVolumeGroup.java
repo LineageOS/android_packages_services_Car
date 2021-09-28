@@ -21,7 +21,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.media.AudioDeviceInfo;
 import android.os.UserHandle;
@@ -308,7 +308,7 @@ import java.util.Map;
     private int getCurrentGainIndexForUserLocked() {
         int gainIndexForUser = mSettingsManager.getStoredVolumeGainIndexForUser(mUserId, mZoneId,
                 mId);
-        Slog.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
+        Slogf.i(CarLog.TAG_AUDIO, "updateUserId userId " + mUserId
                 + " gainIndexForUser " + gainIndexForUser);
         return gainIndexForUser;
     }

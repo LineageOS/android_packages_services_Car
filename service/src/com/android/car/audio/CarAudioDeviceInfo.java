@@ -22,7 +22,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 
 import android.car.builtin.os.AudioServiceHelper;
 import android.car.builtin.os.AudioServiceHelper.AudioGainInfo;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
 
@@ -124,8 +124,8 @@ import com.android.car.internal.util.IndentingPrintWriter;
             // we have to remember what we asked for
             mCurrentGain = gainInMillibels;
         } else {
-            Slog.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain " + gainInMillibels
-                    +  " for output device " + getAddress());
+            Slogf.e(CarLog.TAG_AUDIO, "Failed to setAudioPortGain " + gainInMillibels
+                    + " for output device " + getAddress());
         }
     }
 

@@ -43,7 +43,7 @@ import android.car.CarOccupantZoneManager;
 import android.car.VehiclePropertyIds;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.UserManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.content.pm.CarPackageManager;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -736,7 +736,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
         }
         if (VERBOSE) {
-            Slog.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
+            Slogf.v(TAG, "cmd: " + cmd + ", requiredPermissions: "
                     + Arrays.toString(requiredPermissions));
         }
         if (BuildHelper.isUserBuild() && requiredPermissions == null) {
@@ -1000,7 +1000,8 @@ final class CarShellCommand extends BasicShellCommandHandler {
         }
 
         boolean enabled = Boolean.parseBoolean(args[1]);
-        Slog.d(TAG, "setStartBackgroundUsersOnGarageMode(): " + (enabled ? "enabled" : "disabled"));
+        Slogf.d(TAG, "setStartBackgroundUsersOnGarageMode(): "
+                + (enabled ? "enabled" : "disabled"));
         mCarUserService.setStartBackgroundUsersOnGarageMode(enabled);
         writer.printf("StartBackgroundUsersOnGarageMode set to %b\n", enabled);
     }
@@ -1317,13 +1318,13 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-        Slog.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
+        Slogf.d(TAG, "handleGetInitialUserInfo(): type=" + requestType + " (" + typeArg
                 + "), timeout=" + timeout);
 
         CountDownLatch latch = new CountDownLatch(1);
         HalCallback<InitialUserInfoResponse> callback = (status, resp) -> {
             try {
-                Slog.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
+                Slogf.d(TAG, "GetUserInfoResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call status: %s\n",
                         UserHalHelper.halCallbackStatusToString(status));
                 if (status != HalCallback.STATUS_OK) {
@@ -1404,7 +1405,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-        Slog.d(TAG, "switchUser(): target=" + targetUserId + ", halOnly=" + halOnly
+        Slogf.d(TAG, "switchUser(): target=" + targetUserId + ", halOnly=" + halOnly
                 + ", timeout=" + timeout);
 
         if (halOnly) {
@@ -1420,7 +1421,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
 
             userHal.switchUser(request, timeout, (status, resp) -> {
                 try {
-                    Slog.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
+                    Slogf.d(TAG, "SwitchUserResponse: status=" + status + ", resp=" + resp);
                     writer.printf("Call Status: %s\n",
                             UserHalHelper.halCallbackStatusToString(status));
                     if (status != HalCallback.STATUS_OK) {
@@ -1496,7 +1497,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-        Slog.d(TAG, "createUser(): name=" + name
+        Slogf.d(TAG, "createUser(): name=" + name
                 + ", flags=" + flags
                 + ", guest=" + isGuest + ", halOnly=" + halOnly + ", timeout=" + timeout);
 
@@ -1538,7 +1539,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             // TODO(b/196179969): in the following CLs createGuest and createUser would be
             // replaced by the call which would return UserHandle. For now, it is possible
             // that current call return null.
-            Slog.w(TAG, "NullPointerException while creating User: ", e);
+            Slogf.w(TAG,  "NullPointerException while creating User: ", e);
             newUser = null;
         }
 
@@ -1547,7 +1548,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             return;
         }
         writer.printf("New user: %s\n", newUser);
-        Slog.i(TAG, "Created new user: " + newUser);
+        Slogf.i(TAG, "Created new user: " + newUser);
 
         request.newUserInfo.userId = newUser.getIdentifier();
         request.newUserInfo.flags = UserHalHelper.convertFlags(new UserHandleHelper(mContext, um),
@@ -1558,7 +1559,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
         AtomicBoolean halOk = new AtomicBoolean(false);
         try {
             userHal.createUser(request, timeout, (status, resp) -> {
-                Slog.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
+                Slogf.d(TAG, "CreateUserResponse: status=" + status + ", resp=" + resp);
                 writer.printf("Call Status: %s\n",
                         UserHalHelper.halCallbackStatusToString(status));
                 if (status == HalCallback.STATUS_OK) {
@@ -1605,7 +1606,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             }
         }
 
-        Slog.d(TAG, "handleRemoveUser(): User to remove=" + userId + ", halOnly=" + halOnly);
+        Slogf.d(TAG, "handleRemoveUser(): User to remove=" + userId + ", halOnly=" + halOnly);
 
         if (halOnly) {
             UserHalService userHal = mHal.getUserHal();
@@ -1694,10 +1695,10 @@ final class CarShellCommand extends BasicShellCommandHandler {
             request.userInfo.userId = userId;
             request.userInfo.flags = getUserHalFlags(userId);
 
-            Slog.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
+            Slogf.d(TAG, "getUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
             UserIdentificationResponse response = mHal.getUserHal().getUserAssociation(request);
-            Slog.d(TAG, "getUserAuthAssociation(): response=" + response);
+            Slogf.d(TAG, "getUserAuthAssociation(): response=" + response);
             showResponse(writer, response);
             return;
         }
@@ -1834,11 +1835,11 @@ final class CarShellCommand extends BasicShellCommandHandler {
             request.userInfo.userId = userId;
             request.userInfo.flags = getUserHalFlags(userId);
 
-            Slog.d(TAG, "setUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
+            Slogf.d(TAG, "setUserAuthAssociation(): user=" + userId + ", halOnly=" + halOnly
                     + ", request=" + request);
             CountDownLatch latch = new CountDownLatch(1);
             mHal.getUserHal().setUserAssociation(timeout, request, (status, response) -> {
-                Slog.d(TAG, "setUserAuthAssociation(): response=" + response);
+                Slogf.d(TAG, "setUserAuthAssociation(): response=" + response);
                 try {
                     showResponse(writer, response);
                 } finally {
@@ -1982,7 +1983,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
      * {@code adb shell cmd car_service emulate-driving-state drive}.
      */
     private void emulateDrive() {
-        Slog.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
+        Slogf.i(TAG, "Emulating driving mode (speed=80mph, gear=8)");
         mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
                 /* zone= */ 0, /* value= */ "80", /* delayTime= */ 2000);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
@@ -1996,7 +1997,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
      * {@code adb shell cmd car_service emulate-driving-state reverse}.
      */
     private void emulateReverse() {
-        Slog.i(TAG, "Emulating reverse driving mode (speed=5mph)");
+        Slogf.i(TAG, "Emulating reverse driving mode (speed=5mph)");
         mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
                 /* zone= */ 0, /* value= */ "5", /* delayTime= */ 2000);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
@@ -2010,7 +2011,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
      * {@code adb shell cmd car_service emulate-driving-state park}.
      */
     private void emulatePark() {
-        Slog.i(TAG, "Emulating parking mode");
+        Slogf.i(TAG, "Emulating parking mode");
         mHal.injectVhalEvent(VehiclePropertyIds.PERF_VEHICLE_SPEED,
                 /* zone= */ 0, /* value= */ "0", /* delayTime= */ 0);
         mHal.injectVhalEvent(VehiclePropertyIds.GEAR_SELECTION,
@@ -2105,7 +2106,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
      */
     private void injectVhalEvent(String property, String zone, String value,
             boolean isErrorEvent, String delayTime, IndentingPrintWriter writer) {
-        Slog.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
+        Slogf.i(TAG, "Injecting VHAL event: prop="  + property + ", zone=" + zone + ", value="
                 + value + ", isError=" + isErrorEvent
                 + (TextUtils.isEmpty(delayTime) ?  "" : ", delayTime=" + delayTime));
         if (zone.equalsIgnoreCase(PARAM_VEHICLE_PROPERTY_AREA_GLOBAL)) {

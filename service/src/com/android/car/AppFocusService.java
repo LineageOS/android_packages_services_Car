@@ -20,7 +20,7 @@ import android.car.CarAppFocusManager;
 import android.car.IAppFocus;
 import android.car.IAppFocusListener;
 import android.car.IAppFocusOwnershipCallback;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.os.Binder;
 import android.os.Handler;
@@ -174,7 +174,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     // requester is privileged service.
                     if (isInForeground(ownerInfo) && !isInForeground(info)
                             && !hasPrivilegedPermission()) {
-                        Slog.w(CarLog.TAG_APP_FOCUS, "Focus request failed for non-foreground app("
+                        Slogf.w(CarLog.TAG_APP_FOCUS, "Focus request failed for non-foreground app("
                                 + "pid=" + info.getPid() + ", uid=" + info.getUid() + ")."
                                 + "Foreground app (pid=" + ownerInfo.getPid() + ", uid="
                                 + ownerInfo.getUid() + ") owns it.");
@@ -184,7 +184,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     mDispatchHandler.requestAppFocusOwnershipLossDispatch(
                             ownerInfo.binderInterface, appType);
                     if (DBG) {
-                        Slog.i(CarLog.TAG_APP_FOCUS, "losing app type "
+                        Slogf.i(CarLog.TAG_APP_FOCUS, "losing app type "
                                 + appType + "," + ownerInfo);
                     }
                 }
@@ -196,7 +196,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                     info.binderInterface, appType);
             mActiveAppTypes.add(appType);
             if (DBG) {
-                Slog.i(CarLog.TAG_APP_FOCUS, "updating active app type " + appType + ","
+                Slogf.i(CarLog.TAG_APP_FOCUS, "updating active app type " + appType + ","
                         + info);
             }
             // Always dispatch.
@@ -248,7 +248,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                 mActiveAppTypes.remove(appType);
                 info.removeOwnedAppType(appType);
                 if (DBG) {
-                    Slog.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType + "," + info);
+                    Slogf.i(CarLog.TAG_APP_FOCUS, "abandoning focus " + appType + "," + info);
                 }
                 dispatchAbandonFocusOwnerLocked(appType, info, mFocusOwnershipCallbacks);
                 for (BinderInterfaceContainer.BinderInterface<IAppFocusListener> client :
@@ -477,7 +477,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         private Set<Integer> getOwnedAppTypes() {
             synchronized (mLock) {
                 if (DBG_EVENT) {
-                    Slog.i(CarLog.TAG_APP_FOCUS, "getOwnedAppTypes " + mOwnedAppTypes);
+                    Slogf.i(CarLog.TAG_APP_FOCUS, "getOwnedAppTypes " + mOwnedAppTypes);
                 }
                 return Collections.unmodifiableSet(mOwnedAppTypes);
             }
@@ -485,7 +485,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
         private boolean addOwnedAppType(Integer appType) {
             if (DBG_EVENT) {
-                Slog.i(CarLog.TAG_APP_FOCUS, "addOwnedAppType " + appType);
+                Slogf.i(CarLog.TAG_APP_FOCUS, "addOwnedAppType " + appType);
             }
             synchronized (mLock) {
                 return mOwnedAppTypes.add(appType);
@@ -494,7 +494,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
 
         private boolean removeOwnedAppType(Integer appType) {
             if (DBG_EVENT) {
-                Slog.i(CarLog.TAG_APP_FOCUS, "removeOwnedAppType " + appType);
+                Slogf.i(CarLog.TAG_APP_FOCUS, "removeOwnedAppType " + appType);
             }
             synchronized (mLock) {
                 return mOwnedAppTypes.remove(appType);
@@ -555,7 +555,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
         public void handleMessage(Message msg) {
             AppFocusService service = mService.get();
             if (service == null) {
-                Slog.i(TAG, "handleMessage null service");
+                Slogf.i(TAG, "handleMessage null service");
                 return;
             }
             switch (msg.what) {
@@ -572,7 +572,7 @@ public class AppFocusService extends IAppFocus.Stub implements CarServiceBase,
                             msg.arg2 == 1);
                     break;
                 default:
-                    Slog.e(CarLog.TAG_APP_FOCUS, "Can't dispatch message: " + msg);
+                    Slogf.e(CarLog.TAG_APP_FOCUS, "Can't dispatch message: " + msg);
             }
         }
     }

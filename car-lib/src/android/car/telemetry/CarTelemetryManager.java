@@ -24,7 +24,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -251,7 +251,7 @@ public final class CarTelemetryManager extends CarManagerBase {
         super(car);
         mService = ICarTelemetryService.Stub.asInterface(service);
         if (DEBUG) {
-            Slog.d(TAG, "starting car telemetry manager");
+            Slogf.d(TAG, "starting car telemetry manager");
         }
     }
 

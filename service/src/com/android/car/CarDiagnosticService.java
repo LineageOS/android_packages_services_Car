@@ -19,7 +19,7 @@ package com.android.car;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.diagnostic.CarDiagnosticEvent;
 import android.car.diagnostic.CarDiagnosticManager;
 import android.car.diagnostic.ICarDiagnostic;
@@ -164,9 +164,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                     setRecentmostFreezeFrame(event);
                     listeners = mDiagnosticListeners.get(CarDiagnosticManager.FRAME_TYPE_FREEZE);
                 } else {
-                    Slog.w(
-                            CarLog.TAG_DIAGNOSTIC,
-                            String.format("received unknown diagnostic event: %s", event));
+                    Slogf.w(CarLog.TAG_DIAGNOSTIC, "received unknown diagnostic event: %s", event);
                     continue;
                 }
 
@@ -213,11 +211,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                 try {
                     listener.asBinder().linkToDeath(diagnosticClient, 0);
                 } catch (RemoteException e) {
-                    Slog.w(
-                            CarLog.TAG_DIAGNOSTIC,
-                            String.format(
-                                    "received RemoteException trying to register listener for %s",
-                                    frameType));
+                    Slogf.w(CarLog.TAG_DIAGNOSTIC, "received RemoteException trying to register "
+                            + "listener for %s", frameType);
                     return false;
                 }
                 mClients.add(diagnosticClient);
@@ -245,16 +240,13 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
             }
             diagnosticClient.addDiagnostic(frameType);
         }
-        Slog.i(
-                CarLog.TAG_DIAGNOSTIC,
-                String.format(
-                        "shouldStartDiagnostics = %s for %s at rate %d",
-                        shouldStartDiagnostics, frameType, rate));
+        Slogf.i(CarLog.TAG_DIAGNOSTIC, "shouldStartDiagnostics = %s for %s at rate %d",
+                shouldStartDiagnostics, frameType, rate);
         // start diagnostic outside lock as it can take time.
         if (shouldStartDiagnostics) {
             if (!startDiagnostic(frameType, rate)) {
                 // failed. so remove from active diagnostic list.
-                Slog.w(CarLog.TAG_DIAGNOSTIC, "startDiagnostic failed");
+                Slogf.w(CarLog.TAG_DIAGNOSTIC, "startDiagnostic failed");
                 synchronized (mLock) {
                     diagnosticClient.removeDiagnostic(frameType);
                     if (oldRate != null) {
@@ -270,10 +262,10 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     }
 
     private boolean startDiagnostic(int frameType, int rate) {
-        Slog.i(CarLog.TAG_DIAGNOSTIC, "starting diagnostic " + frameType + " at rate " + rate);
+        Slogf.i(CarLog.TAG_DIAGNOSTIC, "starting diagnostic " + frameType + " at rate " + rate);
         DiagnosticHalService diagnosticHal = getDiagnosticHal();
         if (diagnosticHal == null || !diagnosticHal.isReady()) {
-            Slog.w(CarLog.TAG_DIAGNOSTIC, "diagnosticHal not ready");
+            Slogf.w(CarLog.TAG_DIAGNOSTIC, "diagnosticHal not ready");
             return false;
         }
         switch (frameType) {
@@ -322,11 +314,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
         synchronized (mLock) {
             DiagnosticClient diagnosticClient = findDiagnosticClientLocked(listener);
             if (diagnosticClient == null) {
-                Slog.i(
-                        CarLog.TAG_DIAGNOSTIC,
-                        String.format(
-                                "trying to unregister diagnostic client %s for %s which is not registered",
-                                listener, frameType));
+                Slogf.i(CarLog.TAG_DIAGNOSTIC, "trying to unregister diagnostic client %s for %s "
+                        + "which is not registered", listener, frameType);
                 // never registered or already unregistered.
                 return;
             }
@@ -354,11 +343,8 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
                 shouldRestartDiagnostic = true;
             }
         }
-        Slog.i(
-                CarLog.TAG_DIAGNOSTIC,
-                String.format(
-                        "shouldStopDiagnostic = %s, shouldRestartDiagnostic = %s for type %s",
-                        shouldStopDiagnostic, shouldRestartDiagnostic, frameType));
+        Slogf.i(CarLog.TAG_DIAGNOSTIC, "shouldStopDiagnostic = %s, shouldRestartDiagnostic = %s "
+                + "for type %s", shouldStopDiagnostic, shouldRestartDiagnostic, frameType);
         if (shouldStopDiagnostic) {
             stopDiagnostic(frameType);
         } else if (shouldRestartDiagnostic) {
@@ -369,7 +355,7 @@ public class CarDiagnosticService extends ICarDiagnostic.Stub
     private void stopDiagnostic(int frameType) {
         DiagnosticHalService diagnosticHal = getDiagnosticHal();
         if (diagnosticHal == null || !diagnosticHal.isReady()) {
-            Slog.w(CarLog.TAG_DIAGNOSTIC, "diagnosticHal not ready");
+            Slogf.w(CarLog.TAG_DIAGNOSTIC, "diagnosticHal not ready");
             return;
         }
         synchronized (mLock) {

@@ -251,21 +251,6 @@ package android.car.builtin.util {
     method public static boolean exists(android.util.AtomicFile);
   }
 
-  public final class Slog {
-    method public static int d(@NonNull String, @NonNull String);
-    method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static int e(@NonNull String, @NonNull String);
-    method public static int e(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static int i(@NonNull String, @NonNull String);
-    method public static int i(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static int v(@NonNull String, @NonNull String);
-    method public static int v(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static int w(@NonNull String, @NonNull String);
-    method public static int w(@NonNull String, @NonNull String, @NonNull Throwable);
-    method public static int wtf(@NonNull String, @NonNull String);
-    method public static int wtf(@NonNull String, @NonNull String, @NonNull Throwable);
-  }
-
   public final class Slogf {
     method public static int d(@NonNull String, @NonNull String);
     method public static int d(@NonNull String, @NonNull String, @NonNull Throwable);

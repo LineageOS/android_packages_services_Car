@@ -25,7 +25,7 @@ import android.app.NotificationChannel;
 import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.car.ICarResultReceiver;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
@@ -122,7 +122,7 @@ public final class NotificationHelper {
                 .build();
 
         if (DEBUG) {
-            Slog.d(TAG, "Showing new managed notification (id "
+            Slogf.d(TAG, "Showing new managed notification (id "
                     + NEW_USER_DISCLAIMER_NOTIFICATION_ID + " on user " + context.getUser());
         }
         context.getSystemService(NotificationManager.class)
@@ -135,7 +135,7 @@ public final class NotificationHelper {
      */
     public static void cancelUserDisclaimerNotification(int userId, Context context) {
         if (DEBUG) {
-            Slog.d(TAG, "Canceling notification " + NEW_USER_DISCLAIMER_NOTIFICATION_ID
+            Slogf.d(TAG, "Canceling notification " + NEW_USER_DISCLAIMER_NOTIFICATION_ID
                     + " for user " + context.getUser());
         }
         context.getSystemService(NotificationManager.class)
@@ -188,7 +188,7 @@ public final class NotificationHelper {
                         pendingIntent)
                 .build();
 
-        Slog.i(TAG, "Showing factory reset notification on all users");
+        Slogf.i(TAG, "Showing factory reset notification on all users");
         context.getSystemService(NotificationManager.class)
                 .notifyAsUser(TAG, FACTORY_RESET_NOTIFICATION_ID, notification, UserHandle.ALL);
     }

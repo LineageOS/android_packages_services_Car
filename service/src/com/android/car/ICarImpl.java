@@ -32,7 +32,7 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.user.CarUserManager;
 import android.content.Context;
@@ -353,7 +353,7 @@ public class ICarImpl extends ICar.Stub {
                         () -> new ClusterHomeService(serviceContext, mHal.getClusterHal(),
                         mClusterNavigationService, mCarOccupantZoneService, mFixedActivityService));
             } else {
-                Slog.w(TAG, "Can't init ClusterHomeService, since Old cluster service is running");
+                Slogf.w(TAG, "Can't init ClusterHomeService, since Old cluster service is running");
                 mClusterHomeService = null;
             }
         } else {
@@ -483,14 +483,14 @@ public class ICarImpl extends ICar.Stub {
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
         } catch (Exception e) {
             // send back a null response
-            Slog.w(TAG, "Exception in setSystemServerConnections", e);
+            Slogf.w(TAG, "Exception in setSystemServerConnections", e);
             bundle = null;
         }
 
         try {
             resultReceiver.send(/* unused */ 0, bundle);
         } catch (RemoteException e) {
-            Slog.w(TAG, "RemoteException from CarServiceHelperService", e);
+            Slogf.w(TAG, "RemoteException from CarServiceHelperService", e);
         }
     }
 
@@ -547,7 +547,7 @@ public class ICarImpl extends ICar.Stub {
     @Override
     public IBinder getCarService(String serviceName) {
         if (!mFeatureController.isFeatureEnabled(serviceName)) {
-            Slog.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
+            Slogf.w(CarLog.TAG_SERVICE, "getCarService for disabled service:" + serviceName);
             return null;
         }
         switch (serviceName) {
@@ -630,7 +630,7 @@ public class ICarImpl extends ICar.Stub {
                     service = mCarExperimentalFeatureServiceController.getCarService(serviceName);
                 }
                 if (service == null) {
-                    Slog.w(CarLog.TAG_SERVICE, "getCarService for unknown service:"
+                    Slogf.w(CarLog.TAG_SERVICE, "getCarService for unknown service:"
                             + serviceName);
                 }
                 return service;
@@ -842,7 +842,7 @@ public class ICarImpl extends ICar.Stub {
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_LIFECYCLE, eventType, fromUserId,
                     toUserId);
             if (DBG) {
-                Slog.d(TAG,
+                Slogf.d(TAG,
                         "onUserLifecycleEvent("
                                 + CarUserManager.lifecycleEventTypeToString(eventType) + ", "
                                 + toUserId + ")");
@@ -854,7 +854,7 @@ public class ICarImpl extends ICar.Stub {
         public void initBootUser() throws RemoteException {
             assertCallingFromSystemProcess();
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_INIT_BOOT_USER);
-            if (DBG) Slog.d(TAG, "initBootUser(): ");
+            if (DBG) Slogf.d(TAG, "initBootUser(): ");
             mCarUserService.initBootUser();
         }
 
@@ -862,7 +862,7 @@ public class ICarImpl extends ICar.Stub {
         public void onUserRemoved(UserHandle user) throws RemoteException {
             assertCallingFromSystemProcess();
             EventLog.writeEvent(EventLogTags.CAR_SERVICE_ON_USER_REMOVED, user.getIdentifier());
-            if (DBG) Slog.d(TAG, "onUserRemoved(): " + user.toString());
+            if (DBG) Slogf.d(TAG, "onUserRemoved(): " + user.toString());
             mCarUserService.onUserRemoved(user);
         }
 

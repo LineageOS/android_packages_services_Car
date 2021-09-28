@@ -27,7 +27,6 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.HW_ROTARY
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
 import android.car.CarOccupantZoneManager;
-import android.car.builtin.util.Slog;
 import android.car.builtin.util.Slogf;
 import android.car.input.CarInputManager;
 import android.car.input.CustomInputEvent;
@@ -255,7 +254,7 @@ public class InputHalService extends HalServiceBase {
             Slogf.d(TAG, "hal event code: %d, action: %d, display: %d, number of indents: %d",
                     code, action, vehicleDisplay, indentsCount);
         } catch (IndexOutOfBoundsException e) {
-            Slog.e(TAG, "Invalid hal key input event received, int32Values: " + int32Values, e);
+            Slogf.e(TAG, "Invalid hal key input event received, int32Values: " + int32Values, e);
             return;
         }
         while (indentsCount > 0) {
@@ -401,7 +400,7 @@ public class InputHalService extends HalServiceBase {
             targetDisplayType = convertDisplayType(value.value.int32Values.get(1));
             repeatCounter = value.value.int32Values.get(2);
         } catch (IndexOutOfBoundsException e) {
-            Slog.e(TAG, "Invalid hal custom input event received", e);
+            Slogf.e(TAG, "Invalid hal custom input event received", e);
             return;
         }
 

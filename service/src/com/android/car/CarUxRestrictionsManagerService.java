@@ -31,7 +31,7 @@ import android.annotation.Nullable;
 import android.car.Car;
 import android.car.builtin.os.BinderHelper;
 import android.car.builtin.os.BuildHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.builtin.view.DisplayHelper;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
@@ -273,7 +273,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         }
 
         // This should rarely happen.
-        Slog.w(TAG, "Creating default config");
+        Slogf.w(TAG, "Creating default config");
 
         configs = new ArrayList<>();
         synchronized (mLock) {
@@ -295,7 +295,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             return CarUxRestrictionsConfigurationXmlParser.parse(
                     mContext, R.xml.car_ux_restrictions_map);
         } catch (IOException | XmlPullParserException e) {
-            Slog.e(TAG, "Could not read config from XML resource", e);
+            Slogf.e(TAG, "Could not read config from XML resource", e);
         }
         return null;
     }
@@ -319,7 +319,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 logd("Attempting to promote stage config");
                 Files.move(stagedConfig, prod, REPLACE_EXISTING);
             } catch (IOException e) {
-                Slog.e(TAG, "Could not promote state config", e);
+                Slogf.e(TAG, "Could not promote state config", e);
             }
         }
     }
@@ -385,14 +385,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public void registerUxRestrictionsChangeListener(
             ICarUxRestrictionsChangeListener listener, int displayId) {
         if (listener == null) {
-            Slog.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
+            Slogf.e(TAG, "registerUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
         int physicalPort;
         synchronized (mLock) {
             physicalPort = getPhysicalPortLocked(displayId);
             if (physicalPort == DisplayHelper.INVALID_PORT) {
-                Slog.e(TAG, "Invalid displayId=" + displayId);
+                Slogf.e(TAG, "Invalid displayId=" + displayId);
                 return;
             }
         }
@@ -407,7 +407,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Override
     public void unregisterUxRestrictionsChangeListener(ICarUxRestrictionsChangeListener listener) {
         if (listener == null) {
-            Slog.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
+            Slogf.e(TAG, "unregisterUxRestrictionsChangeListener(): listener null");
             throw new IllegalArgumentException("Listener is null");
         }
 
@@ -424,13 +424,13 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         CarUxRestrictions restrictions;
         synchronized (mLock) {
             if (mCurrentUxRestrictions == null) {
-                Slog.wtf(TAG, "getCurrentUxRestrictions() called before init()");
+                Slogf.wtf(TAG, "getCurrentUxRestrictions() called before init()");
                 return null;
             }
             restrictions = mCurrentUxRestrictions.get(getPhysicalPortLocked(displayId));
         }
         if (restrictions == null) {
-            Slog.e(TAG, "Restrictions are null for displayId:" + displayId
+            Slogf.e(TAG, "Restrictions are null for displayId:" + displayId
                     + ". Returning full restrictions.");
             restrictions = createFullyRestrictedRestrictions();
         }
@@ -528,14 +528,14 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         try {
             fos = stagedFile.startWrite();
         } catch (IOException e) {
-            Slog.e(TAG, "Could not open file to persist config", e);
+            Slogf.e(TAG, "Could not open file to persist config", e);
             return false;
         }
         try (JsonWriter jsonWriter = new JsonWriter(
                 new OutputStreamWriter(fos, StandardCharsets.UTF_8))) {
             writeJson(jsonWriter, configs);
         } catch (IOException e) {
-            Slog.e(TAG, "Could not persist config", e);
+            Slogf.e(TAG, "Could not persist config", e);
             stagedFile.failWrite(fos);
             return false;
         }
@@ -560,7 +560,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     @Nullable
     private List<CarUxRestrictionsConfiguration> readPersistedConfig(File file) {
         if (!file.exists()) {
-            Slog.e(TAG, "Could not find config file: " + file.getName());
+            Slogf.e(TAG, "Could not find config file: " + file.getName());
             return null;
         }
 
@@ -581,12 +581,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                     readV2Json(reader, configs);
                     break;
                 default:
-                    Slog.e(TAG, "Unable to parse schema for version " + schemaVersion);
+                    Slogf.e(TAG, "Unable to parse schema for version " + schemaVersion);
             }
 
             return configs;
         } catch (IOException e) {
-            Slog.e(TAG, "Could not read persisted config file " + file.getName(), e);
+            Slogf.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
         return null;
     }
@@ -638,7 +638,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 reader.endObject();
             }
         } catch (IOException e) {
-            Slog.e(TAG, "Could not read persisted config file " + file.getName(), e);
+            Slogf.e(TAG, "Could not read persisted config file " + file.getName(), e);
         }
         return UNKNOWN_JSON_SCHEMA_VERSION;
     }
@@ -661,7 +661,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
      */
     public void setUxRChangeBroadcastEnabled(boolean enable) {
         if (!isDebugBuild()) {
-            Slog.e(TAG, "Cannot set UX restriction change broadcast.");
+            Slogf.e(TAG, "Cannot set UX restriction change broadcast.");
             return;
         }
         // Check if the caller has the same signature as that of the car service.
@@ -757,7 +757,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             // If we get here with driving state != parked or unknown && speed == null,
             // something is wrong.  CarDrivingStateService could not have inferred idling or moving
             // when speed is not available
-            Slog.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
+            Slogf.e(TAG, "Unexpected:  Speed null when driving state is: " + drivingState);
             return;
         }
         handleDispatchUxRestrictionsLocked(drivingState, mCurrentMovingSpeed);
@@ -815,7 +815,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 "mCurrentUxRestrictions must be initialized");
 
         if (isDebugBuild() && !mUxRChangeBroadcastEnabled) {
-            Slog.d(TAG, "Not dispatching UX Restriction due to setting");
+            Slogf.d(TAG, "Not dispatching UX Restriction due to setting");
             return;
         }
 
@@ -844,7 +844,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
         for (int port : newUxRestrictions.keySet()) {
             if (!mCurrentUxRestrictions.containsKey(port)) {
                 // This should never happen.
-                Slog.wtf(TAG, "Unrecognized port:" + port);
+                Slogf.wtf(TAG, "Unrecognized port:" + port);
                 continue;
             }
             CarUxRestrictions uxRestrictions = newUxRestrictions.get(port);
@@ -886,23 +886,22 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
                 try {
                     callback.onUxRestrictionsChanged(restrictions);
                 } catch (RemoteException e) {
-                    Slog.e(TAG,
-                            String.format("Dispatch to listener %s failed for restrictions (%s)",
-                                    callback, restrictions));
+                    Slogf.e(TAG, "Dispatch to listener %s failed for restrictions (%s)", callback,
+                            restrictions);
                 }
             }
             mUxRClients.finishBroadcast();
         });
 
         if (!success) {
-            Slog.e(TAG, "Unable to post (" + displayRestrictions + ") event to dispatch handler");
+            Slogf.e(TAG, "Unable to post (" + displayRestrictions + ") event to dispatch handler");
         }
     }
 
     @GuardedBy("mLock")
     private void initPhysicalPortLocked() {
         IntArray displayIds = mCarOccupantZoneService.getAllDisplayIdsForDriver(DISPLAY_TYPE_MAIN);
-        Slog.d(TAG, "displayIds: " + Arrays.toString(displayIds.toArray()));
+        Slogf.d(TAG, "displayIds: " + Arrays.toString(displayIds.toArray()));
 
         for (int i = 0; i < displayIds.size(); ++i) {
             int port = getPhysicalPortLocked(displayIds.get(i));
@@ -988,7 +987,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
             Display display = mDisplayManager.getDisplay(displayId);
             if (display == null) {
                 mPortLookup.delete(displayId);
-                Slog.w(TAG, "Could not retrieve display for id: " + displayId);
+                Slogf.w(TAG, "Could not retrieve display for id: " + displayId);
                 return DisplayHelper.INVALID_PORT;
             }
             int port = DisplayHelper.getPhysicalPort(display);
@@ -1056,7 +1055,7 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
 
     private static void logd(String msg) {
         if (DBG) {
-            Slog.d(TAG, msg);
+            Slogf.d(TAG, msg);
         }
     }
 }

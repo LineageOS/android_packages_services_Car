@@ -21,7 +21,7 @@ import static java.lang.Integer.toHexString;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.hardware.CarPropertyConfig;
 import android.car.hardware.CarPropertyValue;
 import android.car.hardware.property.CarPropertyEvent;
@@ -77,7 +77,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
     public CarPropertyService(Context context, PropertyHalService hal) {
         if (DBG) {
-            Slog.d(TAG, "CarPropertyService started!");
+            Slogf.d(TAG, "CarPropertyService started!");
         }
         mHal = hal;
         mContext = context;
@@ -112,7 +112,7 @@ public class CarPropertyService extends ICarProperty.Stub
         @Override
         public void binderDied() {
             if (DBG) {
-                Slog.d(TAG, "binderDied " + mListenerBinder);
+                Slogf.d(TAG, "binderDied " + mListenerBinder);
             }
 
             for (int i = 0; i < mRateMap.size(); i++) {
@@ -156,7 +156,7 @@ public class CarPropertyService extends ICarProperty.Stub
             mConfigs = mHal.getPropertyList();
             mPropToPermission = mHal.getPermissionsForAllProperties();
             if (DBG) {
-                Slog.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
+                Slogf.d(TAG, "cache CarPropertyConfigs " + mConfigs.size());
             }
         }
     }
@@ -211,10 +211,10 @@ public class CarPropertyService extends ICarProperty.Stub
     @Override
     public void registerListener(int propId, float rate, ICarPropertyEventListener listener) {
         if (DBG) {
-            Slog.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
+            Slogf.d(TAG, "registerListener: propId=0x" + toHexString(propId) + " rate=" + rate);
         }
         if (listener == null) {
-            Slog.e(TAG, "registerListener: Listener is null.");
+            Slogf.e(TAG, "registerListener: Listener is null.");
             throw new IllegalArgumentException("listener cannot be null.");
         }
 
@@ -225,8 +225,8 @@ public class CarPropertyService extends ICarProperty.Stub
             propertyConfig = mConfigs.get(propId);
             if (propertyConfig == null) {
                 // Do not attempt to register an invalid propId
-                Slog.e(TAG, "registerListener:  propId is not in config list: 0x" + toHexString(
-                        propId));
+                Slogf.e(TAG, "registerListener:  propId is not in config list: 0x"
+                        + toHexString(propId));
                 return;
             }
             CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
@@ -286,18 +286,18 @@ public class CarPropertyService extends ICarProperty.Stub
         } catch (RemoteException ex) {
             // If we cannot send a record, its likely the connection snapped. Let the binder
             // death handle the situation.
-            Slog.e(TAG, "onEvent calling failed: " + ex);
+            Slogf.e(TAG, "onEvent calling failed: " + ex);
         }
     }
 
     @Override
     public void unregisterListener(int propId, ICarPropertyEventListener listener) {
         if (DBG) {
-            Slog.d(TAG, "unregisterListener propId=0x" + toHexString(propId));
+            Slogf.d(TAG, "unregisterListener propId=0x" + toHexString(propId));
         }
         CarServiceUtils.assertPermission(mContext, mHal.getReadPermission(propId));
         if (listener == null) {
-            Slog.e(TAG, "unregisterListener: Listener is null.");
+            Slogf.e(TAG, "unregisterListener: Listener is null.");
             throw new IllegalArgumentException("Listener is null");
         }
 
@@ -312,20 +312,20 @@ public class CarPropertyService extends ICarProperty.Stub
             List<Client> propertyClients = mPropIdClientMap.get(propId);
             if (mConfigs.get(propId) == null) {
                 // Do not attempt to register an invalid propId
-                Slog.e(TAG, "unregisterListener: propId is not in config list:0x" + toHexString(
-                        propId));
+                Slogf.e(TAG, "unregisterListener: propId is not in config list:0x"
+                        + toHexString(propId));
                 return;
             }
             if ((client == null) || (propertyClients == null)) {
-                Slog.e(TAG,
-                        "unregisterListenerBinderLocked: Listener was not previously registered.");
+                Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not previously "
+                        + "registered.");
             } else {
                 if (propertyClients.remove(client)) {
                     client.removeProperty(propId);
                     clearSetOperationRecorderLocked(propId, client);
 
                 } else {
-                    Slog.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
+                    Slogf.e(TAG, "unregisterListenerBinderLocked: Listener was not registered for "
                             + "propId=0x" + toHexString(propId));
                 }
 
@@ -403,7 +403,7 @@ public class CarPropertyService extends ICarProperty.Stub
             }
         }
         if (DBG) {
-            Slog.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
+            Slogf.d(TAG, "getPropertyList returns " + availableProp.size() + " configs");
         }
         return availableProp;
     }
@@ -423,7 +423,7 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             if (mConfigs.get(prop) == null) {
                 // Do not attempt to register an invalid propId
-                Slog.e(TAG, "getProperty: propId is not in config list:0x" + toHexString(prop));
+                Slogf.e(TAG, "getProperty: propId is not in config list:0x" + toHexString(prop));
                 return null;
             }
         }
@@ -441,7 +441,7 @@ public class CarPropertyService extends ICarProperty.Stub
         synchronized (mLock) {
             if (mConfigs.get(prop) == null) {
                 // Do not attempt to register an invalid propId
-                Slog.e(TAG, "getPropertySafe: propId is not in config list:0x"
+                Slogf.e(TAG, "getPropertySafe: propId is not in config list:0x"
                         + toHexString(prop));
                 return null;
             }
@@ -459,8 +459,8 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         if (permissions == null) {
             // Property ID does not exist
-            Slog.e(TAG,
-                    "getReadPermission: propId is not in config list:0x" + toHexString(propId));
+            Slogf.e(TAG, "getReadPermission: propId is not in config list:0x"
+                    + toHexString(propId));
             return null;
         }
         return permissions.first;
@@ -475,8 +475,8 @@ public class CarPropertyService extends ICarProperty.Stub
         }
         if (permissions == null) {
             // Property ID does not exist
-            Slog.e(TAG,
-                    "getWritePermission: propId is not in config list:0x" + toHexString(propId));
+            Slogf.e(TAG, "getWritePermission: propId is not in config list:0x"
+                    + toHexString(propId));
             return null;
         }
         return permissions.second;
@@ -548,7 +548,7 @@ public class CarPropertyService extends ICarProperty.Stub
 
             for (int index : indexNeedToRemove) {
                 if (DBG) {
-                    Slog.d("ErrorEvent", " Clear propId:0x" + toHexString(propId)
+                    Slogf.d("ErrorEvent", " Clear propId:0x" + toHexString(propId)
                             + " areaId: 0x" + toHexString(areaIdToClient.keyAt(index)));
                 }
                 areaIdToClient.removeAt(index);
@@ -566,7 +566,7 @@ public class CarPropertyService extends ICarProperty.Stub
             int propId = event.getCarPropertyValue().getPropertyId();
             List<Client> clients = mPropIdClientMap.get(propId);
             if (clients == null) {
-                Slog.e(TAG, "onPropertyChange: no listener registered for propId=0x"
+                Slogf.e(TAG, "onPropertyChange: no listener registered for propId=0x"
                         + toHexString(propId));
                 continue;
             }
@@ -590,7 +590,7 @@ public class CarPropertyService extends ICarProperty.Stub
             } catch (RemoteException ex) {
                 // If we cannot send a record, its likely the connection snapped. Let binder
                 // death handle the situation.
-                Slog.e(TAG, "onEvent calling failed: " + ex);
+                Slogf.e(TAG, "onEvent calling failed: " + ex);
             }
         }
     }
@@ -603,7 +603,7 @@ public class CarPropertyService extends ICarProperty.Stub
                     && mSetOperationClientMap.get(property).get(areaId) != null) {
                 lastOperatedClient = mSetOperationClientMap.get(property).get(areaId);
             } else {
-                Slog.e(TAG, "Can not find the client changed propertyId: 0x"
+                Slogf.e(TAG, "Can not find the client changed propertyId: 0x"
                         + toHexString(property) + " in areaId: 0x" + toHexString(areaId));
             }
 
@@ -622,7 +622,7 @@ public class CarPropertyService extends ICarProperty.Stub
                             errorCode));
             lastOperatedClient.getListener().onEvent(eventList);
         } catch (RemoteException ex) {
-            Slog.e(TAG, "onEvent calling failed: " + ex);
+            Slogf.e(TAG, "onEvent calling failed: " + ex);
         }
     }
 }

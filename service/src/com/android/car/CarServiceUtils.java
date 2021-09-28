@@ -18,7 +18,7 @@ package com.android.car;
 
 import android.annotation.Nullable;
 import android.car.Car;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.pm.ApplicationInfo;
 import android.content.pm.PackageManager;
@@ -71,7 +71,7 @@ public final class CarServiceUtils {
                     0);
         } catch (NameNotFoundException e) {
             String msg = PACKAGE_NOT_FOUND + packageName;
-            Slog.w(CarLog.TAG_SERVICE, msg, e);
+            Slogf.w(CarLog.TAG_SERVICE,  msg, e);
             throw new SecurityException(msg, e);
         }
         if (appInfo == null) {
@@ -249,7 +249,7 @@ public final class CarServiceUtils {
         synchronized (sHandlerThreads) {
             HandlerThread thread = sHandlerThreads.get(name);
             if (thread == null || !thread.isAlive()) {
-                Slog.i(TAG, "Starting HandlerThread:" + name);
+                Slogf.i(TAG, "Starting HandlerThread:" + name);
                 thread = new HandlerThread(name);
                 thread.start();
                 sHandlerThreads.put(name, thread);
@@ -413,7 +413,7 @@ public final class CarServiceUtils {
         } catch (Exception e) {
             String msg = "cannot load class:" + className + " method:" + methodName;
             if (ignoreFailure) {
-                Slog.w(TAG, msg, e);
+                Slogf.w(TAG,  msg, e);
                 return null;
             } else {
                 throw new RuntimeException(msg, e);

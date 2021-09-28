@@ -29,9 +29,9 @@ import static com.google.common.truth.Truth.assertThat;
 import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.automotive.watchdog.PerStateBytes;
+import android.car.builtin.util.Slogf;
 import android.car.watchdog.IoOveruseStats;
 import android.content.Context;
-import android.util.Slog;
 
 import androidx.test.InstrumentationRegistry;
 import androidx.test.filters.SmallTest;
@@ -76,7 +76,7 @@ public final class WatchdogStorageUnitTest {
     public void tearDown() {
         mService.release();
         if (!mDatabaseFile.delete()) {
-            Slog.e(TAG, "Failed to delete the database file: " + mDatabaseFile.getAbsolutePath());
+            Slogf.e(TAG, "Failed to delete the database file: %s", mDatabaseFile.getAbsolutePath());
         }
     }
 

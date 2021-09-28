@@ -23,7 +23,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DE
 
 import android.annotation.NonNull;
 import android.annotation.XmlRes;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.content.res.XmlResourceParser;
@@ -182,7 +182,7 @@ class CarAudioZonesHelperLegacy {
                 }
             }
         } catch (Exception e) {
-            Slog.e(CarLog.TAG_AUDIO, "Error parsing volume groups configuration", e);
+            Slogf.e(CarLog.TAG_AUDIO, "Error parsing volume groups configuration", e);
         }
         return carVolumeGroups;
     }

@@ -26,7 +26,7 @@ import android.annotation.SystemApi;
 import android.car.Car;
 import android.car.CarManagerBase;
 import android.car.annotation.RequiredFeature;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.RemoteException;
@@ -278,8 +278,8 @@ public final class CarEvsManager extends CarManagerBase {
      */
     private void handleServiceStatusChanged(CarEvsStatus status) {
         if (DBG) {
-            Slog.d(TAG, "Service state changed: service = " + status.getServiceType() +
-                    ", state = " + status.getState());
+            Slogf.d(TAG, "Service state changed: service = " + status.getServiceType()
+                    + ", state = " + status.getState());
         }
 
         final CarEvsStatusListener listener;
@@ -292,7 +292,7 @@ public final class CarEvsManager extends CarManagerBase {
         if (listener != null) {
             executor.execute(() -> listener.onStatusChanged(status));
         } else if (DBG) {
-            Slog.w(TAG, "No client seems active; a received event is ignored.");
+            Slogf.w(TAG, "No client seems active; a received event is ignored.");
         }
     }
 
@@ -309,7 +309,7 @@ public final class CarEvsManager extends CarManagerBase {
     public void setStatusListener(@NonNull @CallbackExecutor Executor executor,
             @NonNull CarEvsStatusListener listener) {
         if (DBG) {
-            Slog.d(TAG, "Registering a service monitoring listener.");
+            Slogf.d(TAG, "Registering a service monitoring listener.");
         }
 
         Objects.requireNonNull(listener);
@@ -338,7 +338,7 @@ public final class CarEvsManager extends CarManagerBase {
     @RequiresPermission(Car.PERMISSION_MONITOR_CAR_EVS_STATUS)
     public void clearStatusListener() {
         if (DBG) {
-            Slog.d(TAG, "Unregistering a service monitoring callback.");
+            Slogf.d(TAG, "Unregistering a service monitoring callback.");
         }
 
         synchronized (mStatusLock) {
@@ -416,7 +416,7 @@ public final class CarEvsManager extends CarManagerBase {
      */
     private void handleStreamEvent(@CarEvsStreamEvent int event) {
         if (DBG) {
-            Slog.d(TAG, "Received: " + event);
+            Slogf.d(TAG, "Received: " + event);
         }
 
         final CarEvsStreamCallback callback;
@@ -429,7 +429,7 @@ public final class CarEvsManager extends CarManagerBase {
         if (callback != null) {
             executor.execute(() -> callback.onStreamEvent(event));
         } else if (DBG) {
-            Slog.w(TAG, "No client seems active; a current stream event is ignored.");
+            Slogf.w(TAG, "No client seems active; a current stream event is ignored.");
         }
     }
 
@@ -443,7 +443,7 @@ public final class CarEvsManager extends CarManagerBase {
     private void handleNewFrame(@NonNull CarEvsBufferDescriptor buffer) {
         Objects.requireNonNull(buffer);
         if (DBG) {
-            Slog.d(TAG, "Received a buffer: " + buffer);
+            Slogf.d(TAG, "Received a buffer: " + buffer);
         }
 
         final CarEvsStreamCallback callback;
@@ -457,8 +457,8 @@ public final class CarEvsManager extends CarManagerBase {
             executor.execute(() -> callback.onNewFrame(buffer));
         } else {
             if (DBG) {
-                Slog.w(TAG, "A buffer is being returned back to the service " +
-                        "because no active clients exist.");
+                Slogf.w(TAG, "A buffer is being returned back to the service because no active "
+                        + "clients exist.");
             }
             returnFrameBuffer(buffer);
         }
@@ -539,7 +539,7 @@ public final class CarEvsManager extends CarManagerBase {
             @NonNull @CallbackExecutor Executor executor,
             @NonNull CarEvsStreamCallback callback) {
         if (DBG) {
-            Slog.d(TAG, "Received a request to start a video stream: " + type);
+            Slogf.d(TAG, "Received a request to start a video stream: " + type);
         }
 
         Objects.requireNonNull(executor);
@@ -568,7 +568,7 @@ public final class CarEvsManager extends CarManagerBase {
     public void stopVideoStream() {
         synchronized (mStreamLock) {
             if (mStreamCallback == null) {
-                Slog.e(TAG, "The service has not started yet.");
+                Slogf.e(TAG, "The service has not started yet.");
                 return;
             }
 
@@ -597,7 +597,7 @@ public final class CarEvsManager extends CarManagerBase {
         try {
             return mService.getCurrentStatus();
         } catch (RemoteException err) {
-            Slog.e(TAG, "Failed to read a status of the service.");
+            Slogf.e(TAG, "Failed to read a status of the service.");
             return new CarEvsStatus(SERVICE_TYPE_REARVIEW, SERVICE_STATE_UNAVAILABLE);
         }
     }
@@ -617,7 +617,7 @@ public final class CarEvsManager extends CarManagerBase {
                 token = new Binder();
             }
         } catch (RemoteException err) {
-            Slog.e(TAG, "Failed to generate a session token.");
+            Slogf.e(TAG, "Failed to generate a session token.");
             token = new Binder();
         } finally {
             return token;
@@ -636,7 +636,7 @@ public final class CarEvsManager extends CarManagerBase {
         try {
             return mService.isSupported(type);
         } catch (RemoteException err) {
-            Slog.e(TAG, "Failed to query a service availability");
+            Slogf.e(TAG, "Failed to query a service availability");
             return false;
         }
     }

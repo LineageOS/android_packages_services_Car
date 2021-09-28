@@ -17,7 +17,7 @@
 package com.android.car;
 
 import android.annotation.Nullable;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.occupantawareness.DriverMonitoringDetection;
 import android.car.occupantawareness.GazeDetection;
 import android.car.occupantawareness.OccupantAwarenessDetection;
@@ -57,7 +57,7 @@ import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
                 break;
 
             default:
-                Slog.e(TAG, "Invalid status code: " + inputStatus);
+                Slogf.e(TAG, "Invalid status code: " + inputStatus);
                 break;
         }
 
@@ -82,7 +82,7 @@ import android.hardware.automotive.occupant_awareness.OccupantAwarenessStatus;
                 break;
 
             default:
-                Slog.e(TAG, "Invalid status code: " + inputDetectionFlags);
+                Slogf.e(TAG, "Invalid status code: " + inputDetectionFlags);
                 break;
         }
 

@@ -22,7 +22,7 @@ import static android.hardware.automotive.vehicle.V2_0.VehicleProperty.EVS_SERVI
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.car.evs.CarEvsManager.CarEvsServiceType;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceRequestIndex;
 import android.hardware.automotive.vehicle.V2_0.EvsServiceState;
@@ -152,7 +152,7 @@ public class EvsHalService extends HalServiceBase {
         }
 
         if (listener == null) {
-            Slog.w(TAG, "EVS Hal event occurs while the listener is null.");
+            Slogf.w(TAG, "EVS Hal event occurs while the listener is null.");
             return;
         }
 
@@ -176,11 +176,11 @@ public class EvsHalService extends HalServiceBase {
                         on = v.value.int32Values.get(
                                 EvsServiceRequestIndex.STATE) == EvsServiceState.ON;
                         if (DBG) {
-                            Slog.d(TAG,
+                            Slogf.d(TAG,
                                     "Received EVS_SERVICE_REQUEST: type = " + type + " on = " + on);
                         }
                     } catch (IndexOutOfBoundsException e) {
-                        Slog.e(TAG, "Received invalid EVS_SERVICE_REQUEST, missing type or state,"
+                        Slogf.e(TAG, "Received invalid EVS_SERVICE_REQUEST, missing type or state,"
                                 + " int32Values: " + v.value.int32Values);
                         break;
                     }
@@ -189,7 +189,7 @@ public class EvsHalService extends HalServiceBase {
 
                 default:
                     if (DBG) {
-                        Slog.d(TAG, "Received unknown property change: " + v);
+                        Slogf.d(TAG, "Received unknown property change: " + v);
                     }
                     break;
             }

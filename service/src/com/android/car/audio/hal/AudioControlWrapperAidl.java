@@ -25,7 +25,7 @@ import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DU
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.builtin.os.ServiceManagerHelper;
-import android.car.builtin.util.Slog;
+import android.car.builtin.util.Slogf;
 import android.hardware.automotive.audiocontrol.DuckingInfo;
 import android.hardware.automotive.audiocontrol.IAudioControl;
 import android.hardware.automotive.audiocontrol.IFocusListener;
@@ -86,13 +86,13 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void registerFocusListener(HalFocusListener focusListener) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "Registering focus listener on AudioControl HAL");
+            Slogf.d(TAG, "Registering focus listener on AudioControl HAL");
         }
         IFocusListener listenerWrapper = new FocusListenerWrapper(focusListener);
         try {
             mAudioControl.registerFocusListener(listenerWrapper);
         } catch (RemoteException e) {
-            Slog.e(TAG, "Failed to register focus listener");
+            Slogf.e(TAG, "Failed to register focus listener");
             throw new IllegalStateException("IAudioControl#registerFocusListener failed", e);
         }
         mListenerRegistered = true;
@@ -101,7 +101,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     @Override
     public void onAudioFocusChange(@AttributeUsage int usage, int zoneId, int focusChange) {
         if (Log.isLoggable(TAG, Log.DEBUG)) {
-            Slog.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
+            Slogf.d(TAG, "onAudioFocusChange: usage " + usageToString(usage)
                     + ", zoneId " + zoneId + ", focusChange " + focusChange);
         }
         try {
@@ -133,7 +133,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.setFadeTowardFront(value);
         } catch (RemoteException e) {
-            Slog.e(TAG, "setFadeTowardFront with " + value + " failed", e);
+            Slogf.e(TAG, "setFadeTowardFront with " + value + " failed", e);
         }
     }
 
@@ -142,7 +142,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.setBalanceTowardRight(value);
         } catch (RemoteException e) {
-            Slog.e(TAG, "setBalanceTowardRight with " + value + " failed", e);
+            Slogf.e(TAG, "setBalanceTowardRight with " + value + " failed", e);
         }
     }
 
@@ -158,7 +158,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.onDevicesToDuckChange(duckingInfos);
         } catch (RemoteException e) {
-            Slog.e(TAG, "onDevicesToDuckChange failed", e);
+            Slogf.e(TAG, "onDevicesToDuckChange failed", e);
         }
     }
 
@@ -171,7 +171,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
         try {
             mAudioControl.onDevicesToMuteChange(mutingInfoToHal);
         } catch (RemoteException e) {
-            Slog.e(TAG, "onDevicesToMuteChange failed", e);
+            Slogf.e(TAG, "onDevicesToMuteChange failed", e);
         }
     }
 
@@ -192,7 +192,7 @@ public final class AudioControlWrapperAidl implements AudioControlWrapper {
     }
 
     private void binderDied() {
-        Slog.w(TAG, "AudioControl HAL died. Fetching new handle");
+        Slogf.w(TAG, "AudioControl HAL died. Fetching new handle");
         mListenerRegistered = false;
         mBinder = AudioControlWrapperAidl.getService();
         mAudioControl = IAudioControl.Stub.asInterface(mBinder);
