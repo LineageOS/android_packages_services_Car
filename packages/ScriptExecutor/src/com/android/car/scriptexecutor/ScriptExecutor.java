@@ -84,9 +84,7 @@ public final class ScriptExecutor extends Service {
                     return;
                 }
 
-                // TODO(b/189241508): Start passing publishedData instead of null
-                // once publishedData parser is implemented.
-                nativeInvokeScript(mLuaEnginePtr, scriptBody, functionName, null,
+                nativeInvokeScript(mLuaEnginePtr, scriptBody, functionName, publishedData,
                         savedState, listener);
             });
         }

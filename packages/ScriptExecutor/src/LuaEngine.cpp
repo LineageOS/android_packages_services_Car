@@ -72,7 +72,7 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
         if (lua_isboolean(lua, /* index = */ -1)) {
             bundleWrapper->putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
         } else if (lua_isinteger(lua, /* index = */ -1)) {
-            bundleWrapper->putInteger(key, static_cast<int>(lua_tointeger(lua, /* index = */ -1)));
+            bundleWrapper->putLong(key, static_cast<int64_t>(lua_tointeger(lua, /* index = */ -1)));
         } else if (lua_isnumber(lua, /* index = */ -1)) {
             bundleWrapper->putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
         } else if (lua_isstring(lua, /* index = */ -1)) {
@@ -248,10 +248,8 @@ int LuaEngine::run() {
     // input arguments are in the Lua stack as well in proper order.
     // On how to call Lua functions: https://www.lua.org/pil/25.2.html
     // Doc on lua_pcall: https://www.lua.org/manual/5.3/manual.html#lua_pcall
-    // TODO(b/189241508): Once we implement publishedData parsing, nargs should
-    // change from 1 to 2.
     // TODO(b/192284612): add test case for failed call.
-    return lua_pcall(mLuaState, /* nargs= */ 1, /* nresults= */ 0, /*errfunc= */ 0);
+    return lua_pcall(mLuaState, /* nargs= */ 2, /* nresults= */ 0, /*errfunc= */ 0);
 }
 
 int LuaEngine::onSuccess(lua_State* lua) {

@@ -44,6 +44,7 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
 
     jclass booleanClass = env->FindClass("java/lang/Boolean");
     jclass integerClass = env->FindClass("java/lang/Integer");
+    jclass longClass = env->FindClass("java/lang/Long");
     jclass numberClass = env->FindClass("java/lang/Number");
     jclass stringClass = env->FindClass("java/lang/String");
     jclass intArrayClass = env->FindClass("[I");
@@ -70,6 +71,10 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
         } else if (env->IsInstanceOf(value, integerClass)) {
             jmethodID intMethod = env->GetMethodID(integerClass, "intValue", "()I");
             lua_pushinteger(luaEngine->getLuaState(), env->CallIntMethod(value, intMethod));
+        } else if (env->IsInstanceOf(value, longClass)) {
+            jmethodID longMethod = env->GetMethodID(longClass, "longValue", "()J");
+            lua_pushinteger(luaEngine->getLuaState(), env->CallLongMethod(value, longMethod));
+
         } else if (env->IsInstanceOf(value, numberClass)) {
             // Condense other numeric types using one class. Because lua supports only
             // integer or double, and we handled integer in previous if clause.

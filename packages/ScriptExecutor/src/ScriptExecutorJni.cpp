@@ -108,11 +108,8 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
         return;
     }
 
-    // TODO(b/189241508): Provide implementation to parse publishedData input,
-    // convert it into Lua table and push into Lua stack.
-    if (publishedData) {
-        LOG(WARNING) << "Parsing of publishedData is not implemented yet.";
-    }
+    // Unpack bundle in publishedData, convert to Lua table and push it to Lua stack.
+    pushBundleToLuaTable(env, engine, publishedData);
 
     // Unpack bundle in savedState, convert to Lua table and push it to Lua
     // stack.
