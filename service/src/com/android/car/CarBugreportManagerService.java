@@ -25,6 +25,7 @@ import android.annotation.RequiresPermission;
 import android.car.CarBugreportManager.CarBugreportManagerCallback;
 import android.car.ICarBugreportCallback;
 import android.car.ICarBugreportService;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.SystemPropertiesHelper;
 import android.car.builtin.util.Slog;
 import android.content.Context;
@@ -32,7 +33,6 @@ import android.content.pm.PackageManager;
 import android.net.LocalSocket;
 import android.net.LocalSocketAddress;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.ParcelFileDescriptor;
@@ -103,7 +103,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
      */
     public CarBugreportManagerService(Context context) {
         // Per https://source.android.com/setup/develop/new-device, user builds are debuggable=0
-        this(context, !Build.IS_DEBUGGABLE);
+        this(context, !BuildHelper.isDebuggableBuild());
     }
 
     @VisibleForTesting

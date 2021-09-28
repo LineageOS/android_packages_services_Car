@@ -29,6 +29,7 @@ import android.car.CarFeatures;
 import android.car.ICar;
 import android.car.ICarResultReceiver;
 import android.car.builtin.app.ActivityManagerHelper;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slog;
@@ -42,7 +43,6 @@ import android.hardware.automotive.vehicle.V2_0.IVehicle;
 import android.hardware.automotive.vehicle.V2_0.VehiclePropValue;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
 import android.os.Binder;
-import android.os.Build;
 import android.os.Bundle;
 import android.os.IBinder;
 import android.os.Process;
@@ -330,7 +330,7 @@ public class ICarImpl extends ICar.Stub {
                 () -> new CarMediaService(serviceContext, mCarUserService));
         mCarBugreportManagerService = constructWithTrace(t, CarBugreportManagerService.class,
                 () -> new CarBugreportManagerService(serviceContext));
-        if (!Build.IS_USER) {
+        if (!BuildHelper.isUserBuild()) {
             mCarExperimentalFeatureServiceController = constructWithTrace(
                     t, CarExperimentalFeatureServiceController.class,
                     () -> new CarExperimentalFeatureServiceController(serviceContext));

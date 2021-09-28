@@ -21,6 +21,7 @@ import android.annotation.Nullable;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.ICarResultReceiver;
+import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -39,7 +40,6 @@ import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReq;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateShutdownParam;
 import android.net.wifi.WifiManager;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.os.IBinder;
@@ -785,7 +785,7 @@ public class CarPowerManagementService extends ICarPower.Stub implements
             intervalMs = mShutdownPollingIntervalMs;
             pollingCount = (mShutdownPrepareTimeMs / mShutdownPollingIntervalMs) + 1;
         }
-        if (Build.IS_USERDEBUG || Build.IS_ENG) {
+        if (BuildHelper.isUserDebugBuild() || BuildHelper.isEngBuild()) {
             int shutdownPrepareTimeOverrideInSecs =
                     SystemProperties.getInt(PROP_MAX_GARAGE_MODE_DURATION_OVERRIDE, -1);
             if (shutdownPrepareTimeOverrideInSecs >= 0) {
