@@ -43,7 +43,7 @@ import java.util.concurrent.Executors;
 
 public class CarTelemetryTestFragment extends Fragment {
     private static final String LUA_SCRIPT_ON_GEAR_CHANGE =
-            "function onGearChange(state)\n"
+            "function onGearChange(published_data, state)\n"
                     + "    result = {data = \"Hello World!\"}\n"
                     + "    on_script_finished(result)\n"
                     + "end\n";
