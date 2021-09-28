@@ -40,7 +40,6 @@ import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.os.UserHandle;
 import android.os.UserManager;
-import android.util.DebugUtils;
 import android.util.SparseIntArray;
 
 import com.android.car.CarLog;
@@ -49,6 +48,7 @@ import com.android.car.CarServiceUtils;
 import com.android.car.bluetooth.BuiltinPackageDependency;
 import com.android.car.internal.common.UserHelperLite;
 import com.android.car.internal.os.CarSystemProperties;
+import com.android.car.internal.util.DebugUtils;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
 import com.android.internal.annotations.GuardedBy;
