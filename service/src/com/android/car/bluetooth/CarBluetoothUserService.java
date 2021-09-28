@@ -18,10 +18,6 @@ package com.android.car.bluetooth;
 import android.bluetooth.BluetoothA2dpSink;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadsetClient;
-import android.bluetooth.BluetoothMapClient;
-import android.bluetooth.BluetoothPan;
-import android.bluetooth.BluetoothPbapClient;
 import android.bluetooth.BluetoothProfile;
 import android.car.ICarBluetoothUserService;
 import android.car.builtin.util.Slogf;
@@ -51,11 +47,7 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
 
     // Profiles we support
     private static final List<Integer> sProfilesToConnect = Arrays.asList(
-            BluetoothProfile.HEADSET_CLIENT,
-            BluetoothProfile.PBAP_CLIENT,
-            BluetoothProfile.A2DP_SINK,
-            BluetoothProfile.MAP_CLIENT,
-            BluetoothProfile.PAN
+            BluetoothProfile.A2DP_SINK
     );
 
     private final PerUserCarServiceImpl mService;
@@ -64,10 +56,6 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     // Profile Proxies Objects to pair with above list. Access to these proxy objects will all be
     // guarded by the below mBluetoothProxyLock
     private BluetoothA2dpSink mBluetoothA2dpSink;
-    private BluetoothHeadsetClient mBluetoothHeadsetClient;
-    private BluetoothPbapClient mBluetoothPbapClient;
-    private BluetoothMapClient mBluetoothMapClient;
-    private BluetoothPan mBluetoothPan;
 
     // Concurrency variables for waitForProxies. Used so we can best effort block with a timeout
     // while waiting for services to be bound to the proxy objects.
@@ -140,24 +128,6 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
             mBluetoothAdapter.closeProfileProxy(BluetoothProfile.A2DP_SINK, mBluetoothA2dpSink);
             mBluetoothA2dpSink = null;
             mBluetoothProfileStatus.put(BluetoothProfile.A2DP_SINK, false);
-
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.HEADSET_CLIENT,
-                    mBluetoothHeadsetClient);
-            mBluetoothHeadsetClient = null;
-            mBluetoothProfileStatus.put(BluetoothProfile.HEADSET_CLIENT, false);
-
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.PBAP_CLIENT, mBluetoothPbapClient);
-            mBluetoothPbapClient = null;
-            mBluetoothProfileStatus.put(BluetoothProfile.PBAP_CLIENT, false);
-
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.MAP_CLIENT, mBluetoothMapClient);
-            mBluetoothMapClient = null;
-            mBluetoothProfileStatus.put(BluetoothProfile.MAP_CLIENT, false);
-
-            mBluetoothAdapter.closeProfileProxy(BluetoothProfile.PAN, mBluetoothPan);
-            mBluetoothPan = null;
-            mBluetoothProfileStatus.put(BluetoothProfile.PAN, false);
-
             mConnectedProfiles = 0;
         } finally {
             mBluetoothProxyLock.unlock();
@@ -184,21 +154,9 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                     case BluetoothProfile.A2DP_SINK:
                         mBluetoothA2dpSink = (BluetoothA2dpSink) proxy;
                         break;
-                    case BluetoothProfile.HEADSET_CLIENT:
-                        mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
-                        break;
-                    case BluetoothProfile.PBAP_CLIENT:
-                        mBluetoothPbapClient = (BluetoothPbapClient) proxy;
-                        break;
-                    case BluetoothProfile.MAP_CLIENT:
-                        mBluetoothMapClient = (BluetoothMapClient) proxy;
-                        break;
-                    case BluetoothProfile.PAN:
-                        mBluetoothPan = (BluetoothPan) proxy;
-                        break;
                     default:
                         if (DBG) {
-                            Slogf.d(TAG, "Unhandled profile connected: %s",
+                            Slogf.d(TAG, "Unsupported profile connected: %s",
                                     BluetoothUtils.getProfileName(profile));
                         }
                         break;
@@ -293,99 +251,6 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
     }
 
     /**
-     * Connect a given remote device on a specific Bluetooth profile
-     *
-     * @param profile BluetoothProfile.* based profile ID
-     * @param device The device you wish to connect
-     */
-    @Override
-    public boolean bluetoothConnectToProfile(int profile, BluetoothDevice device) {
-        if (device == null) {
-            Slogf.e(TAG, "Cannot connect to profile on null device");
-            return false;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "Trying to connect to %s (%s) Profile: %s",
-                    device.getName(), device.getAddress(), BluetoothUtils.getProfileName(profile));
-        }
-        mBluetoothProxyLock.lock();
-        try {
-            if (!isBluetoothConnectionProxyAvailable(profile)) {
-                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
-                        && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slogf.e(TAG, "Cannot connect to Profile. Proxy Unavailable");
-                    return false;
-                }
-            }
-            switch (profile) {
-                case BluetoothProfile.A2DP_SINK:
-                    return mBluetoothA2dpSink.connect(device);
-                case BluetoothProfile.HEADSET_CLIENT:
-                    return mBluetoothHeadsetClient.connect(device);
-                case BluetoothProfile.MAP_CLIENT:
-                    return mBluetoothMapClient.connect(device);
-                case BluetoothProfile.PBAP_CLIENT:
-                    return mBluetoothPbapClient.connect(device);
-                case BluetoothProfile.PAN:
-                    return mBluetoothPan.connect(device);
-                default:
-                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
-                    break;
-            }
-        } finally {
-            mBluetoothProxyLock.unlock();
-        }
-        return false;
-    }
-
-    /**
-     * Disonnect a given remote device from a specific Bluetooth profile
-     *
-     * @param profile BluetoothProfile.* based profile ID
-     * @param device The device you wish to disconnect
-     */
-    @Override
-    public boolean bluetoothDisconnectFromProfile(int profile, BluetoothDevice device) {
-        if (device == null) {
-            Slogf.e(TAG, "Cannot disconnect from profile on null device");
-            return false;
-        }
-        if (DBG) {
-            Slogf.d(TAG, "Trying to disconnect from %s (%s) Profile: %s",
-                    device.getName(), device.getAddress(),
-                    BluetoothUtils.getProfileName(profile));
-        }
-        mBluetoothProxyLock.lock();
-        try {
-            if (!isBluetoothConnectionProxyAvailable(profile)) {
-                if (!waitForProxies(PROXY_OPERATION_TIMEOUT_MS)
-                        && !isBluetoothConnectionProxyAvailable(profile)) {
-                    Slogf.e(TAG, "Cannot disconnect from Profile. Proxy Unavailable");
-                    return false;
-                }
-            }
-            switch (profile) {
-                case BluetoothProfile.A2DP_SINK:
-                    return mBluetoothA2dpSink.disconnect(device);
-                case BluetoothProfile.HEADSET_CLIENT:
-                    return mBluetoothHeadsetClient.disconnect(device);
-                case BluetoothProfile.MAP_CLIENT:
-                    return mBluetoothMapClient.disconnect(device);
-                case BluetoothProfile.PBAP_CLIENT:
-                    return mBluetoothPbapClient.disconnect(device);
-                case BluetoothProfile.PAN:
-                    return mBluetoothPan.disconnect(device);
-                default:
-                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
-                    break;
-            }
-        } finally {
-            mBluetoothProxyLock.unlock();
-        }
-        return false;
-    }
-
-    /**
      * Get the connection policy of the given Bluetooth profile for the given remote device
      *
      * @param profile - Bluetooth profile
@@ -413,17 +278,8 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 case BluetoothProfile.A2DP_SINK:
                     policy = mBluetoothA2dpSink.getConnectionPolicy(device);
                     break;
-                case BluetoothProfile.HEADSET_CLIENT:
-                    policy = mBluetoothHeadsetClient.getConnectionPolicy(device);
-                    break;
-                case BluetoothProfile.MAP_CLIENT:
-                    policy = mBluetoothMapClient.getConnectionPolicy(device);
-                    break;
-                case BluetoothProfile.PBAP_CLIENT:
-                    policy = mBluetoothPbapClient.getConnectionPolicy(device);
-                    break;
                 default:
-                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unsupported Profile: %s", BluetoothUtils.getProfileName(profile));
                     policy = BluetoothProfile.CONNECTION_POLICY_UNKNOWN;
                     break;
             }
@@ -471,17 +327,8 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
                 case BluetoothProfile.A2DP_SINK:
                     mBluetoothA2dpSink.setConnectionPolicy(device, policy);
                     break;
-                case BluetoothProfile.HEADSET_CLIENT:
-                    mBluetoothHeadsetClient.setConnectionPolicy(device, policy);
-                    break;
-                case BluetoothProfile.MAP_CLIENT:
-                    mBluetoothMapClient.setConnectionPolicy(device, policy);
-                    break;
-                case BluetoothProfile.PBAP_CLIENT:
-                    mBluetoothPbapClient.setConnectionPolicy(device, policy);
-                    break;
                 default:
-                    Slogf.w(TAG, "Unknown Profile: %s", BluetoothUtils.getProfileName(profile));
+                    Slogf.w(TAG, "Unsupported Profile: %s", BluetoothUtils.getProfileName(profile));
                     break;
             }
         } finally {
@@ -497,10 +344,6 @@ public class CarBluetoothUserService extends ICarBluetoothUserService.Stub {
         pw.printf("Proxy operation timeout: %d ms\n", PROXY_OPERATION_TIMEOUT_MS);
         pw.printf("BluetoothAdapter: %s\n", mBluetoothAdapter);
         pw.printf("BluetoothA2dpSink: %s\n", mBluetoothA2dpSink);
-        pw.printf("BluetoothHeadsetClient: %s\n", mBluetoothHeadsetClient);
-        pw.printf("BluetoothPbapClient: %s\n", mBluetoothPbapClient);
-        pw.printf("BluetoothMapClient: %s\n", mBluetoothMapClient);
-        pw.printf("BluetoothPan: %s\n", mBluetoothPan);
         mFastPairProvider.dump(pw);
     }
 }
