@@ -17,12 +17,19 @@
 package android.car.builtin.os;
 
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
+import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
 import static android.media.AudioManager.GET_DEVICES_INPUTS;
 import static android.media.AudioManager.GET_DEVICES_OUTPUTS;
+import static android.media.AudioManager.MASTER_MUTE_CHANGED_ACTION;
+import static android.media.AudioManager.VOLUME_CHANGED_ACTION;
 
 import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.car.builtin.util.Slogf;
+import android.content.BroadcastReceiver;
+import android.content.Context;
+import android.content.Intent;
+import android.content.IntentFilter;
 import android.media.AudioAttributes;
 import android.media.AudioAttributes.AttributeUsage;
 import android.media.AudioDeviceInfo;
@@ -48,6 +55,7 @@ import java.util.Objects;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class AudioServiceHelper {
 
+    public static final int UNDEFINED_STREAM_TYPE = -1;
     private static final String TAG = "AudioServiceHelper";
 
     private AudioServiceHelper() {
@@ -317,6 +325,32 @@ public final class AudioServiceHelper {
         return audioManager.isMasterMute();
     }
 
+    /**
+     * Registers volume and mute receiver
+     */
+    public static void registerVolumeAndMuteReceiver(Context context,
+            VolumeAndMuteReceiver audioAndMuteHelper) {
+        Objects.requireNonNull(context, "Context can not be null.");
+        Objects.requireNonNull(audioAndMuteHelper, "Audio and Mute helper can not be null.");
+
+        IntentFilter intentFilter = new IntentFilter();
+        intentFilter.addAction(VOLUME_CHANGED_ACTION);
+        intentFilter.addAction(MASTER_MUTE_CHANGED_ACTION);
+        context.registerReceiver(audioAndMuteHelper.getReceiver(), intentFilter,
+                Context.RECEIVER_NOT_EXPORTED);
+    }
+
+    /**
+     * Unregisters volume and mute receiver
+     */
+    public static void unregisterVolumeAndMuteReceiver(Context context,
+            VolumeAndMuteReceiver audioAndMuteHelper) {
+        Objects.requireNonNull(context, "Context can not be null.");
+        Objects.requireNonNull(audioAndMuteHelper, "Audio and Mute helper can not be null.");
+
+        context.unregisterReceiver(audioAndMuteHelper.getReceiver());
+    }
+
 
     /**
      * Audio gain information for a particular device:
@@ -401,5 +435,43 @@ public final class AudioServiceHelper {
         private boolean represents(AudioPatch patch) {
             return patch.id() == mHandleId;
         }
+    }
+
+    /**
+     * Class to manage volume and mute changes from audio manager
+     */
+    public abstract static class VolumeAndMuteReceiver {
+
+        private final BroadcastReceiver mReceiver = new BroadcastReceiver() {
+
+            @Override
+            public void onReceive(Context context, Intent intent) {
+                switch (intent.getAction()) {
+                    case VOLUME_CHANGED_ACTION:
+                        int streamType =
+                                intent.getIntExtra(EXTRA_VOLUME_STREAM_TYPE, UNDEFINED_STREAM_TYPE);
+                        onVolumeChanged(streamType);
+                        break;
+                    case MASTER_MUTE_CHANGED_ACTION:
+                        onMuteChanged();
+                        break;
+                }
+            }
+        };
+
+        private BroadcastReceiver getReceiver() {
+            return mReceiver;
+        }
+
+        /**
+         * Called on volume changes
+         * @param streamType type of stream for the volume change
+         */
+        public abstract void onVolumeChanged(int streamType);
+
+        /**
+         * Called on mute changes
+         */
+        public abstract void onMuteChanged();
     }
 }
