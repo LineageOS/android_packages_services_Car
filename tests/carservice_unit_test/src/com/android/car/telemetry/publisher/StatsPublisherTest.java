@@ -41,7 +41,17 @@ import android.os.Message;
 import android.os.PersistableBundle;
 import android.os.SystemClock;
 
+import com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured;
+import com.android.car.telemetry.AtomsProto.Atom;
+import com.android.car.telemetry.AtomsProto.ProcessMemoryState;
 import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.StatsLogProto.ConfigMetricsReport;
+import com.android.car.telemetry.StatsLogProto.DimensionsValue;
+import com.android.car.telemetry.StatsLogProto.DimensionsValueTuple;
+import com.android.car.telemetry.StatsLogProto.EventMetricData;
+import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
+import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
+import com.android.car.telemetry.StatsLogProto.StatsLogReport;
 import com.android.car.telemetry.StatsdConfigProto;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
@@ -61,6 +71,7 @@ import org.mockito.junit.MockitoJUnitRunner;
 import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
+import java.util.Arrays;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatsPublisherTest {
@@ -139,6 +150,48 @@ public class StatsPublisherTest {
                     .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
                         .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)
                         .addPackages("AID_SYSTEM"))
+                    .build();
+
+    private static final EventMetricData EVENT_DATA =
+            EventMetricData.newBuilder()
+                    .setElapsedTimestampNanos(99999999L)
+                    .setAtom(Atom.newBuilder()
+                            .setAppStartMemoryStateCaptured(
+                                    AppStartMemoryStateCaptured.newBuilder()
+                                            .setUid(1000)
+                                            .setActivityName("activityName")
+                                            .setRssInBytes(1234L)))
+                    .build();
+
+    private static final GaugeMetricData GAUGE_DATA =
+            GaugeMetricData.newBuilder()
+                    .addBucketInfo(GaugeBucketInfo.newBuilder()
+                            .addAtom(Atom.newBuilder()
+                                    .setProcessMemoryState(ProcessMemoryState.newBuilder()
+                                            .setRssInBytes(4567L)))
+                            .addElapsedTimestampNanos(445678901L))
+                    .addDimensionLeafValuesInWhat(DimensionsValue.newBuilder()
+                            .setValueInt(234))
+                    .build();
+
+    private static final StatsLogProto.ConfigMetricsReportList STATS_REPORT =
+            StatsLogProto.ConfigMetricsReportList.newBuilder()
+                    .addReports(ConfigMetricsReport.newBuilder()
+                            .addMetrics(StatsLogReport.newBuilder()
+                                    .setMetricId(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)
+                                    .setEventMetrics(
+                                            StatsLogReport.EventMetricDataWrapper.newBuilder()
+                                                    .addData(EVENT_DATA))))
+                    .addReports(ConfigMetricsReport.newBuilder()
+                            .addMetrics(StatsLogReport.newBuilder()
+                                    .setMetricId(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)
+                                    .setGaugeMetrics(
+                                            StatsLogReport.GaugeMetricDataWrapper.newBuilder()
+                                                    .addData(GAUGE_DATA))
+                                    .setDimensionsPathInWhat(DimensionsValue.newBuilder()
+                                            .setValueTuple(DimensionsValueTuple.newBuilder()
+                                                    .addDimensionsValue(DimensionsValue.newBuilder()
+                                                            .setField(1))))))
                     .build();
 
     private static final StatsLogProto.ConfigMetricsReportList EMPTY_STATS_REPORT =
@@ -309,23 +362,35 @@ public class StatsPublisherTest {
     }
 
     @Test
-    public void testPullsStatsdReport() throws Exception {
-        DataSubscriber subscriber = Mockito.mock(DataSubscriber.class);
-        when(subscriber.getSubscriber()).thenReturn(SUBSCRIBER_1);
-        when(subscriber.getMetricsConfig()).thenReturn(METRICS_CONFIG);
-        when(subscriber.getPublisherParam()).thenReturn(SUBSCRIBER_1.getPublisher());
-        mPublisher.addDataSubscriber(subscriber);
-        when(mStatsManager.getReports(anyLong())).thenReturn(
-                StatsLogProto.ConfigMetricsReportList.newBuilder()
-                        // add 2 empty reports
-                        .addReports(StatsLogProto.ConfigMetricsReport.newBuilder())
-                        .addReports(StatsLogProto.ConfigMetricsReport.newBuilder())
-                        .build().toByteArray());
+    public void testPullStatsdReport_correctlyPushesBundlesToSubscribers() throws Exception {
+        DataSubscriber subscriber1 = Mockito.mock(DataSubscriber.class);
+        when(subscriber1.getSubscriber()).thenReturn(SUBSCRIBER_1);
+        when(subscriber1.getMetricsConfig()).thenReturn(METRICS_CONFIG);
+        when(subscriber1.getPublisherParam()).thenReturn(SUBSCRIBER_1.getPublisher());
+        mPublisher.addDataSubscriber(subscriber1);
+        DataSubscriber subscriber2 = Mockito.mock(DataSubscriber.class);
+        when(subscriber2.getSubscriber()).thenReturn(SUBSCRIBER_2);
+        when(subscriber2.getMetricsConfig()).thenReturn(METRICS_CONFIG);
+        when(subscriber2.getPublisherParam()).thenReturn(SUBSCRIBER_2.getPublisher());
+        mPublisher.addDataSubscriber(subscriber2);
+        when(mStatsManager.getReports(anyLong())).thenReturn(STATS_REPORT.toByteArray());
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
-        verify(subscriber).push(mBundleCaptor.capture());
-        assertThat(mBundleCaptor.getValue().getInt("reportsCount")).isEqualTo(2);
+        verify(subscriber1).push(mBundleCaptor.capture());
+        PersistableBundle bundle1 = mBundleCaptor.getValue();
+        assertThat(bundle1.getLongArray("elapsed_timestamp_nanos"))
+            .asList().containsExactly(99999999L);
+        assertThat(bundle1.getIntArray("uid")).asList().containsExactly(1000);
+        assertThat(Arrays.asList(bundle1.getStringArray("activity_name")))
+            .containsExactly("activityName");
+        assertThat(bundle1.getLongArray("rss_in_bytes")).asList().containsExactly(1234L);
+        verify(subscriber2).push(mBundleCaptor.capture());
+        PersistableBundle bundle2 = mBundleCaptor.getValue();
+        assertThat(bundle2.getIntArray("uid")).asList().containsExactly(234);
+        assertThat(bundle2.getLongArray("rss_in_bytes")).asList().containsExactly(4567L);
+        assertThat(bundle2.getLongArray("elapsed_timestamp_nanos"))
+            .asList().containsExactly(445678901L);
     }
 
     private PersistableBundle getSavedStatsConfigs() throws Exception {
