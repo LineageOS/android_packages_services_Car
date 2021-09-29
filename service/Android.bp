@@ -75,7 +75,13 @@ android_app {
 
     libs: [
         "android.car",
-        "android.car.builtin"
+        "android.car.builtin",
+        "framework-annotations-lib",
+        "framework-connectivity",
+        "framework-statsd",
+        "framework-wifi",
+        "modules-utils-preconditions",
+        "modules-utils-shell-command-handler",
     ],
 
     static_libs: common_lib_deps,
