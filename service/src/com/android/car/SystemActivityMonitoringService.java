@@ -19,7 +19,6 @@ import static android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer
 import static android.car.content.pm.CarPackageManager.BLOCKING_INTENT_EXTRA_DISPLAY_ID;
 
 import android.app.ActivityOptions;
-import android.app.TaskInfo;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
@@ -176,7 +175,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
      * @param taskId id of task to be restarted.
      */
     public void restartTask(int taskId) {
-        TaskInfo rootTask = mAm.findRootTask(taskId);
+        Pair<Intent /* baseIntent */, Integer /* userId */> rootTask = mAm.findRootTask(taskId);
 
         if (rootTask == null) {
             Slogf.e(CarLog.TAG_AM, "Could not find root activity with task id " + taskId);
@@ -185,13 +184,13 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
         // Clear the task the root activity is running in and start it in a new task.
         // Effectively restart root activity.
-        rootTask.baseIntent.addFlags(
+        rootTask.first.addFlags(
                 Intent.FLAG_ACTIVITY_CLEAR_TASK | Intent.FLAG_ACTIVITY_NEW_TASK);
 
         if (Log.isLoggable(CarLog.TAG_AM, Log.INFO)) {
-            Slogf.i(CarLog.TAG_AM, "restarting root activity with user id " + rootTask.userId);
+            Slogf.i(CarLog.TAG_AM, "restarting root activity with user id " + rootTask.second);
         }
-        mContext.startActivityAsUser(rootTask.baseIntent, UserHandle.of(rootTask.userId));
+        mContext.startActivityAsUser(rootTask.first, UserHandle.of(rootTask.second));
     }
 
     public void registerActivityLaunchListener(ActivityLaunchListener listener) {
