@@ -190,7 +190,7 @@ public final class CarUserNoticeService implements CarServiceBase {
             try {
                 binder.setCallbackBinder(mIUserNotice);
             } catch (RemoteException e) {
-                Slogf.w(TAG,  "UserNoticeUI Service died", e);
+                Slogf.w(TAG, "UserNoticeUI Service died", e);
                 // Wait for reconnect
                 binder = null;
             }

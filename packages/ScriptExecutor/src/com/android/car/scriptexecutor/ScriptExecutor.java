@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorConstants;
@@ -75,10 +74,12 @@ public final class ScriptExecutor extends Service {
                         listener.onError(IScriptExecutorConstants.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
                                 e.getMessage(), "");
                     } catch (RemoteException remoteException) {
+                        // TODO(b/197006437): remove isLoggable() check once using Slogf
                         if (Log.isLoggable(TAG, Log.ERROR)) {
                             // At least log "message" here, in case it was never sent back via
                             // the callback.
-                            Slog.e(TAG, "failed while calling listener with exception ", e);
+                            // TODO(b/197006437): use android.car.builtin.util.Slogf instead
+                            Log.e(TAG, "failed while calling listener with exception ", e);
                         }
                     }
                     return;

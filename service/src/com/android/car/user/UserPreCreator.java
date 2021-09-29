@@ -225,7 +225,7 @@ public final class UserPreCreator {
         if (cause == null) {
             Slogf.w(TAG, message);
         } else {
-            Slogf.w(TAG,  message, cause);
+            Slogf.w(TAG, message, cause);
         }
     }
 }

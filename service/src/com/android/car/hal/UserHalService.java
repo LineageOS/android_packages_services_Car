@@ -353,7 +353,7 @@ public final class UserHalService extends HalServiceBase {
             mHal.set(request);
         } catch (ServiceSpecificException e) {
             handleRemovePendingRequest(requestId);
-            Slogf.w(TAG,  "Failed to set " + request, e);
+            Slogf.w(TAG, "Failed to set " + request, e);
             callback.onResponse(HalCallback.STATUS_HAL_SET_TIMEOUT, null);
         }
     }
@@ -424,7 +424,7 @@ public final class UserHalService extends HalServiceBase {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
         } catch (ServiceSpecificException e) {
-            Slogf.w(TAG,  "Failed to set REMOVE USER", e);
+            Slogf.w(TAG, "Failed to set REMOVE USER", e);
         }
     }
 
@@ -489,7 +489,7 @@ public final class UserHalService extends HalServiceBase {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
         } catch (ServiceSpecificException e) {
-            Slogf.w(TAG,  "Failed to set ANDROID POST SWITCH", e);
+            Slogf.w(TAG, "Failed to set ANDROID POST SWITCH", e);
         }
     }
 
@@ -521,7 +521,7 @@ public final class UserHalService extends HalServiceBase {
             if (DBG) Slogf.d(TAG, "Calling hal.set(): " + propRequest);
             mHal.set(propRequest);
         } catch (ServiceSpecificException e) {
-            Slogf.w(TAG,  "Failed to set LEGACY ANDROID SWITCH", e);
+            Slogf.w(TAG, "Failed to set LEGACY ANDROID SWITCH", e);
         }
     }
 
@@ -558,7 +558,7 @@ public final class UserHalService extends HalServiceBase {
         try {
             responseAsPropValue = mHal.get(requestAsPropValue);
         } catch (ServiceSpecificException e) {
-            Slogf.w(TAG,  "HAL returned error for request " + requestAsPropValue, e);
+            Slogf.w(TAG, "HAL returned error for request " + requestAsPropValue, e);
             return null;
         }
         if (responseAsPropValue == null) {
@@ -573,7 +573,7 @@ public final class UserHalService extends HalServiceBase {
         try {
             response = UserHalHelper.toUserIdentificationResponse(responseAsPropValue);
         } catch (IllegalArgumentException e) {
-            Slogf.w(TAG,  "invalid response from HAL for " + requestAsPropValue, e);
+            Slogf.w(TAG, "invalid response from HAL for " + requestAsPropValue, e);
             return null;
         }
         if (DBG) Slogf.d(TAG, "getUserAssociation(): response=" + response);
@@ -688,7 +688,7 @@ public final class UserHalService extends HalServiceBase {
         try {
             response = UserHalHelper.toUserIdentificationResponse(value);
         } catch (RuntimeException e) {
-            Slogf.w(TAG,  "error parsing UserIdentificationResponse (" + value + ")", e);
+            Slogf.w(TAG, "error parsing UserIdentificationResponse (" + value + ")", e);
             callback.onResponse(HalCallback.STATUS_WRONG_HAL_RESPONSE, null);
             CarStatsLog.write(CarStatsLog.CAR_USER_HAL_SET_USER_ASSOCIATION_RESPONSE_REPORTED,
                     getRequestIdForStatsLog(requestId),

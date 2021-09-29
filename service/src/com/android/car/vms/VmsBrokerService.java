@@ -319,7 +319,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
             try {
                 client.getCallback().onLayerAvailabilityChanged(availableLayers);
             } catch (RemoteException e) {
-                Slogf.w(TAG,  "onLayersAvailabilityChanged failed: " + client.getPackageName(), e);
+                Slogf.w(TAG, "onLayersAvailabilityChanged failed: " + client.getPackageName(), e);
             }
         }
     }
@@ -373,7 +373,7 @@ public class VmsBrokerService extends IVmsBrokerService.Stub implements CarServi
             try {
                 client.getCallback().onSubscriptionStateChanged(subscriptionState);
             } catch (RemoteException e) {
-                Slogf.w(TAG,  "onSubscriptionStateChanged failed: " + client.getPackageName(), e);
+                Slogf.w(TAG, "onSubscriptionStateChanged failed: " + client.getPackageName(), e);
             }
         }
     }

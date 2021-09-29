@@ -1539,7 +1539,7 @@ final class CarShellCommand extends BasicShellCommandHandler {
             // TODO(b/196179969): in the following CLs createGuest and createUser would be
             // replaced by the call which would return UserHandle. For now, it is possible
             // that current call return null.
-            Slogf.w(TAG,  "NullPointerException while creating User: ", e);
+            Slogf.w(TAG, "NullPointerException while creating User: ", e);
             newUser = null;
         }
 

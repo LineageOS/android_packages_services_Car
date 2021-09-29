@@ -260,7 +260,7 @@ public class CarBugreportManagerService extends ICarBugreportService.Stub implem
             progress = Float.parseFloat(parts[0]);
             total = Float.parseFloat(parts[1]);
         } catch (NumberFormatException e) {
-            Slogf.w(TAG,  "Invalid progress value: " + line, e);
+            Slogf.w(TAG, "Invalid progress value: " + line, e);
             return;
         }
         if (total == 0) {
