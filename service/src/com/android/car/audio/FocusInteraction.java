@@ -374,7 +374,7 @@ final class FocusInteraction {
         synchronized (mLock) {
             mUserId = userId;
             if (mContentObserver != null) {
-                mCarAudioFocusSettings.getContentResolver()
+                mCarAudioFocusSettings.getContentResolverForUser(userId)
                         .unregisterContentObserver(mContentObserver);
                 mContentObserver = null;
             }
@@ -390,9 +390,9 @@ final class FocusInteraction {
                     }
                 }
             };
-            mCarAudioFocusSettings.getContentResolver()
+            mCarAudioFocusSettings.getContentResolverForUser(userId)
                     .registerContentObserver(AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL_URI,
-                            false, mContentObserver, userId);
+                            /* notifyForDescendants= */false, mContentObserver);
             setRejectNavigationOnCallLocked(isRejectNavigationOnCallEnabledInSettings(mUserId));
         }
     }
