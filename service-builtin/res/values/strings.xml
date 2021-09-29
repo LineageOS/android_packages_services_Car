@@ -528,6 +528,11 @@
     <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_template_renderer">Render templates.</string>
 
+    <!-- Permission text: app can control launching applications in Car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_app_launch">control launching applications</string>
+    <!-- Permission text: app can control launching applications in Car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_app_launch">Control launching applications.</string>
+
     <!-- Blocking activity: Message to show to user when a feature of current application is not allowed. [CHAR LIMIT=120] -->
     <string name="activity_blocked_text">You can\u2019t use this feature while driving</string>
     <!-- Blocking activity: Message to accompany the exit_button that restarts the blocked app. [CHAR LIMIT=120] -->

@@ -32,6 +32,7 @@ import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
+import android.car.app.CarActivityManager;
 import android.car.builtin.os.ServiceManagerHelper;;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
@@ -386,6 +387,15 @@ public final class Car {
     @OptionalFeature
     @SystemApi
     public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
+
+    /**
+     * Service name for {@link android.car.app.CarActivityManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    @SystemApi
+    public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
 
     /** Permission necessary to access car's mileage information.
      *  @hide
@@ -887,6 +897,15 @@ public final class Car {
             "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
 
     /**
+     * Permission necessary to control launching applications in Car.
+     *
+     * @hide
+     */
+    @SystemApi
+    public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH =
+            "android.car.permission.CONTROL_CAR_APP_LAUNCH";
+
+    /**
      * Intent for connecting to the template renderer. Services that handle this intent must also
      * hold {@link #PERMISSION_TEMPLATE_RENDERER}. Applications would not bind to this service
      * directly, but instead they would use
@@ -934,28 +953,6 @@ public final class Car {
      */
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
-
-    /**
-     * If some specific Activity should be launched on the designated TDA all the time, include this
-     * integer extra in the first launching Intent and ActivityOption with the launch TDA.
-     * If the value is {@link #LAUNCH_PERSISTENT_ADD}, CarLaunchParamsModifier will memorize
-     * the Activity and the TDA pair, and assign the TDA in the following Intents for the Activity.
-     * If there is any assigned Activity on the TDA, it'll be replaced with the new Activity.
-     * If the value is {@Link #LAUNCH_PERSISTENT_DELETE}, it'll remove the stored info for the given
-     * Activity.
-     *
-     * @hide
-     */
-    @VisibleForHiddenApiCheck
-    public static final String CAR_EXTRA_LAUNCH_PERSISTENT =
-            "android.car.intent.extra.launchparams.PERSISTENT";
-
-    /** @hide */
-    @VisibleForHiddenApiCheck
-    public static final int LAUNCH_PERSISTENT_DELETE = 0;
-    /** @hide */
-    @VisibleForHiddenApiCheck
-    public static final int LAUNCH_PERSISTENT_ADD = 1;
 
     /** @hide */
     @VisibleForHiddenApiCheck
@@ -2016,6 +2013,9 @@ public final class Car {
                 break;
             case CAR_TELEMETRY_SERVICE:
                 manager = new CarTelemetryManager(this, binder);
+                break;
+            case CAR_ACTIVITY_SERVICE:
+                manager = new CarActivityManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing

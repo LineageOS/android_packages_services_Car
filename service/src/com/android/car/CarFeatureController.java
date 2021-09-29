@@ -66,6 +66,7 @@ public final class CarFeatureController implements CarServiceBase {
     private static final HashSet<String> MANDATORY_FEATURES = new HashSet<>(Arrays.asList(
             Car.APP_FOCUS_SERVICE,
             Car.AUDIO_SERVICE,
+            Car.CAR_ACTIVITY_SERVICE,
             Car.CAR_BUGREPORT_SERVICE,
             Car.CAR_DEVICE_POLICY_SERVICE,
             Car.CAR_DRIVING_STATE_SERVICE,
