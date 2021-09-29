@@ -102,7 +102,10 @@ $(call inherit-product, $(SRC_TARGET_DIR)/product/core_minimal.mk)
 
 # Default dex optimization configurations
 PRODUCT_PROPERTY_OVERRIDES += \
-     pm.dexopt.disable_bg_dexopt=true
+    pm.dexopt.disable_bg_dexopt=false \
+    pm.dexopt.downgrade_after_inactive_days=10
+    dalvik.vm.dex2oat-cpu-set=0,1,2,3 \
+    dalvik.vm.dex2oat-threads=4
 
 # Required init rc files for car
 PRODUCT_COPY_FILES += \
