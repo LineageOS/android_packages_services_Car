@@ -167,7 +167,7 @@ public interface DisplayInterface {
                 int gamma = GAMMA_SPACE_MAX;
                 try {
                     int linear = System.getInt(
-                            getContentResolverForUser(mContext, UserHandle.USER_CURRENT),
+                            getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
                             System.SCREEN_BRIGHTNESS);
                     gamma = convertLinearToGamma(linear, mMinimumBacklight, mMaximumBacklight);
                 } catch (SettingNotFoundException e) {
@@ -207,7 +207,7 @@ public interface DisplayInterface {
             int gamma = (percentBright * GAMMA_SPACE_MAX + 50) / 100;
             int linear = convertGammaToLinear(gamma, mMinimumBacklight, mMaximumBacklight);
             System.putInt(
-                    getContentResolverForUser(mContext, UserHandle.USER_CURRENT),
+                    getContentResolverForUser(mContext, UserHandle.CURRENT.getIdentifier()),
                     System.SCREEN_BRIGHTNESS,
                     linear);
         }

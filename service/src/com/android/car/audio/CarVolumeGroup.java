@@ -71,7 +71,7 @@ import java.util.Map;
     @GuardedBy("mLock")
     private boolean mIsMuted;
     @GuardedBy("mLock")
-    private @UserIdInt int mUserId = UserHandle.USER_CURRENT;
+    private @UserIdInt int mUserId = UserHandle.CURRENT.getIdentifier();
 
     private CarVolumeGroup(int zoneId, int id, CarAudioSettings settingsManager, int stepSize,
             int defaultGain, int minGain, int maxGain, SparseArray<String> contextToAddress,

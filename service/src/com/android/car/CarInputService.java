@@ -240,7 +240,7 @@ public class CarInputService extends ICarInput.Stub
 
     private static int getViewLongPressDelay(Context context) {
         return Settings.Secure.getInt(
-                getContentResolverForUser(context, UserHandle.USER_CURRENT),
+                getContentResolverForUser(context, UserHandle.CURRENT.getIdentifier()),
                 LONG_PRESS_TIMEOUT,
                 ViewConfiguration.getLongPressTimeout());
     }

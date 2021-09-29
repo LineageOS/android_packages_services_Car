@@ -191,16 +191,14 @@ public final class UserPreCreator {
                 : UserManager.USER_TYPE_FULL_SECONDARY;
         UserHandle user = null;
         try {
-            user = mUserManager.preCreateUser(userType).getUserHandle();
-            if (user == null) {
-                logPrecreationFailure(traceMsg, /* cause= */ null);
-            }
-        } catch (NullPointerException e) {
-            // TODO(b/196179969):: mUserManager.preCreateUser may return null. It would refactored
-            // in the next CL when create user is moved to builtin.
-            logPrecreationFailure(traceMsg, /* cause= */ null);
+            user = UserManagerHelper.preCreateUser(mUserManager, userType);
         } catch (Exception e) {
             logPrecreationFailure(traceMsg, e);
+            return null;
+        }
+
+        if (user == null) {
+            logPrecreationFailure(traceMsg, /* cause= */ null);
         }
         return user;
     }
