@@ -182,4 +182,20 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Кейінірек қайтару"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"Ақпараттық ойын-сауық жүйесі келесіде көлік оталған кезде бастапқы күйге қайтарылады."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"Бастапқы күйге қайтару үшін көлікті тұраққа қою керек."</string>
+    <!-- no translation found for resource_overuse_notification_title (3385149030747234969) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_text_disable_app (4538000369374274293) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_text_prioritize_app (4782324719261106243) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_text_uninstall_app (531108846448668467) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_button_disable_app (5511548570206345274) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_button_prioritize_app (5327141954014335559) -->
+    <skip />
+    <!-- no translation found for resource_overuse_notification_button_uninstall_app (7327141273608850448) -->
+    <skip />
+    <!-- no translation found for resource_overuse_toast_disable_app_now (3182983639177825069) -->
+    <skip />
 </resources>

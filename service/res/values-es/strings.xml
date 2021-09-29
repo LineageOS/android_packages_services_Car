@@ -182,4 +182,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Restablecer más tarde"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"El sistema se restablecerá cuando arranques el coche."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"El coche debe estar aparcado para restablecerlo."</string>
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> está afectando al rendimiento de tu sistema"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Inhabilita la aplicación para mejorar el rendimiento del sistema. Puedes habilitarla de nuevo en Ajustes."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Prioriza la aplicación para seguir usándola."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Desinstala la aplicación para mejorar el rendimiento del sistema."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Inhabilitar aplicación"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Priorizar aplicación"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Desinstalar aplicación"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> se ha inhabilitado. Puedes habilitarla de nuevo en Ajustes."</string>
 </resources>
