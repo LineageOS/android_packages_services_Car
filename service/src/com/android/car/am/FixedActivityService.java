@@ -55,6 +55,7 @@ import android.view.Display;
 import com.android.car.CarLocalServices;
 import com.android.car.CarServiceBase;
 import com.android.car.CarServiceUtils;
+import com.android.car.R;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.user.CarUserService;
 import com.android.car.user.UserHandleHelper;
@@ -401,27 +402,17 @@ public final class FixedActivityService implements CarServiceBase {
                     Slogf.i(TAG_AM, "Finishing fixed activity on user switching:"
                             + activityInfo);
                     mAm.removeTask(activityInfo.taskId);
-                    CarServiceUtils.runOnMain(() -> {
-                        // This code cannot be off-loaded to the common thread as it creates
-                        // the presentation (which is a dialog) and sets its content view.
-                        // TODO(b/195836034) Change to launch blank activity instead.
-                        /*Presentation p = new Presentation(mContext, display,
-                                android.R.style.Theme_Black_NoTitleBar_Fullscreen,
-                                // TYPE_PRESENTATION can't be used in the internal display.
-                                // Select TYPE_KEYGUARD_DIALOG, since it's used in
-                                // {@Code KeyguardDisplayManager.KeyguardPresentation}.
-                                TYPE_KEYGUARD_DIALOG);
-                        p.setContentView(R.layout.layout_blank);
-                        synchronized (mLock) {
-                            RunningActivityInfo info = mRunningActivities.get(displayIdForActivity);
-                            if (info != null && info.userId == ActivityManager.getCurrentUser()) {
-                                Slogf.i(TAG_AM, "Do not show Presentation, new req already made");
-                                return;
-                            }
-                            mBlockingPresentations.append(displayIdForActivity, p);
-                        }
-                        p.show();*/
-                    });
+                    Intent intent = new Intent()
+                            .setComponent(
+                                    ComponentName.unflattenFromString(
+                                            mContext.getString(R.string.continuousBlankActivity)
+                                    ))
+                            .addFlags(Intent.FLAG_ACTIVITY_NEW_TASK)
+                            .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
+                    ActivityOptions activityOptions = ActivityOptions.makeBasic()
+                            .setLaunchDisplayId(displayIdForActivity);
+                    mContext.startActivityAsUser(intent, activityOptions.toBundle(),
+                            UserHandle.of(ActivityManager.getCurrentUser()));
                 }
                 mRunningActivities.removeAt(i);
             }
