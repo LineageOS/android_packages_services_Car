@@ -54,25 +54,12 @@ public final class BluetoothUtils {
         sConnectionStates.put(BluetoothAdapter.STATE_DISCONNECTING, "Disconnecting");
 
         // Profile Names
-        sProfileNames.put(BluetoothProfile.HEADSET, "HFP Server");
-        sProfileNames.put(BluetoothProfile.A2DP, "A2DP Source");
-        sProfileNames.put(BluetoothProfile.HEALTH, "HDP");
-        sProfileNames.put(BluetoothProfile.HID_HOST, "HID Host");
         sProfileNames.put(BluetoothProfile.PAN, "PAN");
-        sProfileNames.put(BluetoothProfile.PBAP, "PBAP Server");
-        sProfileNames.put(BluetoothProfile.GATT, "GATT Client");
-        sProfileNames.put(BluetoothProfile.GATT_SERVER, "GATT Server");
-        sProfileNames.put(BluetoothProfile.MAP, "MAP Server");
-        sProfileNames.put(BluetoothProfile.SAP, "SAP");
         sProfileNames.put(BluetoothProfile.A2DP_SINK, "A2DP Sink");
         sProfileNames.put(BluetoothProfile.AVRCP_CONTROLLER, "AVRCP Controller");
-        sProfileNames.put(BluetoothProfile.AVRCP, "AVRCP Target");
         sProfileNames.put(BluetoothProfile.HEADSET_CLIENT, "HFP Client");
         sProfileNames.put(BluetoothProfile.PBAP_CLIENT, "PBAP Client");
         sProfileNames.put(BluetoothProfile.MAP_CLIENT, "MAP Client");
-        sProfileNames.put(BluetoothProfile.HID_DEVICE, "HID Device");
-        sProfileNames.put(BluetoothProfile.OPP, "OPP");
-        sProfileNames.put(BluetoothProfile.HEARING_AID, "Hearing Aid");
     }
 
     static String getDeviceDebugInfo(BluetoothDevice device) {

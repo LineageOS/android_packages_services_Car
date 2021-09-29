@@ -226,9 +226,15 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         public Intent registerReceiverAsUser(BroadcastReceiver receiver, UserHandle user,
                 IntentFilter filter, String broadcastPermission, Handler scheduler,
                 @RegisterReceiverFlags int flags) {
-            // We're basically ignoring the userhandle since the tests only assume one user anyway.
-            // BroadcastInterceptingContext doesn't implement this hook either so this has to do.
-            return super.registerReceiver(receiver, filter, flags);
+            throw new UnsupportedOperationException("Use createContextAsUser/registerReceiver");
+        }
+
+        public Intent registerReceiver(BroadcastReceiver receiver, IntentFilter filter,
+                @RegisterReceiverFlags int flags) {
+            // BroadcastInterceptingReceiver doesn't have the variant with flags so just pass the
+            // parameters to the function below for the test, as the flags don't really matter
+            // for the purpose of getting our test broadcasts routed back to us
+            return super.registerReceiver(receiver, filter, null, null);
         }
 
         public void addMockedSystemService(Class<?> serviceClass, Object service) {
@@ -242,6 +248,7 @@ public abstract class AbstractExtendedMockitoBluetoothTestCase {
         public @Nullable Object getSystemService(String name) {
             if ((name != null) && name.equals(getSystemServiceName(UserManager.class))) {
                 when(mMockUserManager.isUserUnlocked(mUserId)).thenReturn(true);
+                when(mMockUserManager.isUserUnlocked(UserHandle.of(mUserId))).thenReturn(true);
                 return mMockUserManager;
             } else if ((name != null) && mMockedServices.containsKey(name)) {
                 return mMockedServices.get(name);
