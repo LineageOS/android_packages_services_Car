@@ -72,6 +72,7 @@ import java.io.File;
 import java.io.FileInputStream;
 import java.nio.file.Files;
 import java.util.Arrays;
+import java.util.List;
 
 @RunWith(MockitoJUnitRunner.class)
 public class StatsPublisherTest {
@@ -205,7 +206,10 @@ public class StatsPublisherTest {
 
     private File mRootDirectory;
     private StatsPublisher mPublisher;  // subject
+
+    // These 2 variables are set in onPublisherFailure() callback. Defaults to null.
     private Throwable mPublisherFailure;
+    private List<TelemetryProto.MetricsConfig> mFailedConfigs;
 
     @Mock private StatsManagerProxy mStatsManager;
 
@@ -326,6 +330,7 @@ public class StatsPublisherTest {
         mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
 
         assertThat(mPublisherFailure).hasMessageThat().contains("Failed to add config");
+        assertThat(mFailedConfigs).hasSize(1);  // got all the failed configs
     }
 
     @Test
@@ -393,6 +398,8 @@ public class StatsPublisherTest {
             .asList().containsExactly(445678901L);
     }
 
+    // TODO(b/199211673): add test case when StatsdConfig is invalid and StatsPublisher fails.
+
     private PersistableBundle getSavedStatsConfigs() throws Exception {
         File savedConfigsFile = new File(mRootDirectory, StatsPublisher.SAVED_STATS_CONFIGS_FILE);
         try (FileInputStream fileInputStream = new FileInputStream(savedConfigsFile)) {
@@ -400,8 +407,10 @@ public class StatsPublisherTest {
         }
     }
 
-    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
+    private void onPublisherFailure(AbstractPublisher publisher,
+                List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) {
         mPublisherFailure = error;
+        mFailedConfigs = affectedConfigs;
     }
 
     private static void assertThatMessageIsScheduledWithGivenDelay(Message msg, long delayMillis) {

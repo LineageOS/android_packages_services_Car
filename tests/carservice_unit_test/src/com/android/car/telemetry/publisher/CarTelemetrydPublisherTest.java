@@ -48,6 +48,8 @@ import org.mockito.Mock;
 import org.mockito.Mockito;
 import org.mockito.junit.MockitoJUnitRunner;
 
+import java.util.List;
+
 @RunWith(MockitoJUnitRunner.class)
 public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase {
     private static final String SERVICE_NAME = ICarTelemetryInternal.DESCRIPTOR + "/default";
@@ -66,7 +68,10 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
     @Captor private ArgumentCaptor<IBinder.DeathRecipient> mLinkToDeathCallbackCaptor;
 
+    // These 2 variables are set in onPublisherFailure() callback.
     @Nullable private Throwable mPublisherFailure;
+    @Nullable private List<TelemetryProto.MetricsConfig> mFailedConfigs;
+
     private FakeCarTelemetryInternal mFakeCarTelemetryInternal;
     private CarTelemetrydPublisher mPublisher;
 
@@ -165,6 +170,7 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
         assertThat(mFakeCarTelemetryInternal.mSetListenerCallCount).isEqualTo(1);
         assertThat(mPublisherFailure).hasMessageThat()
                 .contains("ICarTelemetryInternal binder died");
+        assertThat(mFailedConfigs).hasSize(1);  // got all the failed configs
     }
 
     @Test
@@ -175,10 +181,13 @@ public class CarTelemetrydPublisherTest extends AbstractExtendedMockitoTestCase 
 
         assertThat(mPublisherFailure).hasMessageThat()
                 .contains("Cannot set CarData listener");
+        assertThat(mFailedConfigs).hasSize(1);
     }
 
-    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) {
+    private void onPublisherFailure(AbstractPublisher publisher,
+            List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) {
         mPublisherFailure = error;
+        mFailedConfigs = affectedConfigs;
     }
 
     private static class FakeCarTelemetryInternal implements ICarTelemetryInternal {
