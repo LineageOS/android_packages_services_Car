@@ -33,7 +33,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
 import java.util.ArrayList;
-import java.util.function.BiConsumer;
+import java.util.stream.Collectors;
 
 /**
  * Publisher for cartelemtryd service (aka ICarTelemetry).
@@ -68,9 +68,8 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         }
     };
 
-    CarTelemetrydPublisher(BiConsumer<AbstractPublisher, Throwable> failureConsumer,
-            Handler telemetryHandler) {
-        super(failureConsumer);
+    CarTelemetrydPublisher(PublisherFailureListener failureListener, Handler telemetryHandler) {
+        super(failureListener);
         this.mTelemetryHandler = telemetryHandler;
     }
 
@@ -82,7 +81,9 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
                 mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
                 mCarTelemetryInternal = null;
             }
-            notifyFailureConsumer(new IllegalStateException("ICarTelemetryInternal binder died"));
+            onPublisherFailure(
+                    getMetricsConfigs(),
+                    new IllegalStateException("ICarTelemetryInternal binder died"));
         });
     }
 
@@ -93,15 +94,21 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         }
         IBinder binder = ServiceManagerHelper.checkService(SERVICE_NAME);
         if (binder == null) {
-            notifyFailureConsumer(new IllegalStateException(
-                    "Failed to connect to the ICarTelemetryInternal: service is not ready"));
+            onPublisherFailure(
+                    getMetricsConfigs(),
+                    new IllegalStateException(
+                            "Failed to connect to the ICarTelemetryInternal: service is not "
+                                    + "ready"));
             return;
         }
         try {
             binder.linkToDeath(this::onBinderDied, BINDER_FLAGS);
         } catch (RemoteException e) {
-            notifyFailureConsumer(new IllegalStateException(
-                    "Failed to connect to the ICarTelemetryInternal: linkToDeath failed", e));
+            onPublisherFailure(
+                    getMetricsConfigs(),
+                    new IllegalStateException(
+                            "Failed to connect to the ICarTelemetryInternal: linkToDeath failed",
+                            e));
             return;
         }
         mCarTelemetryInternal = ICarTelemetryInternal.Stub.asInterface(binder);
@@ -110,10 +117,17 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         } catch (RemoteException e) {
             binder.unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
             mCarTelemetryInternal = null;
-            notifyFailureConsumer(new IllegalStateException(
-                    "Failed to connect to the ICarTelemetryInternal: Cannot set CarData listener",
-                    e));
+            onPublisherFailure(
+                    getMetricsConfigs(),
+                    new IllegalStateException(
+                            "Failed to connect to the ICarTelemetryInternal: Cannot set CarData "
+                                    + "listener", e));
         }
+    }
+
+    private ArrayList<TelemetryProto.MetricsConfig> getMetricsConfigs() {
+        return new ArrayList<>(mSubscribers.stream().map(DataSubscriber::getMetricsConfig).collect(
+                Collectors.toSet()));
     }
 
     /**

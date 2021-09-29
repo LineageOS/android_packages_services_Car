@@ -35,7 +35,6 @@ import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.util.Preconditions;
 
 import java.util.List;
-import java.util.function.BiConsumer;
 
 /**
  * Publisher for Vehicle Property changes, aka {@code CarPropertyService}.
@@ -77,8 +76,8 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
             };
 
     public VehiclePropertyPublisher(CarPropertyService carPropertyService,
-            BiConsumer<AbstractPublisher, Throwable> failureConsumer, Handler handler) {
-        super(failureConsumer);
+            PublisherFailureListener failureListener, Handler handler) {
+        super(failureListener);
         mCarPropertyService = carPropertyService;
         mTelemetryHandler = handler;
         // Load car property list once, as the list doesn't change runtime.

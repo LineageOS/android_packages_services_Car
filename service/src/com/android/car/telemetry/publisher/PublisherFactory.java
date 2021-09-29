@@ -22,7 +22,6 @@ import com.android.car.CarPropertyService;
 import com.android.car.telemetry.TelemetryProto;
 
 import java.io.File;
-import java.util.function.BiConsumer;
 
 /**
  * Lazy factory class for Publishers. It's expected to have a single factory instance.
@@ -43,7 +42,7 @@ public class PublisherFactory {
     private CarTelemetrydPublisher mCarTelemetrydPublisher;
     private StatsPublisher mStatsPublisher;
 
-    private BiConsumer<AbstractPublisher, Throwable> mFailureConsumer;
+    private AbstractPublisher.PublisherFailureListener mFailureListener;
 
     public PublisherFactory(
             CarPropertyService carPropertyService,
@@ -64,19 +63,19 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.VEHICLE_PROPERTY_FIELD_NUMBER:
                     if (mVehiclePropertyPublisher == null) {
                         mVehiclePropertyPublisher = new VehiclePropertyPublisher(
-                                mCarPropertyService, mFailureConsumer, mTelemetryHandler);
+                                mCarPropertyService, mFailureListener, mTelemetryHandler);
                     }
                     return mVehiclePropertyPublisher;
                 case TelemetryProto.Publisher.CARTELEMETRYD_FIELD_NUMBER:
                     if (mCarTelemetrydPublisher == null) {
                         mCarTelemetrydPublisher = new CarTelemetrydPublisher(
-                                mFailureConsumer, mTelemetryHandler);
+                                mFailureListener, mTelemetryHandler);
                     }
                     return mCarTelemetrydPublisher;
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
                         mStatsPublisher = new StatsPublisher(
-                                mFailureConsumer, mStatsManager, mRootDirectory);
+                                mFailureListener, mStatsManager, mRootDirectory);
                     }
                     return mStatsPublisher;
                 default:
@@ -102,11 +101,12 @@ public class PublisherFactory {
     }
 
     /**
-     * Sets the publisher failure consumer for all the publishers. This is expected to be called
-     * before {@link #getPublisher} method. This is not the best approach, but it suits for this
+     * Sets the publisher failure listener for all the publishers. This is expected to be called
+     * before {@link #getPublisher} method, because the listener is set after
+     * {@code PublisherFactory} initialized. This is not the best approach, but it suits for this
      * case.
      */
-    public void setFailureConsumer(BiConsumer<AbstractPublisher, Throwable> consumer) {
-        mFailureConsumer = consumer;
+    public void setFailureListener(AbstractPublisher.PublisherFailureListener listener) {
+        mFailureListener = listener;
     }
 }
