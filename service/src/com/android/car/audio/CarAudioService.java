@@ -15,13 +15,16 @@
  */
 package com.android.car.audio;
 
+import static android.car.builtin.os.AudioServiceHelper.UNDEFINED_STREAM_TYPE;
 import static android.car.builtin.os.AudioServiceHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
 import static android.car.media.CarAudioManager.INVALID_VOLUME_GROUP_ID;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
+import static android.media.AudioManager.FLAG_FROM_KEY;
 import static android.media.AudioManager.FLAG_PLAY_SOUND;
+import static android.media.AudioManager.FLAG_SHOW_UI;
 
 import static com.android.car.audio.CarVolume.VERSION_TWO;
 import static com.android.car.audio.hal.AudioControlWrapper.AUDIOCONTROL_FEATURE_AUDIO_DUCKING;
@@ -36,16 +39,14 @@ import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
 import android.car.builtin.os.AudioServiceHelper;
 import android.car.builtin.os.AudioServiceHelper.AudioPatchInfo;
+import android.car.builtin.os.AudioServiceHelper.VolumeAndMuteReceiver;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
 import android.car.media.CarAudioPatchHandle;
 import android.car.media.ICarAudio;
 import android.car.media.ICarVolumeCallback;
-import android.content.BroadcastReceiver;
 import android.content.Context;
-import android.content.Intent;
-import android.content.IntentFilter;
 import android.content.pm.PackageManager;
 import android.media.AudioAttributes;
 import android.media.AudioDeviceAttributes;
@@ -147,25 +148,26 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * Simulates {@link ICarVolumeCallback} when it's running in legacy mode.
      * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
      */
-    private final BroadcastReceiver mLegacyVolumeChangedReceiver = new BroadcastReceiver() {
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            final int zoneId = CarAudioManager.PRIMARY_AUDIO_ZONE;
-            switch (intent.getAction()) {
-                case AudioManager.VOLUME_CHANGED_ACTION:
-                    int streamType = intent.getIntExtra(AudioManager.EXTRA_VOLUME_STREAM_TYPE, -1);
+    private final VolumeAndMuteReceiver mLegacyVolumeChangedHelper =
+            new AudioServiceHelper.VolumeAndMuteReceiver() {
+                @Override
+                public void onVolumeChanged(int streamType) {
+                    if (streamType == UNDEFINED_STREAM_TYPE) {
+                        Slogf.w(CarLog.TAG_AUDIO, "Invalid stream type: " + streamType);
+                    }
                     int groupId = getVolumeGroupIdForStreamType(streamType);
-                    if (groupId == -1) {
+                    if (groupId == INVALID_VOLUME_GROUP_ID) {
                         Slogf.w(CarLog.TAG_AUDIO, "Unknown stream type: " + streamType);
                     } else {
-                        callbackGroupVolumeChange(zoneId, groupId, 0);
+                        callbackGroupVolumeChange(PRIMARY_AUDIO_ZONE, groupId,
+                                FLAG_FROM_KEY | FLAG_SHOW_UI);
                     }
-                    break;
-                case AudioManager.MASTER_MUTE_CHANGED_ACTION:
-                    callbackMasterMuteChange(zoneId, 0);
-                    break;
-            }
-        }
+                }
+
+                @Override
+                public void onMuteChanged() {
+                    callbackMasterMuteChange(PRIMARY_AUDIO_ZONE, FLAG_FROM_KEY | FLAG_SHOW_UI);
+                }
     };
 
     private AudioPolicy mAudioPolicy;
@@ -271,7 +273,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     mFocusHandler = null;
                 }
             } else {
-                mContext.unregisterReceiver(mLegacyVolumeChangedReceiver);
+                AudioServiceHelper.unregisterVolumeAndMuteReceiver(mContext,
+                        mLegacyVolumeChangedHelper);
+
             }
 
             mCarVolumeCallbackHandler.release();
@@ -505,11 +509,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void setupLegacyVolumeChangedListener() {
-        IntentFilter intentFilter = new IntentFilter();
-        intentFilter.addAction(AudioManager.VOLUME_CHANGED_ACTION);
-        intentFilter.addAction(AudioManager.MASTER_MUTE_CHANGED_ACTION);
-        mContext.registerReceiver(mLegacyVolumeChangedReceiver, intentFilter,
-                Context.RECEIVER_NOT_EXPORTED);
+        AudioServiceHelper.registerVolumeAndMuteReceiver(mContext, mLegacyVolumeChangedHelper);
     }
 
     private List<CarAudioDeviceInfo> generateCarAudioDeviceInfos() {
@@ -784,9 +784,9 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
         Slogf.d(CarLog.TAG_AUDIO, "Audio patch created: " + audioPatchInfo);
 
         // Ensure the initial volume on output device port
-        int groupId = getVolumeGroupIdForUsageLocked(CarAudioManager.PRIMARY_AUDIO_ZONE, usage);
-        setGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId,
-                getGroupVolume(CarAudioManager.PRIMARY_AUDIO_ZONE, groupId), 0);
+        int groupId = getVolumeGroupIdForUsageLocked(PRIMARY_AUDIO_ZONE, usage);
+        setGroupVolume(PRIMARY_AUDIO_ZONE, groupId,
+                getGroupVolume(PRIMARY_AUDIO_ZONE, groupId), 0);
 
         return new CarAudioPatchHandle(audioPatchInfo.getHandleId(),
                 audioPatchInfo.getSourceAddress(), audioPatchInfo.getSinkAddress());
@@ -971,9 +971,8 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
             return audioZoneId;
         }
         Slogf.w(CarLog.TAG_AUDIO, "getZoneIdForUid userId " + userId
-                + " does not have a zone. Defaulting to PRIMARY_AUDIO_ZONE:"
-                + CarAudioManager.PRIMARY_AUDIO_ZONE);
-        return CarAudioManager.PRIMARY_AUDIO_ZONE;
+                + " does not have a zone. Defaulting to PRIMARY_AUDIO_ZONE:" + PRIMARY_AUDIO_ZONE);
+        return PRIMARY_AUDIO_ZONE;
     }
 
     /**
