@@ -117,6 +117,16 @@ public class DataBrokerControllerTest {
     }
 
     @Test
+    public void testOnScriptFinished_shouldRemoveConfig() {
+        String metricsConfigName = "my_metrics_config";
+
+        mController.onScriptFinished(metricsConfigName);
+
+        verify(mMockMetricsConfigStore).removeMetricsConfig(eq(metricsConfigName));
+        verify(mMockDataBroker).removeMetricsConfiguration(eq(metricsConfigName));
+    }
+
+    @Test
     public void testOnSystemEvent_setDataBrokerPriorityCorrectlyForHighCpuUsage() {
         SystemMonitorEvent highCpuEvent = new SystemMonitorEvent();
         highCpuEvent.setCpuUsageLevel(SystemMonitorEvent.USAGE_LEVEL_HI);

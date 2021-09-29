@@ -437,6 +437,7 @@ public class DataBrokerImpl implements DataBroker {
     private void onScriptFinished(PersistableBundle result) {
         mTelemetryHandler.post(() -> {
             mResultStore.putFinalResult(mCurrentScriptName, result);
+            mScriptFinishedCallback.onScriptFinished(mCurrentScriptName);
             mCurrentScriptName = null;
             scheduleNextTask();
         });

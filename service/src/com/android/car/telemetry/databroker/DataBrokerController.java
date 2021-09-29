@@ -90,7 +90,8 @@ public class DataBrokerController {
      * @param configName the name of the config of the finished script.
      */
     public void onScriptFinished(String configName) {
-        // TODO(b/192008783): remove finished config from config store
+        mMetricsConfigStore.removeMetricsConfig(configName);
+        mDataBroker.removeMetricsConfiguration(configName);
     }
 
     /**
