@@ -173,7 +173,8 @@ class FastPairAdvertiser {
             }
             mAdvertising = true;
             if (advertisingSet == null) return;
-            advertisingSet.getOwnAddress();
+            //TODO: b/196233989
+            //advertisingSet.getOwnAddress();
         }
 
         @Override
@@ -182,12 +183,15 @@ class FastPairAdvertiser {
             mAdvertising = false;
         }
 
+        /*
+         * TODO: b/196233989
         @Override
         public void onOwnAddressRead(AdvertisingSet advertisingSet, int addressType,
                 String address) {
             if (DBG) Slogf.d(TAG, "onOwnAddressRead Type= %s, Address= %s", addressType, address);
             mCallbacks.onRpaUpdated(mBluetoothAdapter.getRemoteDevice(address));
         }
+        */
     };
 
     public void dump(IndentingPrintWriter writer) {
