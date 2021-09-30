@@ -26,6 +26,7 @@ import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.Message;
+import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
@@ -43,6 +44,9 @@ import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 import com.android.internal.annotations.VisibleForTesting;
 
+import java.io.Closeable;
+import java.io.IOException;
+import java.io.OutputStream;
 import java.lang.ref.WeakReference;
 import java.util.ArrayList;
 import java.util.List;
@@ -61,6 +65,12 @@ public class DataBrokerImpl implements DataBroker {
 
     /** Bind to script executor 5 times before entering disabled state. */
     private static final int MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS = 5;
+
+    /**
+     * If script input exceeds this size, it will be piped to script executor instead of directly
+     * passed via binder call.
+     */
+    private static final int LARGE_SCRIPT_INPUT_SIZE_BYTES = 20 * 1024; // 20 kb
 
     private static final String SCRIPT_EXECUTOR_PACKAGE = "com.android.car.scriptexecutor";
     private static final String SCRIPT_EXECUTOR_CLASS =
@@ -337,17 +347,23 @@ public class DataBrokerImpl implements DataBroker {
         if (task == null || task.getPriority() > mPriority) {
             return;
         }
+        // if script executor is null, bind service
+        if (mScriptExecutor == null) {
+            Slogf.w(CarLog.TAG_TELEMETRY,
+                    "script executor is null, cannot execute task");
+            // upon successful binding, a task will be scheduled to run if there are any
+            mTelemetryHandler.sendEmptyMessage(MSG_BIND_TO_SCRIPT_EXECUTOR);
+            return;
+        }
         mTaskQueue.poll(); // remove task from queue
+        // update current name because a script is currently running
+        mCurrentScriptName = task.getMetricsConfig().getName();
         try {
-            if (mScriptExecutor == null) {
-                Slogf.w(CarLog.TAG_TELEMETRY, "script executor is null, cannot execute task");
-                mTaskQueue.add(task);
-                // upon successful binding, a task will be scheduled to run if there are any
-                mTelemetryHandler.sendEmptyMessage(MSG_BIND_TO_SCRIPT_EXECUTOR);
+            if (task.getDataSizeBytes() >= LARGE_SCRIPT_INPUT_SIZE_BYTES) {
+                Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
+                invokeScriptForLargeInput(task);
             } else {
                 Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor");
-                // update current name because a script is currently running
-                mCurrentScriptName = task.getMetricsConfig().getName();
                 mScriptExecutor.invokeScript(
                         task.getMetricsConfig().getScript(),
                         task.getHandlerName(),
@@ -356,9 +372,56 @@ public class DataBrokerImpl implements DataBroker {
                         mScriptExecutorListener);
             }
         } catch (RemoteException e) {
-            Slogf.d(CarLog.TAG_TELEMETRY,  "remote exception occurred invoking script", e);
-            mTaskQueue.add(task); // will not trigger scheduleNextTask()
+            Slogf.w(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
+            unbindScriptExecutor();
+            addTaskToQueue(task); // will trigger scheduleNextTask() and re-binding scriptexecutor
+        } catch (IOException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Either unable to create pipe or failed to pipe data"
+                    + " to ScriptExecutor. Skipping the published data", e);
             mCurrentScriptName = null;
+            scheduleNextTask(); // drop this task and schedule the next one
+        }
+    }
+
+    /**
+     * Sets up pipes, invokes ScriptExecutor#invokeScriptForLargeInput() API, and writes the
+     * script input to the pipe.
+     *
+     * @param task containing all the necessary parameters for ScriptExecutor API.
+     * @throws IOException if cannot create pipe or cannot write the bundle to pipe.
+     * @throws RemoteException if ScriptExecutor failed.
+     */
+    private void invokeScriptForLargeInput(ScriptExecutionTask task)
+            throws IOException, RemoteException {
+        ParcelFileDescriptor[] fds = ParcelFileDescriptor.createPipe();
+        ParcelFileDescriptor readFd = fds[0];
+        ParcelFileDescriptor writeFd = fds[1];
+        try {
+            mScriptExecutor.invokeScriptForLargeInput(
+                    task.getMetricsConfig().getScript(),
+                    task.getHandlerName(),
+                    readFd,
+                    mResultStore.getInterimResult(mCurrentScriptName),
+                    mScriptExecutorListener);
+        } catch (RemoteException e) {
+            closeQuietly(readFd);
+            closeQuietly(writeFd);
+            throw e;
+        }
+        closeQuietly(readFd);
+
+        Slogf.d(CarLog.TAG_TELEMETRY, "writing large script data to pipe");
+        try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writeFd)) {
+            task.getData().writeToStream(outputStream);
+        }
+    }
+
+    /** Quietly closes Java Closeables, ignoring IOException. */
+    private void closeQuietly(Closeable closeable) {
+        try {
+            closeable.close();
+        } catch (IOException e) {
+            // Ignore
         }
     }
 
