@@ -156,8 +156,8 @@ package android.car.builtin.media {
 
 package android.car.builtin.os {
 
-  public class BinderHelper {
-    method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList, @NonNull java.io.PrintWriter, @NonNull String);
+  public final class BinderHelper {
+    method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList<?>, @NonNull java.io.PrintWriter);
     method public static boolean onTransactForCmd(int, @NonNull android.os.Parcel, @Nullable android.os.Parcel, int, @NonNull android.car.builtin.os.BinderHelper.ShellCommandListener) throws android.os.RemoteException;
   }
 
