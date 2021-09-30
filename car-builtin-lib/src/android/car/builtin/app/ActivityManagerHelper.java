@@ -21,7 +21,6 @@ import android.annotation.Nullable;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
-import android.app.ActivityOptions;
 import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
@@ -30,7 +29,6 @@ import android.app.TaskStackListener;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.content.Intent;
-import android.os.Bundle;
 import android.os.RemoteException;
 import android.util.Pair;
 import android.util.SparseArray;
@@ -142,16 +140,6 @@ public final class ActivityManagerHelper {
         } catch (RemoteException e) {
             throw logAndReThrow(e, "could not get stack info for user %d", userId);
         }
-    }
-
-    /**
-     * Creates an ActivityOptions from the Bundle generated from ActivityOptions.
-     * TODO(b/195598146): Replace the usage of this with {@code ActivityOptions.fromBundle}
-     * as soon as it is exposed as ModuleApi.
-     */
-    @NonNull
-    public static ActivityOptions createActivityOptions(@NonNull Bundle bOptions) {
-        return new ActivityOptions(bOptions);
     }
 
     private <T> T runRemotely(Callable<T> callable, String format, Object...args) {
