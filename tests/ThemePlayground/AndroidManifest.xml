@@ -74,6 +74,7 @@
         </activity>
         <activity android:name=".CarUiRecyclerViewSamples"
              android:label="@string/car_ui_recycler_view"
+             android:theme="@style/Theme.CarUi"
              android:parentActivityName="com.android.car.themeplayground.TextSamples">
         </activity>
         <activity android:name=".DefaultThemeSamples"
