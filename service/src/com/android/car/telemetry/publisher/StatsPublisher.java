@@ -41,6 +41,7 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.File;
 import java.io.FileInputStream;
+import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
@@ -149,6 +150,8 @@ public class StatsPublisher extends AbstractPublisher {
     private PersistableBundle loadBundle() {
         try (FileInputStream fileInputStream = new FileInputStream(mSavedStatsConfigsFile)) {
             return PersistableBundle.readFromStream(fileInputStream);
+        } catch (FileNotFoundException e) {
+            return new PersistableBundle();
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
             Slogf.e(CarLog.TAG_TELEMETRY,
@@ -159,6 +162,10 @@ public class StatsPublisher extends AbstractPublisher {
 
     /** Writes the PersistableBundle containing stats config keys and versions to disk. */
     private void saveBundle() {
+        if (mSavedStatsConfigs.size() == 0) {
+            mSavedStatsConfigsFile.delete();
+            return;
+        }
         try (FileOutputStream fileOutputStream = new FileOutputStream(mSavedStatsConfigsFile)) {
             mSavedStatsConfigs.writeToStream(fileOutputStream);
         } catch (IOException e) {
@@ -175,13 +182,14 @@ public class StatsPublisher extends AbstractPublisher {
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase() == PublisherCase.STATS,
                 "Subscribers only with StatsPublisher are supported by this class.");
-
         synchronized (mLock) {
             long configKey = addStatsConfigLocked(subscriber);
             mConfigKeyToSubscribers.put(configKey, subscriber);
         }
 
         if (!mIsPullingReports.getAndSet(true)) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
@@ -246,6 +254,8 @@ public class StatsPublisher extends AbstractPublisher {
         }
 
         if (mIsPullingReports.get()) {
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+                    + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
