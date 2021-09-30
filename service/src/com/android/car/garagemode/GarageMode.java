@@ -318,7 +318,6 @@ class GarageMode {
         }
         broadcastSignalToJobScheduler(false);
         CarStatsLogHelper.logGarageModeStop();
-        mController.scheduleNextWakeup();
         synchronized (mLock) {
             if (mFuture == null) {
                 cleanupGarageMode();

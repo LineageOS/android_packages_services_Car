@@ -47,7 +47,6 @@ import androidx.test.ext.junit.runners.AndroidJUnit4;
 import androidx.test.filters.SmallTest;
 
 import com.android.car.CarLocalServices;
-import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
 import com.android.car.user.CarUserService;
@@ -100,16 +99,13 @@ public class ControllerTest {
             6 * 60 * 60,
             24 * 60 * 60};
     private Controller mController;
-    private WakeupPolicy mWakeupPolicy;
     private CompletableFuture<Void> mFuture;
 
     @Before
     public void setUp() {
-        mWakeupPolicy = new WakeupPolicy(sTemplateWakeupSchedule);
         mController = new Controller(
                 mContextMock,
                 mLooperMock,
-                mWakeupPolicy,
                 mHandlerMock,
                 null);
         mController.setCarPowerManager(mCarPowerManagerMock);
@@ -156,8 +152,7 @@ public class ControllerTest {
         // Sending shutdown cancelled signal to controller, GarageMode should wrap up and stop
         mController.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
 
-        // Verify that wake up counter is reset and GarageMode is not active anymore
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
+        // Verify that GarageMode is not active anymore
         assertThat(mController.isGarageModeActive()).isFalse();
 
         // Verify that monitoring thread has stopped
@@ -172,37 +167,6 @@ public class ControllerTest {
         // Verify that bounded future got cancelled
         assertThat(mFuture.isDone()).isTrue();
         assertThat(mFuture.isCancelled()).isTrue();
-    }
-
-    @Test
-    public void testWakeupTimeProgression() {
-        // Doing initial suspend
-        startAndAssertGarageModeWithSignal(CarPowerStateListener.SHUTDOWN_PREPARE);
-
-        // Finish GarageMode and check next scheduled time
-        mController.finishGarageMode();
-        assertThat(mController.isGarageModeActive()).isFalse();
-
-        // Start GarageMode again without waking up car
-        mFuture = new CompletableFuture<>();
-        mController.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, mFuture);
-
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(2);
-        assertThat(mController.isGarageModeActive()).isTrue();
-
-        // Finish GarageMode and check next scheduled time
-        mController.finishGarageMode();
-        assertThat(mController.isGarageModeActive()).isFalse();
-
-        for (int i = 0; i < 4; i++) {
-            mFuture = new CompletableFuture<>();
-            mController.onStateChanged(CarPowerStateListener.SHUTDOWN_PREPARE, mFuture);
-            mController.finishGarageMode();
-            assertThat(mController.isGarageModeActive()).isFalse();
-            assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(i + 3);
-        }
-        verify(mCarPowerManagerMock, times(6)).scheduleNextWakeupTime(mIntegerCaptor.capture());
-        verifyScheduledTimes(mIntegerCaptor.getAllValues());
     }
 
     private void verifyGarageModeBroadcast(List<Intent> intents, int times, String action) {
@@ -224,14 +188,12 @@ public class ControllerTest {
     }
 
     private void startAndAssertGarageModeWithSignal(int signal) {
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(0);
 
         // Sending notification that state has changed
         mController.onStateChanged(signal, mFuture);
 
         // Assert that GarageMode has been started
         assertThat(mController.isGarageModeActive()).isTrue();
-        assertThat(mController.mWakeupPolicy.mIndex).isEqualTo(1);
 
         // Verify that worker that polls running jobs from JobScheduler is scheduled.
         verify(mHandlerMock).postDelayed(any(), eq(JOB_SNAPSHOT_INITIAL_UPDATE_MS));
@@ -241,8 +203,7 @@ public class ControllerTest {
     public void testInitAndRelease() {
 
         GarageMode garageMode = mock(GarageMode.class);
-        Controller controller = new Controller(mContextMock, mLooperMock, mWakeupPolicy,
-                mHandlerMock, garageMode);
+        Controller controller = new Controller(mContextMock, mLooperMock, mHandlerMock, garageMode);
 
         controller.init();
         controller.release();
@@ -255,46 +216,19 @@ public class ControllerTest {
     public void testConstructor() {
         Resources resourcesMock = mock(Resources.class);
         when(mContextMock.getResources()).thenReturn(resourcesMock);
-        when(resourcesMock.getStringArray(R.array.config_garageModeCadence))
-                .thenReturn(sTemplateWakeupSchedule);
+
         Controller controller = new Controller(mContextMock, mLooperMock);
 
         assertThat(controller).isNotNull();
     }
 
-    @Test
-    public void testScheduleNextWakeup() {
-        GarageMode garageMode = mock(GarageMode.class);
-
-        // Enter GarageMode only 1 time, no wake up after that
-        WakeupPolicy wakeUpPolicy = new WakeupPolicy(new String[] { "15m,1" });
-
-        Controller controller = new Controller(mContextMock, mLooperMock, wakeUpPolicy,
-                mHandlerMock, garageMode);
-        controller.setCarPowerManager(mCarPowerManagerMock);
-
-        // Imitate entering and leavimg GarageMode
-        controller.initiateGarageMode(/* future= */ null);
-
-        controller.scheduleNextWakeup();
-
-        verify(mCarPowerManagerMock).scheduleNextWakeupTime(900);
-
-        // Imitate entering Garage mode after sleep
-        controller.initiateGarageMode(/* future= */ null);
-
-        // Should be no more calls to scheduleNextWakeupTime
-        controller.scheduleNextWakeup();
-
-        Mockito.verifyNoMoreInteractions(mCarPowerManagerMock);
-    }
 
     @Test
     public void testOnStateChanged() {
         GarageMode garageMode = mock(GarageMode.class);
 
-        Controller controller = Mockito.spy(new Controller(mContextMock, mLooperMock, mWakeupPolicy,
-                mHandlerMock, garageMode));
+        Controller controller = Mockito.spy(new Controller(mContextMock, mLooperMock,
+                                                            mHandlerMock, garageMode));
 
         controller.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
         verify(controller).resetGarageMode();

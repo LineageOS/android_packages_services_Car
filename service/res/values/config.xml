@@ -206,18 +206,6 @@
          duration and this should not be made shorter. -->
     <integer name="maxGarageModeRunningDurationInSecs">900</integer>
 
-    <!-- The garage mode configuration, specifying the time after shutdown to reboot into garage
-         mode and the number of attempts at that time to try before moving to the next wake up
-         time. This is intended to be a back-off pattern. -->
-    <string-array translatable="false" name="config_garageModeCadence">
-        <!-- <wake up after X min/hour/days>,<how many times> -->
-        <item>15m,1</item>
-        <item>6h,8</item>
-        <item>1d,5</item>
-        <item>3d,2</item>
-        <item>7d,3</item>
-    </string-array>
-
     <!-- The services that needs to be started earlier in the boot sequence and in particular order.
          Every item in this array contains a flatten component name of a service that needs to be
          started and a list of parameters after hashtag symbol. Here's the format:
