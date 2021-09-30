@@ -16,6 +16,8 @@
 
 package com.google.android.car.kitchensink.telemetry;
 
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+
 import android.annotation.NonNull;
 import android.annotation.Nullable;
 import android.car.telemetry.CarTelemetryManager;
@@ -35,6 +37,7 @@ import com.android.car.telemetry.TelemetryProto;
 
 import com.google.android.car.kitchensink.KitchenSinkActivity;
 import com.google.android.car.kitchensink.R;
+import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
@@ -42,6 +45,8 @@ import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
 public class CarTelemetryTestFragment extends Fragment {
+
+    /** Hello World test from vehicle property publisher by injecting gear change. */
     private static final String LUA_SCRIPT_ON_GEAR_CHANGE =
             "function onGearChange(published_data, state)\n"
                     + "    result = {data = \"Hello World!\"}\n"
@@ -55,22 +60,68 @@ public class CarTelemetryTestFragment extends Fragment {
                                     .setReadRate(0f)
                                     .build()
                     ).build();
-    private static final TelemetryProto.Subscriber VEHICLE_PROPERTY_SUBSCRIBER =
-            TelemetryProto.Subscriber.newBuilder()
-                    .setHandler("onGearChange")
-                    .setPublisher(VEHICLE_PROPERTY_PUBLISHER)
-                    .setPriority(0)
-                    .build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_ON_GEAR_CHANGE_V1 =
             TelemetryProto.MetricsConfig.newBuilder()
                     .setName("my_metrics_config")
                     .setVersion(1)
                     .setScript(LUA_SCRIPT_ON_GEAR_CHANGE)
-                    .addSubscribers(VEHICLE_PROPERTY_SUBSCRIBER)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onGearChange")
+                                    .setPublisher(VEHICLE_PROPERTY_PUBLISHER)
+                                    .setPriority(100)) // low priority
                     .build();
-    private static final MetricsConfigKey KEY_V1 = new MetricsConfigKey(
+    private static final MetricsConfigKey ON_GEAR_CHANGE_KEY_V1 = new MetricsConfigKey(
             METRICS_CONFIG_ON_GEAR_CHANGE_V1.getName(),
             METRICS_CONFIG_ON_GEAR_CHANGE_V1.getVersion());
+
+    /** Memory metrics test. */
+    private static final String LUA_SCRIPT_ON_PROCESS_MEMORY_STATE = new StringBuilder()
+            .append("function calculateAverage(tbl)\n")
+            .append("    sum = 0\n")
+            .append("    size = 0\n")
+            .append("    for _, value in ipairs(tbl) do\n")
+            .append("        sum = sum + value\n")
+            .append("        size = size + 1\n")
+            .append("    end\n")
+            .append("    return sum/size\n")
+            .append("end\n")
+            .append("function onProcessMemory(published_data, state)\n")
+            .append("    result = {}\n")
+            .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
+            .append("    result.major_page_fault_avg = calculateAverage("
+                    + "published_data.page_major_fault)\n")
+            .append("    result.oom_adj_score_avg = calculateAverage("
+                    + "published_data.oom_adj_score)\n")
+            .append("    result.rss_in_bytes_avg = calculateAverage(published_data.rss_in_bytes)\n")
+            .append("    result.swap_in_bytes_avg = calculateAverage("
+                    + "published_data.swap_in_bytes)\n")
+            .append("    result.cache_in_bytes_avg = calculateAverage("
+                    + "published_data.cache_in_bytes)\n")
+            .append("    on_script_finished(result)\n")
+            .append("end\n")
+            .toString();
+
+    private static final TelemetryProto.Publisher PROCESS_MEMORY_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(PROCESS_MEMORY_STATE)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_PROCESS_MEMORY_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("process_memory_metrics_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_PROCESS_MEMORY_STATE)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onProcessMemory")
+                                    .setPublisher(PROCESS_MEMORY_PUBLISHER)
+                                    .setPriority(0)) // high priority
+                    .build();
+    private static final MetricsConfigKey PROCESS_MEMORY_KEY_V1 = new MetricsConfigKey(
+            METRICS_CONFIG_PROCESS_MEMORY_V1.getName(),
+            METRICS_CONFIG_PROCESS_MEMORY_V1.getVersion());
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
@@ -105,6 +156,15 @@ public class CarTelemetryTestFragment extends Fragment {
         removeGearConfigBtn.setOnClickListener(this::onRemoveGearChangeConfigBtnClick);
         getGearReportBtn.setOnClickListener(this::onGetGearChangeReportBtnClick);
 
+        mOutputTextView = view.findViewById(R.id.output_textview);
+        Button sendProcessMemConfigBtn = view.findViewById(R.id.send_on_process_memory_config);
+        Button getProcessMemReportBtn = view.findViewById(R.id.get_on_process_memory_report);
+        Button removeProcessMemConfigBtn = view.findViewById(R.id.remove_on_process_memory_config);
+
+        sendProcessMemConfigBtn.setOnClickListener(this::onSendProcessMemoryConfigBtnClick);
+        removeProcessMemConfigBtn.setOnClickListener(this::onRemoveProcessMemoryConfigBtnClick);
+        getProcessMemReportBtn.setOnClickListener(this::onGetProcessMemoryReportBtnClick);
+
         return view;
     }
 
@@ -114,19 +174,36 @@ public class CarTelemetryTestFragment extends Fragment {
 
     private void onSendGearChangeConfigBtnClick(View view) {
         showOutput("Sending MetricsConfig that listen for gear change...");
-        mCarTelemetryManager.addMetricsConfig(KEY_V1,
+        mCarTelemetryManager.addMetricsConfig(ON_GEAR_CHANGE_KEY_V1,
                 METRICS_CONFIG_ON_GEAR_CHANGE_V1.toByteArray());
     }
 
     private void onRemoveGearChangeConfigBtnClick(View view) {
         showOutput("Removing MetricsConfig that listens for gear change...");
-        mCarTelemetryManager.removeMetricsConfig(KEY_V1);
+        mCarTelemetryManager.removeMetricsConfig(ON_GEAR_CHANGE_KEY_V1);
     }
 
     private void onGetGearChangeReportBtnClick(View view) {
         showOutput("Fetching report... If nothing shows up after a few seconds, "
                 + "then no result exists");
-        mCarTelemetryManager.sendFinishedReports(KEY_V1);
+        mCarTelemetryManager.sendFinishedReports(ON_GEAR_CHANGE_KEY_V1);
+    }
+
+    private void onSendProcessMemoryConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listen for process memory state...");
+        mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_KEY_V1,
+                METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray());
+    }
+
+    private void onRemoveProcessMemoryConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for process memory state...");
+        mCarTelemetryManager.removeMetricsConfig(PROCESS_MEMORY_KEY_V1);
+    }
+
+    private void onGetProcessMemoryReportBtnClick(View view) {
+        showOutput("Fetching report for process memory state... If nothing shows up after "
+                + "a few seconds, then no result exists");
+        mCarTelemetryManager.sendFinishedReports(PROCESS_MEMORY_KEY_V1);
     }
 
     @Override
@@ -155,6 +232,14 @@ public class CarTelemetryTestFragment extends Fragment {
 
         @Override
         public void onError(@NonNull MetricsConfigKey key, @NonNull byte[] error) {
+            try {
+                TelemetryProto.TelemetryError telemetryError =
+                        TelemetryProto.TelemetryError.parseFrom(error);
+                showOutput("Error is " + telemetryError);
+            } catch (InvalidProtocolBufferException e) {
+                showOutput("Unable to parse error result for MetricsConfig " + key.getName()
+                        + ". " + e.getMessage());
+            }
         }
 
         @Override
