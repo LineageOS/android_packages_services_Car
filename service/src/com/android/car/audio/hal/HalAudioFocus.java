@@ -16,7 +16,7 @@
 
 package com.android.car.audio.hal;
 
-import static android.car.builtin.os.AudioServiceHelper.usageToString;
+import static android.car.builtin.media.AudioManagerHelper.usageToString;
 import static android.media.AudioManager.AUDIOFOCUS_LOSS;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_DELAYED;
 import static android.media.AudioManager.AUDIOFOCUS_REQUEST_FAILED;

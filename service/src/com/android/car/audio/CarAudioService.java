@@ -15,8 +15,8 @@
  */
 package com.android.car.audio;
 
-import static android.car.builtin.os.AudioServiceHelper.UNDEFINED_STREAM_TYPE;
-import static android.car.builtin.os.AudioServiceHelper.isMasterMute;
+import static android.car.builtin.media.AudioManagerHelper.UNDEFINED_STREAM_TYPE;
+import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_DYNAMIC_ROUTING;
 import static android.car.media.CarAudioManager.AUDIO_FEATURE_VOLUME_GROUP_MUTING;
 import static android.car.media.CarAudioManager.CarAudioFeature;
@@ -37,9 +37,9 @@ import android.annotation.UserIdInt;
 import android.car.Car;
 import android.car.CarOccupantZoneManager;
 import android.car.CarOccupantZoneManager.OccupantZoneConfigChangeListener;
-import android.car.builtin.os.AudioServiceHelper;
-import android.car.builtin.os.AudioServiceHelper.AudioPatchInfo;
-import android.car.builtin.os.AudioServiceHelper.VolumeAndMuteReceiver;
+import android.car.builtin.media.AudioManagerHelper;
+import android.car.builtin.media.AudioManagerHelper.AudioPatchInfo;
+import android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver;
 import android.car.builtin.os.UserManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.media.CarAudioManager;
@@ -149,7 +149,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
      * This receiver assumes the intent is sent to {@link CarAudioManager#PRIMARY_AUDIO_ZONE}.
      */
     private final VolumeAndMuteReceiver mLegacyVolumeChangedHelper =
-            new AudioServiceHelper.VolumeAndMuteReceiver() {
+            new AudioManagerHelper.VolumeAndMuteReceiver() {
                 @Override
                 public void onVolumeChanged(int streamType) {
                     if (streamType == UNDEFINED_STREAM_TYPE) {
@@ -273,7 +273,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                     mFocusHandler = null;
                 }
             } else {
-                AudioServiceHelper.unregisterVolumeAndMuteReceiver(mContext,
+                AudioManagerHelper.unregisterVolumeAndMuteReceiver(mContext,
                         mLegacyVolumeChangedHelper);
 
             }
@@ -431,7 +431,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     void setMasterMute(boolean mute, int flags) {
-        AudioServiceHelper.setMasterMute(mAudioManager, mute, flags);
+        AudioManagerHelper.setMasterMute(mAudioManager, mute, flags);
 
         // Master Mute only applies to primary zone
         callbackMasterMuteChange(PRIMARY_AUDIO_ZONE, flags);
@@ -509,7 +509,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     }
 
     private void setupLegacyVolumeChangedListener() {
-        AudioServiceHelper.registerVolumeAndMuteReceiver(mContext, mLegacyVolumeChangedHelper);
+        AudioManagerHelper.registerVolumeAndMuteReceiver(mContext, mLegacyVolumeChangedHelper);
     }
 
     private List<CarAudioDeviceInfo> generateCarAudioDeviceInfos() {
@@ -778,7 +778,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
                 "Specified source is not available: " + sourceAddress);
 
 
-        AudioPatchInfo audioPatchInfo = AudioServiceHelper.createAudioPatch(sourcePortInfo,
+        AudioPatchInfo audioPatchInfo = AudioManagerHelper.createAudioPatch(sourcePortInfo,
                 getOutputDeviceForUsageLocked(PRIMARY_AUDIO_ZONE, usage), gainInMillibels);
 
         Slogf.d(CarLog.TAG_AUDIO, "Audio patch created: " + audioPatchInfo);
@@ -796,7 +796,7 @@ public class CarAudioService extends ICarAudio.Stub implements CarServiceBase {
     private void releaseAudioPatchLocked(CarAudioPatchHandle carPatch) {
         Objects.requireNonNull(carPatch);
 
-        if (AudioServiceHelper.releaseAudioPatch(mAudioManager, getAudioPatchInfo(carPatch))) {
+        if (AudioManagerHelper.releaseAudioPatch(mAudioManager, getAudioPatchInfo(carPatch))) {
             Slogf.d(CarLog.TAG_AUDIO, "releaseAudioPatch " + carPatch + " successfully");
         }
         // If we didn't find a match, then something went awry, but it's probably not fatal...

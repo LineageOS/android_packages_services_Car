@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package android.car.builtin.os;
+package android.car.builtin.media;
 
 import static android.media.AudioAttributes.USAGE_VIRTUAL_SOURCE;
 import static android.media.AudioManager.EXTRA_VOLUME_STREAM_TYPE;
@@ -40,6 +40,7 @@ import android.media.AudioGainConfig;
 import android.media.AudioManager;
 import android.media.AudioPatch;
 import android.media.AudioPortConfig;
+import android.media.AudioSystem;
 
 import com.android.internal.util.Preconditions;
 
@@ -53,12 +54,12 @@ import java.util.Objects;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public final class AudioServiceHelper {
+public final class AudioManagerHelper {
 
     public static final int UNDEFINED_STREAM_TYPE = -1;
     private static final String TAG = "AudioServiceHelper";
 
-    private AudioServiceHelper() {
+    private AudioManagerHelper() {
         throw new UnsupportedOperationException();
     }
 
@@ -349,6 +350,13 @@ public final class AudioServiceHelper {
         Objects.requireNonNull(audioAndMuteHelper, "Audio and Mute helper can not be null.");
 
         context.unregisterReceiver(audioAndMuteHelper.getReceiver());
+    }
+
+    /**
+     * Checks if the client id is equal to the telephony's focus client id.
+     */
+    public static boolean isCallFocusRequestClientId(String clientId) {
+        return AudioSystem.IN_VOICE_COMM_FOCUS_ID.equals(clientId);
     }
 
 
