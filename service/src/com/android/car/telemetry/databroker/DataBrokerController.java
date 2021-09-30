@@ -33,6 +33,15 @@ import java.time.Duration;
  */
 public class DataBrokerController {
 
+    /**
+     * Priorities range from 0 to 100, with 0 being the highest priority and 100 being the lowest.
+     * A {@link ScriptExecutionTask} must have equal or higher priority than the threshold in order
+     * to be executed.
+     * The following constants are chosen with the idea that subscribers with a priority of 0
+     * must be executed as soon as data is published regardless of system health conditions.
+     * Otherwise {@link ScriptExecutionTask}s are executed from the highest priority to the lowest
+     * subject to system health constraints from {@link SystemMonitor}.
+     */
     public static final int TASK_PRIORITY_HI = 0;
     public static final int TASK_PRIORITY_MED = 50;
     public static final int TASK_PRIORITY_LOW = 100;
