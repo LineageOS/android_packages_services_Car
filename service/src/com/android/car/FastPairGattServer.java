@@ -222,8 +222,6 @@ class FastPairGattServer {
                         .sendResponse(device, requestId, BluetoothGatt.GATT_SUCCESS, offset,
                                 mEncryptedResponse);
                 processPairingKey(value);
-                mBluetoothGattServer
-                        .notifyCharacteristicChanged(device, mPasskeyCharacteristic, false);
 
             } else {
                 Log.w(TAG, "onWriteOther" + characteristic.getUuid());
@@ -569,6 +567,8 @@ class FastPairGattServer {
             return;
         }
         mPasskeyCharacteristic.setValue(mEncryptedResponse);
+        mBluetoothGattServer
+                .notifyCharacteristicChanged(mRemoteGattDevice, mPasskeyCharacteristic, false);
     }
 
     /**
