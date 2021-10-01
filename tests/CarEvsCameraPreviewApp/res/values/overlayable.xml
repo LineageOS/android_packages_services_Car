@@ -28,6 +28,7 @@ REGENERATE USING packages/apps/Car/tests/tools/rro/generate-overlayable.py
       <item type="string" name="app_name"/>
       <item type="string" name="close_button_text"/>
       <item type="style" name="Theme.Transparent"/>
+      <item type="integer" name="config_evsRearviewCameraInPlaneRotationAngle"/>
     </policy>
   </overlayable>
 </resources>
