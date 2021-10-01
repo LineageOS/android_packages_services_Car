@@ -53,8 +53,7 @@ package android.car.builtin.app {
   }
 
   public final class KeyguardManagerHelper {
-    ctor public KeyguardManagerHelper();
-    method public boolean isKeyguardLocked();
+    method public static boolean isKeyguardLocked();
   }
 
 }
@@ -332,8 +331,7 @@ package android.car.builtin.view {
 package android.car.builtin.widget {
 
   public final class LockPatternHelper {
-    ctor public LockPatternHelper(android.content.Context);
-    method public boolean isSecure(int);
+    method public static boolean isSecure(@NonNull android.content.Context, int);
   }
 
 }

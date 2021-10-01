@@ -92,9 +92,6 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     private CarUserService mCarUserService;
 
     @Mock
-    private LockPatternHelper mLockPatternHelper;
-
-    @Mock
     private UserHandleHelper mMockedUserHandleHelper;
 
     // Spy used in tests that need to verify the default behavior as fallback
@@ -108,16 +105,21 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
             .spyStatic(ActivityManager.class)
             .spyStatic(ActivityManagerHelper.class)
             .spyStatic(CarSystemProperties.class)
-            .spyStatic(UserManager.class);
+            .spyStatic(UserManager.class)
+            .spyStatic(LockPatternHelper.class);
     }
 
     @Before
     public void setFixtures() {
         when(mContext.createContextAsUser(any(), anyInt())).thenReturn(mContext);
         mSetter = spy(new InitialUserSetter(mContext, mUm, mCarUserService, mListener,
-                        mMockedUserHandleHelper, mLockPatternHelper, OWNER_NAME, GUEST_NAME));
+                        mMockedUserHandleHelper, OWNER_NAME, GUEST_NAME));
         doReturn(mAmHelper).when(() -> ActivityManagerHelper.getInstance());
         mockGetCurrentUser(CURRENT_USER_ID);
+
+        // Need explicitly mock this call, otherwise the test will fail because the real method
+        // will be called and it doesn't have the required permissions to use that API
+        doReturn(false).when(()->LockPatternHelper.isSecure(any(), anyInt()));
     }
 
     @Test
@@ -325,7 +327,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testReplaceGuestIfNeeded_lockScreen() throws Exception {
+    public void testReplaceGuestIfNeeded_ok_hasCredentials() throws Exception {
         UserHandle user = expectGuestUserExists(mMockedUserHandleHelper, USER_ID,
                 /* isEphemeral= */ false);
         expectUserIsSecure(USER_ID);
@@ -339,11 +341,11 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     public void testReplaceGuestIfNeeded_ok_ephemeralGuest() {
         UserHandle newGuest = expectGuestUserExists(mMockedUserHandleHelper, NEW_USER_ID,
                 /* isEphemeral= */ true);
-
         expectCreateGuestUser(NEW_USER_ID, GUEST_NAME,
                 UserManagerHelper.FLAG_EPHEMERAL, newGuest);
         UserHandle user = expectGuestUserExists(mMockedUserHandleHelper, USER_ID,
                 /* isEphemeral= */ true);
+
         assertThat(mSetter.replaceGuestIfNeeded(user)).isSameInstanceAs(newGuest);
 
         verifyGuestMarkedForDeletion(USER_ID);
@@ -361,14 +363,14 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testCanReplaceGuestUser_NotGuest() {
+    public void testCanReplaceGuestUser_fail_notGuest() {
         UserHandle user = expectRegularUserExists(mMockedUserHandleHelper, USER_ID);
 
         assertThat(mSetter.canReplaceGuestUser(user)).isFalse();
     }
 
     @Test
-    public void testCanReplaceGuestUser_Guest() {
+    public void testCanReplaceGuestUser_ok() {
         UserHandle user = expectGuestUserExists(mMockedUserHandleHelper, USER_ID,
                 /* isEphemeral= */ true);
 
@@ -376,10 +378,9 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     @Test
-    public void testCanReplaceGuestUser_GuestLocked() {
+    public void testCanReplaceGuestUser_fail_guestHasCredentials() {
         UserHandle user = expectGuestUserExists(mMockedUserHandleHelper, USER_ID,
                 /* isEphemeral= */ true);
-
         expectUserIsSecure(USER_ID);
 
         assertThat(mSetter.canReplaceGuestUser(user)).isFalse();
@@ -1051,7 +1052,7 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void expectUserIsSecure(@UserIdInt int userId) {
-        when(mLockPatternHelper.isSecure(userId)).thenReturn(true);
+        doReturn(true).when(()->LockPatternHelper.isSecure(any(), eq(userId)));
     }
 
     private void expectGuestReplaced(int existingGuestId, UserHandle newGuest) {

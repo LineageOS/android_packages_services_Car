@@ -19,18 +19,17 @@ package android.car.builtin.app;
 import android.annotation.SystemApi;
 import android.car.builtin.util.Slogf;
 import android.os.RemoteException;
-import android.view.IWindowManager;
 import android.view.WindowManagerGlobal;
 
 /**
  * Wrapper class for {@code android.app.KeyguardManager}. Check the class for API documentation.
+ *
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class KeyguardManagerHelper {
-    private static final String TAG = "CAR.WM";
 
-    private final IWindowManager mWindowManager = WindowManagerGlobal.getWindowManagerService();
+    private static final String TAG = "CAR.WM";
 
     /**
      * Return whether the keyguard is currently locked.
@@ -39,13 +38,17 @@ public final class KeyguardManagerHelper {
      *
      * @return {@code true} if keyguard is locked.
      */
-    public boolean isKeyguardLocked() {
+    public static boolean isKeyguardLocked() {
         boolean locked = true;
         try {
-            locked = mWindowManager.isKeyguardLocked();
+            locked = WindowManagerGlobal.getWindowManagerService().isKeyguardLocked();
         } catch (RemoteException e) {
             Slogf.w(TAG, "Failed to get Keyguard state", e);
         }
         return locked;
+    }
+
+    private KeyguardManagerHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 }

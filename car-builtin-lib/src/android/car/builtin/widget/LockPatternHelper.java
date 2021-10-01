@@ -16,6 +16,7 @@
 
 package android.car.builtin.widget;
 
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
 import android.annotation.UserIdInt;
 import android.content.Context;
@@ -24,21 +25,22 @@ import com.android.internal.widget.LockPatternUtils;
 
 /**
  * This class provides access to {@link com.android.internal.widget.LockPatternUtils} calls.
+ *
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class LockPatternHelper {
-    private final LockPatternUtils mLockPatternUtils;
 
-    public LockPatternHelper(Context context) {
-        mLockPatternUtils = new LockPatternUtils(context);
-    }
+    // NOTE: this class is called just once at boot, so it doesn't need to cache LockPatternUtils
 
     /**
-     * @param userId the user for which to report the value
-     * @return Whether the lock screen is secured.
+     * Checks if the given user has lock credentials.
      */
-    public boolean isSecure(@UserIdInt int userId) {
-        return mLockPatternUtils.isSecure(userId);
+    public static boolean isSecure(@NonNull Context context, @UserIdInt int userId) {
+        return new LockPatternUtils(context).isSecure(userId);
+    }
+
+    private LockPatternHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 }
