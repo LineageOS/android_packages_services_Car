@@ -53,8 +53,6 @@ public class SystemMonitorTest {
     private static final String TEST_LOADAVG = "1.2 3.4 2.2 123/1452 21348";
     private static final String TEST_LOADAVG_BAD_FORMAT = "1.2 3.4";
     private static final String TEST_LOADAVG_NOT_FLOAT = "1.2 abc 2.1 12/231 2";
-    private static final long TEST_AVAILMEM = 3_000_000_000L;
-    private static final long TEST_TOTALMEM = 8_000_000_000L;
 
     @Mock private Context mMockContext;
     @Mock private Handler mMockHandler; // it promptly executes the runnable in the same thread
@@ -72,12 +70,6 @@ public class SystemMonitorTest {
             runnable.run();
             return true;
         });
-        doAnswer(i -> {
-            MemoryInfo mi = i.getArgument(0);
-            mi.availMem = TEST_AVAILMEM;
-            mi.totalMem = TEST_TOTALMEM;
-            return null;
-        }).when(mMockActivityManager).getMemoryInfo(any(MemoryInfo.class));
     }
 
     @Test
@@ -147,7 +139,13 @@ public class SystemMonitorTest {
     }
 
     @Test
-    public void testAfterSetCallback_callbackCalled() throws IOException {
+    public void testSetCallback_whenMemUsageLow_shouldInvokeCallback() throws IOException {
+        doAnswer(i -> {
+            MemoryInfo mi = i.getArgument(0); // memory usage is at 50%
+            mi.availMem = 5_000_000L;
+            mi.totalMem = 10_000_000;
+            return null;
+        }).when(mMockActivityManager).getMemoryInfo(any(MemoryInfo.class));
         SystemMonitor systemMonitor = new SystemMonitor(
                 mMockContext, mMockHandler, writeTempFile(TEST_LOADAVG));
 
@@ -155,14 +153,29 @@ public class SystemMonitorTest {
 
         verify(mMockCallback, atLeastOnce()).onSystemMonitorEvent(mEventCaptor.capture());
         SystemMonitorEvent event = mEventCaptor.getValue();
-        assertThat(event.getCpuUsageLevel()).isAnyOf(
-                SystemMonitorEvent.USAGE_LEVEL_LOW,
-                SystemMonitorEvent.USAGE_LEVEL_MED,
-                SystemMonitorEvent.USAGE_LEVEL_HI);
-        assertThat(event.getMemoryUsageLevel()).isAnyOf(
-                SystemMonitorEvent.USAGE_LEVEL_LOW,
-                SystemMonitorEvent.USAGE_LEVEL_MED,
-                SystemMonitorEvent.USAGE_LEVEL_HI);
+        // from TEST_LOADAVG, cpu load = 1.2 / numProcessors, CPU usage should be low
+        assertThat(event.getCpuUsageLevel()).isEqualTo(SystemMonitorEvent.USAGE_LEVEL_LOW);
+        // 1 - 5_000_000 / 10_000_000 = 0.5, memory usage should be low
+        assertThat(event.getMemoryUsageLevel()).isEqualTo(SystemMonitorEvent.USAGE_LEVEL_LOW);
+    }
+
+    @Test
+    public void testSetCallback_whenMemUsageHigh_shouldInvokeCallback() throws IOException {
+        doAnswer(i -> {
+            MemoryInfo mi = i.getArgument(0); // memory usage is at 95%
+            mi.availMem = 500_000L;
+            mi.totalMem = 10_000_000L;
+            return null;
+        }).when(mMockActivityManager).getMemoryInfo(any(MemoryInfo.class));
+        SystemMonitor systemMonitor = new SystemMonitor(
+                mMockContext, mMockHandler, writeTempFile(TEST_LOADAVG));
+
+        systemMonitor.setSystemMonitorCallback(mMockCallback);
+
+        verify(mMockCallback, atLeastOnce()).onSystemMonitorEvent(mEventCaptor.capture());
+        SystemMonitorEvent event = mEventCaptor.getValue();
+        // 1 - 500_000 / 10_000_000 = 0.95, memory usage should be high
+        assertThat(event.getMemoryUsageLevel()).isEqualTo(SystemMonitorEvent.USAGE_LEVEL_HI);
     }
 
     @Test
@@ -192,8 +205,8 @@ public class SystemMonitorTest {
         verify(mMockHandler, times(1)).post(mRunnableCaptor.capture());
         Runnable setRunnable = mRunnableCaptor.getValue();
         verify(mMockHandler, times(1)).removeCallbacks(mRunnableCaptor.capture());
-        Runnable unsetRunnalbe = mRunnableCaptor.getValue();
-        assertThat(setRunnable).isEqualTo(unsetRunnalbe);
+        Runnable unsetRunnable = mRunnableCaptor.getValue();
+        assertThat(setRunnable).isEqualTo(unsetRunnable);
     }
 
     /**
