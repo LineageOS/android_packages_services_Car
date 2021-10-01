@@ -21,7 +21,6 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import android.app.StatsManager.StatsUnavailableException;
 import android.car.builtin.util.Slogf;
 import android.os.Handler;
-import android.os.Looper;
 import android.os.PersistableBundle;
 import android.util.LongSparseArray;
 
@@ -33,7 +32,6 @@ import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
-import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -49,7 +47,6 @@ import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
  * Publisher for {@link TelemetryProto.StatsPublisher}.
@@ -103,15 +100,12 @@ public class StatsPublisher extends AbstractPublisher {
                                     AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER))
             .build();
 
-    // TODO(b/197766340): remove unnecessary lock
-    private final Object mLock = new Object();
-
     private final StatsManagerProxy mStatsManager;
     private final File mSavedStatsConfigsFile;
     private final Handler mTelemetryHandler;
 
     // True if the publisher is periodically pulling reports from StatsD.
-    private final AtomicBoolean mIsPullingReports = new AtomicBoolean(false);
+    private boolean mIsPullingReports = false;
 
     /** Assign the method to {@link Runnable}, otherwise the handler fails to remove it. */
     private final Runnable mPullReportsPeriodically = this::pullReportsPeriodically;
@@ -120,28 +114,18 @@ public class StatsPublisher extends AbstractPublisher {
     // than 100 items. We're expecting much less number of subscribers, so these data structures
     // are ok.
     // Maps config_key to the set of DataSubscriber.
-    @GuardedBy("mLock")
     private final LongSparseArray<DataSubscriber> mConfigKeyToSubscribers = new LongSparseArray<>();
 
     private final PersistableBundle mSavedStatsConfigs;
 
-    // TODO(b/198331078): Use telemetry thread
-    StatsPublisher(
-            PublisherFailureListener failureListener,
-            StatsManagerProxy statsManager,
-            File rootDirectory) {
-        this(failureListener, statsManager, rootDirectory, new Handler(Looper.myLooper()));
-    }
-
-    @VisibleForTesting
     StatsPublisher(
             PublisherFailureListener failureListener,
             StatsManagerProxy statsManager,
             File rootDirectory,
-            Handler handler) {
+            Handler telemetryHandler) {
         super(failureListener);
         mStatsManager = statsManager;
-        mTelemetryHandler = handler;
+        mTelemetryHandler = telemetryHandler;
         mSavedStatsConfigsFile = new File(rootDirectory, SAVED_STATS_CONFIGS_FILE);
         mSavedStatsConfigs = loadBundle();
     }
@@ -184,15 +168,15 @@ public class StatsPublisher extends AbstractPublisher {
                 "Subscribers only with StatsPublisher are supported by this class.");
 
         long configKey = buildConfigKey(subscriber);
-        synchronized (mLock) {
-            mConfigKeyToSubscribers.put(configKey, subscriber);
-            addStatsConfigLocked(configKey, subscriber);
-        }
+        mConfigKeyToSubscribers.put(configKey, subscriber);
+        addStatsConfig(configKey, subscriber);
 
-        if (!mIsPullingReports.getAndSet(true)) {
+        if (!mIsPullingReports) {
             Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
-            mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+            mIsPullingReports = true;
+            mTelemetryHandler.postDelayed(
+                    mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
     }
 
@@ -203,7 +187,7 @@ public class StatsPublisher extends AbstractPublisher {
         if (report.getReportsCount() == 0) {
             return;
         }
-        DataSubscriber subscriber = getSubscriberByConfigKey(configKey);
+        DataSubscriber subscriber = mConfigKeyToSubscribers.get(configKey);
         if (subscriber == null) {
             Slogf.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
             return;
@@ -257,7 +241,7 @@ public class StatsPublisher extends AbstractPublisher {
             }
         }
 
-        if (mIsPullingReports.get()) {
+        if (mIsPullingReports) {
             Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
@@ -266,15 +250,13 @@ public class StatsPublisher extends AbstractPublisher {
 
     private List<Long> getActiveConfigKeys() {
         ArrayList<Long> result = new ArrayList<>();
-        synchronized (mLock) {
-            for (String key : mSavedStatsConfigs.keySet()) {
-                // filter out all the config versions
-                if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
-                    continue;
-                }
-                // the remaining values are config keys
-                result.add(mSavedStatsConfigs.getLong(key));
+        for (String key : mSavedStatsConfigs.keySet()) {
+            // filter out all the config versions
+            if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
+                continue;
             }
+            // the remaining values are config keys
+            result.add(mSavedStatsConfigs.getLong(key));
         }
         return result;
     }
@@ -294,49 +276,49 @@ public class StatsPublisher extends AbstractPublisher {
                             + publisherParam.getPublisherCase().name());
             return;
         }
-        synchronized (mLock) {
-            long configKey = removeStatsConfigLocked(subscriber);
-            mConfigKeyToSubscribers.remove(configKey);
-        }
-
+        long configKey = removeStatsConfig(subscriber);
+        mConfigKeyToSubscribers.remove(configKey);
         if (mConfigKeyToSubscribers.size() == 0) {
-            mIsPullingReports.set(false);
+            mIsPullingReports = false;
             mTelemetryHandler.removeCallbacks(mPullReportsPeriodically);
         }
     }
 
-    /** Removes all the subscribers from the publisher removes StatsdConfigs from StatsD service. */
+    /**
+     * Removes all the subscribers from the publisher removes StatsdConfigs from StatsD service.
+     */
     @Override
     public void removeAllDataSubscribers() {
-        synchronized (mLock) {
-            for (String key : mSavedStatsConfigs.keySet()) {
-                // filter out all the config versions
-                if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
-                    continue;
-                }
-                // the remaining values are config keys
-                long configKey = mSavedStatsConfigs.getLong(key);
-                try {
-                    mStatsManager.removeConfig(configKey);
-                    String bundleVersion = buildBundleConfigVersionKey(configKey);
-                    mSavedStatsConfigs.remove(key);
-                    mSavedStatsConfigs.remove(bundleVersion);
-                } catch (StatsUnavailableException e) {
-                    Slogf.w(CarLog.TAG_TELEMETRY,  "Failed to remove config " + configKey
-                            + ". Ignoring the failure. Will retry removing again when"
-                            + " removeAllDataSubscribers() is called.", e);
-                    // If it cannot remove statsd config, it's less likely it can delete it even if
-                    // retry. So we will just ignore the failures. The next call of this method
-                    // will ry deleting StatsD configs again.
-                }
+        for (String key : mSavedStatsConfigs.keySet()) {
+            // filter out all the config versions
+            if (!key.startsWith(BUNDLE_CONFIG_KEY_PREFIX)) {
+                continue;
             }
-            saveBundle();
-            mSavedStatsConfigs.clear();
+            // the remaining values are config keys
+            long configKey = mSavedStatsConfigs.getLong(key);
+            try {
+                mStatsManager.removeConfig(configKey);
+                String bundleVersion = buildBundleConfigVersionKey(configKey);
+                mSavedStatsConfigs.remove(key);
+                mSavedStatsConfigs.remove(bundleVersion);
+            } catch (StatsUnavailableException e) {
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
+                        + ". Ignoring the failure. Will retry removing again when"
+                        + " removeAllDataSubscribers() is called.", e);
+                // If it cannot remove statsd config, it's less likely it can delete it even if
+                // retry. So we will just ignore the failures. The next call of this method
+                // will ry deleting StatsD configs again.
+            }
         }
-        mIsPullingReports.set(false);
+        saveBundle();
+        mSavedStatsConfigs.clear();
+        mIsPullingReports = false;
         mTelemetryHandler.removeCallbacks(mPullReportsPeriodically);
     }
 
+    /**
+     * Returns true if the publisher has the subscriber.
+     */
     @Override
     public boolean hasDataSubscriber(DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
@@ -344,27 +326,16 @@ public class StatsPublisher extends AbstractPublisher {
             return false;
         }
         long configKey = buildConfigKey(subscriber);
-        synchronized (mLock) {
-            return mConfigKeyToSubscribers.indexOfKey(configKey) >= 0;
-        }
-    }
-
-    /** Returns a subscriber for the given statsd config key. Returns null if not found. */
-    private DataSubscriber getSubscriberByConfigKey(long configKey) {
-        synchronized (mLock) {
-            return mConfigKeyToSubscribers.get(configKey);
-        }
+        return mConfigKeyToSubscribers.indexOfKey(configKey) >= 0;
     }
 
     /** Returns all the {@link TelemetryProto.MetricsConfig} associated with added subscribers. */
     private List<TelemetryProto.MetricsConfig> getMetricsConfigs() {
-        synchronized (mLock) {
-            HashSet<TelemetryProto.MetricsConfig> failedConfigs = new HashSet<>();
-            for (int i = 0; i < mConfigKeyToSubscribers.size(); i++) {
-                failedConfigs.add(mConfigKeyToSubscribers.valueAt(i).getMetricsConfig());
-            }
-            return new ArrayList<>(failedConfigs);
+        HashSet<TelemetryProto.MetricsConfig> failedConfigs = new HashSet<>();
+        for (int i = 0; i < mConfigKeyToSubscribers.size(); i++) {
+            failedConfigs.add(mConfigKeyToSubscribers.valueAt(i).getMetricsConfig());
         }
+        return new ArrayList<>(failedConfigs);
     }
 
     /**
@@ -389,8 +360,7 @@ public class StatsPublisher extends AbstractPublisher {
      * previously added config_keys in the persistable bundle and only updates StatsD when
      * the MetricsConfig (of CarTelemetryService) has a new version.
      */
-    @GuardedBy("mLock")
-    private void addStatsConfigLocked(long configKey, DataSubscriber subscriber) {
+    private void addStatsConfig(long configKey, DataSubscriber subscriber) {
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
         String bundleVersion = buildBundleConfigVersionKey(configKey);
         if (mSavedStatsConfigs.getInt(bundleVersion) != 0) {
@@ -419,8 +389,7 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     /** Removes StatsdConfig and returns configKey. */
-    @GuardedBy("mLock")
-    private long removeStatsConfigLocked(DataSubscriber subscriber) {
+    private long removeStatsConfig(DataSubscriber subscriber) {
         String bundleConfigKey = buildBundleConfigKey(subscriber);
         long configKey = buildConfigKey(subscriber);
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
