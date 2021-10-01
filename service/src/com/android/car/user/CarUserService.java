@@ -2028,7 +2028,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
     }
 
     private static boolean hasPermissionGranted(String permission, int uid) {
-        return ActivityManager.checkComponentPermission(permission, uid, /* owningUid= */ -1,
+        return ActivityManagerHelper.checkComponentPermission(permission, uid, /* owningUid= */ -1,
                 /* exported= */ true) == PackageManager.PERMISSION_GRANTED;
     }
 }

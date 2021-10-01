@@ -10,6 +10,7 @@ package android.car.builtin {
 package android.car.builtin.app {
 
   public final class ActivityManagerHelper {
+    method public static int checkComponentPermission(@NonNull String, int, int, boolean);
     method @NonNull public static android.app.ActivityOptions createActivityOptions(@NonNull android.os.Bundle);
     method @Deprecated public android.util.Pair<android.content.Intent,java.lang.Integer> findRootTask(int);
     method @NonNull public static android.car.builtin.app.ActivityManagerHelper getInstance();

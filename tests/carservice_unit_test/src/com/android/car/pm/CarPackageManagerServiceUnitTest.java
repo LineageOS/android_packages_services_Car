@@ -24,7 +24,7 @@ import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
 
-import android.app.ActivityManager;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 
@@ -61,7 +61,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
-        builder.spyStatic(ActivityManager.class);
+        builder.spyStatic(ActivityManagerHelper.class);
     }
 
     @Before
@@ -139,7 +139,7 @@ public class CarPackageManagerServiceUnitTest extends AbstractExtendedMockitoTes
         if (granted) {
             result = android.content.pm.PackageManager.PERMISSION_GRANTED;
         }
-        doReturn(result).when(() -> ActivityManager.checkComponentPermission(any(), anyInt(),
+        doReturn(result).when(() -> ActivityManagerHelper.checkComponentPermission(any(), anyInt(),
                 anyInt(), anyBoolean()));
     }
 }

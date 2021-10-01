@@ -449,4 +449,12 @@ public final class ActivityManagerHelper {
             }
         }
     }
+
+    /**
+     * Same as {@link ActivityManager#checkComponentPermission(String, int, int, boolean).
+     */
+    public static int checkComponentPermission(@NonNull String permission, int uid, int owningUid,
+            boolean exported) {
+        return ActivityManager.checkComponentPermission(permission, uid, owningUid, exported);
+    }
 }
