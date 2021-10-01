@@ -15,13 +15,13 @@
  */
 package com.android.car.audio;
 
-import static com.android.car.util.Utils.getContentResolverForUser;
-
 import android.annotation.UserIdInt;
 import android.car.settings.CarSettings;
 import android.content.ContentResolver;
 import android.content.Context;
 import android.provider.Settings;
+
+import com.android.car.util.Utils;
 
 import java.util.Objects;
 
@@ -43,11 +43,9 @@ public class CarAudioSettings {
     private static final String VOLUME_SETTINGS_KEY_MASTER_MUTE = "android.car.MASTER_MUTE";
 
     private final Context mContext;
-    private final ContentResolver mContentResolver;
 
     CarAudioSettings(Context context) {
-        mContext = context;
-        mContentResolver = Objects.requireNonNull(context).getContentResolver();
+        mContext = Objects.requireNonNull(context);
     }
 
     int getStoredVolumeGainIndexForUser(@UserIdInt int userId, int zoneId, int groupId) {
@@ -62,13 +60,13 @@ public class CarAudioSettings {
     }
 
     void storeMasterMute(Boolean masterMuteValue) {
-        Settings.Global.putInt(mContentResolver,
+        Settings.Global.putInt(mContext.getContentResolver(),
                 VOLUME_SETTINGS_KEY_MASTER_MUTE,
                 masterMuteValue ? 1 : 0);
     }
 
     boolean getMasterMute() {
-        return Settings.Global.getInt(mContentResolver,
+        return Settings.Global.getInt(mContext.getContentResolver(),
                 VOLUME_SETTINGS_KEY_MASTER_MUTE, 0) != 0;
     }
 
@@ -80,29 +78,33 @@ public class CarAudioSettings {
 
     boolean getVolumeGroupMuteForUser(@UserIdInt int userId, int zoneId, int groupId) {
         return getIntForUser(getMuteSettingsKeyForGroup(zoneId, groupId),
-                /*disabled by default*/ 0, userId) != 0;
+                /* defaultValue= */ 0, userId) != 0;
     }
 
     boolean isPersistVolumeGroupMuteEnabled(@UserIdInt int userId) {
-        return getIntForUser(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
-                /*disabled by default*/ 0, userId) == 1;
+        return getSecureIntForUser(CarSettings.Secure.KEY_AUDIO_PERSIST_VOLUME_GROUP_MUTE_STATES,
+                /* defaultValue= */ 0, userId) == 1;
     }
 
     /**
      * Determines if for a given userId the reject navigation on call setting is enabled
      */
     public boolean isRejectNavigationOnCallEnabledInSettings(@UserIdInt int userId) {
-        return getIntForUser(CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
-                /*disabled by default*/ 0, userId) == 1;
+        return getSecureIntForUser(
+                CarSettings.Secure.KEY_AUDIO_FOCUS_NAVIGATION_REJECTED_DURING_CALL,
+                /* defaultValue= */  0, userId) == 1;
     }
 
     private int getIntForUser(String name, int defaultValue, @UserIdInt int userId) {
-        return Settings.System.getInt(getContentResolverForUser(mContext, userId),
-                name, defaultValue);
+        return Settings.System.getInt(getContentResolverForUser(userId), name, defaultValue);
     }
 
     private void putIntForUser(String name, int value, @UserIdInt int userId) {
-        Settings.System.putInt(getContentResolverForUser(mContext, userId), name, value);
+        Settings.System.putInt(getContentResolverForUser(userId), name, value);
+    }
+
+    private int getSecureIntForUser(String name, int defaultValue, @UserIdInt int userId) {
+        return Settings.Secure.getInt(getContentResolverForUser(userId), name, defaultValue);
     }
 
     private static String getVolumeSettingsKeyForGroup(int zoneId, int groupId) {
@@ -119,7 +121,7 @@ public class CarAudioSettings {
         return new StringBuilder().append(zoneId).append('/').append(groupId).toString();
     }
 
-    public ContentResolver getContentResolver() {
-        return mContentResolver;
+    ContentResolver getContentResolverForUser(@UserIdInt int userId) {
+        return Utils.getContentResolverForUser(mContext, userId);
     }
 }

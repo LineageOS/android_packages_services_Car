@@ -480,6 +480,8 @@ public abstract class AbstractExtendedMockitoTestCase {
             when(Settings.Secure.getIntForUser(any(), any(), anyInt(), anyInt()))
                     .thenAnswer(getIntAnswer);
 
+            when(Settings.Secure.getInt(any(), any(), anyInt())).thenAnswer(getIntAnswer);
+
             when(Settings.Secure.putStringForUser(any(), anyString(), anyString(), anyInt()))
                     .thenAnswer(insertObjectAnswer);
 

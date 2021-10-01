@@ -345,7 +345,8 @@ public class CarZonesAudioFocusTest {
     }
 
     private void setUpRejectNavigationOnCallValue(boolean rejectNavigationOnCall) {
-        when(mCarAudioSettings.getContentResolver()).thenReturn(mContentResolver);
+        when(mCarAudioSettings.getContentResolverForUser(TEST_USER_ID))
+                .thenReturn(mContentResolver);
         when(mCarAudioSettings.isRejectNavigationOnCallEnabledInSettings(TEST_USER_ID))
                 .thenReturn(rejectNavigationOnCall);
     }
