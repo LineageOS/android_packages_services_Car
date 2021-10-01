@@ -33,9 +33,9 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
-import android.util.IntArray;
 
 import com.android.car.CarLog;
+import com.android.car.internal.util.IntArray;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.time.Instant;

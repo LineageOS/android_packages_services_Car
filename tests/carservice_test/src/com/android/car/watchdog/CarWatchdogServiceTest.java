@@ -97,7 +97,7 @@ public class CarWatchdogServiceTest extends AbstractExtendedMockitoTestCase {
         mockQueryService(CAR_WATCHDOG_DAEMON_INTERFACE, mDaemonBinder, mCarWatchdogDaemon);
         when(mCar.getEventHandler()).thenReturn(mMainHandler);
         when(mServiceBinder.queryLocalInterface(anyString())).thenReturn(mCarWatchdogService);
-        when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mUserManager);
         mockUmGetUserHandles(mUserManager, /* excludeDying= */ false, mUsers);
         mockUmIsUserRunning(mUserManager, 100, true);
         mockUmIsUserRunning(mUserManager, 101, false);

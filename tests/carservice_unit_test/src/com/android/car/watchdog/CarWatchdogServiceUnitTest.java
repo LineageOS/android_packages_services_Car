@@ -2338,7 +2338,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     private void setupUsers() {
-        when(mMockContext.getSystemService(Context.USER_SERVICE)).thenReturn(mMockUserManager);
+        when(mMockContext.getSystemService(UserManager.class)).thenReturn(mMockUserManager);
         mockUmGetAllUsers(mMockUserManager, new UserHandle[0]);
     }
 

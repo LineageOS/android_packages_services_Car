@@ -1238,7 +1238,7 @@ public final class WatchdogPerfHandler {
     }
 
     private int[] getAliveUserIds() {
-        UserManager userManager = UserManager.get(mContext);
+        UserManager userManager = mContext.getSystemService(UserManager.class);
         List<UserHandle> aliveUsers = userManager.getUserHandles(/* excludeDying= */ true);
         int userSize = aliveUsers.size();
         int[] userIds = new int[userSize];
