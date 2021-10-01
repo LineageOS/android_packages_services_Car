@@ -19,6 +19,7 @@ package com.android.car.telemetry.publisher;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.PersistableBundle;
+import android.util.SparseArray;
 
 import com.android.car.telemetry.AtomsProto;
 import com.android.car.telemetry.StatsLogProto;
@@ -28,65 +29,87 @@ import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 
 @RunWith(JUnit4.class)
 public class GaugeMetricDataConverterTest {
     @Test
-    public void testConvertGaugeDataList_putsCorrectDataIntoPersistableBundle() {
-        // TODO(b/200064146): handle process name and uid
+    public void testConvertGaugeDataList_putsCorrectDataIntoPersistableBundle()
+            throws StatsConversionException {
+        Long hash1 = HashUtils.murmur2Hash64("process.name.A");
+        Long hash2 = HashUtils.murmur2Hash64("process.name.B");
         List<StatsLogProto.GaugeMetricData> gaugeDataList = Arrays.asList(
                 StatsLogProto.GaugeMetricData.newBuilder()
                         .addBucketInfo(StatsLogProto.GaugeBucketInfo.newBuilder()
                                 .addAtom(AtomsProto.Atom.newBuilder()
                                         .setProcessMemoryState(
                                                 AtomsProto.ProcessMemoryState.newBuilder()
-                                                    .setUid(1000)
-                                                    .setProcessName("processName1")
+                                                    .setPageFault(1000L)
                                                     .setRssInBytes(1234L)))
                                 .addElapsedTimestampNanos(12345678L)
                                 .addAtom(AtomsProto.Atom.newBuilder()
                                         .setProcessMemoryState(
                                                 AtomsProto.ProcessMemoryState.newBuilder()
-                                                    .setUid(1000)
-                                                    .setProcessName("processName1")
+                                                    .setPageFault(1100L)
                                                     .setRssInBytes(2345L)))
                                 .addElapsedTimestampNanos(23456789L))
                         .addBucketInfo(StatsLogProto.GaugeBucketInfo.newBuilder()
                                 .addAtom(AtomsProto.Atom.newBuilder()
                                         .setProcessMemoryState(
                                                 AtomsProto.ProcessMemoryState.newBuilder()
-                                                    .setUid(1200)
-                                                    .setProcessName("processName2")
+                                                    .setPageFault(1200L)
                                                     .setRssInBytes(3456L)))
                                 .addElapsedTimestampNanos(34567890L))
                         .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
                                 .setValueInt(123))
                         .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
-                                .setValueStrHash(234567890L))
+                                .setValueStrHash(hash1))
+                        .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
+                                .setValueLong(11111111L))
                         .build(),
                 StatsLogProto.GaugeMetricData.newBuilder()
                         .addBucketInfo(StatsLogProto.GaugeBucketInfo.newBuilder()
                                 .addAtom(AtomsProto.Atom.newBuilder()
                                         .setProcessMemoryState(
                                                 AtomsProto.ProcessMemoryState.newBuilder()
-                                                    .setUid(1300)
-                                                    .setProcessName("processName3")
+                                                    .setPageFault(1300L)
                                                     .setRssInBytes(4567L)))
                                 .addElapsedTimestampNanos(445678901L))
                         .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
                                 .setValueInt(234))
                         .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
-                                .setValueStrHash(345678901L))
+                                .setValueStrHash(hash2))
+                        .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
+                                .setValueLong(22222222L))
                         .build()
         );
-        PersistableBundle bundle = new PersistableBundle();
+        List<Integer> dimensionsFieldsIds = Arrays.asList(1, 2, 8);
+        Map<Long, String> hashToStringMap = new HashMap<>();
+        hashToStringMap.put(hash1, "process.name.1");
+        hashToStringMap.put(hash2, "process.name.2");
+        SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState>> accessorMap =
+                new ProcessMemoryStateConverter().getAtomFieldAccessorMap();
 
-        GaugeMetricDataConverter.convertGaugeDataList(gaugeDataList, bundle);
+        PersistableBundle bundle = GaugeMetricDataConverter.convertGaugeDataList(
+                gaugeDataList, dimensionsFieldsIds, hashToStringMap);
 
-        assertThat(bundle.getLongArray(AtomDataConverter.RSS_IN_BYTES))
-            .asList().containsExactly(1234L, 2345L, 3456L, 4567L);
-        assertThat(bundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
-            .asList().containsExactly(12345678L, 23456789L, 34567890L, 445678901L);
+        // For each atom 2 fields were set, additionally 3 fields were encoded in dimension values,
+        // and 1 elapsed time array, so 6 arrays are expected in the bundle.
+        assertThat(bundle.size()).isEqualTo(6);
+        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+            .asList().containsExactly(123, 123, 123, 234).inOrder();
+        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(2).getFieldName())))
+            .containsExactly("process.name.1", "process.name.1",
+                        "process.name.1", "process.name.2").inOrder();
+        assertThat(bundle.getLongArray(accessorMap.get(4).getFieldName()))
+            .asList().containsExactly(1000L, 1100L, 1200L, 1300L).inOrder();
+        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
+            .asList().containsExactly(1234L, 2345L, 3456L, 4567L).inOrder();
+        assertThat(bundle.getLongArray(accessorMap.get(8).getFieldName()))
+            .asList().containsExactly(11111111L, 11111111L, 11111111L, 22222222L).inOrder();
+        assertThat(bundle.getLongArray(GaugeMetricDataConverter.ELAPSED_TIME_NANOS))
+            .asList().containsExactly(12345678L, 23456789L, 34567890L, 445678901L).inOrder();
     }
 }

@@ -22,8 +22,10 @@ import com.android.car.telemetry.StatsLogProto;
 
 import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 
 /**
  * Class for converting metrics report list data to {@link PersistableBundle} compatible format.
@@ -31,7 +33,8 @@ import java.util.Map;
 public class ConfigMetricsReportListConverter {
     /**
      * Converts metrics report list to map of metric_id to {@link PersistableBundle} format where
-     * each PersistableBundle containing arrays of metric fields data.
+     * each PersistableBundle containing arrays of metric fields data. Multiple reports with the
+     * same metrics are combined on the metrics.
      *
      * Example:
      * Given a ConfigMetricsReportList like this:
@@ -59,7 +62,7 @@ public class ConfigMetricsReportListConverter {
      *     }
      *   }
      * }
-     * Will result in a map of this form:
+     * Will result in a map of this form (note metric 3456 is combined from the two reports):
      * {
      *   "1234" : {...}  // PersistableBundle containing metric 1234's data
      *   "2345" : {...}
@@ -68,13 +71,17 @@ public class ConfigMetricsReportListConverter {
      *
      * @param reportList the {@link StatsLogProto.ConfigMetricsReportList} to be converted.
      * @return a {@link PersistableBundle} containing mapping of metric id to metric data.
+     * @throws StatsConversionException if atom field mismatch or can't convert dimension value.
      */
-    static Map<Long, PersistableBundle> convert(StatsLogProto.ConfigMetricsReportList reportList) {
+    static Map<Long, PersistableBundle> convert(
+            StatsLogProto.ConfigMetricsReportList reportList) throws StatsConversionException {
         // Map metric id to StatsLogReport list so that separate reports can be combined.
         Map<Long, List<StatsLogProto.StatsLogReport>> metricsStatsReportMap = new HashMap<>();
+        Set<String> stringsSet = new HashSet<>();
         // ConfigMetricsReportList is for one config. Normally only 1 report exists unless
         // the previous report did not upload after shutdown, then at most 2 reports can exist.
         for (StatsLogProto.ConfigMetricsReport report : reportList.getReportsList()) {
+            stringsSet.addAll(report.getStringsList());
             // Each statsReport is for a different metric in the report.
             for (StatsLogProto.StatsLogReport statsReport : report.getMetricsList()) {
                 Long metricId = statsReport.getMetricId();
@@ -90,7 +97,7 @@ public class ConfigMetricsReportListConverter {
         // convert to bundle data.
         for (Map.Entry<Long, List<StatsLogProto.StatsLogReport>>
                     entry : metricsStatsReportMap.entrySet()) {
-            PersistableBundle statsReportBundle = new PersistableBundle();
+            PersistableBundle statsReportBundle = null;
             Long metricId = entry.getKey();
             List<StatsLogProto.StatsLogReport> statsReportList = entry.getValue();
             switch (statsReportList.get(0).getDataCase()) {
@@ -99,22 +106,60 @@ public class ConfigMetricsReportListConverter {
                     for (StatsLogProto.StatsLogReport statsReport : statsReportList) {
                         eventDataList.addAll(statsReport.getEventMetrics().getDataList());
                     }
-                    EventMetricDataConverter.convertEventDataList(
-                            eventDataList, statsReportBundle);
+                    statsReportBundle =
+                            EventMetricDataConverter.convertEventDataList(eventDataList);
                     break;
                 case GAUGE_METRICS:
                     List<StatsLogProto.GaugeMetricData> gaugeDataList = new ArrayList<>();
                     for (StatsLogProto.StatsLogReport statsReport : statsReportList) {
                         gaugeDataList.addAll(statsReport.getGaugeMetrics().getDataList());
                     }
-                    GaugeMetricDataConverter.convertGaugeDataList(
-                            gaugeDataList, statsReportBundle);
+                    statsReportBundle = GaugeMetricDataConverter.convertGaugeDataList(
+                            gaugeDataList,
+                            extractDimensionFieldsIds(
+                                    statsReportList.get(0).getDimensionsPathInWhat()),
+                            createDimensionHashToStringMap(stringsSet));
                     break;
                 default:
                     break;
             }
-            metricIdBundleMap.put(metricId, statsReportBundle);
+            if (statsReportBundle != null) {
+                metricIdBundleMap.put(metricId, statsReportBundle);
+            }
         }
         return metricIdBundleMap;
+    }
+
+    /**
+     * Creates a hash to string mapping for decoding {@link StatsLogProto.DimensionsValue}.
+     *
+     * <p> The mapping is created using murmur2 hashing algorithm.
+     *
+     * @param dimensionStrings the strings that were encoded in dimension values.
+     * @return hash to string mapping.
+     */
+    private static Map<Long, String> createDimensionHashToStringMap(Set<String> dimensionStrings) {
+        Map<Long, String> hashToStringMap = new HashMap<>();
+        for (String str : dimensionStrings) {
+            Long hash = HashUtils.murmur2Hash64(str);
+            hashToStringMap.put(hash, str);
+        }
+        return hashToStringMap;
+    }
+
+    /**
+     * Extracts the field ids of atom fields that were encoded in the dimension values.
+     *
+     * @param dimensionsPath the root level DimensionsValue. Contains field ids instead of values.
+     * @return list of atom field ids.
+     */
+    private static List<Integer> extractDimensionFieldsIds(
+            StatsLogProto.DimensionsValue dimensionsPath) {
+        List<Integer> dimensionsFieldsIds = new ArrayList<>();
+        StatsLogProto.DimensionsValueTuple dimensionTuple = dimensionsPath.getValueTuple();
+        for (StatsLogProto.DimensionsValue dv : dimensionTuple.getDimensionsValueList()) {
+            dimensionsFieldsIds.add(dv.getField());
+        }
+        return dimensionsFieldsIds;
     }
 }

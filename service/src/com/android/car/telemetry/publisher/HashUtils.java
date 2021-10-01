@@ -20,6 +20,9 @@ import android.annotation.NonNull;
 
 import com.android.internal.util.Preconditions;
 
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 import java.security.MessageDigest;
 import java.security.NoSuchAlgorithmException;
 
@@ -29,6 +32,9 @@ import java.security.NoSuchAlgorithmException;
  * <p>Most of the methods are copied from {@code external/guava/}.
  */
 public class HashUtils {
+    private static final long M = 0xC6A4A7935BD1E995L;
+    private static final int R = 47;
+    private static final long SEED = 0xDECAFCAFFEL;
 
     /**
      * Returns the hash code of the given string using SHA-256 algorithm. Returns only the first
@@ -41,6 +47,43 @@ public class HashUtils {
             // unreachable
             throw new RuntimeException("SHA-256 algorithm not found.", e);
         }
+    }
+
+    /**
+     * Returns the Murmur2 hash of the provided string.
+     *
+     * <p> This algorithm works the same way as Hash64() in
+     * packages/modules/StatsD/statsd/src/hash.h
+     *
+     * @param str the string to be hashed.
+     * @return hash of the string.
+     */
+    static long murmur2Hash64(String str) {
+        final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
+        ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
+
+        long h = SEED ^ (buf.remaining() * M);
+        while (buf.remaining() >= 8) {
+            long k = buf.getLong();
+            k *= M;
+            k ^= k >>> R;
+            k *= M;
+            h ^= k;
+            h *= M;
+        }
+
+        if (buf.hasRemaining()) {
+            for (int i = 0; buf.hasRemaining(); i += 8) {
+                h ^= (buf.get() & 0xFFL) << i;
+            }
+            h *= M;
+        }
+
+        h ^= h >>> R;
+        h *= M;
+        h ^= h >>> R;
+
+        return h;
     }
 
     /**

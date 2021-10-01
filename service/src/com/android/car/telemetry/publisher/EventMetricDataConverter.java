@@ -42,18 +42,20 @@ public class EventMetricDataConverter {
      *   ...
      * }
      * @param eventDataList the list of {@link StatsLogProto.EventMetricData} to be converted.
-     * @param bundle the {@link PersistableBundle} to hold the converted values.
+     * @return {@link PersistableBundle} that holds the converted values.
+     * @throws StatsConversionException if atom field mismatch or can't convert dimension value.
      */
-    static void convertEventDataList(
-                List<StatsLogProto.EventMetricData> eventDataList, PersistableBundle bundle) {
-        List<Long> elapsedTimes = new ArrayList<>();
-        List<AtomsProto.Atom> atoms = new ArrayList<>();
-        for (StatsLogProto.EventMetricData eventData : eventDataList) {
-            elapsedTimes.add(eventData.getElapsedTimestampNanos());
-            atoms.add(eventData.getAtom());
+    static PersistableBundle convertEventDataList(
+                List<StatsLogProto.EventMetricData> eventDataList)
+                throws StatsConversionException {
+        long[] elapsedTimes = new long[eventDataList.size()];
+        List<AtomsProto.Atom> atoms = new ArrayList<>(eventDataList.size());
+        for (int i = 0; i < eventDataList.size(); ++i) {
+            elapsedTimes[i] = eventDataList.get(i).getElapsedTimestampNanos();
+            atoms.add(eventDataList.get(i).getAtom());
         }
-        AtomDataConverter.convertAtomsList(atoms, bundle);
-        bundle.putLongArray(
-                ELAPSED_TIME_NANOS, elapsedTimes.stream().mapToLong(i -> i).toArray());
+        PersistableBundle bundle = AtomListConverter.convert(atoms, null, null, null);
+        bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimes);
+        return bundle;
     }
 }

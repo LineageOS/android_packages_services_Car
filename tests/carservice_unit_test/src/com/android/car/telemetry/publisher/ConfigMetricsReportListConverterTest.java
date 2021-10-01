@@ -19,10 +19,18 @@ package com.android.car.telemetry.publisher;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.PersistableBundle;
+import android.util.SparseArray;
 
-import com.android.car.telemetry.AtomsProto;
-import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured;
+import com.android.car.telemetry.AtomsProto.Atom;
+import com.android.car.telemetry.AtomsProto.ProcessMemoryState;
+import com.android.car.telemetry.StatsLogProto.ConfigMetricsReport;
 import com.android.car.telemetry.StatsLogProto.ConfigMetricsReportList;
+import com.android.car.telemetry.StatsLogProto.DimensionsValue;
+import com.android.car.telemetry.StatsLogProto.DimensionsValueTuple;
+import com.android.car.telemetry.StatsLogProto.EventMetricData;
+import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
+import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
 import com.android.car.telemetry.StatsLogProto.StatsLogReport;
 
 import org.junit.Test;
@@ -36,63 +44,80 @@ import java.util.Map;
 @RunWith(JUnit4.class)
 public class ConfigMetricsReportListConverterTest {
     @Test
-    public void testConvertMultipleReports_correctlyGroupsByMetricId() {
-        StatsLogProto.EventMetricData eventData = StatsLogProto.EventMetricData.newBuilder()
+    public void testConvertMultipleReports_correctlySetsPersistableBundles()
+            throws StatsConversionException {
+        String testGaugeMetricProcessName = "process.name";
+        Long hash = HashUtils.murmur2Hash64(testGaugeMetricProcessName);
+        EventMetricData eventData = EventMetricData.newBuilder()
                 .setElapsedTimestampNanos(99999999L)
-                .setAtom(AtomsProto.Atom.newBuilder()
+                .setAtom(Atom.newBuilder()
                         .setAppStartMemoryStateCaptured(
-                                AtomsProto.AppStartMemoryStateCaptured.newBuilder()
+                                AppStartMemoryStateCaptured.newBuilder()
                                         .setUid(1000)
                                         .setActivityName("activityName")
                                         .setRssInBytes(1234L)))
                 .build();
 
-        StatsLogProto.GaugeMetricData gaugeData = StatsLogProto.GaugeMetricData.newBuilder()
-                .addBucketInfo(StatsLogProto.GaugeBucketInfo.newBuilder()
-                        .addAtom(AtomsProto.Atom.newBuilder()
-                                .setProcessMemoryState(AtomsProto.ProcessMemoryState.newBuilder()
-                                        .setUid(1300)
-                                        .setProcessName("processName")
+        GaugeMetricData gaugeData = GaugeMetricData.newBuilder()
+                .addBucketInfo(GaugeBucketInfo.newBuilder()
+                        .addAtom(Atom.newBuilder()
+                                .setProcessMemoryState(ProcessMemoryState.newBuilder()
                                         .setRssInBytes(4567L)))
                         .addElapsedTimestampNanos(445678901L))
-                .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
+                .addDimensionLeafValuesInWhat(DimensionsValue.newBuilder()
                         .setValueInt(234))
-                .addDimensionLeafValuesInWhat(StatsLogProto.DimensionsValue.newBuilder()
-                        .setValueStrHash(345678901L))
+                .addDimensionLeafValuesInWhat(DimensionsValue.newBuilder()
+                        .setValueStrHash(hash))
                 .build();
 
         ConfigMetricsReportList reportList = ConfigMetricsReportList.newBuilder()
-                .addReports(StatsLogProto.ConfigMetricsReport.newBuilder()
+                .addReports(ConfigMetricsReport.newBuilder()
                         .addMetrics(StatsLogReport.newBuilder()
                                 .setMetricId(12345L)
                                 .setEventMetrics(
                                         StatsLogReport.EventMetricDataWrapper.newBuilder()
                                                 .addData(eventData))))
-                .addReports(StatsLogProto.ConfigMetricsReport.newBuilder()
-                        .addMetrics(StatsLogProto.StatsLogReport.newBuilder()
+                .addReports(ConfigMetricsReport.newBuilder()
+                        .addMetrics(StatsLogReport.newBuilder()
                                 .setMetricId(23456L)
                                 .setGaugeMetrics(
                                         StatsLogReport.GaugeMetricDataWrapper.newBuilder()
-                                                .addData(gaugeData))))
+                                                .addData(gaugeData))
+                                .setDimensionsPathInWhat(DimensionsValue.newBuilder()
+                                        .setValueTuple(DimensionsValueTuple.newBuilder()
+                                                .addDimensionsValue(DimensionsValue.newBuilder()
+                                                        .setField(1))
+                                                .addDimensionsValue(DimensionsValue.newBuilder()
+                                                        .setField(2)))))
+                        .addStrings(testGaugeMetricProcessName))
                 .build();
+        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> appMemAccessorMap =
+                new AppStartMemoryStateCapturedConverter().getAtomFieldAccessorMap();
+        SparseArray<AtomFieldAccessor<ProcessMemoryState>> procMemAccessorMap =
+                new ProcessMemoryStateConverter().getAtomFieldAccessorMap();
 
         Map<Long, PersistableBundle> map = ConfigMetricsReportListConverter.convert(reportList);
 
-        PersistableBundle subBundle1 = map.get(12345L);
-        PersistableBundle subBundle2 = map.get(23456L);
-        PersistableBundle dimensionBundle = subBundle2.getPersistableBundle("234-345678901");
+        PersistableBundle eventBundle = map.get(12345L);
+        PersistableBundle gaugeBundle = map.get(23456L);
         assertThat(new ArrayList<Long>(map.keySet())).containsExactly(12345L, 23456L);
-        assertThat(subBundle1.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
+        assertThat(eventBundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(99999999L);
-        assertThat(subBundle1.getIntArray(AtomDataConverter.UID)).asList().containsExactly(1000);
-        assertThat(Arrays.asList(subBundle1.getStringArray(AtomDataConverter.ACTIVITY_NAME)))
+        assertThat(eventBundle.getIntArray(appMemAccessorMap.get(1).getFieldName()))
+            .asList().containsExactly(1000);
+        assertThat(Arrays.asList(
+                eventBundle.getStringArray(appMemAccessorMap.get(3).getFieldName())))
             .containsExactly("activityName");
-        assertThat(subBundle1.getLongArray(AtomDataConverter.RSS_IN_BYTES))
+        assertThat(eventBundle.getLongArray(appMemAccessorMap.get(6).getFieldName()))
             .asList().containsExactly(1234L);
-        // TODO(b/200064146) add checks for uid and process_name
-        assertThat(subBundle2.getLongArray(AtomDataConverter.RSS_IN_BYTES))
+        assertThat(gaugeBundle.getIntArray(procMemAccessorMap.get(1).getFieldName()))
+            .asList().containsExactly(234);
+        assertThat(Arrays.asList(
+                gaugeBundle.getStringArray(procMemAccessorMap.get(2).getFieldName())))
+            .containsExactly("process.name");
+        assertThat(gaugeBundle.getLongArray(procMemAccessorMap.get(6).getFieldName()))
             .asList().containsExactly(4567L);
-        assertThat(subBundle2.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
+        assertThat(gaugeBundle.getLongArray(GaugeMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(445678901L);
     }
 }
