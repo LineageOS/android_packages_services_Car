@@ -71,28 +71,20 @@ public class MetricsConfigStoreTest {
     }
 
     @Test
-    public void testDeleteMetricsConfig_whenNoConfig_shouldReturnFalse() {
-        boolean status = mMetricsConfigStore.deleteMetricsConfig(NAME_BAR);
-
-        assertThat(status).isFalse();
-    }
-
-    @Test
-    public void testDeleteMetricsConfig_shouldDeleteConfigFromDisk() throws Exception {
+    public void testRemoveMetricsConfig_shouldDeleteConfigFromDisk() throws Exception {
         writeConfigToDisk(METRICS_CONFIG_BAR);
 
-        boolean status = mMetricsConfigStore.deleteMetricsConfig(NAME_BAR);
+        mMetricsConfigStore.removeMetricsConfig(NAME_BAR);
 
-        assertThat(status).isTrue();
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
     }
 
     @Test
-    public void testDeleteAllMetricsConfigs_shouldDeleteAll() throws Exception {
+    public void testRemoveAllMetricsConfigs_shouldDeleteAll() throws Exception {
         writeConfigToDisk(METRICS_CONFIG_FOO);
         writeConfigToDisk(METRICS_CONFIG_BAR);
 
-        mMetricsConfigStore.deleteAllMetricsConfigs();
+        mMetricsConfigStore.removeAllMetricsConfigs();
 
         assertThat(mTestMetricsConfigDir.listFiles()).isEmpty();
     }

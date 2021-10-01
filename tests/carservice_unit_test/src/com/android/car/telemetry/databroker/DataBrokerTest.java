@@ -446,7 +446,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         taskQueue.add(taskWithMetricsConfigFoo); // associated with METRICS_CONFIG_FOO
         assertThat(taskQueue).hasSize(3);
 
-        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO);
+        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_FOO.getName());
 
         assertThat(taskQueue).hasSize(1);
         assertThat(taskQueue.poll()).isEqualTo(mLowPriorityTask);
@@ -454,9 +454,23 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
 
     @Test
     public void testRemoveMetricsConfiguration_whenMetricsConfigNonExistent_shouldDoNothing() {
-        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_BAR);
+        mDataBroker.removeMetricsConfiguration(METRICS_CONFIG_BAR.getName());
 
         assertThat(mDataBroker.getSubscriptionMap()).hasSize(0);
+    }
+
+    @Test
+    public void testRemoveAllMetricsConfigurations_shouldRemoveTasksAndClearSubscriptionMap() {
+        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_FOO);
+        mDataBroker.addMetricsConfiguration(METRICS_CONFIG_BAR);
+        PriorityBlockingQueue<ScriptExecutionTask> taskQueue = mDataBroker.getTaskQueue();
+        taskQueue.add(mHighPriorityTask); // associated with METRICS_CONFIG_FOO
+        taskQueue.add(mLowPriorityTask); // associated with METRICS_CONFIG_BAR
+
+        mDataBroker.removeAllMetricsConfigurations();
+
+        assertThat(taskQueue).isEmpty();
+        assertThat(mDataBroker.getSubscriptionMap()).isEmpty();
     }
 
     private void waitForTelemetryThreadToFinish() throws Exception {

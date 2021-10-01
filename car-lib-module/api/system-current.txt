@@ -1269,7 +1269,6 @@ package android.car.telemetry {
   public static interface CarTelemetryManager.CarTelemetryResultsListener {
     method public void onAddMetricsConfigStatus(@NonNull android.car.telemetry.MetricsConfigKey, int);
     method public void onError(@NonNull android.car.telemetry.MetricsConfigKey, @NonNull byte[]);
-    method public void onRemoveMetricsConfigStatus(@NonNull android.car.telemetry.MetricsConfigKey, boolean);
     method public void onResult(@NonNull android.car.telemetry.MetricsConfigKey, @NonNull byte[]);
   }
 

@@ -179,14 +179,14 @@ public class ResultStore {
      * Deletes script result associated with the given config name. If result does not exist, this
      * method does not do anything.
      */
-    public void deleteResult(String metricsConfigName) {
+    public void removeResult(String metricsConfigName) {
         mInterimResultCache.remove(metricsConfigName);
         deleteFileInDirectory(mInterimResultDirectory, metricsConfigName);
         deleteFileInDirectory(mFinalResultDirectory, metricsConfigName);
     }
 
     /** Deletes all interim and final results stored in disk. */
-    public void deleteAllResults() {
+    public void removeAllResults() {
         mInterimResultCache.clear();
         for (File interimResult : mInterimResultDirectory.listFiles()) {
             interimResult.delete();
