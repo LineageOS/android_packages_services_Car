@@ -18,8 +18,6 @@
 
 #include "BundleWrapper.h"
 
-#include <android-base/logging.h>
-
 #include <sstream>
 #include <string>
 #include <utility>
@@ -36,13 +34,16 @@ namespace android {
 namespace car {
 namespace scriptexecutor {
 
+using ::android::base::Error;
+using ::android::base::Result;
+
 namespace {
 
 enum LuaNumReturnedResults {
     ZERO_RETURNED_RESULTS = 0,
 };
 
-// TODO(199415783): Revisit the topic of limits to potentially move it to standalone file.
+// TODO(b/199415783): Revisit the topic of limits to potentially move it to standalone file.
 constexpr int MAX_ARRAY_SIZE = 1000;
 
 // Helper method that goes over Lua table fields one by one and populates PersistableBundle
@@ -51,9 +52,12 @@ constexpr int MAX_ARRAY_SIZE = 1000;
 //
 // Returns false if the conversion encountered unrecoverable error.
 // Otherwise, returns true for success.
+// In case of an error, there is no need to pop elements or clean the stack. When Lua calls C,
+// the stack used to pass data between Lua and C is private for each call. According to
+// https://www.lua.org/pil/26.1.html, after C function returns back to Lua, Lua
+// removes everything that is in the stack below the returned results.
 // TODO(b/200849134): Refactor this function.
-bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
-                             ScriptExecutorListener* listener) {
+Result<void> convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper) {
     // Iterate over Lua table which is expected to be at the top of Lua stack.
     // lua_next call pops the key from the top of the stack and finds the next
     // key-value pair. It returns 0 if the next pair was not found.
@@ -64,45 +68,52 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
         // -1 index is the top of the stack.
         // remove 'value' and keep 'key' for next iteration
         // Process each key-value depending on a type and push it to Java PersistableBundle.
-        // TODO(199531928): Consider putting limits on key sizes as well.
+        // TODO(b/199531928): Consider putting limits on key sizes as well.
         const char* key = lua_tostring(lua, /* index = */ -2);
+        Result<void> bundleInsertionResult;
         if (lua_isboolean(lua, /* index = */ -1)) {
-            bundleWrapper->putBoolean(key, static_cast<bool>(lua_toboolean(lua, /* index = */ -1)));
+            bundleInsertionResult =
+                    bundleWrapper->putBoolean(key,
+                                              static_cast<bool>(
+                                                      lua_toboolean(lua, /* index = */ -1)));
         } else if (lua_isinteger(lua, /* index = */ -1)) {
-            bundleWrapper->putLong(key, static_cast<int64_t>(lua_tointeger(lua, /* index = */ -1)));
+            bundleInsertionResult =
+                    bundleWrapper->putLong(key,
+                                           static_cast<int64_t>(
+                                                   lua_tointeger(lua, /* index = */ -1)));
         } else if (lua_isnumber(lua, /* index = */ -1)) {
-            bundleWrapper->putDouble(key, static_cast<double>(lua_tonumber(lua, /* index = */ -1)));
+            bundleInsertionResult =
+                    bundleWrapper->putDouble(key,
+                                             static_cast<double>(
+                                                     lua_tonumber(lua, /* index = */ -1)));
         } else if (lua_isstring(lua, /* index = */ -1)) {
-            // TODO(199415783): We need to have a limit on how long these strings could be.
-            bundleWrapper->putString(key, lua_tostring(lua, /* index = */ -1));
+            // TODO(b/199415783): We need to have a limit on how long these strings could be.
+            bundleInsertionResult =
+                    bundleWrapper->putString(key, lua_tostring(lua, /* index = */ -1));
         } else if (lua_istable(lua, /* index =*/-1)) {
             // Lua uses tables to represent an array.
 
-            // TODO(199438375): Document to users that we expect tables to be either only indexed or
-            // keyed but not both. If the table contains consecutively indexed values starting from
-            // 1, we will treat it as an array. lua_rawlen call returns the size of the indexed
+            // TODO(b/199438375): Document to users that we expect tables to be either only indexed
+            // or keyed but not both. If the table contains consecutively indexed values starting
+            // from 1, we will treat it as an array. lua_rawlen call returns the size of the indexed
             // part. We copy this part into an array, but any keyed values in this table are
             // ignored. There is a test that documents this current behavior. If a user wants a
             // nested table to be represented by a PersistableBundle object, they must make sure
             // that the nested table does not contain indexed data, including no key=1.
             const auto kTableLength = lua_rawlen(lua, -1);
             if (kTableLength > MAX_ARRAY_SIZE) {
-                std::ostringstream out;
-                out << "Returned table " << key << " exceeds maximum allowed size of "
-                    << MAX_ARRAY_SIZE
-                    << " elements. This key-value cannot be unpacked successfully. This error "
-                       "is unrecoverable.";
-                listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
-                return false;
+                return Error()
+                        << "Returned table " << key << " exceeds maximum allowed size of "
+                        << MAX_ARRAY_SIZE
+                        << " elements. This key-value cannot be unpacked successfully. This error "
+                           "is unrecoverable.";
             }
             if (kTableLength <= 0) {
-                std::ostringstream out;
-                out << "A value with key=" << key
-                    << " appears to be a nested table that does not represent an array of data. "
-                       "Such nested tables are not supported yet. This script error is "
-                       "unrecoverable.";
-                listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
-                return false;
+                return Error() << "A value with key=" << key
+                               << " appears to be a nested table that does not represent an array "
+                                  "of data. "
+                                  "Such nested tables are not supported yet. This script error is "
+                                  "unrecoverable.";
             }
 
             std::vector<int64_t> longArray;
@@ -121,21 +132,20 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                 }
                 int currentType = lua_type(lua, /* index= */ -1);
                 if (currentType != originalLuaType) {
-                    std::ostringstream out;
-                    out << "Returned Lua arrays must have elements of the same type. Returned "
-                           "table with key="
-                        << key << " has the first element of type=" << originalLuaType
-                        << ", but the element at index=" << i + 1 << " has type=" << currentType
-                        << ". Integer type codes are defined in lua.h file. This error is "
-                           "unrecoverable.";
-                    listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
-                    lua_pop(lua, 1);
-                    return false;
+                    return Error()
+                            << "Returned Lua arrays must have elements of the same type. Returned "
+                               "table with key="
+                            << key << " has the first element of type=" << originalLuaType
+                            << ", but the element at index=" << i + 1 << " has type=" << currentType
+                            << ". Integer type codes are defined in lua.h file. This error is "
+                               "unrecoverable.";
                 }
                 switch (currentType) {
                     case LUA_TNUMBER:
                         if (!lua_isinteger(lua, /* index = */ -1)) {
-                            LOG(WARNING) << "Floating array types are not supported yet. Skipping.";
+                            return Error() << "Returned value for key=" << key
+                                           << " contains a floating number array, which is not "
+                                              "supported yet.";
                         } else {
                             longArray.push_back(lua_tointeger(lua, /* index = */ -1));
                         }
@@ -147,31 +157,37 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                         stringArray.push_back(lua_tostring(lua, /* index = */ -1));
                         break;
                     default:
-                        LOG(WARNING) << "Lua array with elements of type=" << currentType
-                                     << " are not supported. Skipping.";
+                        return Error() << "Returned value for key=" << key
+                                       << " is an array with values of type="
+                                       << lua_typename(lua, lua_type(lua, /* index = */ -1))
+                                       << ", which is not supported yet.";
                 }
                 lua_pop(lua, 1);
             }
             switch (originalLuaType) {
                 case LUA_TNUMBER:
-                    bundleWrapper->putLongArray(key, longArray);
+                    bundleInsertionResult = bundleWrapper->putLongArray(key, longArray);
                     break;
                 case LUA_TSTRING:
-                    bundleWrapper->putStringArray(key, stringArray);
+                    bundleInsertionResult = bundleWrapper->putStringArray(key, stringArray);
                     break;
             }
         } else {
-            // not supported yet...
-            // TODO(199439259): Instead of logging here, log and send to user instead, and continue
-            // unpacking the rest of the table.
-            LOG(WARNING) << "key=" << key << " has a Lua type which is not supported yet. "
-                         << "The bundle object will not have this key-value pair.";
+            return Error() << "key=" << key << " has a Lua type="
+                           << lua_typename(lua, lua_type(lua, /* index = */ -1))
+                           << ", which is not supported yet.";
         }
         // Pop value from the stack, keep the key for the next iteration.
         lua_pop(lua, 1);
         // The key is at index -1, the table is at index -2 now.
+
+        // Check if insertion of the current key-value into the bundle was successful. If not,
+        // fail-fast out of this extraction routine.
+        if (!bundleInsertionResult.ok()) {
+            return bundleInsertionResult;
+        }
     }
-    return true;
+    return {};  // ok result
 }
 
 }  // namespace
@@ -212,8 +228,11 @@ int LuaEngine::loadScript(const char* scriptBody) {
         // ~20 elements and its critical function because all interaction with
         // Lua happens via the stack.
         // Starting read about Lua stack: https://www.lua.org/pil/24.2.html
-        // TODO(b/192284232): add test case to trigger this.
         lua_pop(mLuaState, 1);
+        std::ostringstream out;
+        out << "Error encountered while loading the script. A possible cause could be syntax "
+               "errors in the script.";
+        sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
         return status;
     }
 
@@ -224,7 +243,7 @@ int LuaEngine::loadScript(const char* scriptBody) {
     return status;
 }
 
-bool LuaEngine::pushFunction(const char* functionName) {
+int LuaEngine::pushFunction(const char* functionName) {
     // Interaction between native code and Lua happens via Lua stack.
     // In such model, a caller first pushes the name of the function
     // that needs to be called, followed by the function's input
@@ -232,8 +251,13 @@ bool LuaEngine::pushFunction(const char* functionName) {
     // More info: https://www.lua.org/pil/24.2.html
     lua_getglobal(mLuaState, functionName);
     const auto status = lua_isfunction(mLuaState, /*idx= */ -1);
-    // TODO(b/192284785): add test case for wrong function name in Lua.
-    if (status == 0) lua_pop(mLuaState, 1);
+    if (status == 0) {
+        lua_pop(mLuaState, 1);
+        std::ostringstream out;
+        out << "Wrong function name. Provided functionName=" << functionName
+            << " does not correspond to any function in the provided script";
+        sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
+    }
     return status;
 }
 
@@ -242,8 +266,15 @@ int LuaEngine::run() {
     // input arguments are in the Lua stack as well in proper order.
     // On how to call Lua functions: https://www.lua.org/pil/25.2.html
     // Doc on lua_pcall: https://www.lua.org/manual/5.3/manual.html#lua_pcall
-    // TODO(b/192284612): add test case for failed call.
-    return lua_pcall(mLuaState, /* nargs= */ 2, /* nresults= */ 0, /*errfunc= */ 0);
+    int status = lua_pcall(mLuaState, /* nargs= */ 2, /* nresults= */ 0, /*errfunc= */ 0);
+    if (status) {
+        lua_pop(mLuaState, 1);  // pop the error object from the stack.
+        std::ostringstream out;
+        out << "Error encountered while running the script. The returned error code=" << status
+            << ". Refer to lua.h file of Lua C API library for error code definitions.";
+        sListener->onError(ERROR_TYPE_LUA_RUNTIME_ERROR, out.str().c_str(), "");
+    }
+    return status;
 }
 
 int LuaEngine::onSuccess(lua_State* lua) {
@@ -257,10 +288,16 @@ int LuaEngine::onSuccess(lua_State* lua) {
 
     // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
-    if (convertLuaTableToBundle(lua, &bundleWrapper, sListener)) {
-        // Forward the populated Bundle object to Java callback.
-        sListener->onSuccess(bundleWrapper.getBundle());
+    const auto status = convertLuaTableToBundle(lua, &bundleWrapper);
+    if (!status.ok()) {
+        sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, status.error().message().c_str(), "");
+        // We explicitly must tell Lua how many results we return, which is 0 in this case.
+        // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
+        return ZERO_RETURNED_RESULTS;
     }
+
+    // Forward the populated Bundle object to Java callback.
+    sListener->onSuccess(bundleWrapper.getBundle());
 
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
@@ -279,10 +316,16 @@ int LuaEngine::onScriptFinished(lua_State* lua) {
 
     // Helper object to create and populate Java PersistableBundle object.
     BundleWrapper bundleWrapper(sListener->getCurrentJNIEnv());
-    if (convertLuaTableToBundle(lua, &bundleWrapper, sListener)) {
-        // Forward the populated Bundle object to Java callback.
-        sListener->onScriptFinished(bundleWrapper.getBundle());
+    const auto status = convertLuaTableToBundle(lua, &bundleWrapper);
+    if (!status.ok()) {
+        sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, status.error().message().c_str(), "");
+        // We explicitly must tell Lua how many results we return, which is 0 in this case.
+        // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction
+        return ZERO_RETURNED_RESULTS;
     }
+
+    // Forward the populated Bundle object to Java callback.
+    sListener->onScriptFinished(bundleWrapper.getBundle());
 
     // We explicitly must tell Lua how many results we return, which is 0 in this case.
     // More on the topic: https://www.lua.org/manual/5.3/manual.html#lua_CFunction

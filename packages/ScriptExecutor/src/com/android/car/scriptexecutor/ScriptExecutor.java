@@ -25,7 +25,6 @@ import android.os.ParcelFileDescriptor;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.Log;
-import android.util.Slog;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
@@ -77,7 +76,7 @@ public final class ScriptExecutor extends Service {
                         if (Log.isLoggable(TAG, Log.ERROR)) {
                             // At least log "message" here, in case it was never sent back via
                             // the callback.
-                            Slog.e(TAG, "failed while calling listener with exception ", e);
+                            Log.e(TAG, "failed while calling listener with exception ", e);
                         }
                     }
                     return;

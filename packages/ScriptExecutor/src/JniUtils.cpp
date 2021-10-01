@@ -74,7 +74,6 @@ void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle) {
         } else if (env->IsInstanceOf(value, longClass)) {
             jmethodID longMethod = env->GetMethodID(longClass, "longValue", "()J");
             lua_pushinteger(luaEngine->getLuaState(), env->CallLongMethod(value, longMethod));
-
         } else if (env->IsInstanceOf(value, numberClass)) {
             // Condense other numeric types using one class. Because lua supports only
             // integer or double, and we handled integer in previous if clause.
