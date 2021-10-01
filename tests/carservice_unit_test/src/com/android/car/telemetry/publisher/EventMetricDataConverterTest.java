@@ -19,9 +19,11 @@ package com.android.car.telemetry.publisher;
 import static com.google.common.truth.Truth.assertThat;
 
 import android.os.PersistableBundle;
+import android.util.SparseArray;
 
-import com.android.car.telemetry.AtomsProto;
-import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured;
+import com.android.car.telemetry.AtomsProto.Atom;
+import com.android.car.telemetry.StatsLogProto.EventMetricData;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -33,38 +35,41 @@ import java.util.List;
 @RunWith(JUnit4.class)
 public class EventMetricDataConverterTest {
     @Test
-    public void testConvertEventDataList_putsCorrectDataIntoPersistableBundle() {
-        List<StatsLogProto.EventMetricData> eventDataList = Arrays.asList(
-                StatsLogProto.EventMetricData.newBuilder()
+    public void testConvertEventDataList_putsCorrectDataIntoPersistableBundle()
+            throws StatsConversionException {
+        List<EventMetricData> eventDataList = Arrays.asList(
+                EventMetricData.newBuilder()
                         .setElapsedTimestampNanos(12345678L)
-                        .setAtom(AtomsProto.Atom.newBuilder()
+                        .setAtom(Atom.newBuilder()
                                 .setAppStartMemoryStateCaptured(
-                                        AtomsProto.AppStartMemoryStateCaptured.newBuilder()
+                                        AppStartMemoryStateCaptured.newBuilder()
                                                 .setUid(1000)
                                                 .setActivityName("activityName1")
                                                 .setRssInBytes(1234L)))
                         .build(),
-                StatsLogProto.EventMetricData.newBuilder()
+                EventMetricData.newBuilder()
                         .setElapsedTimestampNanos(23456789L)
-                        .setAtom(AtomsProto.Atom.newBuilder()
+                        .setAtom(Atom.newBuilder()
                                 .setAppStartMemoryStateCaptured(
-                                        AtomsProto.AppStartMemoryStateCaptured.newBuilder()
+                                        AppStartMemoryStateCaptured.newBuilder()
                                                 .setUid(1100)
                                                 .setActivityName("activityName2")
                                                 .setRssInBytes(2345L)))
                         .build()
         );
-        PersistableBundle bundle = new PersistableBundle();
-        EventMetricDataConverter.convertEventDataList(eventDataList, bundle);
+        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> accessorMap =
+                new AppStartMemoryStateCapturedConverter().getAtomFieldAccessorMap();
+
+        PersistableBundle bundle = EventMetricDataConverter.convertEventDataList(eventDataList);
 
         assertThat(bundle.size()).isEqualTo(4);
         assertThat(bundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
-            .asList().containsExactly(12345678L, 23456789L);
-        assertThat(bundle.getIntArray(AtomDataConverter.UID))
-            .asList().containsExactly(1000, 1100);
-        assertThat(Arrays.asList(bundle.getStringArray(AtomDataConverter.ACTIVITY_NAME)))
-            .containsExactly("activityName1", "activityName2");
-        assertThat(bundle.getLongArray(AtomDataConverter.RSS_IN_BYTES))
-            .asList().containsExactly(1234L, 2345L);
+            .asList().containsExactly(12345678L, 23456789L).inOrder();
+        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+            .asList().containsExactly(1000, 1100).inOrder();
+        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(3).getFieldName())))
+            .containsExactly("activityName1", "activityName2").inOrder();
+        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
+            .asList().containsExactly(1234L, 2345L).inOrder();
     }
 }
