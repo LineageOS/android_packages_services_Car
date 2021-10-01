@@ -204,7 +204,7 @@ public class SystemMonitor {
 
             SystemMonitorEvent event = new SystemMonitorEvent();
             setEventCpuUsageLevel(event, cpuLoadAvg.mOneMinuteVal / numProcessors);
-            setEventMemUsageLevel(event, 1 - memInfo.availMem / memInfo.totalMem);
+            setEventMemUsageLevel(event, 1 - (double) memInfo.availMem / memInfo.totalMem);
 
             mCallback.onSystemMonitorEvent(event);
         } finally {
