@@ -18,9 +18,12 @@ package android.car;
 
 import static android.car.CarLibLog.TAG_CAR;
 
+import android.app.Activity;
 import android.content.Context;
 import android.os.Handler;
 import android.os.RemoteException;
+import android.util.Dumpable;
+import android.util.DumpableContainer;
 import android.util.Log;
 
 /**
@@ -28,6 +31,8 @@ import android.util.Log;
  * @hide
  */
 public abstract class CarManagerBase {
+
+    private static final boolean DEBUG = Log.isLoggable(TAG_CAR, Log.DEBUG);
 
     protected final Car mCar;
 
@@ -78,4 +83,28 @@ public abstract class CarManagerBase {
      * car service is restarted.
      */
     protected abstract void onCarDisconnected();
+
+    /**
+     * Adds the given {@code dumpable} to a container, which must implement
+     * {@link DumpableContainer}}.
+     */
+    protected void addDumpable(Object container, Dumpable dumpable) {
+        if (container instanceof Activity) {
+            if (DEBUG) {
+                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to actvity " + container);
+            }
+            ((Activity) container).addDumpable(dumpable);
+            return;
+        }
+        if (container instanceof DumpableContainer) {
+            if (DEBUG) {
+                Log.d(TAG_CAR, "Adding " + dumpable.getDumpableName() + " to DumpableContainer "
+                        + container);
+            }
+            ((DumpableContainer) container).addDumpable(dumpable);
+            return;
+        }
+        Log.w(TAG_CAR, "NOT adding " + dumpable.getDumpableName() + " to object (" + container
+                    + ") that doesn't implement addDumpable");
+    }
 }

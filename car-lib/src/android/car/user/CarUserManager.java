@@ -45,6 +45,7 @@ import android.os.RemoteException;
 import android.os.UserHandle;
 import android.os.UserManager;
 import android.util.ArrayMap;
+import android.util.Dumpable;
 import android.util.Log;
 
 import com.android.car.internal.common.CommonConstants;
@@ -56,8 +57,10 @@ import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
+import java.io.PrintWriter;
 import java.lang.annotation.Retention;
 import java.lang.annotation.RetentionPolicy;
+import java.util.ArrayList;
 import java.util.Arrays;
 import java.util.List;
 import java.util.Objects;
@@ -80,7 +83,8 @@ public final class CarUserManager extends CarManagerBase {
     private static final int HAL_TIMEOUT_MS = CarSystemProperties.getUserHalTimeout().orElse(5_000);
     private static final int REMOVE_USER_CALL_TIMEOUT_MS = 60_000;
 
-    private static final boolean DBG = false;
+    private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
+    private static final boolean VERBOSE = Log.isLoggable(TAG, Log.VERBOSE);
 
     /**
      * {@link UserLifecycleEvent} called when the user is starting, for components to initialize
@@ -322,6 +326,21 @@ public final class CarUserManager extends CarManagerBase {
     @GuardedBy("mLock")
     private LifecycleResultReceiver mReceiver;
 
+    private final Dumper mDumper = new Dumper();
+
+    /**
+     * Logs the number of received events so it's shown on {@code Dumper.dump()}.
+     */
+    private int mNumberReceivedEvents;
+
+    /**
+     * Logs the received events so they're shown on {@code Dumper.dump()}.
+     *
+     * <p><b>Note</b>: these events are only logged when {@link #VERBOSE} is {@code true}.
+     */
+    @Nullable
+    private List<UserLifecycleEvent> mEvents;
+
     /**
      * @hide
      */
@@ -337,6 +356,8 @@ public final class CarUserManager extends CarManagerBase {
     public CarUserManager(@NonNull Car car, @NonNull ICarUserService service,
             @NonNull UserManager userManager) {
         super(car);
+
+        addDumpable(car.getContext(), mDumper);
 
         mService = service;
         mUserManager = userManager;
@@ -782,6 +803,13 @@ public final class CarUserManager extends CarManagerBase {
                 }
                 executor.execute(() -> listener.onEvent(event));
             }
+            mNumberReceivedEvents++;
+            if (VERBOSE) {
+                if (mEvents == null) {
+                    mEvents = new ArrayList<>();
+                }
+                mEvents.add(event);
+            }
         }
     }
 
@@ -789,6 +817,34 @@ public final class CarUserManager extends CarManagerBase {
     @Override
     public void onCarDisconnected() {
         // nothing to do
+    }
+
+    private final class Dumper implements Dumpable {
+        @Override
+        public void dump(PrintWriter pw, String[] args) {
+            pw.printf("DBG=%b, VERBOSE=%b\n", DBG, VERBOSE);
+            synchronized (mLock) {
+                pw.printf("mReceiver: %s\n", mReceiver);
+                if (mListeners == null) {
+                    pw.println("no listeners");
+                } else {
+                    pw.printf("%d listeners\n", mListeners.size());
+                }
+            }
+            pw.printf("mNumberReceivedEvents: %d\n", mNumberReceivedEvents);
+            if (VERBOSE && mEvents != null) {
+                String prefix = "  ";
+                // TODO: use increaseIndent if pw becomes a IndentingPrintWriter
+                for (int i = 0; i < mEvents.size(); i++) {
+                    pw.printf("%s%d: %s\n", prefix, i + 1, mEvents.get(i));
+                }
+            }
+        }
+
+        @Override
+        public String getDumpableName() {
+            return CarUserManager.class.getSimpleName();
+        }
     }
 
     /**
