@@ -150,7 +150,6 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-
         runScriptAndWaitForResponse(returnResultScript, "hello", mPublishedData, mSavedState);
 
         // Expect to get back a bundle with a single string key: string value pair:
@@ -168,7 +167,6 @@ public final class ScriptExecutorTest {
                         + "    on_success(result)\n"
                         + "end\n";
 
-
         runScriptAndWaitForResponse(script, "knows", mPublishedData, mSavedState);
 
         // Expect to get back a bundle with 4 keys, each corresponding to a distinct supported type.
@@ -181,14 +179,13 @@ public final class ScriptExecutorTest {
     }
 
     @Test
-    public void invokeScript_skipsUnsupportedTypes() throws RemoteException {
+    public void invokeScript_skipsUnsupportedNestedTables() throws RemoteException {
         String script =
                 "function nested(data, state)\n"
                         + "    result = {string=\"hello\", boolean=true, integer=1, number=1.1}\n"
                         + "    result.nested_table = {x=0, y=0}\n"
                         + "    on_success(result)\n"
                         + "end\n";
-
 
         runScriptAndWaitForResponse(script, "nested", mPublishedData, mSavedState);
 
@@ -206,7 +203,6 @@ public final class ScriptExecutorTest {
                         + "    result = {}\n"
                         + "    on_success(result)\n"
                         + "end\n";
-
 
         runScriptAndWaitForResponse(script, "empty", mPublishedData, mSavedState);
 
@@ -226,7 +222,6 @@ public final class ScriptExecutorTest {
                         + "end\n";
         PersistableBundle previousState = new PersistableBundle();
         previousState.putInt("x", 1);
-
 
         runScriptAndWaitForResponse(script, "update", mPublishedData, previousState);
 
@@ -254,7 +249,6 @@ public final class ScriptExecutorTest {
         previousState.putDouble("number", 0.1);
         previousState.putBoolean("boolean", false);
         previousState.putString("string", "ABRA");
-
 
         runScriptAndWaitForResponse(script, "update_all", mPublishedData, previousState);
 
@@ -289,7 +283,6 @@ public final class ScriptExecutorTest {
         previousState.putLongArray("long_array", long_array);
         previousState.putStringArray("string_array", string_array);
 
-
         runScriptAndWaitForResponse(script, "arrays", mPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
@@ -320,7 +313,6 @@ public final class ScriptExecutorTest {
         long[] long_array = new long[]{1, 2, 3};
         previousState.putLongArray("long_array", long_array);
         long[] expected_array = new long[]{1, 100, 3};
-
 
         runScriptAndWaitForResponse(script, "modify_array", mPublishedData, previousState);
 
@@ -551,7 +543,6 @@ public final class ScriptExecutorTest {
         previousState.putBoolean("boolean", false);
         previousState.putString("string", "ABRA");
 
-
         runScriptAndWaitForResponse(script, "finalize_all", mPublishedData, previousState);
 
         // Verify that keys are preserved but the values are modified as expected.
@@ -571,7 +562,6 @@ public final class ScriptExecutorTest {
                         + "    on_script_finished(result)\n"
                         + "end\n";
 
-
         runScriptAndWaitForResponse(script, "empty_final_result", mPublishedData, mSavedState);
 
         // If a script returns empty table as the final result, we get an empty bundle.
@@ -588,7 +578,6 @@ public final class ScriptExecutorTest {
                         + "    extra = 1\n"
                         + "    on_script_finished(result, extra)\n"
                         + "end\n";
-
 
         runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_script_finished",
                 mPublishedData, mSavedState);
@@ -610,7 +599,6 @@ public final class ScriptExecutorTest {
                         + "    on_success(result, extra)\n"
                         + "end\n";
 
-
         runScriptAndWaitForResponse(script, "wrong_number_of_outputs_in_on_success",
                 mPublishedData, mSavedState);
 
@@ -628,7 +616,6 @@ public final class ScriptExecutorTest {
                         + "    result = 1\n"
                         + "    on_success(result)\n"
                         + "end\n";
-
 
         runScriptAndWaitForResponse(script, "wrong_type_in_on_success",
                 mPublishedData, mSavedState);
@@ -648,7 +635,6 @@ public final class ScriptExecutorTest {
                         + "    result = 1\n"
                         + "    on_success(result)\n"
                         + "end\n";
-
 
         runScriptAndWaitForResponse(script, "wrong_type_in_on_script_finished",
                 mPublishedData, mSavedState);
@@ -729,7 +715,7 @@ public final class ScriptExecutorTest {
 
         runScriptAndWaitForResponse(script, "data_and_state", publishedData, previousState);
 
-        // If a script returns empty table as the final result, we get an empty bundle.
+        // Lua script combines both input published data and previous state into a single result.
         assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
         assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
         assertThat(mFakeScriptExecutorListener.mFinalResult.getString("answer")).isEqualTo(
@@ -766,6 +752,139 @@ public final class ScriptExecutorTest {
         // from the output bundle.
         assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("int")).isEqualTo(100);
         assertThat(mFakeScriptExecutorListener.mFinalResult.getLong("long")).isEqualTo(200);
+    }
+
+    @Test
+    public void invokeScript_nonUTFCharactersDoNotCauseErrors() throws RemoteException {
+        // Tries to create an output string value that does not conform to Modified UTF-8.
+        // JNI gracefully handles it by parsing on the string as is.
+        String script =
+                "function non_utf_key_string(data, state)\n"
+                        + "    result = {answer = \"i\0np\200\200ut\"}\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "non_utf_key_string", new PersistableBundle(),
+                new PersistableBundle());
+
+        // The output will still have all characters, including those that do not conform to
+        // Modified UTF-8.
+        assertThat(mFakeScriptExecutorListener.mFinalResult).isNotNull();
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("answer")).isEqualTo(
+                "i\0np\200\200ut");
+    }
+
+    @Test
+    public void invokeScript_wrongFunctionNameProvided() throws RemoteException {
+        // Verifies that not specifying function name correctly is handled through error callback.
+        String script =
+                "function correct_function(data, state)\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "wrong_function");
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "Wrong function name");
+    }
+
+    @Test
+    public void invokeScript_runtimeErrorDueToSyntax() throws RemoteException {
+        // Verifies that syntax errors during script loading are handled gracefully.
+        String script =
+                "function wrong_syntax(data, state)\n"
+                        + "    x == 1\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "wrong_syntax");
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "Error encountered while loading the script");
+    }
+
+    @Test
+    public void invokeScript_runtimeErrorDueToUndefinedMethod() throws RemoteException {
+        // Verifies that runtime errors encountered during Lua script execution trigger an error
+        // returned via a callback.
+        String script =
+                "function runtime_error(data, state)\n"
+                        + "    on_problem(data, state)\n"
+                        + "end\n";
+
+        runScriptAndWaitForError(script, "runtime_error");
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_RUNTIME_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "Error encountered while running the script");
+    }
+
+    @Test
+    public void invokeScript_returnedValuesOfUnsupportedTypesReturnError() throws RemoteException {
+        // Verifies that if we try to return a value of unsupported type, we get an error instead.
+        // In this case, the unsupported type is LUA_TFUNCTION type.
+        String script =
+                "function function_type(data, state)\n"
+                        + "    result = {fn = function_type}\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "function_type", mPublishedData, mSavedState);
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "has a Lua type=function, which is not supported yet");
+    }
+
+    @Test
+    public void invokeScript_returnedFloatingArraysNotSupported() throws RemoteException {
+        // Verifies that we do not support return values that contain floating number arrays.
+        String script =
+                "function floating_point_arrays(data, state)\n"
+                        + "    array = {}\n"
+                        + "    array[0] = 1.1\n"
+                        + "    array[1] = 1.2\n"
+                        + "    result = {data = array}\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "floating_point_arrays", mPublishedData, mSavedState);
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "a floating number array, which is not supported yet");
+    }
+
+    @Test
+    public void invokeScript_returnedBooleanArraysNotSupported() throws RemoteException {
+        // Verifies that we do not yet support return values that contain boolean arrays.
+        String script =
+                "function array_of_booleans(data, state)\n"
+                        + "    array = {}\n"
+                        + "    array[0] = false\n"
+                        + "    array[1] = true\n"
+                        + "    result = {data = array}\n"
+                        + "    on_success(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(script, "array_of_booleans", mPublishedData, mSavedState);
+
+        // Verify that the expected error is received.
+        assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
+        assertThat(mFakeScriptExecutorListener.mMessage).contains(
+                "is an array with values of type=boolean, which is not supported yet");
     }
 }
 

@@ -16,60 +16,41 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
-cc_defaults {
-    name: "scriptexecutor_defaults",
+cc_library {
+    name: "libscriptexecutorjni",
 
     cflags: [
         "-Wno-unused-parameter",
     ],
-
-    shared_libs: [
-        "libbase",
-        "liblog",
+    header_libs: [
+        "jni_headers",
     ],
 
     static_libs: [
         "liblua",
+        "libbase_ndk",
     ],
-}
 
-cc_library {
-    name: "libscriptexecutor",
-
-    defaults: [
-        "scriptexecutor_defaults",
+    shared_libs: [
+        "liblog",
     ],
 
     srcs: [
         "src/BundleWrapper.cpp",
         "src/JniUtils.cpp",
         "src/LuaEngine.cpp",
+        "src/ScriptExecutorJni.cpp",
         "src/ScriptExecutorListener.cpp",
     ],
 
-    shared_libs: [
-        "libnativehelper",
-    ],
+    sdk_version: "current",
+
+    min_sdk_version: "30",
+
+    stl: "libc++_static",
 
     // Allow dependents to use the header files.
     export_include_dirs: ["src"],
-}
-
-cc_library {
-    name: "libscriptexecutorjni",
-
-    defaults: [
-        "scriptexecutor_defaults",
-    ],
-
-    srcs: [
-        "src/ScriptExecutorJni.cpp",
-    ],
-
-    shared_libs: [
-        "libnativehelper",
-        "libscriptexecutor",
-    ],
 }
 
 android_app {
@@ -82,8 +63,9 @@ android_app {
 
     resource_dirs: ["res"],
 
-    // TODO(197006437): Make this build against sdk_version: "module_current" instead.
-    platform_apis: true,
+    sdk_version: "module_current",
+
+    min_sdk_version: "30",
 
     privileged: false,
 
@@ -92,16 +74,9 @@ android_app {
         enabled: false,
     },
 
-    aidl: {
-        include_dirs: [
-            // TODO(b/198195711): Remove once we compile against SDK.
-            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-        ],
-    },
-
     jni_libs: [
         "libscriptexecutorjni",
-    ]
+    ],
 }
 
 java_test_helper_library {
@@ -112,10 +87,5 @@ java_test_helper_library {
         "src/**/*.java",
     ],
 
-    aidl: {
-        include_dirs: [
-            // TODO(b/198195711): Remove once we compile against SDK.
-            "frameworks/native/aidl/binder", // For PersistableBundle.aidl
-        ],
-    },
+    sdk_version: "current",
 }
