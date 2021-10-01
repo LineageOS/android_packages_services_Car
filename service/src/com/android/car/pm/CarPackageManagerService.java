@@ -31,6 +31,7 @@ import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.PendingIntent;
 import android.car.Car;
+import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.os.BuildHelper;
 import android.car.builtin.os.ServiceManagerHelper;
@@ -466,7 +467,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     }
 
     private static boolean hasPermissionGranted(String permission, int uid) {
-        return ActivityManager.checkComponentPermission(permission, uid,
+        return ActivityManagerHelper.checkComponentPermission(permission, uid,
                 /* owningUid= */ Process.INVALID_UID,
                 /* exported= */ true) == PackageManager.PERMISSION_GRANTED;
     }

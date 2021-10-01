@@ -218,6 +218,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     protected void onSessionBuilder(CustomMockitoSessionBuilder builder) {
         builder
             .spyStatic(ActivityManager.class)
+            .spyStatic(ActivityManagerHelper.class)
             // TODO(b/156299496): it cannot spy on UserManager, as it would slow down the tests
             // considerably (more than 5 minutes total, instead of just a couple seconds). So, it's
             // mocking UserHelper.isHeadlessSystemUser() (on mockIsHeadlessSystemUser()) instead...
@@ -2751,11 +2752,10 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void mockInteractAcrossUsersPermission(boolean granted) {
         int result = granted ? android.content.pm.PackageManager.PERMISSION_GRANTED
                 : android.content.pm.PackageManager.PERMISSION_DENIED;
-
-        doReturn(result).when(() -> ActivityManager.checkComponentPermission(
+        doReturn(result).when(() -> ActivityManagerHelper.checkComponentPermission(
                 eq(android.Manifest.permission.INTERACT_ACROSS_USERS),
                 anyInt(), anyInt(), eq(true)));
-        doReturn(result).when(() -> ActivityManager.checkComponentPermission(
+        doReturn(result).when(() -> ActivityManagerHelper.checkComponentPermission(
                 eq(android.Manifest.permission.INTERACT_ACROSS_USERS_FULL),
                 anyInt(), anyInt(), eq(true)));
     }
@@ -2763,8 +2763,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     private void mockManageUsersPermission(String permission, boolean granted) {
         int result = granted ? android.content.pm.PackageManager.PERMISSION_GRANTED
                 : android.content.pm.PackageManager.PERMISSION_DENIED;
-
-        doReturn(result).when(() -> ActivityManager.checkComponentPermission(eq(permission),
+        doReturn(result).when(() -> ActivityManagerHelper.checkComponentPermission(eq(permission),
                 anyInt(), anyInt(), eq(true)));
     }
 
