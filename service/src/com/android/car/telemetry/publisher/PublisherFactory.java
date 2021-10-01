@@ -31,7 +31,7 @@ import java.util.function.BiConsumer;
  * <p>It doesn't instantiate all the publishers right away, as in some cases some publishers are
  * not needed.
  *
- * <p>Thread-safe.
+ * <p>Methods in this class must be called on telemetry thread unless specified as thread-safe.
  */
 public class PublisherFactory {
     private final Object mLock = new Object();
@@ -56,7 +56,7 @@ public class PublisherFactory {
         mRootDirectory = rootDirectory;
     }
 
-    /** Returns the publisher by given type. */
+    /** Returns the publisher by given type. This method is thread-safe. */
     public AbstractPublisher getPublisher(TelemetryProto.Publisher.PublisherCase type) {
         // No need to optimize locks, as this method is infrequently called.
         synchronized (mLock) {
@@ -83,6 +83,21 @@ public class PublisherFactory {
                     throw new IllegalArgumentException(
                             "Publisher type " + type + " is not supported");
             }
+        }
+    }
+
+    /**
+     * Removes all {@link com.android.car.telemetry.databroker.DataSubscriber} from all publishers.
+     */
+    public void removeAllDataSubscribers() {
+        if (mVehiclePropertyPublisher != null) {
+            mVehiclePropertyPublisher.removeAllDataSubscribers();
+        }
+        if (mCarTelemetrydPublisher != null) {
+            mCarTelemetrydPublisher.removeAllDataSubscribers();
+        }
+        if (mStatsPublisher != null) {
+            mStatsPublisher.removeAllDataSubscribers();
         }
     }
 

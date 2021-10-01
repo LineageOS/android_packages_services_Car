@@ -104,17 +104,21 @@ public class MetricsConfigStore {
     }
 
     /** Deletes the MetricsConfig from disk. Returns the success status. */
-    public boolean deleteMetricsConfig(String metricsConfigName) {
+    public void removeMetricsConfig(String metricsConfigName) {
         mActiveConfigs.remove(metricsConfigName);
         mNameVersionMap.remove(metricsConfigName);
-        return new File(mConfigDirectory, metricsConfigName).delete();
+        if (!new File(mConfigDirectory, metricsConfigName).delete()) {
+            Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + metricsConfigName);
+        }
     }
 
     /** Deletes all MetricsConfigs from disk. */
-    public void deleteAllMetricsConfigs() {
+    public void removeAllMetricsConfigs() {
         mActiveConfigs.clear();
         for (File file : mConfigDirectory.listFiles()) {
-            file.delete();
+            if (!file.delete()) {
+                Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + file.getName());
+            }
         }
     }
 }

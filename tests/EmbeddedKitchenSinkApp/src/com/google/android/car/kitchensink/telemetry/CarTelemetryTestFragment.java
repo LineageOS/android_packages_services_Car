@@ -161,10 +161,5 @@ public class CarTelemetryTestFragment extends Fragment {
         public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key, int statusCode) {
             showOutput("Add MetricsConfig status: " + statusCode);
         }
-
-        @Override
-        public void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success) {
-            showOutput("Remove MetricsConfig status: " + success);
-        }
     }
 }

@@ -182,7 +182,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             // If no error (a config is successfully added), script results from an older version
             // should be deleted
             if (status == ERROR_METRICS_CONFIG_NONE) {
-                mResultStore.deleteResult(key.getName());
+                mResultStore.removeResult(key.getName());
             }
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
@@ -194,29 +194,21 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
 
     /**
      * Removes a metrics config based on the key. This will also remove outputs produced by the
-     * MetricsConfig. This method assumes {@link #setListener(ICarTelemetryServiceListener)} is
-     * called. Otherwise it does nothing.
+     * MetricsConfig.
      *
      * @param key the unique identifier of a MetricsConfig.
      */
     @Override
     public void removeMetricsConfig(@NonNull MetricsConfigKey key) {
+        mContext.enforceCallingOrSelfPermission(
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeMetricsConfig");
         mTelemetryHandler.post(() -> {
-            if (mListener == null) {
-                Slog.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
-                return;
-            }
             Slog.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
                     + " from car telemetry service");
-            // TODO(b/198792767): Check both config name and config version for deletion
-            // TODO(b/199540952): Stop and remove config from data broker
-            mResultStore.deleteResult(key.getName()); // delete the config's script results
-            boolean success = mMetricsConfigStore.deleteMetricsConfig(key.getName());
-            try {
-                mListener.onRemoveMetricsConfigStatus(key, success);
-            } catch (RemoteException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
-            }
+            // TODO(b/198792767): Check both config name and config version for removal
+            mDataBroker.removeMetricsConfiguration(key.getName());
+            mResultStore.removeResult(key.getName());
+            mMetricsConfigStore.removeMetricsConfig(key.getName());
         });
     }
 
@@ -226,13 +218,13 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
     @Override
     public void removeAllMetricsConfigs() {
         mContext.enforceCallingOrSelfPermission(
-                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeAllMetricsConfig");
+                Car.PERMISSION_USE_CAR_TELEMETRY_SERVICE, "removeAllMetricsConfigs");
         mTelemetryHandler.post(() -> {
-            // TODO(b/199540952): Stop and remove all configs from DataBroker
             Slog.d(CarLog.TAG_TELEMETRY,
                     "Removing all metrics config from car telemetry service");
-            mMetricsConfigStore.deleteAllMetricsConfigs();
-            mResultStore.deleteAllResults();
+            mDataBroker.removeAllMetricsConfigurations();
+            mMetricsConfigStore.removeAllMetricsConfigs();
+            mResultStore.removeAllResults();
         });
     }
 
