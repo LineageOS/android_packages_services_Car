@@ -182,20 +182,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Нулиране по-късно"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"Основното у-во ще се нулира при следващото стартиране на колата."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"Колата трябва да е паркирана, за да старт. нулирането."</string>
-    <!-- no translation found for resource_overuse_notification_title (3385149030747234969) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_disable_app (4538000369374274293) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_prioritize_app (4782324719261106243) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_uninstall_app (531108846448668467) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_disable_app (5511548570206345274) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_prioritize_app (5327141954014335559) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_uninstall_app (7327141273608850448) -->
-    <skip />
-    <!-- no translation found for resource_overuse_toast_disable_app_now (3182983639177825069) -->
-    <skip />
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> засяга ефективността на системата ви."</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Деактивирайте приложението с цел подобряване на ефективността на системата. Можете да го активирате отново от настройките."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Приоритизирайте приложението, за да продължите да го използвате."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Деинсталирайте приложение с цел подобряване на ефективността на системата."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Деактивиране на приложението"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Приоритизиране на приложението"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Деинсталиране на приложението"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"Приложението <xliff:g id="ID_1">^1</xliff:g> е деактивирано. Можете да го активирате отново от настройките."</string>
 </resources>
