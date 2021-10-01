@@ -75,6 +75,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             "com.android.server.jobscheduler.GARAGE_MODE_ON";
     static final String ACTION_GARAGE_MODE_OFF =
             "com.android.server.jobscheduler.GARAGE_MODE_OFF";
+    static final int MISSING_ARG_VALUE = -1;
     static final TimeSourceInterface SYSTEM_INSTANCE = new TimeSourceInterface() {
         @Override
         public Instant now() {
@@ -104,25 +105,15 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         @Override
         public void onReceive(Context context, Intent intent) {
             final String action = intent.getAction();
-            boolean isGarageMode = false;
-            if (action.equals(ACTION_GARAGE_MODE_ON)) {
-                isGarageMode = true;
-            } else if (!action.equals(ACTION_GARAGE_MODE_OFF)) {
-                return;
-            }
-            if (isGarageMode) {
-                mWatchdogStorage.shrinkDatabase();
-            }
-            try {
-                mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.GARAGE_MODE,
-                        isGarageMode ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF,
-                        /* arg2= */ -1);
-                if (DEBUG) {
-                    Slogf.d(TAG, "Notified car watchdog daemon of garage mode(%s)",
-                            isGarageMode ? "ON" : "OFF");
-                }
-            } catch (RemoteException | RuntimeException e) {
-                Slogf.w(TAG, "Notifying garage mode state change failed: %s", e);
+            switch (action) {
+                case ACTION_GARAGE_MODE_ON:
+                case ACTION_GARAGE_MODE_OFF:
+                    handleGarageModeIntent(action.equals(ACTION_GARAGE_MODE_ON));
+                    break;
+                case Intent.ACTION_USER_REMOVED:
+                    UserHandle user = intent.getParcelableExtra(Intent.EXTRA_USER);
+                    mWatchdogPerfHandler.deleteUser(user.getIdentifier());
+                    break;
             }
         }
     };
@@ -359,6 +350,23 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         mWatchdogPerfHandler.setTimeSource(timeSource);
     }
 
+    private void handleGarageModeIntent(boolean isOn) {
+        if (isOn) {
+            mWatchdogStorage.shrinkDatabase();
+        }
+        try {
+            mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.GARAGE_MODE,
+                    isOn ? GarageMode.GARAGE_MODE_ON : GarageMode.GARAGE_MODE_OFF,
+                    /* arg2= */ MISSING_ARG_VALUE);
+            if (DEBUG) {
+                Slogf.d(TAG, "Notified car watchdog daemon of garage mode(%s)",
+                        isOn ? "ON" : "OFF");
+            }
+        } catch (RemoteException | RuntimeException e) {
+            Slogf.w(TAG, e, "Notifying garage mode state change failed");
+        }
+    }
+
     private void postRegisterToDaemonMessage() {
         CarServiceUtils.runOnMain(() -> {
             synchronized (mLock) {
@@ -382,7 +390,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         } catch (RemoteException | RuntimeException e) {
             Slogf.w(TAG, "Cannot register to car watchdog daemon: %s", e);
         }
-        UserManager userManager = mContext.getSystemService(UserManager.class);
+        UserManager userManager = UserManager.get(mContext);
 
         List<UserHandle> users = userManager.getUserHandles(/* excludeDying= */ false);
         try {
@@ -444,7 +452,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 }
                 try {
                     mCarWatchdogDaemonHelper.notifySystemStateChange(StateType.POWER_CYCLE,
-                            powerCycle, /* arg2= */ -1);
+                            powerCycle, /* arg2= */ MISSING_ARG_VALUE);
                     if (DEBUG) {
                         Slogf.d(TAG, "Notified car watchdog daemon of power cycle(%d)", powerCycle);
                     }
@@ -496,6 +504,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
         IntentFilter filter = new IntentFilter();
         filter.addAction(ACTION_GARAGE_MODE_ON);
         filter.addAction(ACTION_GARAGE_MODE_OFF);
+        filter.addAction(Intent.ACTION_USER_REMOVED);
 
         mContext.registerReceiverForAllUsers(mBroadcastReceiver, filter,
                 /* broadcastPermission= */ null, /* scheduler= */ null,
