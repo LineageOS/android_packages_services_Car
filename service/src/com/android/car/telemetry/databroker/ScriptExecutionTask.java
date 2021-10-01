@@ -63,11 +63,10 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     }
 
     /**
-     * Indicates whether the task is associated with the given
-     * {@link com.android.car.telemetry.TelemetryProto.MetricsConfig).
+     * Indicates whether the task is associated with MetricsConfig specified by the name.
      */
-    public boolean isAssociatedWithMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
-        return mSubscriber.getMetricsConfig().equals(metricsConfig);
+    public boolean isAssociatedWithMetricsConfig(String metricsConfigName) {
+        return mSubscriber.getMetricsConfig().getName().equals(metricsConfigName);
     }
 
     /**

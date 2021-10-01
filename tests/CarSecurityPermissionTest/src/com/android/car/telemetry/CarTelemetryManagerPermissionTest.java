@@ -92,7 +92,7 @@ public class CarTelemetryManagerPermissionTest {
     }
 
     @Test
-    public void testRemoveMetricsConfig() throws Exception {
+    public void testRemoveMetricsConfig() {
         Exception e = expectThrows(SecurityException.class,
                 () -> mCarTelemetryManager.removeMetricsConfig(mMetricsConfigKey));
 
@@ -135,10 +135,6 @@ public class CarTelemetryManagerPermissionTest {
 
         @Override
         public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key, int statusCode) {
-        }
-
-        @Override
-        public void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success) {
         }
     }
 }

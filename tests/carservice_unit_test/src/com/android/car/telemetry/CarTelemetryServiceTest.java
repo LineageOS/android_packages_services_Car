@@ -175,24 +175,15 @@ public class CarTelemetryServiceTest {
     }
 
     @Test
-    public void testRemoveMetricsConfig_configExists_shouldDeleteScriptResult() throws Exception {
+    public void testRemoveMetricsConfig_shouldDeleteConfigAndResult() throws Exception {
         mService.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
         mResultStore.putInterimResult(KEY_V1.getName(), new PersistableBundle());
 
         mService.removeMetricsConfig(KEY_V1);
 
         waitForHandlerThreadToFinish();
-        verify(mMockListener).onRemoveMetricsConfigStatus(eq(KEY_V1), eq(true));
         assertThat(mMetricsConfigStore.getActiveMetricsConfigs()).isEmpty();
         assertThat(mResultStore.getInterimResult(KEY_V1.getName())).isNull();
-    }
-
-    @Test
-    public void testRemoveMetricsConfig_configDoesNotExist_shouldFail() throws Exception {
-        mService.removeMetricsConfig(KEY_V1);
-
-        waitForHandlerThreadToFinish();
-        verify(mMockListener).onRemoveMetricsConfigStatus(eq(KEY_V1), eq(false));
     }
 
     @Test

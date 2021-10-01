@@ -36,8 +36,7 @@ public interface DataBroker {
     /**
      * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
      * execution. When updating the MetricsConfig to a newer version, the caller must call
-     * {@link #removeMetricsConfiguration(TelemetryProto.MetricsConfig)} first to clear the old
-     * MetricsConfig.
+     * {@link #removeMetricsConfiguration(String)} first to clear the old MetricsConfig.
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
      *
      * @param metricsConfig to be added and queued for execution.
@@ -48,9 +47,15 @@ public interface DataBroker {
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
-     * @param metricsConfig to be removed from DataBroker.
+     * @param metricsConfigName name of the MetricsConfig to be removed.
      */
-    void removeMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    void removeMetricsConfiguration(String metricsConfigName);
+
+    /**
+     * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and
+     * subscriptions.
+     */
+    void removeAllMetricsConfigurations();
 
     /**
      * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
