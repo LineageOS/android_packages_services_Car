@@ -19,17 +19,19 @@ package com.android.car.telemetry.publisher;
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.AtomsProto;
-import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.StatsLogProto.DimensionsValue;
+import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
+import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 
 /**
  * Class for converting gauge metric data to {@link PersistableBundle} compatible format.
  */
 public class GaugeMetricDataConverter {
-    static final String DIMENSION_DELIMITOR = "-";
-    static final String ELAPSED_TIME = "elapsed_timestamp_nanos";
+    static final String ELAPSED_TIME_NANOS = "elapsed_timestamp_nanos";
 
     /**
      * Converts a list of {@link StatsLogProto.GaugeMetricData} to {@link PersistableBundle}
@@ -46,21 +48,40 @@ public class GaugeMetricDataConverter {
      * }
      *
      * @param gaugeDataList the list of {@link StatsLogProto.GaugeMetricData} to be converted.
-     * @param bundle the {@link PersistableBundle} to hold the converted values.
+     * @param dimensionsFieldsIds field ids for fields that are encoded in {@link DimensionsValue}.
+     * @param hashToStringMap hash to string mapping for decoding the some dimension values.
+     * @return {@link PersistableBundle} that holds the converted values.
+     * @throws StatsConversionException if atom field mismatch or can't convert dimension value.
      */
-    static void convertGaugeDataList(
-            List<StatsLogProto.GaugeMetricData> gaugeDataList, PersistableBundle bundle) {
-        // TODO(b/200064146): translate the dimension strings to get uid and package_name.
+    static PersistableBundle convertGaugeDataList(
+            List<GaugeMetricData> gaugeDataList,
+            List<Integer> dimensionsFieldsIds,
+            Map<Long, String> hashToStringMap) throws StatsConversionException {
         List<Long> elapsedTimes = new ArrayList<>();
         List<AtomsProto.Atom> atoms = new ArrayList<>();
-        for (StatsLogProto.GaugeMetricData gaugeData : gaugeDataList) {
-            for (StatsLogProto.GaugeBucketInfo bi : gaugeData.getBucketInfoList()) {
+        // This list contains dimensionsValues for each atom, matching in index and list size.
+        List<List<DimensionsValue>> dimensionsValuesList = new ArrayList<>();
+        for (GaugeMetricData gaugeData : gaugeDataList) {
+            // The dimensionsValue is same for all stoms in the same GaugeMetricData.
+            List<DimensionsValue> dimensionsValues = gaugeData.getDimensionLeafValuesInWhatList();
+            for (GaugeBucketInfo bi : gaugeData.getBucketInfoList()) {
                 elapsedTimes.addAll(bi.getElapsedTimestampNanosList());
-                atoms.addAll(bi.getAtomList());
+                for (AtomsProto.Atom atom : bi.getAtomList()) {
+                    atoms.add(atom);
+                    dimensionsValuesList.add(dimensionsValues);
+                }
             }
         }
-        AtomDataConverter.convertAtomsList(atoms, bundle);
-        bundle.putLongArray(
-                ELAPSED_TIME, elapsedTimes.stream().mapToLong(i -> i).toArray());
+        PersistableBundle bundle = AtomListConverter.convert(
+                atoms,
+                dimensionsFieldsIds,
+                dimensionsValuesList,
+                hashToStringMap);
+        long[] elapsedTimesArray = new long[elapsedTimes.size()];
+        for (int i = 0; i < elapsedTimes.size(); ++i) {
+            elapsedTimesArray[i] = elapsedTimes.get(i);
+        }
+        bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimesArray);
+        return bundle;
     }
 }
