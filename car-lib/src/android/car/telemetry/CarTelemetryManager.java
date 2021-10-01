@@ -140,14 +140,6 @@ public final class CarTelemetryManager extends CarManagerBase {
          */
         void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key,
                 @MetricsConfigError int statusCode);
-
-        /**
-         * Sends the {@link #removeMetricsConfig(MetricsConfigKey)} status to the client.
-         *
-         * @param key     the {@link MetricsConfigKey} that the status is associated with
-         * @param success true for successful removal, false otherwise.
-         */
-        void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success);
     }
 
     /**
@@ -189,15 +181,6 @@ public final class CarTelemetryManager extends CarManagerBase {
             }
             manager.onAddMetricsConfigStatus(key, statusCode);
         }
-
-        @Override
-        public void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success) {
-            CarTelemetryManager manager = mManager.get();
-            if (manager == null) {
-                return;
-            }
-            manager.onRemoveMetricsConfigStatus(key, success);
-        }
     }
 
     private void onResult(MetricsConfigKey key, byte[] result) {
@@ -223,15 +206,6 @@ public final class CarTelemetryManager extends CarManagerBase {
         synchronized (mLock) {
             // TODO(b/198824696): listener should be nonnull
             mExecutor.execute(() -> mResultsListener.onAddMetricsConfigStatus(key, statusCode));
-        }
-        Binder.restoreCallingIdentity(token);
-    }
-
-    private void onRemoveMetricsConfigStatus(MetricsConfigKey key, boolean success) {
-        long token = Binder.clearCallingIdentity();
-        synchronized (mLock) {
-            // TODO(b/198824696): listener should be nonnull
-            mExecutor.execute(() -> mResultsListener.onRemoveMetricsConfigStatus(key, success));
         }
         Binder.restoreCallingIdentity(token);
     }
@@ -342,7 +316,6 @@ public final class CarTelemetryManager extends CarManagerBase {
      * Removes a MetricsConfig from {@link com.android.car.telemetry.CarTelemetryService}. This
      * will also remove outputs produced by the MetricsConfig. If the MetricsConfig does not exist,
      * nothing will be removed.
-     * The status of this API is sent back asynchronously via {@link CarTelemetryResultsListener}.
      *
      * @param key the unique key to identify the MetricsConfig. Name and version must be exact.
      * @return true for success, false otherwise.

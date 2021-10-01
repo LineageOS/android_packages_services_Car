@@ -56,7 +56,7 @@ import java.util.concurrent.PriorityBlockingQueue;
 /**
  * Implementation of the data path component of CarTelemetryService. Forwards the published data
  * from publishers to consumers subject to the Controller's decision.
- * TODO(b/187743369): Handle thread-safety of member variables.
+ * All methods should be called from the telemetry thread unless otherwise specified as thread-safe.
  */
 public class DataBrokerImpl implements DataBroker {
 
@@ -207,7 +207,7 @@ public class DataBrokerImpl implements DataBroker {
             // get the metrics config from the DataSubscriber and remove the metrics config
             if (mSubscriptionMap.get(metricsConfigName).size() != 0) {
                 removeMetricsConfiguration(mSubscriptionMap.get(metricsConfigName).get(0)
-                        .getMetricsConfig());
+                        .getMetricsConfig().getName());
             }
         }
         mSubscriptionMap.clear();
@@ -247,13 +247,13 @@ public class DataBrokerImpl implements DataBroker {
     }
 
     @Override
-    public void removeMetricsConfiguration(MetricsConfig metricsConfig) {
+    public void removeMetricsConfiguration(String metricsConfigName) {
         // TODO(b/187743369): pass status back to caller
-        if (!mSubscriptionMap.containsKey(metricsConfig.getName())) {
+        if (!mSubscriptionMap.containsKey(metricsConfigName)) {
             return;
         }
         // get the subscriptions associated with this MetricsConfig, remove it from the map
-        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(metricsConfig.getName());
+        List<DataSubscriber> dataSubscribers = mSubscriptionMap.remove(metricsConfigName);
         // for each subscriber, remove it from publishers
         for (DataSubscriber subscriber : dataSubscribers) {
             AbstractPublisher publisher = mPublisherFactory.getPublisher(
@@ -270,7 +270,14 @@ public class DataBrokerImpl implements DataBroker {
         // iterating, so it may or may not reflect any updates since the iterator was created.
         // But since adding & polling from queue should happen in the same thread, the task queue
         // should not be changed while tasks are being iterated and removed.
-        mTaskQueue.removeIf(task -> task.isAssociatedWithMetricsConfig(metricsConfig));
+        mTaskQueue.removeIf(task -> task.isAssociatedWithMetricsConfig(metricsConfigName));
+    }
+
+    @Override
+    public void removeAllMetricsConfigurations() {
+        mPublisherFactory.removeAllDataSubscribers();
+        mSubscriptionMap.clear();
+        mTaskQueue.clear();
     }
 
     @Override

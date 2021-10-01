@@ -79,25 +79,6 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testFlushToDisk_shouldWriteResultsToFileAndCheckContent() throws Exception {
-        String testInterimFileName = "test_file_1";
-        String testFinalFileName = "test_file_2";
-        writeBundleToFile(mTestInterimResultDir, testInterimFileName, TEST_INTERIM_BUNDLE);
-        writeBundleToFile(mTestFinalResultDir, testFinalFileName, TEST_FINAL_BUNDLE);
-
-        mResultStore.flushToDisk();
-
-        assertThat(new File(mTestInterimResultDir, testInterimFileName).exists()).isTrue();
-        assertThat(new File(mTestFinalResultDir, testFinalFileName).exists()).isTrue();
-        // the content check will need to be modified when data encryption is implemented
-        PersistableBundle interimData =
-                readBundleFromFile(mTestInterimResultDir, testInterimFileName);
-        assertThat(interimData.toString()).isEqualTo(TEST_INTERIM_BUNDLE.toString());
-        PersistableBundle finalData = readBundleFromFile(mTestFinalResultDir, testFinalFileName);
-        assertThat(finalData.toString()).isEqualTo(TEST_FINAL_BUNDLE.toString());
-    }
-
-    @Test
     public void testFlushToDisk_shouldRemoveStaleData() throws Exception {
         File staleTestFile1 = new File(mTestInterimResultDir, "stale_test_file_1");
         File staleTestFile2 = new File(mTestFinalResultDir, "stale_test_file_2");
@@ -117,6 +98,42 @@ public class ResultStoreTest {
         assertThat(staleTestFile1.exists()).isFalse();
         assertThat(staleTestFile2.exists()).isFalse();
         assertThat(activeTestFile3.exists()).isTrue();
+    }
+
+
+    @Test
+    public void testPutInterimResultAndFlushToDisk_shouldReplaceExistingFile() throws Exception {
+        String newKey = "new key";
+        String newValue = "new value";
+        String metricsConfigName = "my_metrics_config";
+        writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
+        TEST_INTERIM_BUNDLE.putString(newKey, newValue);
+
+        mResultStore.putInterimResult(metricsConfigName, TEST_INTERIM_BUNDLE);
+        mResultStore.flushToDisk();
+
+        PersistableBundle bundle = readBundleFromFile(mTestInterimResultDir, metricsConfigName);
+        assertThat(bundle.getString(newKey)).isEqualTo(newValue);
+        assertThat(bundle.toString()).isEqualTo(TEST_INTERIM_BUNDLE.toString());
+    }
+
+    @Test
+    public void testPutInterimResultAndFlushToDisk_shouldWriteDirtyResultsOnly() throws Exception {
+        File fileFoo = new File(mTestInterimResultDir, "foo");
+        File fileBar = new File(mTestInterimResultDir, "bar");
+        writeBundleToFile(fileFoo, TEST_INTERIM_BUNDLE);
+        writeBundleToFile(fileBar, TEST_INTERIM_BUNDLE);
+        mResultStore = new ResultStore(mTestRootDir); // re-load data
+        PersistableBundle newData = new PersistableBundle();
+        newData.putDouble("pi", 3.1415926);
+
+        mResultStore.putInterimResult("bar", newData); // make bar dirty
+        fileFoo.delete(); // delete the clean file from the file system
+        mResultStore.flushToDisk(); // write dirty data
+
+        // foo is a clean file that should not be written in flushToDisk()
+        assertThat(fileFoo.exists()).isFalse();
+        assertThat(readBundleFromFile(fileBar).toString()).isEqualTo(newData.toString());
     }
 
     @Test
@@ -186,42 +203,7 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testPutInterimResultAndFlushToDisk_shouldReplaceExistingFile() throws Exception {
-        String newKey = "new key";
-        String newValue = "new value";
-        String metricsConfigName = "my_metrics_config";
-        writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
-        TEST_INTERIM_BUNDLE.putString(newKey, newValue);
-
-        mResultStore.putInterimResult(metricsConfigName, TEST_INTERIM_BUNDLE);
-        mResultStore.flushToDisk();
-
-        PersistableBundle bundle = readBundleFromFile(mTestInterimResultDir, metricsConfigName);
-        assertThat(bundle.getString(newKey)).isEqualTo(newValue);
-        assertThat(bundle.toString()).isEqualTo(TEST_INTERIM_BUNDLE.toString());
-    }
-
-    @Test
-    public void testPutInterimResultAndFlushToDisk_shouldWriteDirtyResultsOnly() throws Exception {
-        File fileFoo = new File(mTestInterimResultDir, "foo");
-        File fileBar = new File(mTestInterimResultDir, "bar");
-        writeBundleToFile(fileFoo, TEST_INTERIM_BUNDLE);
-        writeBundleToFile(fileBar, TEST_INTERIM_BUNDLE);
-        mResultStore = new ResultStore(mTestRootDir); // re-load data
-        PersistableBundle newData = new PersistableBundle();
-        newData.putDouble("pi", 3.1415926);
-
-        mResultStore.putInterimResult("bar", newData); // make bar dirty
-        fileFoo.delete(); // delete the clean file from the file system
-        mResultStore.flushToDisk(); // write dirty data
-
-        // foo is a clean file that should not be written in shutdown
-        assertThat(fileFoo.exists()).isFalse();
-        assertThat(readBundleFromFile(fileBar).toString()).isEqualTo(newData.toString());
-    }
-
-    @Test
-    public void testPutFinalResult_shouldWriteResultAndRemoveInterimq() throws Exception {
+    public void testPutFinalResult_shouldWriteResultAndRemoveInterim() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
@@ -244,23 +226,36 @@ public class ResultStoreTest {
     }
 
     @Test
-    public void testDeleteResult_whenInterimResult_shouldDelete() throws Exception {
+    public void testRemoveResult_whenInterimResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestInterimResultDir, metricsConfigName, TEST_INTERIM_BUNDLE);
 
-        mResultStore.deleteResult(metricsConfigName);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestInterimResultDir, metricsConfigName).exists()).isFalse();
     }
 
     @Test
-    public void testDeleteResult_whenFinalResult_shouldDelete() throws Exception {
+    public void testRemoveResult_whenFinalResult_shouldDelete() throws Exception {
         String metricsConfigName = "my_metrics_config";
         writeBundleToFile(mTestFinalResultDir, metricsConfigName, TEST_FINAL_BUNDLE);
 
-        mResultStore.deleteResult(metricsConfigName);
+        mResultStore.removeResult(metricsConfigName);
 
         assertThat(new File(mTestFinalResultDir, metricsConfigName).exists()).isFalse();
+    }
+
+    @Test
+    public void testRemoveAllResults_shouldDeleteAll() throws Exception {
+        mResultStore.putInterimResult("config 1", TEST_INTERIM_BUNDLE);
+        mResultStore.putFinalResult("config 2", TEST_FINAL_BUNDLE);
+        mResultStore.putError("config 3", TEST_TELEMETRY_ERROR);
+        mResultStore.flushToDisk();
+
+        mResultStore.removeAllResults();
+
+        assertThat(mTestInterimResultDir.listFiles()).isEmpty();
+        assertThat(mTestFinalResultDir.listFiles()).isEmpty();
     }
 
     private void writeBundleToFile(

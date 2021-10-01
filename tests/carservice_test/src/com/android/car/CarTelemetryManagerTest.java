@@ -131,19 +131,6 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
                 ERROR_METRICS_CONFIG_VERSION_TOO_OLD);
     }
 
-    @Test
-    public void testRemoveMetricsConfig() throws Exception {
-        mCarTelemetryManager.removeMetricsConfig(KEY_V1);
-        waitForHandlerThreadToFinish();
-        assertThat(mListener.getRemoveConfigStatus(KEY_V1)).isFalse();
-
-        mCarTelemetryManager.addMetricsConfig(KEY_V1, METRICS_CONFIG_V1.toByteArray());
-        waitForHandlerThreadToFinish();
-        mCarTelemetryManager.removeMetricsConfig(KEY_V1);
-        waitForHandlerThreadToFinish();
-        assertThat(mListener.getRemoveConfigStatus(KEY_V1)).isTrue();
-    }
-
     private void waitForHandlerThreadToFinish() throws Exception {
         assertWithMessage("handler not idle in %sms", TIMEOUT_MS)
                 .that(mIdleHandlerLatch.await(TIMEOUT_MS, TimeUnit.MILLISECONDS)).isTrue();
@@ -156,7 +143,6 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
     private static final class FakeCarTelemetryResultsListener
             implements CarTelemetryManager.CarTelemetryResultsListener {
 
-        private Map<MetricsConfigKey, Boolean> mRemoveConfigStatusMap = new ArrayMap<>();
         private Map<MetricsConfigKey, Integer> mAddConfigStatusMap = new ArrayMap<>();
 
         @Override
@@ -172,17 +158,8 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
             mAddConfigStatusMap.put(key, statusCode);
         }
 
-        @Override
-        public void onRemoveMetricsConfigStatus(@NonNull MetricsConfigKey key, boolean success) {
-            mRemoveConfigStatusMap.put(key, success);
-        }
-
         public int getAddConfigStatus(MetricsConfigKey key) {
             return mAddConfigStatusMap.getOrDefault(key, -100);
-        }
-
-        public boolean getRemoveConfigStatus(MetricsConfigKey key) {
-            return mRemoveConfigStatusMap.getOrDefault(key, false);
         }
     }
 }

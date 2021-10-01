@@ -51,12 +51,4 @@ oneway interface ICarTelemetryServiceListener {
      * @param statusCode indicating add status.
      */
      void onAddMetricsConfigStatus(in MetricsConfigKey key, in int statusCode);
-
-    /**
-     * Sends the {@link #remove(MetricsConfigKey)} status to the client.
-     *
-     * @param key the {@link MetricsConfigKey} that the status is associated with.
-     * @param success true for successful removal, false otherwise.
-     */
-     void onRemoveMetricsConfigStatus(in MetricsConfigKey key, in boolean success);
 }
