@@ -29,7 +29,7 @@ import java.util.List;
  * configuration. Single publisher instance can send data as several
  * {@link com.android.car.telemetry.TelemetryProto.Publisher} to subscribers.
  *
- * <p>Child classes must be called from the telemetry thread.
+ * <p>The methods must be called from the telemetry thread.
  */
 public abstract class AbstractPublisher {
     private final PublisherFailureListener mFailureListener;

@@ -75,7 +75,7 @@ public class PublisherFactory {
                 case TelemetryProto.Publisher.STATS_FIELD_NUMBER:
                     if (mStatsPublisher == null) {
                         mStatsPublisher = new StatsPublisher(
-                                mFailureListener, mStatsManager, mRootDirectory);
+                                mFailureListener, mStatsManager, mRootDirectory, mTelemetryHandler);
                     }
                     return mStatsPublisher;
                 default:
