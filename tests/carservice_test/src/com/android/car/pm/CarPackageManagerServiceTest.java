@@ -30,6 +30,7 @@ import android.app.ActivityOptions;
 import android.app.AlertDialog;
 import android.app.UiAutomation;
 import android.car.Car;
+import android.car.content.pm.CarPackageManager;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateManager;
 import android.content.ComponentName;
@@ -50,7 +51,6 @@ import androidx.test.filters.MediumTest;
 
 import org.junit.After;
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 
@@ -73,6 +73,7 @@ public class CarPackageManagerServiceTest {
     private static final int HOME_DISPLAYED_TIMEOUT_MS = 5_000;
 
     private CarDrivingStateManager mCarDrivingStateManager;
+    private CarPackageManager mCarPackageManager;
 
     private UiDevice mDevice;
 
@@ -84,6 +85,8 @@ public class CarPackageManagerServiceTest {
         Car car = Car.createCar(getContext());
         mCarDrivingStateManager = (CarDrivingStateManager)
                 car.getCarManager(Car.CAR_DRIVING_STATE_SERVICE);
+        mCarPackageManager = (CarPackageManager)
+                car.getCarManager(Car.PACKAGE_SERVICE);
         assertNotNull(mCarDrivingStateManager);
 
         Configurator.getInstance()
@@ -145,7 +148,6 @@ public class CarPackageManagerServiceTest {
         assertBlockingActivityNotFound();
     }
 
-    @Ignore("b/195574985")
     @Test
     public void testBlockingActivity_doTemplateActivity_showingDialog_isBlocked() throws Exception {
         startActivity(toComponentName(getTestContext(), CarAppActivity.class));
@@ -153,11 +155,19 @@ public class CarPackageManagerServiceTest {
                 CarAppActivity.class.getSimpleName())),
                 UI_TIMEOUT_MS)).isNotNull();
         assertBlockingActivityNotFound();
+        assertThat(mCarPackageManager.isActivityDistractionOptimized(
+                getTestContext().getPackageName(),
+                CarAppActivity.class.getName()
+        )).isTrue();
 
         getContext().sendBroadcast(new Intent().setAction(ACTION_SHOW_DIALOG));
 
         assertThat(mDevice.wait(Until.findObject(By.res(ACTIVITY_BLOCKING_ACTIVITY_TEXTVIEW_ID)),
                 UI_TIMEOUT_MS)).isNotNull();
+        assertThat(mCarPackageManager.isActivityDistractionOptimized(
+                getTestContext().getPackageName(),
+                CarAppActivity.class.getName()
+        )).isFalse();
     }
 
     @Test

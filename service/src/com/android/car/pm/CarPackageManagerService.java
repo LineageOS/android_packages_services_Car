@@ -1265,7 +1265,8 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private void blockTopActivityIfNecessary(TopTaskInfoContainer topTask) {
         synchronized (mLock) {
-            if (mTopActivityWithDialogPerDisplay.contains(topTask.displayId)
+            if (!topTask.topActivity.equals(mActivityBlockingActivity)
+                    && mTopActivityWithDialogPerDisplay.contains(topTask.displayId)
                     && !topTask.topActivity.equals(
                             mTopActivityWithDialogPerDisplay.get(topTask.displayId))) {
                 // Clear top activity-with-dialog if the activity has changed on this display.
