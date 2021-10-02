@@ -16,16 +16,17 @@
 
 package com.android.car.power;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doAnswer;
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
 import static com.google.common.truth.Truth.assertThat;
 
 import static org.junit.Assert.fail;
 import static org.mockito.ArgumentMatchers.any;
+import static org.mockito.ArgumentMatchers.anyBoolean;
 import static org.mockito.ArgumentMatchers.anyInt;
-import static org.mockito.Mockito.doReturn;
 import static org.mockito.Mockito.mock;
-import static org.mockito.Mockito.timeout;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -33,6 +34,7 @@ import static org.testng.Assert.assertThrows;
 import android.app.ActivityManager;
 import android.car.Car;
 import android.car.ICarResultReceiver;
+import android.car.builtin.app.VoiceInteractionHelper;
 import android.car.hardware.power.CarPowerPolicy;
 import android.car.hardware.power.CarPowerPolicyFilter;
 import android.car.hardware.power.ICarPowerPolicyListener;
@@ -69,8 +71,8 @@ import com.android.car.systeminterface.WakeLockInterface;
 import com.android.car.test.utils.TemporaryDirectory;
 import com.android.car.test.utils.TemporaryFile;
 import com.android.car.user.CarUserService;
+import com.android.compatibility.common.util.PollingCheck;
 import com.android.internal.annotations.GuardedBy;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Before;
@@ -116,6 +118,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private TemporaryFile mFileHwStateMonitoring;
     private TemporaryFile mFileKernelSilentMode;
     private FakeCarPowerPolicyDaemon mPowerPolicyDaemon;
+    private boolean mVoiceInteractionEnabled;
 
     @Mock
     private UserManager mUserManager;
@@ -123,8 +126,6 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private Resources mResources;
     @Mock
     private CarUserService mUserService;
-    @Mock
-    private IVoiceInteractionManagerService mVoiceInteractionManagerService;
 
     public CarPowerManagementServiceUnitTest() throws Exception {
         mComponentStateFile = new TemporaryFile("COMPONENT_STATE_FILE");
@@ -132,7 +133,9 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(ActivityManager.class);
+        session
+            .spyStatic(ActivityManager.class)
+            .spyStatic(VoiceInteractionHelper.class);
     }
 
     @Before
@@ -144,8 +147,6 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
             .withSystemStateInterface(mSystemStateInterface)
             .withWakeLockInterface(mWakeLockInterface)
             .withIOInterface(mIOInterface).build();
-        mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                mVoiceInteractionManagerService, new AtomicFile(mComponentStateFile.getFile()));
 
         setCurrentUser(CURRENT_USER_ID, /* isGuest= */ false);
         setService();
@@ -167,6 +168,12 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private void setService() throws Exception {
         when(mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs))
                 .thenReturn(900);
+        doReturn(true).when(() -> VoiceInteractionHelper.isAvailable());
+        doAnswer(invocation -> {
+            mVoiceInteractionEnabled = (boolean) invocation.getArguments()[0];
+            return null;
+        }).when(() -> VoiceInteractionHelper.setEnabled(anyBoolean()));
+
         Log.i(TAG, "setService(): overridden overlay properties: "
                 + ", maxGarageModeRunningDurationInSecs="
                 + mResources.getInteger(R.integer.maxGarageModeRunningDurationInSecs));
@@ -175,7 +182,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mFileHwStateMonitoring.write(NONSILENT_STRING);
         mPowerPolicyDaemon = new FakeCarPowerPolicyDaemon();
         mPowerComponentHandler = new PowerComponentHandler(mContext, mSystemInterface,
-                mVoiceInteractionManagerService, new AtomicFile(mComponentStateFile.getFile()));
+                new AtomicFile(mComponentStateFile.getFile()));
         mService = new CarPowerManagementService(mContext, mResources, mPowerHal, mSystemInterface,
                 mUserManager, mUserService, mPowerPolicyDaemon, mPowerComponentHandler,
                 mFileHwStateMonitoring.getFile().getPath(),
@@ -581,6 +588,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
     private void suspendAndResume() throws Exception {
         Log.d(TAG, "suspend()");
+        mVoiceInteractionEnabled = true;
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
                 VehicleApPowerStateShutdownParam.CAN_SLEEP));
         mDisplayInterface.waitForDisplayOff(WAIT_TIMEOUT_MS);
@@ -603,6 +611,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mFileHwStateMonitoring.write(NONSILENT_STRING); // Wake non-silently
         mService.setStateForWakeUp();
         mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        assertVoiceInteractionEnabled();
 
         mDisplayInterface.waitForDisplayOn(WAIT_TIMEOUT_MS);
         // Should wait until Handler has finished ON processing.
@@ -623,7 +632,6 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
         // Since we just woke up from shutdown, wake up time will be 0
         assertStateReceived(PowerHalService.SET_DEEP_SLEEP_EXIT, 0);
-        assertVoiceInteractionEnabled();
         assertThat(mDisplayInterface.isDisplayEnabled()).isFalse();
     }
 
@@ -660,13 +668,17 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     }
 
     private void assertVoiceInteractionEnabled() throws Exception {
-        verify(mVoiceInteractionManagerService,
-                timeout(WAIT_TIMEOUT_LONG_MS).atLeastOnce()).setDisabled(false);
+        PollingCheck.check("Voice interaction is not enabled", WAIT_TIMEOUT_LONG_MS,
+                () -> {
+                    return mVoiceInteractionEnabled;
+                });
     }
 
     private void assertVoiceInteractionDisabled() throws Exception {
-        verify(mVoiceInteractionManagerService,
-                timeout(WAIT_TIMEOUT_LONG_MS).atLeastOnce()).setDisabled(true);
+        PollingCheck.check("Voice interaction is not disabled", WAIT_TIMEOUT_LONG_MS,
+                () -> {
+                    return !mVoiceInteractionEnabled;
+                });
     }
 
     private static void waitForSemaphore(Semaphore semaphore, long timeoutMs)
