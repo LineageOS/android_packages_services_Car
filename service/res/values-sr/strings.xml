@@ -182,20 +182,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Ресетуј касније"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"Сис. за инфо-заб. се ресет. када опет упал. кола."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"Морате да паркирате кола за почетак ресетовања."</string>
-    <!-- no translation found for resource_overuse_notification_title (3385149030747234969) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_disable_app (4538000369374274293) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_prioritize_app (4782324719261106243) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_uninstall_app (531108846448668467) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_disable_app (5511548570206345274) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_prioritize_app (5327141954014335559) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_uninstall_app (7327141273608850448) -->
-    <skip />
-    <!-- no translation found for resource_overuse_toast_disable_app_now (3182983639177825069) -->
-    <skip />
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> утиче на перформансе система"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Онемогућите апликацију да бисте побољшали перформансе система. Апликацију можете поново да омогућите у Подешавањима."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Дајте приоритет апликацији да бисте наставили да је користите."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Деинсталирајте апликацију да бисте побољшали перформансе система."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Онемогући апликацију"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Дајте приоритет апликацији"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Деинсталирајте апликацију"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"Апликација <xliff:g id="ID_1">^1</xliff:g> је онемогућена. Можете поново да је омогућите у Подешавањима."</string>
 </resources>

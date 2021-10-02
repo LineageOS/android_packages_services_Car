@@ -182,20 +182,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"पछि रिसेट गर्नुहोस्"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"अर्को पटक कार स्टार्ट हुँदा इन्फोटेनमेन्ट प्रणाली रिसेट हुने छ।"</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"रिसेट गर्न कार पार्क गरिएको अवस्थामा हुनु पर्छ।"</string>
-    <!-- no translation found for resource_overuse_notification_title (3385149030747234969) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_disable_app (4538000369374274293) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_prioritize_app (4782324719261106243) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_uninstall_app (531108846448668467) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_disable_app (5511548570206345274) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_prioritize_app (5327141954014335559) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_uninstall_app (7327141273608850448) -->
-    <skip />
-    <!-- no translation found for resource_overuse_toast_disable_app_now (3182983639177825069) -->
-    <skip />
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"<xliff:g id="ID_1">^1</xliff:g> ले तपाईंको सिस्टमको पर्फर्मेन्समा असर गरिरहेको छ"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"सिस्टमको पर्फर्मेन्स सुधार गर्न एप अफ गर्नुहोस्। तपाईं सेटिङमा गई एप फेरि अन गर्न सक्नुहुन्छ।"</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"एप प्रयोग गरिरहन एपलाई प्राथमिकता दिनुहोस्।"</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"सिस्टमको पर्फर्मेन्स सुधार गर्न एप अनइन्स्टल गर्नुहोस्।"</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"एप अफ गर्नुहोस्"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"एपलाई प्राथमिकता दिनुहोस्"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"एप अनइन्स्टल गर्नुहोस्"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"<xliff:g id="ID_1">^1</xliff:g> अफ गरिएको छ। तपाईं सेटिङमा गई यो एप फेरि अन गर्न सक्नुहुन्छ।"</string>
 </resources>

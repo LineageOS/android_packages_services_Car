@@ -182,20 +182,12 @@
     <string name="factory_reset_later_button" msgid="2401829720674483843">"Setha Kabusha Kamuva"</string>
     <string name="factory_reset_later_text" msgid="5896142140528784784">"Isistimu ye-infotainment izosethwa kabusha ngesikhathi esizayo lapho imoto iqala."</string>
     <string name="factory_reset_driving_text" msgid="6702298505761254553">"Imoto kufanele ipakwe ukuze uqale ukusetha kabusha."</string>
-    <!-- no translation found for resource_overuse_notification_title (3385149030747234969) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_disable_app (4538000369374274293) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_prioritize_app (4782324719261106243) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_text_uninstall_app (531108846448668467) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_disable_app (5511548570206345274) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_prioritize_app (5327141954014335559) -->
-    <skip />
-    <!-- no translation found for resource_overuse_notification_button_uninstall_app (7327141273608850448) -->
-    <skip />
-    <!-- no translation found for resource_overuse_toast_disable_app_now (3182983639177825069) -->
-    <skip />
+    <string name="resource_overuse_notification_title" msgid="3385149030747234969">"I-<xliff:g id="ID_1">^1</xliff:g> ithinta ukusebenza kwesistimu yakho"</string>
+    <string name="resource_overuse_notification_text_disable_app" msgid="4538000369374274293">"Khubaza i-app ukuze uthuthukise ukusebenza kwesistimu. Ungaphinda unike i-app amandla futhi Kumasethingi."</string>
+    <string name="resource_overuse_notification_text_prioritize_app" msgid="4782324719261106243">"Yenza kubaluleke i-app ukuze uqhubeke usebenzisa i-app."</string>
+    <string name="resource_overuse_notification_text_uninstall_app" msgid="531108846448668467">"Khipha i-app ukuze uthuthukise ukusebenza kwesistimu."</string>
+    <string name="resource_overuse_notification_button_disable_app" msgid="5511548570206345274">"Khubaza i-app"</string>
+    <string name="resource_overuse_notification_button_prioritize_app" msgid="5327141954014335559">"Yenza kubaluleke i-app"</string>
+    <string name="resource_overuse_notification_button_uninstall_app" msgid="7327141273608850448">"Khipha i-app"</string>
+    <string name="resource_overuse_toast_disable_app_now" msgid="3182983639177825069">"I-<xliff:g id="ID_1">^1</xliff:g> ikhutshaziwe. Ungayinika amandla futhi Kumasethingi."</string>
 </resources>
