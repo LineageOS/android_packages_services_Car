@@ -250,9 +250,7 @@ package android.car.builtin.power {
 package android.car.builtin.util {
 
   public final class AssistUtilsHelper {
-    ctor public AssistUtilsHelper(android.content.Context);
-    method public boolean hasAssistantComponentForUser(android.os.UserHandle);
-    method public void showPushToTalkSessionForActiveService(android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper);
+    method public static boolean showPushToTalkSessionForActiveService(@NonNull android.content.Context, @NonNull android.car.builtin.util.AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper);
   }
 
   public static interface AssistUtilsHelper.VoiceInteractionSessionShowCallbackHelper {

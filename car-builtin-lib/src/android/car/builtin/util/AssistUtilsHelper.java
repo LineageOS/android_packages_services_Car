@@ -18,10 +18,11 @@ package android.car.builtin.util;
 
 import static android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK;
 
+import android.annotation.NonNull;
 import android.annotation.SystemApi;
+import android.app.ActivityManager;
 import android.content.Context;
 import android.os.Bundle;
-import android.os.UserHandle;
 
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.app.AssistUtils;
@@ -36,41 +37,42 @@ import java.util.Objects;
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
 public final class AssistUtilsHelper {
 
+    private static final String TAG = AssistUtilsHelper.class.getSimpleName();
+
     @VisibleForTesting
     static final String EXTRA_CAR_PUSH_TO_TALK =
             "com.android.car.input.EXTRA_CAR_PUSH_TO_TALK";
 
-    private final AssistUtils mAssistUtils;
-
-    public AssistUtilsHelper(Context context) {
-        mAssistUtils = new AssistUtils(context);
-    }
-
-    /**
-     * Determines if assistant component is currently active for the passed in user handle.
-     *
-     * <p>See {@link AssistUtils#getAssistComponentForUser(int)}.
-     */
-    public boolean hasAssistantComponentForUser(UserHandle handle) {
-        Objects.requireNonNull(handle, "UserHandle can not be null.");
-        return mAssistUtils.getAssistComponentForUser(handle.getIdentifier()) != null;
-    }
-
     /**
      * Shows the {@link android.service.voice.VoiceInteractionSession.SHOW_SOURCE_PUSH_TO_TALK}
-     * session for active service.
+     * session for active service, if the assistant component is active for the current user.
+     *
+     * @return whether the assistant component is active for the current user.
      */
-    public void showPushToTalkSessionForActiveService(
-            VoiceInteractionSessionShowCallbackHelper callback) {
+    public static boolean showPushToTalkSessionForActiveService(@NonNull Context context,
+            @NonNull VoiceInteractionSessionShowCallbackHelper callback) {
         Objects.requireNonNull(callback, "On shown callback must not be null.");
+        Objects.requireNonNull(context, "context cannot be null");
+
+        AssistUtils assistUtils = new AssistUtils(context);
+        int currentUserId = ActivityManager.getCurrentUser();
+
+
+        if (assistUtils.getAssistComponentForUser(currentUserId) == null) {
+            Slogf.d(TAG, "showPushToTalkSessionForActiveService(): no component for user %d",
+                    currentUserId);
+            return false;
+        }
+
         Bundle args = new Bundle();
         args.putBoolean(EXTRA_CAR_PUSH_TO_TALK, true);
 
         IVoiceInteractionSessionShowCallback callbackWrapper =
                 new InternalVoiceInteractionSessionShowCallback(callback);
 
-        mAssistUtils.showSessionForActiveService(args, SHOW_SOURCE_PUSH_TO_TALK,
-                callbackWrapper, /* activityToken= */ null);
+        assistUtils.showSessionForActiveService(args, SHOW_SOURCE_PUSH_TO_TALK, callbackWrapper,
+                /* activityToken= */ null);
+        return true;
     }
 
     /**
@@ -112,5 +114,9 @@ public final class AssistUtilsHelper {
             }
             mCallbackHelper.onShown();
         }
+    }
+
+    private AssistUtilsHelper(Context context) {
+        throw new UnsupportedOperationException("contains only static members");
     }
 }

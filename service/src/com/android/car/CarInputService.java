@@ -23,7 +23,6 @@ import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
-import android.app.ActivityManager;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothHeadsetClient;
@@ -169,7 +168,6 @@ public class CarInputService extends ICarInput.Stub
     private final CarUserService mUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
     private final TelecomManager mTelecomManager;
-    private final AssistUtilsHelper mAssistUtilsHelper;
 
     // The default handler for main-display input events. By default, injects the events into
     // the input queue via InputManager, but can be overridden for testing.
@@ -250,7 +248,7 @@ public class CarInputService extends ICarInput.Stub
             CarUserService userService, CarOccupantZoneService occupantZoneService) {
         this(context, inputHalService, userService, occupantZoneService,
                 new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
-                context.getSystemService(TelecomManager.class), new AssistUtilsHelper(context),
+                context.getSystemService(TelecomManager.class),
                 event -> InputManagerHelper.injectInputEvent(
                         context.getSystemService(InputManager.class), event),
                 () -> Calls.getLastOutgoingCall(context),
@@ -263,8 +261,7 @@ public class CarInputService extends ICarInput.Stub
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
             CarOccupantZoneService occupantZoneService, Handler handler,
-            TelecomManager telecomManager, AssistUtilsHelper assistUtilsHelper,
-            KeyEventListener mainDisplayHandler,
+            TelecomManager telecomManager, KeyEventListener mainDisplayHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
             InputCaptureClientController captureController, BluetoothAdapter bluetoothAdapter) {
@@ -274,7 +271,6 @@ public class CarInputService extends ICarInput.Stub
         mUserService = userService;
         mCarOccupantZoneService = occupantZoneService;
         mTelecomManager = telecomManager;
-        mAssistUtilsHelper = assistUtilsHelper;
         mMainDisplayHandler = mainDisplayHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
         mLongPressDelaySupplier = longPressDelaySupplier;
@@ -660,13 +656,9 @@ public class CarInputService extends ICarInput.Stub
     private void launchDefaultVoiceAssistantHandler() {
         Slogf.d(TAG, "voice key, invoke AssistUtilsHelper");
 
-        if (mAssistUtilsHelper.hasAssistantComponentForUser(
-                UserHandle.of(ActivityManager.getCurrentUser()))) {
-            mAssistUtilsHelper.showPushToTalkSessionForActiveService(mShowCallback);
-            return;
+        if (!AssistUtilsHelper.showPushToTalkSessionForActiveService(mContext, mShowCallback)) {
+            Slogf.w(TAG, "Unable to retrieve assist component for current user");
         }
-
-        Slogf.w(TAG, "Unable to retrieve assist component for current user");
     }
 
     /**
