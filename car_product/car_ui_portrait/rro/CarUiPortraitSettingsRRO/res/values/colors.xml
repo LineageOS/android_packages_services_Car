@@ -15,5 +15,5 @@
   ~ limitations under the License.
   -->
 <resources xmlns:android="http://schemas.android.com/apk/res/android">
-    <color name="top_level_preference_background_color">#E8EAED</color>
+    <color name="top_level_preference_highlight_background_color">#E8EAED</color>
 </resources>
