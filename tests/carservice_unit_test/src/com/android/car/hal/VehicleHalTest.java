@@ -92,6 +92,7 @@ public class VehicleHalTest {
     @Mock private UserHalService mUserHalService;
     @Mock private DiagnosticHalService mDiagnosticHalService;
     @Mock private ClusterHalService mClusterHalService;
+    @Mock private TimeHalService mTimeHalService;
     @Mock private HalClient mHalClient;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -109,7 +110,8 @@ public class VehicleHalTest {
     public void setUp() throws Exception {
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
+                mDiagnosticHalService, mClusterHalService, mTimeHalService, mHalClient,
+                mHandlerThread);
 
         mConfigs.clear();
 
@@ -149,6 +151,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
         mVehicleHal.init();
@@ -234,6 +237,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
 
@@ -274,6 +278,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Return empty prop configs.
         when(mHalClient.getAllPropConfigs()).thenReturn(new ArrayList<VehiclePropConfig>());
@@ -316,6 +321,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Return empty prop configs.
         when(mHalClient.getAllPropConfigs()).thenReturn(null);
@@ -358,6 +364,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         // Throw exception.
         when(mHalClient.getAllPropConfigs()).thenThrow(new RemoteException());
@@ -800,6 +807,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
 
@@ -887,10 +895,11 @@ public class VehicleHalTest {
                 UserHalService userHal,
                 DiagnosticHalService diagnosticHal,
                 ClusterHalService clusterHalService,
+                TimeHalService timeHalService,
                 HalClient halClient,
                 HandlerThread handlerThread) {
             super(powerHal, propertyHal, inputHal, vmsHal, userHal, diagnosticHal,
-                    clusterHalService, halClient, handlerThread);
+                    clusterHalService, timeHalService, halClient, handlerThread);
         }
     }
 
@@ -898,7 +907,8 @@ public class VehicleHalTest {
     public void testSet() throws Exception {
         VehicleHalTestClass t = new VehicleHalTestClass(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
+                mDiagnosticHalService, mClusterHalService, mTimeHalService,
+                mHalClient, mHandlerThread);
         t.init();
 
         VehiclePropValue propValue = new VehiclePropValue();
@@ -1258,6 +1268,7 @@ public class VehicleHalTest {
         when(mVmsHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mUserHalService.getAllSupportedProperties()).thenReturn(new int[0]);
         when(mDiagnosticHalService.getAllSupportedProperties()).thenReturn(new int[0]);
+        when(mTimeHalService.getAllSupportedProperties()).thenReturn(new int[0]);
 
         when(mHalClient.getAllPropConfigs()).thenReturn(mConfigs);
 
