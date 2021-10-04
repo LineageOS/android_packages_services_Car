@@ -108,6 +108,8 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     @Mock
     private CarPropertyService mMockCarPropertyService;
     @Mock
+    private DataBroker.ScriptFinishedCallback mMockScriptFinishedCallback;
+    @Mock
     private Handler mMockHandler;
     @Mock
     private StatsManagerProxy mMockStatsManager;
@@ -124,6 +126,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
                 mMockCarPropertyService, mMockHandler, mMockStatsManager,
                 Files.createTempDirectory("telemetry_test").toFile());
         mDataBroker = new DataBrokerImpl(mMockContext, factory, mMockResultStore);
+        mDataBroker.setOnScriptFinishedCallback(mMockScriptFinishedCallback);
         // add IdleHandler to get notified when all messages and posts are handled
         mDataBroker.getTelemetryHandler().getLooper().getQueue().addIdleHandler(() -> {
             mIdleHandlerLatch.countDown();
@@ -286,6 +289,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         assertThat(mFakeScriptExecutor.getInvokeScriptCount()).isEqualTo(1);
         verify(mMockResultStore).putFinalResult(
                 eq(mHighPriorityTask.getMetricsConfig().getName()), eq(mData));
+        verify(mMockScriptFinishedCallback).onScriptFinished(eq(METRICS_CONFIG_FOO.getName()));
     }
 
     @Test
