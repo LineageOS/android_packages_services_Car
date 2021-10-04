@@ -739,7 +739,7 @@ void EvsV4lCamera::forwardFrame(imageBuffer* pV4lBuff, void* pData) {
         android::base::unique_fd fd(open(filename.c_str(),
                                          O_WRONLY | O_CREAT,
                                          S_IRUSR | S_IWUSR | S_IRGRP));
-        LOG(ERROR) << filename << ", " << fd;
+        LOG(INFO) << filename << ", " << fd;
         if (fd == -1) {
             PLOG(ERROR) << "Failed to open a file, " << filename;
         } else {

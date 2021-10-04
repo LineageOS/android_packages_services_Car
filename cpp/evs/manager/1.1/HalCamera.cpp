@@ -89,7 +89,7 @@ bool HalCamera::ownVirtualCamera(sp<VirtualCamera> virtualCamera) {
 
 void HalCamera::disownVirtualCamera(sp<VirtualCamera> virtualCamera) {
     // Ignore calls with null pointers
-    if (virtualCamera.get() == nullptr) {
+    if (virtualCamera == nullptr) {
         LOG(WARNING) << "Ignoring disownVirtualCamera call with null pointer";
         return;
     }
