@@ -18,7 +18,6 @@ package com.android.car.bluetooth;
 import android.app.ActivityManager;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
-import android.car.ICarBluetooth;
 import android.car.ICarBluetoothUserService;
 import android.car.IPerUserCarService;
 import android.car.builtin.os.UserManagerHelper;
@@ -57,7 +56,7 @@ import java.util.List;
  *
  * Provides an interface for other programs to request auto connections.
  */
-public class CarBluetoothService extends ICarBluetooth.Stub implements CarServiceBase {
+public class CarBluetoothService implements CarServiceBase {
     private static final String TAG = CarLog.tagFor(CarBluetoothService.class);
     private static final boolean DBG = Log.isLoggable(TAG, Log.DEBUG);
     static final String THREAD_NAME = "CarBluetoothService";
@@ -420,7 +419,6 @@ public class CarBluetoothService extends ICarBluetooth.Stub implements CarServic
      * Initiate automatated connecting of devices based on the prioritized device lists for each
      * profile.
      */
-    @Override
     public void connectDevices() {
         enforceBluetoothAdminPermission();
         if (DBG) {

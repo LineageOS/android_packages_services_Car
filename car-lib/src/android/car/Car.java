@@ -281,12 +281,6 @@ public final class Car {
     public static final String VENDOR_EXTENSION_SERVICE = "vendor_extension";
 
     /**
-     * @hide
-     */
-    @MandatoryFeature
-    public static final String BLUETOOTH_SERVICE = "car_bluetooth";
-
-    /**
      * Service name for {@link VmsClientManager}
      *
      * @hide
@@ -1983,9 +1977,6 @@ public final class Car {
             case VMS_SUBSCRIBER_SERVICE:
                 manager = VmsSubscriberManager.wrap(this,
                         (VmsClientManager) getCarManager(VEHICLE_MAP_SERVICE));
-                break;
-            case BLUETOOTH_SERVICE:
-                manager = new CarBluetoothManager(this, binder);
                 break;
             case STORAGE_MONITORING_SERVICE:
                 manager = new CarStorageMonitoringManager(this, binder);

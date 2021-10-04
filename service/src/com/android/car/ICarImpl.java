@@ -597,8 +597,6 @@ public class ICarImpl extends ICar.Stub {
                     return mCarTestService;
                 }
             }
-            case Car.BLUETOOTH_SERVICE:
-                return mCarBluetoothService;
             case Car.STORAGE_MONITORING_SERVICE:
                 CarServiceUtils.assertPermission(mContext, Car.PERMISSION_STORAGE_MONITORING);
                 return mCarStorageMonitoringService;
