@@ -134,4 +134,15 @@
     <dimen name="floating_toolbar_menu_image_width">@*android:dimen/car_primary_icon_size</dimen>
     <dimen name="floating_toolbar_menu_image_button_vertical_padding">@*android:dimen/car_padding_2</dimen>
     <dimen name="floating_toolbar_text_size">@*android:dimen/car_body1_size</dimen>
+
+    <!-- Switch dimensions -->
+    <dimen name="car_switch_track_height">48dp</dimen>
+    <!-- Increases the vertical touch target size. -->
+    <dimen name="car_switch_track_margin_vertical">14dp</dimen>
+    <!-- Should be the half of car_switch_track_height. -->
+    <dimen name="car_switch_thumb_outer_radius">24dp</dimen>
+    <!--  The difference between the track size and the thumb size. -->
+    <dimen name="car_switch_thumb_stroke_width">4dp</dimen>
+    <!-- car_switch_thumb_size + car_switch_thumb_stroke_width == car_switch_track_height -->
+    <dimen name="car_switch_thumb_size">40dp</dimen>
 </resources>
