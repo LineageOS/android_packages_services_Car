@@ -70,7 +70,6 @@ import android.content.pm.PackageInfo;
 import android.content.pm.PackageManager;
 import android.os.Binder;
 import android.os.Handler;
-import android.os.HandlerThread;
 import android.os.IBinder;
 import android.os.Looper;
 import android.os.RemoteException;
@@ -116,7 +115,7 @@ public final class WatchdogPerfHandler {
     private final CarWatchdogDaemonHelper mCarWatchdogDaemonHelper;
     private final PackageInfoHandler mPackageInfoHandler;
     private final Handler mMainHandler;
-    private final HandlerThread mHandlerThread;
+    private final Handler mServiceHandler;
     private final WatchdogStorage mWatchdogStorage;
     private final Object mLock = new Object();
     @GuardedBy("mLock")
@@ -158,7 +157,8 @@ public final class WatchdogPerfHandler {
         mCarWatchdogDaemonHelper = daemonHelper;
         mPackageInfoHandler = packageInfoHandler;
         mMainHandler = new Handler(Looper.getMainLooper());
-        mHandlerThread = CarServiceUtils.getHandlerThread(CarWatchdogService.class.getSimpleName());
+        mServiceHandler = new Handler(CarServiceUtils.getHandlerThread(
+                CarWatchdogService.class.getSimpleName()).getLooper());
         mWatchdogStorage = watchdogStorage;
         mTimeSource = SYSTEM_INSTANCE;
         mResourceOveruseKillingDelayMills = RESOURCE_OVERUSE_KILLING_DELAY_MILLS;
@@ -167,7 +167,7 @@ public final class WatchdogPerfHandler {
     /** Initializes the handler. */
     public void init() {
         /* First database read is expensive, so post it on a separate handler thread. */
-        mHandlerThread.getThreadHandler().post(() -> {
+        mServiceHandler.post(() -> {
             readFromDatabase();
             synchronized (mLock) {
                 checkAndHandleDateChangeLocked();
