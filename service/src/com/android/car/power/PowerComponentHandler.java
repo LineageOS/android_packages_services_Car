@@ -437,7 +437,7 @@ public final class PowerComponentHandler {
         public void setEnabled(boolean enabled) {
             // No op
             Slogf.w(TAG, "Bluetooth power is controlled by "
-                    + "com.android.car.BluetoothDeviceConnectionPolicy");
+                    + "com.android.car.BluetoothPowerPolicy");
         }
     }
 

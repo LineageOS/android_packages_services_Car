@@ -76,6 +76,9 @@ public class CarBluetoothService implements CarServiceBase {
     // invalid. This lock protects all our internal objects.
     private final Object mPerUserLock = new Object();
 
+    @GuardedBy("mPerUserLock")
+    private BluetoothPowerPolicy mBluetoothPowerPolicy = null;
+
     // Set of Bluetooth Profile Device Managers, own the priority connection lists, updated on user
     // switch
     private final SparseArray<BluetoothProfileDeviceManager> mProfileDeviceManagers =
@@ -205,6 +208,7 @@ public class CarBluetoothService implements CarServiceBase {
         createBluetoothUserServiceLocked();
         createBluetoothProfileDeviceManagersLocked();
         createBluetoothProfileInhibitManagerLocked();
+        createBluetoothPowerPolicyLocked();
 
         // Determine if we need to begin the default policy
         mBluetoothDeviceConnectionPolicy = null;
@@ -226,6 +230,7 @@ public class CarBluetoothService implements CarServiceBase {
             Slogf.d(TAG, "Destroying user %d", mUserId);
         }
         destroyBluetoothDeviceConnectionPolicyLocked();
+        destroyBluetoothPowerPolicyLocked();
         destroyBluetoothProfileInhibitManagerLocked();
         destroyBluetoothProfileDeviceManagersLocked();
         destroyBluetoothUserServiceLocked();
@@ -401,6 +406,45 @@ public class CarBluetoothService implements CarServiceBase {
         if (mBluetoothDeviceConnectionPolicy != null) {
             mBluetoothDeviceConnectionPolicy.release();
             mBluetoothDeviceConnectionPolicy = null;
+        }
+    }
+
+    /**
+     * Creates an instance of a BluetoothDeviceConnectionPolicy under the current user
+     */
+    @GuardedBy("mPerUserLock")
+    private void createBluetoothPowerPolicyLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Creating power policy");
+        }
+        if (mUserId == UserManagerHelper.USER_NULL) {
+
+            if (DBG) {
+                Slogf.d(TAG, "No foreground user, cannot create power policy");
+            }
+            return;
+        }
+        mBluetoothPowerPolicy = BluetoothPowerPolicy.create(mContext, mUserId);
+        if (mBluetoothPowerPolicy == null) {
+            if (DBG) {
+                Slogf.d(TAG, "Failed to create Bluetooth power policy.");
+            }
+            return;
+        }
+        mBluetoothPowerPolicy.init();
+    }
+
+    /**
+     * Destroys the current instance of a BluetoothDeviceConnectionPolicy, if one exists
+     */
+    @GuardedBy("mPerUserLock")
+    private void destroyBluetoothPowerPolicyLocked() {
+        if (DBG) {
+            Slogf.d(TAG, "Destroying power policy");
+        }
+        if (mBluetoothPowerPolicy != null) {
+            mBluetoothPowerPolicy.release();
+            mBluetoothPowerPolicy = null;
         }
     }
 
