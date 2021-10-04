@@ -86,6 +86,9 @@ void VirtualCamera::shutdown() {
 
             // Give the underlying hardware camera the heads up that it might be time to stop
             pHwCamera->clientStreamEnding(this);
+
+            // Retire from the participating HW camera's client list
+            pHwCamera->disownVirtualCamera(this);
         }
 
         // Join a capture thread

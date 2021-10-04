@@ -317,6 +317,7 @@ Return<void> Enumerator::closeCamera(const ::android::sp<IEvsCamera_1_0>& client
             // NOTE:  This should drop our last reference to the camera, resulting in its
             //        destruction.
             mActiveCameras.erase(halCamera->getId());
+            mHwEnumerator->closeCamera(halCamera->getHwCamera());
             if (mMonitorEnabled) {
                 mClientsMonitor->unregisterClientToMonitor(halCamera->getId());
             }
