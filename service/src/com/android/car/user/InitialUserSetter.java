@@ -26,6 +26,7 @@ import android.app.ActivityManager;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.os.TraceHelper;
 import android.car.builtin.os.UserManagerHelper;
+import android.car.builtin.provider.SettingsHelper;
 import android.car.builtin.util.Slogf;
 import android.car.builtin.util.TimingsTraceLog;
 import android.car.builtin.widget.LockPatternHelper;
@@ -611,7 +612,7 @@ final class InitialUserSetter {
             }
             Settings.System.putString(
                     Utils.getContentResolverForUser(mContext, user.getIdentifier()),
-                    Settings.System.SYSTEM_LOCALES, info.userLocales);
+                    SettingsHelper.SYSTEM_LOCALES, info.userLocales);
         }
 
         return new Pair<>(user, null);
