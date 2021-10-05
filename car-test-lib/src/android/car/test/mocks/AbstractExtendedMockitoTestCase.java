@@ -452,7 +452,10 @@ public abstract class AbstractExtendedMockitoTestCase {
     }
 
     // TODO (b/155523104): Add log
-    // TODO (b/156033195): Clean settings API
+    // TODO (b/156033195): Clean settings API. For example, don't mock xyzForUser() methods (as
+    // they should not be used due to mainline) and explicitly use a MockSettings per user or
+    // something like that (to make sure the code being test is passing the writer userId to
+    // Context.createContextAsUser())
     private static final class MockSettings {
         private static final int INVALID_DEFAULT_INDEX = -1;
         private HashMap<String, Object> mSettingsMapping = new HashMap<>();
@@ -497,6 +500,9 @@ public abstract class AbstractExtendedMockitoTestCase {
                     .thenAnswer(getIntAnswer);
 
             when(Settings.System.putStringForUser(any(), any(), anyString(), anyInt()))
+                    .thenAnswer(insertObjectAnswer);
+
+            when(Settings.System.putString(any(), any(), any()))
                     .thenAnswer(insertObjectAnswer);
         }
 
