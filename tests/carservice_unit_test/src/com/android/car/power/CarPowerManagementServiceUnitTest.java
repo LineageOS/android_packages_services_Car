@@ -140,8 +140,10 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
     @Before
     public void setUp() throws Exception {
-        mPowerHal = new MockedPowerHalService(true /*isPowerStateSupported*/,
-                true /*isDeepSleepAllowed*/, true /*isTimedWakeupAllowed*/);
+        mPowerHal = new MockedPowerHalService(/*isPowerStateSupported=*/true,
+                /*isDeepSleepAllowed=*/true,
+                /*isHibernationAllowed=*/true,
+                /*isTimedWakeupAllowed=*/true);
         mSystemInterface = SystemInterface.Builder.defaultSystemInterface(mContext)
             .withDisplayInterface(mDisplayInterface)
             .withSystemStateInterface(mSystemStateInterface)
