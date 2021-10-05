@@ -423,7 +423,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         send(Key.UP, KeyEvent.KEYCODE_CALL, Display.MAIN);
 
         verify(mContext).startActivityAsUser(
-                intentCaptor.capture(), eq(UserHandle.CURRENT_OR_SELF));
+                intentCaptor.capture(), eq(UserHandle.CURRENT));
         assertThat(intentCaptor.getValue().getAction()).isEqualTo(Intent.ACTION_DIAL);
     }
 
@@ -500,7 +500,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
         flushHandler();
 
         verify(mContext).startActivityAsUser(
-                intentCaptor.capture(), eq(UserHandle.CURRENT_OR_SELF));
+                intentCaptor.capture(), eq(UserHandle.CURRENT));
 
         Intent intent = intentCaptor.getValue();
         assertThat(intent.getAction()).isEqualTo(Intent.ACTION_CALL);

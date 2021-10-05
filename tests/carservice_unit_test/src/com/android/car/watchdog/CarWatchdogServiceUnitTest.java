@@ -2413,9 +2413,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
             List<String> packages = mPackagesBySharedUid.get(uid);
             return packages.toArray(new String[0]);
         });
-        when(mMockPackageManager.getApplicationInfoAsUser(anyString(), anyInt(), anyInt()))
+        when(mMockPackageManager.getApplicationInfoAsUser(anyString(), anyInt(), any()))
                 .thenAnswer(args -> {
-                    int userId = args.getArgument(2);
+                    int userId = ((UserHandle) args.getArgument(2)).getIdentifier();
                     String userPackageId = userId + ":" + args.getArgument(0);
                     android.content.pm.PackageInfo packageInfo =
                             mPmPackageInfoByUserPackage.get(userPackageId);
