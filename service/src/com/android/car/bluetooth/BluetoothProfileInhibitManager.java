@@ -29,6 +29,7 @@ import android.os.Binder;
 import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
+import android.os.UserHandle;
 import android.provider.Settings;
 import android.text.TextUtils;
 import android.util.Log;
@@ -54,7 +55,7 @@ public class BluetoothProfileInhibitManager {
     private static final Binder RESTORED_PROFILE_INHIBIT_TOKEN = new Binder();
     private static final long RESTORE_BACKOFF_MILLIS = 1000L;
 
-    private final Context mContext;
+    private final Context mUserContext;
     private final BluetoothAdapter mBluetoothAdapter;
 
     // Per-User information
@@ -228,11 +229,11 @@ public class BluetoothProfileInhibitManager {
      */
     public BluetoothProfileInhibitManager(Context context, int userId,
             ICarBluetoothUserService bluetoothUserProxies) {
-        mContext = context;
+        mUserContext = context.createContextAsUser(UserHandle.of(userId), /* flags= */ 0);
         mUserId = userId;
         mLogHeader = "[User: " + mUserId + "]";
         mBluetoothUserProxies = bluetoothUserProxies;
-        BluetoothManager bluetoothManager = mContext.getSystemService(BluetoothManager.class);
+        BluetoothManager bluetoothManager = context.getSystemService(BluetoothManager.class);
         mBluetoothAdapter = bluetoothManager.getAdapter();
     }
 
@@ -240,8 +241,8 @@ public class BluetoothProfileInhibitManager {
      * Create {@link InhibitRecord}s for all profile inhibits written to {@link Settings.Secure}.
      */
     private void load() {
-        String savedBluetoothConnection = Settings.Secure.getStringForUser(
-                mContext.getContentResolver(), KEY_BLUETOOTH_PROFILES_INHIBITED, mUserId);
+        String savedBluetoothConnection = Settings.Secure.getString(
+                mUserContext.getContentResolver(), KEY_BLUETOOTH_PROFILES_INHIBITED);
 
         if (TextUtils.isEmpty(savedBluetoothConnection)) {
             return;
@@ -286,9 +287,8 @@ public class BluetoothProfileInhibitManager {
                         .map(BluetoothConnection::encode)
                         .collect(Collectors.joining(SETTINGS_DELIMITER));
 
-        Settings.Secure.putStringForUser(
-                mContext.getContentResolver(), KEY_BLUETOOTH_PROFILES_INHIBITED,
-                savedDisconnects, mUserId);
+        Settings.Secure.putString(mUserContext.getContentResolver(),
+                KEY_BLUETOOTH_PROFILES_INHIBITED, savedDisconnects);
 
         if (DBG) {
             Slogf.d(TAG, "%s Committed key: %s, value: '%s'",
