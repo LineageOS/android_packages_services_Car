@@ -25,4 +25,13 @@
         <item>com.android.car.carlauncher/.AppGridActivity</item>
         <item>com.android.car.notification/.CarNotificationCenterActivity</item>
     </string-array>
+
+    <string-array name="config_ignoreOpeningForegroundDA" translatable="false">
+        <item>com.android.car.carlauncher/.CarLauncher</item>
+        <item>com.android.car.carlauncher/.ControlBarActivity</item>
+        <item>com.android.car.settings/.FallbackHome</item>
+        <item>com.google.android.gms/.auth.uiflows.common.UnpackingRedirectActivity</item>
+        <item>com.google.android.gms/.auth.auto.SignInMethodActivity</item>
+        <item>com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity</item>
+    </string-array>
 </resources>
