@@ -475,7 +475,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
     @Override
     public boolean isPendingIntentDistractionOptimized(PendingIntent pendingIntent) {
         ResolveInfo info = mPackageManager.resolveActivity(
-                pendingIntent.getIntent(), PackageManager.MATCH_DEFAULT_ONLY);
+                ActivityManagerHelper.getIntent(pendingIntent), PackageManager.MATCH_DEFAULT_ONLY);
         if (info == null) return false;
         ActivityInfo activityInfo = info.activityInfo;
         return isActivityDistractionOptimized(activityInfo.packageName, activityInfo.name);

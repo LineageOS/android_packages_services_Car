@@ -22,6 +22,7 @@ import android.app.ActivityOptions;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
+import android.car.builtin.content.ContextHelper;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
 import android.content.Context;
@@ -283,7 +284,7 @@ public class SystemActivityMonitoringService implements CarServiceBase {
 
         ActivityOptions options = ActivityOptions.makeBasic();
         options.setLaunchDisplayId(displayId);
-        mContext.startActivityAsUser(newActivityIntent, options.toBundle(),
+        ContextHelper.startActivityAsUser(mContext, newActivityIntent, options.toBundle(),
                 UserHandle.of(currentTask.userId));
         // Now make stack with new activity focused.
         findTaskAndGrantFocus(newActivityIntent.getComponent());

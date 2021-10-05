@@ -25,6 +25,7 @@ import android.app.ActivityTaskManager;
 import android.app.ActivityTaskManager.RootTaskInfo;
 import android.app.IActivityManager;
 import android.app.IProcessObserver;
+import android.app.PendingIntent;
 import android.app.TaskStackListener;
 import android.car.builtin.util.Slogf;
 import android.content.ComponentName;
@@ -354,6 +355,15 @@ public final class ActivityManagerHelper {
             Slogf.e(TAG, "Failed to removeTask", e);
         }
         return false;
+    }
+
+    /**
+     * @deprecated // TODO(b/202074492) temporary API until underlying method is exposed
+     */
+    @Deprecated
+    @Nullable
+    public static Intent getIntent(@NonNull PendingIntent pendingItent) {
+        return Objects.requireNonNull(pendingItent, "pendingIntent").getIntent();
     }
 
     public interface ProcessObserverCallback {
