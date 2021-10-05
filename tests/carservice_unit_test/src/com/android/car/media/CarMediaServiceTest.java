@@ -365,7 +365,7 @@ public class CarMediaServiceTest extends AbstractExtendedMockitoTestCase {
             info.serviceInfo = serviceInfo;
             packageList.add(info);
         }
-        when(mPackageManager.queryIntentServicesAsUser(any(), anyInt(), anyInt()))
+        when(mPackageManager.queryIntentServicesAsUser(any(), anyInt(), any()))
                 .thenReturn(packageList);
     }
 

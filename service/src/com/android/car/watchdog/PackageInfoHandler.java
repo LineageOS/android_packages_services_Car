@@ -214,7 +214,7 @@ public final class PackageInfoHandler {
             for (int i = 0; i < packages.size(); ++i) {
                 try {
                     applicationInfos.add(mPackageManager.getApplicationInfoAsUser(packages.get(i),
-                            /* flags= */ 0, userId));
+                            /* flags= */ 0, UserHandle.of(userId)));
                 } catch (PackageManager.NameNotFoundException e) {
                     Slogf.e(TAG, "Package '%s' not found for user %d: %s", packages.get(i), userId,
                             e);
@@ -264,7 +264,7 @@ public final class PackageInfoHandler {
     private int getUserPackageComponentType(int userId, String packageName) {
         try {
             ApplicationInfo info = mPackageManager.getApplicationInfoAsUser(packageName,
-                    /* flags= */ 0, userId);
+                    /* flags= */ 0, UserHandle.of(userId));
             return getComponentType(info);
         } catch (PackageManager.NameNotFoundException e) {
             Slogf.e(TAG, "Package '%s' not found for user %d: %s", packageName, userId, e);

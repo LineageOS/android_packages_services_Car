@@ -966,7 +966,8 @@ public final class CarMediaService extends ICarMedia.Stub implements CarServiceB
         mediaIntent.setPackage(packageName);
         mediaIntent.setAction(MediaBrowserService.SERVICE_INTERFACE);
         List<ResolveInfo> mediaServices = packageManager.queryIntentServicesAsUser(mediaIntent,
-                PackageManager.GET_RESOLVED_FILTER, ActivityManager.getCurrentUser());
+                PackageManager.GET_RESOLVED_FILTER,
+                UserHandle.of(ActivityManager.getCurrentUser()));
 
         for (ResolveInfo service : mediaServices) {
             String serviceName = service.serviceInfo.name;

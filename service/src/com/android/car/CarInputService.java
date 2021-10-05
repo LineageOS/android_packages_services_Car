@@ -587,7 +587,7 @@ public class CarInputService extends ICarInput.Stub
     private void launchDialerHandler() {
         Slogf.i(TAG, "call key, launch dialer intent");
         Intent dialerIntent = new Intent(Intent.ACTION_DIAL);
-        mContext.startActivityAsUser(dialerIntent, UserHandle.CURRENT_OR_SELF);
+        mContext.startActivityAsUser(dialerIntent, UserHandle.CURRENT);
     }
 
     private void dialLastCallHandler() {
@@ -598,7 +598,7 @@ public class CarInputService extends ICarInput.Stub
             Intent callLastNumberIntent = new Intent(Intent.ACTION_CALL)
                     .setData(Uri.fromParts("tel", lastNumber, /* fragment= */ null))
                     .setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
-            mContext.startActivityAsUser(callLastNumberIntent, UserHandle.CURRENT_OR_SELF);
+            mContext.startActivityAsUser(callLastNumberIntent, UserHandle.CURRENT);
         }
     }
 
