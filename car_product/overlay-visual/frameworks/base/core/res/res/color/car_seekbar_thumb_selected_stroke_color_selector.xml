@@ -14,12 +14,9 @@
   See the License for the specific language governing permissions and
   limitations under the License.
 -->
-<resources>
-    <attr name="colorSwitchThumbDisabled" format="color" />
-    <attr name="colorSwitchThumbNormal" format="color" />
-    <attr name="colorSwitchTrack" format="color" />
-    <attr name="colorSeekBarTrackBackground" format="color" />
-    <attr name="colorSeekBarTrackProgress" format="color" />
-    <attr name="colorSeekBarTrackProgressSecondary" format="color" />
-    <attr name="colorSeekbarThumb" format="color"/>
-</resources>
+<selector xmlns:android="http://schemas.android.com/apk/res/android">
+    <item
+        android:state_selected="true"
+        android:color="@color/car_seekbar_thumb_selected_stroke_color"/>
+    <item android:color="@android:color/transparent"/>
+</selector>
