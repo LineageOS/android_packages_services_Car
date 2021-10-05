@@ -46,6 +46,7 @@ import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.BiConsumer;
 
@@ -59,13 +60,13 @@ import java.util.function.BiConsumer;
 public class StatsPublisher extends AbstractPublisher {
     // These IDs are used in StatsdConfig and ConfigMetricsReport.
     @VisibleForTesting
-    static final int APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID = 1;
+    static final long APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID = 1;
     @VisibleForTesting
-    static final int APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID = 2;
+    static final long APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID = 2;
     @VisibleForTesting
-    static final int PROCESS_MEMORY_STATE_MATCHER_ID = 3;
+    static final long PROCESS_MEMORY_STATE_MATCHER_ID = 3;
     @VisibleForTesting
-    static final int PROCESS_MEMORY_STATE_GAUGE_METRIC_ID = 4;
+    static final long PROCESS_MEMORY_STATE_GAUGE_METRIC_ID = 4;
 
     // The file that contains stats config key and stats config version
     @VisibleForTesting
@@ -186,16 +187,46 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
-        // TODO(b/197269115): parse the report
         Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
-        if (report.getReportsCount() > 0) {
-            PersistableBundle data = new PersistableBundle();
-            // TODO(b/197269115): parse the report
-            data.putInt("reportsCount", report.getReportsCount());
-            DataSubscriber subscriber = getSubscriberByConfigKey(configKey);
-            if (subscriber != null) {
-                subscriber.push(data);
-            }
+        if (report.getReportsCount() == 0) {
+            return;
+        }
+        DataSubscriber subscriber = getSubscriberByConfigKey(configKey);
+        if (subscriber == null) {
+            Slog.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
+            return;
+        }
+        Map<Long, PersistableBundle> metricBundles = null;
+        try {
+            metricBundles = ConfigMetricsReportListConverter.convert(report);
+        } catch (StatsConversionException ex) {
+            Slog.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
+            return;
+        }
+        switch (subscriber.getPublisherParam().getStats().getSystemMetric()) {
+            case APP_START_MEMORY_STATE_CAPTURED:
+                if (!metricBundles.containsKey(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)) {
+                    Slog.w(CarLog.TAG_TELEMETRY,
+                            "Reports do not contain metric with id "
+                            + APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID
+                            + " for config " + configKey);
+                    return;
+                }
+                subscriber.push(
+                        metricBundles.get(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID));
+                break;
+            case PROCESS_MEMORY_STATE:
+                if (!metricBundles.containsKey(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)) {
+                    Slog.w(CarLog.TAG_TELEMETRY,
+                            "Reports do not contain metric with id "
+                            + PROCESS_MEMORY_STATE_GAUGE_METRIC_ID
+                            + " for config " + configKey);
+                    return;
+                }
+                subscriber.push(metricBundles.get(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID));
+                break;
+            default:
+                break;
         }
     }
 
