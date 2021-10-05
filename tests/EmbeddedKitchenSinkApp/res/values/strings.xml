@@ -385,5 +385,8 @@
     <!-- CarTelemetryService Test -->
     <string name="send_on_gear_change" translatable="false">Send MetricsConfig on_gear_change</string>
     <string name="remove_on_gear_change" translatable="false">Remove MetricsConfig on_gear_change</string>
-    <string name="get_on_gear_change" translatable="false">Get on_gear_change Report</string>
+    <string name="get_on_gear_change" translatable="false">Get Report on_gear_change</string>
+    <string name="send_process_memory_state_config" translatable="false">Send MetricsConfig process_memory</string>
+    <string name="remove_process_memory_state_config" translatable="false">Remove MetricsConfig process_memory</string>
+    <string name="get_report_process_memory_state_config" translatable="false">Get Report process_memory</string>
 </resources>
