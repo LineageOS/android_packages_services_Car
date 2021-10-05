@@ -49,7 +49,6 @@ common_lib_deps = [
     "android.hardware.health-V2.0-java",
     "android.hardware.automotive.occupant_awareness-V1-java",
     "vehicle-hal-support-lib",
-    "car-admin-ui-lib", // TODO(b/196754888): Remove car-admin-ui-lib dependency.
     "com.android.car.procfsinspector-client",
     "cartelemetry-protos",
 ]
