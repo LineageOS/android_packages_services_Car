@@ -45,26 +45,22 @@ public class Controller implements CarPowerStateListenerWithCompletion {
     private static final String TAG = CarLog.tagFor(GarageMode.class) + "_"
             + Controller.class.getSimpleName();
 
-    @VisibleForTesting final WakeupPolicy mWakeupPolicy;
     private final GarageMode mGarageMode;
     private final Handler mHandler;
     private final Context mContext;
     private CarPowerManager mCarPowerManager;
 
     public Controller(Context context, Looper looper) {
-        this(context, looper, null, null, null);
+        this(context, looper, null, null);
     }
 
     public Controller(
             Context context,
             Looper looper,
-            WakeupPolicy wakeupPolicy,
             Handler handler,
             GarageMode garageMode) {
         mContext = context;
         mHandler = (handler == null ? new Handler(looper) : handler);
-        mWakeupPolicy =
-                (wakeupPolicy == null ? WakeupPolicy.initFromResources(context) : wakeupPolicy);
         mGarageMode = (garageMode == null ? new GarageMode(context, this) : garageMode);
     }
 
@@ -146,7 +142,6 @@ public class Controller implements CarPowerStateListenerWithCompletion {
      * monitoring jobs which has idleness constraint enabled.
      */
     void initiateGarageMode(CompletableFuture<Void> future) {
-        mWakeupPolicy.incrementCounter();
         mGarageMode.enterGarageMode(future);
     }
 
@@ -155,7 +150,6 @@ public class Controller implements CarPowerStateListenerWithCompletion {
      */
     void resetGarageMode() {
         mGarageMode.cancel();
-        mWakeupPolicy.resetCounter();
     }
 
     @VisibleForTesting
@@ -166,15 +160,6 @@ public class Controller implements CarPowerStateListenerWithCompletion {
     @VisibleForTesting
     void setCarPowerManager(CarPowerManager cpm) {
         mCarPowerManager = cpm;
-    }
-
-    void scheduleNextWakeup() {
-        if (mWakeupPolicy.getNextWakeUpInterval() <= 0) {
-            // Either there is no policy or nothing left to schedule
-            return;
-        }
-        int seconds = mWakeupPolicy.getNextWakeUpInterval();
-        mCarPowerManager.scheduleNextWakeupTime(seconds);
     }
 
     private void handleSuspendExit() {
