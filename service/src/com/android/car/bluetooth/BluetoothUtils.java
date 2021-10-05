@@ -19,7 +19,11 @@ package com.android.car.bluetooth;
 import android.bluetooth.BluetoothAdapter;
 import android.bluetooth.BluetoothDevice;
 import android.bluetooth.BluetoothProfile;
+import android.bluetooth.BluetoothUuid;
+import android.os.ParcelUuid;
 import android.util.SparseArray;
+
+import java.util.HashMap;
 
 /** Utils for Bluetooth */
 public final class BluetoothUtils {
@@ -27,14 +31,27 @@ public final class BluetoothUtils {
         throw new UnsupportedOperationException();
     }
 
+    // TODO (201800664): Profile State Change actions are hidden. This is a work around for now
+    public static final String A2DP_SINK_CONNECTION_STATE_CHANGED =
+            "android.bluetooth.a2dp-sink.profile.action.CONNECTION_STATE_CHANGED";
+    public static final String HFP_CLIENT_CONNECTION_STATE_CHANGED =
+            "android.bluetooth.headsetclient.profile.action.CONNECTION_STATE_CHANGED";
+    public static final String MAP_CLIENT_CONNECTION_STATE_CHANGED =
+            "android.bluetooth.mapmce.profile.action.CONNECTION_STATE_CHANGED";
+    public static final String PAN_CONNECTION_STATE_CHANGED =
+            "android.bluetooth.pan.profile.action.CONNECTION_STATE_CHANGED";
+    public static final String PBAP_CLIENT_CONNECTION_STATE_CHANGED =
+            "android.bluetooth.pbapclient.profile.action.CONNECTION_STATE_CHANGED";
+
     /*
      * Maps of types and status to human readable strings
      */
 
-    private static final SparseArray<String> sAdapterStates = new SparseArray<String>();
-    private static final SparseArray<String> sBondStates = new SparseArray<String>();
-    private static final SparseArray<String> sConnectionStates = new SparseArray<String>();
-    private static final SparseArray<String> sProfileNames = new SparseArray<String>();
+    private static final SparseArray<String> sAdapterStates = new SparseArray<String>(4);
+    private static final SparseArray<String> sBondStates = new SparseArray<String>(3);
+    private static final SparseArray<String> sConnectionStates = new SparseArray<String>(4);
+    private static final SparseArray<String> sProfileNames = new SparseArray<String>(6);
+    private static final HashMap<String, Integer> sProfileActions = new HashMap<String, Integer>(5);
     static {
         // Bluetooth Adapter states
         sAdapterStates.put(BluetoothAdapter.STATE_ON, "On");
@@ -60,6 +77,13 @@ public final class BluetoothUtils {
         sProfileNames.put(BluetoothProfile.HEADSET_CLIENT, "HFP Client");
         sProfileNames.put(BluetoothProfile.PBAP_CLIENT, "PBAP Client");
         sProfileNames.put(BluetoothProfile.MAP_CLIENT, "MAP Client");
+
+        // Profile actions to ints
+        sProfileActions.put(A2DP_SINK_CONNECTION_STATE_CHANGED, BluetoothProfile.A2DP_SINK);
+        sProfileActions.put(HFP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.HEADSET_CLIENT);
+        sProfileActions.put(MAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.MAP_CLIENT);
+        sProfileActions.put(PAN_CONNECTION_STATE_CHANGED, BluetoothProfile.PAN);
+        sProfileActions.put(PBAP_CLIENT_CONNECTION_STATE_CHANGED, BluetoothProfile.PBAP_CLIENT);
     }
 
     static String getDeviceDebugInfo(BluetoothDevice device) {
@@ -106,5 +130,39 @@ public final class BluetoothUtils {
                 break;
         }
         return "(" + priority + ") " + name;
+    }
+
+    static int getProfileFromConnectionAction(String action) {
+        Integer profile = sProfileActions.get(action);
+        return profile != null ? profile.intValue() : -1;
+    }
+
+    static boolean isProfileSupported(BluetoothDevice device, int profile) {
+        if (device == null) return false;
+
+        ParcelUuid[] uuids = device.getUuids();
+
+        if (uuids == null || uuids.length == 0) {
+            return false;
+        }
+        switch (profile) {
+            case BluetoothProfile.A2DP_SINK:
+                return BluetoothUuid.containsAnyUuid(uuids,
+                        new ParcelUuid[]{BluetoothUuid.ADV_AUDIO_DIST, BluetoothUuid.A2DP_SOURCE});
+            case BluetoothProfile.HEADSET_CLIENT:
+                return BluetoothUuid.containsAnyUuid(uuids,
+                        new ParcelUuid[]{BluetoothUuid.HFP_AG, BluetoothUuid.HSP_AG});
+            case BluetoothProfile.MAP_CLIENT:
+                return BluetoothUuid.containsAnyUuid(uuids,
+                        new ParcelUuid[]{BluetoothUuid.MAS});
+            case BluetoothProfile.PAN:
+                return BluetoothUuid.containsAnyUuid(uuids,
+                        new ParcelUuid[]{BluetoothUuid.PANU});
+            case BluetoothProfile.PBAP_CLIENT:
+                return BluetoothUuid.containsAnyUuid(uuids,
+                        new ParcelUuid[]{BluetoothUuid.PBAP_PSE});
+            default:
+                return false;
+        }
     }
 }
