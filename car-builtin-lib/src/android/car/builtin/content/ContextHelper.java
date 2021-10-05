@@ -17,8 +17,15 @@
 package android.car.builtin.content;
 
 import android.annotation.NonNull;
+import android.annotation.Nullable;
+import android.annotation.RequiresPermission;
 import android.annotation.SystemApi;
 import android.content.Context;
+import android.content.Intent;
+import android.os.Bundle;
+import android.os.UserHandle;
+
+import java.util.Objects;
 
 /**
  * Helper for {@link Context}.
@@ -35,4 +42,19 @@ public final class ContextHelper {
     public static int getDisplayId(@NonNull Context context) {
         return context.getDisplayId();
     }
+
+    /**
+     * @deprecated TODO(b/202074492) - replace by proper Intent call or remove @Deprecated
+     */
+    @RequiresPermission(android.Manifest.permission.INTERACT_ACROSS_USERS)
+    @Deprecated
+    public static void startActivityAsUser(@NonNull Context context, @NonNull Intent intent,
+            @Nullable Bundle options, @NonNull UserHandle user) {
+        Objects.requireNonNull(context, "context");
+        Objects.requireNonNull(intent, "intent");
+        Objects.requireNonNull(user, "user");
+
+        context.startActivityAsUser(intent, options, user);
+    }
+
 }

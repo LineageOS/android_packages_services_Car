@@ -29,6 +29,7 @@ import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
 import android.car.builtin.app.ActivityManagerHelper.TopTaskInfoContainer;
+import android.car.builtin.content.ContextHelper;
 import android.car.builtin.content.pm.PackageManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.car.hardware.power.CarPowerManager;
@@ -411,7 +412,7 @@ public final class FixedActivityService implements CarServiceBase {
                             .addFlags(Intent.FLAG_ACTIVITY_NO_HISTORY);
                     ActivityOptions activityOptions = ActivityOptions.makeBasic()
                             .setLaunchDisplayId(displayIdForActivity);
-                    mContext.startActivityAsUser(intent, activityOptions.toBundle(),
+                    ContextHelper.startActivityAsUser(mContext, intent, activityOptions.toBundle(),
                             UserHandle.of(ActivityManager.getCurrentUser()));
                 }
                 mRunningActivities.removeAt(i);
