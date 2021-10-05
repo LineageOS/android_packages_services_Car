@@ -1163,9 +1163,8 @@ public final class InitialUserSetterTest extends AbstractExtendedMockitoTestCase
     }
 
     private void assertInitialUserSet(@NonNull UserHandle expectedUser) {
-        assertWithMessage("listener called wrong number of times").that(mListener.numberCalls)
-            .isEqualTo(1);
-        assertWithMessage("wrong initial user set on listener").that(mListener.initialUser)
+        assertWithMessage("number of listener ").that(mListener.numberCalls).isEqualTo(1);
+        assertWithMessage("initial user on listener").that(mListener.initialUser)
             .isSameInstanceAs(expectedUser);
     }
 
