@@ -16,8 +16,8 @@
 
 package com.android.car.audio;
 
-import static android.car.builtin.os.AudioServiceHelper.adjustToString;
-import static android.car.builtin.os.AudioServiceHelper.isMasterMute;
+import static android.car.builtin.media.AudioManagerHelper.adjustToString;
+import static android.car.builtin.media.AudioManagerHelper.isMasterMute;
 import static android.car.media.CarAudioManager.PRIMARY_AUDIO_ZONE;
 import static android.media.AudioManager.ADJUST_LOWER;
 import static android.media.AudioManager.ADJUST_MUTE;

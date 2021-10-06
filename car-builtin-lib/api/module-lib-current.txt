@@ -112,44 +112,49 @@ package android.car.builtin.job {
 
 }
 
-package android.car.builtin.os {
+package android.car.builtin.media {
 
-  public final class AudioServiceHelper {
+  public final class AudioManagerHelper {
     method public static String adjustToString(int);
-    method public static android.car.builtin.os.AudioServiceHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
-    method public static android.car.builtin.os.AudioServiceHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
+    method public static android.car.builtin.media.AudioManagerHelper.AudioPatchInfo createAudioPatch(@NonNull android.media.AudioDeviceInfo, @NonNull android.media.AudioDeviceInfo, int);
+    method public static android.car.builtin.media.AudioManagerHelper.AudioGainInfo getAudioGainInfo(@NonNull android.media.AudioDeviceInfo);
     method public static int getUsageVirtualSource();
+    method public static boolean isCallFocusRequestClientId(String);
     method public static boolean isMasterMute(@NonNull android.media.AudioManager);
-    method public static void registerVolumeAndMuteReceiver(android.content.Context, android.car.builtin.os.AudioServiceHelper.VolumeAndMuteReceiver);
-    method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.os.AudioServiceHelper.AudioPatchInfo);
+    method public static void registerVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
+    method public static boolean releaseAudioPatch(@NonNull android.media.AudioManager, @NonNull android.car.builtin.media.AudioManagerHelper.AudioPatchInfo);
     method public static boolean setAudioDeviceGain(@NonNull android.media.AudioManager, @NonNull String, int, boolean);
     method public static void setMasterMute(@NonNull android.media.AudioManager, boolean, int);
-    method public static void unregisterVolumeAndMuteReceiver(android.content.Context, android.car.builtin.os.AudioServiceHelper.VolumeAndMuteReceiver);
+    method public static void unregisterVolumeAndMuteReceiver(android.content.Context, android.car.builtin.media.AudioManagerHelper.VolumeAndMuteReceiver);
     method public static String usageToString(int);
     method public static String usageToXsdString(int);
     method public static int xsdStringToUsage(String);
     field public static final int UNDEFINED_STREAM_TYPE = -1; // 0xffffffff
   }
 
-  public static class AudioServiceHelper.AudioGainInfo {
+  public static class AudioManagerHelper.AudioGainInfo {
     method public int getDefaultGain();
     method public int getMaxGain();
     method public int getMinGain();
     method public int getStepValue();
   }
 
-  public static class AudioServiceHelper.AudioPatchInfo {
-    ctor public AudioServiceHelper.AudioPatchInfo(@NonNull String, @NonNull String, int);
+  public static class AudioManagerHelper.AudioPatchInfo {
+    ctor public AudioManagerHelper.AudioPatchInfo(@NonNull String, @NonNull String, int);
     method public int getHandleId();
     method public String getSinkAddress();
     method public String getSourceAddress();
   }
 
-  public abstract static class AudioServiceHelper.VolumeAndMuteReceiver {
-    ctor public AudioServiceHelper.VolumeAndMuteReceiver();
+  public abstract static class AudioManagerHelper.VolumeAndMuteReceiver {
+    ctor public AudioManagerHelper.VolumeAndMuteReceiver();
     method public abstract void onMuteChanged();
     method public abstract void onVolumeChanged(int);
   }
+
+}
+
+package android.car.builtin.os {
 
   public class BinderHelper {
     method public static void dumpRemoteCallbackList(@NonNull android.os.RemoteCallbackList, @NonNull java.io.PrintWriter, @NonNull String);

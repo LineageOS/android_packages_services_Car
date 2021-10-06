@@ -15,7 +15,8 @@
  */
 package com.android.car.audio;
 
-import static android.car.builtin.os.AudioServiceHelper.usageToString;
+import static android.car.builtin.media.AudioManagerHelper.isCallFocusRequestClientId;
+import static android.car.builtin.media.AudioManagerHelper.usageToString;
 import static android.media.AudioManager.AUDIOFOCUS_FLAG_DELAY_OK;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN;
 import static android.media.AudioManager.AUDIOFOCUS_GAIN_TRANSIENT;
@@ -40,6 +41,7 @@ import android.media.audiopolicy.AudioPolicy;
 import android.util.ArrayMap;
 
 import com.android.car.CarLog;
+import com.android.car.audio.CarAudioContext.AudioContext;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.util.IndentingPrintWriter;
 import com.android.car.internal.util.LocalLog;
@@ -246,11 +248,14 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
             // We don't allow sharing listeners (client IDs) between two concurrent requests
             // (because the app would have no way to know to which request a later event applied)
             if (afi.getClientId().equals(entry.getAudioFocusInfo().getClientId())) {
-                if (entry.getAudioContext() == requestedContext) {
+                if ((entry.getAudioContext() == requestedContext)
+                        || canSwapCallOrRingerClientRequest(afi.getClientId(),
+                        entry.getAudioContext(), requestedContext)) {
                     // This is a request from a current focus holder.
                     // Abandon the previous request (without sending a LOSS notification to it),
                     // and don't check the interaction matrix for it.
-                    Slogf.i(TAG, "Replacing accepted request from same client");
+                    Slogf.i(TAG, "Replacing accepted request from same client: %s",
+                            afi.getClientId());
                     replacedCurrentEntry = entry;
                     continue;
                 } else {
@@ -410,6 +415,18 @@ class CarAudioFocus extends AudioPolicy.AudioPolicyFocusListener {
 
         Slogf.i(TAG, "AUDIOFOCUS_REQUEST_GRANTED");
         return AUDIOFOCUS_REQUEST_GRANTED;
+    }
+
+    private static boolean canSwapCallOrRingerClientRequest(String clientId,
+            @AudioContext int currentAudioContext,
+            @AudioContext int requestedContext) {
+        return isCallFocusRequestClientId(clientId)
+                && isRingerOrCallAudioContext(currentAudioContext)
+                && isRingerOrCallAudioContext(requestedContext);
+    }
+
+    private static boolean isRingerOrCallAudioContext(@AudioContext int audioContext) {
+        return CarAudioContext.isRingerOrCallContext(audioContext);
     }
 
     @Override

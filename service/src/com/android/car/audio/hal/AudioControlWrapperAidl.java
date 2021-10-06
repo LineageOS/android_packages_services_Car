@@ -16,9 +16,9 @@
 
 package com.android.car.audio.hal;
 
-import static android.car.builtin.os.AudioServiceHelper.usageToString;
-import static android.car.builtin.os.AudioServiceHelper.usageToXsdString;
-import static android.car.builtin.os.AudioServiceHelper.xsdStringToUsage;
+import static android.car.builtin.media.AudioManagerHelper.usageToString;
+import static android.car.builtin.media.AudioManagerHelper.usageToXsdString;
+import static android.car.builtin.media.AudioManagerHelper.xsdStringToUsage;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 

@@ -16,7 +16,7 @@
 
 package com.android.car.audio;
 
-import static android.car.builtin.os.AudioServiceHelper.getUsageVirtualSource;
+import static android.car.builtin.media.AudioManagerHelper.getUsageVirtualSource;
 
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 
@@ -264,6 +264,10 @@ public final class CarAudioContext {
 
     static boolean isCriticalAudioContext(@CarAudioContext.AudioContext int audioContext) {
         return CarAudioContext.EMERGENCY == audioContext || CarAudioContext.SAFETY == audioContext;
+    }
+
+    static boolean isRingerOrCallContext(@CarAudioContext.AudioContext int audioContext) {
+        return audioContext == CALL_RING || audioContext == CALL;
     }
 
     @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)

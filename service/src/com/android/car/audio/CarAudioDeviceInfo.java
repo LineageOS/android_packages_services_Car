@@ -20,8 +20,8 @@ import static android.media.AudioFormat.ENCODING_PCM_16BIT;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
 import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
 
-import android.car.builtin.os.AudioServiceHelper;
-import android.car.builtin.os.AudioServiceHelper.AudioGainInfo;
+import android.car.builtin.media.AudioManagerHelper;
+import android.car.builtin.media.AudioManagerHelper.AudioGainInfo;
 import android.car.builtin.util.Slogf;
 import android.media.AudioDeviceInfo;
 import android.media.AudioManager;
@@ -63,7 +63,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
         mSampleRate = getMaxSampleRate(audioDeviceInfo);
         mEncodingFormat = ENCODING_PCM_16BIT;
         mChannelCount = getMaxChannels(audioDeviceInfo);
-        AudioGainInfo audioGainInfo = AudioServiceHelper.getAudioGainInfo(audioDeviceInfo);
+        AudioGainInfo audioGainInfo = AudioManagerHelper.getAudioGainInfo(audioDeviceInfo);
         mDefaultGain = audioGainInfo.getDefaultGain();
         mMaxGain = audioGainInfo.getMaxGain();
         mMinGain = audioGainInfo.getMinGain();
@@ -118,7 +118,7 @@ import com.android.car.internal.util.IndentingPrintWriter;
             gainInMillibels = mMaxGain;
         }
 
-        if (AudioServiceHelper.setAudioDeviceGain(mAudioManager,
+        if (AudioManagerHelper.setAudioDeviceGain(mAudioManager,
                 getAddress(), gainInMillibels, true)) {
             // Since we can't query for the gain on a device port later,
             // we have to remember what we asked for
