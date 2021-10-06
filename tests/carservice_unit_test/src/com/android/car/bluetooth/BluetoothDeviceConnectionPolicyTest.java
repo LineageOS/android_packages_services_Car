@@ -49,7 +49,6 @@ import com.android.car.CarDrivingStateService;
 import com.android.car.CarLocalServices;
 import com.android.car.CarPropertyService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -87,7 +86,6 @@ public class BluetoothDeviceConnectionPolicyTest extends AbstractExtendedMockito
     @Mock private BluetoothAdapter mMockBluetoothAdapter;
     @Mock private BluetoothManager mMockBluetoothManager;
     @Mock private CarBluetoothService mMockBluetoothService;
-    @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPropertyService mMockCarPropertyService;
     @Mock private CarDrivingStateService mMockCarDrivingStateService;

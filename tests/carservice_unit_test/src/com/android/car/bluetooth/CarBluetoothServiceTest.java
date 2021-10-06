@@ -38,7 +38,6 @@ import com.android.car.PerUserCarServiceHelper;
 import com.android.car.R;
 import com.android.car.power.CarPowerManagementService;
 import com.android.car.systeminterface.SystemInterface;
-import com.android.internal.app.IVoiceInteractionManagerService;
 
 import org.junit.After;
 import org.junit.Assert;
@@ -78,7 +77,6 @@ public class CarBluetoothServiceTest {
     @Mock private PerUserCarServiceHelper mMockUserSwitchService;
     @Mock private IPerUserCarService mMockPerUserCarService;
     @Mock private CarBluetoothUserService mMockBluetoothUserService;
-    @Mock private IVoiceInteractionManagerService mMockVoiceService;
     @Mock private SystemInterface mMockSystemInterface;
     @Mock private CarPowerManagementService mMockCarPowerManagementService;
     private PerUserCarServiceHelper.ServiceCallback mUserSwitchCallback;
