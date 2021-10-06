@@ -19,7 +19,6 @@ package com.android.car;
 import static android.car.CarOccupantZoneManager.DisplayTypeEnum;
 import static android.car.input.CustomInputEvent.INPUT_CODE_F1;
 
-import static com.android.compatibility.common.util.SystemUtil.eventually;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
 import static com.android.dx.mockito.inline.extended.ExtendedMockito.verify;
 
@@ -39,8 +38,6 @@ import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.when;
 
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.builtin.util.AssistUtilsHelper;
@@ -64,6 +61,7 @@ import android.view.KeyEvent;
 
 import androidx.test.core.app.ApplicationProvider;
 
+import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.hal.InputHalService;
 import com.android.car.user.CarUserService;
 
@@ -93,7 +91,7 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Mock BooleanSupplier mShouldCallButtonEndOngoingCallSupplier;
     @Mock InputCaptureClientController mCaptureController;
     @Mock CarOccupantZoneService mCarOccupantZoneService;
-    @Mock BluetoothAdapter mBluetoothAdapter;
+    @Mock CarBluetoothService mCarBluetoothService;
 
     @Spy Context mContext = ApplicationProvider.getApplicationContext();
     @Spy Handler mHandler = new Handler(Looper.getMainLooper());
@@ -104,9 +102,9 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
     @Before
     public void setUp() {
         mCarInputService = new CarInputService(mContext, mInputHalService, mCarUserService,
-                mCarOccupantZoneService, mHandler, mTelecomManager, mDefaultMainListener,
-                mLastCallSupplier, mLongPressDelaySupplier, mShouldCallButtonEndOngoingCallSupplier,
-                mCaptureController, mBluetoothAdapter);
+                mCarOccupantZoneService, mCarBluetoothService, mHandler, mTelecomManager,
+                mDefaultMainListener, mLastCallSupplier, mLongPressDelaySupplier,
+                mShouldCallButtonEndOngoingCallSupplier, mCaptureController);
         mCarInputService.setInstrumentClusterKeyListener(mInstrumentClusterKeyListener);
 
         when(mInputHalService.isKeyInputSupported()).thenReturn(true);
@@ -233,13 +231,6 @@ public class CarInputServiceTest extends AbstractExtendedMockitoTestCase {
 
         verify(mCaptureController).releaseInputEventCapture(same(callback),
                 eq(CarOccupantZoneManager.DISPLAY_TYPE_MAIN));
-    }
-
-    @Test
-    public void ensureBluetoothAdapterWasInitialized() {
-        eventually(() -> verify(mBluetoothAdapter).getProfileProxy(same(mContext),
-                any(BluetoothProfile.ServiceListener.class),
-                same(BluetoothProfile.HEADSET_CLIENT)));
     }
 
     @Test
