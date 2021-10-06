@@ -167,8 +167,9 @@ public class StatsPublisher extends AbstractPublisher {
                 publisherParam.getPublisherCase() == PublisherCase.STATS,
                 "Subscribers only with StatsPublisher are supported by this class.");
 
-        long configKey = addStatsConfig(subscriber);
+        long configKey = buildConfigKey(subscriber);
         mConfigKeyToSubscribers.put(configKey, subscriber);
+        addStatsConfig(configKey, subscriber);
         if (!mIsPullingReports) {
             Slog.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
@@ -358,15 +359,14 @@ public class StatsPublisher extends AbstractPublisher {
      * previously added config_keys in the persistable bundle and only updates StatsD when
      * the MetricsConfig (of CarTelemetryService) has a new version.
      */
-    private long addStatsConfig(DataSubscriber subscriber) {
-        long configKey = buildConfigKey(subscriber);
+    private void addStatsConfig(long configKey, DataSubscriber subscriber) {
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
         String bundleVersion = buildBundleConfigVersionKey(configKey);
         if (mSavedStatsConfigs.getInt(bundleVersion) != 0) {
             int currentVersion = mSavedStatsConfigs.getInt(bundleVersion);
             if (currentVersion >= subscriber.getMetricsConfig().getVersion()) {
                 // It's trying to add current or older MetricsConfig version, just ignore it.
-                return configKey;
+                return;
             }  // if the subscriber's MetricsConfig version is newer, it will replace the old one.
         }
         String bundleConfigKey = buildBundleConfigKey(subscriber);
@@ -385,7 +385,6 @@ public class StatsPublisher extends AbstractPublisher {
                     getMetricsConfigs(),
                     new IllegalStateException("Failed to add config " + configKey, e));
         }
-        return configKey;
     }
 
     /** Removes StatsdConfig and returns configKey. */
