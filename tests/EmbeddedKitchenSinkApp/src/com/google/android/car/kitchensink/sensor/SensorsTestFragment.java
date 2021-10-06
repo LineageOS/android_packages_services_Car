@@ -116,11 +116,7 @@ public class SensorsTestFragment extends Fragment {
                     if (DBG_VERBOSE) {
                         Log.v(TAG, "New car property value: " + value);
                     }
-                    if (value.getStatus() == CarPropertyValue.STATUS_AVAILABLE) {
-                        mValueMap.put(value.getPropertyId(), value);
-                    } else {
-                        mValueMap.put(value.getPropertyId(), null);
-                    }
+                    mValueMap.put(value.getPropertyId(), value);
                     refreshSensorInfoText();
                 }
                 @Override
@@ -271,6 +267,9 @@ public class SensorsTestFragment extends Fragment {
         for (CarPropertyConfig propertyConfig : mCarPropertyConfigs) {
             int propertyId = propertyConfig.getPropertyId();
             CarPropertyValue propertyValue = mValueMap.get(propertyId);
+            if (propertyValue.getStatus() != CarPropertyValue.STATUS_AVAILABLE) {
+                propertyValue = null;
+            }
             int resourceId = PROPERTY_TO_RESOURCE.get(propertyId);
             // for wheel_tick, add the configuration.
             if (propertyId == VehiclePropertyIds.WHEEL_TICK) {
