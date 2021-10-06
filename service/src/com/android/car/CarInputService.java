@@ -23,10 +23,6 @@ import static com.android.car.util.Utils.getContentResolverForUser;
 
 import android.annotation.Nullable;
 import android.annotation.UserIdInt;
-import android.bluetooth.BluetoothAdapter;
-import android.bluetooth.BluetoothDevice;
-import android.bluetooth.BluetoothHeadsetClient;
-import android.bluetooth.BluetoothProfile;
 import android.car.CarOccupantZoneManager;
 import android.car.CarProjectionManager;
 import android.car.builtin.input.InputManagerHelper;
@@ -48,7 +44,6 @@ import android.content.res.Resources;
 import android.hardware.input.InputManager;
 import android.net.Uri;
 import android.os.Binder;
-import android.os.Bundle;
 import android.os.Handler;
 import android.os.UserHandle;
 import android.provider.CallLog.Calls;
@@ -60,6 +55,7 @@ import android.view.KeyEvent;
 import android.view.ViewConfiguration;
 
 import com.android.car.bluetooth.BuiltinPackageDependency;
+import com.android.car.bluetooth.CarBluetoothService;
 import com.android.car.hal.InputHalService;
 import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.car.internal.common.UserHelperLite;
@@ -167,6 +163,7 @@ public class CarInputService extends ICarInput.Stub
     private final InputHalService mInputHalService;
     private final CarUserService mUserService;
     private final CarOccupantZoneService mCarOccupantZoneService;
+    private final CarBluetoothService mCarBluetoothService;
     private final TelecomManager mTelecomManager;
 
     // The default handler for main-display input events. By default, injects the events into
@@ -200,36 +197,6 @@ public class CarInputService extends ICarInput.Stub
 
     private final InputCaptureClientController mCaptureController;
 
-    private final BluetoothAdapter mBluetoothAdapter;
-
-    // BluetoothHeadsetClient set through mBluetoothProfileServiceListener, and used by
-    // launchBluetoothVoiceRecognition().
-    @GuardedBy("mLock")
-    private BluetoothHeadsetClient mBluetoothHeadsetClient;
-
-    private final BluetoothProfile.ServiceListener mBluetoothProfileServiceListener =
-            new BluetoothProfile.ServiceListener() {
-                @Override
-                public void onServiceConnected(int profile, BluetoothProfile proxy) {
-                    if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                        Slogf.d(TAG, "Bluetooth proxy connected for HEADSET_CLIENT profile");
-                        synchronized (mLock) {
-                            mBluetoothHeadsetClient = (BluetoothHeadsetClient) proxy;
-                        }
-                    }
-                }
-
-                @Override
-                public void onServiceDisconnected(int profile) {
-                    if (profile == BluetoothProfile.HEADSET_CLIENT) {
-                        Slogf.d(TAG, "Bluetooth proxy disconnected for HEADSET_CLIENT profile");
-                        synchronized (mLock) {
-                            mBluetoothHeadsetClient = null;
-                        }
-                    }
-                }
-            };
-
     private final CarUserManager.UserLifecycleListener mUserLifecycleListener = event -> {
         Slogf.d(TAG, "CarInputService.onEvent(%s)", event);
         if (CarUserManager.USER_LIFECYCLE_EVENT_TYPE_SWITCHING == event.getEventType()) {
@@ -245,8 +212,9 @@ public class CarInputService extends ICarInput.Stub
     }
 
     public CarInputService(Context context, InputHalService inputHalService,
-            CarUserService userService, CarOccupantZoneService occupantZoneService) {
-        this(context, inputHalService, userService, occupantZoneService,
+            CarUserService userService, CarOccupantZoneService occupantZoneService,
+            CarBluetoothService bluetoothService) {
+        this(context, inputHalService, userService, occupantZoneService, bluetoothService,
                 new Handler(CarServiceUtils.getCommonHandlerThread().getLooper()),
                 context.getSystemService(TelecomManager.class),
                 event -> InputManagerHelper.injectInputEvent(
@@ -254,22 +222,22 @@ public class CarInputService extends ICarInput.Stub
                 () -> Calls.getLastOutgoingCall(context),
                 () -> getViewLongPressDelay(context),
                 () -> context.getResources().getBoolean(R.bool.config_callButtonEndsOngoingCall),
-                new InputCaptureClientController(context),
-                BluetoothAdapter.getDefaultAdapter());
+                new InputCaptureClientController(context));
     }
 
     @VisibleForTesting
     CarInputService(Context context, InputHalService inputHalService, CarUserService userService,
-            CarOccupantZoneService occupantZoneService, Handler handler,
-            TelecomManager telecomManager, KeyEventListener mainDisplayHandler,
+            CarOccupantZoneService occupantZoneService, CarBluetoothService bluetoothService,
+            Handler handler, TelecomManager telecomManager, KeyEventListener mainDisplayHandler,
             Supplier<String> lastCalledNumberSupplier, IntSupplier longPressDelaySupplier,
             BooleanSupplier shouldCallButtonEndOngoingCallSupplier,
-            InputCaptureClientController captureController, BluetoothAdapter bluetoothAdapter) {
+            InputCaptureClientController captureController) {
         mContext = context;
         mCaptureController = captureController;
         mInputHalService = inputHalService;
         mUserService = userService;
         mCarOccupantZoneService = occupantZoneService;
+        mCarBluetoothService = bluetoothService;
         mTelecomManager = telecomManager;
         mMainDisplayHandler = mainDisplayHandler;
         mLastCalledNumberSupplier = lastCalledNumberSupplier;
@@ -283,7 +251,6 @@ public class CarInputService extends ICarInput.Stub
 
         mRotaryServiceComponentName = mContext.getString(R.string.rotaryService);
         mShouldCallButtonEndOngoingCallSupplier = shouldCallButtonEndOngoingCallSupplier;
-        mBluetoothAdapter = bluetoothAdapter;
     }
 
     /**
@@ -318,12 +285,6 @@ public class CarInputService extends ICarInput.Stub
         }
         Slogf.d(TAG, "Hal supports key input.");
         mInputHalService.setInputListener(this);
-        if (mBluetoothAdapter != null) {
-            CarServiceUtils.runOnCommon(() -> {
-                mBluetoothAdapter.getProfileProxy(mContext,
-                        mBluetoothProfileServiceListener, BluetoothProfile.HEADSET_CLIENT);
-            });
-        }
         mUserService.addUserLifecycleListener(mUserLifecycleListener);
     }
 
@@ -333,11 +294,6 @@ public class CarInputService extends ICarInput.Stub
             mProjectionKeyEventHandler = null;
             mProjectionKeyEventsSubscribed.clear();
             mInstrumentClusterKeyListener = null;
-            if (mBluetoothHeadsetClient != null) {
-                mBluetoothAdapter.closeProfileProxy(
-                        BluetoothProfile.HEADSET_CLIENT, mBluetoothHeadsetClient);
-                mBluetoothHeadsetClient = null;
-            }
         }
         mUserService.removeUserLifecycleListener(mUserLifecycleListener);
     }
@@ -626,31 +582,7 @@ public class CarInputService extends ICarInput.Stub
     }
 
     private boolean launchBluetoothVoiceRecognition() {
-        synchronized (mLock) {
-            if (mBluetoothHeadsetClient == null || !isBluetoothVoiceRecognitionEnabled()) {
-                return false;
-            }
-            // getConnectedDevices() does not make any guarantees about the order of the returned
-            // list. As of 2019-02-26, this code is only triggered through a long-press of the
-            // voice recognition key, so handling of multiple connected devices that support voice
-            // recognition is not expected to be a primary use case.
-            List<BluetoothDevice> devices = mBluetoothHeadsetClient.getConnectedDevices();
-            if (devices != null) {
-                for (BluetoothDevice device : devices) {
-                    Bundle bundle = mBluetoothHeadsetClient.getCurrentAgFeatures(device);
-                    if (bundle == null || !bundle.getBoolean(
-                            BluetoothHeadsetClient.EXTRA_AG_FEATURE_VOICE_RECOGNITION)) {
-                        continue;
-                    }
-                    if (mBluetoothHeadsetClient.startVoiceRecognition(device)) {
-                        Slogf.d(TAG, "started voice recognition on BT device at (%s)",
-                                device.getAddress());
-                        return true;
-                    }
-                }
-            }
-        }
-        return false;
+        return mCarBluetoothService.startBluetoothVoiceRecognition();
     }
 
     private void launchDefaultVoiceAssistantHandler() {

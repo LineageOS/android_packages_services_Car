@@ -526,6 +526,13 @@ public class CarBluetoothService implements CarServiceBase {
     }
 
     /**
+     * Trigger Bluetooth to start a BVRA session with the default HFP Client device.
+     */
+    public boolean startBluetoothVoiceRecognition() {
+        return false;
+    }
+
+    /**
      * Make sure the caller has the Bluetooth permissions that are required to execute any function
      */
     private void enforceBluetoothAdminPermission() {
