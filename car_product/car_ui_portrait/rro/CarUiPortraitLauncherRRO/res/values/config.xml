@@ -34,4 +34,11 @@
         <item>com.google.android.gms/.auth.auto.SignInMethodActivity</item>
         <item>com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity</item>
     </string-array>
+
+    <!-- TODO(b/202413464): Move GAS components to the separate RRO. -->
+    <!-- The ComponentName of Assistant VoicePlate Activity, the Activity will be placed in
+        VoicePlate TDA -->
+    <string name="config_assistantVoicePlateActivity" translatable="false">
+        com.google.android.carassistant/com.google.android.apps.gsa.binaries.auto.app.voiceplate.VoicePlateActivity
+    </string>
 </resources>
