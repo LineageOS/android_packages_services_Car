@@ -22,8 +22,9 @@ java_library {
         "src/**/*.java",
     ],
     libs: [
-        "android.car.settings",
         "android.hardware.automotive.vehicle-V2.0-java",
+        "android.car.settings",
+        "com.android.car.internal.common",
     ],
     product_variables: {
         pdk: {

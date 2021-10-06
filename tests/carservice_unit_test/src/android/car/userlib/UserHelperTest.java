@@ -18,8 +18,7 @@ package android.car.userlib;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 
-import static com.google.common.truth.Truth.assertThat;
-
+import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
@@ -56,39 +55,6 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
         when(mContext.getSystemService(Context.USER_SERVICE)).thenReturn(mUserManager);
         when(mContext.getApplicationContext()).thenReturn(mContext);
         when(mContext.getResources()).thenReturn(mResources);
-    }
-
-    @Test
-    public void testSafeName() {
-        assertThat(UserHelper.safeName(null)).isNull();
-
-        String safe = UserHelper.safeName("UnsafeIam");
-        assertThat(safe).isNotNull();
-        assertThat(safe).doesNotContain("UnsafeIAm");
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_system_headlessMode() {
-        mockIsHeadlessSystemUserMode(true);
-        assertThat(UserHelper.isHeadlessSystemUser(UserHandle.USER_SYSTEM)).isTrue();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_system_nonHeadlessMode() {
-        mockIsHeadlessSystemUserMode(false);
-        assertThat(UserHelper.isHeadlessSystemUser(UserHandle.USER_SYSTEM)).isFalse();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_nonSystem_headlessMode() {
-        mockIsHeadlessSystemUserMode(true);
-        assertThat(UserHelper.isHeadlessSystemUser(10)).isFalse();
-    }
-
-    @Test
-    public void testIsHeadlessSystemUser_nonSystem_nonHeadlessMode() {
-        mockIsHeadlessSystemUserMode(false);
-        assertThat(UserHelper.isHeadlessSystemUser(10)).isFalse();
     }
 
     @Test
@@ -142,5 +108,49 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     public void testAssignDefaultIcon_nullUser_throwsException() {
         assertThrows(IllegalArgumentException.class,
                 () -> UserHelper.assignDefaultIcon(mContext, /* user= */ null));
+    }
+
+    @Test
+    public void testGrantAdminPermissions_nonAdmin() {
+        int userId = 30;
+        UserInfo testInfo = newUser(userId);
+
+        // Test that non-admins cannot grant admin permissions.
+        when(mUserManager.isAdminUser()).thenReturn(false);
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+        verify(mUserManager, never()).setUserAdmin(userId);
+    }
+
+    @Test
+    public void testGrantAdminPermissions_admin() {
+        int userId = 30;
+        UserInfo testInfo = newUser(userId);
+
+        // Admins can grant admin permissions.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+        verify(mUserManager).setUserAdmin(userId);
+    }
+
+    @Test
+    public void testGrantingAdminPermissionsRemovesNonAdminRestrictions() {
+        int testUserId = 30;
+        boolean restrictionEnabled = false;
+        UserInfo testInfo = newUser(testUserId);
+
+        // Only admins can grant permissions.
+        when(mUserManager.isAdminUser()).thenReturn(true);
+
+        UserHelper.grantAdminPermissions(mContext, testInfo);
+
+        // verify all restrictions
+        for (String restriction : UserHelper.DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            verify(mUserManager).setUserRestriction(restriction, restrictionEnabled,
+                    UserHandle.of(testUserId));
+        }
+        for (String restriction : UserHelper.DEFAULT_NON_ADMIN_RESTRICTIONS) {
+            verify(mUserManager).setUserRestriction(restriction, restrictionEnabled,
+                    UserHandle.of(testUserId));
+        }
     }
 }

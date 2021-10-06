@@ -20,7 +20,10 @@ filegroup {
     name: "libcarpowermanager_aidl",
     srcs: [
         "src/android/car/ICar.aidl",
+        "src/android/car/hardware/power/CarPowerPolicy.aidl",
+        "src/android/car/hardware/power/CarPowerPolicyFilter.aidl",
         "src/android/car/hardware/power/ICarPower.aidl",
+        "src/android/car/hardware/power/ICarPowerPolicyListener.aidl",
         "src/android/car/hardware/power/ICarPowerStateListener.aidl",
     ],
     path: "src",
@@ -57,6 +60,8 @@ cc_library {
     srcs: [
         ":libcarpowermanager_aidl",
         "native/CarPowerManager/CarPowerManager.cpp",
+        "native/CarPowerManager/CarPowerPolicy.cpp",
+        "native/CarPowerManager/CarPowerPolicyFilter.cpp",
     ],
 }
 
@@ -75,11 +80,22 @@ java_library {
     srcs: ["src/android/car/settings/CarSettings.java"]
 }
 
+// library to access common constants between carlibrary and system server.
+java_library {
+    name: "com.android.car.internal.common",
+    srcs: [
+        "src/com/android/car/internal/common/**/*.java",
+        "src/com/android/car/internal/common/EventLogTags.logtags",
+        "src/com/android/car/internal/ExcludeFromCodeCoverageGeneratedReport.java",
+    ],
+}
+
 java_library {
     name: "android.car",
     srcs: [
         "src/**/*.java",
-        "src/**/I*.aidl",
+        "src/**/*.aidl",
+        "src/com/android/car/internal/common/EventLogTags.logtags",
     ],
     aidl: {
         include_dirs: [
@@ -89,9 +105,6 @@ java_library {
     exclude_srcs: [
         "src/android/car/storagemonitoring/IoStats.aidl",
         "src/android/car/storagemonitoring/IoStatsEntry.aidl",
-    ],
-    static_libs: [
-        "android.car.internal.event-log-tags",
     ],
     product_variables: {
         pdk: {
@@ -141,7 +154,8 @@ genrule {
 droidstubs {
     name: "android.car-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --stub-packages android.car* ",
+    args: "--hide UnavailableSymbol --stub-packages android.car* " +
+        "--hide-package com.android.internal ",
     installable: false,
     check_api: {
         last_released: {
@@ -168,8 +182,10 @@ droidstubs {
 droidstubs {
     name: "android.car-system-stubs-docs",
     defaults: ["android.car-docs-default"],
-    args: "--hide UnavailableSymbol --stub-packages android.car* " +
-        "--show-annotation android.annotation.SystemApi ",
+    // TODO(b/174572385): Remove CallbackInterface once this b/174572385 is fixed
+    args: "--hide CallbackInterface --hide UnavailableSymbol --hide HiddenSuperclass " +
+        "--stub-packages android.car* " +
+        "--show-annotation android.annotation.SystemApi --hide-package com.android.internal ",
     installable: false,
     check_api: {
         last_released: {
@@ -232,7 +248,7 @@ droidstubs {
 droidstubs {
     name: "car-doc-stubs",
     srcs: [
-        "src/**/*.java"
+        "src/**/*.java",
     ],
     create_doc_stubs: true,
     annotations_enabled: true,
@@ -262,6 +278,13 @@ droidstubs {
 }
 
 // Generates API docs for go/devsite.
+//
+// How API docs are generated:
+//    source files -> (droidstubs/metalava) -> stub source files -> (droiddoc/doclava) -> docs
+//
+// The metalava conversion is done by droidstub module "car-doc-stubs".
+//
+// TODO(b/162958231): Remove "ds-car-docs" from build/soong/java/legacy_core_platform_api_usage.go.
 droiddoc {
     name: "ds-car-docs",
     srcs: [
@@ -276,7 +299,7 @@ droiddoc {
     hdf: [
         "dac true",
         "sdk.preview 0", // Not a preview version.
-        "sdk.version 30",
+        "sdk.version 31",
         "android.whichdoc online",
         "android.hasSamples false",
     ],
@@ -286,7 +309,7 @@ droiddoc {
     proofread_file: "ds-sdk-docs-proofrerad.txt",
     // See doclava docs in https://github.com/tinks/doclava.
     // See error numbers in external/doclava/src/com/google/doclava/Errors.java.
-    // TODO: Add -werror -lerror to catch bad javadocs
+    // TODO(b/163831343): Add -werror -lerror to catch bad javadocs
     args: "-android -manifest $(location AndroidManifest.xml) -toroot / -devsite -yamlV2 -metalavaApiSince " +
         "-hide 111 -hide 113 -hide 125 -hide 126 -hide 127 -hide 128 " +
         "-stubpackages android.car -dac_libraryroot android/car ",

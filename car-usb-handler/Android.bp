@@ -37,7 +37,7 @@ android_app {
 
     libs: ["android.car"],
 
-    required: ["privapp_whitelist_android.car.usb.handler"],
+    required: ["allowed_privapp_android.car.usb.handler"],
 
     product_variables: {
         pdk: {

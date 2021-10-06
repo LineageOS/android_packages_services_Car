@@ -21,7 +21,10 @@ import android.util.SparseArray;
 import java.util.HashSet;
 import java.util.Set;
 
-class CarAudioZonesValidator {
+final class CarAudioZonesValidator {
+    private CarAudioZonesValidator() {
+    }
+
     static void validate(SparseArray<CarAudioZone> carAudioZones) {
         validateAtLeastOneZoneDefined(carAudioZones);
         validateVolumeGroupsForEachZone(carAudioZones);

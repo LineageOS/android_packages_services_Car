@@ -53,10 +53,11 @@ android_test {
         "androidx.test.core",
         "androidx.test.ext.junit",
         "androidx.test.rules",
-        "car-frameworks-service",
         "car-service-test-static-lib",
-        "com.android.car.test.utils",
-        "EncryptionRunner",
+        "com.android.car.internal.common",
+        "com.android.car.internal.system",
+        "com.android.car.test.lib",
+        "compatibility-device-util-axt",
         "frameworks-base-testutils",
         "mockito-target-extended",
         "testng",
@@ -68,7 +69,8 @@ android_test {
     // mockito-target-inline dependency
     jni_libs: [
         "libdexmakerjvmtiagent",
+	"libscriptexecutorjni",
+        "libscriptexecutorjniutils-test",
         "libstaticjvmtiagent",
     ],
-
 }

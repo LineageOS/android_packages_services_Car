@@ -39,11 +39,11 @@ public class RecyclerViewSamples extends AbstractSampleActivity {
         RecyclerView recyclerView = findViewById(R.id.list);
         recyclerView.setLayoutManager(new LinearLayoutManager(this));
 
-        RecyclerViewAdapter adapter = new RecyclerViewAdapter(generateDummyData());
+        RecyclerViewAdapter adapter = new RecyclerViewAdapter(generatePlaceholderData());
         recyclerView.setAdapter(adapter);
     }
 
-    private ArrayList<String> generateDummyData() {
+    private ArrayList<String> generatePlaceholderData() {
         for (int i = 0; i <= mDataToGenerate; i++) {
             mData.add("data" + i);
         }

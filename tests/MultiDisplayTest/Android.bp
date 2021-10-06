@@ -34,9 +34,11 @@ android_app {
     platform_apis: true,
 
     static_libs: [
+        "androidx.annotation_annotation",
         "androidx.lifecycle_lifecycle-livedata",
         "androidx.lifecycle_lifecycle-viewmodel",
-        "androidx.car_car",
+        "androidx.fragment_fragment",
+        "androidx.recyclerview_recyclerview",
     ],
 
 }

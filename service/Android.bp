@@ -34,11 +34,14 @@ car_service_sources = [
 ]
 
 common_lib_deps = [
+    "android.car.cluster.navigation",
     "android.car.userlib",
     "android.car.watchdoglib",
+    "android.frameworks.automotive.powerpolicy.internal-java",
     "android.hidl.base-V1.0-java",
     "android.hardware.automotive.audiocontrol-V1.0-java",
     "android.hardware.automotive.audiocontrol-V2.0-java",
+    "android.hardware.automotive.audiocontrol-V1-java",
     "android.hardware.automotive.vehicle-V2.0-java",
     "android.hardware.health-V1.0-java",
     "android.hardware.health-V2.0-java",
@@ -49,7 +52,11 @@ common_lib_deps = [
     "blestream-protos",
     "SettingsLib",
     "androidx.preference_preference",
-    "EncryptionRunner",
+    // TODO(b/171603586): remove this after moving NewUserDisclaimerActivity
+    // to CarSettings
+    "car-admin-ui-lib",
+    "Slogf",
+    "cartelemetry-protos",
 ]
 
 android_app {
@@ -73,10 +80,15 @@ android_app {
     libs: ["android.car"],
 
     static_libs: common_lib_deps + [
-        "car-frameworks-service",
+        "com.android.car.internal.system",
     ],
 
-    required: ["privapp_whitelist_com.android.car"],
+    jni_libs: [
+        "libcarservicejni",
+        "libscriptexecutorjni",
+    ],
+
+    required: ["allowed_privapp_com.android.car"],
 
     // Disable build in PDK, missing aidl import breaks build
     product_variables: {
@@ -95,6 +107,10 @@ java_library {
         "src/com/android/car/CarServiceUtils.java",
         "src/com/android/car/CarLog.java",
         "src/com/android/car/Utils.java",
+    ],
+
+    static_libs: [
+        "com.android.car.internal.common",
     ],
 
     product_variables: {
@@ -122,8 +138,6 @@ android_library {
 
     static_libs: common_lib_deps,
 
-    min_sdk_version: "25",
-
     product_variables: {
         pdk: {
             enabled: false,
@@ -147,8 +161,6 @@ android_library {
         "android.car",
         "car-frameworks-service",
     ],
-
-    min_sdk_version: "25",
 
     product_variables: {
         pdk: {
