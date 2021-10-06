@@ -99,3 +99,15 @@ message ConfigMetricsReportList {
 
   reserved 1, 10;
 }
+
+message StatsdStatsReport {
+  message ConfigStats {
+    optional int32 uid = 1;
+    optional int64 id = 2;
+    optional bool is_valid = 9;
+  }
+
+  repeated ConfigStats config_stats = 3;
+
+  reserved 1, 2, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19;
+}
