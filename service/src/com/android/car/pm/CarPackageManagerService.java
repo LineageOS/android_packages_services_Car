@@ -249,6 +249,9 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
         mEnableActivityBlocking = res.getBoolean(R.bool.enableActivityBlockingForSafety);
         String blockingActivity = res.getString(R.string.activityBlockingActivity);
         mActivityBlockingActivity = ComponentName.unflattenFromString(blockingActivity);
+        if (mEnableActivityBlocking && mActivityBlockingActivity == null) {
+            Slogf.wtf(TAG, "mActivityBlockingActivity can't be null when enabled");
+        }
         mAllowedAppInstallSources = Arrays.asList(
                 res.getStringArray(R.array.allowedAppInstallSources));
         mVendorServiceController = new VendorServiceController(
@@ -1265,7 +1268,7 @@ public class CarPackageManagerService extends ICarPackageManager.Stub implements
 
     private void blockTopActivityIfNecessary(TopTaskInfoContainer topTask) {
         synchronized (mLock) {
-            if (!topTask.topActivity.equals(mActivityBlockingActivity)
+            if (!Objects.equals(mActivityBlockingActivity, topTask.topActivity)
                     && mTopActivityWithDialogPerDisplay.contains(topTask.displayId)
                     && !topTask.topActivity.equals(
                             mTopActivityWithDialogPerDisplay.get(topTask.displayId))) {
