@@ -182,9 +182,11 @@ public class StatsPublisher extends AbstractPublisher {
         Preconditions.checkArgument(
                 publisherParam.getPublisherCase() == PublisherCase.STATS,
                 "Subscribers only with StatsPublisher are supported by this class.");
+
+        long configKey = buildConfigKey(subscriber);
         synchronized (mLock) {
-            long configKey = addStatsConfigLocked(subscriber);
             mConfigKeyToSubscribers.put(configKey, subscriber);
+            addStatsConfigLocked(configKey, subscriber);
         }
 
         if (!mIsPullingReports.getAndSet(true)) {
@@ -375,15 +377,14 @@ public class StatsPublisher extends AbstractPublisher {
      * the MetricsConfig (of CarTelemetryService) has a new version.
      */
     @GuardedBy("mLock")
-    private long addStatsConfigLocked(DataSubscriber subscriber) {
-        long configKey = buildConfigKey(subscriber);
+    private void addStatsConfigLocked(long configKey, DataSubscriber subscriber) {
         // Store MetricsConfig (of CarTelemetryService) version per handler_function.
         String bundleVersion = buildBundleConfigVersionKey(configKey);
         if (mSavedStatsConfigs.getInt(bundleVersion) != 0) {
             int currentVersion = mSavedStatsConfigs.getInt(bundleVersion);
             if (currentVersion >= subscriber.getMetricsConfig().getVersion()) {
                 // It's trying to add current or older MetricsConfig version, just ignore it.
-                return configKey;
+                return;
             }  // if the subscriber's MetricsConfig version is newer, it will replace the old one.
         }
         String bundleConfigKey = buildBundleConfigKey(subscriber);
@@ -403,7 +404,6 @@ public class StatsPublisher extends AbstractPublisher {
             notifyFailureConsumer(
                     new IllegalStateException("Failed to add config " + configKey, e));
         }
-        return configKey;
     }
 
     /** Removes StatsdConfig and returns configKey. */
