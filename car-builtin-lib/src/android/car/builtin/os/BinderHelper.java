@@ -44,15 +44,16 @@ import java.io.PrintWriter;
  * @hide
  */
 @SystemApi(client = SystemApi.Client.MODULE_LIBRARIES)
-public class BinderHelper {
-    private BinderHelper() {
-        throw new UnsupportedOperationException();
-    }
+public final class BinderHelper {
 
     /** Dumps given {@link RemoteCallbackList} for debugging. */
-    public static void dumpRemoteCallbackList(@NonNull RemoteCallbackList list,
-            @NonNull PrintWriter pw, @NonNull String prefix) {
-        list.dump(pw, prefix);
+    public static void dumpRemoteCallbackList(@NonNull RemoteCallbackList<?> list,
+            @NonNull PrintWriter pw) {
+        list.dump(pw, /* prefix= */ "");
+    }
+
+    private BinderHelper() {
+        throw new UnsupportedOperationException("contains only static members");
     }
 
     /**

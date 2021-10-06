@@ -696,7 +696,12 @@ public class CarUxRestrictionsManagerService extends ICarUxRestrictionsManager.S
     public void dump(IndentingPrintWriter writer) {
         synchronized (mLock) {
             writer.println("*CarUxRestrictionsManagerService*");
-            BinderHelper.dumpRemoteCallbackList(mUxRClients, writer, "UX Restrictions Clients ");
+
+            writer.println("UX Restrictions Clients:");
+            writer.increaseIndent();
+            BinderHelper.dumpRemoteCallbackList(mUxRClients, writer);
+            writer.decreaseIndent();
+
             for (int port : mCurrentUxRestrictions.keySet()) {
                 CarUxRestrictions restrictions = mCurrentUxRestrictions.get(port);
                 writer.printf("Port: 0x%02X UXR: %s\n", port, restrictions.toString());

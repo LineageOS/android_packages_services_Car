@@ -19,6 +19,7 @@ package com.android.car;
 import android.annotation.Nullable;
 import android.car.Car;
 import android.car.VehicleAreaType;
+import android.car.builtin.os.BinderHelper;
 import android.car.builtin.util.Slogf;
 import android.car.drivingstate.CarDrivingStateEvent;
 import android.car.drivingstate.CarDrivingStateEvent.CarDrivingState;
@@ -252,7 +253,12 @@ public class CarDrivingStateService extends ICarDrivingState.Stub implements Car
     @Override
     public void dump(IndentingPrintWriter writer) {
         writer.println("*CarDrivingStateService*");
-        mDrivingStateClients.dump(writer, "Driving State Clients ");
+
+        writer.println("Driving State Clients:");
+        writer.increaseIndent();
+        BinderHelper.dumpRemoteCallbackList(mDrivingStateClients, writer);
+        writer.decreaseIndent();
+
         writer.println("Driving state change log:");
         synchronized (mLock) {
             for (TransitionLog tLog : mTransitionLogs) {
