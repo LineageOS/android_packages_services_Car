@@ -64,4 +64,5 @@
 
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
     <item target="array/config_foregroundDAComponents" value="@array/config_foregroundDAComponents"/>
+    <item target="array/config_ignoreOpeningForegroundDA" value="@array/config_ignoreOpeningForegroundDA"/>
 </overlay>
