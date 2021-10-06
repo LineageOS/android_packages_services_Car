@@ -46,10 +46,10 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.time.Duration;
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Map;
 import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.function.BiConsumer;
 
 /**
  * Publisher for {@link TelemetryProto.StatsPublisher}.
@@ -127,19 +127,19 @@ public class StatsPublisher extends AbstractPublisher {
 
     // TODO(b/198331078): Use telemetry thread
     StatsPublisher(
-            BiConsumer<AbstractPublisher, Throwable> failureConsumer,
+            PublisherFailureListener failureListener,
             StatsManagerProxy statsManager,
             File rootDirectory) {
-        this(failureConsumer, statsManager, rootDirectory, new Handler(Looper.myLooper()));
+        this(failureListener, statsManager, rootDirectory, new Handler(Looper.myLooper()));
     }
 
     @VisibleForTesting
     StatsPublisher(
-            BiConsumer<AbstractPublisher, Throwable> failureConsumer,
+            PublisherFailureListener failureListener,
             StatsManagerProxy statsManager,
             File rootDirectory,
             Handler handler) {
-        super(failureConsumer);
+        super(failureListener);
         mStatsManager = statsManager;
         mTelemetryHandler = handler;
         mSavedStatsConfigsFile = new File(rootDirectory, SAVED_STATS_CONFIGS_FILE);
@@ -195,6 +195,8 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
+        // TODO(b/197269115): if StatsD reports invalid StatsdConfig, it should
+        //                    onPublisherFailure() and provide the affected MetricsConfigs.
         Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
         if (report.getReportsCount() == 0) {
             return;
@@ -352,6 +354,15 @@ public class StatsPublisher extends AbstractPublisher {
         }
     }
 
+    /** Returns all the {@link TelemetryProto.MetricsConfig} associated with added subscribers. */
+    private List<TelemetryProto.MetricsConfig> getMetricsConfigs() {
+        HashSet<TelemetryProto.MetricsConfig> failedConfigs = new HashSet<>();
+        for (int i = 0; i < mConfigKeyToSubscribers.size(); i++) {
+            failedConfigs.add(mConfigKeyToSubscribers.valueAt(i).getMetricsConfig());
+        }
+        return new ArrayList<>(failedConfigs);
+    }
+
     /**
      * Returns the key for PersistableBundle to store/retrieve configKey associated with the
      * subscriber.
@@ -397,10 +408,9 @@ public class StatsPublisher extends AbstractPublisher {
             saveBundle();
         } catch (StatsUnavailableException e) {
             Slog.w(CarLog.TAG_TELEMETRY, "Failed to add config" + configKey, e);
-            // TODO(b/189143813): if StatsManager is not ready, retry N times and hard fail after
-            //                    by notifying DataBroker.
             // We will notify the failure immediately, as we're expecting StatsManager to be stable.
-            notifyFailureConsumer(
+            onPublisherFailure(
+                    getMetricsConfigs(),
                     new IllegalStateException("Failed to add config " + configKey, e));
         }
         return configKey;
