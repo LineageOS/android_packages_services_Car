@@ -29,4 +29,7 @@ public interface StatsManagerProxy {
 
     /** See {@link StatsManager#removeConfig(long)}. */
     void removeConfig(long configKey) throws StatsUnavailableException;
+
+    /** See {@link StatsManager#getStatsMetadata()}. */
+    byte[] getStatsMetadata() throws StatsUnavailableException;
 }

@@ -31,6 +31,8 @@ import static com.google.common.truth.Truth.assertThat;
 import static org.mockito.ArgumentMatchers.any;
 import static org.mockito.ArgumentMatchers.anyLong;
 import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.reset;
+import static org.mockito.Mockito.spy;
 import static org.mockito.Mockito.times;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
@@ -39,6 +41,7 @@ import android.app.StatsManager;
 import android.os.Looper;
 import android.os.Message;
 import android.os.PersistableBundle;
+import android.os.Process;
 import android.os.SystemClock;
 
 import com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured;
@@ -104,9 +107,10 @@ public class StatsPublisherTest {
                     .addSubscribers(SUBSCRIBER_2)
                     .build();
 
-    private static final long SUBSCRIBER_1_HASH = -8101507323446050791L;  // Used as ID.
-    private static final long SUBSCRIBER_2_HASH = 2778197004730583271L;  // Used as ID.
+    private static final long SUBSCRIBER_1_HASH = -8101507323446050791L;  // Used as configKey.
+    private static final long SUBSCRIBER_2_HASH = 2778197004730583271L;  // Used as configKey.
 
+    // This StatsdConfig is generated for SUBSCRIBER_1.
     private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_1 =
             StatsdConfigProto.StatsdConfig.newBuilder()
                     .setId(SUBSCRIBER_1_HASH)
@@ -122,6 +126,7 @@ public class StatsPublisherTest {
                     .addAllowedLogSource("AID_SYSTEM")
                     .build();
 
+    // This StatsdConfig is generated for SUBSCRIBER_2.
     private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_2 =
             StatsdConfigProto.StatsdConfig.newBuilder()
                     .setId(SUBSCRIBER_2_HASH)
@@ -175,7 +180,7 @@ public class StatsPublisherTest {
                             .setValueInt(234))
                     .build();
 
-    private static final StatsLogProto.ConfigMetricsReportList STATS_REPORT =
+    private static final StatsLogProto.ConfigMetricsReportList METRICS_REPORT =
             StatsLogProto.ConfigMetricsReportList.newBuilder()
                     .addReports(ConfigMetricsReport.newBuilder()
                             .addMetrics(StatsLogReport.newBuilder()
@@ -195,7 +200,22 @@ public class StatsPublisherTest {
                                                             .setField(1))))))
                     .build();
 
-    private static final StatsLogProto.ConfigMetricsReportList EMPTY_STATS_REPORT =
+    // By default the test assumes all the StatsdConfigs are valid.
+    private static final StatsLogProto.StatsdStatsReport CONFIG_STATS_REPORT =
+            StatsLogProto.StatsdStatsReport.newBuilder()
+                    .addConfigStats(StatsLogProto.StatsdStatsReport.ConfigStats.newBuilder()
+                            // in unit tests UID of test and app are the same
+                            .setUid(Process.myUid())
+                            .setId(SUBSCRIBER_1_HASH)  // id is the same as configKey
+                            .setIsValid(true))
+                    .addConfigStats(StatsLogProto.StatsdStatsReport.ConfigStats.newBuilder()
+                            // in unit tests UID of test and app are the same
+                            .setUid(Process.myUid())
+                            .setId(SUBSCRIBER_2_HASH)  // id is the same as configKey
+                            .setIsValid(true))
+                    .build();
+
+    private static final StatsLogProto.ConfigMetricsReportList EMPTY_METRICS_REPORT =
             StatsLogProto.ConfigMetricsReportList.newBuilder().build();
 
     private static final DataSubscriber DATA_SUBSCRIBER_1 =
@@ -219,6 +239,7 @@ public class StatsPublisherTest {
     public void setUp() throws Exception {
         mRootDirectory = Files.createTempDirectory("telemetry_test").toFile();
         mPublisher = createRestartedPublisher();
+        when(mStatsManager.getStatsMetadata()).thenReturn(CONFIG_STATS_REPORT.toByteArray());
     }
 
     /**
@@ -355,7 +376,7 @@ public class StatsPublisherTest {
     public void testAfterDispatchItSchedulesANewPullReportTask() throws Exception {
         mPublisher.addDataSubscriber(DATA_SUBSCRIBER_1);
         Message firstMessage = mFakeHandlerWrapper.getQueuedMessages().get(0);
-        when(mStatsManager.getReports(anyLong())).thenReturn(EMPTY_STATS_REPORT.toByteArray());
+        when(mStatsManager.getReports(anyLong())).thenReturn(EMPTY_METRICS_REPORT.toByteArray());
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
@@ -378,7 +399,7 @@ public class StatsPublisherTest {
         when(subscriber2.getMetricsConfig()).thenReturn(METRICS_CONFIG);
         when(subscriber2.getPublisherParam()).thenReturn(SUBSCRIBER_2.getPublisher());
         mPublisher.addDataSubscriber(subscriber2);
-        when(mStatsManager.getReports(anyLong())).thenReturn(STATS_REPORT.toByteArray());
+        when(mStatsManager.getReports(anyLong())).thenReturn(METRICS_REPORT.toByteArray());
 
         mFakeHandlerWrapper.dispatchQueuedMessages();
 
@@ -398,7 +419,28 @@ public class StatsPublisherTest {
             .asList().containsExactly(445678901L);
     }
 
-    // TODO(b/199211673): add test case when StatsdConfig is invalid and StatsPublisher fails.
+    @Test
+    public void testOnInvalidConfig_notifiesPublisherFailureListener() throws Exception {
+        DataSubscriber subscriber = spy(new DataSubscriber(null, METRICS_CONFIG, SUBSCRIBER_1));
+        mPublisher.addDataSubscriber(subscriber);
+        reset(mStatsManager);
+        when(mStatsManager.getStatsMetadata()).thenReturn(
+                StatsLogProto.StatsdStatsReport.newBuilder()
+                        .addConfigStats(StatsLogProto.StatsdStatsReport.ConfigStats.newBuilder()
+                                // in unit tests UID of test and app are the same
+                                .setUid(Process.myUid())
+                                .setId(SUBSCRIBER_1_HASH)  // id is the same as configKey
+                                .setIsValid(false))
+                .build().toByteArray());
+        when(mStatsManager.getReports(anyLong())).thenReturn(EMPTY_METRICS_REPORT.toByteArray());
+
+        mFakeHandlerWrapper.dispatchQueuedMessages();
+
+        // subscriber shouldn't get data, because of EMPTY_METRICS_REPORT.
+        verify(subscriber, times(0)).push(any());
+        assertThat(mFailedConfigs).containsExactly(METRICS_CONFIG);
+        assertThat(mPublisherFailure).hasMessageThat().contains("Found invalid configs");
+    }
 
     private PersistableBundle getSavedStatsConfigs() throws Exception {
         File savedConfigsFile = new File(mRootDirectory, StatsPublisher.SAVED_STATS_CONFIGS_FILE);
