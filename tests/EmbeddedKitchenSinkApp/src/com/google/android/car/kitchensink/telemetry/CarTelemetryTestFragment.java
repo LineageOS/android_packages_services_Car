@@ -20,6 +20,7 @@ import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetr
 
 import android.annotation.NonNull;
 import android.annotation.Nullable;
+import android.app.ActivityManager;
 import android.car.telemetry.CarTelemetryManager;
 import android.car.telemetry.MetricsConfigKey;
 import android.hardware.automotive.vehicle.V2_0.VehicleProperty;
@@ -28,7 +29,6 @@ import android.os.PersistableBundle;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.Button;
 import android.widget.TextView;
 
 import androidx.fragment.app.Fragment;
@@ -41,6 +41,8 @@ import com.google.protobuf.InvalidProtocolBufferException;
 
 import java.io.ByteArrayInputStream;
 import java.io.IOException;
+import java.time.LocalDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.concurrent.Executor;
 import java.util.concurrent.Executors;
 
@@ -146,30 +148,30 @@ public class CarTelemetryTestFragment extends Fragment {
             @Nullable ViewGroup container,
             @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.car_telemetry_test, container, false);
-
         mOutputTextView = view.findViewById(R.id.output_textview);
-        Button sendGearConfigBtn = view.findViewById(R.id.send_on_gear_change_config);
-        Button getGearReportBtn = view.findViewById(R.id.get_on_gear_change_report);
-        Button removeGearConfigBtn = view.findViewById(R.id.remove_on_gear_change_config);
-
-        sendGearConfigBtn.setOnClickListener(this::onSendGearChangeConfigBtnClick);
-        removeGearConfigBtn.setOnClickListener(this::onRemoveGearChangeConfigBtnClick);
-        getGearReportBtn.setOnClickListener(this::onGetGearChangeReportBtnClick);
-
-        mOutputTextView = view.findViewById(R.id.output_textview);
-        Button sendProcessMemConfigBtn = view.findViewById(R.id.send_on_process_memory_config);
-        Button getProcessMemReportBtn = view.findViewById(R.id.get_on_process_memory_report);
-        Button removeProcessMemConfigBtn = view.findViewById(R.id.remove_on_process_memory_config);
-
-        sendProcessMemConfigBtn.setOnClickListener(this::onSendProcessMemoryConfigBtnClick);
-        removeProcessMemConfigBtn.setOnClickListener(this::onRemoveProcessMemoryConfigBtnClick);
-        getProcessMemReportBtn.setOnClickListener(this::onGetProcessMemoryReportBtnClick);
-
+        view.findViewById(R.id.send_on_gear_change_config)
+                .setOnClickListener(this::onSendGearChangeConfigBtnClick);
+        view.findViewById(R.id.remove_on_gear_change_config)
+                .setOnClickListener(this::onRemoveGearChangeConfigBtnClick);
+        view.findViewById(R.id.get_on_gear_change_report)
+                .setOnClickListener(this::onGetGearChangeReportBtnClick);
+        view.findViewById(R.id.send_on_process_memory_config)
+                .setOnClickListener(this::onSendProcessMemoryConfigBtnClick);
+        view.findViewById(R.id.remove_on_process_memory_config)
+                .setOnClickListener(this::onRemoveProcessMemoryConfigBtnClick);
+        view.findViewById(R.id.get_on_process_memory_report)
+                .setOnClickListener(this::onGetProcessMemoryReportBtnClick);
+        view.findViewById(R.id.show_mem_info_btn).setOnClickListener(this::onShowMemInfoBtnClick);
         return view;
     }
 
     private void showOutput(String s) {
-        mActivity.runOnUiThread(() -> mOutputTextView.setText(s));
+        mActivity.runOnUiThread(() -> {
+            String now = LocalDateTime.now()
+                    .format(DateTimeFormatter.ofPattern("HH:mm:ss.SSS"));
+            mOutputTextView.setText(
+                    now + " : " + s + "\n" + mOutputTextView.getText());
+        });
     }
 
     private void onSendGearChangeConfigBtnClick(View view) {
@@ -184,13 +186,13 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onGetGearChangeReportBtnClick(View view) {
-        showOutput("Fetching report... If nothing shows up after a few seconds, "
-                + "then no result exists");
+        showOutput("Fetching report for on_gear_change... If nothing shows up within 5 seconds, "
+                + "there is no result yet");
         mCarTelemetryManager.sendFinishedReports(ON_GEAR_CHANGE_KEY_V1);
     }
 
     private void onSendProcessMemoryConfigBtnClick(View view) {
-        showOutput("Sending MetricsConfig that listen for process memory state...");
+        showOutput("Sending MetricsConfig that listens for process memory state...");
         mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_KEY_V1,
                 METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray());
     }
@@ -201,9 +203,25 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onGetProcessMemoryReportBtnClick(View view) {
-        showOutput("Fetching report for process memory state... If nothing shows up after "
-                + "a few seconds, then no result exists");
+        showOutput("Fetching report for process memory state... If nothing shows up within 5 "
+                + "seconds, there is no result yet");
         mCarTelemetryManager.sendFinishedReports(PROCESS_MEMORY_KEY_V1);
+    }
+
+    /** Gets a MemoryInfo object for the device's current memory status. */
+    private ActivityManager.MemoryInfo getAvailableMemory() {
+        ActivityManager activityManager = getActivity().getSystemService(ActivityManager.class);
+        ActivityManager.MemoryInfo memoryInfo = new ActivityManager.MemoryInfo();
+        activityManager.getMemoryInfo(memoryInfo);
+        return memoryInfo;
+    }
+
+    private void onShowMemInfoBtnClick(View view) {
+        // Use android's "alloc-stress" system tool to create an artificial memory pressure.
+        ActivityManager.MemoryInfo info = getAvailableMemory();
+        showOutput("MemoryInfo availMem=" + (info.availMem / 1024 / 1024) + "/"
+                + (info.totalMem / 1024 / 1024) + "mb, isLowMem=" + info.lowMemory
+                + ", threshold=" + (info.threshold / 1024 / 1024) + "mb");
     }
 
     @Override
@@ -227,7 +245,7 @@ public class CarTelemetryTestFragment extends Fragment {
             } catch (IOException e) {
                 bundle = null;
             }
-            showOutput("Result is " + bundle.toString());
+            showOutput("Result for " + key.getName() + ": " + bundle.toString());
         }
 
         @Override
@@ -235,16 +253,34 @@ public class CarTelemetryTestFragment extends Fragment {
             try {
                 TelemetryProto.TelemetryError telemetryError =
                         TelemetryProto.TelemetryError.parseFrom(error);
-                showOutput("Error is " + telemetryError);
+                showOutput("Error for " + key.getName() + ": " + telemetryError);
             } catch (InvalidProtocolBufferException e) {
                 showOutput("Unable to parse error result for MetricsConfig " + key.getName()
-                        + ". " + e.getMessage());
+                        + ": " + e.getMessage());
             }
         }
 
         @Override
         public void onAddMetricsConfigStatus(@NonNull MetricsConfigKey key, int statusCode) {
-            showOutput("Add MetricsConfig status: " + statusCode);
+            showOutput("Add MetricsConfig status for " + key.getName() + ": "
+                    + statusCodeToString(statusCode));
+        }
+
+        private String statusCodeToString(int statusCode) {
+            switch (statusCode) {
+                case CarTelemetryManager.ERROR_METRICS_CONFIG_NONE:
+                    return "SUCCESS";
+                case CarTelemetryManager.ERROR_METRICS_CONFIG_ALREADY_EXISTS:
+                    return "ERROR ALREADY_EXISTS";
+                case CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD:
+                    return "ERROR VERSION_TOO_OLD";
+                case CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED:
+                    return "ERROR PARSE_FAILED";
+                case CarTelemetryManager.ERROR_METRICS_CONFIG_SIGNATURE_VERIFICATION_FAILED:
+                    return "ERROR SIGNATURE_VERIFICATION_FAILED";
+                default:
+                    return "ERROR UNKNOWN";
+            }
         }
     }
 }
