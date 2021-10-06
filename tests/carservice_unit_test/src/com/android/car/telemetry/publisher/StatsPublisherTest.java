@@ -395,6 +395,9 @@ public class StatsPublisherTest {
 
     private PersistableBundle getSavedStatsConfigs() throws Exception {
         File savedConfigsFile = new File(mRootDirectory, StatsPublisher.SAVED_STATS_CONFIGS_FILE);
+        if (!savedConfigsFile.exists()) {
+            return new PersistableBundle();
+        }
         try (FileInputStream fileInputStream = new FileInputStream(savedConfigsFile)) {
             return PersistableBundle.readFromStream(fileInputStream);
         }
