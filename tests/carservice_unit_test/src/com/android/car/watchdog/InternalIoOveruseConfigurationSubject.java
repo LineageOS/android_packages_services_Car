@@ -38,7 +38,7 @@ public final class InternalIoOveruseConfigurationSubject extends Subject {
     // Boiler-plate Subject.Factory for InternalIoOveruseConfigurationSubject
     private static final Subject.Factory<
             com.android.car.watchdog.InternalIoOveruseConfigurationSubject,
-            Iterable<IoOveruseConfiguration>> Io_OVERUSE_CONFIG_SUBJECT_FACTORY =
+            Iterable<IoOveruseConfiguration>> IO_OVERUSE_CONFIG_SUBJECT_FACTORY =
             com.android.car.watchdog.InternalIoOveruseConfigurationSubject::new;
 
     private final Iterable<IoOveruseConfiguration> mActual;
@@ -46,12 +46,12 @@ public final class InternalIoOveruseConfigurationSubject extends Subject {
     // User-defined entry point
     public static InternalIoOveruseConfigurationSubject assertThat(
             @Nullable Iterable<IoOveruseConfiguration> stats) {
-        return assertAbout(Io_OVERUSE_CONFIG_SUBJECT_FACTORY).that(stats);
+        return assertAbout(IO_OVERUSE_CONFIG_SUBJECT_FACTORY).that(stats);
     }
 
     public static Subject.Factory<InternalIoOveruseConfigurationSubject,
-            Iterable<IoOveruseConfiguration>> resourceOveruseStats() {
-        return Io_OVERUSE_CONFIG_SUBJECT_FACTORY;
+            Iterable<IoOveruseConfiguration>> ioOveruseConfigurations() {
+        return IO_OVERUSE_CONFIG_SUBJECT_FACTORY;
     }
 
     public void containsExactly(IoOveruseConfiguration... stats) {
