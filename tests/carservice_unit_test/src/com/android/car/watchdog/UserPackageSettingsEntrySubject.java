@@ -44,7 +44,7 @@ public final class UserPackageSettingsEntrySubject extends Subject {
     }
 
     public static Subject.Factory<UserPackageSettingsEntrySubject,
-            Iterable<WatchdogStorage.UserPackageSettingsEntry>> resourceOveruseStats() {
+            Iterable<WatchdogStorage.UserPackageSettingsEntry>> userPackageSettingsEntries() {
         return USER_PACKAGE_SETTINGS_ENTRY_SUBJECT_FACTORY;
     }
 
