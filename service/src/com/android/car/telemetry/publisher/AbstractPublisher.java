@@ -16,9 +16,10 @@
 
 package com.android.car.telemetry.publisher;
 
+import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.databroker.DataSubscriber;
 
-import java.util.function.BiConsumer;
+import java.util.List;
 
 /**
  * Abstract class for publishers. It is 1-1 with data source and manages sending data to
@@ -31,12 +32,22 @@ import java.util.function.BiConsumer;
  * <p>Child classes must be called from the telemetry thread.
  */
 public abstract class AbstractPublisher {
-    // TODO(b/199211673): provide list of bad MetricsConfigs to failureConsumer.
-    /** Consumes the publisher failures, such as failing to connect to a underlying service. */
-    private final BiConsumer<AbstractPublisher, Throwable> mFailureConsumer;
+    private final PublisherFailureListener mFailureListener;
 
-    AbstractPublisher(BiConsumer<AbstractPublisher, Throwable> failureConsumer) {
-        mFailureConsumer = failureConsumer;
+    /**
+     * Listener for publisher failures, such as failing to connect to a underlying service or
+     * invalid Publisher configuration. When publishers fail, the affected configs should be
+     * disabled, because the associated scripts cannot receive data from the failed publishers.
+     */
+    public interface PublisherFailureListener {
+        /** Called by publishers when they fail. */
+        void onPublisherFailure(
+                AbstractPublisher publisher,
+                List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error);
+    }
+
+    AbstractPublisher(PublisherFailureListener failureListener) {
+        mFailureListener = failureListener;
     }
 
     /**
@@ -69,10 +80,11 @@ public abstract class AbstractPublisher {
     public abstract boolean hasDataSubscriber(DataSubscriber subscriber);
 
     /**
-     * Notifies the failure consumer that this publisher cannot recover from the hard failure.
-     * For example, it cannot connect to the underlying service.
+     * Notifies the failure Listener that this publisher failed. See
+     * {@link PublisherFailureListener} for details.
      */
-    protected void notifyFailureConsumer(Throwable error) {
-        mFailureConsumer.accept(this, error);
+    protected void onPublisherFailure(
+            List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) {
+        mFailureListener.onPublisherFailure(this, affectedConfigs, error);
     }
 }

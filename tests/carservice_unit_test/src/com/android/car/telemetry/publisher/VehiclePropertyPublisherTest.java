@@ -204,5 +204,6 @@ public class VehiclePropertyPublisherTest {
         // PersistableBundle object.
     }
 
-    private void onPublisherFailure(AbstractPublisher publisher, Throwable error) { }
+    private void onPublisherFailure(AbstractPublisher publisher,
+                List<TelemetryProto.MetricsConfig> affectedConfigs, Throwable error) { }
 }
