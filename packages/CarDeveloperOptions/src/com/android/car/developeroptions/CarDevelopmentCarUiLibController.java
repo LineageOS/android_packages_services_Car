@@ -16,8 +16,15 @@
 
 package com.android.car.developeroptions;
 
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED;
+import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
+import static android.content.pm.PackageManager.MATCH_ALL;
+import static android.content.pm.PackageManager.MATCH_DISABLED_COMPONENTS;
+
+import android.content.ComponentName;
 import android.content.Context;
-import android.os.SystemProperties;
+import android.content.pm.PackageManager;
+import android.content.pm.ProviderInfo;
 
 import androidx.preference.Preference;
 import androidx.preference.SwitchPreference;
@@ -27,9 +34,6 @@ import androidx.preference.SwitchPreference;
  */
 public class CarDevelopmentCarUiLibController extends CarDevelopmentPreferenceController {
     private static final String CAR_UI_PLUGIN_ENABLED_KEY = "car_ui_plugin_enabled";
-    static final String CAR_UI_PLUGIN_ENABLED_PROPERTY =
-            "persist.sys.automotive.car.ui.plugin.enabled";
-
 
     public CarDevelopmentCarUiLibController(Context context) {
         super(context);
@@ -47,19 +51,61 @@ public class CarDevelopmentCarUiLibController extends CarDevelopmentPreferenceCo
 
     @Override
     String getPreferenceSummary() {
+        if (getCarUiPluginProviderInfo() == null) {
+            return mContext.getString(R.string.car_ui_plugin_not_found_text);
+        }
+
         return null;
     }
 
     @Override
     public boolean onPreferenceChange(Preference preference, Object newValue) {
-        SystemProperties.set(CAR_UI_PLUGIN_ENABLED_PROPERTY, String.valueOf(newValue));
+        Boolean isPluginEnabled = (Boolean) newValue;
+        ProviderInfo providerInfo = getCarUiPluginProviderInfo();
+        if (providerInfo == null) {
+            throw new IllegalStateException("Car UI plugin not found");
+        }
+
+        ComponentName componentName = new ComponentName(providerInfo.packageName,
+                providerInfo.name);
+        int state = isPluginEnabled ? COMPONENT_ENABLED_STATE_ENABLED
+                : COMPONENT_ENABLED_STATE_DISABLED;
+        mContext.getPackageManager().setComponentEnabledSetting(componentName,
+                state, 0 /* no optional flags */);
         return true;
     }
 
     @Override
     public void updateState(Preference preference) {
-        final boolean pluginEnabled = SystemProperties.getBoolean(
-                CAR_UI_PLUGIN_ENABLED_PROPERTY, false /* default */);
-        ((SwitchPreference) mPreference).setChecked(pluginEnabled);
+        if (getCarUiPluginProviderInfo() == null) {
+            ((SwitchPreference) mPreference).setChecked(false);
+            mPreference.setEnabled(false);
+            return;
+        }
+
+        ((SwitchPreference) mPreference).setChecked(isCarUiPluginEnabled());
+    }
+
+    private ProviderInfo getCarUiPluginProviderInfo() {
+        String authority = mContext.getString(
+                R.string.car_ui_plugin_package_provider_authority_name);
+        return mContext.getPackageManager().resolveContentProvider(authority,
+                MATCH_ALL | MATCH_DISABLED_COMPONENTS);
+    }
+
+    private boolean isCarUiPluginEnabled() {
+        ProviderInfo providerInfo = getCarUiPluginProviderInfo();
+        if (providerInfo == null) {
+            return false;
+        }
+
+        ComponentName componentName = new ComponentName(providerInfo.packageName,
+                providerInfo.name);
+        int state = mContext.getPackageManager().getComponentEnabledSetting(componentName);
+        if (state == PackageManager.COMPONENT_ENABLED_STATE_DEFAULT) {
+            return providerInfo.enabled;
+        }
+
+        return state == COMPONENT_ENABLED_STATE_ENABLED;
     }
 }
