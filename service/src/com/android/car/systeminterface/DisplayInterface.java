@@ -21,11 +21,9 @@ import static com.android.car.util.BrightnessUtils.convertGammaToLinear;
 import static com.android.car.util.BrightnessUtils.convertLinearToGamma;
 import static com.android.car.util.Utils.getContentResolverForUser;
 
-import android.app.ActivityManager;
 import android.car.builtin.power.PowerManagerHelper;
 import android.car.builtin.util.Slogf;
 import android.content.BroadcastReceiver;
-import android.content.ContentResolver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
@@ -90,8 +88,6 @@ public interface DisplayInterface {
      * Default implementation of display operations
      */
     class DefaultImpl implements DisplayInterface {
-        private final ActivityManager mActivityManager;
-        private final ContentResolver mContentResolver;
         private final Context mContext;
         private final DisplayManager mDisplayManager;
         private final Object mLock = new Object();
@@ -142,8 +138,6 @@ public interface DisplayInterface {
 
         DefaultImpl(Context context, WakeLockInterface wakeLockInterface) {
             mContext = context;
-            mActivityManager = context.getSystemService(ActivityManager.class);
-            mContentResolver = mContext.getContentResolver();
             mDisplayManager = context.getSystemService(DisplayManager.class);
             mPowerManagerHelper = new PowerManagerHelper(context);
             mMaximumBacklight = mPowerManagerHelper.getMaximumScreenBrightnessSetting();
@@ -218,11 +212,10 @@ public interface DisplayInterface {
                 mService = service;
                 mDisplayStateSet = isMainDisplayOn();
             }
-            mContentResolver.registerContentObserver(
-                    System.getUriFor(System.SCREEN_BRIGHTNESS),
+            getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
+                    .registerContentObserver(System.getUriFor(System.SCREEN_BRIGHTNESS),
                     false,
-                    mBrightnessObserver,
-                    UserHandle.ALL.getIdentifier());
+                    mBrightnessObserver);
             mDisplayManager.registerDisplayListener(mDisplayListener, service.getHandler());
             refreshDisplayBrightness();
         }
@@ -230,7 +223,8 @@ public interface DisplayInterface {
         @Override
         public void stopDisplayStateMonitoring() {
             mDisplayManager.unregisterDisplayListener(mDisplayListener);
-            mContentResolver.unregisterContentObserver(mBrightnessObserver);
+            getContentResolverForUser(mContext, UserHandle.ALL.getIdentifier())
+                    .unregisterContentObserver(mBrightnessObserver);
         }
 
         @Override
