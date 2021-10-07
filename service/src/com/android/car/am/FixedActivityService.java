@@ -475,7 +475,7 @@ public final class FixedActivityService implements CarServiceBase {
                 try {
                     postRecheck(RECHECK_INTERVAL_MS);
                     postRecheck(CRASH_FORGET_INTERVAL_MS);
-                    mContext.startActivityAsUser(activityInfo.intent,
+                    ContextHelper.startActivityAsUser(mContext, activityInfo.intent,
                             activityInfo.activityOptions.toBundle(),
                             UserHandle.of(activityInfo.userId));
                     activityInfo.isVisible = true;
