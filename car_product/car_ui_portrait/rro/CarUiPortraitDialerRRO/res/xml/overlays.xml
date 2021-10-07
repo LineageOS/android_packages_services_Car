@@ -42,9 +42,21 @@
     <item target="id/error_icon" value="@id/error_icon" />
     <item target="id/error_string" value="@id/error_string" />
     <item target="id/connect_bluetooth_button" value="@id/connect_bluetooth_button" />
+    <item target="id/background_image" value="@id/background_image" />
+    <item target="id/incall_dialpad_fragment" value="@id/incall_dialpad_fragment" />
+    <item target="id/user_profile_container" value="@id/user_profile_container" />
+    <item target="id/onhold_user_profile" value="@id/onhold_user_profile" />
+    <item target="id/user_profile_avatar" value="@id/user_profile_avatar" />
+    <item target="id/user_profile_title" value="@id/user_profile_title" />
+    <item target="id/user_profile_phone_number" value="@id/user_profile_phone_number" />
+    <item target="id/user_profile_call_state" value="@id/user_profile_call_state" />
+    <item target="id/call_state" value="@id/call_state" />
+    <item target="id/dialpad_focus_area" value="@id/dialpad_focus_area" />
 
     <item target="color/divider_color" value="@color/divider_color" />
     <item target="color/hero_button_background_color" value="@color/hero_button_background_color" />
+
+    <item target="bool/config_always_show_incall_dialpad" value="@bool/config_always_show_incall_dialpad" />
 
     <item target="integer/config_dialed_number_gravity" value="@integer/config_dialed_number_gravity" />
 
@@ -53,6 +65,9 @@
     <item target="layout/type_down_list_item" value="@layout/type_down_list_item"/>
     <item target="layout/restricted_dialing_mode_label" value="@layout/restricted_dialing_mode_label"/>
     <item target="layout/no_hfp" value="@layout/no_hfp"/>
+    <item target="layout/ongoing_call_fragment" value="@layout/ongoing_call_fragment"/>
+    <item target="layout/user_profile_large" value="@layout/user_profile_large"/>
+    <item target="layout/incall_dialpad_fragment" value="@layout/incall_dialpad_fragment"/>
 
     <item target="style/KeypadButtonStyle" value="@style/KeypadButtonStyle"/>
     <item target="style/TextAppearance.DialNumber" value="@style/TextAppearance.DialNumber"/>
