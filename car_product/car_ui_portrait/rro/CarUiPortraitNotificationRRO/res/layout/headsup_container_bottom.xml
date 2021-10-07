@@ -15,17 +15,16 @@
   ~ limitations under the License.
   -->
 
-<RelativeLayout
+<FrameLayout
     xmlns:android="http://schemas.android.com/apk/res/android"
     android:id="@+id/notification_headsup"
     android:layout_width="match_parent"
-    android:layout_height="match_parent">
+    android:layout_height="wrap_content">
 
     <com.android.car.notification.headsup.HeadsUpContainerView
         android:id="@+id/headsup_content"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:layout_alignParentBottom="true"
         android:layout_marginBottom="@dimen/headsup_notification_bottom_margin"/>
 
-</RelativeLayout>
+</FrameLayout>
