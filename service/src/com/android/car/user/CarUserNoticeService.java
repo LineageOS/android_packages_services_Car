@@ -81,6 +81,9 @@ public final class CarUserNoticeService implements CarServiceBase {
     // Polling will stop when keyguard is unlocked.
     private static final long KEYGUARD_POLLING_INTERVAL_MS = 100;
 
+    // Value of the settings when it's enabled
+    private static final int INITIAL_NOTICE_SCREEN_TO_USER_ENABLED = 1;
+
     private final Context mContext;
 
     // null means feature disabled.
@@ -252,9 +255,9 @@ public final class CarUserNoticeService implements CarServiceBase {
     }
 
     private boolean isNoticeScreenEnabledInSetting(@UserIdInt int userId) {
-        return Settings.Secure.getIntForUser(getContentResolverForUser(mContext, userId),
+        return Settings.Secure.getInt(getContentResolverForUser(mContext, userId),
                 CarSettings.Secure.KEY_ENABLE_INITIAL_NOTICE_SCREEN_TO_USER,
-                1 /*enable by default*/, userId) == 1;
+                INITIAL_NOTICE_SCREEN_TO_USER_ENABLED) == INITIAL_NOTICE_SCREEN_TO_USER_ENABLED;
     }
 
     private boolean isDisplayOn() {
