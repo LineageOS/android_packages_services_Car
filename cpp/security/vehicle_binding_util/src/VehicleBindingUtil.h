@@ -35,6 +35,7 @@ enum class BindingStatus {
     OK,
     NOT_SUPPORTED,
     ERROR,
+    WAIT_VHAL_TIMEOUT,
 };
 
 template <typename EnumT>

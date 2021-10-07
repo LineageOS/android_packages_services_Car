@@ -16,6 +16,7 @@
 
 #include "VehicleBindingUtil.h"
 
+#include <android-base/chrono_utils.h>
 #include <android-base/logging.h>
 #include <android/hardware/automotive/vehicle/2.0/IVehicle.h>
 #include <binder/IServiceManager.h>
@@ -24,10 +25,12 @@
 #include <iostream>
 #include <map>
 #include <string>
+#include <thread>  // NOLINT(build/c++11)
 
 namespace {
 
 using android::defaultServiceManager;
+using android::sp;
 using android::automotive::security::BindingStatus;
 using android::automotive::security::DefaultCsrng;
 using android::automotive::security::DefaultExecutor;
@@ -36,6 +39,9 @@ using android::hardware::automotive::vehicle::V2_0::IVehicle;
 static int printHelp(int argc, char* argv[]);
 static int setBinding(int /*argc*/, char*[] /*argv*/);
 
+constexpr int64_t SLEEP_TIME_MILLISECONDS = 100;
+constexpr int64_t TIMEOUT_MILLISECONDS = 30000;
+
 // Avoid calling complex destructor on cleanup.
 const auto& subcommandTable = *new std::map<std::string, std::function<int(int, char*[])>>{
         {"help", printHelp},
@@ -43,7 +49,20 @@ const auto& subcommandTable = *new std::map<std::string, std::function<int(int, 
 };
 
 static int setBinding(int /*argc*/, char*[] /*argv*/) {
-    auto status = setVehicleBindingSeed(IVehicle::getService(), DefaultExecutor{}, DefaultCsrng{});
+    sp<IVehicle> service = IVehicle::tryGetService();
+    size_t retryCount = 0;
+    while (service == nullptr && retryCount < TIMEOUT_MILLISECONDS / SLEEP_TIME_MILLISECONDS) {
+        service = IVehicle::tryGetService();
+        std::this_thread::sleep_for(std::chrono::milliseconds(SLEEP_TIME_MILLISECONDS));
+        retryCount++;
+    }
+
+    if (service == nullptr) {
+        LOG(ERROR) << "Timeout waiting for VHAL";
+        return static_cast<int>(BindingStatus::WAIT_VHAL_TIMEOUT);
+    }
+
+    auto status = setVehicleBindingSeed(std::move(service), DefaultExecutor{}, DefaultCsrng{});
     if (status != BindingStatus::OK) {
         LOG(ERROR) << "Unable to set the binding seed. Encryption keys are not "
                    << "bound to the platform.";
