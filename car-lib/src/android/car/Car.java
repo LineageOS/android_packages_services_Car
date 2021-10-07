@@ -32,6 +32,7 @@ import android.app.Service;
 import android.car.admin.CarDevicePolicyManager;
 import android.car.annotation.MandatoryFeature;
 import android.car.annotation.OptionalFeature;
+import android.car.app.CarActivityManager;
 import android.car.cluster.CarInstrumentClusterManager;
 import android.car.cluster.ClusterActivityState;
 import android.car.cluster.ClusterHomeManager;
@@ -372,6 +373,14 @@ public final class Car {
      */
     @OptionalFeature
     public static final String CAR_TELEMETRY_SERVICE = "car_telemetry_service";
+
+    /**
+     * Service name for {@link android.car.app.CarActivityManager}
+     *
+     * @hide
+     */
+    @MandatoryFeature
+    public static final String CAR_ACTIVITY_SERVICE = "car_activity_service";
 
     /** Permission necessary to access car's mileage information.
      *  @hide
@@ -868,6 +877,14 @@ public final class Car {
     public static final String PERMISSION_COLLECT_CAR_WATCHDOG_METRICS =
             "android.car.permission.COLLECT_CAR_WATCHDOG_METRICS";
 
+    /**
+     * Permission necessary to control launching applications in Car.
+     *
+     * @hide
+     */
+    public static final String PERMISSION_CONTROL_CAR_APP_LAUNCH =
+            "android.car.permission.CONTROL_CAR_APP_LAUNCH";
+
     /** @hide */
     @IntDef({CONNECTION_TYPE_EMBEDDED})
     @Retention(RetentionPolicy.SOURCE)
@@ -903,25 +920,6 @@ public final class Car {
      */
     public static final String CAR_EXTRA_BROWSE_SERVICE_FOR_SESSION =
             "android.media.session.BROWSE_SERVICE";
-
-    /**
-     * If some specific Activity should be launched on the designated TDA all the time, include this
-     * integer extra in the first launching Intent and ActivityOption with the launch TDA.
-     * If the value is {@link #LAUNCH_PERSISTENT_ADD}, CarLaunchParamsModifier will memorize
-     * the Activity and the TDA pair, and assign the TDA in the following Intents for the Activity.
-     * If there is any assigned Activity on the TDA, it'll be replaced with the new Activity.
-     * If the value is {@Link #LAUNCH_PERSISTENT_DELETE}, it'll remove the stored info for the given
-     * Activity.
-     *
-     * @hide
-     */
-    public static final String CAR_EXTRA_LAUNCH_PERSISTENT =
-            "android.car.intent.extra.launchparams.PERSISTENT";
-
-    /** @hide */
-    public static final int LAUNCH_PERSISTENT_DELETE = 0;
-    /** @hide */
-    public static final int LAUNCH_PERSISTENT_ADD = 1;
 
     /** @hide */
     public static final String CAR_SERVICE_INTERFACE_NAME = CommonConstants.CAR_SERVICE_INTERFACE;
@@ -1918,6 +1916,9 @@ public final class Car {
                 break;
             case CAR_TELEMETRY_SERVICE:
                 manager = new CarTelemetryManager(this, binder);
+                break;
+            case CAR_ACTIVITY_SERVICE:
+                manager = new CarActivityManager(this, binder);
                 break;
             default:
                 // Experimental or non-existing
