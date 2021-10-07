@@ -144,8 +144,9 @@ public interface DisplayInterface {
             mMinimumBacklight = mPowerManagerHelper.getMinimumScreenBrightnessSetting();
             mWakeLockInterface = wakeLockInterface;
 
-            mContext.registerReceiverForAllUsers(
-                    mUserChangeReceiver, new IntentFilter(Intent.ACTION_USER_SWITCHED),
+            // TODO(b/195996911): Remove hard coded string and implement proper fix
+            String action = "android.intent.action.USER_SWITCHED";
+            mContext.registerReceiverForAllUsers(mUserChangeReceiver, new IntentFilter(action),
                     /* broadcastPermission= */ null, /* scheduler= */ null,
                     Context.RECEIVER_NOT_EXPORTED);
         }

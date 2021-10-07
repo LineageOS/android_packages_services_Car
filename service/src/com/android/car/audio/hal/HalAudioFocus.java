@@ -196,8 +196,9 @@ public final class HalAudioFocus implements HalFocusListener {
 
     @GuardedBy("mLock")
     private void abandonAudioFocusLocked(int usage, int zoneId) {
-        HalAudioFocusRequest currentRequest = mHalFocusRequestsByZoneAndUsage.get(zoneId)
-                .removeReturnOld(usage);
+        SparseArray<HalAudioFocusRequest> halAudioFocusRequests = mHalFocusRequestsByZoneAndUsage
+                .get(zoneId);
+        HalAudioFocusRequest currentRequest = halAudioFocusRequests.get(usage);
 
         if (currentRequest == null) {
             if (Log.isLoggable(TAG, Log.DEBUG)) {
@@ -205,6 +206,9 @@ public final class HalAudioFocus implements HalFocusListener {
                         + " and zoneId " + zoneId);
             }
             return;
+        } else {
+            // remove it from map
+            halAudioFocusRequests.remove(usage);
         }
 
         int result = mAudioManager.abandonAudioFocusRequest(currentRequest.mAudioFocusRequest);
