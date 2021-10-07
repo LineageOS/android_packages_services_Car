@@ -340,4 +340,11 @@ public final class UserManagerHelper {
             @NonNull UserHandle user) {
         return userManager.markGuestForDeletion(user.getIdentifier());
     }
+
+    /**
+     * Returns the user id for a given uid.
+     */
+    public static @UserIdInt int getUserId(int uid) {
+        return UserHandle.getUserId(uid);
+    }
 }

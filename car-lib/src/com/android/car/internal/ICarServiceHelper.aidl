@@ -56,4 +56,10 @@ interface ICarServiceHelper {
      * Creates the given user, even when it's disallowed by DevicePolicyManager.
      */
     UserHandle createUserEvenWhenDisallowed(String name, String userType, int flags);
+
+    /**
+     * Designates the given {@code activity} to be launched in {@code TaskDisplayArea} of
+     * {@code featureId} in the display of {@code displayId}.
+     */
+    int setPersistentActivity(in ComponentName activity, int displayId, int featureId);
 }

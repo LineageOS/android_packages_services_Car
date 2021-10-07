@@ -893,6 +893,14 @@
                 android:label="@string/car_permission_label_template_renderer"
                 android:description="@string/car_permission_desc_template_renderer"/>
 
+    <!-- Allows an application to control launching applications in Car.
+         <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CONTROL_CAR_APP_LAUNCH"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_label_control_car_app_launch"
+        android:description="@string/car_permission_desc_control_car_app_launch"/>
+
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.DEVICE_POWER"/>
     <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS"/>
