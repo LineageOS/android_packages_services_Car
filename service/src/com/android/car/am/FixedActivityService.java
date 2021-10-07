@@ -24,7 +24,6 @@ import android.annotation.NonNull;
 import android.annotation.UserIdInt;
 import android.app.ActivityManager;
 import android.app.ActivityOptions;
-import android.app.Presentation;
 import android.car.builtin.app.ActivityManagerHelper;
 import android.car.builtin.app.ActivityManagerHelper.OnTaskStackChangeListener;
 import android.car.builtin.app.ActivityManagerHelper.ProcessObserverCallback;
@@ -225,9 +224,6 @@ public final class FixedActivityService implements CarServiceBase {
             new SparseArray<>(/* capacity= */ 1); // default to one cluster only case
 
     @GuardedBy("mLock")
-    private final SparseArray<Presentation> mBlockingPresentations = new SparseArray<>(1);
-
-    @GuardedBy("mLock")
     private boolean mEventMonitoringActive;
 
     @GuardedBy("mLock")
@@ -284,15 +280,6 @@ public final class FixedActivityService implements CarServiceBase {
         synchronized (mLock) {
             writer.println("mRunningActivities:" + mRunningActivities
                     + " ,mEventMonitoringActive:" + mEventMonitoringActive);
-            writer.println("mBlockingPresentations:");
-            for (int i = 0; i < mBlockingPresentations.size(); i++) {
-                Presentation p = mBlockingPresentations.valueAt(i);
-                if (p == null) {
-                    continue;
-                }
-                writer.println("display:" + mBlockingPresentations.keyAt(i)
-                        + " showing:" + p.isShowing());
-            }
         }
     }
 
@@ -605,10 +592,6 @@ public final class FixedActivityService implements CarServiceBase {
         }
         boolean startMonitoringEvents = false;
         synchronized (mLock) {
-            Presentation p = mBlockingPresentations.removeReturnOld(displayId);
-            if (p != null) {
-                p.dismiss();
-            }
             if (mRunningActivities.size() == 0) {
                 startMonitoringEvents = true;
             }
