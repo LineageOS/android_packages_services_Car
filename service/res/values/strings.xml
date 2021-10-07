@@ -548,6 +548,11 @@
     <!-- Permission text: app can render templates provided by another app [CHAR LIMIT=NONE] -->
     <string name="car_permission_desc_template_renderer">Render templates.</string>
 
+    <!-- Permission text: app can control launching applications in Car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_label_control_car_app_launch">control launching applications</string>
+    <!-- Permission text: app can control launching applications in Car [CHAR LIMIT=NONE] -->
+    <string name="car_permission_desc_control_car_app_launch">Control launching applications.</string>
+
     <!-- The default name of device enrolled as trust device [CHAR LIMIT=NONE] -->
     <string name="trust_device_default_name">My Device</string>
 

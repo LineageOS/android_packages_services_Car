@@ -54,6 +54,7 @@ import android.util.TimingsTraceLog;
 
 import com.android.car.admin.CarDevicePolicyService;
 import com.android.car.admin.FactoryResetActivity;
+import com.android.car.am.CarActivityService;
 import com.android.car.am.FixedActivityService;
 import com.android.car.audio.CarAudioService;
 import com.android.car.cluster.ClusterHomeService;
@@ -136,6 +137,7 @@ public class ICarImpl extends ICar.Stub {
     private final ClusterHomeService mClusterHomeService;
     private final CarEvsService mCarEvsService;
     private final CarTelemetryService mCarTelemetryService;
+    private final CarActivityService mCarActivityService;
 
     private final CarServiceBase[] mAllServices;
 
@@ -358,6 +360,8 @@ public class ICarImpl extends ICar.Stub {
         } else {
             mCarTelemetryService = null;
         }
+        mCarActivityService = constructWithTrace(t, CarActivityService.class,
+                () -> new CarActivityService(serviceContext));
 
         // Be careful with order. Service depending on other service should be inited later.
         List<CarServiceBase> allServices = new ArrayList<>();
@@ -394,6 +398,7 @@ public class ICarImpl extends ICar.Stub {
         addServiceIfNonNull(allServices, mClusterHomeService);
         addServiceIfNonNull(allServices, mCarEvsService);
         addServiceIfNonNull(allServices, mCarTelemetryService);
+        allServices.add(mCarActivityService);
 
         // Always put mCarExperimentalFeatureServiceController in last.
         addServiceIfNonNull(allServices, mCarExperimentalFeatureServiceController);
@@ -463,6 +468,7 @@ public class ICarImpl extends ICar.Stub {
             mSystemInterface.setCarServiceHelper(carServiceHelper);
             mCarOccupantZoneService.setCarServiceHelper(carServiceHelper);
             mCarUserService.setCarServiceHelper(carServiceHelper);
+            mCarActivityService.setICarServiceHelper(carServiceHelper);
 
             bundle = new Bundle();
             bundle.putBinder(ICAR_SYSTEM_SERVER_CLIENT, mICarSystemServerClientImpl.asBinder());
@@ -631,6 +637,8 @@ public class ICarImpl extends ICar.Stub {
                 return mCarEvsService;
             case Car.CAR_TELEMETRY_SERVICE:
                 return mCarTelemetryService;
+            case Car.CAR_ACTIVITY_SERVICE:
+                return mCarActivityService;
             default:
                 IBinder service = null;
                 if (mCarExperimentalFeatureServiceController != null) {
