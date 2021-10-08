@@ -226,7 +226,7 @@ public final class CarDevicePolicyServiceTest extends AbstractExtendedMockitoTes
                 /* args= */ eq(new Object[]{userId, mBuiltinPackageContext}),
                 /* ignoreFailure= */ eq(false)
         ));
-        verify(mDpm).resetNewUserDisclaimer();
+        verify(mDpm).acknowledgeNewUserDisclaimer();
     }
 
     private BroadcastReceiver callInit() {
