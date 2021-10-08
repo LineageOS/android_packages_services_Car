@@ -49,6 +49,7 @@ public class MockedPowerHalService extends PowerHalService {
                 mock(UserHalService.class),
                 mock(DiagnosticHalService.class),
                 mock(ClusterHalService.class),
+                mock(TimeHalService.class),
                 mock(HalClient.class),
                 CarServiceUtils.getHandlerThread(VehicleHal.class.getSimpleName()));
         return mockedVehicleHal;

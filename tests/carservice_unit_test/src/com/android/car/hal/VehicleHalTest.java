@@ -71,6 +71,7 @@ public final class VehicleHalTest {
     @Mock private UserHalService mUserHalService;
     @Mock private DiagnosticHalService mDiagnosticHalService;
     @Mock private ClusterHalService mClusterHalService;
+    @Mock private TimeHalService mTimeHalService;
     @Mock private HalClient mHalClient;
 
     private final HandlerThread mHandlerThread = CarServiceUtils.getHandlerThread(
@@ -86,7 +87,8 @@ public final class VehicleHalTest {
     public void setUp() throws Exception {
         mVehicleHal = new VehicleHal(mPowerHalService,
                 mPropertyHalService, mInputHalService, mVmsHalService, mUserHalService,
-                mDiagnosticHalService, mClusterHalService, mHalClient, mHandlerThread);
+                mDiagnosticHalService, mClusterHalService, mTimeHalService, mHalClient,
+                mHandlerThread);
 
         mConfigs.clear();
 
