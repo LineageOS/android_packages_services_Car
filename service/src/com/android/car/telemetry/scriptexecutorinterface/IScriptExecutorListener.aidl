@@ -52,5 +52,33 @@ interface IScriptExecutorListener {
    * @param stackTrace the stack trace of the error if available.
    */
   void onError(int errorType, String message, @nullable String stackTrace);
+
+  /**
+   * Any changes to the following ERROR_TYPE_* constants must be also reflected in the following files:
+   * p/s/C/package/ScriptExecutor/src/ScriptExecutorListener.h
+   * p/s/C/service/src/com/android/car/telemetry/proto/telemetry.proto
+   */
+
+  /**
+   * Default error type.
+   */
+  const int ERROR_TYPE_UNSPECIFIED = 0;
+
+  /**
+   * Used when an error occurs in the ScriptExecutor code.
+   */
+  const int ERROR_TYPE_SCRIPT_EXECUTOR_ERROR = 1;
+
+  /**
+   * Used when an error occurs while executing the Lua script (such as
+   * errors returned by lua_pcall)
+   */
+  const int ERROR_TYPE_LUA_RUNTIME_ERROR = 2;
+
+  /**
+   * Used to log errors by a script itself, for instance, when a script received
+   * inputs outside of expected range.
+   */
+  const int ERROR_TYPE_LUA_SCRIPT_ERROR = 3;
 }
 

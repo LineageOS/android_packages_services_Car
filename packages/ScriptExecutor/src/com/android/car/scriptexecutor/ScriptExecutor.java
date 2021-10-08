@@ -28,7 +28,6 @@ import android.util.Log;
 import android.util.Slog;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
-import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorConstants;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import java.io.IOException;
@@ -72,7 +71,7 @@ public final class ScriptExecutor extends Service {
                     publishedData = PersistableBundle.readFromStream(input);
                 } catch (IOException e) {
                     try {
-                        listener.onError(IScriptExecutorConstants.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
+                        listener.onError(IScriptExecutorListener.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
                                 e.getMessage(), "");
                     } catch (RemoteException remoteException) {
                         if (Log.isLoggable(TAG, Log.ERROR)) {
