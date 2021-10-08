@@ -21,6 +21,7 @@ import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_C
 import android.app.StatsManager.StatsUnavailableException;
 import android.os.Handler;
 import android.os.PersistableBundle;
+import android.os.Process;
 import android.util.LongSparseArray;
 import android.util.Slog;
 
@@ -70,6 +71,8 @@ public class StatsPublisher extends AbstractPublisher {
     @VisibleForTesting
     static final String SAVED_STATS_CONFIGS_FILE = "stats_config_keys_versions";
 
+    // TODO(b/202115033): Flatten the load spike by pulling reports for each MetricsConfigs
+    //                    using separate periodical timers.
     private static final Duration PULL_REPORTS_PERIOD = Duration.ofMinutes(10);
 
     private static final String BUNDLE_CONFIG_KEY_PREFIX = "statsd-publisher-config-id-";
@@ -180,8 +183,6 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
-        // TODO(b/197269115): if StatsD reports invalid StatsdConfig, it should
-        //                    onPublisherFailure() and provide the affected MetricsConfigs.
         Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
         if (report.getReportsCount() == 0) {
             return;
@@ -225,25 +226,49 @@ public class StatsPublisher extends AbstractPublisher {
         }
     }
 
-    private void pullReportsPeriodically() {
-        for (long configKey : getActiveConfigKeys()) {
-            try {
-                processReport(configKey, StatsLogProto.ConfigMetricsReportList.parseFrom(
-                        mStatsManager.getReports(configKey)));
-            } catch (StatsUnavailableException e) {
-                // If the StatsD is not available, retry in the next pullReportsPeriodically call.
-                break;
-            } catch (InvalidProtocolBufferException e) {
-                // This case should never happen.
-                Slog.w(CarLog.TAG_TELEMETRY,
-                        "Failed to parse report from statsd, configKey=" + configKey);
+    private void processStatsMetadata(StatsLogProto.StatsdStatsReport statsReport) {
+        int myUid = Process.myUid();
+        // configKey and StatsdConfig.id are the same, see this#addStatsConfig().
+        HashSet<Long> activeConfigKeys = new HashSet<>(getActiveConfigKeys());
+        HashSet<TelemetryProto.MetricsConfig> failedConfigs = new HashSet<>();
+        for (int i = 0; i < statsReport.getConfigStatsCount(); i++) {
+            StatsLogProto.StatsdStatsReport.ConfigStats stats = statsReport.getConfigStats(i);
+            if (stats.getUid() != myUid || !activeConfigKeys.contains(stats.getId())) {
+                continue;
+            }
+            if (!stats.getIsValid()) {
+                Slog.w(CarLog.TAG_TELEMETRY, "Config key " + stats.getId() + " is invalid.");
+                failedConfigs.add(mConfigKeyToSubscribers.get(stats.getId()).getMetricsConfig());
             }
         }
+        if (!failedConfigs.isEmpty()) {
+            // Notify DataBroker so it can disable invalid MetricsConfigs.
+            onPublisherFailure(
+                    new ArrayList<>(failedConfigs),
+                    new IllegalStateException("Found invalid configs"));
+        }
+    }
 
+    private void pullReportsPeriodically() {
         if (mIsPullingReports) {
             Slog.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
+        }
+
+        try {
+            // TODO(b/202131100): Get the active list of configs using
+            //                    StatsManager#setActiveConfigsChangedOperation()
+            processStatsMetadata(
+                    StatsLogProto.StatsdStatsReport.parseFrom(mStatsManager.getStatsMetadata()));
+
+            for (long configKey : getActiveConfigKeys()) {
+                processReport(configKey, StatsLogProto.ConfigMetricsReportList.parseFrom(
+                        mStatsManager.getReports(configKey)));
+            }
+        } catch (InvalidProtocolBufferException | StatsUnavailableException e) {
+            // If the StatsD is not available, retry in the next pullReportsPeriodically call.
+            Slog.w(CarLog.TAG_TELEMETRY, e);
         }
     }
 
@@ -330,11 +355,11 @@ public class StatsPublisher extends AbstractPublisher {
 
     /** Returns all the {@link TelemetryProto.MetricsConfig} associated with added subscribers. */
     private List<TelemetryProto.MetricsConfig> getMetricsConfigs() {
-        HashSet<TelemetryProto.MetricsConfig> failedConfigs = new HashSet<>();
+        HashSet<TelemetryProto.MetricsConfig> uniqueConfigs = new HashSet<>();
         for (int i = 0; i < mConfigKeyToSubscribers.size(); i++) {
-            failedConfigs.add(mConfigKeyToSubscribers.valueAt(i).getMetricsConfig());
+            uniqueConfigs.add(mConfigKeyToSubscribers.valueAt(i).getMetricsConfig());
         }
-        return new ArrayList<>(failedConfigs);
+        return new ArrayList<>(uniqueConfigs);
     }
 
     /**
