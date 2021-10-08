@@ -18,8 +18,8 @@ package com.android.car.watchdog;
 
 import static android.automotive.watchdog.internal.ResourceOveruseActionType.KILLED;
 import static android.automotive.watchdog.internal.ResourceOveruseActionType.NOT_KILLED;
-import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAliveUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
@@ -280,6 +280,15 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .notifySystemStateChange(
                         eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
         verify(mMockWatchdogStorage, never()).shrinkDatabase();
+    }
+
+    @Test
+    public void testUserRemovedBroadcast() throws Exception {
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 101, 102);
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(Intent.ACTION_USER_REMOVED)
+                        .putExtra(Intent.EXTRA_USER, UserHandle.of(100)));
+        verify(mMockWatchdogStorage).syncUsers(new int[] {101, 102});
     }
 
     @Test
@@ -1001,7 +1010,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetKillablePackageAsUser() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("third_party_package", 1103456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 1101278, null),
@@ -1029,7 +1038,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 () -> mCarWatchdogService.setKillablePackageAsUser("vendor_package.critical",
                         userHandle, /* isKillable= */ true));
 
-        mockUmGetAliveUsers(mMockUserManager, 11, 12, 13);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12, 13);
         injectPackageInfos(Collections.singletonList(
                 constructPackageManagerPackageInfo("third_party_package", 1303456, null)));
 
@@ -1049,7 +1058,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetKillablePackageAsUserWithSharedUids() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "third_party_package.A", 1103456, "third_party_shared_package.A"),
@@ -1094,7 +1103,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetKillablePackageAsUserForAllUsers() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("third_party_package", 1103456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 1101278, null),
@@ -1121,7 +1130,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 () -> mCarWatchdogService.setKillablePackageAsUser("vendor_package.critical",
                         UserHandle.ALL, /* isKillable= */ true));
 
-        mockUmGetAliveUsers(mMockUserManager, 11, 12, 13);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12, 13);
         injectPackageInfos(Collections.singletonList(
                 constructPackageManagerPackageInfo("third_party_package", 1303456, null)));
 
@@ -1141,7 +1150,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testSetKillablePackageAsUsersForAllUsersWithSharedUids() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "third_party_package.A", 1103456, "third_party_shared_package.A"),
@@ -1174,7 +1183,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 new PackageKillableState("third_party_package.B", 12,
                         PackageKillableState.KILLABLE_STATE_NO));
 
-        mockUmGetAliveUsers(mMockUserManager, 11, 12, 13);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12, 13);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "third_party_package.A", 1303456, "third_party_shared_package.A"),
@@ -1192,7 +1201,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUser() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("third_party_package", 1103456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 1101278, null),
@@ -1210,7 +1219,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserWithSafeToKillPackages() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("system_package.non_critical.A", 1102459, null),
                 constructPackageManagerPackageInfo("third_party_package", 1103456, null),
@@ -1242,7 +1251,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserWithVendorPackagePrefixes() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
         /* Package names which start with "system" are constructed as system packages. */
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("system_package_as_vendor", 1102459, null)));
@@ -1273,7 +1282,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserWithSharedUids() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "system_package.A", 1103456, "vendor_shared_package.A"),
@@ -1304,7 +1313,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillPackages()
             throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "vendor_package.non_critical.A", 1103456, "vendor_shared_package.A"),
@@ -1343,7 +1352,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     @Test
     public void testGetPackageKillableStatesAsUserWithSharedUidsAndSafeToKillSharedPackage()
             throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "vendor_package.non_critical.A", 1103456, "vendor_shared_package.B"),
@@ -1374,7 +1383,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserForAllUsers() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("third_party_package", 1103456, null),
                 constructPackageManagerPackageInfo("vendor_package.critical", 1101278, null),
@@ -1395,7 +1404,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testGetPackageKillableStatesAsUserForAllUsersWithSharedUids() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "system_package.A", 1103456, "vendor_shared_package.A"),
@@ -1897,7 +1906,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testPersistStatsOnShutdownEnter() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 10, 11, 12);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 10, 11, 12);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo(
                         "third_party_package", 1103456, "vendor_shared_package.critical"),
@@ -1961,7 +1970,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testPersistIoOveruseStatsOnDateChange() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 10);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 10);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("system_package", 1011200, null),
                 constructPackageManagerPackageInfo("third_party_package", 1001100, null)));
@@ -2053,7 +2062,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
     @Test
     public void testResetResourceOveruseStatsResetsUserPackageSettings() throws Exception {
-        mockUmGetAliveUsers(mMockUserManager, 100, 101);
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 100, 101);
         injectPackageInfos(Arrays.asList(
                 constructPackageManagerPackageInfo("third_party_package.A", 10001278, null),
                 constructPackageManagerPackageInfo("third_party_package.A", 10101278, null),
@@ -2388,6 +2397,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
          */
         CarServiceUtils.getHandlerThread(CarWatchdogService.class.getSimpleName())
                 .getThreadHandler().post(() -> {});
+        verify(mMockWatchdogStorage, times(wantedInvocations)).syncUsers(any());
         verify(mMockWatchdogStorage, times(wantedInvocations)).getUserPackageSettings();
         verify(mMockWatchdogStorage, times(wantedInvocations)).getTodayIoUsageStats();
     }
