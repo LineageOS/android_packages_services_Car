@@ -16,6 +16,21 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+aidl_interface {
+    name: "android-automotive-test-stable-parcelable-aidl",
+    srcs: ["aidl/*.aidl"],
+    unstable: true,
+    vendor_available: true,
+    backend: {
+        cpp: {
+            enabled: false,
+        },
+        ndk: {
+            enabled: true,
+        },
+    },
+}
+
 cc_test {
     name: "android-automotive-large-parcelable-test",
     vendor: true,
@@ -23,10 +38,12 @@ cc_test {
         "android-automotive-large-parcelable-defaults",
     ],
     srcs: [
+        "LargeParcelableTest.cpp",
         "MappedFileSharedMemoryTest.cpp",
     ],
     whole_static_libs: [
+        "android-automotive-test-stable-parcelable-aidl-ndk_platform",
         "android-automotive-large-parcelable-lib",
     ],
-    test_suites: ["general-tests"],
+    test_suites: ["device-tests"],
 }

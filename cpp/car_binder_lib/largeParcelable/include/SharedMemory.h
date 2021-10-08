@@ -31,6 +31,7 @@ namespace automotive {
 namespace car_binder_lib {
 
 using ::android::status_t;
+using ::android::base::borrowed_fd;
 using ::android::base::unique_fd;
 
 // SharedMemory represents a shared memory file object.
@@ -41,41 +42,57 @@ public:
     // succeed and use getErr() to get error if isValid() is not true.
     explicit SharedMemory(unique_fd fd);
 
+    // Initialize the shared memory object with an unowned file descriptor to a shared memory file.
+    explicit SharedMemory(borrowed_fd fd);
+
     // Create a shared memory object with 'size'. Caller should use isValid() to check whether the
     // initialization succeed and use getErr() to get error if isValid() is not true.
     explicit SharedMemory(size_t size);
 
-    inline bool isValid() const { return mFd.ok(); }
+    inline bool isValid() const {
+        if (mOwned) {
+            return mOwnedFd.ok();
+        } else {
+            return mBorrowedFd.get() > 0;
+        }
+    }
 
     inline size_t getSize() const { return mSize; }
 
     inline status_t getErr() const { return -mErrno; }
 
-    inline int getFd() const { return mFd.get(); }
+    inline int getFd() const {
+        if (mOwned) {
+            return mOwnedFd.get();
+        }
+        return mBorrowedFd.get();
+    }
 
     inline unique_fd getDupFd() const {
-        unique_fd fd(dup(mFd.get()));
+        unique_fd fd(dup(getFd()));
         return std::move(fd);
     }
 
     inline std::unique_ptr<MappedFile> mapReadWrite() const {
         assert(!mLocked);
-        bool writtable = true;
-        return std::unique_ptr<MappedFile>(new MappedFile(mFd.get(), mSize, writtable));
+        bool writable = true;
+        return std::unique_ptr<MappedFile>(new MappedFile(getFd(), mSize, writable));
     }
 
     inline std::unique_ptr<MappedFile> mapReadOnly() const {
-        bool writtable = false;
-        return std::unique_ptr<MappedFile>(new MappedFile(mFd.get(), mSize, writtable));
+        bool writable = false;
+        return std::unique_ptr<MappedFile>(new MappedFile(getFd(), mSize, writable));
     }
 
     status_t lock();
 
 private:
-    unique_fd mFd;
+    unique_fd mOwnedFd;
+    borrowed_fd mBorrowedFd;
     int mErrno = 0;
     bool mLocked = false;
     size_t mSize = 0;
+    bool mOwned;
 };
 
 }  // namespace car_binder_lib
