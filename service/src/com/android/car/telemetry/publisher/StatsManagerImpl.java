@@ -41,4 +41,9 @@ public class StatsManagerImpl implements StatsManagerProxy {
     public void removeConfig(long configKey) throws StatsUnavailableException {
         mStatsManager.removeConfig(configKey);
     }
+
+    @Override
+    public byte[] getStatsMetadata() throws StatsUnavailableException {
+        return mStatsManager.getStatsMetadata();
+    }
 }
