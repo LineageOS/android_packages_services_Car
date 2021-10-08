@@ -59,16 +59,17 @@ import java.util.List;
 public final class WatchdogStorageUnitTest {
     private static final String TAG = WatchdogStorageUnitTest.class.getSimpleName();
 
+    private Context mContext;
     private WatchdogStorage mService;
     private File mDatabaseFile;
     private TimeSourceInterface mTimeSource;
 
     @Before
     public void setUp() throws Exception {
-        Context context = InstrumentationRegistry.getTargetContext();
-        mDatabaseFile = context.createDeviceProtectedStorageContext()
+        mContext = InstrumentationRegistry.getTargetContext().createDeviceProtectedStorageContext();
+        mDatabaseFile = mContext.createDeviceProtectedStorageContext()
                 .getDatabasePath(DATABASE_NAME);
-        mService = new WatchdogStorage(context, /* useDataSystemCarDir= */ false);
+        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false);
         setDate(/* numDaysAgo= */ 0);
     }
 
@@ -162,7 +163,7 @@ public final class WatchdogStorageUnitTest {
                 .toEpochSecond();
         long duration = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond() - startTime;
 
-        List<WatchdogStorage.IoUsageStatsEntry> expected = Collections.singletonList(
+        List<WatchdogStorage.IoUsageStatsEntry> statsBeforeOverwrite = Collections.singletonList(
                 constructIoUsageStatsEntry(
                         /* userId= */ 100, "system_package.non_critical.A", startTime, duration,
                         /* remainingWriteBytes= */
@@ -174,12 +175,13 @@ public final class WatchdogStorageUnitTest {
                         /* totalOveruses= */ 2, /* totalTimesKilled= */ 1));
 
         assertWithMessage("Saved I/O usage stats successfully")
-                .that(mService.saveIoUsageStats(expected)).isTrue();
+                .that(mService.saveIoUsageStats(statsBeforeOverwrite)).isTrue();
 
-        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
-                .containsExactlyElementsIn(expected);
+        IoUsageStatsEntrySubject.assertWithMessage(
+                mService.getTodayIoUsageStats(), "I/O usage stats fetched from database")
+                .containsExactlyElementsIn(statsBeforeOverwrite);
 
-        expected = Collections.singletonList(
+        List<WatchdogStorage.IoUsageStatsEntry> statsAfterOverwrite = Collections.singletonList(
                 constructIoUsageStatsEntry(
                         /* userId= */ 100, "system_package.non_critical.A", startTime, duration,
                         /* remainingWriteBytes= */
@@ -191,10 +193,22 @@ public final class WatchdogStorageUnitTest {
                         /* totalOveruses= */ 4, /* totalTimesKilled= */ 2));
 
         assertWithMessage("Saved I/O usage stats successfully")
-                .that(mService.saveIoUsageStats(expected)).isTrue();
+                .that(mService.saveIoUsageStats(statsAfterOverwrite)).isTrue();
 
-        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
-                .containsExactlyElementsIn(expected);
+        IoUsageStatsEntrySubject.assertWithMessage(
+                mService.getTodayIoUsageStats(), "Cached in memory I/O usage stats")
+                .containsExactlyElementsIn(statsBeforeOverwrite);
+
+        mService.release();
+        mService = new WatchdogStorage(mContext, /* useDataSystemCarDir= */ false);
+        setDate(/* numDaysAgo= */ 0);
+
+        assertWithMessage("User packages settings").that(mService.getUserPackageSettings())
+                .isNotEmpty();
+
+        IoUsageStatsEntrySubject.assertWithMessage(mService.getTodayIoUsageStats(),
+                "I/O usage stats fetched from database after restart")
+                .containsExactlyElementsIn(statsAfterOverwrite);
     }
 
     @Test
@@ -539,7 +553,7 @@ public final class WatchdogStorageUnitTest {
         return entries;
     }
 
-    private static WatchdogStorage.IoUsageStatsEntry constructIoUsageStatsEntry(
+    static WatchdogStorage.IoUsageStatsEntry constructIoUsageStatsEntry(
             int userId, String packageName, long startTime, long duration,
             PerStateBytes remainingWriteBytes, PerStateBytes writtenBytes,
             PerStateBytes forgivenWriteBytes, int totalOveruses, int totalTimesKilled) {

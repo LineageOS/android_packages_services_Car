@@ -193,6 +193,8 @@ private:
         uint64_t lastSyncedWrittenBytes = 0;
 
         UserPackageIoUsage& operator+=(const UserPackageIoUsage& r);
+        UserPackageIoUsage& operator+=(
+                const android::automotive::watchdog::internal::IoUsageStats& r);
 
         const std::string id() const;
         void resetStats();
@@ -213,6 +215,8 @@ private:
 
 private:
     bool isInitializedLocked() const { return mIoOveruseConfigs != nullptr; }
+
+    void syncTodayIoUsageStatsLocked();
 
     void notifyNativePackagesLocked(const std::unordered_map<uid_t, IoOveruseStats>& statsByUid);
 
@@ -237,6 +241,10 @@ private:
     // Makes sure only one collection is running at any given time.
     mutable std::shared_mutex mRwMutex;
 
+    // Indicates whether or not today's I/O usage stats, that were collected during previous boot,
+    // are read from CarService because CarService persists these stats in database across reboot.
+    bool mDidReadTodayPrevBootStats GUARDED_BY(mRwMutex);
+
     // Summary of configs available for all the components and system-wide overuse alert thresholds.
     sp<IIoOveruseConfigs> mIoOveruseConfigs GUARDED_BY(mRwMutex);
 
@@ -247,6 +255,11 @@ private:
     std::vector<WrittenBytesSnapshot> mSystemWideWrittenBytes GUARDED_BY(mRwMutex);
     size_t mPeriodicMonitorBufferSize GUARDED_BY(mRwMutex);
     time_t mLastSystemWideIoMonitorTime GUARDED_BY(mRwMutex);
+
+    // Cache of I/O usage stats from previous boot that happened today. Key is a unique ID with
+    // the format `packageName:userId`.
+    std::unordered_map<std::string, android::automotive::watchdog::internal::IoUsageStats>
+            mPrevBootIoUsageStatsById GUARDED_BY(mRwMutex);
 
     // Cache of per user package I/O usage. Key is a unique ID with the format `packageName:userId`.
     std::unordered_map<std::string, UserPackageIoUsage> mUserPackageDailyIoUsageById

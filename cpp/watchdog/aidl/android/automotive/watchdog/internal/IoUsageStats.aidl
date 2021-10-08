@@ -16,17 +16,24 @@
 
 package android.automotive.watchdog.internal;
 
+import android.automotive.watchdog.PerStateBytes;
+
 /**
- * Structure that describes the package identifier.
+ * Structure that describes the I/O usage stats.
  */
-parcelable PackageIdentifier {
+parcelable IoUsageStats {
   /**
-   * Generic name of the package.
+   * Total number of bytes written to disk.
    */
-  @utf8InCpp String name;
+  PerStateBytes writtenBytes;
 
   /**
-   * UID of the package.
+   * Number of bytes written to disk but forgiven.
    */
-  int uid;
+  PerStateBytes forgivenWriteBytes;
+
+  /**
+   * Total number of overuses.
+   */
+  int totalOveruses;
 }

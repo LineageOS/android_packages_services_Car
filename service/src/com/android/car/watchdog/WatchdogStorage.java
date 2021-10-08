@@ -36,6 +36,7 @@ import android.util.ArraySet;
 
 import com.android.car.CarLog;
 import com.android.car.internal.util.IntArray;
+import com.android.internal.annotations.GuardedBy;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.time.Instant;
@@ -66,6 +67,11 @@ public final class WatchdogStorage {
     private final ArrayMap<String, UserPackage> mUserPackagesByKey = new ArrayMap<>();
     private final ArrayMap<String, UserPackage> mUserPackagesById = new ArrayMap<>();
     private TimeSourceInterface mTimeSource = SYSTEM_INSTANCE;
+    private final Object mLock = new Object();
+    // Cache of today's I/O overuse stats collected during the previous boot. The data contained in
+    // the cache won't change until the next boot, so it is safe to cache the data in memory.
+    @GuardedBy("mLock")
+    private final List<IoUsageStatsEntry> mTodayIoUsageStatsEntries = new ArrayList<>();
 
     public WatchdogStorage(Context context) {
         this(context, /* useDataSystemCarDir= */ true);
@@ -135,27 +141,33 @@ public final class WatchdogStorage {
 
     /** Returns the saved I/O usage stats for the current day. */
     public List<IoUsageStatsEntry> getTodayIoUsageStats() {
-        ZonedDateTime statsDate =
-                mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
-        long startEpochSeconds = statsDate.toEpochSecond();
-        long endEpochSeconds = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond();
-        ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsagesById;
-        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
-            ioUsagesById = IoUsageStatsTable.queryStats(db, startEpochSeconds, endEpochSeconds);
-        }
-        List<IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 0; i < ioUsagesById.size(); ++i) {
-            String id = ioUsagesById.keyAt(i);
-            UserPackage userPackage = mUserPackagesById.get(id);
-            if (userPackage == null) {
-                Slogf.i(TAG, "Failed to find user id and package name for unique database id: '%s'",
-                        id);
-                continue;
+        synchronized (mLock) {
+            if (!mTodayIoUsageStatsEntries.isEmpty()) {
+                return new ArrayList<>(mTodayIoUsageStatsEntries);
             }
-            entries.add(new IoUsageStatsEntry(userPackage.getUserId(), userPackage.getPackageName(),
-                    ioUsagesById.valueAt(i)));
+            ZonedDateTime statsDate =
+                    mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+            long startEpochSeconds = statsDate.toEpochSecond();
+            long endEpochSeconds = mTimeSource.now().atZone(ZONE_OFFSET).toEpochSecond();
+            ArrayMap<String, WatchdogPerfHandler.PackageIoUsage> ioUsagesById;
+            try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+                ioUsagesById = IoUsageStatsTable.queryStats(db, startEpochSeconds, endEpochSeconds);
+            }
+            for (int i = 0; i < ioUsagesById.size(); ++i) {
+                String id = ioUsagesById.keyAt(i);
+                UserPackage userPackage = mUserPackagesById.get(id);
+                if (userPackage == null) {
+                    Slogf.i(TAG,
+                            "Failed to find user id and package name for unique database id: '%s'",
+                            id);
+                    continue;
+                }
+                mTodayIoUsageStatsEntries.add(new IoUsageStatsEntry(
+                        userPackage.getUserId(), userPackage.getPackageName(),
+                        ioUsagesById.valueAt(i)));
+            }
+            return new ArrayList<>(mTodayIoUsageStatsEntries);
         }
-        return entries;
     }
 
     /** Deletes user package settings and resource overuse stats. */
