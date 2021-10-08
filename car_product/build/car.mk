@@ -24,7 +24,6 @@ PRODUCT_PACKAGES += \
     CarActivityResolver \
     CarDeveloperOptions \
     CarSettingsIntelligence \
-    CarManagedProvisioning \
     OneTimeInitializer \
     CarProvision \
     StatementService \
