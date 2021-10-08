@@ -346,6 +346,68 @@ public final class WatchdogStorageUnitTest {
     }
 
     @Test
+    public void testSyncUsers() throws Exception {
+        List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries = sampleSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+
+        assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+
+        mService.syncUsers(/* aliveUserIds= */ new int[] {101});
+
+        settingsEntries.removeIf((s) -> s.userId == 100);
+        ioUsageStatsEntries.removeIf((e) -> e.userId == 100);
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(settingsEntries);
+
+        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
+                .containsExactlyElementsIn(ioUsageStatsEntries);
+    }
+
+    @Test
+    public void testSyncUsersWithHistoricalIoOveruseStats() throws Exception {
+        List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries = sampleSettings();
+
+        assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(sampleStatsBetweenDates(
+                /* includingStartDaysAgo= */ 1, /* excludingEndDaysAgo= */ 6))).isTrue();
+
+        mService.syncUsers(/* aliveUserIds= */ new int[] {101});
+
+        settingsEntries.removeIf((s) -> s.userId == 100);
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(settingsEntries);
+
+        IoOveruseStats actualSystemPackage = mService.getHistoricalIoOveruseStats(
+                /* userId= */ 100, "system_package.non_critical.A", /* numDaysAgo= */ 7);
+        IoOveruseStats actualVendorPackage = mService.getHistoricalIoOveruseStats(
+                /* userId= */ 100, "vendor_package.critical.C", /* numDaysAgo= */ 7);
+
+        assertWithMessage("System I/O overuse stats for deleted user")
+                .that(actualSystemPackage).isNull();
+        assertWithMessage("Vendor I/O overuse stats for deleted user")
+                .that(actualVendorPackage).isNull();
+    }
+
+    @Test
+    public void testSyncUsersWithNoDataForDeletedUser() throws Exception {
+        List<WatchdogStorage.UserPackageSettingsEntry> settingsEntries = sampleSettings();
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = sampleStatsForToday();
+
+        assertThat(mService.saveUserPackageSettings(settingsEntries)).isTrue();
+        assertThat(mService.saveIoUsageStats(ioUsageStatsEntries)).isTrue();
+
+        mService.syncUsers(/* aliveUserIds= */ new int[] {100, 101});
+
+        UserPackageSettingsEntrySubject.assertThat(mService.getUserPackageSettings())
+                .containsExactlyElementsIn(settingsEntries);
+        IoUsageStatsEntrySubject.assertThat(mService.getTodayIoUsageStats())
+                .containsExactlyElementsIn(ioUsageStatsEntries);
+    }
+
+    @Test
     public void testTruncateStatsOutsideRetentionPeriodOnDateChange() throws Exception {
         injectSampleUserPackageSettings();
         setDate(/* numDaysAgo= */ 1);
@@ -454,7 +516,7 @@ public final class WatchdogStorageUnitTest {
     private static ArrayList<WatchdogStorage.IoUsageStatsEntry> sampleStatsForDate(
             long statsDateEpoch, long duration) {
         ArrayList<WatchdogStorage.IoUsageStatsEntry> entries = new ArrayList<>();
-        for (int i = 100; i < 101; ++i) {
+        for (int i = 100; i <= 101; ++i) {
             entries.add(constructIoUsageStatsEntry(
                     /* userId= */ i, "system_package.non_critical.A", statsDateEpoch, duration,
                     /* remainingWriteBytes= */
