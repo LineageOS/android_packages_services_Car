@@ -16,17 +16,24 @@
 
 package android.automotive.watchdog.internal;
 
+import android.automotive.watchdog.internal.IoUsageStats;
+
 /**
- * Structure that describes the package identifier.
+ * Structure that describes the I/O usage stats for a user package.
  */
-parcelable PackageIdentifier {
+parcelable UserPackageIoUsageStats {
   /**
-   * Generic name of the package.
+   * User ID for the package.
    */
-  @utf8InCpp String name;
+  int userId;
 
   /**
-   * UID of the package.
+   * Generic name of the package whose stats are recorded in this parcelable.
    */
-  int uid;
+  @utf8InCpp String packageName;
+
+   /**
+    * I/O overuse stats for the package.
+    */
+  IoUsageStats ioUsageStats;
 }

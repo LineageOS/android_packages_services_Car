@@ -40,16 +40,20 @@ namespace android {
 namespace automotive {
 namespace watchdog {
 
+namespace {
+
 using ::android::IPCThreadState;
 using ::android::sp;
 using ::android::automotive::watchdog::internal::ComponentType;
 using ::android::automotive::watchdog::internal::IoOveruseConfiguration;
+using ::android::automotive::watchdog::internal::IoUsageStats;
 using ::android::automotive::watchdog::internal::PackageIdentifier;
 using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
 using ::android::automotive::watchdog::internal::PackageResourceOveruseAction;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
+using ::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::WriteStringToFd;
@@ -66,10 +70,25 @@ constexpr const char* kHelpText =
         "%s <package name>, <package name>,...: Reset resource overuse stats for the given package "
         "names. Value for this flag is a comma-separated value containing package names.\n";
 
-namespace {
+std::string uniquePackageIdStr(const std::string& name, userid_t userId) {
+    return StringPrintf("%s:%" PRId32, name.c_str(), userId);
+}
 
 std::string uniquePackageIdStr(const PackageIdentifier& id) {
-    return StringPrintf("%s:%" PRId32, id.name.c_str(), multiuser_get_user_id(id.uid));
+    return uniquePackageIdStr(id.name, multiuser_get_user_id(id.uid));
+}
+
+PerStateBytes sum(const PerStateBytes& lhs, const PerStateBytes& rhs) {
+    const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
+        return (std::numeric_limits<int64_t>::max() - l) > r ? (l + r)
+                                                             : std::numeric_limits<int64_t>::max();
+    };
+
+    PerStateBytes result;
+    result.foregroundBytes = sum(lhs.foregroundBytes, rhs.foregroundBytes);
+    result.backgroundBytes = sum(lhs.backgroundBytes, rhs.backgroundBytes);
+    result.garageModeBytes = sum(lhs.garageModeBytes, rhs.garageModeBytes);
+    return result;
 }
 
 PerStateBytes diff(const PerStateBytes& lhs, const PerStateBytes& rhs) {
@@ -116,6 +135,7 @@ IoOveruseMonitor::IoOveruseMonitor(
         const android::sp<IWatchdogServiceHelper>& watchdogServiceHelper) :
       mMinSyncWrittenBytes(kMinSyncWrittenBytes),
       mWatchdogServiceHelper(watchdogServiceHelper),
+      mDidReadTodayPrevBootStats(false),
       mSystemWideWrittenBytes({}),
       mPeriodicMonitorBufferSize(0),
       mLastSystemWideIoMonitorTime(0),
@@ -179,6 +199,9 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
     }
 
     std::unique_lock writeLock(mRwMutex);
+    if (!mDidReadTodayPrevBootStats) {
+        syncTodayIoUsageStatsLocked();
+    }
     struct tm prevGmt, curGmt;
     gmtime_r(&mLastUserPackageIoMonitorTime, &prevGmt);
     gmtime_r(&time, &curGmt);
@@ -216,6 +239,11 @@ Result<void> IoOveruseMonitor::onPeriodicCollection(
             cachedUsage->second += curUsage;
             dailyIoUsage = &cachedUsage->second;
         } else {
+            if (auto prevBootStats = mPrevBootIoUsageStatsById.find(curUsage.id());
+                prevBootStats != mPrevBootIoUsageStatsById.end()) {
+                curUsage += prevBootStats->second;
+                mPrevBootIoUsageStatsById.erase(prevBootStats);
+            }
             const auto& [it, wasInserted] = mUserPackageDailyIoUsageById.insert(
                     std::pair(curUsage.id(), std::move(curUsage)));
             dailyIoUsage = &it->second;
@@ -378,6 +406,27 @@ Result<void> IoOveruseMonitor::onDump([[maybe_unused]] int fd) const {
 bool IoOveruseMonitor::dumpHelpText(int fd) const {
     return WriteStringToFd(StringPrintf(kHelpText, name().c_str(), kResetResourceOveruseStatsFlag),
                            fd);
+}
+
+void IoOveruseMonitor::syncTodayIoUsageStatsLocked() {
+    std::vector<UserPackageIoUsageStats> userPackageIoUsageStats;
+    if (const auto status = mWatchdogServiceHelper->getTodayIoUsageStats(&userPackageIoUsageStats);
+        !status.isOk()) {
+        ALOGE("Failed to fetch today I/O usage stats collected during previous boot: %s",
+              status.exceptionMessage().c_str());
+        return;
+    }
+    for (const auto& statsEntry : userPackageIoUsageStats) {
+        std::string uniqueId = uniquePackageIdStr(statsEntry.packageName,
+                                                  static_cast<userid_t>(statsEntry.userId));
+        if (auto it = mUserPackageDailyIoUsageById.find(uniqueId);
+            it != mUserPackageDailyIoUsageById.end()) {
+            it->second += statsEntry.ioUsageStats;
+            continue;
+        }
+        mPrevBootIoUsageStatsById.insert(std::pair(uniqueId, statsEntry.ioUsageStats));
+    }
+    mDidReadTodayPrevBootStats = true;
 }
 
 void IoOveruseMonitor::notifyNativePackagesLocked(
@@ -585,17 +634,15 @@ IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::oper
     if (id() == r.id()) {
         packageInfo = r.packageInfo;
     }
-    const auto sum = [](const int64_t& l, const int64_t& r) -> int64_t {
-        return (std::numeric_limits<int64_t>::max() - l) > r ? (l + r)
-                                                             : std::numeric_limits<int64_t>::max();
-    };
-    writtenBytes.foregroundBytes =
-            sum(writtenBytes.foregroundBytes, r.writtenBytes.foregroundBytes);
-    writtenBytes.backgroundBytes =
-            sum(writtenBytes.backgroundBytes, r.writtenBytes.backgroundBytes);
-    writtenBytes.garageModeBytes =
-            sum(writtenBytes.garageModeBytes, r.writtenBytes.garageModeBytes);
+    writtenBytes = sum(writtenBytes, r.writtenBytes);
+    return *this;
+}
 
+IoOveruseMonitor::UserPackageIoUsage& IoOveruseMonitor::UserPackageIoUsage::operator+=(
+        const IoUsageStats& ioUsageStats) {
+    writtenBytes = sum(writtenBytes, ioUsageStats.writtenBytes);
+    forgivenWriteBytes = sum(forgivenWriteBytes, ioUsageStats.forgivenWriteBytes);
+    totalOveruses += ioUsageStats.totalOveruses;
     return *this;
 }
 
