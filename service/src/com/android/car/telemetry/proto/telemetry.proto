@@ -121,7 +121,8 @@ message Subscriber {
 
 // A message that encapsulates an error that's produced when collecting metrics.
 // Any changes here should also be reflected on
-// p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.aidl
+// p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl
+// p/s/C/package/ScriptExecutor/src/ScriptExecutorListener.h
 message TelemetryError {
   enum ErrorType {
     // Not used.

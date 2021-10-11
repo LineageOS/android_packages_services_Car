@@ -19,7 +19,6 @@
 #include "BundleWrapper.h"
 
 #include <android-base/logging.h>
-#include <com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorConstants.h>
 
 #include <sstream>
 #include <string>
@@ -36,8 +35,6 @@ namespace com {
 namespace android {
 namespace car {
 namespace scriptexecutor {
-
-using ::com::android::car::telemetry::scriptexecutorinterface::IScriptExecutorConstants;
 
 namespace {
 
@@ -95,8 +92,7 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                     << MAX_ARRAY_SIZE
                     << " elements. This key-value cannot be unpacked successfully. This error "
                        "is unrecoverable.";
-                listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
-                                  out.str().c_str(), "");
+                listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
                 return false;
             }
             if (kTableLength <= 0) {
@@ -105,8 +101,7 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                     << " appears to be a nested table that does not represent an array of data. "
                        "Such nested tables are not supported yet. This script error is "
                        "unrecoverable.";
-                listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
-                                  out.str().c_str(), "");
+                listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
                 return false;
             }
 
@@ -133,8 +128,7 @@ bool convertLuaTableToBundle(lua_State* lua, BundleWrapper* bundleWrapper,
                         << ", but the element at index=" << i + 1 << " has type=" << currentType
                         << ". Integer type codes are defined in lua.h file. This error is "
                            "unrecoverable.";
-                    listener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
-                                      out.str().c_str(), "");
+                    listener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, out.str().c_str(), "");
                     lua_pop(lua, 1);
                     return false;
                 }
@@ -255,7 +249,7 @@ int LuaEngine::run() {
 int LuaEngine::onSuccess(lua_State* lua) {
     // Any script we run can call on_success only with a single argument of Lua table type.
     if (lua_gettop(lua) != 1 || !lua_istable(lua, /* index =*/-1)) {
-        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+        sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR,
                            "on_success can push only a single parameter from Lua - a Lua table",
                            "");
         return ZERO_RETURNED_RESULTS;
@@ -276,7 +270,7 @@ int LuaEngine::onSuccess(lua_State* lua) {
 int LuaEngine::onScriptFinished(lua_State* lua) {
     // Any script we run can call on_success only with a single argument of Lua table type.
     if (lua_gettop(lua) != 1 || !lua_istable(lua, /* index =*/-1)) {
-        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+        sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR,
                            "on_script_finished can push only a single parameter from Lua - a Lua "
                            "table",
                            "");
@@ -298,12 +292,12 @@ int LuaEngine::onScriptFinished(lua_State* lua) {
 int LuaEngine::onError(lua_State* lua) {
     // Any script we run can call on_error only with a single argument of Lua string type.
     if (lua_gettop(lua) != 1 || !lua_isstring(lua, /* index = */ -1)) {
-        sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
+        sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR,
                            "on_error can push only a single string parameter from Lua", "");
         return ZERO_RETURNED_RESULTS;
     }
-    sListener->onError(IScriptExecutorConstants::ERROR_TYPE_LUA_SCRIPT_ERROR,
-                       lua_tostring(lua, /* index = */ -1), /* stackTrace =*/"");
+    sListener->onError(ERROR_TYPE_LUA_SCRIPT_ERROR, lua_tostring(lua, /* index = */ -1),
+                       /* stackTrace =*/"");
     return ZERO_RETURNED_RESULTS;
 }
 

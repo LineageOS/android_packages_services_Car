@@ -41,7 +41,6 @@ cc_library {
     ],
 
     srcs: [
-        ":iscriptexecutorconstants_aidl",
         "src/BundleWrapper.cpp",
         "src/JniUtils.cpp",
         "src/LuaEngine.cpp",
@@ -49,9 +48,7 @@ cc_library {
     ],
 
     shared_libs: [
-        "libbinder",
         "libnativehelper",
-        "libutils",
     ],
 
     // Allow dependents to use the header files.
@@ -80,7 +77,6 @@ android_app {
 
     srcs: [
         ":iscriptexecutor_aidl",
-        ":iscriptexecutorconstants_aidl",
         "src/**/*.java"
     ],
 
@@ -113,7 +109,6 @@ java_test_helper_library {
 
     srcs: [
         ":iscriptexecutor_aidl",
-        ":iscriptexecutorconstants_aidl",
         "src/**/*.java",
     ],
 
