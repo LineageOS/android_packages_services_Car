@@ -34,7 +34,6 @@ import android.os.UserHandle;
 import androidx.test.platform.app.InstrumentationRegistry;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
-import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorConstants;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import org.junit.Before;
@@ -195,7 +194,7 @@ public final class ScriptExecutorTest {
 
         // Verify that expected error is received.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).contains(
                 "nested tables are not supported");
     }
@@ -371,7 +370,7 @@ public final class ScriptExecutorTest {
 
         // Verify that expected error is received.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "Returned table huge_array exceeds maximum allowed size of 1000 "
                         + "elements. This key-value cannot be unpacked successfully. This error "
@@ -399,7 +398,7 @@ public final class ScriptExecutorTest {
 
         // Verify that expected error is received.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).contains(
                 "Returned Lua arrays must have elements of the same type.");
     }
@@ -473,7 +472,7 @@ public final class ScriptExecutorTest {
         runScriptAndWaitForError(script, "calls_on_error");
 
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo("one is not equal to two");
     }
 
@@ -490,7 +489,7 @@ public final class ScriptExecutorTest {
         runScriptAndWaitForError(script, "too_many_params_in_on_error");
 
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_error can push only a single string parameter from Lua");
     }
@@ -508,7 +507,7 @@ public final class ScriptExecutorTest {
         runScriptAndWaitForError(script, "only_string");
 
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_error can push only a single string parameter from Lua");
     }
@@ -597,7 +596,7 @@ public final class ScriptExecutorTest {
         // We expect to get an error here because we expect only 1 input parameter in
         // on_script_finished.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_script_finished can push only a single parameter from Lua - a Lua table");
     }
@@ -617,7 +616,7 @@ public final class ScriptExecutorTest {
 
         // We expect to get an error here because we expect only 1 input parameter in on_success.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_success can push only a single parameter from Lua - a Lua table");
     }
@@ -637,7 +636,7 @@ public final class ScriptExecutorTest {
         // We expect to get an error here because the type of the input parameter for on_success
         // must be a Lua table.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_success can push only a single parameter from Lua - a Lua table");
     }
@@ -657,7 +656,7 @@ public final class ScriptExecutorTest {
         // We expect to get an error here because the type of the input parameter for
         // on_script_finished must be a Lua table.
         assertThat(mFakeScriptExecutorListener.mErrorType).isEqualTo(
-                IScriptExecutorConstants.ERROR_TYPE_LUA_SCRIPT_ERROR);
+                IScriptExecutorListener.ERROR_TYPE_LUA_SCRIPT_ERROR);
         assertThat(mFakeScriptExecutorListener.mMessage).isEqualTo(
                 "on_success can push only a single parameter from Lua - a Lua table");
     }
