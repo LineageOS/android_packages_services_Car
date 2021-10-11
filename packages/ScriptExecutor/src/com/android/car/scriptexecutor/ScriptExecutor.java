@@ -27,7 +27,6 @@ import android.os.RemoteException;
 import android.util.Log;
 
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
-import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorConstants;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import java.io.IOException;
@@ -71,7 +70,7 @@ public final class ScriptExecutor extends Service {
                     publishedData = PersistableBundle.readFromStream(input);
                 } catch (IOException e) {
                     try {
-                        listener.onError(IScriptExecutorConstants.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
+                        listener.onError(IScriptExecutorListener.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
                                 e.getMessage(), "");
                     } catch (RemoteException remoteException) {
                         // TODO(b/197006437): remove isLoggable() check once using Slogf

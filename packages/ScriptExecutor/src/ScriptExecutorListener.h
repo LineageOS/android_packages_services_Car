@@ -26,10 +26,37 @@ namespace android {
 namespace car {
 namespace scriptexecutor {
 
+// Changes in this enum must also be reflected in:
+// p/s/C/service/src/com/android/car/telemetry/scriptexecutorinterface/IScriptExecutorListener.aidl
+// p/s/C/service/src/com/android/car/telemetry/proto/telemetry.proto
+enum ErrorType {
+    /**
+     * Default error type.
+     */
+    ERROR_TYPE_UNSPECIFIED = 0,
+
+    /**
+     * Used when an error occurs in the ScriptExecutor code.
+     */
+    ERROR_TYPE_SCRIPT_EXECUTOR_ERROR = 1,
+
+    /**
+     * Used when an error occurs while executing the Lua script (such as
+     * errors returned by lua_pcall)
+     */
+    ERROR_TYPE_LUA_RUNTIME_ERROR = 2,
+
+    /**
+     * Used to log errors by a script itself, for instance, when a script received
+     * inputs outside of expected range.
+     */
+    ERROR_TYPE_LUA_SCRIPT_ERROR = 3,
+};
+
 //  Wrapper class for IScriptExecutorListener.aidl.
 class ScriptExecutorListener {
 public:
-    ScriptExecutorListener(JNIEnv* jni, jobject script_executor_listener);
+    ScriptExecutorListener(JNIEnv* jni, jobject scriptExecutorListener);
 
     virtual ~ScriptExecutorListener();
 
@@ -37,7 +64,7 @@ public:
 
     void onSuccess(jobject bundle);
 
-    void onError(const int errorType, const char* message, const char* stackTrace);
+    void onError(const ErrorType errorType, const char* message, const char* stackTrace);
 
     JNIEnv* getCurrentJNIEnv();
 

@@ -30,8 +30,8 @@ ScriptExecutorListener::~ScriptExecutorListener() {
     }
 }
 
-ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject script_executor_listener) {
-    mScriptExecutorListener = env->NewGlobalRef(script_executor_listener);
+ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject scriptExecutorListener) {
+    mScriptExecutorListener = env->NewGlobalRef(scriptExecutorListener);
     env->GetJavaVM(&mJavaVM);
 }
 
@@ -51,14 +51,14 @@ void ScriptExecutorListener::onScriptFinished(jobject bundle) {
     env->CallVoidMethod(mScriptExecutorListener, onScriptFinished, bundle);
 }
 
-void ScriptExecutorListener::onError(const int errorType, const char* message,
+void ScriptExecutorListener::onError(const ErrorType errorType, const char* message,
                                      const char* stackTrace) {
     JNIEnv* env = getCurrentJNIEnv();
     jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
     jmethodID onErrorMethod =
             env->GetMethodID(listenerClass, "onError", "(ILjava/lang/String;Ljava/lang/String;)V");
 
-    env->CallVoidMethod(mScriptExecutorListener, onErrorMethod, errorType,
+    env->CallVoidMethod(mScriptExecutorListener, onErrorMethod, static_cast<int>(errorType),
                         env->NewStringUTF(message), env->NewStringUTF(stackTrace));
 }
 
