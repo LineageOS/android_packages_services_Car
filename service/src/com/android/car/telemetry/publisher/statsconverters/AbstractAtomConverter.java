@@ -16,6 +16,10 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
+
+import static java.nio.charset.StandardCharsets.UTF_16;
+
 import android.os.PersistableBundle;
 import android.util.SparseArray;
 
@@ -98,6 +102,7 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
             Map<Long, String> hashToStringMap) throws StatsConversionException {
         PersistableBundle bundle = new PersistableBundle();
         SparseArray<AtomFieldAccessor<T>> parserConfig = getAtomFieldAccessorMap();
+        int bundleByteSize = 0;
         // For each field, if set, add the values from all atoms to list and convert
         for (int i = 0; i < parserConfig.size(); ++i) {
             AtomFieldAccessor<T> atomFieldAccessor = parserConfig.valueAt(i);
@@ -115,11 +120,13 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
                     }
                     valueList.add(atomFieldAccessor.getField(atomData));
                 }
-                setPersistableBundleArrayField(atomFieldAccessor.getFieldName(), valueList, bundle);
+                bundleByteSize += setPersistableBundleArrayField(
+                        atomFieldAccessor.getFieldName(), valueList, bundle);
             }
         }
         // Check if there are dimension fields needing conversion
         if (dimensionsFieldsIds == null || dimensionsValuesList == null) {
+            bundle.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, bundleByteSize);
             return bundle;
         }
         // Create conversions for fields encoded in dimension fields
@@ -130,9 +137,12 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
             for (List<DimensionsValue> dvList : dimensionsValuesList) {
                 valueList.add(extractDimensionsValue(dvList.get(i), hashToStringMap));
             }
-            setPersistableBundleArrayField(
-                    getAtomFieldAccessorMap().get(fieldId).getFieldName(), valueList, bundle);
+            bundleByteSize += setPersistableBundleArrayField(
+                    getAtomFieldAccessorMap().get(fieldId).getFieldName(),
+                    valueList,
+                    bundle);
         }
+        bundle.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, bundleByteSize);
         return bundle;
     }
 
@@ -176,44 +186,58 @@ public abstract class AbstractAtomConverter<T extends MessageLite> {
      * @param name key value for the bundle, corresponds to atom field name.
      * @param objList the list to be converted to {@link PersistableBundle} compatible array.
      * @param bundle the {@link PersistableBundle} to put the arrays to.
+     * @return bytes written to PersistableBundle.
      */
-    private static void setPersistableBundleArrayField(
+    private static int setPersistableBundleArrayField(
             String name,
             List<Object> objList,
             PersistableBundle bundle) {
         Object e = objList.get(0);  // All elements of the list are the same type.
+        int len = objList.size();
         if (e instanceof Integer) {
             int[] intArray = new int[objList.size()];
             for (int i = 0; i < objList.size(); ++i) {
                 intArray[i] = (Integer) objList.get(i);
             }
             bundle.putIntArray(name, intArray);
+            return len * Integer.BYTES;
         } else if (e instanceof Long) {
             long[] longArray = new long[objList.size()];
             for (int i = 0; i < objList.size(); ++i) {
                 longArray[i] = (Long) objList.get(i);
             }
             bundle.putLongArray(name, longArray);
+            return len * Long.BYTES;
         } else if (e instanceof String) {
-            bundle.putStringArray(name, objList.toArray(new String[0]));
+            String[] strArray = objList.toArray(new String[0]);
+            bundle.putStringArray(name, strArray);
+            int bytes = 0;
+            for (String str : strArray) {
+                bytes += str.getBytes(UTF_16).length;
+            }
+            return bytes;
         } else if (e instanceof Boolean) {
             boolean[] boolArray = new boolean[objList.size()];
             for (int i = 0; i < objList.size(); ++i) {
                 boolArray[i] = (Boolean) objList.get(i);
             }
             bundle.putBooleanArray(name, boolArray);
+            return len;  // Java boolean is 1 byte
         } else if (e instanceof Double) {
             double[] doubleArray = new double[objList.size()];
             for (int i = 0; i < objList.size(); ++i) {
                 doubleArray[i] = (Double) objList.get(i);
             }
             bundle.putDoubleArray(name, doubleArray);
+            return len * Double.BYTES;
         } else if (e instanceof Float) {
             double[] doubleArray = new double[objList.size()];
             for (int i = 0; i < objList.size(); ++i) {
                 doubleArray[i] = ((Float) objList.get(i)).doubleValue();
             }
             bundle.putDoubleArray(name, doubleArray);
+            return len * Double.BYTES;
         }
+        return 0;
     }
 }

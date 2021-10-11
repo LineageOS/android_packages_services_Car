@@ -99,9 +99,8 @@ public class ConfigMetricsReportListConverterTest {
 
         Map<Long, PersistableBundle> map = ConfigMetricsReportListConverter.convert(reportList);
 
-        PersistableBundle eventBundle = map.get(12345L);
-        PersistableBundle gaugeBundle = map.get(23456L);
         assertThat(new ArrayList<Long>(map.keySet())).containsExactly(12345L, 23456L);
+        PersistableBundle eventBundle = map.get(12345L);
         assertThat(eventBundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(99999999L);
         assertThat(eventBundle.getIntArray(
@@ -116,6 +115,7 @@ public class ConfigMetricsReportListConverterTest {
                 appMemAccessorMap.get(AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER)
                 .getFieldName()))
             .asList().containsExactly(1234L);
+        PersistableBundle gaugeBundle = map.get(23456L);
         assertThat(gaugeBundle.getIntArray(
                 procMemAccessorMap.get(ProcessMemoryState.UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(234);
