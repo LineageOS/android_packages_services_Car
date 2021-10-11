@@ -95,6 +95,7 @@ public class NotificationFragment extends Fragment {
         initOngoingButton(view);
         initMessagingStyleButtonForDiffPerson(view);
         initMessagingStyleButtonForSamePerson(view);
+        initMessagingStyleButtonForLongMessageSamePerson(view);
         initMessagingStyleButtonWithMuteAction(view);
         initTestMessagesButton(view);
         initProgressButton(view);
@@ -429,6 +430,54 @@ public class NotificationFragment extends Fragment {
                     builder.setStyle(messagingStyle.addMessage(
                             new MessagingStyle.Message(
                                     "Message " + id,
+                                    System.currentTimeMillis(),
+                                    person)));
+            mManager.notify(12345, updateNotification.build());
+        });
+    }
+
+    private void initMessagingStyleButtonForLongMessageSamePerson(View view) {
+        view.findViewById(R.id.category_long_message_same_person_button).setOnClickListener(v -> {
+            int id = mCurrentNotificationId++;
+
+            PendingIntent replyIntent = createServiceIntent(id, "reply");
+            PendingIntent markAsReadIntent = createServiceIntent(id, "read");
+
+
+
+            Person person = new Person.Builder().setName("John Doe").build();
+            MessagingStyle messagingStyle =
+                    new MessagingStyle(person).setConversationTitle("Hello!");
+            NotificationCompat.Builder builder = new NotificationCompat
+                    .Builder(mContext, IMPORTANCE_HIGH_ID)
+                    .setContentTitle("Message from someone")
+                    .setContentText("hi")
+                    .setShowWhen(true)
+                    .setCategory(Notification.CATEGORY_MESSAGE)
+                    .setSmallIcon(R.drawable.car_ic_mode)
+                    .setAutoCancel(true)
+                    .setColor(mContext.getColor(android.R.color.holo_green_light))
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "read", markAsReadIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_MARK_AS_READ)
+                                    .setShowsUserInterface(false)
+                                    .build())
+                    .addAction(
+                            new Action.Builder(R.drawable.ic_check_box, "reply", replyIntent)
+                                    .setSemanticAction(Action.SEMANTIC_ACTION_REPLY)
+                                    .setShowsUserInterface(false)
+                                    .addRemoteInput(new RemoteInput.Builder("input").build())
+                                    .build());
+
+            String messageText = "";
+            for (int i = 0; i < 100; i++) {
+                messageText += " test";
+            }
+
+            NotificationCompat.Builder updateNotification =
+                    builder.setStyle(messagingStyle.addMessage(
+                            new MessagingStyle.Message(
+                                    id + messageText,
                                     System.currentTimeMillis(),
                                     person)));
             mManager.notify(12345, updateNotification.build());
