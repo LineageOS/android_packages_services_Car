@@ -17,4 +17,5 @@
 <resources>
     <string name="car_pref_category_title">Car</string>
     <string name="car_ui_plugin_enabled_pref_title">Enable Car UI library plugin</string>
+    <string name="car_ui_plugin_not_found_text">Car UI plugin not found</string>
 </resources>
