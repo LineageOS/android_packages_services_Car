@@ -75,7 +75,8 @@ include packages/services/Car/cpp/evs/manager/evsmanager.mk
 ifeq ($(ENABLE_EVS_SAMPLE), true)
 # ENABLE_EVS_SAMPLE should set be true or their vendor specific equivalents should be included in
 # the device.mk with the corresponding selinux policies
-PRODUCT_PRODUCT_PROPERTIES += persist.automotive.evs.mode=0
+LOCAL_EVS_PROPERTIES ?= persist.automotive.evs.mode=0
+PRODUCT_PRODUCT_PROPERTIES += $(LOCAL_EVS_PROPERTIES)
 PRODUCT_PACKAGES += evs_app \
                     android.hardware.automotive.evs@1.1-sample \
                     android.frameworks.automotive.display@1.0-service
