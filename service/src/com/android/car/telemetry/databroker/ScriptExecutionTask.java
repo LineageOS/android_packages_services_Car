@@ -16,6 +16,7 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.car.telemetry.MetricsConfigKey;
 import android.os.Parcel;
 import android.os.PersistableBundle;
 
@@ -63,10 +64,11 @@ public class ScriptExecutionTask implements Comparable<ScriptExecutionTask> {
     }
 
     /**
-     * Indicates whether the task is associated with MetricsConfig specified by the name.
+     * Indicates whether the task is associated with MetricsConfig specified by its key.
      */
-    public boolean isAssociatedWithMetricsConfig(String metricsConfigName) {
-        return mSubscriber.getMetricsConfig().getName().equals(metricsConfigName);
+    public boolean isAssociatedWithMetricsConfig(MetricsConfigKey key) {
+        return mSubscriber.getMetricsConfig().getName().equals(key.getName())
+                && mSubscriber.getMetricsConfig().getVersion() == key.getVersion();
     }
 
     /**
