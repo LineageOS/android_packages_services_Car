@@ -101,6 +101,23 @@ public class CarTelemetryManagerTest extends MockedCarTestBase {
     }
 
     @Test
+    public void testApiInvocationWithoutSettingListener() {
+        mCarTelemetryManager.clearListener();
+
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.addMetricsConfig(
+                        KEY_V1, METRICS_CONFIG_V1.toByteArray()));
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.removeMetricsConfig(KEY_V1));
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.removeAllMetricsConfigs());
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.sendFinishedReports(KEY_V1));
+        assertThrows(IllegalStateException.class,
+                () -> mCarTelemetryManager.sendAllFinishedReports());
+    }
+
+    @Test
     public void testAddMetricsConfig() throws Exception {
         // invalid config, should fail
         mCarTelemetryManager.addMetricsConfig(KEY_V1, INVALID_METRICS_CONFIG);
