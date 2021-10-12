@@ -16,6 +16,8 @@
 
 package android.car.cluster;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+
 import android.annotation.IntDef;
 import android.annotation.NonNull;
 import android.annotation.Nullable;
@@ -27,6 +29,7 @@ import android.os.Bundle;
 import android.os.IBinder;
 import android.os.RemoteException;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.VisibleForTesting;
 
 import java.lang.annotation.Retention;
@@ -86,6 +89,8 @@ public class ClusterHomeManager extends CarManagerBase {
             mExecutor = executor;
             mCallback = callback;
         }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public boolean equals(Object obj) {
             if (this == obj) {
@@ -96,6 +101,8 @@ public class ClusterHomeManager extends CarManagerBase {
             }
             return mCallback == ((CallbackRecord) obj).mCallback;
         }
+
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         @Override
         public int hashCode() {
             return mCallback.hashCode();
