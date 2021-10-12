@@ -33,5 +33,8 @@
         <item>com.google.android.gms/.auth.uiflows.common.UnpackingRedirectActivity</item>
         <item>com.google.android.gms/.auth.auto.SignInMethodActivity</item>
         <item>com.google.android.gms/.auth.uiflows.minutemaid.MinuteMaidActivity</item>
+        <item>android.car.cluster/android.car.cluster.FakeFreeNavigationActivity</item>
+        <item>android.car.cluster/android.car.cluster.MainClusterActivity</item>
+        <item>android.car.usb.handler/android.car.usb.handler.UsbHostManagementActivity</item>
     </string-array>
 </resources>
