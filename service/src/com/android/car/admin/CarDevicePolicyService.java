@@ -228,7 +228,7 @@ public final class CarDevicePolicyService extends ICarDevicePolicyService.Stub
 
         DevicePolicyManager dpm = mContext.createContextAsUser(UserHandle.of(userId), 0)
                 .getSystemService(DevicePolicyManager.class);
-        dpm.resetNewUserDisclaimer();
+        dpm.acknowledgeNewUserDisclaimer();
     }
 
     @VisibleForTesting
