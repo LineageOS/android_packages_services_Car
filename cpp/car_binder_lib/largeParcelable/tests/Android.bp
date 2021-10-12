@@ -42,7 +42,7 @@ cc_test {
         "MappedFileSharedMemoryTest.cpp",
     ],
     whole_static_libs: [
-        "android-automotive-test-stable-parcelable-aidl-ndk_platform",
+        "android-automotive-test-stable-parcelable-aidl-ndk",
         "android-automotive-large-parcelable-lib",
     ],
     test_suites: ["device-tests"],
