@@ -16,10 +16,14 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.AtomsProto.Atom.ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
+import static com.android.car.telemetry.publisher.StatsPublisher.ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID;
+import static com.android.car.telemetry.publisher.StatsPublisher.ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_ATOM_MATCHER_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID;
 import static com.android.car.telemetry.publisher.StatsPublisher.PROCESS_MEMORY_STATE_FIELDS_MATCHER;
@@ -89,6 +93,11 @@ public class StatsPublisherTest {
                     .setStats(TelemetryProto.StatsPublisher.newBuilder()
                             .setSystemMetric(PROCESS_MEMORY_STATE))
                     .build();
+    private static final TelemetryProto.Publisher STATS_PUBLISHER_PARAMS_3 =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(TelemetryProto.StatsPublisher.newBuilder()
+                            .setSystemMetric(ACTIVITY_FOREGROUND_STATE_CHANGED))
+                    .build();
     private static final TelemetryProto.Subscriber SUBSCRIBER_1 =
             TelemetryProto.Subscriber.newBuilder()
                     .setHandler("handler_fn_1")
@@ -99,16 +108,23 @@ public class StatsPublisherTest {
                     .setHandler("handler_fn_2")
                     .setPublisher(STATS_PUBLISHER_PARAMS_2)
                     .build();
+    private static final TelemetryProto.Subscriber SUBSCRIBER_3 =
+            TelemetryProto.Subscriber.newBuilder()
+                    .setHandler("handler_fn_3")
+                    .setPublisher(STATS_PUBLISHER_PARAMS_3)
+                    .build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG =
             TelemetryProto.MetricsConfig.newBuilder()
                     .setName("myconfig")
                     .setVersion(1)
                     .addSubscribers(SUBSCRIBER_1)
                     .addSubscribers(SUBSCRIBER_2)
+                    .addSubscribers(SUBSCRIBER_3)
                     .build();
 
     private static final long SUBSCRIBER_1_HASH = -8101507323446050791L;  // Used as configKey.
     private static final long SUBSCRIBER_2_HASH = 2778197004730583271L;  // Used as configKey.
+    private static final long SUBSCRIBER_3_HASH = 7046592220837963576L;  // Used as configKey.
 
     // This StatsdConfig is generated for SUBSCRIBER_1.
     private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_1 =
@@ -156,6 +172,23 @@ public class StatsPublisherTest {
                     .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
                         .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)
                         .addPackages("AID_SYSTEM"))
+                    .build();
+
+    // This StatsdConfig is generated for SUBSCRIBER_3.
+    private static final StatsdConfigProto.StatsdConfig STATSD_CONFIG_3 =
+            StatsdConfigProto.StatsdConfig.newBuilder()
+                    .setId(SUBSCRIBER_3_HASH)
+                    .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                            .setId(ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID)
+                            .setSimpleAtomMatcher(
+                                    StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                            .setAtomId(
+                                                    ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER)
+                                                ))
+                    .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                            .setId(ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID)
+                            .setWhat(ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID))
+                    .addAllowedLogSource("AID_SYSTEM")
                     .build();
 
     private static final EventMetricData EVENT_DATA =
@@ -296,6 +329,19 @@ public class StatsPublisherTest {
         verify(mStatsManager, times(1))
                 .addConfig(SUBSCRIBER_2_HASH, STATSD_CONFIG_2.toByteArray());
         assertThat(mPublisher.hasDataSubscriber(processMemoryStateSubscriber)).isTrue();
+    }
+
+    @Test
+    public void testAddDataSubscriber_forActivityForegroundState_generatesStatsdMetrics()
+            throws Exception {
+        DataSubscriber activityForegroundStateSubscriber =
+                new DataSubscriber(null, METRICS_CONFIG, SUBSCRIBER_3);
+
+        mPublisher.addDataSubscriber(activityForegroundStateSubscriber);
+
+        verify(mStatsManager, times(1))
+                .addConfig(SUBSCRIBER_3_HASH, STATSD_CONFIG_3.toByteArray());
+        assertThat(mPublisher.hasDataSubscriber(activityForegroundStateSubscriber)).isTrue();
     }
 
     @Test

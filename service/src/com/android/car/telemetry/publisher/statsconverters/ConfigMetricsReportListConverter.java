@@ -14,11 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
 
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.publisher.HashUtils;
 
 import java.util.ArrayList;
 import java.util.HashMap;
@@ -73,7 +74,7 @@ public class ConfigMetricsReportListConverter {
      * @return a {@link PersistableBundle} containing mapping of metric id to metric data.
      * @throws StatsConversionException if atom field mismatch or can't convert dimension value.
      */
-    static Map<Long, PersistableBundle> convert(
+    public static Map<Long, PersistableBundle> convert(
             StatsLogProto.ConfigMetricsReportList reportList) throws StatsConversionException {
         // Map metric id to StatsLogReport list so that separate reports can be combined.
         Map<Long, List<StatsLogProto.StatsLogReport>> metricsStatsReportMap = new HashMap<>();

@@ -14,7 +14,13 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
+
+import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.PAGE_FAULT_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.PROCESS_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.SWAP_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ProcessMemoryState.UID_FIELD_NUMBER;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -23,13 +29,13 @@ import android.util.SparseArray;
 
 import com.android.car.telemetry.AtomsProto;
 import com.android.car.telemetry.StatsLogProto;
+import com.android.car.telemetry.publisher.HashUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -86,9 +92,9 @@ public class GaugeMetricDataConverterTest {
                         .build()
         );
         List<Integer> dimensionsFieldsIds = Arrays.asList(1, 2, 8);
-        Map<Long, String> hashToStringMap = new HashMap<>();
-        hashToStringMap.put(hash1, "process.name.1");
-        hashToStringMap.put(hash2, "process.name.2");
+        Map<Long, String> hashToStringMap = Map.of(
+                hash1, "process.name.1",
+                hash2, "process.name.2");
         SparseArray<AtomFieldAccessor<AtomsProto.ProcessMemoryState>> accessorMap =
                 new ProcessMemoryStateConverter().getAtomFieldAccessorMap();
 
@@ -98,16 +104,17 @@ public class GaugeMetricDataConverterTest {
         // For each atom 2 fields were set, additionally 3 fields were encoded in dimension values,
         // and 1 elapsed time array, so 6 arrays are expected in the bundle.
         assertThat(bundle.size()).isEqualTo(6);
-        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+        assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(123, 123, 123, 234).inOrder();
-        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(2).getFieldName())))
+        assertThat(Arrays.asList(bundle.getStringArray(
+                accessorMap.get(PROCESS_NAME_FIELD_NUMBER).getFieldName())))
             .containsExactly("process.name.1", "process.name.1",
                         "process.name.1", "process.name.2").inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(4).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(PAGE_FAULT_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000L, 1100L, 1200L, 1300L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(RSS_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1234L, 2345L, 3456L, 4567L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(8).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(SWAP_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(11111111L, 11111111L, 11111111L, 22222222L).inOrder();
         assertThat(bundle.getLongArray(GaugeMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(12345678L, 23456789L, 34567890L, 445678901L).inOrder();

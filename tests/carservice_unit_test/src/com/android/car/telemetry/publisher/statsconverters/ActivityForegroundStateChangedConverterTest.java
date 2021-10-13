@@ -14,7 +14,12 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
+
+import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.CLASS_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.PKG_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.STATE_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.UID_FIELD_NUMBER;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -23,61 +28,49 @@ import static org.junit.Assert.assertThrows;
 import android.os.PersistableBundle;
 import android.util.SparseArray;
 
+import com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged;
+import com.android.car.telemetry.AtomsProto.ActivityForegroundStateChanged.State;
 import com.android.car.telemetry.AtomsProto.Atom;
-import com.android.car.telemetry.AtomsProto.ProcessMemoryState;
 import com.android.car.telemetry.StatsLogProto.DimensionsValue;
+import com.android.car.telemetry.publisher.HashUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 @RunWith(JUnit4.class)
-public class ProcessMemoryStateConverterTest {
+public class ActivityForegroundStateChangedConverterTest {
     private static final Atom ATOM_A =
             Atom.newBuilder()
-                    .setProcessMemoryState(ProcessMemoryState.newBuilder()
-                            .setOomAdjScore(100)
-                            .setPageFault(59L)
-                            .setPageMajorFault(34L)
-                            .setRssInBytes(1234L)
-                            .setCacheInBytes(234L)
-                            .setSwapInBytes(111L))
+                    .setActivityForegroundStateChanged(ActivityForegroundStateChanged.newBuilder()
+                            .setClassName("className1")
+                            .setState(State.BACKGROUND))
                     .build();
 
     private static final Atom ATOM_B =
             Atom.newBuilder()
-                    .setProcessMemoryState(ProcessMemoryState.newBuilder()
-                            .setOomAdjScore(200)
-                            .setPageFault(99L)
-                            .setPageMajorFault(55L)
-                            .setRssInBytes(2345L)
-                            .setCacheInBytes(345L)
-                            .setSwapInBytes(222L))
+                    .setActivityForegroundStateChanged(ActivityForegroundStateChanged.newBuilder()
+                            .setClassName("className2")
+                            .setState(State.FOREGROUND))
                     .build();
 
     private static final Atom ATOM_MISMATCH =
             Atom.newBuilder()
-                    .setProcessMemoryState(ProcessMemoryState.newBuilder()
+                    .setActivityForegroundStateChanged(ActivityForegroundStateChanged.newBuilder()
                             // Some fields are not set, creating mismatch with above atoms
-                            .setPageFault(100L)
-                            .setPageMajorFault(66L)
-                            .setCacheInBytes(456L)
-                            .setSwapInBytes(333L))
+                            .setClassName("className2"))
                     .build();
 
     private static final List<Integer> DIM_FIELDS_IDS = Arrays.asList(1, 2);
-    private static final Long HASH_1 = HashUtils.murmur2Hash64("process.name.1");
-    private static final Long HASH_2 = HashUtils.murmur2Hash64("process.name.2");
-    private static final Map<Long, String> HASH_STR_MAP = new HashMap<>();
-    static {
-        HASH_STR_MAP.put(HASH_1, "process.name.1");
-        HASH_STR_MAP.put(HASH_2, "process.name.2");
-    }
+    private static final Long HASH_1 = HashUtils.murmur2Hash64("package.name.1");
+    private static final Long HASH_2 = HashUtils.murmur2Hash64("package.name.2");
+    private static final Map<Long, String> HASH_STR_MAP = Map.of(
+            HASH_1, "package.name.1",
+            HASH_2, "package.name.2");
 
     private static final List<DimensionsValue> DV_PAIR_A =
             Arrays.asList(
@@ -95,35 +88,33 @@ public class ProcessMemoryStateConverterTest {
                     // Wrong format since leaf level dimension value should set value, not field
                     DimensionsValue.newBuilder().setField(3).build());
 
+    // Subject of the test.
+    private ActivityForegroundStateChangedConverter mConverter =
+            new ActivityForegroundStateChangedConverter();
+
     @Test
     public void testConvertAtomsListWithDimensionValues_putsCorrectDataToPersistableBundle()
             throws StatsConversionException {
         List<Atom> atomsList = Arrays.asList(ATOM_A, ATOM_B);
         List<List<DimensionsValue>> dimensionsValuesList = Arrays.asList(DV_PAIR_A, DV_PAIR_B);
-        ProcessMemoryStateConverter converter = new ProcessMemoryStateConverter();
-        SparseArray<AtomFieldAccessor<ProcessMemoryState>> accessorMap =
-                converter.getAtomFieldAccessorMap();
 
-        PersistableBundle bundle = converter.convert(atomsList, DIM_FIELDS_IDS,
+        SparseArray<AtomFieldAccessor<ActivityForegroundStateChanged>> accessorMap =
+                mConverter.getAtomFieldAccessorMap();
+
+        PersistableBundle bundle = mConverter.convert(atomsList, DIM_FIELDS_IDS,
                 dimensionsValuesList, HASH_STR_MAP);
 
-        assertThat(bundle.size()).isEqualTo(8);
-        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+        assertThat(bundle.size()).isEqualTo(4);
+        assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 2000).inOrder();
-        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(2).getFieldName())))
-            .containsExactly("process.name.1", "process.name.2").inOrder();
-        assertThat(bundle.getIntArray(accessorMap.get(3).getFieldName()))
-            .asList().containsExactly(100, 200).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(4).getFieldName()))
-            .asList().containsExactly(59L, 99L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(5).getFieldName()))
-            .asList().containsExactly(34L, 55L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
-            .asList().containsExactly(1234L, 2345L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(7).getFieldName()))
-            .asList().containsExactly(234L, 345L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(8).getFieldName()))
-            .asList().containsExactly(111L, 222L).inOrder();
+        assertThat(Arrays.asList(
+                bundle.getStringArray(accessorMap.get(PKG_NAME_FIELD_NUMBER).getFieldName())))
+            .containsExactly("package.name.1", "package.name.2").inOrder();
+        assertThat(Arrays.asList(
+                bundle.getStringArray(accessorMap.get(CLASS_NAME_FIELD_NUMBER).getFieldName())))
+            .containsExactly("className1", "className2").inOrder();
+        assertThat(bundle.getIntArray(accessorMap.get(STATE_FIELD_NUMBER).getFieldName()))
+            .asList().containsExactly(0, 1).inOrder();  // States background=0 and foreground=1
     }
 
     @Test
@@ -131,11 +122,9 @@ public class ProcessMemoryStateConverterTest {
         List<Atom> atomsList = Arrays.asList(ATOM_A, ATOM_MISMATCH);
         List<List<DimensionsValue>> dimensionsValuesList = Arrays.asList(DV_PAIR_A, DV_PAIR_B);
 
-        ProcessMemoryStateConverter converter = new ProcessMemoryStateConverter();
-
         assertThrows(
                 StatsConversionException.class,
-                () -> converter.convert(
+                () -> mConverter.convert(
                         atomsList,
                         DIM_FIELDS_IDS,
                         dimensionsValuesList,
@@ -148,11 +137,9 @@ public class ProcessMemoryStateConverterTest {
         List<List<DimensionsValue>> dimensionsValuesList =
                 Arrays.asList(DV_PAIR_A, DV_PAIR_MALFORMED);
 
-        ProcessMemoryStateConverter converter = new ProcessMemoryStateConverter();
-
         assertThrows(
                 StatsConversionException.class,
-                () -> converter.convert(
+                () -> mConverter.convert(
                         atomsList,
                         DIM_FIELDS_IDS,
                         dimensionsValuesList,
