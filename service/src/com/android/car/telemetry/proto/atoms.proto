@@ -25,6 +25,7 @@ option java_outer_classname = "AtomsProto";
 
 message Atom {
   oneof pushed {
+    ActivityForegroundStateChanged activity_foreground_state_changed = 42;
     AppStartMemoryStateCaptured app_start_memory_state_captured = 55;
   }
 
@@ -55,4 +56,15 @@ message ProcessMemoryState {
   optional int64 rss_in_bytes = 6;
   optional int64 cache_in_bytes = 7;
   optional int64 swap_in_bytes = 8;
+}
+
+message ActivityForegroundStateChanged {
+  optional int32 uid = 1;
+  optional string pkg_name = 2;
+  optional string class_name = 3;
+  enum State {
+    BACKGROUND = 0;
+    FOREGROUND = 1;
+  }
+  optional State state = 4;
 }
