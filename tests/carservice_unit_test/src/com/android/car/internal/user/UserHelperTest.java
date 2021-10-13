@@ -18,22 +18,28 @@ package com.android.car.internal.user;
 
 import static android.car.test.util.UserTestingHelper.newUser;
 
+import static com.android.dx.mockito.inline.extended.ExtendedMockito.doReturn;
+
+import static com.google.common.truth.Truth.assertThat;
+
+import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.never;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 import static org.testng.Assert.assertThrows;
 
+import android.car.builtin.os.UserManagerHelper;
 import android.car.test.mocks.AbstractExtendedMockitoTestCase;
 import android.content.Context;
 import android.content.pm.UserInfo;
 import android.content.res.Resources;
+import android.graphics.Bitmap;
 import android.os.UserHandle;
 import android.os.UserManager;
 
 import androidx.test.InstrumentationRegistry;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.mockito.Mock;
 
@@ -47,7 +53,7 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
 
     @Override
     protected void onSessionBuilder(CustomMockitoSessionBuilder session) {
-        session.spyStatic(UserManager.class);
+        session.spyStatic(UserManager.class).spyStatic(UserManagerHelper.class);
     }
 
     @Before
@@ -87,16 +93,16 @@ public final class UserHelperTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
-    @Ignore("(b/197240983")
     public void testAssignDefaultIcon() {
-        /*
         int userId = 20;
         UserInfo newNonAdmin = newUser(userId);
+        Bitmap bitmap = mock(Bitmap.class);
 
-        Bitmap bitmap = UserHelper.assignDefaultIcon(mContext, newNonAdmin.getUserHandle());
+        doReturn(bitmap).when(() -> UserManagerHelper.assignDefaultIconForUser(mContext,
+                newNonAdmin.getUserHandle()));
 
-        verify(UserManagerHelper.class).assignDefaultIcon(mContext, newNonAdmin.getUserHandle());
-        */
+        assertThat(UserHelper.assignDefaultIcon(mContext, newNonAdmin.getUserHandle()))
+                .isEqualTo(bitmap);
     }
 
     @Test
