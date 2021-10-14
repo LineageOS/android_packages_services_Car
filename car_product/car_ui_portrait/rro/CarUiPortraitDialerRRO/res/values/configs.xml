@@ -17,4 +17,6 @@
 
 <resources>
     <integer name="config_dialed_number_gravity">1</integer>
+
+    <bool name="config_always_show_incall_dialpad">true</bool>
 </resources>
