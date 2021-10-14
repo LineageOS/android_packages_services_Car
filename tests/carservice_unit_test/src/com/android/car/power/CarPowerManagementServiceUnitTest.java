@@ -782,6 +782,15 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
         @Override
         public boolean enterDeepSleep() {
+            return simulateSleep();
+        }
+
+        @Override
+        public boolean enterHibernation() {
+            return simulateSleep();
+        }
+
+        private boolean simulateSleep() {
             mSleepWait.release();
             try {
                 mSleepExitWait.acquire();
@@ -810,6 +819,11 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
 
         @Override
         public boolean isSystemSupportingDeepSleep() {
+            return true;
+        }
+
+        @Override
+        public boolean isSystemSupportingHibernation() {
             return true;
         }
     }
