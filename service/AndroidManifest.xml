@@ -894,7 +894,6 @@
 
     <uses-permission android:name="android.permission.CALL_PHONE"/>
     <uses-permission android:name="android.permission.DEVICE_POWER"/>
-    <uses-permission android:name="android.permission.GRANT_RUNTIME_PERMISSIONS"/>
     <uses-permission android:name="android.permission.INTERACT_ACROSS_USERS_FULL"/>
     <uses-permission android:name="android.permission.MANAGE_ACTIVITY_STACKS"/>
     <uses-permission android:name="android.permission.MODIFY_AUDIO_ROUTING"/>
