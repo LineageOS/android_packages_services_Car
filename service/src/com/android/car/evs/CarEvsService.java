@@ -121,9 +121,9 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
     private static final int MSG_CHECK_ACTIVITY_REQUEST_TIMEOUT = 0;
 
     // Service request priorities
-    private static final int REQUEST_PRIORITY_HIGH = 0;
+    private static final int REQUEST_PRIORITY_LOW = 0;
     private static final int REQUEST_PRIORITY_NORMAL = 1;
-    private static final int REQUEST_PRIORITY_LOW = 2;
+    private static final int REQUEST_PRIORITY_HIGH = 2;
 
     private static final class EvsHalEvent {
         private long mTimestamp;
@@ -412,7 +412,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     break;
 
                 case SERVICE_STATE_REQUESTED:
-                    if (priority > mLastRequestPriority) {
+                    if (priority < mLastRequestPriority) {
                         // A current service request has a lower priority than a previous
                         // service request.
                         Slog.e(TAG_EVS,
@@ -425,7 +425,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                     break;
 
                 case SERVICE_STATE_ACTIVE:
-                    if (priority > mLastRequestPriority) {
+                    if (priority < mLastRequestPriority) {
                         // We decline a request because CarEvsService is busy with a higher priority
                         // client.
                         return ERROR_BUSY;
@@ -503,7 +503,7 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
                 case SERVICE_STATE_ACTIVE:
                     // CarEvsManager will transfer an active video stream to a new client with a
                     // higher or equal priority.
-                    if (priority > mLastRequestPriority) {
+                    if (priority < mLastRequestPriority) {
                         Slog.i(TAG_EVS, "Declines a service request with a lower priority.");
                         break;
                     }
@@ -1217,7 +1217,8 @@ public final class CarEvsService extends android.car.evs.ICarEvsService.Stub
             // Request to stop the rearview activity when the gear is shifted from the reverse
             // position to other positions.
             if (mStateEngine.execute(REQUEST_PRIORITY_HIGH, SERVICE_STATE_INACTIVE,
-                    CarEvsManager.SERVICE_TYPE_REARVIEW) != ERROR_NONE) {
+                    CarEvsManager.SERVICE_TYPE_REARVIEW, /* token = */ null, mStreamCallback)
+                            != ERROR_NONE) {
                 Slog.d(TAG_EVS, "Failed to stop the rearview activity.");
             }
         }
