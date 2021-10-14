@@ -893,7 +893,7 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         }
 
         @Override
-        public void notifyPowerPolicyChange(String policyId) {
+        public void notifyPowerPolicyChange(String policyId, boolean force) {
             mLastNofitiedPolicyId = policyId;
         }
 
