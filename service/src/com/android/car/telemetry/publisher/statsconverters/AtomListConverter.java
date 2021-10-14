@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
 
 import android.os.PersistableBundle;
 
@@ -32,7 +32,9 @@ public class AtomListConverter {
     // Map of pushed atom cases to corresponding atom converter.
     private static Map<Atom.PushedCase, AbstractAtomConverter> sPushedCaseConverters = Map.of(
             Atom.PushedCase.APP_START_MEMORY_STATE_CAPTURED,
-            new AppStartMemoryStateCapturedConverter());
+            new AppStartMemoryStateCapturedConverter(),
+            Atom.PushedCase.ACTIVITY_FOREGROUND_STATE_CHANGED,
+            new ActivityForegroundStateChangedConverter());
 
     // Map of pulled atom cases to corresponding atom converter.
     private static Map<Atom.PulledCase, AbstractAtomConverter> sPulledCaseConverters = Map.of(

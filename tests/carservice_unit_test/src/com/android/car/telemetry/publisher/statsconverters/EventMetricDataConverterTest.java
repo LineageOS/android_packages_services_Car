@@ -14,7 +14,11 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
+
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.ACTIVITY_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.UID_FIELD_NUMBER;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -65,11 +69,12 @@ public class EventMetricDataConverterTest {
         assertThat(bundle.size()).isEqualTo(4);
         assertThat(bundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(12345678L, 23456789L).inOrder();
-        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+        assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 1100).inOrder();
-        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(3).getFieldName())))
+        assertThat(Arrays.asList(bundle.getStringArray(
+                accessorMap.get(ACTIVITY_NAME_FIELD_NUMBER).getFieldName())))
             .containsExactly("activityName1", "activityName2").inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(RSS_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1234L, 2345L).inOrder();
     }
 }
