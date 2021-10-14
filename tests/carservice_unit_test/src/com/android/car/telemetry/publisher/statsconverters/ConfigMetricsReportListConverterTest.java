@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -32,6 +32,7 @@ import com.android.car.telemetry.StatsLogProto.EventMetricData;
 import com.android.car.telemetry.StatsLogProto.GaugeBucketInfo;
 import com.android.car.telemetry.StatsLogProto.GaugeMetricData;
 import com.android.car.telemetry.StatsLogProto.StatsLogReport;
+import com.android.car.telemetry.publisher.HashUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
@@ -103,19 +104,28 @@ public class ConfigMetricsReportListConverterTest {
         assertThat(new ArrayList<Long>(map.keySet())).containsExactly(12345L, 23456L);
         assertThat(eventBundle.getLongArray(EventMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(99999999L);
-        assertThat(eventBundle.getIntArray(appMemAccessorMap.get(1).getFieldName()))
+        assertThat(eventBundle.getIntArray(
+                appMemAccessorMap.get(AppStartMemoryStateCaptured.UID_FIELD_NUMBER)
+                .getFieldName()))
             .asList().containsExactly(1000);
-        assertThat(Arrays.asList(
-                eventBundle.getStringArray(appMemAccessorMap.get(3).getFieldName())))
+        assertThat(Arrays.asList(eventBundle.getStringArray(
+                appMemAccessorMap.get(AppStartMemoryStateCaptured.ACTIVITY_NAME_FIELD_NUMBER)
+                .getFieldName())))
             .containsExactly("activityName");
-        assertThat(eventBundle.getLongArray(appMemAccessorMap.get(6).getFieldName()))
+        assertThat(eventBundle.getLongArray(
+                appMemAccessorMap.get(AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER)
+                .getFieldName()))
             .asList().containsExactly(1234L);
-        assertThat(gaugeBundle.getIntArray(procMemAccessorMap.get(1).getFieldName()))
+        assertThat(gaugeBundle.getIntArray(
+                procMemAccessorMap.get(ProcessMemoryState.UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(234);
-        assertThat(Arrays.asList(
-                gaugeBundle.getStringArray(procMemAccessorMap.get(2).getFieldName())))
+        assertThat(Arrays.asList(gaugeBundle.getStringArray(
+                procMemAccessorMap.get(ProcessMemoryState.PROCESS_NAME_FIELD_NUMBER)
+                .getFieldName())))
             .containsExactly("process.name");
-        assertThat(gaugeBundle.getLongArray(procMemAccessorMap.get(6).getFieldName()))
+        assertThat(gaugeBundle.getLongArray(
+                procMemAccessorMap.get(ProcessMemoryState.RSS_IN_BYTES_FIELD_NUMBER)
+                .getFieldName()))
             .asList().containsExactly(4567L);
         assertThat(gaugeBundle.getLongArray(GaugeMetricDataConverter.ELAPSED_TIME_NANOS))
             .asList().containsExactly(445678901L);

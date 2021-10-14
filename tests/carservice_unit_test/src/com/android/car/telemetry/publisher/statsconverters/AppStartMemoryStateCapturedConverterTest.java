@@ -14,7 +14,16 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
+
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.ACTIVITY_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.CACHE_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.PAGE_FAULT_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.PAGE_MAJOR_FAULT_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.PROCESS_NAME_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.RSS_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.SWAP_IN_BYTES_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured.UID_FIELD_NUMBER;
 
 import static com.google.common.truth.Truth.assertThat;
 
@@ -26,13 +35,13 @@ import android.util.SparseArray;
 import com.android.car.telemetry.AtomsProto.AppStartMemoryStateCaptured;
 import com.android.car.telemetry.AtomsProto.Atom;
 import com.android.car.telemetry.StatsLogProto.DimensionsValue;
+import com.android.car.telemetry.publisher.HashUtils;
 
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.junit.runners.JUnit4;
 
 import java.util.Arrays;
-import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
@@ -73,11 +82,9 @@ public class AppStartMemoryStateCapturedConverterTest {
     private static final List<Integer> DIM_FIELDS_IDS = Arrays.asList(1, 2);
     private static final Long HASH_1 = HashUtils.murmur2Hash64("process.name.1");
     private static final Long HASH_2 = HashUtils.murmur2Hash64("process.name.2");
-    private static final Map<Long, String> HASH_STR_MAP = new HashMap<>();
-    static {
-        HASH_STR_MAP.put(HASH_1, "process.name.1");
-        HASH_STR_MAP.put(HASH_2, "process.name.2");
-    }
+    private static final Map<Long, String> HASH_STR_MAP = Map.of(
+            HASH_1, "process.name.1",
+            HASH_2, "process.name.2");
 
     private static final List<DimensionsValue> DV_PAIR_A =
             Arrays.asList(
@@ -95,35 +102,41 @@ public class AppStartMemoryStateCapturedConverterTest {
                     // Wrong format since leaf level dimension value should set value, not field
                     DimensionsValue.newBuilder().setField(3).build());
 
+    // Subject of the test.
+    private AppStartMemoryStateCapturedConverter mConverter =
+            new AppStartMemoryStateCapturedConverter();
+
     @Test
     public void testConvertAtomsListWithDimensionValues_putsCorrectDataToPersistableBundle()
             throws StatsConversionException {
         List<Atom> atomsList = Arrays.asList(ATOM_A, ATOM_B);
         List<List<DimensionsValue>> dimensionsValuesList = Arrays.asList(DV_PAIR_A, DV_PAIR_B);
-        AppStartMemoryStateCapturedConverter converter =
-                new AppStartMemoryStateCapturedConverter();
-        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> accessorMap =
-                converter.getAtomFieldAccessorMap();
 
-        PersistableBundle bundle = converter.convert(atomsList, DIM_FIELDS_IDS,
+        SparseArray<AtomFieldAccessor<AppStartMemoryStateCaptured>> accessorMap =
+                mConverter.getAtomFieldAccessorMap();
+
+        PersistableBundle bundle = mConverter.convert(atomsList, DIM_FIELDS_IDS,
                 dimensionsValuesList, HASH_STR_MAP);
 
         assertThat(bundle.size()).isEqualTo(8);
-        assertThat(bundle.getIntArray(accessorMap.get(1).getFieldName()))
+        assertThat(bundle.getIntArray(accessorMap.get(UID_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1000, 2000).inOrder();
-        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(2).getFieldName())))
+        assertThat(Arrays.asList(
+                bundle.getStringArray(accessorMap.get(PROCESS_NAME_FIELD_NUMBER).getFieldName())))
             .containsExactly("process.name.1", "process.name.2").inOrder();
-        assertThat(Arrays.asList(bundle.getStringArray(accessorMap.get(3).getFieldName())))
+        assertThat(Arrays.asList(
+                bundle.getStringArray(accessorMap.get(ACTIVITY_NAME_FIELD_NUMBER).getFieldName())))
             .containsExactly("activityName1", "activityName2").inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(4).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(PAGE_FAULT_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(59L, 99L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(5).getFieldName()))
+        assertThat(bundle.getLongArray(
+                        accessorMap.get(PAGE_MAJOR_FAULT_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(34L, 55L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(6).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(RSS_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(1234L, 2345L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(7).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(CACHE_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(234L, 345L).inOrder();
-        assertThat(bundle.getLongArray(accessorMap.get(8).getFieldName()))
+        assertThat(bundle.getLongArray(accessorMap.get(SWAP_IN_BYTES_FIELD_NUMBER).getFieldName()))
             .asList().containsExactly(111L, 222L).inOrder();
     }
 
@@ -132,12 +145,9 @@ public class AppStartMemoryStateCapturedConverterTest {
         List<Atom> atomsList = Arrays.asList(ATOM_A, ATOM_MISMATCH);
         List<List<DimensionsValue>> dimensionsValuesList = Arrays.asList(DV_PAIR_A, DV_PAIR_B);
 
-        AppStartMemoryStateCapturedConverter converter =
-                new AppStartMemoryStateCapturedConverter();
-
         assertThrows(
                 StatsConversionException.class,
-                () -> converter.convert(
+                () -> mConverter.convert(
                         atomsList,
                         DIM_FIELDS_IDS,
                         dimensionsValuesList,
@@ -150,12 +160,9 @@ public class AppStartMemoryStateCapturedConverterTest {
         List<List<DimensionsValue>> dimensionsValuesList =
                 Arrays.asList(DV_PAIR_A, DV_PAIR_MALFORMED);
 
-        AppStartMemoryStateCapturedConverter converter =
-                new AppStartMemoryStateCapturedConverter();
-
         assertThrows(
                 StatsConversionException.class,
-                () -> converter.convert(
+                () -> mConverter.convert(
                         atomsList,
                         DIM_FIELDS_IDS,
                         dimensionsValuesList,

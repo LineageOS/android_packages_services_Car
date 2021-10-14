@@ -40,7 +40,7 @@ public class HashUtils {
      * Returns the hash code of the given string using SHA-256 algorithm. Returns only the first
      * 8 bytes if the hash code, as SHA-256 is uniformly distributed.
      */
-    static long sha256(@NonNull String data) {
+    public static long sha256(@NonNull String data) {
         try {
             return asLong(MessageDigest.getInstance("SHA-256").digest(data.getBytes()));
         } catch (NoSuchAlgorithmException e) {
@@ -58,7 +58,7 @@ public class HashUtils {
      * @param str the string to be hashed.
      * @return hash of the string.
      */
-    static long murmur2Hash64(String str) {
+    public static long murmur2Hash64(String str) {
         final byte[] bytes = str.getBytes(StandardCharsets.UTF_8);
         ByteBuffer buf = ByteBuffer.wrap(bytes).order(ByteOrder.LITTLE_ENDIAN);
 
