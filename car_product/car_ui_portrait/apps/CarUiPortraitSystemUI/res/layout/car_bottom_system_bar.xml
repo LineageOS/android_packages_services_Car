@@ -48,7 +48,7 @@
             android:gravity="center"
             android:layoutDirection="ltr">
 
-            <com.android.systemui.car.systembar.CarSystemBarButton
+            <com.android.systemui.car.systembar.DisplayAreaButton
                 android:id="@+id/grid_nav"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.carlauncher/.AppGridActivity"
@@ -58,7 +58,7 @@
                 systemui:intent="intent:#Intent;component=com.android.car.carlauncher/.AppGridActivity;launchFlags=0x24000000;end"
                 systemui:clearBackStack="true"/>
 
-            <com.android.systemui.car.systembar.CarSystemBarButton
+            <com.android.systemui.car.systembar.DisplayAreaButton
                 android:id="@+id/standalone_notifications"
                 style="@style/SystemBarButton"
                 systemui:componentNames="com.android.car.notification/.CarNotificationCenterActivity"
@@ -69,7 +69,7 @@
                 systemui:intent="intent:#Intent;component=com.android.car.notification/.CarNotificationCenterActivity;launchFlags=0x24000000;end"
                 systemui:longIntent="intent:#Intent;component=com.android.car.bugreport/.BugReportActivity;end"/>
 
-            <com.android.systemui.car.systembar.CarSystemBarButton
+            <com.android.systemui.car.systembar.HvacButton
                 android:id="@+id/hvac"
                 style="@style/SystemBarButton"
                 systemui:icon="@drawable/car_ic_hvac"
