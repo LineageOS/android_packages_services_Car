@@ -1945,6 +1945,7 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
                 (LocationManager) mContext.getSystemService(Context.LOCATION_SERVICE);
         locationManager.setLocationEnabledForUser(
                 /* enabled= */ false, UserHandle.SYSTEM);
+        locationManager.setAdasGnssLocationEnabled(false);
     }
 
     private void checkInteractAcrossUsersPermission(String message) {
