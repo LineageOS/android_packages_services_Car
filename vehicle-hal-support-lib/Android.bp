@@ -17,13 +17,25 @@ package {
     default_applicable_licenses: ["Android-Apache-2.0"],
 }
 
+// Used for car service module build
+filegroup {
+    name: "vehicle-hal-support-lib-src",
+    srcs: [
+        "src/**/*.java",
+    ],
+    visibility: [
+        "//packages/services/Car/service",
+    ],
+}
+
 java_library {
 
     name: "vehicle-hal-support-lib",
 
-    srcs: ["src/**/*.java"],
+    srcs: [":vehicle-hal-support-lib-src"],
 
     sdk_version: "module_current",
+    min_sdk_version: "31",
 
     static_libs: [
         "android.hidl.base-V1.0-java",

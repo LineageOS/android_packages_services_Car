@@ -110,11 +110,9 @@ PRODUCT_PROPERTY_OVERRIDES += \
     keyguard.no_require_sim=true
 
 # Automotive specific packages
-# TODO(b/194941497): SHIPSTOP - remove CarServiceModule & android.car.module
 PRODUCT_PACKAGES += \
     CarFrameworkPackageStubs \
     CarService \
-    CarServiceUpdatable \
     CarShell \
     CarDialerApp \
     CarRadioApp \
@@ -130,11 +128,8 @@ PRODUCT_PACKAGES += \
     CarLatinIME \
     CarSettings \
     CarUsbHandler \
-    android.car \
     android.car.builtin \
-    CarServiceModule \
     car-frameworks-service \
-    car-frameworks-service-module \
     com.android.car.procfsinspector \
     libcar-framework-service-jni \
     ScriptExecutor \
@@ -146,7 +141,6 @@ PRODUCT_PACKAGES += \
 # System Server components
 # Order is important: if X depends on Y, then Y should precede X on the list.
 PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service
-PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service-module
 # TODO: make the order optimal by appending 'car-frameworks-service' at the end
 # after its dependency 'services'. Currently the order is violated because this
 # makefile is included before AOSP makefile.
@@ -234,17 +228,31 @@ PRODUCT_LOCALES := \
     zu_ZA
 
 PRODUCT_BOOT_JARS += \
-    android.car.builtin android.car
+    android.car.builtin
 
-PRODUCT_HIDDENAPI_STUBS := \
-    android.car-stubs-dex
+USE_CAR_FRAMEWORK_APEX := true
 
-# android.car.builtin is system api only.
-PRODUCT_HIDDENAPI_STUBS_SYSTEM := \
-    android.car-system-stubs-dex
+ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
+    PRODUCT_PACKAGES += com.android.car.framework
+    PRODUCT_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
+    # TODO(b/202345178) Remove following two lines and enable 3rd line once bootclasspath issues are
+    # resolved.
+    PRODUCT_BOOT_JARS += android.car
+    PRODUCT_PACKAGES += android.car CarServiceUpdatable
+    #PRODUCT_APEX_BOOT_JARS += com.android.car.framework:android.car-module
 
-PRODUCT_HIDDENAPI_STUBS_TEST := \
-    android.car-test-stubs-dex
+    PRODUCT_HIDDENAPI_STUBS := android.car-module.stubs
+    PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-module.stubs.system
+    PRODUCT_HIDDENAPI_STUBS_TEST := android.car-module.stubs.test
+else # !USE_CAR_FRAMEWORK_APEX
+    PRODUCT_BOOT_JARS += android.car
+    PRODUCT_PACKAGES += android.car CarServiceUpdatable car-frameworks-service-module
+    PRODUCT_SYSTEM_SERVER_JARS += car-frameworks-service-module
+
+    PRODUCT_HIDDENAPI_STUBS := android.car-stubs-dex
+    PRODUCT_HIDDENAPI_STUBS_SYSTEM := android.car-system-stubs-dex
+    PRODUCT_HIDDENAPI_STUBS_TEST := android.car-test-stubs-dex
+endif # USE_CAR_FRAMEWORK_APEX
 
 # Disable Prime Shader Cache in SurfaceFlinger to make it available faster
 PRODUCT_PROPERTY_OVERRIDES += \

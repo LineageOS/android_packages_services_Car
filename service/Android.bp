@@ -148,8 +148,16 @@ android_app {
     manifest: "AndroidManifestForModuleBuildTest.xml",
 
     srcs: [
-        ":carservice-stub-for-hidden-api-check-docs",
+        // add full source for all codes under p/s/Car to reduce unnecessary library allow listing.
+        ":android.car.cluster.navigation-src",
+        ":android.car.watchdoglib-src",
+        ":cartelemetry-cardata-proto-srcs",
+        ":com.android.car.procfsinspector-client-src",
         ":statslog-Car-java-gen",
+        ":vehicle-hal-support-lib-src",
+        // Below here should become full source once all hidden APIs are dropped.
+        ":carservice-stub-for-hidden-api-check-docs",
+        "src/com/android/car/telemetry/*.proto",
         //"src/com/android/car/CarFeatureController.java", // Car not complete yet
         "src/com/android/car/CarLog.java",
         //"src/com/android/car/CarLocalServices.java",
@@ -184,6 +192,12 @@ android_app {
         "src/com/android/car/ICarImpl.java",
     ],
 
+    aidl: {
+        include_dirs: [
+            "packages/services/Car/procfs-inspector/client/src",
+        ],
+    },
+
     resource_dirs: ["res"],
 
     // Resource is still com.android.car.R
@@ -192,7 +206,8 @@ android_app {
     ],
 
     sdk_version: "module_current",
-
+    min_sdk_version: "32",
+    apex_available: ["com.android.car.framework"],
     platform_apis: false,
 
     libs: [
@@ -206,8 +221,7 @@ android_app {
 
     static_libs: [
         "android.automotive.telemetry.internal-V1-java",  // ICarTelemetryInternal
-        "android.car.cluster.navigation",
-        "android.car.watchdoglib",
+        "android.automotive.watchdog.internal-java",
         "android.frameworks.automotive.powerpolicy.internal-java",
         "android.hidl.base-V1.0-java",
         "android.hardware.automotive.audiocontrol-V1.0-java",
@@ -217,10 +231,6 @@ android_app {
         "android.hardware.health-V1.0-java",
         "android.hardware.health-V2.0-java",
         "android.hardware.automotive.occupant_awareness-V1-java",
-        "vehicle-hal-support-lib",
-        //"car-systemtest",
-        "com.android.car.procfsinspector-client",
-        "cartelemetry-protos",
     ],
 
     optimize: {
