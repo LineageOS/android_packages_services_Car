@@ -62,6 +62,8 @@
 
     <item target="drawable/default_audio_background" value="@drawable/default_audio_background"/>
 
+    <item target="string/config_assistantVoicePlateActivity" value="@string/config_assistantVoicePlateActivity"/>
+
     <item target="array/config_homeCardModuleClasses" value="@array/config_homeCardModuleClasses"/>
     <item target="array/config_foregroundDAComponents" value="@array/config_foregroundDAComponents"/>
     <item target="array/config_ignoreOpeningForegroundDA" value="@array/config_ignoreOpeningForegroundDA"/>
