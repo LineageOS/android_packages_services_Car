@@ -417,6 +417,7 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
         sendUserUnlockedEvent(UserHandle.USER_SYSTEM);
         verify(mLocationManager).setLocationEnabledForUser(
                 /* enabled= */ false, UserHandle.of(UserHandle.USER_SYSTEM));
+        verify(mLocationManager).setAdasGnssLocationEnabled(false);
     }
 
     /**
