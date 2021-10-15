@@ -299,6 +299,16 @@ public final class CarUserServiceTest extends AbstractExtendedMockitoTestCase {
     }
 
     @Test
+    public void testSendInitialUserToSystemServer() throws Exception {
+        UserHandle user = UserHandle.of(101);
+        mCarUserService.setCarServiceHelper(mICarServiceHelper);
+
+        mCarUserService.setInitialUser(user);
+
+        verify(mICarServiceHelper).sendInitialUser(user);
+    }
+
+    @Test
     public void testSetICarServiceHelper_withUxRestrictions() throws Exception {
         mockGetUxRestrictions(/* restricted= */ true);
         ICarUxRestrictionsChangeListener listener = initService();

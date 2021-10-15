@@ -505,6 +505,41 @@ public final class CarUserService extends ICarUserService.Stub implements CarSer
             // not switched (and most likely is SYSTEM_USER).
             // TODO(b/153104378): should we set it to ActivityManager.getCurrentUser() instead?
             Slogf.wtf(TAG, "Initial user set to null");
+            return;
+        }
+        sendInitialUserToSystemServer(user);
+    }
+
+    /**
+     * Sets the initial foreground user after car service is crashed and reconnected.
+     */
+    public void setInitialUserFromSystemServer(@Nullable UserHandle user) {
+        if (user != null || user.getIdentifier() != UserManagerHelper.USER_NULL) {
+            Slogf.e(TAG,
+                    "setInitialUserFromSystemServer: Not setting initial user as user is NULL ");
+            return;
+        }
+
+        synchronized (mLockUser) {
+            mInitialUser = user;
+        }
+    }
+
+    private void sendInitialUserToSystemServer(UserHandle user) {
+        ICarServiceHelper iCarServiceHelper;
+        synchronized (mLockUser) {
+            iCarServiceHelper = mICarServiceHelper;
+        }
+
+        if (iCarServiceHelper == null) {
+            Slogf.e(TAG, "sendInitialUserToSystemServer: CarServiceHelper is NULL.");
+            return;
+        }
+
+        try {
+            iCarServiceHelper.sendInitialUser(user);
+        } catch (RemoteException e) {
+            Slogf.e(TAG, "Error calling sendInitialUser.", e);
         }
     }
 
