@@ -21,6 +21,7 @@ import static android.automotive.watchdog.internal.ResourceOveruseActionType.NOT
 import static android.car.drivingstate.CarUxRestrictions.UX_RESTRICTIONS_BASELINE;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetAllUsers;
 import static android.car.test.mocks.AndroidMockitoHelper.mockUmGetUserHandles;
+import static android.car.test.mocks.AndroidMockitoHelper.mockUmIsUserRunning;
 import static android.car.watchdog.CarWatchdogManager.TIMEOUT_CRITICAL;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_DISABLED_UNTIL_USED;
 import static android.content.pm.PackageManager.COMPONENT_ENABLED_STATE_ENABLED;
@@ -62,10 +63,12 @@ import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
+import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
 import android.automotive.watchdog.internal.UserPackageIoUsageStats;
+import android.automotive.watchdog.internal.UserState;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -204,11 +207,9 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         captureCarPowerListeners();
         captureBroadcastReceiver();
         captureCarUxRestrictionsChangeListener();
-        captureWatchdogServiceForSystem();
-        captureDaemonBinderDeathRecipient();
+        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ true);
         verifyDatabaseInit(/* wantedInvocations= */ 1);
         mockPackageManager();
-        verifyResourceOveruseConfigurationsSynced(/* wantedInvocations= */ 1);
     }
 
     /**
@@ -291,10 +292,35 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     public void testGarageModeStateChangeToOff() throws Exception {
         mBroadcastReceiver.onReceive(mMockContext,
                 new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_OFF));
-        verify(mMockCarWatchdogDaemon)
+        // GARAGE_MODE_OFF is notified twice: Once during the initial daemon connect and once when
+        // the ACTION_GARAGE_MODE_OFF intent is received.
+        verify(mMockCarWatchdogDaemon, times(2))
                 .notifySystemStateChange(
                         eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
         verify(mMockWatchdogStorage, never()).shrinkDatabase();
+    }
+
+    @Test
+    public void testWatchdogDaemonRestart() throws Exception {
+        crashWatchdogDaemon();
+
+        mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ false, 101, 102);
+        mockUmIsUserRunning(mMockUserManager, /* userId= */ 101, /* isRunning= */ false);
+        mockUmIsUserRunning(mMockUserManager, /* userId= */ 102, /* isRunning= */ true);
+        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
+        mBroadcastReceiver.onReceive(mMockContext,
+                new Intent().setAction(CarWatchdogService.ACTION_GARAGE_MODE_ON));
+
+        restartWatchdogDaemonAndAwait();
+
+        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
+                eq(StateType.USER_STATE), eq(101), eq(UserState.USER_STATE_STOPPED));
+        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
+                eq(StateType.USER_STATE), eq(102), eq(UserState.USER_STATE_STARTED));
+        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
+                eq(StateType.POWER_CYCLE), eq(PowerCycle.POWER_CYCLE_SHUTDOWN_ENTER), eq(-1));
+        verify(mMockCarWatchdogDaemon, times(1)).notifySystemStateChange(
+                eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_ON), eq(-1));
     }
 
     @Test
@@ -1458,7 +1484,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .isEqualTo(CarWatchdogManager.RETURN_CODE_SUCCESS);
 
         /* Expect two calls, the first is made at car watchdog service init */
-        verifyResourceOveruseConfigurationsSynced(2);
+        verify(mMockCarWatchdogDaemon, times(2)).getResourceOveruseConfigurations();
 
         InternalResourceOveruseConfigurationSubject
                 .assertThat(captureOnSetResourceOveruseConfigurations())
@@ -1960,7 +1986,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mCarWatchdogService.setKillablePackageAsUser(
                 "third_party_package.A", UserHandle.of(12), /* isKillable= */ false);
 
-        mCarPowerStateListener.onStateChanged(CarPowerStateListener.SHUTDOWN_ENTER);
+        setCarPowerState(CarPowerStateListener.SHUTDOWN_ENTER);
         verify(mMockWatchdogStorage).saveIoUsageStats(any());
         verify(mMockWatchdogStorage).saveUserPackageSettings(any());
         mCarWatchdogService.release();
@@ -2746,11 +2772,21 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .isNotNull();
     }
 
-    private void captureWatchdogServiceForSystem() throws Exception {
-        /* Registering to daemon is done on the main thread. To ensure the registration completes
-         * before verification, execute an empty block on the main thread.
-         */
-        CarServiceUtils.runOnMainSync(() -> {});
+    private void captureAndVerifyRegistrationWithDaemon(boolean waitOnMain) throws Exception {
+        if (waitOnMain) {
+            // Registering to daemon is done on the main thread. To ensure the registration
+            // completes before verification, execute an empty block on the main thread.
+            CarServiceUtils.runOnMainSync(() -> {});
+        }
+
+        verify(mMockCarWatchdogDaemon, atLeastOnce()).asBinder();
+
+        ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
+                ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
+        verify(mMockBinder, atLeastOnce()).linkToDeath(deathRecipientCaptor.capture(), anyInt());
+        mCarWatchdogDaemonBinderDeathRecipient = deathRecipientCaptor.getValue();
+        assertWithMessage("Watchdog daemon binder death recipient")
+                .that(mCarWatchdogDaemonBinderDeathRecipient).isNotNull();
 
         ArgumentCaptor<ICarWatchdogServiceForSystem> watchdogServiceForSystemImplCaptor =
                 ArgumentCaptor.forClass(ICarWatchdogServiceForSystem.class);
@@ -2759,16 +2795,15 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         mWatchdogServiceForSystemImpl = watchdogServiceForSystemImplCaptor.getValue();
         assertWithMessage("Car watchdog service for system")
                 .that(mWatchdogServiceForSystemImpl).isNotNull();
-    }
 
-    private void captureDaemonBinderDeathRecipient() throws Exception {
-        ArgumentCaptor<IBinder.DeathRecipient> deathRecipientCaptor =
-                ArgumentCaptor.forClass(IBinder.DeathRecipient.class);
-        verify(mMockBinder, timeout(MAX_WAIT_TIME_MS).atLeastOnce())
-                .linkToDeath(deathRecipientCaptor.capture(), anyInt());
-        mCarWatchdogDaemonBinderDeathRecipient = deathRecipientCaptor.getValue();
-        assertWithMessage("Watchdog daemon binder death recipient")
-                .that(mCarWatchdogDaemonBinderDeathRecipient).isNotNull();
+        verify(mMockCarWatchdogDaemon, atLeastOnce()).notifySystemStateChange(
+                eq(StateType.GARAGE_MODE), eq(GarageMode.GARAGE_MODE_OFF), eq(-1));
+
+        // Once registration with daemon completes, the service post a new message on the main
+        // thread to fetch and sync resource overuse configs.
+        CarServiceUtils.runOnMainSync(() -> {});
+
+        verify(mMockCarWatchdogDaemon, atLeastOnce()).getResourceOveruseConfigurations();
     }
 
     private void verifyDatabaseInit(int wantedInvocations) throws Exception {
@@ -2846,6 +2881,11 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
                 .getApplicationEnabledSetting(anyString(), anyInt());
     }
 
+    private void setCarPowerState(int powerState) throws Exception {
+        when(mMockCarPowerManagementService.getPowerState()).thenReturn(powerState);
+        mCarPowerStateListener.onStateChanged(powerState);
+    }
+
     private void setDisplayStateEnabled(boolean isEnabled) throws Exception {
         int[] enabledComponents = new int[]{};
         int[] disabledComponents = new int[]{};
@@ -2879,11 +2919,7 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         }).when(mMockBinder).linkToDeath(any(), anyInt());
         mockWatchdogDaemon();
         latch.await(MAX_WAIT_TIME_MS, TimeUnit.MILLISECONDS);
-        /* On daemon connect, CarWatchdogService posts a new message on the main thread to fetch
-         * the resource overuse configs. Post a message on the same thread and wait until the fetch
-         * completes, so the tests are deterministic.
-         */
-        CarServiceUtils.runOnMainSync(() -> {});
+        captureAndVerifyRegistrationWithDaemon(/* waitOnMain= */ false);
     }
 
     private void setDate(int numDaysAgo) {
@@ -2903,17 +2939,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
         };
         mCarWatchdogService.setTimeSource(timeSource);
         mTimeSource = timeSource;
-    }
-
-    private void verifyResourceOveruseConfigurationsSynced(int wantedInvocations)
-            throws Exception {
-        /*
-         * Syncing the resource configuration in the service with the daemon is done on the main
-         * thread. To ensure the sync completes before verification, execute an empty block on the
-         * main thread.
-         */
-        CarServiceUtils.runOnMainSync(() -> {});
-        verify(mMockCarWatchdogDaemon, times(wantedInvocations)).getResourceOveruseConfigurations();
     }
 
 
@@ -2948,9 +2973,6 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
          */
         crashWatchdogDaemon();
         restartWatchdogDaemonAndAwait();
-        // getResourceOveruseConfigurations is posted on the main thread after daemon restart, so
-        // wait for it to complete.
-        CarServiceUtils.runOnMainSync(() -> {});
 
         /* Method should be invoked 2 times. Once at test setup and once more after the daemon
          * crashes and reconnects.
