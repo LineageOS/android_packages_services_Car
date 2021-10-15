@@ -16,12 +16,33 @@
 
 #include "BundleWrapper.h"
 
-#include <android-base/logging.h>
 
 namespace com {
 namespace android {
 namespace car {
 namespace scriptexecutor {
+
+using ::android::base::Error;
+using ::android::base::Result;
+
+namespace {
+
+Result<jstring> TryCreateUTFString(JNIEnv* env, const char* string) {
+    jstring utfString = env->NewStringUTF(string);
+    if (env->ExceptionCheck()) {
+        // NewStringUTF throws an exception if we run out of memory while creating a UTF string.
+        return Error()
+                << "NewStringUTF ran out of memory while converting a string provided by Lua.";
+    }
+    if (utfString == nullptr) {
+        return Error()
+                << "Failed to convert a Lua string into a modified UTF-8 string. Please verify "
+                   "that the string returned by Lua is in proper Modified UTF-8 format.";
+    }
+    return utfString;
+}
+
+}  // namespace
 
 BundleWrapper::BundleWrapper(JNIEnv* env) {
     mJNIEnv = env;
@@ -41,47 +62,93 @@ BundleWrapper::~BundleWrapper() {
     }
 }
 
-void BundleWrapper::putBoolean(const char* key, bool value) {
+Result<void> BundleWrapper::putBoolean(const char* key, bool value) {
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+
     // TODO(b/188832769): consider caching the references.
     jmethodID putBooleanMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putBoolean", "(Ljava/lang/String;Z)V");
-    mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, mJNIEnv->NewStringUTF(key),
+    mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, keyStringResult.value(),
                             static_cast<jboolean>(value));
+    return {};  // ok result
 }
 
-void BundleWrapper::putLong(const char* key, int64_t value) {
+Result<void> BundleWrapper::putLong(const char* key, int64_t value) {
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+
     jmethodID putLongMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putLong", "(Ljava/lang/String;J)V");
-    mJNIEnv->CallVoidMethod(mBundle, putLongMethod, mJNIEnv->NewStringUTF(key),
+    mJNIEnv->CallVoidMethod(mBundle, putLongMethod, keyStringResult.value(),
                             static_cast<jlong>(value));
+    return {};  // ok result
 }
 
-void BundleWrapper::putDouble(const char* key, double value) {
+Result<void> BundleWrapper::putDouble(const char* key, double value) {
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+
     jmethodID putDoubleMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putDouble", "(Ljava/lang/String;D)V");
-    mJNIEnv->CallVoidMethod(mBundle, putDoubleMethod, mJNIEnv->NewStringUTF(key),
+    mJNIEnv->CallVoidMethod(mBundle, putDoubleMethod, keyStringResult.value(),
                             static_cast<jdouble>(value));
+    return {};  // ok result
 }
 
-void BundleWrapper::putString(const char* key, const char* value) {
+Result<void> BundleWrapper::putString(const char* key, const char* value) {
     jmethodID putStringMethod = mJNIEnv->GetMethodID(mBundleClass, "putString",
                                                      "(Ljava/lang/String;Ljava/lang/String;)V");
     // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
     // to create a string).
-    mJNIEnv->CallVoidMethod(mBundle, putStringMethod, mJNIEnv->NewStringUTF(key),
-                            mJNIEnv->NewStringUTF(value));
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+    auto valueStringResult = TryCreateUTFString(mJNIEnv, value);
+    if (!valueStringResult.ok()) {
+        return Error() << "Failed to create a string for value=" << value << ". "
+                       << valueStringResult.error();
+    }
+
+    mJNIEnv->CallVoidMethod(mBundle, putStringMethod, keyStringResult.value(),
+                            valueStringResult.value());
+    return {};  // ok result
 }
 
-void BundleWrapper::putLongArray(const char* key, const std::vector<int64_t>& value) {
+Result<void> BundleWrapper::putLongArray(const char* key, const std::vector<int64_t>& value) {
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+
     jmethodID putLongArrayMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putLongArray", "(Ljava/lang/String;[J)V");
 
     jlongArray array = mJNIEnv->NewLongArray(value.size());
     mJNIEnv->SetLongArrayRegion(array, 0, value.size(), &value[0]);
-    mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, mJNIEnv->NewStringUTF(key), array);
+    mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, keyStringResult.value(), array);
+    return {};  // ok result
 }
 
-void BundleWrapper::putStringArray(const char* key, const std::vector<std::string>& value) {
+Result<void> BundleWrapper::putStringArray(const char* key, const std::vector<std::string>& value) {
+    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
+    if (!keyStringResult.ok()) {
+        return Error() << "Failed to create a string for key=" << key << ". "
+                       << keyStringResult.error();
+    }
+
     jmethodID putStringArrayMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putStringArray",
                                  "(Ljava/lang/String;[Ljava/lang/String;)V");
@@ -91,9 +158,15 @@ void BundleWrapper::putStringArray(const char* key, const std::vector<std::strin
     // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
     // to create a string).
     for (int i = 0; i < value.size(); i++) {
-        mJNIEnv->SetObjectArrayElement(array, i, mJNIEnv->NewStringUTF(value[i].c_str()));
+        auto valueStringResult = TryCreateUTFString(mJNIEnv, value[i].c_str());
+        if (!valueStringResult.ok()) {
+            return Error() << "Failed to create a string for value=" << value[i].c_str() << ". "
+                           << valueStringResult.error();
+        }
+        mJNIEnv->SetObjectArrayElement(array, i, valueStringResult.value());
     }
-    mJNIEnv->CallVoidMethod(mBundle, putStringArrayMethod, mJNIEnv->NewStringUTF(key), array);
+    mJNIEnv->CallVoidMethod(mBundle, putStringArrayMethod, keyStringResult.value(), array);
+    return {};  // ok result
 }
 
 jobject BundleWrapper::getBundle() {
