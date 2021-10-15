@@ -228,6 +228,47 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
         mSystemStateInterface.waitForShutdown(WAIT_TIMEOUT_MS);
     }
 
+
+    @Test
+    public void testCanHibernate() throws Exception {
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                PowerHalService.VehicleHalStub.CAN_HIBERNATE));
+        assertThat(mService.garageModeShouldExitImmediately()).isFalse();
+
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_HIBERNATION_ENTRY);
+        mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_ENTRY, WAIT_TIMEOUT_MS);
+        verify(mUserService).onSuspend();
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.setWakeupCausedByTimer(true);
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        assertStateReceived(PowerHalService.SET_HIBERNATION_EXIT, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_EXIT, WAIT_TIMEOUT_MS);
+    }
+
+    @Test
+    public void testHibernateImmediately() throws Exception {
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.ON, 0));
+        mPowerSignalListener.waitFor(PowerHalService.SET_ON, WAIT_TIMEOUT_MS);
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.SHUTDOWN_PREPARE,
+                PowerHalService.VehicleHalStub.HIBERNATE_IMMEDIATELY));
+
+        assertStateReceivedForShutdownOrSleepWithPostpone(PowerHalService.SET_HIBERNATION_ENTRY, 0);
+        assertThat(mService.garageModeShouldExitImmediately()).isTrue();
+        mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_ENTRY, WAIT_TIMEOUT_MS);
+        verify(mUserService).onSuspend();
+
+        mPowerHal.setCurrentPowerState(new PowerState(VehicleApPowerStateReq.FINISHED, 0));
+        mSystemStateInterface.setWakeupCausedByTimer(true);
+        mSystemStateInterface.waitForSleepEntryAndWakeup(WAIT_TIMEOUT_MS);
+        assertStateReceived(PowerHalService.SET_HIBERNATION_EXIT, 0);
+        mPowerSignalListener.waitFor(PowerHalService.SET_HIBERNATION_EXIT, WAIT_TIMEOUT_MS);
+    }
+
     @Test
     public void testShutdownImmediately() throws Exception {
         // Transition to ON state
@@ -664,7 +705,8 @@ public class CarPowerManagementServiceUnitTest extends AbstractExtendedMockitoTe
     private void assertStateReceivedForShutdownOrSleepWithPostpone(int lastState) throws Exception {
         int expectedSecondParameter =
                 (lastState == MockedPowerHalService.SET_DEEP_SLEEP_ENTRY
-                        || lastState == MockedPowerHalService.SET_SHUTDOWN_START)
+                        || lastState == MockedPowerHalService.SET_SHUTDOWN_START
+                        || lastState == MockedPowerHalService.SET_HIBERNATION_ENTRY)
                         ? WAKE_UP_DELAY : 0;
         assertStateReceivedForShutdownOrSleepWithPostpone(lastState, expectedSecondParameter);
     }

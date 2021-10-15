@@ -102,7 +102,7 @@ public class CarPowerManager extends CarManagerBase {
         int WAIT_FOR_VHAL = 1;
 
         /**
-         * Enter suspend state. CPMS is switching to WAIT_FOR_FINISHED state.
+         * Enter deep sleep (suspend to RAM). CPMS is switching to WAIT_FOR_FINISHED state.
          *
          * @hide
          */
@@ -143,6 +143,20 @@ public class CarPowerManager extends CarManagerBase {
          * @hide
          */
         int SHUTDOWN_CANCELLED = 8;
+
+        /**
+         * Enter hibernation (suspend to disk) state. CPMS is switching to WAIT_FOR_FINISHED state.
+         *
+         * @hide
+         */
+        int HIBERNATION_ENTER = 9;
+
+        /**
+         * Wake up from hibernation.
+         *
+         * @hide
+         */
+        int HIBERNATION_EXIT = 10;
 
         /**
          * Called when power state changes. This callback is available to

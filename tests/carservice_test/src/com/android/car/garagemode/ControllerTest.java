@@ -246,6 +246,14 @@ public class ControllerTest {
         verify(controller).resetGarageMode();
 
         clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.HIBERNATION_ENTER, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
+        controller.onStateChanged(CarPowerStateListener.HIBERNATION_EXIT, null);
+        verify(controller).resetGarageMode();
+
+        clearInvocations(controller);
         controller.onStateChanged(CarPowerStateListener.INVALID , null);
         verify(controller, never()).resetGarageMode();
     }

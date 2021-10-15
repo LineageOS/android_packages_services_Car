@@ -359,6 +359,8 @@ public class CarLocationServiceTest {
             mCarLocationService.onStateChanged(CarPowerStateListener.ON, null);
             mCarLocationService.onStateChanged(CarPowerStateListener.WAIT_FOR_VHAL, null);
             mCarLocationService.onStateChanged(CarPowerStateListener.SHUTDOWN_CANCELLED, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.HIBERNATION_EXIT, null);
+            mCarLocationService.onStateChanged(CarPowerStateListener.HIBERNATION_ENTER, null);
         } catch (Exception e) {
             fail("onStateChanged should not throw an exception: " + e);
         }

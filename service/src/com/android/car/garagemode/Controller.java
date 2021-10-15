@@ -100,6 +100,14 @@ public class Controller implements CarPowerStateListenerWithCompletion {
                 Slogf.d(TAG, "CPM state changed to SUSPEND_EXIT");
                 handleSuspendExit();
                 break;
+            case CarPowerStateListener.HIBERNATION_ENTER:
+                Slogf.d(TAG, "CPM state changed to HIBERNATION_ENTER");
+                handleHibernationEnter();
+                break;
+            case CarPowerStateListener.HIBERNATION_EXIT:
+                Slogf.d(TAG, "CPM state changed to HIBERNATION_EXIT");
+                handleHibernationExit();
+                break;
             default:
         }
     }
@@ -179,6 +187,15 @@ public class Controller implements CarPowerStateListenerWithCompletion {
     }
 
     private void handleShutdownCancelled() {
+        resetGarageMode();
+    }
+
+
+    private void handleHibernationExit() {
+        resetGarageMode();
+    }
+
+    private void handleHibernationEnter() {
         resetGarageMode();
     }
 }
