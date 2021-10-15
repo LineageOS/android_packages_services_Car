@@ -45,14 +45,16 @@ public:
     int loadScript(const char* scriptBody);
 
     // Pushes a Lua function under provided name into the stack.
-    // Returns true if successful.
-    bool pushFunction(const char* functionName);
+    // Returns 1 if successful. Otherwise, an error is sent back to the client via the callback
+    // and 0 is returned.
+    int pushFunction(const char* functionName);
 
     // Invokes function with the inputs provided in the stack.
     // Assumes that the script body has been already loaded and successfully
     // compiled and run, and all input arguments, and the function have been
     // pushed to the stack.
-    // Returns 0 if successful. Otherwise returns non-zero Lua error code.
+    // Returns 0 if successful. Otherwise returns non-zero Lua error code
+    // and sends the error via a callback back to the client.
     int run();
 
     // Updates stored listener and destroys the previous one.
