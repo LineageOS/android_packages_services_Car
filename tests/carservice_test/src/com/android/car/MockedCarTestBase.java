@@ -281,6 +281,10 @@ public class MockedCarTestBase {
         initMockedHal();
     }
 
+    protected IBinder getCarService(String service) {
+        return mCarImpl.getCarService(service);
+    }
+
     private synchronized void initMockedHal() throws Exception {
         for (Map.Entry<VehiclePropConfigBuilder, VehicleHalPropertyHandler> entry
                 : mHalConfig.entrySet()) {

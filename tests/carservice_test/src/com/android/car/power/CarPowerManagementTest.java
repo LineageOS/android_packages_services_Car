@@ -18,6 +18,7 @@ package com.android.car.power;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.fail;
 
+import android.car.Car;
 import android.car.hardware.property.VehicleHalStatusCode;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateConfigFlag;
 import android.hardware.automotive.vehicle.V2_0.VehicleApPowerStateReport;
@@ -57,6 +58,8 @@ import java.util.concurrent.TimeUnit;
 @RunWith(AndroidJUnit4.class)
 @MediumTest
 public class CarPowerManagementTest extends MockedCarTestBase {
+
+    public static final int STATE_HANDLING_TIMEOUT = 5_000;
 
     private static final int STATE_POLLING_INTERVAL_MS = 1; // Milliseconds
     private static final int STATE_TRANSITION_MAX_WAIT_MS = 5 * STATE_POLLING_INTERVAL_MS;
@@ -103,6 +106,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     public void testImmediateShutdownFromWaitForVhal_ErrorCodeFromVhal() throws Exception {
         // The exceptions from VHAL should be handled in PowerHalService and not propagated.
 
+        CarPowerManagementService carPowerManagementService =
+                (CarPowerManagementService) getCarService(Car.POWER_SERVICE);
+
         assertWaitForVhal();
 
         mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_TRY_AGAIN);
@@ -131,6 +137,9 @@ public class CarPowerManagementTest extends MockedCarTestBase {
 
         // Clear status code.
         mPowerStateHandler.setStatus(VehicleHalStatusCode.STATUS_OK);
+
+        // Wait for CPMS to finish event processing
+        carPowerManagementService.getHandler().runWithScissors(() -> {}, STATE_HANDLING_TIMEOUT);
     }
 
     @Test
