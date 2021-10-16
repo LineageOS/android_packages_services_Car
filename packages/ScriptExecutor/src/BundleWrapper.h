@@ -19,6 +19,8 @@
 
 #include "jni.h"
 
+#include <android-base/result.h>
+
 #include <string>
 #include <vector>
 
@@ -39,12 +41,13 @@ public:
 
     // Family of methods that puts the provided 'value' into the PersistableBundle
     // under provided 'key'.
-    void putBoolean(const char* key, bool value);
-    void putLong(const char* key, int64_t value);
-    void putDouble(const char* key, double value);
-    void putString(const char* key, const char* value);
-    void putLongArray(const char* key, const std::vector<int64_t>& value);
-    void putStringArray(const char* key, const std::vector<std::string>& value);
+    ::android::base::Result<void> putBoolean(const char* key, bool value);
+    ::android::base::Result<void> putLong(const char* key, int64_t value);
+    ::android::base::Result<void> putDouble(const char* key, double value);
+    ::android::base::Result<void> putString(const char* key, const char* value);
+    ::android::base::Result<void> putLongArray(const char* key, const std::vector<int64_t>& value);
+    ::android::base::Result<void> putStringArray(const char* key,
+                                                 const std::vector<std::string>& value);
 
     jobject getBundle();
 

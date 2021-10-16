@@ -19,8 +19,6 @@
 #include "ScriptExecutorListener.h"
 #include "jni.h"
 
-#include <android-base/logging.h>
-
 #include <cstdint>
 
 namespace com {
@@ -84,27 +82,23 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
     }
 
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    LuaEngine::resetListener(new ScriptExecutorListener(env, listener));
 
     // Load and parse the script
     const char* scriptStr = env->GetStringUTFChars(scriptBody, nullptr);
     auto status = engine->loadScript(scriptStr);
     env->ReleaseStringUTFChars(scriptBody, scriptStr);
     // status == 0 if the script loads successfully.
-    if (status) {
-        env->ThrowNew(env->FindClass("java/lang/IllegalArgumentException"),
-                      "Failed to load the script.");
+    if (status != 0) {
         return;
     }
-    LuaEngine::resetListener(new ScriptExecutorListener(env, listener));
 
     // Push the function name we want to invoke to Lua stack
     const char* functionNameStr = env->GetStringUTFChars(functionName, nullptr);
     status = engine->pushFunction(functionNameStr);
     env->ReleaseStringUTFChars(functionName, functionNameStr);
-    // status == 1 if the name is indeed a function.
-    if (!status) {
-        env->ThrowNew(env->FindClass("java/lang/IllegalArgumentException"),
-                      "symbol functionName does not correspond to a function.");
+    // status == 1 if the name is a valid function.
+    if (status == 0) {
         return;
     }
 
@@ -116,11 +110,7 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
     pushBundleToLuaTable(env, engine, savedState);
 
     // Execute the function. This will block until complete or error.
-    if (engine->run()) {
-        env->ThrowNew(env->FindClass("java/lang/RuntimeException"),
-                      "Runtime error occurred while running the function.");
-        return;
-    }
+    engine->run();
 }
 
 }  // extern "C"

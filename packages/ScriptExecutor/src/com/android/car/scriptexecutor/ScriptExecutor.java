@@ -73,11 +73,9 @@ public final class ScriptExecutor extends Service {
                         listener.onError(IScriptExecutorListener.ERROR_TYPE_SCRIPT_EXECUTOR_ERROR,
                                 e.getMessage(), "");
                     } catch (RemoteException remoteException) {
-                        // TODO(b/197006437): remove isLoggable() check once using Slogf
                         if (Log.isLoggable(TAG, Log.ERROR)) {
                             // At least log "message" here, in case it was never sent back via
                             // the callback.
-                            // TODO(b/197006437): use android.car.builtin.util.Slogf instead
                             Log.e(TAG, "failed while calling listener with exception ", e);
                         }
                     }

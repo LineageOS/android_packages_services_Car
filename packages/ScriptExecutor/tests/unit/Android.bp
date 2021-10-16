@@ -45,19 +45,26 @@ android_test {
     ],
 }
 
-cc_library_shared {
+cc_library {
     name: "libscriptexecutorjniutils-test",
 
-    defaults: [
-        "scriptexecutor_defaults",
+    cflags: [
+        "-Wno-unused-parameter",
     ],
 
     srcs: [
         "src/com/android/car/scriptexecutor/JniUtilsTestHelper.cpp",
     ],
 
+    stl: "libc++_static",
+
     shared_libs: [
+        "libbase",
         "libnativehelper",
-        "libscriptexecutor",
+    ],
+
+    static_libs: [
+        "libscriptexecutorjni",
+        "liblua",
     ],
 }
