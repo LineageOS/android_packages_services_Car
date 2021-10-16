@@ -150,7 +150,7 @@ public class DataBrokerImpl implements DataBroker {
             AbstractPublisher publisher, List<TelemetryProto.MetricsConfig> affectedConfigs,
             Throwable error) {
         // TODO(b/193680465): disable MetricsConfig and log the error
-        Slogf.w(CarLog.TAG_TELEMETRY,  "publisher failed", error);
+        Slogf.w(CarLog.TAG_TELEMETRY, "publisher failed", error);
     }
 
     private void bindScriptExecutor() {
@@ -172,8 +172,9 @@ public class DataBrokerImpl implements DataBroker {
         unbindScriptExecutor();
         mBindScriptExecutorAttempts++;
         if (mBindScriptExecutorAttempts < MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "failed to get valid connection to ScriptExecutor, "
-                    + "retrying in " + mBindScriptExecutorDelayMillis + "ms.");
+            Slogf.w(CarLog.TAG_TELEMETRY,
+                    "failed to get valid connection to ScriptExecutor, retrying in "
+                            + mBindScriptExecutorDelayMillis + "ms.");
             mTelemetryHandler.sendEmptyMessageDelayed(MSG_BIND_TO_SCRIPT_EXECUTOR,
                     mBindScriptExecutorDelayMillis);
         } else {
@@ -194,7 +195,7 @@ public class DataBrokerImpl implements DataBroker {
             mContext.unbindService(mServiceConnection);
         } catch (IllegalArgumentException e) {
             // If ScriptExecutor is gone before unbinding, it will throw this exception
-            Slogf.w(CarLog.TAG_TELEMETRY,  "Failed to unbind from ScriptExecutor", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to unbind from ScriptExecutor", e);
         }
     }
 
@@ -241,7 +242,7 @@ public class DataBrokerImpl implements DataBroker {
                 // TODO(b/191378559): handle bad configs
                 publisher.addDataSubscriber(dataSubscriber);
             } catch (IllegalArgumentException e) {
-                Slogf.w(CarLog.TAG_TELEMETRY,  "Invalid config", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "Invalid config", e);
                 return;
             }
         }
@@ -264,7 +265,7 @@ public class DataBrokerImpl implements DataBroker {
                 publisher.removeDataSubscriber(subscriber);
             } catch (IllegalArgumentException e) {
                 // It shouldn't happen, but if happens, let's just log it.
-                Slogf.w(CarLog.TAG_TELEMETRY,  "Failed to remove subscriber from publisher", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove subscriber from publisher", e);
             }
         }
         // Remove all the tasks associated with this metrics config. The underlying impl uses the

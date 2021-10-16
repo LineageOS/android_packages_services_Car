@@ -142,7 +142,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         try {
             mCarTelemetryInternal.clearListener();
         } catch (RemoteException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY,  "Failed to remove ICarTelemetryInternal listener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove ICarTelemetryInternal listener", e);
         }
         mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
         mCarTelemetryInternal = null;

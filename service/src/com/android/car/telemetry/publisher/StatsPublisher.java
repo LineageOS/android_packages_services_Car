@@ -184,8 +184,6 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
-        // TODO(b/197269115): if StatsD reports invalid StatsdConfig, it should
-        //                    onPublisherFailure() and provide the affected MetricsConfigs.
         Slogf.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
         if (report.getReportsCount() == 0) {
             return;
@@ -427,7 +425,7 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigs.remove(bundleConfigKey);
             saveBundle();
         } catch (StatsUnavailableException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY,  "Failed to remove config " + configKey
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
                     + ". Ignoring the failure. Will retry removing again when"
                     + " removeAllDataSubscribers() is called.", e);
             // If it cannot remove statsd config, it's less likely it can delete it even if we
