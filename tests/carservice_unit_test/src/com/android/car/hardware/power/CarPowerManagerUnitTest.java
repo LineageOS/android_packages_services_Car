@@ -466,6 +466,10 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         private final Semaphore mDisplayStateWait = new Semaphore(0);
 
         @Override
+        public void init(CarPowerManagementService carPowerManagementService,
+                CarUserService carUserService) {}
+
+        @Override
         public void setDisplayBrightness(int brightness) {}
 
         @Override
@@ -484,7 +488,7 @@ public class CarPowerManagerUnitTest extends AbstractExtendedMockitoTestCase {
         }
 
         @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {}
+        public void startDisplayStateMonitoring() {}
 
         @Override
         public void stopDisplayStateMonitoring() {}

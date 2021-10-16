@@ -25,6 +25,7 @@ import com.android.car.procfsinspector.ProcessInfo;
 import com.android.car.storagemonitoring.LifetimeWriteInfoProvider;
 import com.android.car.storagemonitoring.UidIoStatsProvider;
 import com.android.car.storagemonitoring.WearInformationProvider;
+import com.android.car.user.CarUserService;
 
 import java.io.File;
 import java.time.Duration;
@@ -133,8 +134,14 @@ public class SystemInterface implements ActivityManagerInterface,
     }
 
     @Override
-    public void startDisplayStateMonitoring(CarPowerManagementService service) {
-        mDisplayInterface.startDisplayStateMonitoring(service);
+    public void init(CarPowerManagementService carPowerManagementService,
+            CarUserService carUserService) {
+        mDisplayInterface.init(carPowerManagementService, carUserService);
+    }
+
+    @Override
+    public void startDisplayStateMonitoring() {
+        mDisplayInterface.startDisplayStateMonitoring();
     }
 
     @Override
@@ -282,12 +289,12 @@ public class SystemInterface implements ActivityManagerInterface,
 
         public SystemInterface build() {
             return new SystemInterface(Objects.requireNonNull(mActivityManagerInterface),
-                Objects.requireNonNull(mDisplayInterface),
-                Objects.requireNonNull(mIOInterface),
-                Objects.requireNonNull(mStorageMonitoringInterface),
-                Objects.requireNonNull(mSystemStateInterface),
-                Objects.requireNonNull(mTimeInterface),
-                Objects.requireNonNull(mWakeLockInterface));
+                    Objects.requireNonNull(mDisplayInterface),
+                    Objects.requireNonNull(mIOInterface),
+                    Objects.requireNonNull(mStorageMonitoringInterface),
+                    Objects.requireNonNull(mSystemStateInterface),
+                    Objects.requireNonNull(mTimeInterface),
+                    Objects.requireNonNull(mWakeLockInterface));
         }
     }
 }

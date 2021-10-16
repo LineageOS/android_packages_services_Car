@@ -39,6 +39,7 @@ import com.android.car.MockedCarTestBase;
 import com.android.car.hal.PowerHalService;
 import com.android.car.systeminterface.DisplayInterface;
 import com.android.car.systeminterface.SystemInterface;
+import com.android.car.user.CarUserService;
 import com.android.car.vehiclehal.VehiclePropValueBuilder;
 import com.android.car.vehiclehal.test.MockedVehicleHal.VehicleHalPropertyHandler;
 
@@ -384,6 +385,13 @@ public class CarPowerManagementTest extends MockedCarTestBase {
     private final class MockDisplayInterface implements DisplayInterface {
         private boolean mDisplayOn = true;
         private final Semaphore mDisplayStateWait = new Semaphore(0);
+        private CarPowerManagementService mCarPowerManagementService;
+
+        @Override
+        public void init(CarPowerManagementService carPowerManagementService,
+                CarUserService carUserService) {
+            mCarPowerManagementService = carPowerManagementService;
+        }
 
         @Override
         public void setDisplayBrightness(int brightness) {}
@@ -404,10 +412,10 @@ public class CarPowerManagementTest extends MockedCarTestBase {
         }
 
         @Override
-        public void startDisplayStateMonitoring(CarPowerManagementService service) {
+        public void startDisplayStateMonitoring() {
             // To reduce test duration, decrease the polling interval and the
             // time to wait for a shutdown
-            service.setShutdownTimersForTest(STATE_POLLING_INTERVAL_MS,
+            mCarPowerManagementService.setShutdownTimersForTest(STATE_POLLING_INTERVAL_MS,
                     TEST_SHUTDOWN_TIMEOUT_MS);
         }
 
