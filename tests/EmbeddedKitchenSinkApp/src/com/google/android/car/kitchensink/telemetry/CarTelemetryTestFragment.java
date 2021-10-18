@@ -16,6 +16,8 @@
 
 package com.google.android.car.kitchensink.telemetry;
 
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.ACTIVITY_FOREGROUND_STATE_CHANGED;
+import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED;
 import static com.android.car.telemetry.TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE;
 
 import android.annotation.NonNull;
@@ -95,7 +97,8 @@ public class CarTelemetryTestFragment extends Fragment {
                     + "published_data.page_major_fault)\n")
             .append("    result.oom_adj_score_avg = calculateAverage("
                     + "published_data.oom_adj_score)\n")
-            .append("    result.rss_in_bytes_avg = calculateAverage(published_data.rss_in_bytes)\n")
+            .append("    result.rss_in_bytes_avg = calculateAverage("
+                    + "published_data.rss_in_bytes)\n")
             .append("    result.swap_in_bytes_avg = calculateAverage("
                     + "published_data.swap_in_bytes)\n")
             .append("    result.cache_in_bytes_avg = calculateAverage("
@@ -124,6 +127,90 @@ public class CarTelemetryTestFragment extends Fragment {
     private static final MetricsConfigKey PROCESS_MEMORY_KEY_V1 = new MetricsConfigKey(
             METRICS_CONFIG_PROCESS_MEMORY_V1.getName(),
             METRICS_CONFIG_PROCESS_MEMORY_V1.getVersion());
+
+    /** AppStartMemoryStateCaptured metric test. */
+    private static final String LUA_SCRIPT_ON_APP_START_MEMORY_STATE_CAPTURED = new StringBuilder()
+            .append("function calculateAverage(tbl)\n")
+            .append("    sum = 0\n")
+            .append("    size = 0\n")
+            .append("    for _, value in ipairs(tbl) do\n")
+            .append("        sum = sum + value\n")
+            .append("        size = size + 1\n")
+            .append("    end\n")
+            .append("    return sum/size\n")
+            .append("end\n")
+            .append("function onAppStartMemoryStateCaptured(published_data, state)\n")
+            .append("    result = {}\n")
+            .append("    result.uid = published_data.uid\n")
+            .append("    result.page_fault_avg = calculateAverage(published_data.page_fault)\n")
+            .append("    result.major_page_fault_avg = calculateAverage("
+                    + "published_data.page_major_fault)\n")
+            .append("    result.rss_in_bytes_avg = calculateAverage("
+                    + "published_data.rss_in_bytes)\n")
+            .append("    result.swap_in_bytes_avg = calculateAverage("
+                    + "published_data.swap_in_bytes)\n")
+            .append("    result.cache_in_bytes_avg = calculateAverage("
+                    + "published_data.cache_in_bytes)\n")
+            .append("    on_script_finished(result)\n")
+            .append("end\n")
+            .toString();
+
+    private static final TelemetryProto.Publisher APP_START_MEMORY_STATE_CAPTURED_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(APP_START_MEMORY_STATE_CAPTURED)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_APP_START_MEMORY_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("app_start_memory_metrics_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_APP_START_MEMORY_STATE_CAPTURED)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onAppStartMemoryStateCaptured")
+                                    .setPublisher(APP_START_MEMORY_STATE_CAPTURED_PUBLISHER)
+                                    .setPriority(0)) // high priority
+                    .build();
+    private static final MetricsConfigKey APP_START_MEMORY_STATE_CAPTURED_KEY_V1 =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_APP_START_MEMORY_V1.getName(),
+                    METRICS_CONFIG_APP_START_MEMORY_V1.getVersion());
+
+    /** ActivityForegroundStateChanged metric test. */
+    private static final String LUA_SCRIPT_ON_ACTIVITY_FOREGROUND_STATE_CHANGED =
+            new StringBuilder()
+                .append("function onActivityForegroundStateChanged(published_data, state)\n")
+                .append("    result = {}\n")
+                .append("    result.uid = published_data.uid\n")
+                .append("    result.pkg_name = published_data.pkg_name\n")
+                .append("    result.class_name = published_data.class_name\n")
+                .append("    result.state = published_data.state\n")
+                .append("    on_script_finished(result)\n")
+                .append("end\n")
+                .toString();
+
+    private static final TelemetryProto.Publisher ACTIVITY_FOREGROUND_STATE_CHANGED_PUBLISHER =
+            TelemetryProto.Publisher.newBuilder()
+                    .setStats(
+                            TelemetryProto.StatsPublisher.newBuilder()
+                                    .setSystemMetric(ACTIVITY_FOREGROUND_STATE_CHANGED)
+                    ).build();
+    private static final TelemetryProto.MetricsConfig METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1 =
+            TelemetryProto.MetricsConfig.newBuilder()
+                    .setName("activity_foreground_state_changed_config")
+                    .setVersion(1)
+                    .setScript(LUA_SCRIPT_ON_ACTIVITY_FOREGROUND_STATE_CHANGED)
+                    .addSubscribers(
+                            TelemetryProto.Subscriber.newBuilder()
+                                    .setHandler("onActivityForegroundStateChanged")
+                                    .setPublisher(ACTIVITY_FOREGROUND_STATE_CHANGED_PUBLISHER)
+                                    .setPriority(0)) // high priority
+                    .build();
+    private static final MetricsConfigKey ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1 =
+            new MetricsConfigKey(
+                    METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getName(),
+                    METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.getVersion());
 
     private final Executor mExecutor = Executors.newSingleThreadExecutor();
 
@@ -161,6 +248,18 @@ public class CarTelemetryTestFragment extends Fragment {
                 .setOnClickListener(this::onRemoveProcessMemoryConfigBtnClick);
         view.findViewById(R.id.get_on_process_memory_report)
                 .setOnClickListener(this::onGetProcessMemoryReportBtnClick);
+        view.findViewById(R.id.send_on_app_start_memory_state_captured_config)
+                .setOnClickListener(this::onSendAppStartMemoryStateCapturedConfigBtnClick);
+        view.findViewById(R.id.remove_on_app_start_memory_state_captured_config)
+                .setOnClickListener(this::onRemoveAppStartMemoryStateCapturedConfigBtnClick);
+        view.findViewById(R.id.get_on_app_start_memory_state_captured_report)
+                .setOnClickListener(this::onGetAppStartMemoryStateCapturedReportBtnClick);
+        view.findViewById(R.id.send_on_activity_foreground_state_changed_config)
+                .setOnClickListener(this::onSendActivityForegroundStateChangedConfigBtnClick);
+        view.findViewById(R.id.remove_on_activity_foreground_state_changed_config)
+                .setOnClickListener(this::onRemoveActivityForegroundStateChangedConfigBtnClick);
+        view.findViewById(R.id.get_on_activity_foreground_state_changed_report)
+                .setOnClickListener(this::onGetActivityForegroundStateChangedReportBtnClick);
         view.findViewById(R.id.show_mem_info_btn).setOnClickListener(this::onShowMemInfoBtnClick);
         return view;
     }
@@ -192,20 +291,54 @@ public class CarTelemetryTestFragment extends Fragment {
     }
 
     private void onSendProcessMemoryConfigBtnClick(View view) {
-        showOutput("Sending MetricsConfig that listens for process memory state...");
+        showOutput("Sending MetricsConfig that listens for PROCESS_MEMORY_STATE...");
         mCarTelemetryManager.addMetricsConfig(PROCESS_MEMORY_KEY_V1,
                 METRICS_CONFIG_PROCESS_MEMORY_V1.toByteArray());
     }
 
     private void onRemoveProcessMemoryConfigBtnClick(View view) {
-        showOutput("Removing MetricsConfig that listens for process memory state...");
+        showOutput("Removing MetricsConfig that listens for PROCESS_MEMORY_STATE...");
         mCarTelemetryManager.removeMetricsConfig(PROCESS_MEMORY_KEY_V1);
     }
 
     private void onGetProcessMemoryReportBtnClick(View view) {
-        showOutput("Fetching report for process memory state... If nothing shows up within 5 "
+        showOutput("Fetching report for PROCESS_MEMORY_STATE... If nothing shows up within 5 "
                 + "seconds, there is no result yet");
         mCarTelemetryManager.sendFinishedReports(PROCESS_MEMORY_KEY_V1);
+    }
+
+    private void onSendAppStartMemoryStateCapturedConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for APP_START_MEMORY_STATE_CAPTURED...");
+        mCarTelemetryManager.addMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_KEY_V1,
+                METRICS_CONFIG_APP_START_MEMORY_V1.toByteArray());
+    }
+
+    private void onRemoveAppStartMemoryStateCapturedConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for APP_START_MEMORY_STATE_CAPTURED...");
+        mCarTelemetryManager.removeMetricsConfig(APP_START_MEMORY_STATE_CAPTURED_KEY_V1);
+    }
+
+    private void onGetAppStartMemoryStateCapturedReportBtnClick(View view) {
+        showOutput("Fetching report for APP_START_MEMORY_STATE_CAPTURED... "
+                + "If nothing shows up within 5 seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(APP_START_MEMORY_STATE_CAPTURED_KEY_V1);
+    }
+
+    private void onSendActivityForegroundStateChangedConfigBtnClick(View view) {
+        showOutput("Sending MetricsConfig that listens for ACTIVITY_FOREGROUND_STATE_CHANGED...");
+        mCarTelemetryManager.addMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1,
+                METRICS_CONFIG_ACTIVITY_FOREGROUND_STATE_V1.toByteArray());
+    }
+
+    private void onRemoveActivityForegroundStateChangedConfigBtnClick(View view) {
+        showOutput("Removing MetricsConfig that listens for ACTIVITY_FOREGROUND_STATE_CHANGED...");
+        mCarTelemetryManager.removeMetricsConfig(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1);
+    }
+
+    private void onGetActivityForegroundStateChangedReportBtnClick(View view) {
+        showOutput("Fetching report for ACTIVITY_FOREGROUND_STATE_CHANGED... "
+                + "If nothing shows up within 5 seconds, there is no result yet");
+        mCarTelemetryManager.sendFinishedReports(ACTIVITY_FOREGROUND_STATE_CHANGED_KEY_V1);
     }
 
     /** Gets a MemoryInfo object for the device's current memory status. */
