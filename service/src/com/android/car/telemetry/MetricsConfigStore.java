@@ -22,10 +22,10 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNK
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import java.io.File;
 import java.io.IOException;
@@ -97,7 +97,7 @@ public class MetricsConfigStore {
                     metricsConfig.toByteArray());
         } catch (IOException e) {
             // TODO(b/197336655): record failure
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to write metrics config to disk", e);
             return ERROR_METRICS_CONFIG_UNKNOWN;
         }
         return ERROR_METRICS_CONFIG_NONE;
@@ -108,7 +108,7 @@ public class MetricsConfigStore {
         mActiveConfigs.remove(metricsConfigName);
         mNameVersionMap.remove(metricsConfigName);
         if (!new File(mConfigDirectory, metricsConfigName).delete()) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + metricsConfigName);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + metricsConfigName);
         }
     }
 
@@ -117,7 +117,7 @@ public class MetricsConfigStore {
         mActiveConfigs.clear();
         for (File file : mConfigDirectory.listFiles()) {
             if (!file.delete()) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + file.getName());
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + file.getName());
             }
         }
     }

@@ -24,7 +24,6 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.util.ArraySet;
-import android.util.Slog;
 import android.util.SparseArray;
 
 import com.android.car.CarLog;
@@ -33,6 +32,7 @@ import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
 import com.android.internal.util.Preconditions;
+import com.android.server.utils.Slogf;
 
 import java.util.List;
 
@@ -66,7 +66,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
                 @Override
                 public void onEvent(List<CarPropertyEvent> events) throws RemoteException {
                     if (DEBUG) {
-                        Slog.d(CarLog.TAG_TELEMETRY,
+                        Slogf.d(CarLog.TAG_TELEMETRY,
                                 "Received " + events.size() + " vehicle property events");
                     }
                     for (CarPropertyEvent event : events) {
@@ -123,7 +123,7 @@ public class VehiclePropertyPublisher extends AbstractPublisher {
     public void removeDataSubscriber(DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.VEHICLE_PROPERTY) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "Expected VEHICLE_PROPERTY publisher, but received "
                             + publisherParam.getPublisherCase().name());
             return;

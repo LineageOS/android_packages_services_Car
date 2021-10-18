@@ -30,7 +30,6 @@ import android.os.PersistableBundle;
 import android.os.RemoteException;
 import android.os.UserHandle;
 import android.util.ArrayMap;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.CarServiceUtils;
@@ -43,6 +42,7 @@ import com.android.car.telemetry.publisher.PublisherFactory;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 import com.android.internal.annotations.VisibleForTesting;
+import com.android.server.utils.Slogf;
 
 import java.io.Closeable;
 import java.io.IOException;
@@ -150,7 +150,7 @@ public class DataBrokerImpl implements DataBroker {
             AbstractPublisher publisher, List<TelemetryProto.MetricsConfig> affectedConfigs,
             Throwable error) {
         // TODO(b/193680465): disable MetricsConfig and log the error
-        Slog.w(CarLog.TAG_TELEMETRY, "publisher failed", error);
+        Slogf.w(CarLog.TAG_TELEMETRY, "publisher failed", error);
     }
 
     private void bindScriptExecutor() {
@@ -172,13 +172,13 @@ public class DataBrokerImpl implements DataBroker {
         unbindScriptExecutor();
         mBindScriptExecutorAttempts++;
         if (mBindScriptExecutorAttempts < MAX_BIND_SCRIPT_EXECUTOR_ATTEMPTS) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "failed to get valid connection to ScriptExecutor, retrying in "
                             + mBindScriptExecutorDelayMillis + "ms.");
             mTelemetryHandler.sendEmptyMessageDelayed(MSG_BIND_TO_SCRIPT_EXECUTOR,
                     mBindScriptExecutorDelayMillis);
         } else {
-            Slog.w(CarLog.TAG_TELEMETRY, "failed to get valid connection to ScriptExecutor, "
+            Slogf.w(CarLog.TAG_TELEMETRY, "failed to get valid connection to ScriptExecutor, "
                     + "disabling DataBroker");
             disableBroker();
         }
@@ -195,7 +195,7 @@ public class DataBrokerImpl implements DataBroker {
             mContext.unbindService(mServiceConnection);
         } catch (IllegalArgumentException e) {
             // If ScriptExecutor is gone before unbinding, it will throw this exception
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to unbind from ScriptExecutor", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to unbind from ScriptExecutor", e);
         }
     }
 
@@ -242,7 +242,7 @@ public class DataBrokerImpl implements DataBroker {
                 // TODO(b/191378559): handle bad configs
                 publisher.addDataSubscriber(dataSubscriber);
             } catch (IllegalArgumentException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Invalid config", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "Invalid config", e);
                 return;
             }
         }
@@ -265,7 +265,7 @@ public class DataBrokerImpl implements DataBroker {
                 publisher.removeDataSubscriber(subscriber);
             } catch (IllegalArgumentException e) {
                 // It shouldn't happen, but if happens, let's just log it.
-                Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove subscriber from publisher", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove subscriber from publisher", e);
             }
         }
         // Remove all the tasks associated with this metrics config. The underlying impl uses the
@@ -359,7 +359,7 @@ public class DataBrokerImpl implements DataBroker {
         }
         // if script executor is null, bind service
         if (mScriptExecutor == null) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "script executor is null, cannot execute task");
             // upon successful binding, a task will be scheduled to run if there are any
             mTelemetryHandler.sendEmptyMessage(MSG_BIND_TO_SCRIPT_EXECUTOR);
@@ -370,10 +370,10 @@ public class DataBrokerImpl implements DataBroker {
         mCurrentScriptName = task.getMetricsConfig().getName();
         try {
             if (task.getDataSizeBytes() >= LARGE_SCRIPT_INPUT_SIZE_BYTES) {
-                Slog.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
+                Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor for large input");
                 invokeScriptForLargeInput(task);
             } else {
-                Slog.d(CarLog.TAG_TELEMETRY, "invoking script executor");
+                Slogf.d(CarLog.TAG_TELEMETRY, "invoking script executor");
                 mScriptExecutor.invokeScript(
                         task.getMetricsConfig().getScript(),
                         task.getHandlerName(),
@@ -382,11 +382,11 @@ public class DataBrokerImpl implements DataBroker {
                         mScriptExecutorListener);
             }
         } catch (RemoteException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "remote exception occurred invoking script", e);
             unbindScriptExecutor();
             addTaskToQueue(task); // will trigger scheduleNextTask() and re-binding scriptexecutor
         } catch (IOException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Either unable to create pipe or failed to pipe data"
+            Slogf.w(CarLog.TAG_TELEMETRY, "Either unable to create pipe or failed to pipe data"
                     + " to ScriptExecutor. Skipping the published data", e);
             mCurrentScriptName = null;
             scheduleNextTask(); // drop this task and schedule the next one
@@ -420,7 +420,7 @@ public class DataBrokerImpl implements DataBroker {
         }
         closeQuietly(readFd);
 
-        Slog.d(CarLog.TAG_TELEMETRY, "writing large script data to pipe");
+        Slogf.d(CarLog.TAG_TELEMETRY, "writing large script data to pipe");
         try (OutputStream outputStream = new ParcelFileDescriptor.AutoCloseOutputStream(writeFd)) {
             task.getData().writeToStream(outputStream);
         }
@@ -528,7 +528,7 @@ public class DataBrokerImpl implements DataBroker {
                     bindScriptExecutor();
                     break;
                 default:
-                    Slog.w(CarLog.TAG_TELEMETRY, "TaskHandler received unknown message.");
+                    Slogf.w(CarLog.TAG_TELEMETRY, "TaskHandler received unknown message.");
             }
         }
     }
