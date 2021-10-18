@@ -57,7 +57,7 @@ import java.util.concurrent.TimeUnit;
 @RunWith(MockitoJUnitRunner.class)
 @SmallTest
 public class CarTelemetryServiceTest {
-    private static final long TIMEOUT_MS = 5_000L;
+    private static final long TIMEOUT_MS = 15_000L;
     private static final String METRICS_CONFIG_NAME = "my_metrics_config";
     private static final MetricsConfigKey KEY_V1 = new MetricsConfigKey(METRICS_CONFIG_NAME, 1);
     private static final MetricsConfigKey KEY_V2 = new MetricsConfigKey(METRICS_CONFIG_NAME, 2);
