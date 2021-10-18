@@ -14,7 +14,7 @@
  * limitations under the License.
  */
 
-package com.android.car.telemetry.publisher;
+package com.android.car.telemetry.publisher.statsconverters;
 
 /**
  * Class for exceptions that occur when converting statsd data.

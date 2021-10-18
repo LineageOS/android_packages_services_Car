@@ -16,7 +16,9 @@
 
 package com.android.car.telemetry.publisher;
 
+import static com.android.car.telemetry.AtomsProto.Atom.ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER;
 import static com.android.car.telemetry.AtomsProto.Atom.APP_START_MEMORY_STATE_CAPTURED_FIELD_NUMBER;
+import static com.android.car.telemetry.AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER;
 
 import android.app.StatsManager.StatsUnavailableException;
 import android.car.builtin.util.Slogf;
@@ -33,6 +35,8 @@ import com.android.car.telemetry.StatsdConfigProto.StatsdConfig;
 import com.android.car.telemetry.TelemetryProto;
 import com.android.car.telemetry.TelemetryProto.Publisher.PublisherCase;
 import com.android.car.telemetry.databroker.DataSubscriber;
+import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportListConverter;
+import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
 
@@ -66,6 +70,10 @@ public class StatsPublisher extends AbstractPublisher {
     static final long PROCESS_MEMORY_STATE_MATCHER_ID = 3;
     @VisibleForTesting
     static final long PROCESS_MEMORY_STATE_GAUGE_METRIC_ID = 4;
+    @VisibleForTesting
+    static final long ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID = 5;
+    @VisibleForTesting
+    static final long ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID = 6;
 
     // The file that contains stats config key and stats config version
     @VisibleForTesting
@@ -82,7 +90,7 @@ public class StatsPublisher extends AbstractPublisher {
     static final StatsdConfigProto.FieldMatcher PROCESS_MEMORY_STATE_FIELDS_MATCHER =
             StatsdConfigProto.FieldMatcher.newBuilder()
                     .setField(
-                            AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                            PROCESS_MEMORY_STATE_FIELD_NUMBER)
                     .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                             .setField(
                                     AtomsProto.ProcessMemoryState.OOM_ADJ_SCORE_FIELD_NUMBER))
@@ -200,31 +208,26 @@ public class StatsPublisher extends AbstractPublisher {
             Slogf.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
             return;
         }
+        Long metricId;
         switch (subscriber.getPublisherParam().getStats().getSystemMetric()) {
             case APP_START_MEMORY_STATE_CAPTURED:
-                if (!metricBundles.containsKey(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID)) {
-                    Slogf.w(CarLog.TAG_TELEMETRY,
-                            "Reports do not contain metric with id "
-                            + APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID
-                            + " for config " + configKey);
-                    return;
-                }
-                subscriber.push(
-                        metricBundles.get(APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID));
+                metricId = APP_START_MEMORY_STATE_CAPTURED_EVENT_METRIC_ID;
                 break;
             case PROCESS_MEMORY_STATE:
-                if (!metricBundles.containsKey(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)) {
-                    Slogf.w(CarLog.TAG_TELEMETRY,
-                            "Reports do not contain metric with id "
-                            + PROCESS_MEMORY_STATE_GAUGE_METRIC_ID
-                            + " for config " + configKey);
-                    return;
-                }
-                subscriber.push(metricBundles.get(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID));
+                metricId = PROCESS_MEMORY_STATE_GAUGE_METRIC_ID;
+                break;
+            case ACTIVITY_FOREGROUND_STATE_CHANGED:
+                metricId = ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID;
                 break;
             default:
-                break;
+                return;
         }
+        if (!metricBundles.containsKey(metricId)) {
+            Slogf.w(CarLog.TAG_TELEMETRY,
+                    "No reports for metric id " + metricId + " for config " + configKey);
+            return;
+        }
+        subscriber.push(metricBundles.get(metricId));
     }
 
     private void processStatsMetadata(StatsLogProto.StatsdStatsReport statsReport) {
@@ -461,12 +464,15 @@ public class StatsPublisher extends AbstractPublisher {
                 .setId(configId)
                 .addAllowedLogSource("AID_SYSTEM");
 
-        if (metric == TelemetryProto.StatsPublisher.SystemMetric.APP_START_MEMORY_STATE_CAPTURED) {
-            return buildAppStartMemoryStateStatsdConfig(builder);
-        } else if (metric == TelemetryProto.StatsPublisher.SystemMetric.PROCESS_MEMORY_STATE) {
-            return buildProcessMemoryStateStatsdConfig(builder);
-        } else {
-            throw new IllegalArgumentException("Unsupported metric " + metric.name());
+        switch (metric) {
+            case APP_START_MEMORY_STATE_CAPTURED:
+                return buildAppStartMemoryStateStatsdConfig(builder);
+            case PROCESS_MEMORY_STATE:
+                return buildProcessMemoryStateStatsdConfig(builder);
+            case ACTIVITY_FOREGROUND_STATE_CHANGED:
+                return buildActivityForegroundStateStatsdConfig(builder);
+            default:
+                throw new IllegalArgumentException("Unsupported metric " + metric.name());
         }
     }
 
@@ -490,13 +496,13 @@ public class StatsPublisher extends AbstractPublisher {
                         // The id must be unique within StatsdConfig/matchers
                         .setId(PROCESS_MEMORY_STATE_MATCHER_ID)
                         .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
-                                .setAtomId(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)))
+                                .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)))
                 .addGaugeMetric(StatsdConfigProto.GaugeMetric.newBuilder()
                         // The id must be unique within StatsdConfig/metrics
                         .setId(PROCESS_MEMORY_STATE_GAUGE_METRIC_ID)
                         .setWhat(PROCESS_MEMORY_STATE_MATCHER_ID)
                         .setDimensionsInWhat(StatsdConfigProto.FieldMatcher.newBuilder()
-                                .setField(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                                .setField(PROCESS_MEMORY_STATE_FIELD_NUMBER)
                                 .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
                                         .setField(1))  // ProcessMemoryState.uid
                                 .addChild(StatsdConfigProto.FieldMatcher.newBuilder()
@@ -510,8 +516,23 @@ public class StatsPublisher extends AbstractPublisher {
                         .setBucket(StatsdConfigProto.TimeUnit.FIVE_MINUTES)
                 )
                 .addPullAtomPackages(StatsdConfigProto.PullAtomPackages.newBuilder()
-                        .setAtomId(AtomsProto.Atom.PROCESS_MEMORY_STATE_FIELD_NUMBER)
+                        .setAtomId(PROCESS_MEMORY_STATE_FIELD_NUMBER)
                         .addPackages("AID_SYSTEM"))
+                .build();
+    }
+
+    private static StatsdConfig buildActivityForegroundStateStatsdConfig(
+            StatsdConfig.Builder builder) {
+        return builder
+                .addAtomMatcher(StatsdConfigProto.AtomMatcher.newBuilder()
+                        // The id must be unique within StatsdConfig/matchers
+                        .setId(ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID)
+                        .setSimpleAtomMatcher(StatsdConfigProto.SimpleAtomMatcher.newBuilder()
+                                .setAtomId(ACTIVITY_FOREGROUND_STATE_CHANGED_FIELD_NUMBER)))
+                .addEventMetric(StatsdConfigProto.EventMetric.newBuilder()
+                        // The id must be unique within StatsdConfig/metrics
+                        .setId(ACTIVITY_FOREGROUND_STATE_CHANGED_EVENT_METRIC_ID)
+                        .setWhat(ACTIVITY_FOREGROUND_STATE_CHANGED_ATOM_MATCHER_ID))
                 .build();
     }
 }
