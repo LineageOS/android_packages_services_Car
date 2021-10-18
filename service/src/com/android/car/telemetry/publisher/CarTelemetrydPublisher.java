@@ -23,7 +23,6 @@ import android.os.Handler;
 import android.os.IBinder;
 import android.os.RemoteException;
 import android.os.ServiceManager;
-import android.util.Slog;
 
 import com.android.automotive.telemetry.CarDataProto;
 import com.android.car.CarLog;
@@ -61,7 +60,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         @Override
         public void onCarDataReceived(final CarDataInternal[] dataList) throws RemoteException {
             if (DEBUG) {
-                Slog.d(CarLog.TAG_TELEMETRY,
+                Slogf.d(CarLog.TAG_TELEMETRY,
                         "Received " + dataList.length + " CarData from cartelemetryd");
             }
             // TODO(b/189142577): Create custom Handler and post message to improve performance
@@ -143,7 +142,7 @@ public class CarTelemetrydPublisher extends AbstractPublisher {
         try {
             mCarTelemetryInternal.clearListener();
         } catch (RemoteException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove ICarTelemetryInternal listener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove ICarTelemetryInternal listener", e);
         }
         mCarTelemetryInternal.asBinder().unlinkToDeath(this::onBinderDied, BINDER_FLAGS);
         mCarTelemetryInternal = null;

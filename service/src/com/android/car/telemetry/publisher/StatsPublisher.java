@@ -25,7 +25,6 @@ import android.os.Handler;
 import android.os.PersistableBundle;
 import android.os.Process;
 import android.util.LongSparseArray;
-import android.util.Slog;
 
 import com.android.car.CarLog;
 import com.android.car.telemetry.AtomsProto;
@@ -39,6 +38,7 @@ import com.android.car.telemetry.publisher.statsconverters.ConfigMetricsReportLi
 import com.android.car.telemetry.publisher.statsconverters.StatsConversionException;
 import com.android.internal.annotations.VisibleForTesting;
 import com.android.internal.util.Preconditions;
+import com.android.server.utils.Slogf;
 
 import com.google.protobuf.InvalidProtocolBufferException;
 
@@ -149,7 +149,7 @@ public class StatsPublisher extends AbstractPublisher {
             return new PersistableBundle();
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
-            Slog.e(CarLog.TAG_TELEMETRY,
+            Slogf.e(CarLog.TAG_TELEMETRY,
                     "Failed to read file " + mSavedStatsConfigsFile.getAbsolutePath(), e);
             return new PersistableBundle();
         }
@@ -165,7 +165,7 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigs.writeToStream(fileOutputStream);
         } catch (IOException e) {
             // TODO(b/199947533): handle failure
-            Slog.e(CarLog.TAG_TELEMETRY,
+            Slogf.e(CarLog.TAG_TELEMETRY,
                     "Cannot write to " + mSavedStatsConfigsFile.getAbsolutePath()
                             + ". Added stats config info is lost.", e);
         }
@@ -182,7 +182,7 @@ public class StatsPublisher extends AbstractPublisher {
         mConfigKeyToSubscribers.put(configKey, subscriber);
         addStatsConfig(configKey, subscriber);
         if (!mIsPullingReports) {
-            Slog.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mIsPullingReports = true;
             mTelemetryHandler.postDelayed(
@@ -191,20 +191,20 @@ public class StatsPublisher extends AbstractPublisher {
     }
 
     private void processReport(long configKey, StatsLogProto.ConfigMetricsReportList report) {
-        Slog.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
+        Slogf.i(CarLog.TAG_TELEMETRY, "Received reports: " + report.getReportsCount());
         if (report.getReportsCount() == 0) {
             return;
         }
         DataSubscriber subscriber = mConfigKeyToSubscribers.get(configKey);
         if (subscriber == null) {
-            Slog.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
+            Slogf.w(CarLog.TAG_TELEMETRY, "No subscribers found for config " + configKey);
             return;
         }
         Map<Long, PersistableBundle> metricBundles = null;
         try {
             metricBundles = ConfigMetricsReportListConverter.convert(report);
         } catch (StatsConversionException ex) {
-            Slog.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
+            Slogf.e(CarLog.TAG_TELEMETRY, "Stats conversion exception for config " + configKey, ex);
             return;
         }
         Long metricId;
@@ -222,7 +222,7 @@ public class StatsPublisher extends AbstractPublisher {
                 return;
         }
         if (!metricBundles.containsKey(metricId)) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "No reports for metric id " + metricId + " for config " + configKey);
             return;
         }
@@ -240,7 +240,7 @@ public class StatsPublisher extends AbstractPublisher {
                 continue;
             }
             if (!stats.getIsValid()) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Config key " + stats.getId() + " is invalid.");
+                Slogf.w(CarLog.TAG_TELEMETRY, "Config key " + stats.getId() + " is invalid.");
                 failedConfigs.add(mConfigKeyToSubscribers.get(stats.getId()).getMetricsConfig());
             }
         }
@@ -254,7 +254,7 @@ public class StatsPublisher extends AbstractPublisher {
 
     private void pullReportsPeriodically() {
         if (mIsPullingReports) {
-            Slog.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
+            Slogf.d(CarLog.TAG_TELEMETRY, "Stats report will be pulled in "
                     + PULL_REPORTS_PERIOD.toMinutes() + " minutes.");
             mTelemetryHandler.postDelayed(mPullReportsPeriodically, PULL_REPORTS_PERIOD.toMillis());
         }
@@ -271,7 +271,7 @@ public class StatsPublisher extends AbstractPublisher {
             }
         } catch (InvalidProtocolBufferException | StatsUnavailableException e) {
             // If the StatsD is not available, retry in the next pullReportsPeriodically call.
-            Slog.w(CarLog.TAG_TELEMETRY, e);
+            Slogf.w(CarLog.TAG_TELEMETRY, e);
         }
     }
 
@@ -298,7 +298,7 @@ public class StatsPublisher extends AbstractPublisher {
     public void removeDataSubscriber(DataSubscriber subscriber) {
         TelemetryProto.Publisher publisherParam = subscriber.getPublisherParam();
         if (publisherParam.getPublisherCase() != PublisherCase.STATS) {
-            Slog.w(CarLog.TAG_TELEMETRY,
+            Slogf.w(CarLog.TAG_TELEMETRY,
                     "Expected STATS publisher, but received "
                             + publisherParam.getPublisherCase().name());
             return;
@@ -329,7 +329,7 @@ public class StatsPublisher extends AbstractPublisher {
                 mSavedStatsConfigs.remove(key);
                 mSavedStatsConfigs.remove(bundleVersion);
             } catch (StatsUnavailableException e) {
-                Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
+                Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
                         + ". Ignoring the failure. Will retry removing again when"
                         + " removeAllDataSubscribers() is called.", e);
                 // If it cannot remove statsd config, it's less likely it can delete it even if
@@ -407,7 +407,7 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigs.putLong(bundleConfigKey, configKey);
             saveBundle();
         } catch (StatsUnavailableException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to add config" + configKey, e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to add config" + configKey, e);
             // We will notify the failure immediately, as we're expecting StatsManager to be stable.
             onPublisherFailure(
                     getMetricsConfigs(),
@@ -427,7 +427,7 @@ public class StatsPublisher extends AbstractPublisher {
             mSavedStatsConfigs.remove(bundleConfigKey);
             saveBundle();
         } catch (StatsUnavailableException e) {
-            Slog.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove config " + configKey
                     + ". Ignoring the failure. Will retry removing again when"
                     + " removeAllDataSubscribers() is called.", e);
             // If it cannot remove statsd config, it's less likely it can delete it even if we
