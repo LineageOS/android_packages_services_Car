@@ -20,6 +20,7 @@
 #include "MappedFile.h"
 
 #include <android-base/unique_fd.h>
+#include <cutils/ashmem.h>
 #include <utils/Errors.h>
 
 #include <unistd.h>
@@ -51,9 +52,9 @@ public:
 
     inline bool isValid() const {
         if (mOwned) {
-            return mOwnedFd.ok();
+            return mOwnedFd.ok() && ashmem_valid(mOwnedFd.get());
         } else {
-            return mBorrowedFd.get() > 0;
+            return mBorrowedFd.get() >= 0 && ashmem_valid(mBorrowedFd.get());
         }
     }
 

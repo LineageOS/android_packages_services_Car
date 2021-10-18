@@ -42,6 +42,20 @@ TEST(MappedFileSharedMemoryTest, testSharedMemoryInvalidFd) {
     ASSERT_NE(OK, sm.getErr());
 }
 
+TEST(MappedFileSharedMemoryTest, testSharedMemoryInvalidAshmemUniqueFd) {
+    unique_fd fd(0);
+    SharedMemory sm(std::move(fd));
+
+    ASSERT_FALSE(sm.isValid());
+}
+
+TEST(MappedFileSharedMemoryTest, testSharedMemoryInvalidAshmemBorrowedFd) {
+    borrowed_fd fd(0);
+    SharedMemory sm(std::move(fd));
+
+    ASSERT_FALSE(sm.isValid());
+}
+
 void testSharedMemoryMapRead(const SharedMemory& sm) {
     std::unique_ptr<MappedFile> mappedFile = sm.mapReadOnly();
 
