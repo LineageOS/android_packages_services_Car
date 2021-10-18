@@ -25,6 +25,7 @@ apex {
 apex_defaults {
     // TODO(b/202345178) enable this once bootclasspath issues are resolved.
     //bootclasspath_fragments: ["com.android.car.framework-bootclasspath-fragment"],
+    systemserverclasspath_fragments: ["com.android.car.framework-systemserverclasspath-fragment"],
     // TODO(b/202031799) Fix jni dependencies
     //jni_libs: [
     //    "libcarservicejni",
@@ -32,7 +33,6 @@ apex_defaults {
     java_libs: [
         // TODO(b/202345178) remove this once bootclasspath issues are resolved.
         "android.car-module",
-        "car-frameworks-service-module",
     ],
     apps: [
         "CarServiceModule",
@@ -68,3 +68,9 @@ android_app_certificate {
 //    contents: ["android.car-module"],
 //    apex_available: ["com.android.car.framework"],
 //}
+
+systemserverclasspath_fragment {
+    name: "com.android.car.framework-systemserverclasspath-fragment",
+    contents: ["car-frameworks-service-module"],
+    apex_available: ["com.android.car.framework"],
+}

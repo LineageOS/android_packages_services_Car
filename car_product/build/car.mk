@@ -234,7 +234,7 @@ USE_CAR_FRAMEWORK_APEX := true
 
 ifeq ($(USE_CAR_FRAMEWORK_APEX),true)
     PRODUCT_PACKAGES += com.android.car.framework
-    PRODUCT_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
+    PRODUCT_APEX_SYSTEM_SERVER_JARS += com.android.car.framework:car-frameworks-service-module
     # TODO(b/202345178) Remove following two lines and enable 3rd line once bootclasspath issues are
     # resolved.
     PRODUCT_BOOT_JARS += android.car
