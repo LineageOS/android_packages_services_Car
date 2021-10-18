@@ -524,6 +524,23 @@ public final class ScriptExecutorTest {
     }
 
     @Test
+    public void invokeScript_emptyStringValueIsValidValue() throws RemoteException {
+        // Verify that an empty string value is a valid value to be returned from a script.
+        String returnFinalResultScript =
+                "function empty_string(data, state)\n"
+                        + "    result = {data = \"\"}\n"
+                        + "    on_script_finished(result)\n"
+                        + "end\n";
+
+        runScriptAndWaitForResponse(returnFinalResultScript, "empty_string", mPublishedData,
+                new PersistableBundle());
+
+        // Expect to get back a bundle with a single key-value pair {"data": ""}
+        assertThat(mFakeScriptExecutorListener.mFinalResult.size()).isEqualTo(1);
+        assertThat(mFakeScriptExecutorListener.mFinalResult.getString("data")).isEqualTo("");
+    }
+
+    @Test
     public void invokeScript_allPrimitiveSupportedTypesForReturningFinalResult()
             throws RemoteException {
         // Here we verify that all supported primitive types are present in the returned final

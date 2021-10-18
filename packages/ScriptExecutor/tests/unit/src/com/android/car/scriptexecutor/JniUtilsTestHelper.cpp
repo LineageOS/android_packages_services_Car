@@ -83,8 +83,8 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeDe
 JNIEXPORT void JNICALL
 Java_com_android_car_scriptexecutor_JniUtilsTest_nativePushBundleToLuaTableCaller(
         JNIEnv* env, jobject object, jlong luaEnginePtr, jobject bundle) {
-    pushBundleToLuaTable(env, reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr)),
-                         bundle);
+    LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
+    pushBundleToLuaTable(env, engine->getLuaState(), bundle);
 }
 
 JNIEXPORT jint JNICALL Java_com_android_car_scriptexecutor_JniUtilsTest_nativeGetObjectSize(
