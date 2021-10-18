@@ -187,7 +187,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
             } catch (RemoteException e) {
-                Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
+                Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
             }
         });
     }
@@ -279,9 +279,9 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
             result.writeToStream(bos);
             mListener.onResult(key, bos.toByteArray());
         } catch (RemoteException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
         } catch (IOException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY,  "failed to write bundle to output stream", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "failed to write bundle to output stream", e);
         }
     }
 
@@ -289,7 +289,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         try {
             mListener.onError(key, error.toByteArray());
         } catch (RemoteException e) {
-            Slogf.w(CarLog.TAG_TELEMETRY,  "error with ICarTelemetryServiceListener", e);
+            Slogf.w(CarLog.TAG_TELEMETRY, "error with ICarTelemetryServiceListener", e);
         }
     }
 
