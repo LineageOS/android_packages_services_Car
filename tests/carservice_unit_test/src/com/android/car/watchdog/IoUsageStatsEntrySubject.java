@@ -46,7 +46,7 @@ public final class IoUsageStatsEntrySubject extends Subject {
     }
 
     public static Subject.Factory<IoUsageStatsEntrySubject,
-            Iterable<WatchdogStorage.IoUsageStatsEntry>> resourceOveruseStats() {
+            Iterable<WatchdogStorage.IoUsageStatsEntry>> ioUsageStatsEntries() {
         return IO_OVERUSE_STATS_ENTRY_SUBJECT_FACTORY;
     }
 
