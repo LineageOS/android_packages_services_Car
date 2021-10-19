@@ -16,9 +16,12 @@
 
 package com.android.car.telemetry;
 
+import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
+
 import static com.google.common.truth.Truth.assertThat;
 
 import android.car.telemetry.CarTelemetryManager;
+import android.car.telemetry.MetricsConfigKey;
 
 import org.junit.Before;
 import org.junit.Test;
@@ -34,9 +37,11 @@ public class MetricsConfigStoreTest {
     private static final String NAME_FOO = "Foo";
     private static final String NAME_BAR = "Bar";
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_FOO =
-            TelemetryProto.MetricsConfig.newBuilder().setName(NAME_FOO).build();
+            TelemetryProto.MetricsConfig.newBuilder().setName(NAME_FOO).setVersion(1).build();
     private static final TelemetryProto.MetricsConfig METRICS_CONFIG_BAR =
-            TelemetryProto.MetricsConfig.newBuilder().setName(NAME_BAR).build();
+            TelemetryProto.MetricsConfig.newBuilder().setName(NAME_BAR).setVersion(1).build();
+    private static final MetricsConfigKey KEY_BAR = new MetricsConfigKey(
+            METRICS_CONFIG_BAR.getName(), METRICS_CONFIG_BAR.getVersion());
 
     private File mTestRootDir;
     private File mTestMetricsConfigDir;
@@ -71,12 +76,31 @@ public class MetricsConfigStoreTest {
     }
 
     @Test
-    public void testRemoveMetricsConfig_shouldDeleteConfigFromDisk() throws Exception {
-        writeConfigToDisk(METRICS_CONFIG_BAR);
+    public void testAddMetricsConfig_whenInvalidVersion_shouldNotWriteToDisk() {
+        TelemetryProto.MetricsConfig invalidConfig = TelemetryProto.MetricsConfig.newBuilder()
+                .setName(NAME_BAR).setVersion(-1).build();
 
-        mMetricsConfigStore.removeMetricsConfig(NAME_BAR);
+        int status = mMetricsConfigStore.addMetricsConfig(invalidConfig);
+
+        assertThat(status).isEqualTo(CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD);
+        assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
+    }
+
+    @Test
+    public void testRemoveMetricsConfig_shouldDeleteConfigFromDisk() {
+        int status = mMetricsConfigStore.addMetricsConfig(METRICS_CONFIG_BAR);
+        assertThat(status).isEqualTo(ERROR_METRICS_CONFIG_NONE);
+
+        mMetricsConfigStore.removeMetricsConfig(KEY_BAR);
 
         assertThat(new File(mTestMetricsConfigDir, NAME_BAR).exists()).isFalse();
+    }
+
+    @Test
+    public void testRemoveMetricsConfig_whenConfigDoesNotExist_shouldDoNothing() {
+        boolean success = mMetricsConfigStore.removeMetricsConfig(KEY_BAR);
+
+        assertThat(success).isFalse();
     }
 
     @Test
