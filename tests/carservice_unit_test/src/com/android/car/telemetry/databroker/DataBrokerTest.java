@@ -47,7 +47,6 @@ import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutor;
 import com.android.car.telemetry.scriptexecutorinterface.IScriptExecutorListener;
 
 import org.junit.Before;
-import org.junit.Ignore;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.mockito.Mock;
@@ -71,7 +70,7 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
     private static final int PROP_AREA = 200;
     private static final int PRIORITY_HIGH = 1;
     private static final int PRIORITY_LOW = 100;
-    private static final long TIMEOUT_MS = 5_000L;
+    private static final long TIMEOUT_MS = 15_000L;
     private static final CarPropertyConfig<Integer> PROP_CONFIG =
             CarPropertyConfig.newBuilder(Integer.class, PROP_ID, PROP_AREA).setAccess(
                     CarPropertyConfig.VEHICLE_PROPERTY_ACCESS_READ).build();
@@ -308,7 +307,6 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         assertThat(mFakeScriptExecutor.getSavedState()).isEqualTo(mData);
     }
 
-    @Ignore("b/202869761: fix flake")
     @Test
     public void testScheduleNextTask_largeInput_shouldPipeData() throws Exception {
         mData.putBooleanArray("1 MB Array", new boolean [1024 * 1024]);
@@ -320,7 +318,6 @@ public class DataBrokerTest extends AbstractExtendedMockitoCarServiceTestCase {
         assertThat(mFakeScriptExecutor.getInvokeScriptForLargeInputCount()).isEqualTo(1);
     }
 
-    @Ignore("b/202869761: fix flake")
     @Test
     public void testScheduleNextTask_largeInputPipeIOException_shouldIgnoreCurrentTask()
             throws Exception {
