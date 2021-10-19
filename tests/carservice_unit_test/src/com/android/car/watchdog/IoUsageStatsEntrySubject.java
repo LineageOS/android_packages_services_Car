@@ -17,7 +17,6 @@
 package com.android.car.watchdog;
 
 import static com.google.common.truth.Truth.assertAbout;
-import static com.google.common.truth.Truth.assertWithMessage;
 
 import android.annotation.Nullable;
 import android.automotive.watchdog.IoOveruseStats;
@@ -26,6 +25,7 @@ import android.automotive.watchdog.PerStateBytes;
 import com.google.common.truth.Correspondence;
 import com.google.common.truth.FailureMetadata;
 import com.google.common.truth.Subject;
+import com.google.common.truth.Truth;
 
 import java.util.Arrays;
 
@@ -38,11 +38,22 @@ public final class IoUsageStatsEntrySubject extends Subject {
     private static final String NULL_ENTRY_STRING = "{NULL}";
 
     private final Iterable<WatchdogStorage.IoUsageStatsEntry> mActual;
+    private String mMessagePrefix;
 
     /* User-defined entry point. */
     public static IoUsageStatsEntrySubject assertThat(
             @Nullable Iterable<WatchdogStorage.IoUsageStatsEntry> stats) {
         return assertAbout(IO_OVERUSE_STATS_ENTRY_SUBJECT_FACTORY).that(stats);
+    }
+
+    public static IoUsageStatsEntrySubject assertWithMessage(
+            @Nullable Iterable<WatchdogStorage.IoUsageStatsEntry> stats,
+            String format, Object... args) {
+        IoUsageStatsEntrySubject subject =
+                Truth.assertAbout(IO_OVERUSE_STATS_ENTRY_SUBJECT_FACTORY).that(stats);
+
+        subject.mMessagePrefix = String.format(format + ": ", args);
+        return subject;
     }
 
     public static Subject.Factory<IoUsageStatsEntrySubject,
@@ -55,9 +66,9 @@ public final class IoUsageStatsEntrySubject extends Subject {
     }
 
     public void containsExactlyElementsIn(Iterable<WatchdogStorage.IoUsageStatsEntry> expected) {
-        assertWithMessage("Expected stats(%s) equals to actual stats(%s)", toString(expected),
-                toString(mActual)).that(mActual)
-                .comparingElementsUsing(Correspondence.from(
+        Truth.assertWithMessage("%sExpected stats(%s) equals to actual stats(%s)",
+                mMessagePrefix != null ? mMessagePrefix : "", toString(expected),
+                toString(mActual)).that(mActual).comparingElementsUsing(Correspondence.from(
                         IoUsageStatsEntrySubject::isEquals, "is equal to"))
                 .containsExactlyElementsIn(expected);
     }

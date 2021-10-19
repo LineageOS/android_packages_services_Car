@@ -45,12 +45,14 @@ import android.app.ActivityThread;
 import android.automotive.watchdog.ResourceType;
 import android.automotive.watchdog.internal.ApplicationCategoryType;
 import android.automotive.watchdog.internal.ComponentType;
+import android.automotive.watchdog.internal.IoUsageStats;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PackageMetadata;
 import android.automotive.watchdog.internal.PackageResourceOveruseAction;
 import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.watchdog.CarWatchdogManager;
@@ -731,6 +733,26 @@ public final class WatchdogPerfHandler {
                 }
             }
         }
+    }
+
+    /** Returns today's I/O usage stats for all packages collected during the previous boot. */
+    public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
+        List<UserPackageIoUsageStats> userPackageIoUsageStats = new ArrayList<>();
+        List<WatchdogStorage.IoUsageStatsEntry> entries = mWatchdogStorage.getTodayIoUsageStats();
+        for (int i = 0; i < entries.size(); ++i) {
+            WatchdogStorage.IoUsageStatsEntry entry = entries.get(i);
+            UserPackageIoUsageStats stats = new UserPackageIoUsageStats();
+            stats.userId = entry.userId;
+            stats.packageName = entry.packageName;
+            stats.ioUsageStats = new IoUsageStats();
+            android.automotive.watchdog.IoOveruseStats internalIoUsage =
+                    entry.ioUsage.getInternalIoOveruseStats();
+            stats.ioUsageStats.writtenBytes = internalIoUsage.writtenBytes;
+            stats.ioUsageStats.forgivenWriteBytes = entry.ioUsage.getForgivenWriteBytes();
+            stats.ioUsageStats.totalOveruses = internalIoUsage.totalOveruses;
+            userPackageIoUsageStats.add(stats);
+        }
+        return userPackageIoUsageStats;
     }
 
     /** Deletes all data for specific user. */
