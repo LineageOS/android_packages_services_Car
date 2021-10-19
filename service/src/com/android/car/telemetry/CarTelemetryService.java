@@ -17,7 +17,6 @@ package com.android.car.telemetry;
 
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_NONE;
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_PARSE_FAILED;
-import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNKNOWN;
 
 import android.annotation.NonNull;
 import android.app.StatsManager;
@@ -163,26 +162,24 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
                 Slogf.w(CarLog.TAG_TELEMETRY, "ICarTelemetryServiceListener is not set");
                 return;
             }
-            Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config " + key.getName()
+            Slogf.d(CarLog.TAG_TELEMETRY, "Adding metrics config: " + key.getName()
                     + " to car telemetry service");
             TelemetryProto.MetricsConfig metricsConfig = null;
-            int status = ERROR_METRICS_CONFIG_UNKNOWN;
+            int status;
             try {
                 metricsConfig = TelemetryProto.MetricsConfig.parseFrom(config);
+                status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
             } catch (InvalidProtocolBufferException e) {
                 Slogf.e(CarLog.TAG_TELEMETRY, "Failed to parse MetricsConfig.", e);
                 status = ERROR_METRICS_CONFIG_PARSE_FAILED;
             }
-            // if config can be parsed, add it to persistent storage
-            if (metricsConfig != null) {
-                status = mMetricsConfigStore.addMetricsConfig(metricsConfig);
-                // TODO(b/199410900): update logic once metrics configs have expiration dates
-                mDataBroker.addMetricsConfiguration(metricsConfig);
-            }
-            // If no error (a config is successfully added), script results from an older version
-            // should be deleted
+            // If no error (config is added to MetricsConfigStore), remove legacy data and add
+            // config to data broker for metrics collection
             if (status == ERROR_METRICS_CONFIG_NONE) {
-                mResultStore.removeResult(key.getName());
+                mResultStore.removeResult(key);
+                mDataBroker.removeMetricsConfig(key);
+                mDataBroker.addMetricsConfig(key, metricsConfig);
+                // TODO(b/199410900): update logic once metrics configs have expiration dates
             }
             try {
                 mListener.onAddMetricsConfigStatus(key, status);
@@ -205,10 +202,10 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mTelemetryHandler.post(() -> {
             Slogf.d(CarLog.TAG_TELEMETRY, "Removing metrics config " + key.getName()
                     + " from car telemetry service");
-            // TODO(b/198792767): Check both config name and config version for removal
-            mDataBroker.removeMetricsConfiguration(key.getName());
-            mResultStore.removeResult(key.getName());
-            mMetricsConfigStore.removeMetricsConfig(key.getName());
+            if (mMetricsConfigStore.removeMetricsConfig(key)) {
+                mDataBroker.removeMetricsConfig(key);
+                mResultStore.removeResult(key);
+            }
         });
     }
 
@@ -222,7 +219,7 @@ public class CarTelemetryService extends ICarTelemetryService.Stub implements Ca
         mTelemetryHandler.post(() -> {
             Slogf.d(CarLog.TAG_TELEMETRY,
                     "Removing all metrics config from car telemetry service");
-            mDataBroker.removeAllMetricsConfigurations();
+            mDataBroker.removeAllMetricsConfigs();
             mMetricsConfigStore.removeAllMetricsConfigs();
             mResultStore.removeAllResults();
         });

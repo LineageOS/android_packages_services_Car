@@ -24,6 +24,7 @@ import static org.mockito.Mockito.atLeastOnce;
 import static org.mockito.Mockito.verify;
 import static org.mockito.Mockito.when;
 
+import android.car.telemetry.MetricsConfigKey;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
@@ -78,6 +79,8 @@ public class DataBrokerControllerTest {
                           .setScript("function init() end")
                           .addSubscribers(SUBSCRIBER)
                           .build();
+    private static final MetricsConfigKey CONFIG_KEY = new MetricsConfigKey(
+            CONFIG.getName(), CONFIG.getVersion());
 
     @Before
     public void setup() {
@@ -86,14 +89,6 @@ public class DataBrokerControllerTest {
             runnable.run();
             return true;
         });
-    }
-
-    @Test
-    public void testOnNewConfig_configPassedToDataBroker() {
-        mController.onNewMetricsConfig(CONFIG);
-
-        verify(mMockDataBroker).addMetricsConfiguration(mConfigCaptor.capture());
-        assertThat(mConfigCaptor.getValue()).isEqualTo(CONFIG);
     }
 
     @Test
@@ -113,17 +108,15 @@ public class DataBrokerControllerTest {
 
         mRunnableCaptor.getValue().run(); // startMetricsCollection();
 
-        verify(mMockDataBroker).addMetricsConfiguration(eq(CONFIG));
+        verify(mMockDataBroker).addMetricsConfig(eq(CONFIG_KEY), eq(CONFIG));
     }
 
     @Test
     public void testOnScriptFinished_shouldRemoveConfig() {
-        String metricsConfigName = "my_metrics_config";
+        mController.onScriptFinished(CONFIG_KEY);
 
-        mController.onScriptFinished(metricsConfigName);
-
-        verify(mMockMetricsConfigStore).removeMetricsConfig(eq(metricsConfigName));
-        verify(mMockDataBroker).removeMetricsConfiguration(eq(metricsConfigName));
+        verify(mMockMetricsConfigStore).removeMetricsConfig(eq(CONFIG_KEY));
+        verify(mMockDataBroker).removeMetricsConfig(eq(CONFIG_KEY));
     }
 
     @Test
