@@ -466,9 +466,10 @@ public final class WatchdogPerfHandler {
              */
             PackageResourceUsage usage = mUsageByUserPackage.get(key);
             if (usage == null) {
-                usage = new PackageResourceUsage(userId, genericPackageName);
+                usage = new PackageResourceUsage(userId, genericPackageName,
+                        getDefaultKillableStateLocked(genericPackageName));
             }
-            if (!usage.verifyAndSetKillableStateLocked(isKillable)) {
+            if (!usage.verifyAndSetKillableState(isKillable)) {
                 Slogf.e(TAG, "User %d cannot set killable state for package '%s'",
                         userHandle.getIdentifier(), genericPackageName);
                 throw new IllegalArgumentException("Package killable state is not updatable");
@@ -496,7 +497,7 @@ public final class WatchdogPerfHandler {
                 if (usage == null) {
                     continue;
                 }
-                if (!usage.verifyAndSetKillableStateLocked(isKillable)) {
+                if (!usage.verifyAndSetKillableState(isKillable)) {
                     Slogf.e(TAG, "Cannot set killable state for package '%s'", packageName);
                     throw new IllegalArgumentException(
                             "Package killable state is not updatable");
@@ -679,7 +680,7 @@ public final class WatchdogPerfHandler {
                      */
                     ResourceOveruseStats resourceOveruseStats =
                             usage.getResourceOveruseStatsBuilder().setIoOveruseStats(
-                                    usage.getIoOveruseStatsLocked()).build();
+                                    usage.getIoOveruseStats()).build();
                     notifyResourceOveruseStatsLocked(stats.uid, resourceOveruseStats);
                 }
                 if (!usage.ioUsage.exceedsThreshold()) {
@@ -688,11 +689,11 @@ public final class WatchdogPerfHandler {
                 PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
                 overuseAction.packageIdentifier = new PackageIdentifier();
                 overuseAction.packageIdentifier.name = genericPackageName;
-                overuseAction.packageIdentifier.uid = usage.getUidLocked();
+                overuseAction.packageIdentifier.uid = usage.getUid();
                 overuseAction.resourceTypes = new int[]{ ResourceType.IO };
                 overuseAction.resourceOveruseActionType = NOT_KILLED;
                 mOveruseActionsByUserPackage.add(overuseAction);
-                int killableState = usage.getKillableStateLocked();
+                int killableState = usage.getKillableState();
                 if (killableState == KILLABLE_STATE_NEVER) {
                     continue;
                 }
@@ -724,8 +725,8 @@ public final class WatchdogPerfHandler {
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                 PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                 if (genericPackageNames.contains(usage.genericPackageName)) {
-                    usage.resetStatsLocked();
-                    usage.verifyAndSetKillableStateLocked(/* isKillable= */ true);
+                    usage.resetStats();
+                    usage.verifyAndSetKillableState(/* isKillable= */ true);
                     mWatchdogStorage.deleteUserPackage(usage.userId, usage.genericPackageName);
                 }
             }
@@ -827,9 +828,10 @@ public final class WatchdogPerfHandler {
                 String key = getUserPackageUniqueId(entry.userId, entry.packageName);
                 PackageResourceUsage usage = mUsageByUserPackage.get(key);
                 if (usage == null) {
-                    usage = new PackageResourceUsage(entry.userId, entry.packageName);
+                    usage = new PackageResourceUsage(entry.userId, entry.packageName,
+                            getDefaultKillableStateLocked(entry.packageName));
                 }
-                usage.setKillableStateLocked(entry.killableState);
+                usage.setKillableState(entry.killableState);
                 mUsageByUserPackage.put(key, usage);
             }
             ZonedDateTime curReportDate =
@@ -839,7 +841,8 @@ public final class WatchdogPerfHandler {
                 String key = getUserPackageUniqueId(entry.userId, entry.packageName);
                 PackageResourceUsage usage = mUsageByUserPackage.get(key);
                 if (usage == null) {
-                    usage = new PackageResourceUsage(entry.userId, entry.packageName);
+                    usage = new PackageResourceUsage(entry.userId, entry.packageName,
+                            getDefaultKillableStateLocked(entry.packageName));
                 }
                 /* Overwrite in memory cache as the stats will be merged on the daemon side and
                  * pushed on the next latestIoOveruseStats call. This is tolerable because the next
@@ -869,7 +872,7 @@ public final class WatchdogPerfHandler {
             for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
                 PackageResourceUsage usage = mUsageByUserPackage.valueAt(i);
                 entries.add(new WatchdogStorage.UserPackageSettingsEntry(
-                        usage.userId, usage.genericPackageName, usage.getKillableStateLocked()));
+                        usage.userId, usage.genericPackageName, usage.getKillableState()));
             }
             for (String packageName : mDefaultNotKillableGenericPackages) {
                 entries.add(new WatchdogStorage.UserPackageSettingsEntry(
@@ -884,6 +887,12 @@ public final class WatchdogPerfHandler {
             writeStatsLocked();
             mIsWrittenToDatabase = true;
         }
+    }
+
+    @GuardedBy("mLock")
+    private @KillableState int getDefaultKillableStateLocked(String genericPackageName) {
+        return mDefaultNotKillableGenericPackages.contains(genericPackageName)
+                ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
     }
 
     @GuardedBy("mLock")
@@ -924,10 +933,12 @@ public final class WatchdogPerfHandler {
             int userId, String genericPackageName, int componentType, boolean isSafeToKill) {
         String key = getUserPackageUniqueId(userId, genericPackageName);
         PackageResourceUsage usage = mUsageByUserPackage.get(key);
+        int defaultKillableState = getDefaultKillableStateLocked(genericPackageName);
         if (usage == null) {
-            usage = new PackageResourceUsage(userId, genericPackageName);
+            usage = new PackageResourceUsage(userId, genericPackageName, defaultKillableState);
         }
-        int killableState = usage.syncAndFetchKillableStateLocked(componentType, isSafeToKill);
+        int killableState = usage.syncAndFetchKillableState(
+                componentType, isSafeToKill, defaultKillableState);
         mUsageByUserPackage.put(key, usage);
         return killableState;
     }
@@ -971,7 +982,7 @@ public final class WatchdogPerfHandler {
             writeStatsLocked();
         }
         for (int i = 0; i < mUsageByUserPackage.size(); ++i) {
-            mUsageByUserPackage.valueAt(i).resetStatsLocked();
+            mUsageByUserPackage.valueAt(i).resetStats();
         }
         mLatestStatsReportDate = currentDate;
         if (DEBUG) {
@@ -984,11 +995,12 @@ public final class WatchdogPerfHandler {
             android.automotive.watchdog.IoOveruseStats internalStats) {
         int userId = UserHandle.getUserHandleForUid(uid).getIdentifier();
         String key = getUserPackageUniqueId(userId, genericPackageName);
+        int defaultKillableState = getDefaultKillableStateLocked(genericPackageName);
         PackageResourceUsage usage = mUsageByUserPackage.get(key);
         if (usage == null) {
-            usage = new PackageResourceUsage(userId, genericPackageName);
+            usage = new PackageResourceUsage(userId, genericPackageName, defaultKillableState);
         }
-        usage.updateLocked(uid, internalStats);
+        usage.update(uid, internalStats, defaultKillableState);
         mUsageByUserPackage.put(key, usage);
         return usage;
     }
@@ -1023,7 +1035,7 @@ public final class WatchdogPerfHandler {
              */
             return null;
         }
-        IoOveruseStats currentStats = usage.getIoOveruseStatsLocked();
+        IoOveruseStats currentStats = usage.getIoOveruseStats();
         long totalBytesWritten = currentStats.getTotalBytesWritten();
         int numDays = toNumDays(maxStatsPeriod);
         IoOveruseStats historyStats = null;
@@ -1278,14 +1290,14 @@ public final class WatchdogPerfHandler {
             // Between detecting and handling the overuse, either the package killable state or
             // the resource overuse configuration was updated. So, verify the killable state
             // before proceeding.
-            int killableState = usage.getKillableStateLocked();
+            int killableState = usage.getKillableState();
             if (killableState != KILLABLE_STATE_YES) {
                 continue;
             }
             PackageResourceOveruseAction overuseAction = new PackageResourceOveruseAction();
             overuseAction.packageIdentifier = new PackageIdentifier();
             overuseAction.packageIdentifier.name = usage.genericPackageName;
-            overuseAction.packageIdentifier.uid = usage.getUidLocked();
+            overuseAction.packageIdentifier.uid = usage.getUid();
             overuseAction.resourceTypes = new int[]{ ResourceType.IO };
             overuseAction.resourceOveruseActionType = NOT_KILLED;
             List<String> packages = Collections.singletonList(usage.genericPackageName);
@@ -1715,19 +1727,16 @@ public final class WatchdogPerfHandler {
     private final class PackageResourceUsage {
         public final String genericPackageName;
         public @UserIdInt final int userId;
-        @GuardedBy("mLock")
         public final PackageIoUsage ioUsage = new PackageIoUsage();
-        @GuardedBy("mLock")
         private @KillableState int mKillableState;
-        @GuardedBy("mLock")
         private int mUid;
 
         /** Must be called only after acquiring {@link mLock} */
-        PackageResourceUsage(@UserIdInt int userId, String genericPackageName) {
+        PackageResourceUsage(@UserIdInt int userId, String genericPackageName,
+                @KillableState int defaultKillableState) {
             this.genericPackageName = genericPackageName;
             this.userId = userId;
-            this.mKillableState = mDefaultNotKillableGenericPackages.contains(genericPackageName)
-                    ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
+            this.mKillableState = defaultKillableState;
         }
 
         public boolean isSharedPackage() {
@@ -1738,14 +1747,12 @@ public final class WatchdogPerfHandler {
             return getUserPackageUniqueId(userId, genericPackageName);
         }
 
-        @GuardedBy("mLock")
-        public int getUidLocked() {
+        public int getUid() {
             return mUid;
         }
 
-        @GuardedBy("mLock")
-        public void updateLocked(
-                int uid, android.automotive.watchdog.IoOveruseStats internalStats) {
+        public void update(int uid, android.automotive.watchdog.IoOveruseStats internalStats,
+                @KillableState int defaultKillableState) {
             // Package UID would change if it was re-installed, so keep it up-to-date.
             mUid = uid;
             if (!internalStats.killableOnOveruse) {
@@ -1762,8 +1769,7 @@ public final class WatchdogPerfHandler {
                  * This case happens when a previously unsafe to kill system/vendor package was
                  * recently marked as safe-to-kill so update the old state to the default value.
                  */
-                mKillableState = mDefaultNotKillableGenericPackages.contains(genericPackageName)
-                        ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
+                mKillableState = defaultKillableState;
             }
             ioUsage.update(internalStats);
         }
@@ -1772,26 +1778,23 @@ public final class WatchdogPerfHandler {
             return new ResourceOveruseStats.Builder(genericPackageName, UserHandle.of(userId));
         }
 
-        @GuardedBy("mLock")
-        public IoOveruseStats getIoOveruseStatsLocked() {
+
+        public IoOveruseStats getIoOveruseStats() {
             if (!ioUsage.hasUsage()) {
                 return null;
             }
             return ioUsage.getIoOveruseStats(mKillableState != KILLABLE_STATE_NEVER);
         }
 
-        @GuardedBy("mLock")
-        public @KillableState int getKillableStateLocked() {
+        public @KillableState int getKillableState() {
             return mKillableState;
         }
 
-        @GuardedBy("mLock")
-        public void setKillableStateLocked(@KillableState int killableState) {
+        public void setKillableState(@KillableState int killableState) {
             mKillableState = killableState;
         }
 
-        @GuardedBy("mLock")
-        public boolean verifyAndSetKillableStateLocked(boolean isKillable) {
+        public boolean verifyAndSetKillableState(boolean isKillable) {
             if (mKillableState == KILLABLE_STATE_NEVER) {
                 return false;
             }
@@ -1799,8 +1802,8 @@ public final class WatchdogPerfHandler {
             return true;
         }
 
-        @GuardedBy("mLock")
-        public int syncAndFetchKillableStateLocked(int myComponentType, boolean isSafeToKill) {
+        public int syncAndFetchKillableState(int myComponentType, boolean isSafeToKill,
+                @KillableState int defaultKillableState) {
             /*
              * The killable state goes out-of-sync:
              * 1. When the on-device safe-to-kill list was recently updated and the user package
@@ -1811,17 +1814,16 @@ public final class WatchdogPerfHandler {
             if (myComponentType != ComponentType.THIRD_PARTY && !isSafeToKill) {
                 mKillableState = KILLABLE_STATE_NEVER;
             } else if (mKillableState == KILLABLE_STATE_NEVER) {
-                mKillableState = mDefaultNotKillableGenericPackages.contains(genericPackageName)
-                        ? KILLABLE_STATE_NO : KILLABLE_STATE_YES;
+                mKillableState = defaultKillableState;
             }
             return mKillableState;
         }
 
-        @GuardedBy("mLock")
-        public void resetStatsLocked() {
+        public void resetStats() {
             ioUsage.resetStats();
         }
     }
+
     /** Defines I/O usage fields for a package. */
     public static final class PackageIoUsage {
         private static final android.automotive.watchdog.PerStateBytes DEFAULT_PER_STATE_BYTES =
@@ -1936,10 +1938,12 @@ public final class WatchdogPerfHandler {
                             listenerInfosByUid.remove(uid);
                         }
                     };
-            if (isListenerForSystem) {
-                removeListenerInfo.accept(mOveruseSystemListenerInfosByUid);
-            } else {
-                removeListenerInfo.accept(mOveruseListenerInfosByUid);
+            synchronized (mLock) {
+                if (isListenerForSystem) {
+                    removeListenerInfo.accept(mOveruseSystemListenerInfosByUid);
+                } else {
+                    removeListenerInfo.accept(mOveruseListenerInfosByUid);
+                }
             }
             unlinkToDeath();
         }
