@@ -44,6 +44,7 @@ using ::android::automotive::watchdog::internal::PackageInfo;
 using ::android::automotive::watchdog::internal::PackageIoOveruseStats;
 using ::android::automotive::watchdog::internal::ResourceOveruseConfiguration;
 using ::android::automotive::watchdog::internal::UidType;
+using ::android::automotive::watchdog::internal::UserPackageIoUsageStats;
 using ::android::base::Error;
 using ::android::base::Result;
 using ::android::base::StringAppendF;
@@ -54,6 +55,7 @@ using ::testing::Eq;
 using ::testing::Return;
 using ::testing::ReturnRef;
 using ::testing::SaveArg;
+using ::testing::SetArgPointee;
 using ::testing::UnorderedElementsAreArray;
 
 namespace {
@@ -117,6 +119,20 @@ PackageIoOveruseStats constructPackageIoOveruseStats(
     stats.ioOveruseStats = constructIoOveruseStats(isKillable, remaining, written, totalOveruses,
                                                    startTime, durationInSeconds);
 
+    return stats;
+}
+
+UserPackageIoUsageStats constructUserPackageIoUsageStats(userid_t userId,
+                                                         const std::string& packageName,
+                                                         const PerStateBytes& writtenBytes,
+                                                         const PerStateBytes& forgivenWriteBytes,
+                                                         int32_t totalOveruses) {
+    UserPackageIoUsageStats stats;
+    stats.userId = userId;
+    stats.packageName = packageName;
+    stats.ioUsageStats.writtenBytes = writtenBytes;
+    stats.ioUsageStats.forgivenWriteBytes = forgivenWriteBytes;
+    stats.ioUsageStats.totalOveruses = totalOveruses;
     return stats;
 }
 
@@ -219,6 +235,10 @@ protected:
                  {constructPerStateBytes(/*fgBytes=*/70'000, /*bgBytes=*/30'000,
                                          /*gmBytes=*/100'000),
                   /*isSafeToKill=*/true}},
+                {"com.android.kitchensink",
+                 {constructPerStateBytes(/*fgBytes=*/30'000, /*bgBytes=*/15'000,
+                                         /*gmBytes=*/10'000),
+                  /*isSafeToKill=*/true}},
         });
     }
 
@@ -229,6 +249,8 @@ protected:
             PackageInfo packageInfo;
             if (kPackageInfosByUid.find(uid) != kPackageInfosByUid.end()) {
                 packageInfo = kPackageInfosByUid.at(uid);
+            } else {
+                packageInfo.packageIdentifier.uid = uid;
             }
             uidStats.push_back(UidStats{.packageInfo = packageInfo,
                                         .ioStats = {/*fgRdBytes=*/989'000,
@@ -272,6 +294,10 @@ const std::unordered_map<uid_t, PackageInfo> IoOveruseMonitorTest::kPackageInfos
           constructPackageInfo(
                   /*packageName=*/"com.android.google.package",
                   /*uid=*/1212345, UidType::APPLICATION)},
+         {1245678,
+          constructPackageInfo(
+                  /*packageName=*/"com.android.kitchensink",
+                  /*uid=*/1245678, UidType::APPLICATION)},
          {1312345,
           constructPackageInfo(
                   /*packageName=*/"com.android.google.package",
@@ -603,6 +629,121 @@ TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithNoPackageInfo) {
                                                             std::chrono::system_clock::now()),
                                                     SystemState::NORMAL_MODE,
                                                     mMockUidStatsCollector, nullptr));
+}
+
+TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithPrevBootStats) {
+    std::vector<UserPackageIoUsageStats> todayIoUsageStats =
+            {constructUserPackageIoUsageStats(
+                     /*userId=*/11, "com.android.google.package",
+                     /*writtenBytes=*/constructPerStateBytes(100'000, 85'000, 120'000),
+                     /*forgivenWriteBytes=*/constructPerStateBytes(70'000, 60'000, 100'000),
+                     /*totalOveruses=*/3),
+             constructUserPackageIoUsageStats(
+                     /*userId=*/12, "com.android.kitchensink",
+                     /*writtenBytes=*/constructPerStateBytes(50'000, 40'000, 35'000),
+                     /*forgivenWriteBytes=*/constructPerStateBytes(30'000, 30'000, 30'000),
+                     /*totalOveruses=*/6)};
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1001000, {/*fgWrBytes=*/70'000, /*bgWrBytes=*/20'000}},
+                                       {1112345, {/*fgWrBytes=*/35'000, /*bgWrBytes=*/15'000}}})));
+
+    std::vector<PackageIoOveruseStats> actualIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<PackageIoOveruseStats> expectedIoOveruseStats =
+            {constructPackageIoOveruseStats(
+                     /*uid*=*/1001000, /*shouldNotify=*/false, /*isKillable=*/false,
+                     /*remaining=*/constructPerStateBytes(10'000, 20'000, 100'000),
+                     /*written=*/constructPerStateBytes(70'000, 20'000, 0),
+                     /*totalOveruses=*/0, startTime, durationInSeconds),
+             constructPackageIoOveruseStats(
+                     /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
+                     /*remaining=*/constructPerStateBytes(5'000, 0, 80'000),
+                     /*written=*/constructPerStateBytes(135'000, 100'000, 120'000),
+                     /*totalOveruses=*/4, startTime, durationInSeconds)};
+    EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
+            << "Expected: " << toString(expectedIoOveruseStats)
+            << "\nActual: " << toString(actualIoOveruseStats);
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1112345, {/*fgWrBytes=*/70'000, /*bgWrBytes=*/40'000}},
+                                       {1245678, {/*fgWrBytes=*/30'000, /*bgWrBytes=*/10'000}}})));
+
+    actualIoOveruseStats.clear();
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::GARAGE_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    expectedIoOveruseStats = {constructPackageIoOveruseStats(
+                                      /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
+                                      /*remaining=*/constructPerStateBytes(70'000, 30'000, 0),
+                                      /*written=*/constructPerStateBytes(135'000, 100'000, 230'000),
+                                      /*totalOveruses=*/5, startTime, durationInSeconds),
+                              constructPackageIoOveruseStats(
+                                      /*uid*=*/1245678, /*shouldNotify=*/true, /*isKillable=*/true,
+                                      /*remaining=*/constructPerStateBytes(10'000, 5'000, 0),
+                                      /*written=*/constructPerStateBytes(50'000, 40'000, 75'000),
+                                      /*totalOveruses=*/7, startTime, durationInSeconds)};
+    EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
+            << "Expected: " << toString(expectedIoOveruseStats)
+            << "\nActual: " << toString(actualIoOveruseStats);
+}
+
+TEST_F(IoOveruseMonitorTest, TestOnPeriodicCollectionWithErrorFetchingPrevBootStats) {
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(Return(Status::fromExceptionCode(Status::EX_ILLEGAL_STATE, "Illegal state")));
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1112345, {/*fgWrBytes=*/15'000, /*bgWrBytes=*/15'000}}})));
+
+    time_t currentTime = std::chrono::system_clock::to_time_t(std::chrono::system_clock::now());
+    const auto [startTime, durationInSeconds] = calculateStartAndDuration(currentTime);
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<UserPackageIoUsageStats> todayIoUsageStats = {constructUserPackageIoUsageStats(
+            /*userId=*/11, "com.android.google.package",
+            /*writtenBytes=*/constructPerStateBytes(100'000, 85'000, 120'000),
+            /*forgivenWriteBytes=*/constructPerStateBytes(70'000, 60'000, 100'000),
+            /*totalOveruses=*/3)};
+    EXPECT_CALL(*mMockWatchdogServiceHelper, getTodayIoUsageStats(_))
+            .WillOnce(DoAll(SetArgPointee<0>(todayIoUsageStats), Return(Status::ok())));
+
+    std::vector<PackageIoOveruseStats> actualIoOveruseStats;
+    EXPECT_CALL(*mMockWatchdogServiceHelper, latestIoOveruseStats(_))
+            .WillOnce(DoAll(SaveArg<0>(&actualIoOveruseStats), Return(Status::ok())));
+
+    EXPECT_CALL(*mMockUidStatsCollector, deltaStats())
+            .WillOnce(Return(
+                    constructUidStats({{1112345, {/*fgWrBytes=*/20'000, /*bgWrBytes=*/40'000}}})));
+
+    ASSERT_RESULT_OK(mIoOveruseMonitor->onPeriodicCollection(currentTime, SystemState::NORMAL_MODE,
+                                                             mMockUidStatsCollector, nullptr));
+
+    std::vector<PackageIoOveruseStats> expectedIoOveruseStats = {constructPackageIoOveruseStats(
+            /*uid*=*/1112345, /*shouldNotify=*/true, /*isKillable=*/true,
+            /*remaining=*/constructPerStateBytes(5'000, 0, 80'000),
+            /*written=*/constructPerStateBytes(135'000, 140'000, 120'000),
+            /*totalOveruses=*/4, startTime, durationInSeconds)};
+    EXPECT_THAT(actualIoOveruseStats, UnorderedElementsAreArray(expectedIoOveruseStats))
+            << "Expected: " << toString(expectedIoOveruseStats)
+            << "\nActual: " << toString(actualIoOveruseStats);
 }
 
 TEST_F(IoOveruseMonitorTest, TestOnPeriodicMonitor) {

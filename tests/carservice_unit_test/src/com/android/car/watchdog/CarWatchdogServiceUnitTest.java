@@ -55,6 +55,7 @@ import android.automotive.watchdog.internal.ComponentType;
 import android.automotive.watchdog.internal.GarageMode;
 import android.automotive.watchdog.internal.ICarWatchdog;
 import android.automotive.watchdog.internal.ICarWatchdogServiceForSystem;
+import android.automotive.watchdog.internal.IoUsageStats;
 import android.automotive.watchdog.internal.PackageIdentifier;
 import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
@@ -64,6 +65,7 @@ import android.automotive.watchdog.internal.PerStateIoOveruseThreshold;
 import android.automotive.watchdog.internal.ResourceSpecificConfiguration;
 import android.automotive.watchdog.internal.StateType;
 import android.automotive.watchdog.internal.UidType;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.car.drivingstate.CarUxRestrictions;
 import android.car.drivingstate.ICarUxRestrictionsChangeListener;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -1906,6 +1908,42 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
     }
 
     @Test
+    public void testGetTodayIoUsageStats() throws Exception {
+        List<WatchdogStorage.IoUsageStatsEntry> ioUsageStatsEntries = Arrays.asList(
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 10, "system_package", /* startTime */ 0, /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(200, 300, 400),
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2, /* totalTimesKilled= */ 1),
+                WatchdogStorageUnitTest.constructIoUsageStatsEntry(
+                        /* userId= */ 11, "vendor_package", /* startTime */ 0, /* duration= */ 1234,
+                        /* remainingWriteBytes= */ constructPerStateBytes(500, 600, 700),
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4, /* totalTimesKilled= */ 10));
+        when(mMockWatchdogStorage.getTodayIoUsageStats()).thenReturn(ioUsageStatsEntries);
+
+        List<UserPackageIoUsageStats> actualStats =
+                mWatchdogServiceForSystemImpl.getTodayIoUsageStats();
+
+        List<UserPackageIoUsageStats> expectedStats = Arrays.asList(
+                constructUserPackageIoUsageStats(/* userId= */ 10, "system_package",
+                        /* writtenBytes= */ constructPerStateBytes(1000, 2000, 3000),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 2),
+                constructUserPackageIoUsageStats(/* userId= */ 11, "vendor_package",
+                        /* writtenBytes= */ constructPerStateBytes(1100, 2300, 4300),
+                        /* forgivenWriteBytes= */ constructPerStateBytes(100, 100, 100),
+                        /* totalOveruses= */ 4));
+
+        assertThat(actualStats).comparingElementsUsing(Correspondence.from(
+                CarWatchdogServiceUnitTest::isUserPackageIoUsageStatsEquals,
+                "is user package I/O usage stats equal to"))
+                .containsExactlyElementsIn(expectedStats);
+    }
+
+    @Test
     public void testPersistStatsOnShutdownEnter() throws Exception {
         mockUmGetUserHandles(mMockUserManager, /* excludeDying= */ true, 10, 11, 12);
         injectPackageInfos(Arrays.asList(
@@ -3250,6 +3288,37 @@ public final class CarWatchdogServiceUnitTest extends AbstractExtendedMockitoTes
 
         return new ResourceOveruseStats.Builder(packageName, UserHandle.getUserHandleForUid(uid))
                 .setIoOveruseStats(ioOveruseStats).build();
+    }
+
+    private static UserPackageIoUsageStats constructUserPackageIoUsageStats(
+            int userId, String packageName, android.automotive.watchdog.PerStateBytes writtenBytes,
+            android.automotive.watchdog.PerStateBytes forgivenWriteBytes, int totalOveruses) {
+        UserPackageIoUsageStats stats = new UserPackageIoUsageStats();
+        stats.userId = userId;
+        stats.packageName = packageName;
+        stats.ioUsageStats = new IoUsageStats();
+        stats.ioUsageStats.writtenBytes = writtenBytes;
+        stats.ioUsageStats.forgivenWriteBytes = forgivenWriteBytes;
+        stats.ioUsageStats.totalOveruses = totalOveruses;
+        return stats;
+    }
+
+    public static boolean isUserPackageIoUsageStatsEquals(UserPackageIoUsageStats actual,
+            UserPackageIoUsageStats expected) {
+        return actual.userId == expected.userId && actual.packageName.equals(expected.packageName)
+                && isInternalPerStateBytesEquals(
+                        actual.ioUsageStats.writtenBytes, expected.ioUsageStats.writtenBytes)
+                && isInternalPerStateBytesEquals(actual.ioUsageStats.forgivenWriteBytes,
+                        expected.ioUsageStats.forgivenWriteBytes)
+                && actual.ioUsageStats.totalOveruses == expected.ioUsageStats.totalOveruses;
+    }
+
+    public static boolean isInternalPerStateBytesEquals(
+            android.automotive.watchdog.PerStateBytes actual,
+            android.automotive.watchdog.PerStateBytes expected) {
+        return actual.foregroundBytes == expected.foregroundBytes
+                && actual.backgroundBytes == expected.backgroundBytes
+                && actual.garageModeBytes == expected.garageModeBytes;
     }
 
     private android.automotive.watchdog.IoOveruseStats constructInternalIoOveruseStats(

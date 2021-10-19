@@ -28,6 +28,7 @@ import android.automotive.watchdog.internal.PackageInfo;
 import android.automotive.watchdog.internal.PackageIoOveruseStats;
 import android.automotive.watchdog.internal.PowerCycle;
 import android.automotive.watchdog.internal.StateType;
+import android.automotive.watchdog.internal.UserPackageIoUsageStats;
 import android.automotive.watchdog.internal.UserState;
 import android.car.Car;
 import android.car.hardware.power.CarPowerManager.CarPowerStateListener;
@@ -636,6 +637,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 return;
             }
             service.mWatchdogPerfHandler.resetResourceOveruseStats(new ArraySet<>(packageNames));
+        }
+
+        @Override
+        public List<UserPackageIoUsageStats> getTodayIoUsageStats() {
+            CarWatchdogService service = mService.get();
+            if (service == null) {
+                Slogf.w(TAG, "CarWatchdogService is not available");
+                return null;
+            }
+            return service.mWatchdogPerfHandler.getTodayIoUsageStats();
         }
     }
 }
