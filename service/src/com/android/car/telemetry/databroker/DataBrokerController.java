@@ -16,12 +16,12 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.car.telemetry.MetricsConfigKey;
 import android.os.Handler;
 
 import com.android.car.systeminterface.SystemStateInterface;
 import com.android.car.telemetry.MetricsConfigStore;
 import com.android.car.telemetry.TelemetryProto;
-import com.android.car.telemetry.TelemetryProto.MetricsConfig;
 import com.android.car.telemetry.systemmonitor.SystemMonitor;
 import com.android.car.telemetry.systemmonitor.SystemMonitorEvent;
 
@@ -79,28 +79,20 @@ public class DataBrokerController {
         mTelemetryHandler.post(() -> {
             for (TelemetryProto.MetricsConfig config :
                     mMetricsConfigStore.getActiveMetricsConfigs()) {
-                mDataBroker.addMetricsConfiguration(config);
+                mDataBroker.addMetricsConfig(
+                        new MetricsConfigKey(config.getName(), config.getVersion()), config);
             }
         });
     }
 
     /**
-     * Listens to new {@link MetricsConfig}.
-     *
-     * @param metricsConfig the metrics config.
-     */
-    public void onNewMetricsConfig(MetricsConfig metricsConfig) {
-        mDataBroker.addMetricsConfiguration(metricsConfig);
-    }
-
-    /**
      * Listens to script finished event from {@link DataBroker}.
      *
-     * @param configName the name of the config of the finished script.
+     * @param key the unique identifier of the config whose script finished.
      */
-    public void onScriptFinished(String configName) {
-        mMetricsConfigStore.removeMetricsConfig(configName);
-        mDataBroker.removeMetricsConfiguration(configName);
+    public void onScriptFinished(MetricsConfigKey key) {
+        mMetricsConfigStore.removeMetricsConfig(key);
+        mDataBroker.removeMetricsConfig(key);
     }
 
     /**

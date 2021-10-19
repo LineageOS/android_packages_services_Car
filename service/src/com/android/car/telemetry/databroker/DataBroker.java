@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.databroker;
 
+import android.car.telemetry.MetricsConfigKey;
+
 import com.android.car.telemetry.TelemetryProto;
 
 /** Interface for the data path. Handles data forwarding from publishers to subscribers */
@@ -28,34 +30,35 @@ public interface DataBroker {
         /**
          * Listens to script finished event.
          *
-         * @param configName the name of the config whose script finished.
+         * @param key that uniquely identifies the config whose script finished.
          */
-        void onScriptFinished(String configName);
+        void onScriptFinished(MetricsConfigKey key);
     }
 
     /**
      * Adds an active {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} that is pending
      * execution. When updating the MetricsConfig to a newer version, the caller must call
-     * {@link #removeMetricsConfiguration(String)} first to clear the old MetricsConfig.
+     * {@link #removeMetricsConfig(String)} first to clear the old MetricsConfig.
      * TODO(b/191378559): Define behavior when metricsConfig contains invalid config
      *
+     * @param key the unique identifier of the MetricsConfig.
      * @param metricsConfig to be added and queued for execution.
      */
-    void addMetricsConfiguration(TelemetryProto.MetricsConfig metricsConfig);
+    void addMetricsConfig(MetricsConfigKey key, TelemetryProto.MetricsConfig metricsConfig);
 
     /**
      * Removes a {@link com.android.car.telemetry.TelemetryProto.MetricsConfig} and all its
      * relevant subscriptions.
      *
-     * @param metricsConfigName name of the MetricsConfig to be removed.
+     * @param key the unique identifier of the MetricsConfig to be removed.
      */
-    void removeMetricsConfiguration(String metricsConfigName);
+    void removeMetricsConfig(MetricsConfigKey key);
 
     /**
      * Removes all {@link com.android.car.telemetry.TelemetryProto.MetricsConfig}s and
      * subscriptions.
      */
-    void removeAllMetricsConfigurations();
+    void removeAllMetricsConfigs();
 
     /**
      * Adds a {@link ScriptExecutionTask} to the priority queue. This method will schedule the
@@ -79,7 +82,8 @@ public interface DataBroker {
      * Sets the priority which affects which subscribers can consume data. Invoked by controller to
      * indicate system health state and which subscribers can be consumed. If controller does not
      * set the priority, it will be defaulted to 1. A smaller priority number indicates higher
-     * priority. Range 1 - 100.
+     * priority. Range 0 - 100. A priority of 0 means the script should run regardless of system
+     * health conditions.
      */
     void setTaskExecutionPriority(int priority);
 }

@@ -22,6 +22,7 @@ import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_UNK
 import static android.car.telemetry.CarTelemetryManager.ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
 
 import android.car.builtin.util.Slogf;
+import android.car.telemetry.MetricsConfigKey;
 import android.util.ArrayMap;
 
 import com.android.car.CarLog;
@@ -30,6 +31,7 @@ import com.android.internal.annotations.VisibleForTesting;
 import java.io.File;
 import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -45,13 +47,11 @@ public class MetricsConfigStore {
 
     private final File mConfigDirectory;
     private Map<String, TelemetryProto.MetricsConfig> mActiveConfigs;
-    private Map<String, Integer> mNameVersionMap;
 
     public MetricsConfigStore(File rootDirectory) {
         mConfigDirectory = new File(rootDirectory, METRICS_CONFIG_DIR);
         mConfigDirectory.mkdirs();
         mActiveConfigs = new ArrayMap<>();
-        mNameVersionMap = new ArrayMap<>();
         // TODO(b/197336485): Add expiration date check for MetricsConfig
         for (File file : mConfigDirectory.listFiles()) {
             try {
@@ -59,7 +59,6 @@ public class MetricsConfigStore {
                 TelemetryProto.MetricsConfig config =
                         TelemetryProto.MetricsConfig.parseFrom(serializedConfig);
                 mActiveConfigs.put(config.getName(), config);
-                mNameVersionMap.put(config.getName(), config.getVersion());
             } catch (IOException e) {
                 // TODO(b/197336655): record failure
                 file.delete();
@@ -75,22 +74,26 @@ public class MetricsConfigStore {
     }
 
     /**
-     * Stores the MetricsConfig if it is valid.
+     * Stores the MetricsConfig to disk if it is valid. It checks both config name and version for
+     * validity.
      *
      * @param metricsConfig the config to be persisted to disk.
-     * @return true if the MetricsConfig should start receiving data, false otherwise.
+     * @return {@link android.car.telemetry.CarTelemetryManager.MetricsConfigError} status code.
      */
     public int addMetricsConfig(TelemetryProto.MetricsConfig metricsConfig) {
-        // TODO(b/198823862): Validate config version
         // TODO(b/197336485): Check expiration date for MetricsConfig
-        int currentVersion = mNameVersionMap.getOrDefault(metricsConfig.getName(), -1);
-        if (currentVersion > metricsConfig.getVersion()) {
+        if (metricsConfig.getVersion() <= 0) {
             return ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
-        } else if (currentVersion == metricsConfig.getVersion()) {
-            return ERROR_METRICS_CONFIG_ALREADY_EXISTS;
+        }
+        if (mActiveConfigs.containsKey(metricsConfig.getName())) {
+            int currentVersion = mActiveConfigs.get(metricsConfig.getName()).getVersion();
+            if (currentVersion > metricsConfig.getVersion()) {
+                return ERROR_METRICS_CONFIG_VERSION_TOO_OLD;
+            } else if (currentVersion == metricsConfig.getVersion()) {
+                return ERROR_METRICS_CONFIG_ALREADY_EXISTS;
+            }
         }
         mActiveConfigs.put(metricsConfig.getName(), metricsConfig);
-        mNameVersionMap.put(metricsConfig.getName(), metricsConfig.getVersion());
         try {
             Files.write(
                     new File(mConfigDirectory, metricsConfig.getName()).toPath(),
@@ -103,13 +106,27 @@ public class MetricsConfigStore {
         return ERROR_METRICS_CONFIG_NONE;
     }
 
-    /** Deletes the MetricsConfig from disk. Returns the success status. */
-    public void removeMetricsConfig(String metricsConfigName) {
-        mActiveConfigs.remove(metricsConfigName);
-        mNameVersionMap.remove(metricsConfigName);
-        if (!new File(mConfigDirectory, metricsConfigName).delete()) {
-            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + metricsConfigName);
+    /**
+     * Deletes the MetricsConfig from disk.
+     *
+     * @param key the unique identifier of the metrics config that should be deleted.
+     * @return true for successful removal, false otherwise.
+     */
+    public boolean removeMetricsConfig(MetricsConfigKey key) {
+        String metricsConfigName = key.getName();
+        if (!mActiveConfigs.containsKey(key.getName())
+                || mActiveConfigs.get(key.getName()).getVersion() != key.getVersion()) {
+            return false; // no match found, nothing to remove
         }
+        mActiveConfigs.remove(metricsConfigName);
+        try {
+            return Files.deleteIfExists(Paths.get(
+                    mConfigDirectory.getAbsolutePath(), metricsConfigName));
+        } catch (IOException e) {
+            Slogf.w(CarLog.TAG_TELEMETRY, "Failed to remove MetricsConfig: " + key.getName(), e);
+            // TODO(b/197336655): record failure
+        }
+        return false;
     }
 
     /** Deletes all MetricsConfigs from disk. */
