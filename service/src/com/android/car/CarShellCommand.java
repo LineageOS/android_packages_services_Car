@@ -199,6 +199,8 @@ final class CarShellCommand extends ShellCommand {
     private static final String COMMAND_SET_REARVIEW_CAMERA_ID = "set-rearview-camera-id";
     private static final String COMMAND_GET_REARVIEW_CAMERA_ID = "get-rearview-camera-id";
 
+    private static final String COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE =
+            "watchdog-control-package-killable-state";
     private static final String COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES =
             "watchdog-io-set-3p-foreground-bytes";
     private static final String COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES =
@@ -280,6 +282,8 @@ final class CarShellCommand extends ShellCommand {
                 android.Manifest.permission.INJECT_EVENTS);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_INJECT_ROTARY,
                 android.Manifest.permission.INJECT_EVENTS);
+        USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE,
+                PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES,
                 PERMISSION_CONTROL_CAR_WATCHDOG_CONFIG);
         USER_BUILD_COMMAND_TO_PERMISSION_MAP.put(COMMAND_WATCHDOG_IO_GET_3P_FOREGROUND_BYTES,
@@ -632,6 +636,10 @@ final class CarShellCommand extends ShellCommand {
         pw.println("\t  Gets the name of the camera device CarEvsService is using for " +
                 "the rearview.");
 
+        pw.printf("\t%s true|false <PACKAGE_NAME>\n",
+                COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE);
+        pw.println("\t  Marks PACKAGE_NAME as killable or not killable on resource overuse ");
+
         pw.printf("\t%s <FOREGROUND_MODE_BYTES>\n", COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES);
         pw.println("\t  Sets third-party apps foreground I/O overuse threshold");
 
@@ -640,7 +648,6 @@ final class CarShellCommand extends ShellCommand {
 
         pw.printf("\t%s enable|disable\n", COMMAND_WATCHDOG_CONTROL_PROCESS_HEALTH_CHECK);
         pw.println("\t  Enables/disables car watchdog process health check.");
-        pw.println("\t  Set to true to disable the process health check.");
 
         pw.printf("\t%s [REGION_STRING]", COMMAND_DRIVING_SAFETY_SET_REGION);
         pw.println("\t  Set driving safety region.");
@@ -970,6 +977,9 @@ final class CarShellCommand extends ShellCommand {
                 break;
             case COMMAND_GET_REARVIEW_CAMERA_ID:
                 getRearviewCameraId(writer);
+                break;
+            case COMMAND_WATCHDOG_CONTROL_PACKAGE_KILLABLE_STATE:
+                controlWatchdogPackageKillableState(args, writer);
                 break;
             case COMMAND_WATCHDOG_IO_SET_3P_FOREGROUND_BYTES:
                 setWatchdogIoThirdPartyForegroundBytes(args, writer);
@@ -2180,6 +2190,23 @@ final class CarShellCommand extends ShellCommand {
     private void getRearviewCameraId(IndentingPrintWriter writer) {
         writer.printf("CarEvsService is using %s for the rearview.\n",
                 mCarEvsService.getRearviewCameraIdFromCommand());
+    }
+
+    private void controlWatchdogPackageKillableState(String[] args, IndentingPrintWriter writer) {
+        if (args.length != 3) {
+            showInvalidArguments(writer);
+            return;
+        }
+        if (!args[1].equals("true") && !args[1].equals("false")) {
+            writer.println("Failed to parse killable state argument. "
+                    + "Valid arguments: killable | not-killable");
+            return;
+        }
+        int currentUserId = ActivityManager.getCurrentUser();
+        mCarWatchdogService.setKillablePackageAsUser(
+                args[2], UserHandle.of(currentUserId), args[1].equals("true"));
+        writer.printf("Set package killable state as '%s' for user '%d' and package '%s'\n",
+                args[1].equals("true") ? "killable" : "not killable", currentUserId, args[2]);
     }
 
     // Set third-party foreground I/O threshold for car watchdog
