@@ -28,7 +28,7 @@ java_sdk_library {
     aidl: {
         include_dirs: [
             "packages/services/Car/car-lib/src",
-            "system/bt/binder",
+            "packages/modules/Bluetooth/system/binder",
         ],
     },
 
