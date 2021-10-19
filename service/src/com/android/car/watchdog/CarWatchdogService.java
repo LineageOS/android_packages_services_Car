@@ -158,8 +158,16 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
                 @Override
                 public void onPolicyChanged(CarPowerPolicy appliedPolicy,
                         CarPowerPolicy accumulatedPolicy) {
-                    mWatchdogPerfHandler.onDisplayStateChanged(
-                            appliedPolicy.isComponentEnabled(PowerComponent.DISPLAY));
+                    boolean isDisplayEnabled =
+                            appliedPolicy.isComponentEnabled(PowerComponent.DISPLAY);
+                    boolean didStateChange = false;
+                    synchronized (mLock) {
+                        didStateChange = mIsDisplayEnabled != isDisplayEnabled;
+                        mIsDisplayEnabled = isDisplayEnabled;
+                    }
+                    if (didStateChange) {
+                        mWatchdogPerfHandler.onDisplayStateChanged(isDisplayEnabled);
+                    }
                 }
             };
 
@@ -168,6 +176,8 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
     private boolean mReadyToRespond;
     @GuardedBy("mLock")
     private boolean mIsConnected;
+    @GuardedBy("mLock")
+    private boolean mIsDisplayEnabled;
 
     public CarWatchdogService(Context context) {
         this(context, new WatchdogStorage(context));
@@ -191,6 +201,7 @@ public final class CarWatchdogService extends ICarWatchdogService.Stub implement
             }
             registerToDaemon();
         };
+        mIsDisplayEnabled = true;
     }
 
     @Override
