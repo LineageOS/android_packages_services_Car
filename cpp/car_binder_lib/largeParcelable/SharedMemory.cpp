@@ -41,7 +41,13 @@ using ::android::base::borrowed_fd;
 using ::android::base::unique_fd;
 
 SharedMemory::SharedMemory(unique_fd fd) : mBorrowedFd(-1), mOwned(true) {
-    int size = ashmem_get_size_region(fd.get());
+    int intFd = fd.get();
+    if (!ashmem_valid(intFd)) {
+        ALOGE("%s", "the FD is not valid");
+        mErrno = errno;
+        return;
+    }
+    int size = ashmem_get_size_region(intFd);
     if (size < 0) {
         ALOGE("ashmem_get_size_region failed, error: %s", std::strerror(errno));
         mErrno = errno;
@@ -52,7 +58,12 @@ SharedMemory::SharedMemory(unique_fd fd) : mBorrowedFd(-1), mOwned(true) {
 }
 
 SharedMemory::SharedMemory(borrowed_fd fd) : mBorrowedFd(-1), mOwned(false) {
-    int size = ashmem_get_size_region(fd.get());
+    int intFd = fd.get();
+    if (!ashmem_valid(intFd)) {
+        ALOGE("%s", "the FD is not valid");
+        return;
+    }
+    int size = ashmem_get_size_region(intFd);
     if (size < 0) {
         ALOGE("ashmem_get_size_region failed, error: %s", std::strerror(errno));
         mErrno = errno;

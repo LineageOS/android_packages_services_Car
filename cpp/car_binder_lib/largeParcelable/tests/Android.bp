@@ -32,8 +32,7 @@ aidl_interface {
 }
 
 cc_test {
-    name: "android-automotive-large-parcelable-test",
-    vendor: true,
+    name: "android-automotive-large-parcelable-vendor-test",
     defaults: [
         "android-automotive-large-parcelable-defaults",
     ],
@@ -44,6 +43,20 @@ cc_test {
     whole_static_libs: [
         "android-automotive-test-stable-parcelable-aidl-ndk",
         "android-automotive-large-parcelable-lib",
+    ],
+    test_suites: ["device-tests"],
+}
+
+cc_test {
+    name: "android-automotive-large-parcelable-test",
+    vendor: true,
+    defaults: [
+        "android-automotive-large-parcelable-defaults",
+    ],
+    srcs: ["*.cpp"],
+    whole_static_libs: [
+        "android-automotive-test-stable-parcelable-aidl-ndk",
+        "android-automotive-large-parcelable-vendor-lib",
     ],
     test_suites: ["device-tests"],
 }

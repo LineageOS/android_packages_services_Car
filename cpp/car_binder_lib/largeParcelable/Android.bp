@@ -33,17 +33,29 @@ cc_defaults {
 }
 
 cc_library {
-    name: "android-automotive-large-parcelable-lib",
+    name: "android-automotive-large-parcelable-vendor-lib",
     defaults: [
         "android-automotive-large-parcelable-defaults",
     ],
     vendor: true,
     srcs: [
-        "LargeParcelable.cpp",
-        "LargeParcelableBase.cpp",
-        "LargeParcelableVector.cpp",
-        "MappedFile.cpp",
-        "SharedMemory.cpp",
+        "*.cpp",
+    ],
+    local_include_dirs: [
+        "include",
+    ],
+    export_include_dirs: [
+        "include",
+    ],
+}
+
+cc_library {
+    name: "android-automotive-large-parcelable-lib",
+    defaults: [
+        "android-automotive-large-parcelable-defaults",
+    ],
+    srcs: [
+        "*.cpp",
     ],
     local_include_dirs: [
         "include",
