@@ -33,6 +33,7 @@ import android.database.sqlite.SQLiteOpenHelper;
 import android.os.Process;
 import android.util.ArrayMap;
 import android.util.ArraySet;
+import android.util.SparseArray;
 
 import com.android.car.CarLog;
 import com.android.car.internal.util.IntArray;
@@ -254,6 +255,71 @@ public final class WatchdogStorage {
                 .sort(Comparator.comparingLong(UserPackageDailySummaries::getTotalWrittenBytes)
                         .reversed());
         return userPackageDailySummaries;
+    }
+
+    /**
+     * Returns the aggregated historical overuses minus the forgiven overuses for all saved
+     * packages. Forgiven overuses are overuses that have been attributed previously to a package's
+     * recurring overuse.
+     */
+    public List<NotForgivenOverusesEntry> getNotForgivenHistoricalIoOveruses(int numDaysAgo) {
+        ZonedDateTime currentDate =
+                mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+        long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
+        long excludingEndEpochSeconds = currentDate.toEpochSecond();
+        ArrayMap<String, Integer> notForgivenOverusesById;
+        try (SQLiteDatabase db = mDbHelper.getReadableDatabase()) {
+            notForgivenOverusesById = IoUsageStatsTable.queryNotForgivenHistoricalOveruses(db,
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
+        }
+        List<NotForgivenOverusesEntry> notForgivenOverusesEntries = new ArrayList<>();
+        for (int i = 0; i < notForgivenOverusesById.size(); i++) {
+            String id = notForgivenOverusesById.keyAt(i);
+            UserPackage userPackage = mUserPackagesById.get(id);
+            if (userPackage == null) {
+                Slogf.w(TAG,
+                        "Failed to find user id and package name for unique database id: '%s'",
+                        id);
+                continue;
+            }
+            notForgivenOverusesEntries.add(new NotForgivenOverusesEntry(userPackage.getUserId(),
+                    userPackage.getPackageName(), notForgivenOverusesById.valueAt(i)));
+        }
+        return notForgivenOverusesEntries;
+    }
+
+    /**
+     * Forgives all historical overuses between yesterday and {@code numDaysAgo}
+     * for a list of specific {@code userIds} and {@code packageNames}.
+     */
+    public void forgiveHistoricalOveruses(SparseArray<List<String>> packagesByUserId,
+            int numDaysAgo) {
+        if (packagesByUserId.size() == 0) {
+            Slogf.w(TAG, "No I/O usage stats provided to forgive historical overuses.");
+            return;
+        }
+        ZonedDateTime currentDate =
+                mTimeSource.now().atZone(ZONE_OFFSET).truncatedTo(STATS_TEMPORAL_UNIT);
+        long includingStartEpochSeconds = currentDate.minusDays(numDaysAgo).toEpochSecond();
+        long excludingEndEpochSeconds = currentDate.toEpochSecond();
+        List<String> uniqueIds = new ArrayList<>();
+        for (int i = 0; i < packagesByUserId.size(); i++) {
+            int userId = packagesByUserId.keyAt(i);
+            List<String> packages = packagesByUserId.valueAt(i);
+            for (int pkgIdx = 0; pkgIdx < packages.size(); pkgIdx++) {
+                UserPackage userPackage =
+                        mUserPackagesByKey.get(UserPackage.getKey(userId, packages.get(pkgIdx)));
+                if (userPackage == null) {
+                    // Packages without historical stats don't have userPackage entry.
+                    continue;
+                }
+                uniqueIds.add(userPackage.getUniqueId());
+            }
+        }
+        try (SQLiteDatabase db = mDbHelper.getWritableDatabase()) {
+            IoUsageStatsTable.forgiveHistoricalOverusesForPackage(db, uniqueIds,
+                    includingStartEpochSeconds, excludingEndEpochSeconds);
+        }
     }
 
     /**
@@ -567,6 +633,46 @@ public final class WatchdogStorage {
         }
     }
 
+    /** Defines the not forgiven overuses stored in the IoUsageStatsTable. */
+    static final class NotForgivenOverusesEntry {
+        public final @UserIdInt int userId;
+        public final String packageName;
+        public final int notForgivenOveruses;
+
+        NotForgivenOverusesEntry(@UserIdInt int userId,
+                String packageName, int notForgivenOveruses) {
+            this.userId = userId;
+            this.packageName = packageName;
+            this.notForgivenOveruses = notForgivenOveruses;
+        }
+
+        @Override
+        public boolean equals(Object obj) {
+            if (this == obj) {
+                return true;
+            }
+            if (!(obj instanceof NotForgivenOverusesEntry)) {
+                return false;
+            }
+            NotForgivenOverusesEntry other = (NotForgivenOverusesEntry) obj;
+            return userId == other.userId
+                    && packageName.equals(other.packageName)
+                    && notForgivenOveruses == other.notForgivenOveruses;
+        }
+
+        @Override
+        public int hashCode() {
+            return Objects.hash(userId, packageName, notForgivenOveruses);
+        }
+
+        @Override
+        public String toString() {
+            return "NotForgivenOverusesEntry {UserId: " + userId
+                    + ", Package name: " + packageName
+                    + ", Not forgiven overuses: " + notForgivenOveruses + "}";
+        }
+    }
+
     /**
      * Defines the contents and queries for the I/O usage stats table.
      */
@@ -629,8 +735,7 @@ public final class WatchdogStorage {
             values.put(COLUMN_USER_PACKAGE_ID, userPackageId);
             values.put(COLUMN_DATE_EPOCH, statsDateEpochSeconds);
             values.put(COLUMN_NUM_OVERUSES, ioOveruseStats.totalOveruses);
-            /* TODO(b/195425666): Put total forgiven overuses for the day. */
-            values.put(COLUMN_NUM_FORGIVEN_OVERUSES, 0);
+            values.put(COLUMN_NUM_FORGIVEN_OVERUSES, entry.ioUsage.getForgivenOveruses());
             values.put(COLUMN_NUM_TIMES_KILLED, entry.ioUsage.getTotalTimesKilled());
             values.put(
                     COLUMN_WRITTEN_FOREGROUND_BYTES, ioOveruseStats.writtenBytes.foregroundBytes);
@@ -659,6 +764,7 @@ public final class WatchdogStorage {
                     .append(COLUMN_USER_PACKAGE_ID).append(", ")
                     .append("MIN(").append(COLUMN_DATE_EPOCH).append("), ")
                     .append("SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
+                    .append("SUM(").append(COLUMN_NUM_FORGIVEN_OVERUSES).append("), ")
                     .append("SUM(").append(COLUMN_NUM_TIMES_KILLED).append("), ")
                     .append("SUM(").append(COLUMN_WRITTEN_FOREGROUND_BYTES).append("), ")
                     .append("SUM(").append(COLUMN_WRITTEN_BACKGROUND_BYTES).append("), ")
@@ -686,20 +792,22 @@ public final class WatchdogStorage {
                             excludingEndEpochSeconds - includingStartEpochSeconds;
                     ioOveruseStats.totalOveruses = cursor.getInt(2);
                     ioOveruseStats.writtenBytes = new PerStateBytes();
-                    ioOveruseStats.writtenBytes.foregroundBytes = cursor.getLong(4);
-                    ioOveruseStats.writtenBytes.backgroundBytes = cursor.getLong(5);
-                    ioOveruseStats.writtenBytes.garageModeBytes = cursor.getLong(6);
+                    ioOveruseStats.writtenBytes.foregroundBytes = cursor.getLong(5);
+                    ioOveruseStats.writtenBytes.backgroundBytes = cursor.getLong(6);
+                    ioOveruseStats.writtenBytes.garageModeBytes = cursor.getLong(7);
                     ioOveruseStats.remainingWriteBytes = new PerStateBytes();
-                    ioOveruseStats.remainingWriteBytes.foregroundBytes = cursor.getLong(7);
-                    ioOveruseStats.remainingWriteBytes.backgroundBytes = cursor.getLong(8);
-                    ioOveruseStats.remainingWriteBytes.garageModeBytes = cursor.getLong(9);
+                    ioOveruseStats.remainingWriteBytes.foregroundBytes = cursor.getLong(8);
+                    ioOveruseStats.remainingWriteBytes.backgroundBytes = cursor.getLong(9);
+                    ioOveruseStats.remainingWriteBytes.garageModeBytes = cursor.getLong(10);
                     PerStateBytes forgivenWriteBytes = new PerStateBytes();
-                    forgivenWriteBytes.foregroundBytes = cursor.getLong(10);
-                    forgivenWriteBytes.backgroundBytes = cursor.getLong(11);
-                    forgivenWriteBytes.garageModeBytes = cursor.getLong(12);
+                    forgivenWriteBytes.foregroundBytes = cursor.getLong(11);
+                    forgivenWriteBytes.backgroundBytes = cursor.getLong(12);
+                    forgivenWriteBytes.garageModeBytes = cursor.getLong(13);
 
                     ioUsageById.put(cursor.getString(0), new WatchdogPerfHandler.PackageIoUsage(
-                            ioOveruseStats, forgivenWriteBytes, cursor.getInt(3)));
+                            ioOveruseStats, forgivenWriteBytes,
+                            /* forgivenOveruses= */ cursor.getInt(3),
+                            /* totalTimesKilled= */ cursor.getInt(4)));
                 }
             }
             return ioUsageById;
@@ -746,6 +854,63 @@ public final class WatchdogStorage {
             statsBuilder.setTotalTimesKilled(totalTimesKilled);
             statsBuilder.setTotalBytesWritten(totalBytesWritten);
             return statsBuilder.build();
+        }
+
+        public static ArrayMap<String, Integer> queryNotForgivenHistoricalOveruses(
+                SQLiteDatabase db, long includingStartEpochSeconds, long excludingEndEpochSeconds) {
+            StringBuilder queryBuilder = new StringBuilder("SELECT ")
+                    .append(COLUMN_USER_PACKAGE_ID).append(", ")
+                    .append("SUM(").append(COLUMN_NUM_OVERUSES).append("), ")
+                    .append("SUM(").append(COLUMN_NUM_FORGIVEN_OVERUSES).append(") ")
+                    .append("FROM ").append(TABLE_NAME).append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(" >= ? and ")
+                    .append(COLUMN_DATE_EPOCH).append("< ? GROUP BY ")
+                    .append(COLUMN_USER_PACKAGE_ID);
+            String[] selectionArgs = new String[]{String.valueOf(includingStartEpochSeconds),
+                    String.valueOf(excludingEndEpochSeconds)};
+            ArrayMap<String, Integer> notForgivenOverusesById = new ArrayMap<>();
+            try (Cursor cursor = db.rawQuery(queryBuilder.toString(), selectionArgs)) {
+                while (cursor.moveToNext()) {
+                    if (cursor.getInt(1) <= cursor.getInt(2)) {
+                        continue;
+                    }
+                    notForgivenOverusesById.put(cursor.getString(0),
+                            cursor.getInt(1) - cursor.getInt(2));
+                }
+            }
+            return notForgivenOverusesById;
+        }
+
+        public static void forgiveHistoricalOverusesForPackage(SQLiteDatabase db,
+                List<String> uniqueIds, long includingStartEpochSeconds,
+                long excludingEndEpochSeconds) {
+            if (uniqueIds.isEmpty()) {
+                Slogf.e(TAG, "No unique ids provided to forgive historical overuses.");
+                return;
+            }
+            StringBuilder updateQueryBuilder = new StringBuilder("UPDATE ").append(TABLE_NAME)
+                    .append(" SET ")
+                    .append(COLUMN_NUM_FORGIVEN_OVERUSES).append("=").append(COLUMN_NUM_OVERUSES)
+                    .append(" WHERE ")
+                    .append(COLUMN_DATE_EPOCH).append(">= ").append(includingStartEpochSeconds)
+                    .append(" and ")
+                    .append(COLUMN_DATE_EPOCH).append("< ").append(excludingEndEpochSeconds);
+            for (int i = 0; i < uniqueIds.size(); i++) {
+                if (i == 0) {
+                    updateQueryBuilder.append(" and ").append(COLUMN_USER_PACKAGE_ID)
+                            .append(" IN (");
+                } else {
+                    updateQueryBuilder.append(", ");
+                }
+                updateQueryBuilder.append(uniqueIds.get(i));
+                if (i == uniqueIds.size() - 1) {
+                    updateQueryBuilder.append(")");
+                }
+            }
+
+            db.execSQL(updateQueryBuilder.toString());
+            Slogf.i(TAG, "Attempted to forgive overuses for I/O usage stats entries on pid %d",
+                    Process.myPid());
         }
 
         public static @Nullable List<AtomsProto.CarWatchdogDailyIoUsageSummary>
