@@ -16,6 +16,8 @@
 
 package com.android.car.telemetry.publisher.statsconverters;
 
+import static com.android.car.telemetry.databroker.ScriptExecutionTask.APPROX_BUNDLE_SIZE_BYTES_KEY;
+
 import android.os.PersistableBundle;
 
 import com.android.car.telemetry.AtomsProto;
@@ -56,6 +58,9 @@ public class EventMetricDataConverter {
         }
         PersistableBundle bundle = AtomListConverter.convert(atoms, null, null, null);
         bundle.putLongArray(ELAPSED_TIME_NANOS, elapsedTimes);
+        int bundleSize = bundle.getInt(APPROX_BUNDLE_SIZE_BYTES_KEY)
+                + elapsedTimes.length * Long.BYTES;
+        bundle.putInt(APPROX_BUNDLE_SIZE_BYTES_KEY, bundleSize);
         return bundle;
     }
 }
