@@ -16,6 +16,8 @@
 
 #include "BundleWrapper.h"
 
+#include "JniUtils.h"
+#include "nativehelper/scoped_local_ref.h"
 
 namespace com {
 namespace android {
@@ -25,31 +27,17 @@ namespace scriptexecutor {
 using ::android::base::Error;
 using ::android::base::Result;
 
-namespace {
-
-Result<jstring> TryCreateUTFString(JNIEnv* env, const char* string) {
-    jstring utfString = env->NewStringUTF(string);
-    if (env->ExceptionCheck()) {
-        // NewStringUTF throws an exception if we run out of memory while creating a UTF string.
-        return Error()
-                << "NewStringUTF ran out of memory while converting a string provided by Lua.";
-    }
-    if (utfString == nullptr) {
-        return Error()
-                << "Failed to convert a Lua string into a modified UTF-8 string. Please verify "
-                   "that the string returned by Lua is in proper Modified UTF-8 format.";
-    }
-    return utfString;
-}
-
-}  // namespace
-
 BundleWrapper::BundleWrapper(JNIEnv* env) {
     mJNIEnv = env;
-    mBundleClass = static_cast<jclass>(
-            mJNIEnv->NewGlobalRef(mJNIEnv->FindClass("android/os/PersistableBundle")));
+    ScopedLocalRef<jclass> localBundleClassRef(mJNIEnv,
+                                               mJNIEnv->FindClass("android/os/PersistableBundle"));
+    mBundleClass = static_cast<jclass>(mJNIEnv->NewGlobalRef(localBundleClassRef.get()));
+
     jmethodID bundleConstructor = mJNIEnv->GetMethodID(mBundleClass, "<init>", "()V");
-    mBundle = mJNIEnv->NewGlobalRef(mJNIEnv->NewObject(mBundleClass, bundleConstructor));
+    ScopedLocalRef<jobject> localBundleObjectRef(mJNIEnv,
+                                                 mJNIEnv->NewObject(mBundleClass,
+                                                                    bundleConstructor));
+    mBundle = mJNIEnv->NewGlobalRef(localBundleObjectRef.get());
 }
 
 BundleWrapper::~BundleWrapper() {
@@ -63,44 +51,40 @@ BundleWrapper::~BundleWrapper() {
 }
 
 Result<void> BundleWrapper::putBoolean(const char* key, bool value) {
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
     // TODO(b/188832769): consider caching the references.
     jmethodID putBooleanMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putBoolean", "(Ljava/lang/String;Z)V");
-    mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, keyStringResult.value(),
+    mJNIEnv->CallVoidMethod(mBundle, putBooleanMethod, keyStringRef.get(),
                             static_cast<jboolean>(value));
     return {};  // ok result
 }
 
 Result<void> BundleWrapper::putLong(const char* key, int64_t value) {
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
     jmethodID putLongMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putLong", "(Ljava/lang/String;J)V");
-    mJNIEnv->CallVoidMethod(mBundle, putLongMethod, keyStringResult.value(),
-                            static_cast<jlong>(value));
+    mJNIEnv->CallVoidMethod(mBundle, putLongMethod, keyStringRef.get(), static_cast<jlong>(value));
     return {};  // ok result
 }
 
 Result<void> BundleWrapper::putDouble(const char* key, double value) {
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
     jmethodID putDoubleMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putDouble", "(Ljava/lang/String;D)V");
-    mJNIEnv->CallVoidMethod(mBundle, putDoubleMethod, keyStringResult.value(),
+    mJNIEnv->CallVoidMethod(mBundle, putDoubleMethod, keyStringRef.get(),
                             static_cast<jdouble>(value));
     return {};  // ok result
 }
@@ -108,64 +92,59 @@ Result<void> BundleWrapper::putDouble(const char* key, double value) {
 Result<void> BundleWrapper::putString(const char* key, const char* value) {
     jmethodID putStringMethod = mJNIEnv->GetMethodID(mBundleClass, "putString",
                                                      "(Ljava/lang/String;Ljava/lang/String;)V");
-    // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
-    // to create a string).
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
-    }
-    auto valueStringResult = TryCreateUTFString(mJNIEnv, value);
-    if (!valueStringResult.ok()) {
-        return Error() << "Failed to create a string for value=" << value << ". "
-                       << valueStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
-    mJNIEnv->CallVoidMethod(mBundle, putStringMethod, keyStringResult.value(),
-                            valueStringResult.value());
+    ScopedLocalRef<jstring> valueStringRef(mJNIEnv, mJNIEnv->NewStringUTF(value));
+    if (valueStringRef == nullptr) {
+        return Error() << "Failed to create a string for the provided value due to OOM error";
+    }
+
+    mJNIEnv->CallVoidMethod(mBundle, putStringMethod, keyStringRef.get(), valueStringRef.get());
     return {};  // ok result
 }
 
 Result<void> BundleWrapper::putLongArray(const char* key, const std::vector<int64_t>& value) {
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
     jmethodID putLongArrayMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putLongArray", "(Ljava/lang/String;[J)V");
 
-    jlongArray array = mJNIEnv->NewLongArray(value.size());
-    mJNIEnv->SetLongArrayRegion(array, 0, value.size(), &value[0]);
-    mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, keyStringResult.value(), array);
+    ScopedLocalRef<jlongArray> arrayRef(mJNIEnv, mJNIEnv->NewLongArray(value.size()));
+    mJNIEnv->SetLongArrayRegion(arrayRef.get(), 0, value.size(), &value[0]);
+    mJNIEnv->CallVoidMethod(mBundle, putLongArrayMethod, keyStringRef.get(), arrayRef.get());
     return {};  // ok result
 }
 
 Result<void> BundleWrapper::putStringArray(const char* key, const std::vector<std::string>& value) {
-    auto keyStringResult = TryCreateUTFString(mJNIEnv, key);
-    if (!keyStringResult.ok()) {
-        return Error() << "Failed to create a string for key=" << key << ". "
-                       << keyStringResult.error();
+    ScopedLocalRef<jstring> keyStringRef(mJNIEnv, mJNIEnv->NewStringUTF(key));
+    if (keyStringRef == nullptr) {
+        return Error() << "Failed to create a string for a key=" << key << " due to OOM error";
     }
 
     jmethodID putStringArrayMethod =
             mJNIEnv->GetMethodID(mBundleClass, "putStringArray",
                                  "(Ljava/lang/String;[Ljava/lang/String;)V");
 
-    jobjectArray array =
-            mJNIEnv->NewObjectArray(value.size(), mJNIEnv->FindClass("java/lang/String"), nullptr);
-    // TODO(b/201008922): Handle a case when NewStringUTF returns nullptr (fails
-    // to create a string).
+    ScopedLocalRef<jclass> stringClassRef(mJNIEnv, mJNIEnv->FindClass("java/lang/String"));
+    ScopedLocalRef<jobjectArray> arrayRef(mJNIEnv,
+                                          mJNIEnv->NewObjectArray(value.size(),
+                                                                  mJNIEnv->FindClass(
+                                                                          "java/lang/String"),
+                                                                  nullptr));
     for (int i = 0; i < value.size(); i++) {
-        auto valueStringResult = TryCreateUTFString(mJNIEnv, value[i].c_str());
-        if (!valueStringResult.ok()) {
-            return Error() << "Failed to create a string for value=" << value[i].c_str() << ". "
-                           << valueStringResult.error();
+        ScopedLocalRef<jstring> valueStringRef(mJNIEnv, mJNIEnv->NewStringUTF(value[i].c_str()));
+        if (valueStringRef == nullptr) {
+            return Error() << "Failed to create a string for provided value due to OOM error";
         }
-        mJNIEnv->SetObjectArrayElement(array, i, valueStringResult.value());
+        mJNIEnv->SetObjectArrayElement(arrayRef.get(), i, valueStringRef.get());
     }
-    mJNIEnv->CallVoidMethod(mBundle, putStringArrayMethod, keyStringResult.value(), array);
+    mJNIEnv->CallVoidMethod(mBundle, putStringArrayMethod, keyStringRef.get(), arrayRef.get());
     return {};  // ok result
 }
 

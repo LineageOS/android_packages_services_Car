@@ -16,8 +16,13 @@
 #ifndef PACKAGES_SCRIPTEXECUTOR_SRC_JNIUTILS_H_
 #define PACKAGES_SCRIPTEXECUTOR_SRC_JNIUTILS_H_
 
-#include "LuaEngine.h"
 #include "jni.h"
+
+extern "C" {
+#include "lua.h"
+}
+
+#include <android-base/result.h>
 
 namespace com {
 namespace android {
@@ -29,7 +34,7 @@ namespace scriptexecutor {
 // converted to the corresponding key-value pairs of the Lua table as long as
 // the Bundle value types are supported. At this point, we support boolean,
 // integer, double and String types in Java.
-void pushBundleToLuaTable(JNIEnv* env, LuaEngine* luaEngine, jobject bundle);
+void pushBundleToLuaTable(JNIEnv* env, lua_State* lua, jobject bundle);
 
 }  // namespace scriptexecutor
 }  // namespace car

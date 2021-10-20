@@ -16,6 +16,9 @@
 
 #include "ScriptExecutorListener.h"
 
+#include "JniUtils.h"
+#include "nativehelper/scoped_local_ref.h"
+
 #include <android-base/logging.h>
 
 namespace com {
@@ -37,16 +40,16 @@ ScriptExecutorListener::ScriptExecutorListener(JNIEnv* env, jobject scriptExecut
 
 void ScriptExecutorListener::onSuccess(jobject bundle) {
     JNIEnv* env = getCurrentJNIEnv();
-    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
-    jmethodID onSuccessMethod =
-            env->GetMethodID(listenerClass, "onSuccess", "(Landroid/os/PersistableBundle;)V");
+    ScopedLocalRef<jclass> listenerClassRef(env, env->GetObjectClass(mScriptExecutorListener));
+    jmethodID onSuccessMethod = env->GetMethodID(listenerClassRef.get(), "onSuccess",
+                                                 "(Landroid/os/PersistableBundle;)V");
     env->CallVoidMethod(mScriptExecutorListener, onSuccessMethod, bundle);
 }
 
 void ScriptExecutorListener::onScriptFinished(jobject bundle) {
     JNIEnv* env = getCurrentJNIEnv();
-    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
-    jmethodID onScriptFinished = env->GetMethodID(listenerClass, "onScriptFinished",
+    ScopedLocalRef<jclass> listenerClassRef(env, env->GetObjectClass(mScriptExecutorListener));
+    jmethodID onScriptFinished = env->GetMethodID(listenerClassRef.get(), "onScriptFinished",
                                                   "(Landroid/os/PersistableBundle;)V");
     env->CallVoidMethod(mScriptExecutorListener, onScriptFinished, bundle);
 }
@@ -54,12 +57,24 @@ void ScriptExecutorListener::onScriptFinished(jobject bundle) {
 void ScriptExecutorListener::onError(const ErrorType errorType, const char* message,
                                      const char* stackTrace) {
     JNIEnv* env = getCurrentJNIEnv();
-    jclass listenerClass = env->GetObjectClass(mScriptExecutorListener);
-    jmethodID onErrorMethod =
-            env->GetMethodID(listenerClass, "onError", "(ILjava/lang/String;Ljava/lang/String;)V");
+    ScopedLocalRef<jclass> listenerClassRef(env, env->GetObjectClass(mScriptExecutorListener));
+    jmethodID onErrorMethod = env->GetMethodID(listenerClassRef.get(), "onError",
+                                               "(ILjava/lang/String;Ljava/lang/String;)V");
+
+    ScopedLocalRef<jstring> messageStringRef(env, env->NewStringUTF(message));
+    if (messageStringRef == nullptr) {
+        LOG(ERROR) << "Failed to create a Java string for provided error message due to OOM error";
+        return;
+    }
+
+    ScopedLocalRef<jstring> stackTraceRef(env, env->NewStringUTF(stackTrace));
+    if (stackTraceRef == nullptr) {
+        LOG(ERROR) << "Failed to create a Java string for stack trace due to OOM error";
+        return;
+    }
 
     env->CallVoidMethod(mScriptExecutorListener, onErrorMethod, static_cast<int>(errorType),
-                        env->NewStringUTF(message), env->NewStringUTF(stackTrace));
+                        messageStringRef.get(), stackTraceRef.get());
 }
 
 JNIEnv* ScriptExecutorListener::getCurrentJNIEnv() {
