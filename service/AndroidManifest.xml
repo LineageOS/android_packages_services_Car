@@ -465,13 +465,21 @@
          android:label="@string/car_permission_car_display_in_cluster"
          android:description="@string/car_permission_desc_car_display_in_cluster"/>
 
-    <!-- Allows an application to lunch applications in the instrument cluster.
+    <!-- Allows an application to launch applications in the instrument cluster.
          <p>Protection level: signature|privileged
     -->
     <permission android:name="android.car.permission.CAR_INSTRUMENT_CLUSTER_CONTROL"
          android:protectionLevel="signature|privileged"
          android:label="@string/car_permission_car_cluster_control"
          android:description="@string/car_permission_desc_car_cluster_control"/>
+
+    <!-- Allows an application to listen for navigation state changes in instrument cluster.
+     <p>Protection level: signature|privileged
+    -->
+    <permission android:name="android.car.permission.CAR_MONITOR_CLUSTER_NAVIGATION_STATE"
+        android:protectionLevel="signature|privileged"
+        android:label="@string/car_permission_car_cluster_control"
+        android:description="@string/car_permission_desc_car_cluster_control"/>
 
     <!-- Allows an application to communicate with a device in AOAP mode.
          <p>Protection level: signature|privileged

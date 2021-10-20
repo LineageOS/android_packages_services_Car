@@ -19,12 +19,9 @@ package android.car.cluster;
 import android.car.cluster.ClusterState;
 
 /** @hide */
-oneway interface IClusterHomeCallback {
-    /**
-     * Called when ClusterOS changes the cluster display state, the geometry of cluster display,
-     * or the uiType.
-     */
-    void onClusterStateChanged(in ClusterState state, int changes) = 1;
+oneway interface IClusterNavigationStateListener {
+    // 1 removed. Do not use - void onClusterStateChanged(in ClusterState state, int changes) = 1;
+
     /** Called when the App who owns the navigation focus casts the new navigation state. */
     void onNavigationStateChanged(in byte[] navigationState) = 2;
 }
