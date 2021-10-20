@@ -15,6 +15,10 @@
  */
 package android.car.cluster.renderer;
 
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.BOILERPLATE_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DEPRECATED_CODE;
+import static com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport.DUMP_INFO;
+
 import android.annotation.CallSuper;
 import android.annotation.MainThread;
 import android.annotation.NonNull;
@@ -48,6 +52,7 @@ import android.util.Log;
 import android.util.LruCache;
 import android.view.KeyEvent;
 
+import com.android.car.internal.ExcludeFromCodeCoverageGeneratedReport;
 import com.android.internal.annotations.GuardedBy;
 
 import java.io.FileDescriptor;
@@ -142,6 +147,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
         }
 
         @Override
+        @ExcludeFromCodeCoverageGeneratedReport(reason = BOILERPLATE_CODE)
         public String toString() {
             return "{uid: " + mUid + ", pid: " + mPid + ", packagenames: " + mPackageNames
                     + ", authorities: " + mAuthorities + "}";
@@ -438,6 +444,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @deprecated Use {@link #setClusterActivityLaunchOptions(ActivityOptions)} instead.
      */
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public void setClusterActivityLaunchOptions(String category, ActivityOptions activityOptions) {
         setClusterActivityLaunchOptions(activityOptions);
     }
@@ -460,6 +467,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      * @deprecated Use {@link #setClusterActivityState(ClusterActivityState)} instead.
      */
     @Deprecated
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public void setClusterActivityState(String category, Bundle state) {
         setClusterActivityState(ClusterActivityState.fromBundle(state));
     }
@@ -478,6 +486,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
 
     @CallSuper
     @Override
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DUMP_INFO)
     protected void dump(FileDescriptor fd, PrintWriter writer, String[] args) {
         synchronized (mLock) {
             writer.println("**" + getClass().getSimpleName() + "**");
@@ -591,6 +600,7 @@ public abstract class InstrumentClusterRenderingService extends Service {
      */
     @Deprecated
     @Nullable
+    @ExcludeFromCodeCoverageGeneratedReport(reason = DEPRECATED_CODE)
     public Bitmap getBitmap(Uri uri) {
         try {
             if (uri.getQueryParameter(BITMAP_QUERY_WIDTH).isEmpty() || uri.getQueryParameter(
