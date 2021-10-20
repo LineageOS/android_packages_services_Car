@@ -83,6 +83,10 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
 
     LuaEngine* engine = reinterpret_cast<LuaEngine*>(static_cast<intptr_t>(luaEnginePtr));
     LuaEngine::resetListener(new ScriptExecutorListener(env, listener));
+    // Objects passed to native methods are local JNI references.
+    // ScriptExecutorListener constructor above converts local "listener" reference to global
+    // reference. Delete local "listener" reference here because it is no longer needed.
+    env->DeleteLocalRef(listener);
 
     // Load and parse the script
     const char* scriptStr = env->GetStringUTFChars(scriptBody, nullptr);
@@ -103,11 +107,11 @@ JNIEXPORT void JNICALL Java_com_android_car_scriptexecutor_ScriptExecutor_native
     }
 
     // Unpack bundle in publishedData, convert to Lua table and push it to Lua stack.
-    pushBundleToLuaTable(env, engine, publishedData);
+    pushBundleToLuaTable(env, engine->getLuaState(), publishedData);
 
     // Unpack bundle in savedState, convert to Lua table and push it to Lua
     // stack.
-    pushBundleToLuaTable(env, engine, savedState);
+    pushBundleToLuaTable(env, engine->getLuaState(), savedState);
 
     // Execute the function. This will block until complete or error.
     engine->run();
